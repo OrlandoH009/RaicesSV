@@ -6,13 +6,13 @@
 |---|---|
 | `index.html` | Página de inicio (home) |
 | `sitios-culturales.html` | Página de Sitios Culturales |
-| `gastronomia.html` | Página de Gastronomía (por crear) |
-| `eventos.html` | Página de Eventos Culturales (por crear) |
-| `historia.html` | Página de Historia (por crear) |
-| `mapa.html` | Página del Mapa interactivo (por crear) |
+| `gastronomia.html` | Página de Gastronomía  |
+| `eventos.html` | Página de Eventos Culturales  |
+| `historia.html` | Página de Historia  |
+| `mapa.html` | Página del Mapa interactivo  |
 | `styles.css` | **Todos los estilos globales** (variables, navbar, hero, cards, footer, responsive) |
 | `script.js` | JavaScript: navbar scroll, menú móvil, scroll reveal, animaciones |
-| `navbar.html` | Fragmento HTML del navbar (referencia para copiar) |
+| `navbar.html` | Fragmento HTML del navbar  |
 
 ---
 
