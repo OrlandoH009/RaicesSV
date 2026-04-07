@@ -60,7 +60,7 @@ const PREGUNTAS = [
   {
     cat: 'gastronomia',
     pregunta: '¿Cuál es el plato nacional de El Salvador?',
-    opciones: ['Los tamales', 'Las pupusas', 'La sopa de pata', 'El chumpe navideño'],
+    opciones: ['Las Baleadas', 'Las pupusas', 'La sopa de pata', 'El chumpe navideño'],
     correcta: 1,
     explicacion: 'Las pupusas son el plato nacional de El Salvador, declaradas Patrimonio Cultural Intangible por la UNESCO.'
   },
