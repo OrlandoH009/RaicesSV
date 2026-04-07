@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Gastronomía</title>
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/info-shared.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="index.html"><img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="leyendas.html" class="drawer-link">👻 Leyendas</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-badge">
+      <div class="page-badge__inner reveal"><h1>Gastronomía</h1></div>
+    </section>
+
+    <div class="info-tabs reveal">
+      <p class="info-tabs__label">¿Qué platillo quieres conocer?</p>
+      <div class="info-tabs__list">
+        <button class="tab-btn active" data-tab="pupusas">Pupusas</button>
+        <button class="tab-btn" data-tab="tamales">Tamales</button>
+        <button class="tab-btn" data-tab="sopa">Sopa de Pata</button>
+        <button class="tab-btn" data-tab="yuca">Yuca Frita</button>
+        <button class="tab-btn" data-tab="atol">Atol de Elote</button>
+        <button class="tab-btn" data-tab="semita">Semita</button>
+      </div>
+    </div>
+
+    <div class="info-panel active" id="tab-pupusas">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/03b193be-d3c8-434a-8cbc-729230015e35" alt="Pupusas" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Pupusas</h2>
+          <p class="info-content__hero-sub">El plato nacional de El Salvador</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🌽 Masa de maíz o arroz</span>
+            <span class="info-chip">🧀 Relleno variado</span>
+            <span class="info-chip">🥗 Con curtido y salsa</span>
+            <span class="info-chip">🏅 Patrimonio Cultural UNESCO</span>
+          </div>
+          <h3>El orgullo gastronómico</h3>
+          <p>La pupusa es el plato nacional de El Salvador y uno de los alimentos más emblemáticos de la gastronomía centroamericana. Esta tortilla gruesa de masa de maíz o arroz con relleno fue declarada Patrimonio Cultural Intangible por la UNESCO. Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.</p>
+          <p>Sus orígenes se remontan a la cultura Pipil, quienes elaboraban estas tortillas rellenas mucho antes de la llegada de los españoles. La palabra "pupusa" proviene del náhuatl <em>pupushawa</em>, que significa "cosa inflada o abultada".</p>
+          <h3>Tipos de pupusas</h3>
+          <p>Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.</p>
+          <p>La pupusa de arroz tiene una textura más suave y es especialmente popular en la zona central del país. Se sirven siempre acompañadas de curtido (repollo encurtido) y salsa de tomate casera.</p>
+          <h3>Cómo se hacen</h3>
+          <p>La elaboración requiere maestría: se toma una porción de masa, se forma una bola, se aplana en la palma, se coloca el relleno en el centro y se cierra sellando los bordes. Luego se aplana en forma circular y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-tamales">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Tamales" style="object-position: center 70%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Tamales</h2>
+          <p class="info-content__hero-sub">Tradición festiva salvadoreña</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🌽 Masa de maíz</span>
+            <span class="info-chip">🍃 Envueltos en hoja</span>
+            <span class="info-chip">🎄 Navidad y fiestas</span>
+            <span class="info-chip">👨‍👩‍👧 Tradición familiar</span>
+          </div>
+          <h3>El tamal salvadoreño</h3>
+          <p>Los tamales salvadoreños son diferentes a los de otros países centroamericanos. Se envuelven en hojas de plátano (no en hojas de maíz) lo que les da un sabor y aroma característico. La masa se prepara con maíz cocido en cal (nixtamal), y el relleno tradicional incluye carne de cerdo o pollo con chile, aceitunas, alcaparras y papas.</p>
+          <p>La preparación de tamales es un ritual familiar que generalmente involucra a toda la familia. Las abuelas transmiten sus recetas secretas de generación en generación, haciendo que cada familia tenga sus propios tamales únicos.</p>
+          <h3>Tipos de tamales</h3>
+          <p>El tamal de elote es una variante dulce hecha con maíz tierno, azúcar, mantequilla y a veces relleno de crema. Se consume especialmente en agosto durante las fiestas agostinas. También existe el tamal pisque, relleno solo de frijoles, y el tamal de chipilín, que incluye esta hierba aromática en la masa.</p>
+          <h3>Temporada navideña</h3>
+          <p>La elaboración de tamales alcanza su punto máximo durante la Navidad. Es tradición que las familias se reúnan días antes del 24 de diciembre para elaborar los tamales que se compartirán en la cena navideña. Esta práctica comunitaria llamada "tamalada" es un símbolo de unión familiar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-sopa">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Sopa de Pata" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Sopa de Pata</h2>
+          <p class="info-content__hero-sub">El sabor más auténtico de El Salvador</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🐄 Pata de res</span>
+            <span class="info-chip">🌽 Con verduras tropicales</span>
+            <span class="info-chip">🍵 Caldo reconfortante</span>
+            <span class="info-chip">🏆 Plato de tradición</span>
+          </div>
+          <h3>El caldo más salvadoreño</h3>
+          <p>La sopa de pata es considerada uno de los platos más representativos y auténticos de la cocina salvadoreña. Se prepara con patas de res (pezuñas y rodillas) cocinadas durante horas hasta obtener un caldo gelatinoso y rico en colágeno, al que se añaden verduras como güisquil, elote, yuca, plátano verde y chipilín.</p>
+          <p>Su preparación es laboriosa y requiere horas de cocción lenta. El resultado es un caldo espeso, reconfortante y nutritivo que los salvadoreños consumen especialmente los fines de semana o en ocasiones especiales.</p>
+          <h3>Ingredientes típicos</h3>
+          <p>Además de la pata de res, la sopa lleva: maíz tierno en trozos, yuca, plátano verde, güisquil (chayote), ejotes (judías verdes), chipilín (hierba local aromática), tomate, cebolla, ajo y culantro (cilantro). Se sazona con achiote para darle el color rojizo característico.</p>
+          <h3>Dónde probarla</h3>
+          <p>La sopa de pata se puede encontrar en los mercados municipales de todo el país, especialmente los domingos en la mañana. En San Salvador, el Mercado Central y el Mercado de Artesanías son buenos lugares para probar versiones auténticas preparadas por cocineras tradicionales.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-yuca">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/03b193be-d3c8-434a-8cbc-729230015e35" alt="Yuca Frita" style="object-position: top;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Yuca Frita con Chicharrón</h2>
+          <p class="info-content__hero-sub">El antojo más popular de las calles salvadoreñas</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🍟 Frita o hervida</span>
+            <span class="info-chip">🥩 Con chicharrón</span>
+            <span class="info-chip">🥗 Con curtido</span>
+            <span class="info-chip">🌮 Comida callejera</span>
+          </div>
+          <h3>La yuca en la cultura salvadoreña</h3>
+          <p>La yuca (mandioca) es un tubérculo de origen americano que los pueblos indígenas de El Salvador cultivaban desde antes de la colonización. En El Salvador se consume principalmente frita o hervida, acompañada de chicharrón (cerdo frito crujiente), curtido de repollo y salsa de tomate.</p>
+          <p>Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierten en una combinación irresistible.</p>
+          <h3>Preparación tradicional</h3>
+          <p>La yuca se pela, se corta en trozos y se hierve en agua con sal hasta que esté tierna. Luego se fríe en aceite caliente hasta dorar. El chicharrón se prepara friendo trozos de carne de cerdo con grasa en su jugo hasta que queden dorados y crujientes.</p>
+          <h3>Variaciones</h3>
+          <p>También existe la yuca en caldillo, preparada en un caldo de tomate y hierbas. En algunas regiones del país se acompaña con pepián (salsa de semillas de calabaza), que añade un sabor más complejo y terroso al plato.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-atol">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Atol de Elote" style="object-position: center 80%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Atol de Elote</h2>
+          <p class="info-content__hero-sub">La bebida ancestral de los pueblos originarios</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🌽 Maíz tierno</span>
+            <span class="info-chip">🥛 Leche y azúcar</span>
+            <span class="info-chip">☕ Bebida caliente</span>
+            <span class="info-chip">🏺 Origen prehispánico</span>
+          </div>
+          <h3>Bebida ancestral</h3>
+          <p>El atol de elote es una bebida caliente espesa de origen prehispánico, elaborada con maíz tierno (elote) molido, leche, azúcar y canela. Su nombre viene del náhuatl <em>atolli</em>, que significa "aguado" o "bebida de maíz". Es una de las bebidas más antiguas y arraigadas en la cultura salvadoreña.</p>
+          <p>Históricamente fue un alimento fundamental para los pueblos indígenas mesoamericanos, quienes lo consumían tanto en la vida cotidiana como en ceremonias religiosas y rituales.</p>
+          <h3>Tipos de atol</h3>
+          <p>El atol shuco es una variante fermentada, elaborada con maíz negro molido, frijoles y agua. Tiene un sabor ácido característico y es especialmente popular en la zona occidental del país. También existe el atol de piña, de tamarindo y el chuco de semilla de ayote, cada uno con su propia personalidad de sabor.</p>
+          <h3>Dónde tomarlo</h3>
+          <p>El atol de elote se encuentra en los mercados municipales, pupuserías y puestos callejeros de todo el país. Es particularmente popular en las mañanas frías y durante las fiestas patronales. En muchos hogares se prepara los domingos como parte del desayuno familiar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-semita">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Semita" style="object-position: center 40%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Semita Papalona</h2>
+          <p class="info-content__hero-sub">El pan más famoso de El Salvador</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🍞 Pan artesanal</span>
+            <span class="info-chip">🍍 Relleno de piña o mora</span>
+            <span class="info-chip">🏘 Tradición de Cojutepeque</span>
+            <span class="info-chip">☕ Ideal con café</span>
+          </div>
+          <h3>El pan de la identidad</h3>
+          <p>La semita papalona es un pan dulce artesanal originario de Cojutepeque, Cuscatlán, y se ha convertido en uno de los dulces más representativos de la panadería salvadoreña. Es un pan de masa blanda relleno de mermelada de piña o mora, cubierto con una capa crujiente de azúcar caramelizada.</p>
+          <p>Su nombre viene de la mezcla de "semita" (pan dulce de origen árabe introducido por los españoles) y "papalona" (término local que hace referencia a su forma abultada y esponjosa).</p>
+          <h3>Tradición panadera</h3>
+          <p>La elaboración de semitas es un arte que se transmite de generación en generación en Cojutepeque. Las panaderías familiares del municipio producen este pan de manera artesanal usando horno de leña, lo que le da un sabor y textura únicos que no se pueden replicar con hornos modernos.</p>
+          <p>Es costumbre que los viajeros que pasan por la carretera Panamericana a la altura de Cojutepeque se detengan a comprar semitas para llevar de regalo a familiares y amigos.</p>
+          <h3>Pan en la cultura</h3>
+          <p>El Salvador tiene una rica tradición panadera influenciada por la cultura española y árabe. El pan francés (birote) es el acompañante inseparable del café salvadoreño, y la gran variedad de panes dulces artesanales forma parte esencial de las fiestas patronales y celebraciones familiares de todo el país.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="page-cta reveal">
+      <a href="quiz.html" class="btn-primary">🧠 ¿Cuánto sabes de la comida salvadoreña?</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li><li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li><li><a href="historia.html">Historia</a></li>
+        <li><a href="leyendas.html">Leyendas</a></li><li><a href="quiz.html">Quiz</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+  <script src="../JS/script.js"></script>
+  <script src="../JS/tabs.js"></script>
+</body>
+</html>

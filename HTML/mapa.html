@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Mapa</title>
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/mapa.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="index.html"><img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo Raíces SV" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html" class="active">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-badge">
+      <div class="page-badge__inner reveal"><h1>Mapa Cultural</h1></div>
+    </section>
+
+    <div class="mapa-wrapper">
+      <div class="mapa-container reveal">
+        <!-- Mapa de El Salvador centrado — reemplaza con tu API key de Google Maps si necesitas marcadores -->
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d978726.8795055!2d-88.8964!3d13.7942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2ssv!4v1700000000000"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Mapa de El Salvador">
+        </iframe>
+      </div>
+
+      <div class="mapa-legend reveal" style="transition-delay:.2s">
+        <div class="mapa-legend__item">
+          <span class="mapa-legend__dot dot-cultural"></span> Sitios Culturales
+        </div>
+        <div class="mapa-legend__item">
+          <span class="mapa-legend__dot dot-gastro"></span> Gastronomía
+        </div>
+        <div class="mapa-legend__item">
+          <span class="mapa-legend__dot dot-evento"></span> Eventos
+        </div>
+        <div class="mapa-legend__item">
+          <span class="mapa-legend__dot dot-historia"></span> Historia
+        </div>
+      </div>
+    </div>
+
+    <section class="page-cta reveal">
+      <a href="index.html" class="btn-primary">Volver al Inicio</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li><li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li><li><a href="historia.html">Historia</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+  <script src="../JS/script.js"></script>
+</body>
+</html>

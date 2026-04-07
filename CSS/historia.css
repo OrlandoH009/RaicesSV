@@ -1,0 +1,119 @@
+/* ============================================================
+   RAÍCES SV — historia.css
+   ============================================================ */
+
+.page-badge {
+  padding: calc(var(--nav-h) + 3rem) 2rem 2.5rem;
+  background: var(--black);
+  display: flex;
+  justify-content: center;
+}
+.page-badge__inner {
+  background: var(--cream);
+  border-radius: var(--r-md);
+  padding: 1.1rem 4rem;
+  box-shadow: 0 8px 4px rgba(255,255,255,.25);
+}
+.page-badge__inner h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  color: var(--black);
+  text-shadow: 0 4px 4px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+/* Card heroica de historia (ocupa todo el ancho) */
+.historia-hero-card {
+  position: relative;
+  margin: 0 2rem;
+  max-width: 1200px;
+  margin-left: auto; margin-right: auto;
+  height: 420px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  box-shadow: 0 6px 4px rgba(0,0,0,.35);
+  background: var(--black);
+}
+.historia-hero-card img {
+  width: 100%; height: 100%;
+  object-fit: cover; opacity: .5;
+  transition: opacity .4s;
+}
+.historia-hero-card:hover img { opacity: .65; }
+.historia-hero-card__grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 60%);
+}
+.historia-hero-card__text {
+  position: absolute;
+  bottom: 2.5rem; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.historia-hero-card__text h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  color: var(--white);
+  text-shadow: 0 6px 4px rgba(0,0,0,.3);
+}
+.historia-hero-card__text p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(.95rem, 1.5vw, 1.3rem);
+  color: rgba(255,255,255,.85);
+  margin-top: .5rem;
+}
+
+/* Grid de épocas históricas */
+.historia-grid {
+  padding: 2rem 2rem 2rem;
+  background: var(--black);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.historia-card {
+  position: relative;
+  height: 300px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 4px rgba(0,0,0,.35);
+  display: block;
+  background: var(--black);
+  transition: transform .3s, box-shadow .3s;
+}
+.historia-card:hover { transform: scale(1.018); box-shadow: 0 14px 36px rgba(0,0,0,.7); }
+.historia-card img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; opacity: .5;
+  transition: opacity .3s, transform .4s;
+}
+.historia-card:hover img { opacity: .7; transform: scale(1.04); }
+.historia-card__grad { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 55%); }
+.historia-card__label {
+  position: absolute; bottom: 1.4rem; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1rem, 1.6vw, 1.5rem);
+  color: var(--white); text-align: center;
+  text-shadow: 0 4px 4px rgba(0,0,0,.3);
+  white-space: nowrap; pointer-events: none;
+}
+
+.page-cta { padding: 2.5rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; }
+
+@media (max-width: 900px) {
+  .historia-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .historia-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 240px); }
+  .historia-hero-card { height: 280px; margin: 0 1rem; }
+  .page-badge__inner { padding: 1rem 1.5rem; }
+  .page-badge__inner h1 { white-space: normal; text-align: center; }
+}

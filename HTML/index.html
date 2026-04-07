@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Inicio</title>
+  <meta name="description" content="Raíces SV — Descubre la esencia de El Salvador." />
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/index.css" />
+</head>
+<body>
+
+  <!-- ══ NAVBAR ══ -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo">
+      <a href="index.html">
+        <img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo Raíces SV" />
+      </a>
+    </div>
+    <ul class="navbar__links">
+      <li><a href="index.html" class="active">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__bg" id="heroBg"></div>
+      <div class="hero__overlay"></div>
+      <div class="hero__content">
+        <div class="hero__title-wrap">
+          <h1 class="hero__title">Bienvenid@ a Raíces SV</h1>
+        </div>
+        <p class="hero__subtitle">Nuestra herencia, nuestro orgullo.</p>
+        <a href="categorias.html" class="btn-primary hero__cta">Explorar Culturas</a>
+      </div>
+    </section>
+
+    <!-- ¿QUÉ ES RAÍCES SV? -->
+    <section class="about">
+      <div class="about__card reveal">
+        <h2>¿Qué es Raíces SV?</h2>
+        <p>Raíces SV es un espacio digital que conecta a las personas con la esencia de El Salvador, permitiéndoles descubrir, aprender y compartir su cultura a través de una experiencia interactiva.</p>
+      </div>
+    </section>
+
+    <!-- BADGE -->
+    <section class="info-badge">
+      <div class="info-badge__inner reveal">
+        <h2>Información para ti</h2>
+      </div>
+    </section>
+
+    <!-- GRID DE CARDS -->
+    <section class="home-grid">
+      <a href="sitios-culturales.html" class="home-card reveal" style="transition-delay:.05s">
+        <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Sitios Culturales" />
+        <div class="home-card__grad"></div>
+        <span class="home-card__label">Sitios Culturales</span>
+      </a>
+      <a href="gastronomia.html" class="home-card reveal" style="transition-delay:.15s">
+        <img src="https://www.figma.com/api/mcp/asset/03b193be-d3c8-434a-8cbc-729230015e35" alt="Gastronomía" />
+        <div class="home-card__grad"></div>
+        <span class="home-card__label">Gastronomía</span>
+      </a>
+      <a href="eventos.html" class="home-card reveal" style="transition-delay:.25s">
+        <img src="https://www.figma.com/api/mcp/asset/292fedd3-1e30-4c28-8090-a8983ef03f9f" alt="Eventos Culturales" />
+        <div class="home-card__grad"></div>
+        <span class="home-card__label">Eventos Culturales</span>
+      </a>
+      <a href="historia.html" class="home-card reveal" style="transition-delay:.35s">
+        <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Historia" />
+        <div class="home-card__grad"></div>
+        <span class="home-card__label">Historia</span>
+      </a>
+      <a href="leyendas.html" class="home-card reveal" style="transition-delay:.45s">
+        <img src="https://i.pinimg.com/474x/3c/0c/89/3c0c8970941b5e0415b93e68cb90b09e.jpg" alt="Leyendas" />
+        <div class="home-card__grad"></div>
+        <span class="home-card__label">Leyendas</span>
+      </a>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li>
+        <li><a href="historia.html">Historia</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+
+  <script src="../JS/script.js"></script>
+  <script>
+    // Hero image zoom on load
+    const bg = document.getElementById('heroBg');
+    setTimeout(() => bg?.classList.add('loaded'), 80);
+  </script>
+</body>
+</html>

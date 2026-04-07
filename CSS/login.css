@@ -1,0 +1,160 @@
+/* ============================================================
+   RAÍCES SV — login.css
+   ============================================================ */
+
+/* Página de login ocupa toda la pantalla */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 2rem) 1.5rem 4rem;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Fondo con imagen del hero con overlay navy */
+.auth-page__bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('https://www.figma.com/api/mcp/asset/60aecf48-ff7d-41e1-8871-cc062f2762f7');
+  background-size: cover;
+  background-position: center;
+  opacity: .18;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Card de formulario — estilo crema del Figma */
+.auth-card {
+  position: relative;
+  z-index: 1;
+  background: var(--cream);
+  border-radius: var(--r-md);
+  padding: 3rem 3.5rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  color: var(--black);
+}
+
+.auth-card__logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+.auth-card__logo img {
+  width: 72px; height: 72px;
+  object-fit: contain;
+}
+
+.auth-card h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  text-align: center;
+  color: var(--navy);
+  margin-bottom: .4rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,.15);
+}
+
+.auth-card__sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: .95rem;
+  text-align: center;
+  color: rgba(0,0,0,.55);
+  margin-bottom: 2rem;
+}
+
+/* Campos del formulario */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-group label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+  margin-bottom: .4rem;
+}
+.form-group input {
+  width: 100%;
+  padding: .75rem 1rem;
+  border: 2px solid rgba(17,48,104,.25);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(17,48,104,.15);
+}
+
+/* Botón submit */
+.auth-submit {
+  width: 100%;
+  padding: .9rem;
+  margin-top: .5rem;
+  background: var(--gold);
+  color: var(--white);
+  border: 3px solid var(--black);
+  border-radius: var(--r-lg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.auth-submit:hover {
+  background: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+/* Link de registro */
+.auth-footer-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  color: rgba(0,0,0,.6);
+}
+.auth-footer-link a {
+  color: var(--navy);
+  font-weight: 700;
+  border-bottom: 1px solid var(--navy);
+  transition: color .2s;
+}
+.auth-footer-link a:hover { color: var(--gold); border-color: var(--gold); }
+
+/* Separador "o continúa con" */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,.2);
+}
+.auth-divider span {
+  font-family: var(--font-body);
+  font-size: .8rem;
+  color: rgba(0,0,0,.45);
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .auth-card { padding: 2rem 1.5rem; }
+}

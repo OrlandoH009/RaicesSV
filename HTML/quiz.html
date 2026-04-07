@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Quiz Cultural</title>
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/quiz.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="index.html"><img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="leyendas.html" class="drawer-link">👻 Leyendas</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-badge">
+      <div class="page-badge__inner reveal"><h1>🧠 Quiz Cultural</h1></div>
+    </section>
+
+    <!-- SELECTOR DE CATEGORÍA -->
+    <div class="quiz-category-section reveal">
+      <p>Elige la categoría que quieres practicar</p>
+      <div class="quiz-categories">
+        <button class="cat-btn" data-cat="todas">🇸🇻 Todas</button>
+        <button class="cat-btn" data-cat="historia">📜 Historia</button>
+        <button class="cat-btn" data-cat="gastronomia">🍽 Gastronomía</button>
+        <button class="cat-btn" data-cat="sitios">🏛 Sitios Culturales</button>
+        <button class="cat-btn" data-cat="leyendas">👻 Leyendas</button>
+        <button class="cat-btn" data-cat="eventos">🎉 Eventos</button>
+      </div>
+      <button class="quiz-start-btn" id="startBtn">¡Comenzar Quiz! 🚀</button>
+    </div>
+
+    <!-- ZONA DEL QUIZ -->
+    <div class="quiz-zone" id="quizZone">
+      <div class="quiz-progress-bar"><div class="quiz-progress-bar__fill" id="progressFill"></div></div>
+      <div class="quiz-status">
+        <span id="questionCounter">Pregunta 1 de 10</span>
+        <span class="quiz-score-live" id="scoreLive">Puntos: 0</span>
+      </div>
+
+      <div class="quiz-card" id="quizCard">
+        <p class="quiz-card__category" id="qCategory"></p>
+        <h2 class="quiz-card__question" id="qText"></h2>
+      </div>
+
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-next-btn" id="nextBtn">Siguiente pregunta →</button>
+
+      <!-- Resultados finales -->
+      <div class="quiz-results" id="quizResults">
+        <div class="quiz-results__emoji" id="resultsEmoji"></div>
+        <h2 class="quiz-results__title" id="resultsTitle"></h2>
+        <div class="quiz-results__score" id="resultsScore"></div>
+        <p class="quiz-results__message" id="resultsMessage"></p>
+        <div class="quiz-results__actions">
+          <button class="btn-retry" id="retryBtn">🔄 Jugar de nuevo</button>
+          <a href="index.html" class="btn-explore">🏠 Volver al Inicio</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li><li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li><li><a href="historia.html">Historia</a></li>
+        <li><a href="leyendas.html">Leyendas</a></li><li><a href="quiz.html">Quiz</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+
+  <script src="../JS/script.js"></script>
+  <script src="../JS/quiz.js"></script>
+</body>
+</html>

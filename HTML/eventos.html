@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Eventos Culturales</title>
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/info-shared.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="index.html"><img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="leyendas.html" class="drawer-link">👻 Leyendas</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-badge">
+      <div class="page-badge__inner reveal"><h1>Eventos Culturales</h1></div>
+    </section>
+
+    <div class="info-tabs reveal">
+      <p class="info-tabs__label">¿Qué evento quieres conocer?</p>
+      <div class="info-tabs__list">
+        <button class="tab-btn active" data-tab="agostinas">Fiestas Agostinas</button>
+        <button class="tab-btn" data-tab="patronales">Fiestas Patronales</button>
+        <button class="tab-btn" data-tab="semana-santa">Semana Santa</button>
+        <button class="tab-btn" data-tab="independencia">Independencia</button>
+        <button class="tab-btn" data-tab="dia-muertos">Día de los Difuntos</button>
+        <button class="tab-btn" data-tab="navidad">Navidad</button>
+      </div>
+    </div>
+
+    <div class="info-panel active" id="tab-agostinas">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/292fedd3-1e30-4c28-8090-a8983ef03f9f" alt="Fiestas Agostinas" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Fiestas Agostinas</h2>
+          <p class="info-content__hero-sub">Agosto — Las fiestas más grandes del país</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 Todo agosto</span>
+            <span class="info-chip">📍 San Salvador y todo el país</span>
+            <span class="info-chip">🎊 Procesión, fuegos, feria</span>
+            <span class="info-chip">✝️ Festividad religiosa y popular</span>
+          </div>
+          <h3>El mes más festivo de El Salvador</h3>
+          <p>Las Fiestas Agostinas son las celebraciones más importantes y masivas de El Salvador. Durante todo el mes de agosto, el país honra al Divino Salvador del Mundo, patrón de la nación. Las festividades combinan elementos religiosos y populares en una explosión de color, música y tradición.</p>
+          <p>El evento principal es la Bajada del Salvador, una procesión que recorre las calles de San Salvador con la imagen del Divino Salvador del Mundo. Esta procesión congrega a cientos de miles de personas que acompañan la imagen entre cantos, rezos y fuegos artificiales.</p>
+          <h3>La Feria Agostina</h3>
+          <p>Junto con las celebraciones religiosas, se instala una enorme feria con juegos mecánicos, puestos de comida típica, artesanías y espectáculos culturales. El estadio Nacional Jorge "Mágico" González y el Parque Infantil son sedes de conciertos, peleas de gallo, corridas de toros y otros eventos populares.</p>
+          <h3>Gastronomía de agosto</h3>
+          <p>Las fiestas agostinas tienen su propia gastronomía: tamales de elote, atol de elote, choco-bananos, algodón de azúcar, marquesotes y un sinfín de dulces típicos que llenan los puestos callejeros durante todo el mes. Es el mejor momento para probar la comida festiva salvadoreña.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-patronales">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Fiestas Patronales" style="object-position: center 40%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Fiestas Patronales</h2>
+          <p class="info-content__hero-sub">Todo el año — En cada municipio del país</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 Todo el año</span>
+            <span class="info-chip">📍 262 municipios</span>
+            <span class="info-chip">🎺 Música, danza, feria</span>
+            <span class="info-chip">🕯 Identidad local</span>
+          </div>
+          <h3>La identidad de cada pueblo</h3>
+          <p>Cada uno de los 262 municipios de El Salvador celebra anualmente las fiestas en honor a su santo patrono. Estas festividades son el corazón de la identidad cultural local y reúnen a los habitantes del municipio, incluidos aquellos que han emigrado, en una celebración comunitaria única.</p>
+          <p>Las fiestas patronales generalmente duran entre tres y ocho días e incluyen: misas solemnes, procesiones con la imagen del santo patrón, feria con juegos y comida, bailes populares y espectáculos culturales.</p>
+          <h3>Tradiciones específicas</h3>
+          <p>Algunas fiestas patronales son famosas a nivel nacional. La de Panchimalco (agosto) incluye la Procesión de las Palmas, una tradición indígena única. La de Nahuizalco incluye danzas folclóricas de raíz indígena. La Feria de Chalchuapa, celebrada en honor a Santiago Apóstol, es famosa por sus eventos artesanales y culturales.</p>
+          <h3>Las Pasadas</h3>
+          <p>Una costumbre muy especial de algunas fiestas patronales son "Las Pasadas", donde grupos de personas llevan la imagen del santo de casa en casa durante varios días antes de la fiesta principal, rezando, comiendo y celebrando juntos. Es una tradición que fortalece los lazos comunitarios y la fe popular.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-semana-santa">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Semana Santa" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Semana Santa</h2>
+          <p class="info-content__hero-sub">Marzo o Abril — La semana más sagrada</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 Marzo–Abril</span>
+            <span class="info-chip">✝️ Procesiones</span>
+            <span class="info-chip">🌸 Alfombras de flores</span>
+            <span class="info-chip">🏖 Playa y tradición</span>
+          </div>
+          <h3>La semana más especial</h3>
+          <p>La Semana Santa salvadoreña combina profunda devoción religiosa con tradiciones culturales únicas. Las procesiones del Domingo de Ramos, Martes Santo, Miércoles Santo y Viernes Santo recorren las calles de ciudades y pueblos de todo el país, acompañadas de música de banda, incienso y miles de devotos.</p>
+          <h3>Las alfombras</h3>
+          <p>Una de las tradiciones más hermosas es la elaboración de alfombras de flores, aserrín de colores, frutas y vegetales sobre las calles por donde pasarán las procesiones. Las alfombras de Nahuizalco y de algunos municipios del occidente son especialmente elaboradas y artísticas, convirtiéndose en verdaderas obras de arte efímeras.</p>
+          <h3>Tradición y playa</h3>
+          <p>La Semana Santa es también la época de mayor afluencia a las playas salvadoreñas. Las playas del Pacífico como El Tunco, El Zonte, La Libertad y Costa del Sol reciben a cientos de miles de visitantes. Esta combinación de fe y descanso es característica del Semana Santa salvadoreña.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-independencia">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/292fedd3-1e30-4c28-8090-a8983ef03f9f" alt="Independencia" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Día de la Independencia</h2>
+          <p class="info-content__hero-sub">15 de Septiembre — Orgullo nacional</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 15 de septiembre</span>
+            <span class="info-chip">🎺 Desfiles escolares</span>
+            <span class="info-chip">🔥 Antorcha</span>
+            <span class="info-chip">🇸🇻 Identidad nacional</span>
+          </div>
+          <h3>La celebración más patriótica</h3>
+          <p>El 15 de septiembre es el día más patriótico de El Salvador. En esta fecha se conmemora la Independencia de Centroamérica, proclamada en 1821. Todo el país se viste con los colores de la bandera nacional — azul y blanco — y el ambiente festivo se siente en cada rincón del territorio.</p>
+          <h3>La Antorcha de la Libertad</h3>
+          <p>Una de las tradiciones más emblemáticas es la Carrera de la Antorcha. Una llama simbólica es encendida en Guatemala el 14 de septiembre y transportada en carrera de relevo por jóvenes atletas a través de todos los países de Centroamérica, llegando a El Salvador la noche del 14 para encender oficialmente las festividades del 15.</p>
+          <h3>Desfiles escolares</h3>
+          <p>El 15 de septiembre las calles de todos los municipios del país se llenan de coloridos desfiles escolares. Estudiantes de todos los niveles marchan con uniformes especiales, bandas musicales y palillonas (majorettes), mientras la población los aplaude en las aceras. Los desfiles son un orgullo para las escuelas y los estudiantes que participan en ellos.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-dia-muertos">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Día de los Difuntos" style="object-position: center 60%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Día de los Difuntos</h2>
+          <p class="info-content__hero-sub">1 y 2 de Noviembre — Recordando a los que se fueron</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 1–2 noviembre</span>
+            <span class="info-chip">🕯 Cementerios</span>
+            <span class="info-chip">🌸 Ofrendas florales</span>
+            <span class="info-chip">👨‍👩‍👧 Reunión familiar</span>
+          </div>
+          <h3>Honrando la memoria</h3>
+          <p>El Día de Todos los Santos (1 de noviembre) y el Día de los Difuntos (2 de noviembre) son días de profunda significación para los salvadoreños. Las familias visitan los cementerios para limpiar y adornar las tumbas de sus seres queridos con flores, velas y ofrendas.</p>
+          <p>Los cementerios, habitualmente silenciosos, se transforman en espacios vibrantes y coloridos durante estos días. El olor a flores y el parpadeo de miles de velas crean una atmósfera emotiva y hermosa que combina el duelo con la celebración de la vida.</p>
+          <h3>Tradiciones locales</h3>
+          <p>En algunos municipios, especialmente en el oriente del país, se conservan tradiciones más elaboradas que incluyen la preparación de comida especial para depositar en las tumbas, la contratación de mariachis o grupos musicales para tocar las canciones favoritas del difunto, y velaciones nocturnas en el cementerio.</p>
+          <h3>El fiambre</h3>
+          <p>El fiambre es la comida tradicional del Día de los Difuntos en El Salvador: una ensalada fría elaborada con embutidos, verduras cocidas, aceitunas, alcaparras y una salsa especial de vinagre. Su preparación es un ritual familiar que involucra a todos y se disfruta en el cementerio o en casa durante estos días de recordación.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-navidad">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Navidad" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Navidad</h2>
+          <p class="info-content__hero-sub">Diciembre — La época más mágica del año</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 Diciembre</span>
+            <span class="info-chip">🎄 Posadas y nacimientos</span>
+            <span class="info-chip">🧨 Pólvora y cohetes</span>
+            <span class="info-chip">🫔 Tamales navideños</span>
+          </div>
+          <h3>La Navidad salvadoreña</h3>
+          <p>La Navidad en El Salvador tiene un sabor y una atmósfera únicos. Desde el 1 de diciembre, las calles se llenan de luces, nacimientos y decoraciones navideñas. La temperatura fresca de diciembre y enero, conocida como "el veranillo de San Miguel", hace que el ambiente navideño se sienta especialmente agradable.</p>
+          <h3>Las Posadas</h3>
+          <p>Las posadas son celebraciones tradicionales que se realizan del 16 al 24 de diciembre y representan la búsqueda de José y María de un lugar donde dar a luz a Jesús. Las familias y comunidades se reúnen en casas diferentes cada noche para rezar, cantar villancicos, romper piñatas y compartir ponche, buñuelos y otras delicias navideñas.</p>
+          <h3>La Nochebuena</h3>
+          <p>La noche del 24 de diciembre es el momento cumbre de la Navidad salvadoreña. A las 12 de la noche, todo el país estalla en cohetes y pólvora que iluminan el cielo. Las familias se reúnen para cenar tamales, pavo, ensalada rusa, chumpe en salsa y ponche de frutas. El nacimiento navideño en cada hogar es el centro simbólico de la celebración.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="page-cta reveal">
+      <a href="quiz.html" class="btn-primary">🧠 ¿Cuánto sabes de las tradiciones salvadoreñas?</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li><li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li><li><a href="historia.html">Historia</a></li>
+        <li><a href="leyendas.html">Leyendas</a></li><li><a href="quiz.html">Quiz</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+  <script src="../JS/script.js"></script>
+  <script src="../JS/tabs.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Historia</title>
+  <link rel="stylesheet" href="../CSS/global.css" />
+  <link rel="stylesheet" href="../CSS/info-shared.css" />
+  <link rel="stylesheet" href="../CSS/historia.css" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="index.html"><img src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="categorias.html">Categorías</a></li>
+      <li><a href="mapa.html">Mapa</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <a href="sitios-culturales.html" class="drawer-link">🏛 Sitios Culturales</a>
+    <a href="gastronomia.html" class="drawer-link">🍽 Gastronomía</a>
+    <a href="eventos.html" class="drawer-link">🎉 Eventos Culturales</a>
+    <a href="historia.html" class="drawer-link">📜 Historia</a>
+    <a href="leyendas.html" class="drawer-link">👻 Leyendas</a>
+    <a href="quiz.html" class="drawer-link">🧠 Quiz Cultural</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-badge">
+      <div class="page-badge__inner reveal"><h1>Historia</h1></div>
+    </section>
+
+    <div class="info-tabs reveal">
+      <p class="info-tabs__label">Elige una época histórica</p>
+      <div class="info-tabs__list">
+        <button class="tab-btn active" data-tab="prehispanica">Época Prehispánica</button>
+        <button class="tab-btn" data-tab="colonial">Colonia</button>
+        <button class="tab-btn" data-tab="independencia">Independencia</button>
+        <button class="tab-btn" data-tab="sigloxx">Siglo XX</button>
+        <button class="tab-btn" data-tab="conflicto">Conflicto Armado</button>
+        <button class="tab-btn" data-tab="moderna">El Salvador Hoy</button>
+      </div>
+    </div>
+
+    <div class="info-panel active" id="tab-prehispanica">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Época prehispánica" style="object-position: center 30%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Época Prehispánica</h2>
+          <p class="info-content__hero-sub">Desde 10,000 a.C. hasta 1524 d.C.</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🏺 Cultura Maya</span>
+            <span class="info-chip">🌽 Pueblos Pipiles</span>
+            <span class="info-chip">⚔️ Lencas y Kakawiras</span>
+            <span class="info-chip">🌋 Civilizaciones agrícolas</span>
+          </div>
+          <h3>Los primeros pobladores</h3>
+          <p>El territorio que hoy es El Salvador fue habitado desde aproximadamente 10,000 a.C. por grupos nómadas de cazadores-recolectores. Con el tiempo, estas poblaciones desarrollaron la agricultura y se asentaron en aldeas permanentes. Las primeras evidencias de cultivos de maíz datan de alrededor del 5,000 a.C.</p>
+          <p>El período Preclásico (1500 a.C. – 200 d.C.) vio el surgimiento de las primeras aldeas agrícolas y el inicio de la influencia Maya en el territorio. Sitios como Tazumal y Cara Sucia evidencian la presencia de esta civilización.</p>
+          <h3>Los Pipiles</h3>
+          <p>El grupo indígena más numeroso al momento de la conquista española era el Pipil, de origen nahua, emparentado con los aztecas de México. Los Pipiles llamaban a su territorio Cuscatlán, que significa "lugar de las joyas y riquezas". Su capital, también llamada Cuscatlán, se ubicaba cerca de lo que hoy es Antiguo Cuscatlán, La Libertad.</p>
+          <p>Los Pipiles eran agricultores y comerciantes avanzados. Cultivaban maíz, frijol, cacao y algodón, y mantenían redes comerciales que llegaban hasta México y Costa Rica. Su organización social incluía nobles, sacerdotes, guerreros y agricultores.</p>
+          <h3>Otros pueblos originarios</h3>
+          <p>Además de los Pipiles, el territorio salvadoreño estaba habitado por los Lencas (oriente), los Kakawiras (norte), los Mayas-Chortís (occidente) y los Ulúas (norte). Cada uno con su propia lengua, costumbres y organización social. Muchos de estos pueblos convivían en relativa armonía, aunque también existían conflictos territoriales.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-colonial">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/292fedd3-1e30-4c28-8090-a8983ef03f9f" alt="Época colonial" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">La Colonia</h2>
+          <p class="info-content__hero-sub">1524 – 1821</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">⚔️ Conquista española</span>
+            <span class="info-chip">✝️ Evangelización</span>
+            <span class="info-chip">🏛 Nueva España</span>
+            <span class="info-chip">🌿 Añil y cacao</span>
+          </div>
+          <h3>La conquista de Cuscatlán</h3>
+          <p>La conquista española de El Salvador comenzó en 1524 con la expedición de Pedro de Alvarado, enviado por Hernán Cortés desde México. Los Pipiles, liderados por el cacique Atlacatl, ofrecieron una feroz resistencia que obligó a Alvarado a retirarse en una primera campaña. El conquistador fue incluso herido de gravedad durante los combates.</p>
+          <p>La conquista definitiva se logró en 1528 con la fundación de la villa de San Salvador por Diego de Alvarado, hermano de Pedro. El proceso de conquista fue violento y devastador para los pueblos originarios, quienes perdieron su autonomía, tierras y en muchos casos la vida por las guerras y las enfermedades traídas por los europeos.</p>
+          <h3>La época colonial</h3>
+          <p>El Salvador colonial fue parte de la Capitanía General de Guatemala, a su vez dependiente del Virreinato de Nueva España. La economía colonial se basó principalmente en el añil (índigo), un tinte azul muy valorado en Europa para teñir telas. El cultivo y procesamiento del añil se convirtió en la principal actividad económica del territorio.</p>
+          <h3>Mestizaje y nueva cultura</h3>
+          <p>El período colonial generó un profundo proceso de mestizaje biológico y cultural. La mezcla de españoles, indígenas y africanos dio origen al pueblo salvadoreño. El idioma español, la religión católica y nuevas formas de organización social y económica se mezclaron con elementos de las culturas indígenas, creando una cultura criolla única.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-independencia">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="Independencia" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Independencia</h2>
+          <p class="info-content__hero-sub">1811 – 1841</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🗓 15 Sep 1821</span>
+            <span class="info-chip">🦅 Primer grito 1811</span>
+            <span class="info-chip">📜 República Federal</span>
+            <span class="info-chip">🇸🇻 Estado soberano 1841</span>
+          </div>
+          <h3>El primer grito de independencia</h3>
+          <p>El Salvador fue pionero en el movimiento independentista centroamericano. El 5 de noviembre de 1811, el sacerdote Manuel Aguilar y José Matías Delgado encabezaron el primer levantamiento independentista en San Salvador. Aunque fue sofocado, marcó el inicio del proceso que llevaría a la independencia.</p>
+          <p>José Matías Delgado, conocido como el "Padre de la Patria Salvadoreña", continuó liderando el movimiento independentista con una segunda revuelta en 1814. Su figura es central en la historia de El Salvador.</p>
+          <h3>La independencia de 1821</h3>
+          <p>El 15 de septiembre de 1821, representantes de las provincias de Centroamérica firmaron en Guatemala la Declaración de Independencia de Centroamérica, que puso fin al dominio español en la región. Esta fecha se celebra hoy como el Día de la Independencia en todos los países centroamericanos.</p>
+          <h3>El Estado de El Salvador</h3>
+          <p>Tras un período de anexión al Imperio Mexicano y la posterior formación de la República Federal de Centroamérica, El Salvador se constituyó como estado soberano e independiente el 18 de febrero de 1841, al separarse definitivamente de la federación centroamericana.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-sigloxx">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/f83fd784-b94d-4481-a666-1020cef6b541" alt="Siglo XX" style="object-position: center 50%;" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Siglo XX</h2>
+          <p class="info-content__hero-sub">Modernización, crisis y transformación</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">☕ República del café</span>
+            <span class="info-chip">⚡ 1932: La Matanza</span>
+            <span class="info-chip">🏭 Industrialización</span>
+            <span class="info-chip">🌍 Migración masiva</span>
+          </div>
+          <h3>La República del café</h3>
+          <p>A finales del siglo XIX y principios del XX, El Salvador transformó su economía de añil a café, convirtiéndose en uno de los principales exportadores de este producto a nivel mundial. La oligarquía cafetalera, conocida como las "14 familias", controló la economía y la política del país durante décadas.</p>
+          <p>Esta concentración de tierras y riqueza generó una profunda desigualdad social: mientras una pequeña élite acumulaba grandes haciendas, la mayoría de la población campesina vivía en condiciones de extrema pobreza sin acceso a tierra propia.</p>
+          <h3>La Matanza de 1932</h3>
+          <p>En enero de 1932, un levantamiento campesino e indígena liderado por Agustín Farabundo Martí y el cacique nahua Feliciano Ama fue brutalmente reprimido por el gobierno del General Maximiliano Hernández Martínez. Más de 30,000 personas, en su mayoría campesinos e indígenas del occidente del país, fueron masacradas en pocos días.</p>
+          <h3>Modernización y crisis</h3>
+          <p>Las décadas de 1950 y 1960 trajeron modernización económica e industrial. Sin embargo, la persistente desigualdad social, la falta de reforma agraria y la represión política continuaron generando tensiones que, con el tiempo, desembocarían en el conflicto armado de los años 80.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-conflicto">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/292fedd3-1e30-4c28-8090-a8983ef03f9f" alt="Conflicto armado" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Conflicto Armado</h2>
+          <p class="info-content__hero-sub">1979 – 1992</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">⚔️ Guerra civil</span>
+            <span class="info-chip">✝️ Mártires y héroes</span>
+            <span class="info-chip">📜 Acuerdos de Paz 1992</span>
+            <span class="info-chip">🌿 75,000 víctimas</span>
+          </div>
+          <h3>Las raíces del conflicto</h3>
+          <p>El conflicto armado salvadoreño fue el resultado de décadas de desigualdad social extrema, represión política y ausencia de canales democráticos de participación. La guerra civil entre las fuerzas del gobierno y el Frente Farabundo Martí para la Liberación Nacional (FMLN) comenzó formalmente en 1980 y se prolongó por doce años.</p>
+          <h3>Óscar Romero y los mártires</h3>
+          <p>El Arzobispo Óscar Arnulfo Romero se convirtió en la voz de los más vulnerables durante el conflicto. Asesinado el 24 de marzo de 1980 mientras celebraba misa, su muerte conmocionó al mundo y generó solidaridad internacional. Posteriormente, la Universidad Centroamericana también fue escenario del asesinato de seis sacerdotes jesuitas en 1989.</p>
+          <h3>Los Acuerdos de Paz</h3>
+          <p>El 16 de enero de 1992, el gobierno salvadoreño y el FMLN firmaron los Acuerdos de Paz de Chapultepec en México, poniendo fin a doce años de guerra que costaron más de 75,000 vidas y desplazaron a más de un millón de personas. Los acuerdos establecieron reformas democráticas, económicas y militares que transformaron el país.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-moderna">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="https://www.figma.com/api/mcp/asset/c6392806-5aa0-41ed-93ef-8f22c3fd244b" alt="El Salvador hoy" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">El Salvador Hoy</h2>
+          <p class="info-content__hero-sub">Democracia, cultura y futuro</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">🇸🇻 Democracia activa</span>
+            <span class="info-chip">💰 Bitcoin legal</span>
+            <span class="info-chip">🌍 Diáspora global</span>
+            <span class="info-chip">🎨 Cultura en auge</span>
+          </div>
+          <h3>La posguerra y la democracia</h3>
+          <p>Tras los Acuerdos de Paz de 1992, El Salvador inició un proceso de reconstrucción democrática e institucional. Las elecciones libres y competitivas se convirtieron en la norma, con alternancia de poder entre diferentes partidos políticos. El país reconstruyó sus instituciones y desarrolló una sociedad civil activa.</p>
+          <h3>Cultura y diáspora</h3>
+          <p>El Salvador cuenta con una importante diáspora en Estados Unidos, estimada en más de 2 millones de personas. Esta comunidad transnacional mantiene vínculos culturales y económicos profundos con el país. Las remesas enviadas por los salvadoreños en el exterior representan un porcentaje significativo del PIB nacional.</p>
+          <p>La cultura salvadoreña experimenta un auge notable: la literatura, la música, las artes plásticas y el cine salvadoreño gozan de reconocimiento internacional creciente. Artistas como el pintor Fernando Llort y escritores como Horacio Castellanos Moya han puesto a El Salvador en el mapa cultural mundial.</p>
+          <h3>El Salvador del futuro</h3>
+          <p>El Salvador es el primer país en el mundo en adoptar Bitcoin como moneda de curso legal (2021), posicionándose en la vanguardia de la economía digital. Con una población joven, creativa y emprendedora, el país trabaja por construir un futuro más próspero, igualitario y orgulloso de sus raíces culturales.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="page-cta reveal">
+      <a href="quiz.html" class="btn-primary">🧠 Pon a prueba tu conocimiento histórico</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="https://www.figma.com/api/mcp/asset/e14d91cf-7e6d-4d88-9e97-704b9162b473" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="index.html">Inicio</a></li><li><a href="mapa.html">Mapa</a></li>
+        <li><a href="sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="gastronomia.html">Gastronomía</a></li>
+        <li><a href="eventos.html">Eventos</a></li><li><a href="historia.html">Historia</a></li>
+        <li><a href="leyendas.html">Leyendas</a></li><li><a href="quiz.html">Quiz</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
+  <script src="../JS/script.js"></script>
+  <script src="../JS/tabs.js"></script>
+</body>
+</html>
