@@ -101,7 +101,7 @@
   border: 1px solid rgba(108,47,160,.35);
   border-radius: var(--r-md);
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(108,47,160,.2);
+  box-shadow: 0 8px 40px rgba(63, 63, 63, 0.2);
 }
 
 .leyenda-card__hero {
@@ -128,7 +128,7 @@
   font-weight: 700;
   font-size: clamp(1.8rem, 3.5vw, 3rem);
   color: #d4a8ff;
-  text-shadow: 0 0 30px rgba(108,47,160,.8), 0 4px 12px rgba(0,0,0,.8);
+  text-shadow: 0 0 30px rgba(87, 87, 87, 0.8), 0 4px 12px rgba(0,0,0,.8);
 }
 .leyenda-card__hero-sub {
   position: absolute;
