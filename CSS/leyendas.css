@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — leyendas.css
+   RAÍCES SV — leyendas.css (estilo colores gastronomía)
    ============================================================ */
 
 .page-badge {
@@ -27,36 +27,29 @@
 .leyendas-bg {
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 20% 50%, rgba(30,10,60,.4) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(10,30,20,.4) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 20% 50%, rgba(0,0,0,.35) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(0,0,0,.25) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Tabs */
-.info-tabs {
-  padding: 0 2rem 2rem;
-  background: var(--black);
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-.info-tabs__label {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  color: rgba(255,255,255,.5);
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-.info-tabs__list {
+/* Datos destacados (chips) */
+.info-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: .75rem;
-  justify-content: center;
+  gap: .6rem;
+  margin: 1.5rem 0;
+}
+.info-chip {
+  background: rgba(190,142,86,.15);
+  border: 1px solid rgba(190,142,86,.4);
+  border-radius: 50px;
+  padding: .35rem .9rem;
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: .04em;
 }
 .tab-btn {
   font-family: var(--font-display);
@@ -71,16 +64,16 @@
   transition: background .2s, color .2s, border-color .2s, transform .15s;
 }
 .tab-btn:hover {
-  background: rgba(120,60,180,.25);
-  border-color: #9b59b6;
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.35);
   color: var(--white);
   transform: translateY(-2px);
 }
 .tab-btn.active {
-  background: #6c2fa0;
-  border-color: #9b59b6;
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.45);
   color: var(--white);
-  box-shadow: 0 4px 16px rgba(108,47,160,.5);
+  box-shadow: 0 4px 16px rgba(0,0,0,.6);
 }
 
 /* Panel */
@@ -97,11 +90,11 @@
 
 /* Tarjeta de leyenda */
 .leyenda-card {
-  background: #0a0a14;
-  border: 1px solid rgba(108,47,160,.35);
+  background: var(--black);
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: var(--r-md);
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(63, 63, 63, 0.2);
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
 }
 
 .leyenda-card__hero {
@@ -112,33 +105,37 @@
 .leyenda-card__hero img {
   width: 100%; height: 100%;
   object-fit: cover;
-  opacity: .4;
-  filter: saturate(.6) hue-rotate(240deg);
+  opacity: .5;
+  filter: saturate(.7);
   transition: opacity .4s;
 }
-.leyenda-card__hero:hover img { opacity: .55; }
+.leyenda-card__hero:hover img { opacity: .65; }
+
 .leyenda-card__hero-grad {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, #0a0a14 0%, transparent 60%);
+  background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 60%);
 }
+
 .leyenda-card__hero-title {
   position: absolute;
   bottom: 1.8rem; left: 2.5rem;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.8rem, 3.5vw, 3rem);
-  color: #d4a8ff;
-  text-shadow: 0 0 30px rgba(87, 87, 87, 0.8), 0 4px 12px rgba(0,0,0,.8);
+  color: var(--white);
+  text-shadow: 0 0 20px rgba(0,0,0,.9), 0 4px 12px rgba(0,0,0,.8);
 }
+
 .leyenda-card__hero-sub {
   position: absolute;
   bottom: .8rem; left: 2.5rem;
   font-family: var(--font-display);
   font-style: italic;
   font-size: clamp(.9rem, 1.4vw, 1.1rem);
-  color: rgba(212,168,255,.7);
+  color: rgba(255,255,255,.65);
 }
 
+/* Body */
 .leyenda-card__body {
   padding: 2.5rem;
 }
@@ -146,9 +143,9 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-  color: #c084fc;
+  color: var(--white);
   margin-bottom: 1rem;
-  border-left: 4px solid #6c2fa0;
+  border-left: 4px solid rgba(255,255,255,.35);
   padding-left: .85rem;
 }
 .leyenda-card__body p {
@@ -159,11 +156,11 @@
   margin-bottom: 1.2rem;
 }
 .leyenda-card__body p em {
-  color: #d4a8ff;
+  color: rgba(255,255,255,.9);
   font-style: normal;
 }
 
-/* Chips morados */
+/* Chips */
 .leyenda-chips {
   display: flex;
   flex-wrap: wrap;
@@ -171,17 +168,24 @@
   margin: 1.2rem 0;
 }
 .leyenda-chip {
-  background: rgba(108,47,160,.2);
-  border: 1px solid rgba(108,47,160,.5);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.2);
   border-radius: 50px;
   padding: .35rem .9rem;
   font-size: .82rem;
   font-weight: 700;
-  color: #c084fc;
+  color: rgba(255,255,255,.85);
   letter-spacing: .04em;
 }
 
-.page-cta { padding: 1rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; position: relative; z-index: 1; }
+.page-cta {
+  padding: 1rem 2rem 5rem;
+  background: var(--black);
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
 
 @media (max-width: 768px) {
   .page-badge__inner { padding: 1rem 1.5rem; }

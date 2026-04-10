@@ -177,6 +177,9 @@
       border-radius: var(--r-md);
       padding: 1.8rem 2.2rem;
       margin-bottom: 2rem;
+      max-width:150vh ;
+      margin: auto;
+      margin-bottom:45px ;
     }
     .info-list-block h3 {
       font-family: var(--font-display);
@@ -208,34 +211,6 @@
       color: var(--gold);
     }
  
-    /* Botón "Ver ejemplos" */
-    .info-section__cta {
-      display: flex;
-      justify-content: center;
-      margin-top: 1.5rem;
-    }
-    .btn-ver-ejemplos {
-      display: inline-flex;
-      align-items: center;
-      gap: .6rem;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(1rem, 1.8vw, 1.3rem);
-      background: var(--gold);
-      color: var(--white);
-      border: 3px solid var(--black);
-      border-radius: var(--r-lg);
-      padding: .85rem 2.5rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background .25s, transform .2s, box-shadow .2s;
-    }
-    .btn-ver-ejemplos:hover {
-      background: var(--gold-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(190,142,86,.4);
-    }
- 
  
     /* Separador decorativo entre secciones */
     .section-divider {
@@ -243,6 +218,7 @@
       height: 2px;
       background: linear-gradient(to right, transparent, rgba(190,142,86,.4), transparent);
       margin: 0;
+      margin-bottom:40px ;
     }
  
     /* ── Responsive ── */
