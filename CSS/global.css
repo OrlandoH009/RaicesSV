@@ -93,7 +93,7 @@ ul    { list-style: none; }
 }
 
 .navbar__logo img {
-  width: 58px; height: 58px;
+  width: 80px; height: 80px;padding: 0%;
   object-fit: contain;
 }
 
