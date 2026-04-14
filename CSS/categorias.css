@@ -68,27 +68,24 @@
   animation: fadeIn .9s .3s ease both;
 }
 
-/* ── Grid de categorías ── */
+/* ── Grid de categorías — Flex centrado para 5 elementos ── */
 .categorias-grid {
   padding: 2rem 2rem 5rem;
   background: var(--black);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.categoria-card:nth-child(4) {
-  grid-column: 2;
-}
-
-.categoria-card:nth-child(5) {
-  grid-column: 3;
-}
-
 .categoria-card {
   position: relative;
+  /* Exactamente 3 por fila en desktop */
+  flex: 0 0 calc(33.333% - 1rem);
+  min-width: 220px;
+  min-height: 320px;
   border-radius: var(--r-sm);
   overflow: hidden;
   cursor: pointer;
@@ -96,7 +93,6 @@
   display: block;
   transition: transform .3s, box-shadow .3s;
   background: var(--black);
-  min-height: 320px;
 }
 .categoria-card:hover {
   transform: scale(1.02);
@@ -147,12 +143,16 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .hero__title { white-space: normal; }
-  .categorias-grid { grid-template-columns: 1fr; }
-  .categoria-card:nth-child(4),
-  .categoria-card:nth-child(5) {
-    grid-column: auto;
+@media (max-width: 900px) {
+  .categoria-card {
+    flex: 0 0 calc(50% - 0.75rem);
+    min-height: 280px;
   }
-  .categoria-card { min-height: 280px; }
+}
+@media (max-width: 580px) {
+  .hero__title { white-space: normal; }
+  .categoria-card {
+    flex: 0 0 100%;
+    min-height: 260px;
+  }
 }
