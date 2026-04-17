@@ -1,3 +1,4 @@
+//Archivos temporales mientras se crea el controlador de php
 function getUsers() {
   try { return JSON.parse(localStorage.getItem('rs_users') || '[]'); } catch { return []; }
 }

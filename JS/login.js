@@ -1,6 +1,6 @@
 // Login handling using localStorage (contraseña en texto plano)
 // Usage: included from `login.html` — binds to the page form automatically
-
+//Archivos temporales mientras se crea el controlador de php
 function getUsers() {
 	try {
 		return JSON.parse(localStorage.getItem('rs_users') || '[]');
