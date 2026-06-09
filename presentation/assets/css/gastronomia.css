@@ -1,0 +1,99 @@
+/* ============================================================
+   RAÍCES SV — gastronomia.css
+   ============================================================ */
+
+.page-badge {
+  padding: calc(var(--nav-h) + 3rem) 2rem 2.5rem;
+  background: var(--black);
+  display: flex;
+  justify-content: center;
+}
+.page-badge__inner {
+  background: var(--cream);
+  border-radius: var(--r-md);
+  padding: 1.1rem 4rem;
+  box-shadow: 0 8px 4px rgba(255,255,255,.25);
+}
+.page-badge__inner h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  color: var(--black);
+  text-shadow: 0 4px 4px rgba(0,0,0,.25);
+  white-space: nowrap;
+}
+
+/* Grid gastronómica: 1 grande + 2 pequeñas abajo */
+.gastro-grid {
+  padding: 1.5rem 2rem 2rem;
+  background: var(--black);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 370px 370px;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card grande ocupa 2 columnas */
+.gastro-card--wide {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.gastro-card {
+  position: relative;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 4px rgba(0,0,0,.35);
+  display: block;
+  background: var(--black);
+  transition: transform .3s, box-shadow .3s;
+}
+.gastro-card:hover {
+  transform: scale(1.018);
+  box-shadow: 0 14px 36px rgba(0,0,0,.7);
+}
+.gastro-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: .6;
+  transition: opacity .3s, transform .4s;
+}
+.gastro-card:hover img { opacity: .78; transform: scale(1.04); }
+.gastro-card__grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
+}
+.gastro-card__label {
+  position: absolute;
+  bottom: 1.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  color: var(--white);
+  text-align: center;
+  text-shadow: 0 6px 4px rgba(0,0,0,.25);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.page-cta {
+  padding: 2.5rem 2rem 5rem;
+  background: var(--black);
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .gastro-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 260px); }
+  .gastro-card--wide { grid-column: 1; }
+  .page-badge__inner { padding: 1rem 1.5rem; }
+  .page-badge__inner h1 { white-space: normal; text-align: center; }
+}
