@@ -290,11 +290,11 @@ function mostrarPregunta() {
 
   // Etiqueta de categoría
   const catLabels = {
-    historia: '📜 Historia',
-    gastronomia: '🍽 Gastronomía',
-    sitios: '🏛 Sitios Culturales',
-    leyendas: '👻 Leyendas',
-    eventos: '🎉 Eventos'
+    historia: 'Historia',
+    gastronomia: 'Gastronomía',
+    sitios: 'Sitios Culturales',
+    leyendas: 'Leyendas',
+    eventos: 'Eventos'
   };
   qCategory.textContent = catLabels[q.cat] || q.cat;
   qText.textContent = q.pregunta;
@@ -330,17 +330,17 @@ function seleccionarRespuesta(btn, newIdx, correctaMezclada, q) {
     btn.classList.add('correct');
     puntaje += 10;
     feedback.className = 'quiz-feedback show correct-fb';
-    feedback.innerHTML = `<strong>✅ ¡Correcto! +10 puntos</strong>${q.explicacion}`;
+    feedback.innerHTML = `<strong>¡Correcto! +10 puntos</strong>${q.explicacion}`;
   } else {
     btn.classList.add('wrong');
     opciones[correctaMezclada].classList.add('correct');
     feedback.className = 'quiz-feedback show wrong-fb';
-    feedback.innerHTML = `<strong>❌ Incorrecto</strong>${q.explicacion}`;
+    feedback.innerHTML = `<strong>Incorrecto</strong>${q.explicacion}`;
   }
 
   scoreLive.textContent = `Puntos: ${puntaje}`;
   nextBtn.classList.add('show');
-  nextBtn.textContent = indice + 1 < preguntasActivas.length ? 'Siguiente pregunta →' : '🏆 Ver resultados';
+  nextBtn.textContent = indice + 1 < preguntasActivas.length ? 'Siguiente pregunta →' : 'Ver resultados';
 }
 
 // ── Siguiente pregunta ────────────────────────────────────
