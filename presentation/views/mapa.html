@@ -3,20 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Raíces SV — Mapa</title>
+  <title>Raíces SV — Mapa Cultural</title>
+
+  <!-- CSS (Local) -->
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/mapa.css" />
+
+  <!-- CSS (Local) -->
+   
+
+  <!-- Leaflet CSS (gratuito, sin API key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Google Fonts (ya usadas en el proyecto) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" />
+
+  <style>
+    /* ── Variables (espejo de global.css) ── */
+    
+  </style>
 </head>
 <body>
 
+  <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
-    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo Raíces SV" /></a></div>
+    <div class="navbar__logo">
+      <a href="../views/index.html">
+        <img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo Raíces SV" />
+      </a>
+    </div>
     <ul class="navbar__links">
       <li><a href="../views/index.html">Inicio</a></li>
       <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html" class="active">Mapa</a></li>
+      <li><a href="mapa.html" class="active">Mapa</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
@@ -39,53 +62,375 @@
       <div class="page-badge__inner reveal"><h1>Mapa Cultural</h1></div>
     </section>
 
+    <!-- FILTROS -->
+    <div class="mapa-filters reveal" style="transition-delay:.1s">
+      <button class="filter-btn active" data-cat="todas">
+        <span class="filter-dot" style="background:#ffffff"></span> Todos
+      </button>
+      <button class="filter-btn" data-cat="cultural">
+        <span class="filter-dot dot-cultural"></span> Sitios Culturales
+      </button>
+      <button class="filter-btn" data-cat="gastronomia">
+        <span class="filter-dot dot-gastro"></span> Gastronomía
+      </button>
+      <button class="filter-btn" data-cat="evento">
+        <span class="filter-dot dot-evento"></span> Eventos
+      </button>
+      <button class="filter-btn" data-cat="historia">
+        <span class="filter-dot dot-historia"></span> Historia
+      </button>
+      <button class="filter-btn" data-cat="leyenda">
+        <span class="filter-dot dot-leyenda"></span> Leyendas
+      </button>
+    </div>
+
+    <!-- MAPA -->
     <div class="mapa-wrapper">
-      <div class="mapa-container reveal">
-        <!-- Mapa de El Salvador centrado — reemplaza con tu API key de Google Maps si necesitas marcadores -->
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d978726.8795055!2d-88.8964!3d13.7942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2ssv!4v1700000000000"
-          allowfullscreen
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          title="Mapa de El Salvador">
-        </iframe>
+      <div class="mapa-container reveal" style="transition-delay:.2s">
+        <div id="mapa-leaflet"></div>
       </div>
 
-      <div class="mapa-legend reveal" style="transition-delay:.2s">
-        <div class="mapa-legend__item">
-          <span class="mapa-legend__dot dot-cultural"></span> Sitios Culturales
-        </div>
-        <div class="mapa-legend__item">
-          <span class="mapa-legend__dot dot-gastro"></span> Gastronomía
-        </div>
-        <div class="mapa-legend__item">
-          <span class="mapa-legend__dot dot-evento"></span> Eventos
-        </div>
-        <div class="mapa-legend__item">
-          <span class="mapa-legend__dot dot-historia"></span> Historia
-        </div>
+      <p class="mapa-count reveal" style="transition-delay:.25s">
+        Mostrando <strong id="visibleCount">20</strong> de <strong>20</strong> landmarks
+      </p>
+
+      <!-- LEYENDA -->
+      <div class="mapa-legend reveal" style="transition-delay:.3s">
+        <div class="mapa-legend__item"><span class="mapa-legend__dot dot-cultural"></span> Sitios Culturales</div>
+        <div class="mapa-legend__item"><span class="mapa-legend__dot dot-gastro"></span> Gastronomía</div>
+        <div class="mapa-legend__item"><span class="mapa-legend__dot dot-evento"></span> Eventos</div>
+        <div class="mapa-legend__item"><span class="mapa-legend__dot dot-historia"></span> Historia</div>
+        <div class="mapa-legend__item"><span class="mapa-legend__dot dot-leyenda"></span> Leyendas</div>
       </div>
     </div>
 
-    <section class="page-cta reveal">
+    <section class="page-cta reveal" style="transition-delay:.35s">
       <a href="../views/index.html" class="btn-primary">Volver al Inicio</a>
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
       <img class="footer__logo" src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Raíces SV</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li><li><a href="../views/mapa.html">Mapa</a></li>
+        <li><a href="../views/index.html">Inicio</a></li>
+        <li><a href="mapa.html">Mapa</a></li>
         <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
         <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li><li><a href="../views/historia.html">Historia</a></li>
+        <li><a href="../views/eventos.html">Eventos</a></li>
+        <li><a href="../views/historia.html">Historia</a></li>
+        <li><a href="../views/leyendas.html">Leyendas</a></li>
+        <li><a href="../views/quiz.html">Quiz</a></li>
       </ul>
       <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
-  <script src="../assets/js/script.js"></script>
-  <script src="../assets/js/chatbot.js"></script>
+
+  <!-- Leaflet JS (gratuito, sin API key) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    /* ══════════════════════════════════════════════════════════
+       NAVBAR / DRAWER / REVEAL  (igual que script.js)
+       ══════════════════════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', () => {
+      const navbar  = document.getElementById('navbar');
+      const burger  = document.getElementById('burger');
+      const drawer  = document.getElementById('navDrawer');
+      const overlay = document.getElementById('navOverlay');
+
+      window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', scrollY > 30));
+
+      function openDrawer()  { drawer.classList.add('open'); overlay.classList.add('open'); burger.classList.add('open'); document.body.style.overflow='hidden'; }
+      function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); burger.classList.remove('open'); document.body.style.overflow=''; }
+
+      burger?.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
+      overlay?.addEventListener('click', closeDrawer);
+      drawer?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    });
+
+    /* ══════════════════════════════════════════════════════════
+       DATOS DE LANDMARKS CULTURALES
+       ══════════════════════════════════════════════════════════
+       Para añadir nuevos puntos, copia uno de los objetos y
+       ajusta: nombre, coords [lat, lng], cat, icono, desc, chips
+       ══════════════════════════════════════════════════════════ */
+    const LANDMARKS = [
+      /* ── SITIOS CULTURALES ── */
+      {
+        id: 1, cat: 'cultural', emoji: '🏛️', color: '#be8e56',
+        nombre: 'Tazumal',
+        lugar: 'Chalchuapa, Santa Ana',
+        desc: 'El sitio arqueológico precolombino más importante de El Salvador, con una pirámide maya de 24 m de altura.',
+        chips: ['Maya', '100–1200 d.C.', 'Museo incluido'],
+        coords: [13.9889, -89.6833]
+      },
+      {
+        id: 2, cat: 'cultural', emoji: '🏛️', color: '#be8e56',
+        nombre: 'Joya de Cerén',
+        lugar: 'San Juan Opico, La Libertad',
+        desc: 'Sitio maya sepultado por ceniza volcánica en 590 d.C. Patrimonio de la Humanidad UNESCO 1993. "La Pompeya de América".',
+        chips: ['UNESCO', '590 d.C.', 'Único en CA'],
+        coords: [13.8167, -89.55]
+      },
+      {
+        id: 3, cat: 'cultural', emoji: '🏛️', color: '#be8e56',
+        nombre: 'Salvador del Mundo',
+        lugar: 'San Salvador',
+        desc: 'Monumento icónico inaugurado en 1942, símbolo del patrono de la nación. Centro de las Fiestas Agostinas cada agosto.',
+        chips: ['Monumento', 'Acceso libre', 'Icono nacional'],
+        coords: [13.7060, -89.2189]
+      },
+      {
+        id: 4, cat: 'cultural', emoji: '🎨', color: '#be8e56',
+        nombre: 'Suchitoto',
+        lugar: 'Cuscatlán',
+        desc: 'Capital cultural de El Salvador: calles adoquinadas, arte, teatro independiente y el lago Suchitlán.',
+        chips: ['Pueblo colonial', 'Arte', 'Lago Suchitlán'],
+        coords: [14.0311, -89.0281]
+      },
+      {
+        id: 5, cat: 'cultural', emoji: '⛪', color: '#be8e56',
+        nombre: 'Catedral Metropolitana',
+        lugar: 'Centro Histórico, San Salvador',
+        desc: 'Catedral de construcción centenaria que alberga los restos de San Óscar Romero, canonizado en 2018.',
+        chips: ['San Romero', 'Neoclásica', 'Peregrinación'],
+        coords: [13.6984, -89.1915]
+      },
+      {
+        id: 6, cat: 'cultural', emoji: '🏺', color: '#be8e56',
+        nombre: 'MUNA',
+        lugar: 'San Salvador',
+        desc: 'Museo Nacional de Antropología. Fundado en 1883, el repositorio más importante del patrimonio histórico salvadoreño.',
+        chips: ['+3000 m² salas', 'Fundado 1883', 'Arqueología'],
+        coords: [13.7020, -89.2230]
+      },
+      {
+        id: 7, cat: 'cultural', emoji: '🏔️', color: '#be8e56',
+        nombre: 'Ruinas de San Andrés',
+        lugar: 'Ciudad Arce, La Libertad',
+        desc: 'Segundo sitio arqueológico más grande del país, con estructuras mayas del período Clásico.',
+        chips: ['Maya Clásico', 'La Libertad', 'Gratuito'],
+        coords: [13.8044, -89.3939]
+      },
+
+      /* ── GASTRONOMÍA ── */
+      {
+        id: 8, cat: 'gastronomia', emoji: '🫓', color: '#e05252',
+        nombre: 'Pupusería El Caserío',
+        lugar: 'Santa Ana (zona típica)',
+        desc: 'Zona emblemática de pupuserías tradicionales de occidente, con las mejores pupusas de chicharrón y queso.',
+        chips: ['Pupusas', 'Curtido', 'Tradición'],
+        coords: [13.9989, -89.5597]
+      },
+      {
+        id: 9, cat: 'gastronomia', emoji: '🍞', color: '#e05252',
+        nombre: 'Semitas de Cojutepeque',
+        lugar: 'Cojutepeque, Cuscatlán',
+        desc: 'Ciudad famosa por la Semita Papalona, pan dulce artesanal elaborado en horno de leña con relleno de piña o mora.',
+        chips: ['Semita Papalona', 'Horno de leña', 'Artesanal'],
+        coords: [13.7167, -88.9333]
+      },
+      {
+        id: 10, cat: 'gastronomia', emoji: '🥣', color: '#e05252',
+        nombre: 'Mercado Central de San Salvador',
+        lugar: 'Centro Histórico, San Salvador',
+        desc: 'El mercado más grande del país, con cocinas tradicionales donde probar sopa de pata, atol, tamales y yuca frita.',
+        chips: ['Sopa de pata', 'Atol de elote', 'Comida típica'],
+        coords: [13.6978, -89.1928]
+      },
+      {
+        id: 11, cat: 'gastronomia', emoji: '🌽', color: '#e05252',
+        nombre: 'Nahuizalco — Mercado Nocturno',
+        lugar: 'Nahuizalco, Sonsonate',
+        desc: 'Único mercado nocturno de artesanías y comida típica del país, con platillos indígenas y atol shuco.',
+        chips: ['Nocturno', 'Artesanías', 'Atol shuco'],
+        coords: [13.7739, -89.7256]
+      },
+
+      /* ── EVENTOS CULTURALES ── */
+      {
+        id: 12, cat: 'evento', emoji: '🎆', color: '#52a0e0',
+        nombre: 'Plaza las Américas',
+        lugar: 'San Salvador',
+        desc: 'Sede principal de las Fiestas Agostinas cada agosto. Miles de salvadoreños se reúnen para la Bajada del Salvador.',
+        chips: ['Fiestas Agostinas', 'Agosto', 'Procesión'],
+        coords: [13.6995, -89.2200]
+      },
+      {
+        id: 13, cat: 'evento', emoji: '🥁', color: '#52a0e0',
+        nombre: 'Panchimalco',
+        lugar: 'Panchimalco, San Salvador',
+        desc: 'Municipio indígena famoso por la Procesión de las Palmas en agosto y sus danzas folclóricas tradicionales.',
+        chips: ['Indígena', 'Procesión de Palmas', 'Danzas'],
+        coords: [13.6158, -89.1797]
+      },
+      {
+        id: 14, cat: 'evento', emoji: '🎭', color: '#52a0e0',
+        nombre: 'Festival de Suchitoto',
+        lugar: 'Suchitoto, Cuscatlán',
+        desc: 'Festival Internacional de Arte y Cultura que convoca artistas de toda Latinoamérica anualmente.',
+        chips: ['Festival Internacional', 'Arte', 'Música'],
+        coords: [14.0311, -89.0281]
+      },
+      {
+        id: 15, cat: 'evento', emoji: '✝️', color: '#52a0e0',
+        nombre: 'Catedral de Santa Ana',
+        lugar: 'Santa Ana',
+        desc: 'Una de las catedrales más hermosas de Centroamérica y sede de las tradiciones de Semana Santa del occidente del país.',
+        chips: ['Semana Santa', 'Neogótica', 'Alfombras'],
+        coords: [13.9944, -89.5597]
+      },
+
+      /* ── HISTORIA ── */
+      {
+        id: 16, cat: 'historia', emoji: '📜', color: '#7c52e0',
+        nombre: 'Casa de la Cultura de Izalco',
+        lugar: 'Izalco, Sonsonate',
+        desc: 'Izalco fue escenario del levantamiento de 1932 y sede de la resistencia Pipil. Centro de memoria histórica.',
+        chips: ['Levantamiento 1932', 'Pipil', 'Memoria'],
+        coords: [13.7500, -89.6692]
+      },
+      {
+        id: 17, cat: 'historia', emoji: '🏛️', color: '#7c52e0',
+        nombre: 'Casa de la Independencia',
+        lugar: 'San Salvador',
+        desc: 'Lugar simbólico donde se gestaron los primeros gritos de independencia en 1811 liderados por José Matías Delgado.',
+        chips: ['1811', 'Independencia', 'José Matías Delgado'],
+        coords: [13.6990, -89.1920]
+      },
+      {
+        id: 18, cat: 'historia', emoji: '⛪', color: '#7c52e0',
+        nombre: 'Iglesia El Rosario',
+        lugar: 'San Salvador',
+        desc: 'Moderna iglesia de 1971 donde descansan los restos de Padre Delgado. Su arquitectura única con vitrales de luz solar es notable.',
+        chips: ['Padre Delgado', 'Vitrales únicos', '1971'],
+        coords: [13.6972, -89.1905]
+      },
+
+      /* ── LEYENDAS ── */
+      {
+        id: 19, cat: 'leyenda', emoji: '👻', color: '#52c07c',
+        nombre: 'Lago de Coatepeque',
+        lugar: 'Santa Ana',
+        desc: 'Hermoso lago volcánico donde, según la tradición oral, se escucha el llanto de La Llorona en las noches de luna llena.',
+        chips: ['La Llorona', 'Lago volcánico', 'Leyenda viva'],
+        coords: [13.8667, -89.5500]
+      },
+      {
+        id: 20, cat: 'leyenda', emoji: '🌿', color: '#52c07c',
+        nombre: 'Bosque El Imposible',
+        lugar: 'Ahuachapán',
+        desc: 'El bosque más extenso de El Salvador. Territorio mítico del Cipitío, el Cadejo y la Siguanaba según el folclore local.',
+        chips: ['Cipitío', 'Siguanaba', 'Cadejo'],
+        coords: [13.8303, -89.9789]
+      }
+    ];
+
+    /* ══════════════════════════════════════════════════════════
+       INICIALIZACIÓN DEL MAPA CON LEAFLET
+       (OpenStreetMap — completamente gratuito, sin API key)
+       ══════════════════════════════════════════════════════════ */
+    const mapa = L.map('mapa-leaflet', {
+      center: [13.7942, -88.8964],
+      zoom: 8,
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    /* Tile layer oscuro (Carto Dark Matter — gratuito, sin API key) */
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(mapa);
+
+    /* ── Crear ícono personalizado con emoji ── */
+    function crearIcono(emoji, color) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="custom-marker" style="background:${color};">${emoji}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18]
+      });
+    }
+
+    /* ── Colores de categoría para el texto del popup ── */
+    const CAT_COLORS = {
+      cultural:   '#be8e56',
+      gastronomia:'#e05252',
+      evento:     '#52a0e0',
+      historia:   '#7c52e0',
+      leyenda:    '#52c07c'
+    };
+    const CAT_LABELS = {
+      cultural:   'Sitio Cultural',
+      gastronomia:'Gastronomía',
+      evento:     'Evento Cultural',
+      historia:   'Historia',
+      leyenda:    'Leyenda'
+    };
+
+    /* ── Renderizar popups y markers ── */
+    const markers = [];
+
+    LANDMARKS.forEach(lm => {
+      const icono   = crearIcono(lm.emoji, lm.color);
+      const chipsHtml = lm.chips.map(c => `<span class="popup-chip">${c}</span>`).join('');
+      const popupContent = `
+        <div class="popup-inner">
+          <p class="popup-cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${CAT_LABELS[lm.cat]}</p>
+          <h3 class="popup-title">${lm.nombre}</h3>
+          <p class="popup-desc">${lm.desc}</p>
+          <div>${chipsHtml}</div>
+          <p style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.6rem;font-family:'Lato',sans-serif;">📍 ${lm.lugar}</p>
+        </div>`;
+
+      const marker = L.marker(lm.coords, { icon: icono })
+        .bindPopup(popupContent, { maxWidth: 280, minWidth: 220 })
+        .addTo(mapa);
+
+      marker._landmarkCat = lm.cat;
+      markers.push(marker);
+    });
+
+    /* ══════════════════════════════════════════════════════════
+       FILTROS INTERACTIVOS
+       ══════════════════════════════════════════════════════════ */
+    let catActiva = 'todas';
+    const countEl = document.getElementById('visibleCount');
+
+    function actualizarFiltro(cat) {
+      catActiva = cat;
+      let visible = 0;
+
+      markers.forEach(m => {
+        if (cat === 'todas' || m._landmarkCat === cat) {
+          m.addTo(mapa);
+          visible++;
+        } else {
+          mapa.removeLayer(m);
+        }
+      });
+
+      countEl.textContent = visible;
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        actualizarFiltro(btn.dataset.cat);
+      });
+    });
+  </script>
 </body>
 </html>
