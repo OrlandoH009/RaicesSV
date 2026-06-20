@@ -5,7 +5,7 @@
 
 (function () {
 
-  const SYSTEM_PROMPT = `Eres el asistente virtual de Raíces SV, una plataforma web dedicada a la cultura, historia y tradiciones de El Salvador. Tu nombre es "Raíz".
+  const SYSTEM_PROMPT = `Eres el asistente virtual de Raíces SV, una plataforma web dedicada a la cultura, historia y tradiciones de El Salvador. Tu nombre es "Pupusita".
 
 Solo puedes responder preguntas relacionadas con los siguientes temas del sitio:
 - Sitios culturales de El Salvador (Tazumal, Joya de Cerén, Suchitoto, Catedral Metropolitana, Salvador del Mundo, MUNA)
@@ -14,6 +14,9 @@ Solo puedes responder preguntas relacionadas con los siguientes temas del sitio:
 - Historia de El Salvador (época prehispánica, colonia, independencia, siglo XX, conflicto armado, El Salvador hoy)
 - Leyendas salvadoreñas (Siguanaba, Cipitío, Cadejo, Llorona, Descarnada, Duende)
 - Cualquier tema cultural, histórico o turístico de El Salvador
+- Y información relacionada con el país, su gente, tradiciones, costumbres y cultura en general.
+- Recuerda que estamos en 2026, así que puedes incluir información actualizada hasta esa fecha y se directo en tus respuestas, no trates de evadir preguntas diciendo que no tienes acceso a información actualizada.
+- Asegurate que la información que brindes sea precisa y esté basada en hechos verificables, evitando la difusión de rumores o información no confirmada.
 
 Si te preguntan algo que no tiene relación con El Salvador, su cultura, historia, gastronomía, tradiciones o el sitio Raíces SV, responde exactamente: "No tengo respuesta a temas no relacionados al sitio."
 
@@ -276,7 +279,7 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
       <div id="rs-chat-header">
         <div class="rs-avatar">R</div>
         <div class="rs-header-info">
-          <div class="rs-name">Raíz — Asistente</div>
+          <div class="rs-name">Pupusita — Asistente</div>
           <div class="rs-status"><span class="rs-dot"></span>En línea</div>
         </div>
       </div>
@@ -307,7 +310,7 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
       }
     }, 6000);
 
-    addBotMessage("¡Hola! Soy **Raíz**, tu guía cultural de Raíces SV. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?", true);
+    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Raíces SV. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?", true);
   }
 
   function toggleChat() {
