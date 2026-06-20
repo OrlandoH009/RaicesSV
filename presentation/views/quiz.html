@@ -10,13 +10,19 @@
 <body>
 
   <nav class="navbar" id="navbar">
-    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" /></a></div>
+    <div class="navbar__logo">
+      <a href="../views/index.html">
+        <img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />
+      </a>
+    </div>
     <ul class="navbar__links">
       <li><a href="../views/index.html">Inicio</a></li>
       <li><a href="../views/categorias.html">Categorías</a></li>
       <li><a href="../views/mapa.html">Mapa</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
@@ -36,52 +42,104 @@
   </nav>
 
   <main>
+
     <section class="page-badge">
       <div class="page-badge__inner reveal"><h1>Quiz Cultural</h1></div>
     </section>
 
-    <!-- SELECTOR DE CATEGORÍA -->
-    <div class="quiz-category-section reveal">
-      <p>Elige la categoría que quieres practicar</p>
-      <div class="quiz-categories">
-        <button class="cat-btn" data-cat="todas">🇸🇻 Todas</button>
+    <!-- ══ PANTALLA DE SELECCIÓN ══ -->
+    <div class="quiz-setup reveal" id="quizSetup">
+
+      <!-- Niveles -->
+      <p class="quiz-setup__label">Selecciona un nivel</p>
+      <div class="quiz-levels">
+        <div class="level-card" data-level="facil">
+          <div class="level-card__bar"></div>
+          <p class="level-card__name">Fácil</p>
+          <p class="level-card__sub">Cultura general. 5 pts por respuesta.</p>
+        </div>
+        <div class="level-card" data-level="medio">
+          <div class="level-card__bar"></div>
+          <p class="level-card__name">Medio</p>
+          <p class="level-card__sub">Conocimiento detallado. 10 pts.</p>
+        </div>
+        <div class="level-card" data-level="dificil">
+          <div class="level-card__bar"></div>
+          <p class="level-card__name">Difícil</p>
+          <p class="level-card__sub">Para expertos en historia. 15 pts.</p>
+        </div>
+        <div class="level-card" data-level="guanaco">
+          <div class="level-card__bar"></div>
+          <p class="level-card__name">100% Guanaco</p>
+          <p class="level-card__sub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
+        </div>
+      </div>
+
+      <div class="quiz-setup__divider"></div>
+
+      <!-- Categorías -->
+      <p class="quiz-setup__label">Elige una categoría</p>
+      <div class="quiz-cats">
+        <button class="cat-btn" data-cat="todas">Todas</button>
         <button class="cat-btn" data-cat="historia">Historia</button>
         <button class="cat-btn" data-cat="gastronomia">Gastronomía</button>
-        <button class="cat-btn" data-cat="sitios">Culturales</button>
+        <button class="cat-btn" data-cat="sitios">Sitios Culturales</button>
         <button class="cat-btn" data-cat="leyendas">Leyendas</button>
         <button class="cat-btn" data-cat="eventos">Eventos</button>
       </div>
-      <button class="quiz-start-btn" id="startBtn">¡Comenzar Quiz!</button>
+
+      <div class="quiz-start-wrap">
+        <button class="quiz-start-btn" id="startBtn">Comenzar Quiz</button>
+      </div>
+
     </div>
 
-    <!-- ZONA DEL QUIZ -->
+    <!-- ══ ZONA DE JUEGO ══ -->
     <div class="quiz-zone" id="quizZone">
-      <div class="quiz-progress-bar"><div class="quiz-progress-bar__fill" id="progressFill"></div></div>
+
+      <!-- Cabecera: nivel + barra de progreso -->
+      <div class="quiz-header">
+        <span class="quiz-level-badge" id="levelBadge">Fácil</span>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-bar__fill" id="progressFill"></div>
+        </div>
+      </div>
+
       <div class="quiz-status">
         <span id="questionCounter">Pregunta 1 de 10</span>
         <span class="quiz-score-live" id="scoreLive">Puntos: 0</span>
       </div>
 
+      <!-- Pregunta -->
       <div class="quiz-card" id="quizCard">
         <p class="quiz-card__category" id="qCategory"></p>
         <h2 class="quiz-card__question" id="qText"></h2>
       </div>
 
+      <!-- Opciones -->
       <div class="quiz-options" id="quizOptions"></div>
-      <div class="quiz-feedback" id="quizFeedback"></div>
-      <button class="quiz-next-btn" id="nextBtn">Siguiente pregunta →</button>
 
-      <!-- Resultados finales -->
+      <!-- Feedback -->
+      <div class="quiz-feedback" id="quizFeedback"></div>
+
+      <!-- Botón siguiente -->
+      <button class="quiz-next-btn" id="nextBtn">Siguiente pregunta</button>
+
+      <!-- Resultados -->
       <div class="quiz-results" id="quizResults">
-        <div class="quiz-results__emoji" id="resultsEmoji"></div>
+        <p class="quiz-results__rank" id="resultsRank"></p>
         <h2 class="quiz-results__title" id="resultsTitle"></h2>
         <div class="quiz-results__score" id="resultsScore"></div>
+        <div class="quiz-results__pct-bar">
+          <div class="quiz-results__pct-fill" id="resultsPctFill" style="width:0%"></div>
+        </div>
         <p class="quiz-results__message" id="resultsMessage"></p>
         <div class="quiz-results__actions">
           <button class="btn-retry" id="retryBtn">Jugar de nuevo</button>
           <a href="../views/index.html" class="btn-explore">Volver al Inicio</a>
         </div>
       </div>
+
     </div>
 
   </main>
@@ -91,11 +149,14 @@
       <img class="footer__logo" src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Raíces SV</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li><li><a href="../views/mapa.html">Mapa</a></li>
+        <li><a href="../views/index.html">Inicio</a></li>
+        <li><a href="../views/mapa.html">Mapa</a></li>
         <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
         <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li><li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li><li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/eventos.html">Eventos</a></li>
+        <li><a href="../views/historia.html">Historia</a></li>
+        <li><a href="../views/leyendas.html">Leyendas</a></li>
+        <li><a href="../views/quiz.html">Quiz</a></li>
       </ul>
       <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
     </div>
