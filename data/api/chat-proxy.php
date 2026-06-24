@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-define('OPENROUTER_API_KEY', 'sk-or-XXXXXXXXXXXXXXXXXXXXXXXX'); // <-- TU KEY AQUI
+define('OPENROUTER_API_KEY', 'sk-or-XXXXXXXXXXXXXXXXXXXXXXXX'); // <--KEY AQUI
 
 $body = file_get_contents('php://input');
 $data = json_decode($body, true);
