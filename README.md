@@ -92,6 +92,19 @@ Gestiona todo lo relacionado con la persistencia: configuración de la base de d
 
 ---
 
+## Tecnologías usadas
+- Node.js + npm
+- Express
+- EJS
+- dotenv
+- GSAP
+- Puppeteer
+- MySQL / MySQL2
+- PHP
+- HTML, CSS, JavaScript
+- TypeScript (desarrollo)
+- @types/node (desarrollo)
+
 ## Responsive
 - **Desktop**: grid 2 columnas, navbar horizontal
 - **Mobile** (< 768px): grid 1 columna, menú hamburguesa (drawer lateral)
