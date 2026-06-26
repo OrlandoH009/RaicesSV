@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-define('OPENROUTER_API_KEY', 'sk-or-XXXXXXXXXXXXXXXXXXXXXXXX'); // <--KEY AQUI
+define('OPENROUTER_API_KEY', 'sk-or-XXXXXXXXXXXXXXX'); // <--KEY AQUI
 
 $body = file_get_contents('php://input');
 $data = json_decode($body, true);
@@ -46,7 +46,7 @@ foreach ($messages as $msg) {
 }
 
 $payload = json_encode([
-    'model'      => 'meta-llama/llama-3.1-8b-instruct',
+    'model'      => 'cohere/north-mini-code:free',
     'messages'   => $formattedMessages,
     'max_tokens' => 800,
 ]);
