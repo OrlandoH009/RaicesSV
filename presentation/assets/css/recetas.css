@@ -1,0 +1,154 @@
+/* ============================================================
+   RAÍCES SV — recetas.css
+   ============================================================ */
+
+.recipe-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+/* Tarjeta contenedora de la receta */
+.recipe-card {
+  background: rgba(85, 84, 84, 0.2);
+  border: 2px solid var(--gold);
+  border-radius: var(--r-md);
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: fadeUp 0.4s ease-out forwards;
+}
+
+.recipe-header {
+  border-bottom: 2px dashed var(--gold);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.recipe-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.recipe-meta {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: var(--cream);
+}
+
+.recipe-meta span {
+  background: rgba(17, 48, 104, 0.6);
+  padding: 0.4rem 1rem;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(190, 142, 86, 0.3);
+}
+
+/* Columnas de ingredientes y preparación */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recipe-section h3 {
+  font-family: var(--font-display);
+  color: var(--white);
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  position: relative;
+  padding-bottom: 0.4rem;
+}
+
+.recipe-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 50px; height: 3px;
+  background: var(--gold);
+}
+
+/* Listas estilizadas e interactivas */
+.ingredients-list li {
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.ingredients-list li::before {
+  content: '•';
+  color: var(--gold);
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.steps-list {
+  counter-reset: step-counter;
+  list-style: none;
+}
+
+.steps-list li {
+  counter-increment: step-counter;
+  margin-bottom: 1.2rem;
+  position: relative;
+  padding-left: 2.5rem;
+  line-height: 1.6;
+}
+
+.steps-list li::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 0; top: 2px;
+  background: var(--gold);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: bold;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+/* Botón interactivo de descarga */
+.download-area {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 2rem 5rem;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  background: var(--navy);
+  color: var(--white);
+  border: 2px solid var(--gold);
+  border-radius: var(--r-lg);
+  padding: 1rem 2.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+  background: var(--gold);
+  color: var(--black);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(190, 142, 86, 0.3);
+}
