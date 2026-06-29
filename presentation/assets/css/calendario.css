@@ -5,17 +5,17 @@
 
 /* ── Tokens ── */
 :root {
-  --añil:       #1B3A5C;
-  --añil-deep:  #0F2439;
-  --añil-light: #2C5F8A;
+  --añil:       #205894;
+  --añil-deep:  #0f2a45;
+  --añil-light: #336a97;
   --tierra:     #C0622F;
   --tierra-lt:  #D97B46;
   --oro:        #D4A843;
   --crema:      #fbf5e8;
   --crema-dk:   #EDE5D4;
-  --carbon:     #1A1A1A;
+  --carbon:     #423e3e;
   --smoke:      #6B6358;
-  --white:      #FFFFFF;
+  --white:      #ede5e5;
   --radius:     8px;
   --shadow-sm:  0 2px 8px rgba(15,36,57,.12);
   --shadow-md:  0 6px 24px rgba(15,36,57,.18);
