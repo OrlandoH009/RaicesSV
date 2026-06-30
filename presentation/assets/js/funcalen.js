@@ -1,316 +1,248 @@
-/* ════════════════════════════════════════
-   RaicesSV — Calendario
-   js/calendario.js
-   Depende de: js/data.js (cargado antes)
-════════════════════════════════════════ */
+/**
+ * RaicesSV — Calendario de Festividades
+ * assets/js/funcalen.js
+ */
 
-const MONTHS = [
-  'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-];
+// Variables de control de renderizado local
+let listaEventosFiltrados = [];
+let currentLimit = 6; // Límite base estricto
 
-/* ── Estado global ── */
-let state = {
-  year:    new Date().getFullYear(),
-  month:   new Date().getMonth(),
-  filtered: [...FESTIVIDADES],
-  viewList: false,
-  activeFilters: { dept: '', month: '', type: '', search: '' }
-};
+document.addEventListener("DOMContentLoaded", () => {
+  initCatalogAndFilters();
+  setupModalEvents();
+});
 
-/* ════════════════════════════════════════
-   CALENDARIO
-════════════════════════════════════════ */
-function renderMonthPills() {
-  const pills = document.getElementById('monthPills');
-  pills.innerHTML = MONTHS.map((m, i) => {
-    const hasEvt = FESTIVIDADES.some(f => f.mes === i);
-    const active = i === state.month ? 'active' : '';
-    const hasCls = hasEvt ? 'has-events' : '';
-    return `<button class="month-pill ${active} ${hasCls}" data-m="${i}">${m}</button>`;
-  }).join('');
+function initCatalogAndFilters() {
+  const gridViewBtn = document.getElementById("gridViewBtn");
+  const listViewBtn = document.getElementById("listViewBtn");
+  const catalogGrid = document.getElementById("catalogGrid");
+  const applyFilter = document.getElementById("applyFilter");
+  const clearFilter = document.getElementById("clearFilter");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
 
-  pills.querySelectorAll('.month-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.month = +btn.dataset.m;
-      renderCalendar();
-      renderMonthPills();
+  // Toggle de vistas (Grilla / Lista)
+  if (gridViewBtn && listViewBtn && catalogGrid) {
+    gridViewBtn.addEventListener("click", () => {
+      gridViewBtn.classList.add("active");
+      listViewBtn.classList.remove("active");
+      catalogGrid.classList.remove("list-view");
+      triggerCatalogAnimation();
     });
-  });
-}
 
-function renderCalendar() {
-  document.getElementById('calYearTitle').textContent =
-    `${MONTHS[state.month]} ${state.year}`;
-
-  const grid = document.getElementById('calGrid');
-  const today = new Date();
-
-  // Primer día del mes (lunes = 0)
-  const firstDay   = new Date(state.year, state.month, 1);
-  const startDow   = (firstDay.getDay() + 6) % 7;
-  const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
-  const daysInPrev  = new Date(state.year, state.month, 0).getDate();
-
-  const cells = [];
-
-  // Días del mes anterior (relleno)
-  for (let i = startDow - 1; i >= 0; i--)
-    cells.push({ d: daysInPrev - i, cur: false });
-
-  // Días del mes actual
-  for (let d = 1; d <= daysInMonth; d++)
-    cells.push({ d, cur: true });
-
-  // Días del mes siguiente (relleno hasta 42 celdas)
-  const rem = 42 - cells.length;
-  for (let d = 1; d <= rem; d++)
-    cells.push({ d, cur: false });
-
-  grid.innerHTML = cells.map(({ d, cur }) => {
-    const isToday = cur
-      && d === today.getDate()
-      && state.month === today.getMonth()
-      && state.year  === today.getFullYear();
-
-    const events = cur
-      ? FESTIVIDADES.filter(f => f.mes === state.month && f.dia === d)
-      : [];
-
-    const hasEv = events.length > 0;
-    const dots  = events.map(() => `<div class="day-dot"></div>`).join('');
-    const label = events.length === 1
-      ? `<div class="day-label">${events[0].nombre}</div>`
-      : events.length > 1
-        ? `<div class="day-label">${events.length} eventos</div>`
-        : '';
-
-    return `
-      <div class="cal-day ${cur ? '' : 'other-month'} ${isToday ? 'today' : ''} ${hasEv ? 'has-event' : ''}"
-           ${hasEv ? `data-evids="${events.map(e => e.id).join(',')}"` : ''}>
-        <div class="day-num">${d}</div>
-        ${hasEv ? `<div class="day-dots">${dots}</div>${label}` : ''}
-      </div>`;
-  }).join('');
-
-  // Click en día con eventos → abre modal del primero
-  grid.querySelectorAll('.cal-day.has-event').forEach(cell => {
-    cell.addEventListener('click', () => {
-      const ids = cell.dataset.evids.split(',').map(Number);
-      openModal(FESTIVIDADES.find(f => f.id === ids[0]));
+    listViewBtn.addEventListener("click", () => {
+      listViewBtn.classList.add("active");
+      gridViewBtn.classList.remove("active");
+      catalogGrid.classList.add("list-view");
+      triggerCatalogAnimation();
     });
-  });
+  }
+
+  // Filtrado de eventos
+  if (applyFilter) {
+    applyFilter.addEventListener("click", () => {
+      currentLimit = 6; 
+      if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+      filtrarFestividades();
+    });
+  }
+
+  if (clearFilter) {
+    clearFilter.addEventListener("click", () => {
+      document.getElementById("f-dept").value = "";
+      document.getElementById("f-month").value = "";
+      document.getElementById("f-type").value = "";
+      document.getElementById("f-search").value = "";
+      currentLimit = 6;
+      if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+      filtrarFestividades();
+    });
+  }
+
+  // Evento interactivo con doble estado (Mostrar más / Mostrar menos) y animación
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", () => {
+      const tarjetas = document.querySelectorAll(".fest-card");
+
+      if (currentLimit === 6) {
+        // ACCIÓN: Abrir / Mostrar más
+        currentLimit = 30;
+        loadMoreBtn.textContent = "Mostrar menos";
+        renderCatalogo(listaEventosFiltrados);
+      } else {
+        // ACCIÓN: Cerrar / Mostrar menos con animación de salida previa
+        tarjetas.forEach((tarjeta, index) => {
+          if (index >= 6) {
+            tarjeta.style.transition = "all 0.4s cubic-bezier(0.25, 1, 0.5, 1)";
+            tarjeta.style.opacity = "0";
+            tarjeta.style.transform = "translateY(15px)";
+          }
+        });
+
+        // Esperar a que la animación de salida termine antes de remover del DOM
+        setTimeout(() => {
+          currentLimit = 6;
+          loadMoreBtn.textContent = "Mostrar más celebraciones";
+          renderCatalogo(listaEventosFiltrados);
+          
+          // Desplazamiento suave para devolver al usuario al inicio del catálogo
+          document.getElementById("resultsCount").scrollIntoView({ behavior: "smooth" });
+        }, 350);
+      }
+    });
+  }
+
+  // Inicialización primaria
+  listaEventosFiltrados = [...calendarState.festividades];
+  renderCatalogo(listaEventosFiltrados);
 }
 
-/* ════════════════════════════════════════
-   CATÁLOGO
-════════════════════════════════════════ */
-function applyFilters() {
-  const dept   = document.getElementById('f-dept').value;
-  const month  = document.getElementById('f-month').value;
-  const type   = document.getElementById('f-type').value;
-  const search = document.getElementById('f-search').value.toLowerCase();
+function renderCatalogo(eventos) {
+  const catalogGrid = document.getElementById("catalogGrid");
+  const resultsCount = document.getElementById("resultsCount");
+  const loadMoreContainer = document.getElementById("loadMoreContainer");
+  
+  if (!catalogGrid) return;
+  catalogGrid.innerHTML = "";
 
-  state.filtered = FESTIVIDADES.filter(f => {
-    if (dept   && f.departamento !== dept)        return false;
-    if (month !== '' && f.mes !== +month)          return false;
-    if (type   && f.tipo !== type)                 return false;
-    if (search && !f.nombre.toLowerCase().includes(search)
-               && !f.descripcion.toLowerCase().includes(search)) return false;
-    return true;
-  });
+  if (resultsCount) {
+    resultsCount.innerHTML = `<strong>${eventos.length}</strong> festividades encontradas`;
+  }
 
-  renderCatalog();
-}
-
-function renderCatalog() {
-  const grid = document.getElementById('catalogGrid');
-  const n    = state.filtered.length;
-
-  document.getElementById('resultsCount').innerHTML =
-    `<strong>${n}</strong> festividad${n !== 1 ? 'es' : ''} encontrada${n !== 1 ? 's' : ''}`;
-
-  if (n === 0) {
-    grid.innerHTML = `
+  if (eventos.length === 0) {
+    catalogGrid.innerHTML = `
       <div class="empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <h3 style="color:#444;font-family:'Playfair Display',serif;font-size:1.1rem;">Sin resultados</h3>
-        <p>Intenta ajustar los filtros para encontrar más festividades.</p>
-      </div>`;
+        <p>No se encontraron celebraciones con los filtros seleccionados.</p>
+      </div>
+    `;
+    if (loadMoreContainer) loadMoreContainer.style.display = "none";
     return;
   }
 
-  grid.innerHTML = state.filtered.map(f => `
-    <div class="fest-card" data-id="${f.id}">
+  // Segmentación por software del arreglo
+  const eventosVisibles = eventos.slice(0, currentLimit);
+
+  eventosVisibles.forEach((evento, index) => {
+    const card = document.createElement("div");
+    card.classList.add("fest-card");
+
+    // Si estamos mostrando más de 6, aplicamos retrasos de animación progresivos a las nuevas tarjetas
+    if (index >= 6) {
+      card.style.animationDelay = `${(index - 6) * 0.03}s`;
+    }
+
+    card.innerHTML = `
       <div class="fest-card-banner"></div>
       <div class="fest-card-body">
         <div class="fest-card-meta">
-          <span class="badge badge-dept">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-            </svg>
-            ${f.departamento}
-          </span>
-          <span class="badge badge-month">${MONTHS[f.mes]}</span>
-          <span class="badge badge-type">${f.tipo}</span>
+          <span class="badge badge-dept">${evento.depto}</span>
+          <span class="badge badge-type">${evento.tipo}</span>
         </div>
-        <div class="fest-date">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8"  y1="2" x2="8"  y2="6"/>
-            <line x1="3"  y1="10" x2="21" y2="10"/>
-          </svg>
-          ${f.dia} de ${MONTHS[f.mes]}
-        </div>
-        <h3>${f.nombre}</h3>
-        <p>${f.descripcion.slice(0, 130)}…</p>
+        <h3>${evento.nombre}</h3>
+        <p>${evento.desc}</p>
+        <p class="fest-date"><strong>Fecha:</strong> ${evento.dia} de ${nombresMeses[evento.mes]}</p>
       </div>
       <div class="fest-card-footer">
-        <div class="fest-location">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          ${f.municipio}, ${f.departamento}
-        </div>
-        <a class="map-link" href="${f.mapUrl}" target="_blank" rel="noopener">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-          </svg>
-          Ver en mapa
-        </a>
+        <span class="fest-location">${evento.depto}, El Salvador</span>
+        <a href="mapa.html" class="map-link">Ver en mapa</a>
       </div>
-    </div>`
-  ).join('');
+    `;
 
-  // Click en cuerpo de tarjeta → modal
-  grid.querySelectorAll('.fest-card').forEach(card => {
-    card.querySelector('.fest-card-body').addEventListener('click', () => {
-      const f = FESTIVIDADES.find(f => f.id === +card.dataset.id);
-      openModal(f);
+    card.querySelector(".fest-card-body").addEventListener("click", () => {
+      window.abrirDetallesEvento(evento);
     });
+
+    catalogGrid.appendChild(card);
   });
+
+  // Visibilidad del botón controlador
+  if (loadMoreContainer) {
+    if (eventos.length > 6) {
+      loadMoreContainer.style.display = "block";
+    } else {
+      loadMoreContainer.style.display = "none";
+    }
+  }
 }
 
-/* ════════════════════════════════════════
-   MODAL
-════════════════════════════════════════ */
-function openModal(f) {
-  if (!f) return;
+function filtrarFestividades() {
+  const deptVal = document.getElementById("f-dept").value;
+  const monthVal = document.getElementById("f-month").value;
+  const typeVal = document.getElementById("f-type").value;
+  const searchVal = document.getElementById("f-search").value.toLowerCase();
 
-  document.getElementById('modalTitle').textContent = f.nombre;
-  document.getElementById('modalBody').innerHTML = `
-    <div class="modal-row">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="4" width="18" height="18" rx="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8"  y1="2" x2="8"  y2="6"/>
-        <line x1="3"  y1="10" x2="21" y2="10"/>
-      </svg>
-      <div>
-        <div class="lbl">Fecha</div>
-        <div class="val">${f.dia} de ${MONTHS[f.mes]}</div>
-      </div>
-    </div>
-    <div class="modal-row">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-      <div>
-        <div class="lbl">Ubicación</div>
-        <div class="val">${f.municipio}, ${f.departamento}</div>
-      </div>
-    </div>
-    <div class="modal-row">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 8v4l3 3"/>
-      </svg>
-      <div>
-        <div class="lbl">Tipo</div>
-        <div class="val">${f.tipo}</div>
-      </div>
-    </div>
-    <div class="modal-row" style="margin-bottom:1.25rem">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-      </svg>
-      <div>
-        <div class="lbl">Descripción</div>
-        <div class="val">${f.descripcion}</div>
-      </div>
-    </div>
-    <a class="modal-map-btn" href="${f.mapUrl}" target="_blank" rel="noopener">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-      </svg>
-      Ver ubicación en Google Maps
-    </a>`;
+  listaEventosFiltrados = calendarState.festividades.filter(evento => {
+    const matchDept = deptVal === "" || evento.depto === deptVal;
+    const matchMonth = monthVal === "" || evento.mes.toString() === monthVal;
+    const matchType = typeVal === "" || evento.tipo === typeVal;
+    const matchSearch = searchVal === "" || evento.nombre.toLowerCase().includes(searchVal) || evento.desc.toLowerCase().includes(searchVal);
 
-  document.getElementById('modalOverlay').classList.add('open');
+    return matchDept && matchMonth && matchType && matchSearch;
+  });
+
+  triggerCatalogAnimation();
+  renderCatalogo(listaEventosFiltrados);
 }
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
+function setupModalEvents() {
+  const modalOverlay = document.getElementById("modalOverlay");
+  const modalClose = document.getElementById("modalClose");
+
+  if (modalClose && modalOverlay) {
+    modalClose.addEventListener("click", () => {
+      modalOverlay.classList.remove("open");
+    });
+
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove("open");
+      }
+    });
+  }
+
+  window.abrirDetallesEvento = (evento) => {
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    
+    if (!modalOverlay || !modalTitle || !modalBody) return;
+
+    modalTitle.textContent = evento.nombre;
+    modalBody.innerHTML = `
+      <div class="modal-row">
+        <div>
+          <p class="lbl">Ubicación</p>
+          <p class="val">${evento.depto}, El Salvador</p>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <p class="lbl">Tipo de Evento</p>
+          <p class="val">${evento.tipo}</p>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <p class="lbl">Fecha de Celebración</p>
+          <p class="val">${evento.dia} de ${nombresMeses[evento.mes]} de ${evento.anio}</p>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <p class="lbl">Descripción</p>
+          <p class="val">${evento.desc}</p>
+        </div>
+      </div>
+      <a href="mapa.html" class="modal-map-btn">Explorar en Mapa Interactivo</a>
+    `;
+
+    modalOverlay.classList.add("open");
+  };
 }
 
-/* ════════════════════════════════════════
-   EVENT LISTENERS
-════════════════════════════════════════ */
-document.getElementById('prevYear').addEventListener('click', () => {
-  state.year--;
-  renderCalendar();
-});
-
-document.getElementById('nextYear').addEventListener('click', () => {
-  state.year++;
-  renderCalendar();
-});
-
-document.getElementById('applyFilter').addEventListener('click', applyFilters);
-
-document.getElementById('clearFilter').addEventListener('click', () => {
-  document.getElementById('f-dept').value  = '';
-  document.getElementById('f-month').value = '';
-  document.getElementById('f-type').value  = '';
-  document.getElementById('f-search').value = '';
-  state.filtered = [...FESTIVIDADES];
-  renderCatalog();
-});
-
-document.getElementById('f-search').addEventListener('keydown', e => {
-  if (e.key === 'Enter') applyFilters();
-});
-
-document.getElementById('modalClose').addEventListener('click', closeModal);
-
-document.getElementById('modalOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
-});
-
-document.getElementById('gridViewBtn').addEventListener('click', () => {
-  state.viewList = false;
-  document.getElementById('catalogGrid').classList.remove('list-view');
-  document.getElementById('gridViewBtn').classList.add('active');
-  document.getElementById('listViewBtn').classList.remove('active');
-});
-
-document.getElementById('listViewBtn').addEventListener('click', () => {
-  state.viewList = true;
-  document.getElementById('catalogGrid').classList.add('list-view');
-  document.getElementById('listViewBtn').classList.add('active');
-  document.getElementById('gridViewBtn').classList.remove('active');
-});
-
-/* ════════════════════════════════════════
-   INIT
-════════════════════════════════════════ */
-renderMonthPills();
-renderCalendar();
-renderCatalog();
+function triggerCatalogAnimation() {
+  const catalogGrid = document.getElementById("catalogGrid");
+  if (catalogGrid) {
+    catalogGrid.classList.remove("fade-transition");
+    void catalogGrid.offsetWidth; 
+    catalogGrid.classList.add("fade-transition");
+  }
+}
