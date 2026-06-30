@@ -57,7 +57,7 @@
       <div class="hero__overlay"></div>
       <div class="hero__content">
         <div class="hero__title-wrap">
-          <h1 class="hero__title">Bienvenid@ a Raíces SV</h1>
+          <h1 class="hero__title" id="heroTitle">Bienvenid@ a Raíces SV</h1>
         </div>
         <p class="hero__subtitle">Nuestra herencia, nuestro orgullo.</p>
         <a href="../views/categorias.html" class="btn-primary hero__cta">Explorar Culturas</a>
@@ -72,6 +72,37 @@
       </div>
     </section>
 
+    <!-- ESTADÍSTICAS ANIMADAS -->
+    <section class="stats">
+      <div class="stats__grid">
+        <div class="stat reveal" style="transition-delay:.05s">
+          <span class="stat__num" data-count="5">0</span>
+          <span class="stat__label">Categorías culturales</span>
+        </div>
+        <div class="stat reveal" style="transition-delay:.12s">
+          <span class="stat__num" data-count="14">0</span>
+          <span class="stat__label">Departamentos representados</span>
+        </div>
+        <div class="stat reveal" style="transition-delay:.19s">
+          <span class="stat__num" data-count="500" data-suffix="+">0</span>
+          <span class="stat__label">Años de historia</span>
+        </div>
+        <div class="stat reveal" style="transition-delay:.26s">
+          <span class="stat__num" data-count="20" data-suffix="+">0</span>
+          <span class="stat__label">Leyendas y tradiciones</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATO CURIOSO ROTATIVO -->
+    <section class="fact-wrap">
+      <div class="fact-box reveal">
+        <p class="fact-box__eyebrow">¿Sabías que...?</p>
+        <p class="fact-box__text" id="factText">El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.</p>
+        <div class="fact-dots" id="factDots"></div>
+      </div>
+    </section>
+
     <!-- BADGE -->
     <section class="info-badge">
       <div class="ino-badge__inner reveal">
@@ -81,31 +112,41 @@
 
     <!-- GRID DE CARDS -->
     <section class="home-grid">
-      <a href="../views/sitios-culturales.html" class="home-card reveal" style="transition-delay:.05s">
+      <div class="home-card reveal" style="transition-delay:.05s">
         <img src="../assets/media/Sitios Culturales.png" alt="Sitios Culturales" />
         <div class="home-card__grad"></div>
         <span class="home-card__label">Sitios Culturales</span>
-      </a>
-      <a href="../views/gastronomia.html" class="home-card reveal" style="transition-delay:.15s">
+        <a href="../views/sitios-culturales.html" class="home-card__btn">Explorar</a>
+      </div>
+      <div class="home-card reveal" style="transition-delay:.15s">
         <img src="../assets/media/Gastronomia.png" alt="Gastronomía" />
         <div class="home-card__grad"></div>
         <span class="home-card__label">Gastronomía</span>
-      </a>
-      <a href="../views/eventos.html" class="home-card reveal" style="transition-delay:.25s">
+        <a href="../views/gastronomia.html" class="home-card__btn">Explorar</a>
+      </div>
+      <div class="home-card reveal" style="transition-delay:.25s">
         <img src="../assets/media/Eventos Culturales.png" alt="Eventos Culturales" />
         <div class="home-card__grad"></div>
         <span class="home-card__label">Eventos Culturales</span>
-      </a>
-      <a href="../views/historia.html" class="home-card reveal" style="transition-delay:.35s">
+        <a href="../views/eventos.html" class="home-card__btn">Explorar</a>
+      </div>
+      <div class="home-card reveal" style="transition-delay:.35s">
         <img src="../assets/media/Historia.png" alt="Historia" />
         <div class="home-card__grad"></div>
         <span class="home-card__label">Historia</span>
-      </a>
-      <a href="../views/leyendas.html" class="home-card reveal" style="transition-delay:.45s">
+        <a href="../views/historia.html" class="home-card__btn">Explorar</a>
+      </div>
+      <div class="home-card reveal" style="transition-delay:.45s">
         <img src="../assets/media/Leyendas.jpg" alt="Leyendas" />
         <div class="home-card__grad"></div>
         <span class="home-card__label">Leyendas</span>
-      </a>
+        <a href="../views/leyendas.html" class="home-card__btn">Explorar</a>
+      </div>
+    </section>
+
+    <!-- BOTÓN CTA FINAL -->
+    <section class="home-cta-final">
+      <a href="../views/categorias.html" class="btn-primary btn-large">Ver Todas las Categorías</a>
     </section>
 
   </main>
@@ -128,6 +169,7 @@
   </footer>
 
   <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/interactive.js"></script>
   <script src="../assets/js/chatbot.js"></script>
   <script>
     // Hero image zoom on load

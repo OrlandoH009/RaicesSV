@@ -293,6 +293,40 @@ ul    { list-style: none; }
 .footer__copy { font-size: .8rem; color: #555; margin-top: .5rem; }
 
 /* ══════════════════════════════════
+   BARRA DE PROGRESO DE SCROLL
+   ══════════════════════════════════ */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), #f0c98a);
+  z-index: 1200;
+  transition: width .08s linear;
+  box-shadow: 0 0 8px rgba(190,142,86,.6);
+}
+
+/* ══════════════════════════════════
+   SPOTLIGHT EN TARJETAS (tilt 3D)
+   ══════════════════════════════════ */
+.card-spotlight {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.25), transparent 60%);
+  opacity: 0;
+  transition: opacity .25s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.home-card:hover .card-spotlight,
+.categoria-card:hover .card-spotlight { opacity: 1; }
+
+@media (hover: none) {
+  .card-spotlight { display: none; }
+}
+
+/* ══════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════ */
 @media (max-width: 600px) {
