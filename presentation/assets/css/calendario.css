@@ -5,17 +5,17 @@
 
 /* ── Tokens ── */
 :root {
-  --añil:       #205894;
-  --añil-deep:  #0f2a45;
-  --añil-light: #336a97;
-  --tierra:     #C0622F;
-  --tierra-lt:  #D97B46;
-  --oro:        #D4A843;
-  --crema:      #fbf5e8;
-  --crema-dk:   #EDE5D4;
-  --carbon:     #423e3e;
-  --smoke:      #6B6358;
-  --white:      #ede5e5;
+  --añil:       #2b5f8a;
+  --añil-deep:  #214b6f;
+  --añil-light: #4a7da2;
+  --tierra:     #b4632f;
+  --tierra-lt:  #c97a45;
+  --oro:        #c89a3b;
+  --crema:      #f7efe2;
+  --crema-dk:   #e4d8c3;
+  --carbon:     #332d28;
+  --smoke:      #1b1612;
+  --white:      #fffdfa;
   --radius:     8px;
   --shadow-sm:  0 2px 8px rgba(15,36,57,.12);
   --shadow-md:  0 6px 24px rgba(15,36,57,.18);
@@ -47,13 +47,25 @@ body {
   text-align: center;
   position: relative;
   overflow: hidden;
+  border-radius: calc(var(--radius) * 1.5);
+  border: 1px solid rgba(255,255,255,.85);
+  box-shadow: 0 18px 40px rgba(0,0,0,.12);
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: calc(var(--radius) * 1.4);
+  pointer-events: none;
 }
 
 .page-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A843' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background: radial-gradient(circle at top left, rgba(255,255,255,.18), transparent 40%);
   pointer-events: none;
 }
 
@@ -83,7 +95,7 @@ body {
 .page-hero p {
   max-width: 520px;
   margin: 0 auto;
-  color: rgba(255,255,255,.7);
+  color: rgba(255,255,255,.9);
   font-size: .95rem;
   line-height: 1.6;
 }
@@ -136,6 +148,11 @@ section {
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: var(--shadow-sm);
 }
 
 .cal-nav-btn {
@@ -148,15 +165,18 @@ section {
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: .85rem;
-  padding: .5rem 1rem;
-  border-radius: var(--radius);
+  padding: .75rem 1.1rem;
+  border-radius: calc(var(--radius) * 1.2);
   cursor: pointer;
   transition: all var(--transition);
+  min-width: 150px;
+  justify-content: center;
 }
 
 .cal-nav-btn:hover {
   background: var(--añil);
   color: var(--white);
+  transform: translateY(-1px);
 }
 
 .cal-month-title {
@@ -179,8 +199,8 @@ section {
 .month-pill {
   padding: .4rem .9rem;
   border-radius: 999px;
-  border: 1.5px solid var(--crema-dk);
-  background: var(--white);
+  border: 1.5px solid rgba(255,255,255,.7);
+  background: rgba(255,255,255,.95);
   color: var(--smoke);
   font-size: .8rem;
   font-weight: 500;
@@ -210,13 +230,15 @@ section {
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  border: 1px solid var(--crema-dk);
+  border: 1px solid rgba(255,255,255,.9);
 }
 
 .cal-grid-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: var(--añil);
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.12);
 }
 
 .cal-grid-header span {
@@ -226,7 +248,7 @@ section {
   font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.8);
+  color: rgba(255,255,255,.95);
 }
 
 .cal-grid {
@@ -244,20 +266,20 @@ section {
 }
 
 .cal-day.other-month {
-  background: #f9f7f2;
+  background: #f3ebdf;
 }
 
 .cal-day.other-month .day-num {
-  color: #c5bfb5;
+  color: #8f806f;
 }
 
 .cal-day.has-event {
   cursor: pointer;
-  background: #fff8f3;
+  background: #fff8ee;
 }
 
 .cal-day.has-event:hover {
-  background: #ffeede;
+  background: #fbe5c9;
 }
 
 .cal-day.today .day-num {
@@ -304,8 +326,8 @@ section {
 
 .day-label {
   font-size: .65rem;
-  color: var(--tierra);
-  font-weight: 500;
+  color: #8a4d1f;
+  font-weight: 600;
   line-height: 1.2;
   margin-top: .15rem;
   display: -webkit-box;
@@ -318,11 +340,22 @@ section {
    FILTRO
 ════════════════════════════════════════ */
 .filter-section {
-  background: var(--añil-deep);
-  border-radius: var(--radius);
-  padding: 1.5rem;
+  background: linear-gradient(180deg, var(--añil-deep) 0%, rgba(42,81,133,.95) 100%);
+  border-radius: calc(var(--radius) * 1.2);
+  padding: 1.75rem;
   margin: 2rem 0 0;
-  border: 1px solid rgba(212,168,67,.2);
+  border: 1px solid rgba(255,255,255,.65);
+  box-shadow: 0 18px 45px rgba(16, 42, 73, .15);
+  position: relative;
+}
+
+.filter-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255,255,255,.22);
+  pointer-events: none;
 }
 
 .filter-section .section-label {
@@ -347,7 +380,7 @@ section {
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.6);
+  color: rgba(255,255,255,.88);
   margin-bottom: .4rem;
 }
 
@@ -356,14 +389,14 @@ section {
   width: 100%;
   padding: .65rem .9rem;
   border-radius: var(--radius);
-  border: 1.5px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.12);
   color: var(--white);
   font-family: 'Inter', sans-serif;
   font-size: .9rem;
   outline: none;
   appearance: none;
-  transition: border var(--transition), background var(--transition);
+  transition: border var(--transition), background var(--transition), transform var(--transition);
 }
 
 .filter-field select option {
@@ -374,11 +407,12 @@ section {
 .filter-field select:focus,
 .filter-field input:focus {
   border-color: var(--oro);
-  background: rgba(212,168,67,.08);
+  background: rgba(212,168,67,.12);
+  transform: translateY(-1px);
 }
 
 .filter-field input::placeholder {
-  color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,.7);
 }
 
 .filter-actions {
@@ -389,11 +423,11 @@ section {
 
 /* ── Botones ── */
 .btn-filter {
-  padding: .65rem 1.2rem;
+  padding: .75rem 1.3rem;
   background: var(--tierra);
   color: var(--white);
   border: none;
-  border-radius: var(--radius);
+  border-radius: calc(var(--radius) * 1.1);
   font-family: 'Inter', sans-serif;
   font-size: .88rem;
   cursor: pointer;
@@ -401,9 +435,10 @@ section {
   letter-spacing: .02em;
 }
 
-.btn-primary:hover {
+.btn-filter:hover {
   background: var(--tierra-lt);
   transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0,0,0,.1);
 }
 
 .btn-ghost {
@@ -419,8 +454,11 @@ section {
 }
 
 .btn-ghost:hover {
-  border-color: rgba(255,255,255,.5);
+  border-color: rgba(255,255,255,.7);
   color: var(--white);
+  background: rgba(255,255,255,.14);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
 }
 
 /* ════════════════════════════════════════
@@ -437,7 +475,7 @@ section {
 
 .results-count {
   font-size: .85rem;
-  color: var(--smoke);
+  color: #3b342e;
 }
 
 .results-count strong {
@@ -468,6 +506,8 @@ section {
   border-color: var(--añil);
   background: var(--añil);
   color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,.1);
 }
 
 /* ════════════════════════════════════════
@@ -558,8 +598,8 @@ section {
 }
 
 .badge-type {
-  background: #f9f4e4;
-  color: #9a7b1a;
+  background: #f3e7b8;
+  color: #7a5c0f;
 }
 
 .fest-date {
@@ -599,7 +639,7 @@ section {
   justify-content: space-between;
   gap: .75rem;
   flex-wrap: wrap;
-  background: #fafaf7;
+  background: #f1e6cc;
 }
 
 .fest-location {
@@ -607,7 +647,8 @@ section {
   align-items: center;
   gap: .35rem;
   font-size: .78rem;
-  color: var(--smoke);
+  color: #3c352d;
+  font-weight: 600;
 }
 
 .fest-location svg {
@@ -652,26 +693,7 @@ section {
   margin-top: .5rem;
 }
 
-/* ════════════════════════════════════════
-   FOOTER
-════════════════════════════════════════ */
-footer {
-  background: var(--añil-deep);
-  border-top: 3px solid var(--oro);
-  padding: 2rem 1.5rem;
-  text-align: center;
-  margin-top: 3rem;
-}
 
-footer p {
-  color: rgba(255,255,255,.45);
-  font-size: .8rem;
-}
-
-footer a {
-  color: var(--oro);
-  text-decoration: none;
-}
 
 /* ════════════════════════════════════════
    MODAL
@@ -766,7 +788,7 @@ footer a {
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--smoke);
+  color: #2f2a25;
   margin-bottom: .15rem;
 }
 
