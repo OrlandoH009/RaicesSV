@@ -1,7 +1,6 @@
 const mysql = require('mysql2');
 const dotenv = require('dotenv');
 
-// Por si este módulo se carga antes que server.js llame a dotenv.config().
 dotenv.config();
 
 const db = mysql.createConnection({
