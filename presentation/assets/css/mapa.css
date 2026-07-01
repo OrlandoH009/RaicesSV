@@ -13,7 +13,7 @@
       --r-sm:  15px;
       --r-md:  25px;
       --r-lg:  35px;
-      --nav-h: 80px;
+      --nav-h: 64px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@
       width: 100%; height: var(--nav-h);
       background: var(--navy);
       display: flex; align-items: center;
-      padding: 0 2rem; z-index: 1000;
+      padding: 0 1.5rem; z-index: 1000;
       box-shadow: 0 2px 20px rgba(0,0,0,.45);
       transition: background .3s, height .35s cubic-bezier(.4,0,.2,1), padding .35s ease, box-shadow .3s;
     }
@@ -45,10 +45,10 @@
     .navbar.nav-mini .navbar__logo img { width: 62px; height: 62px; }
     .navbar.nav-mini .navbar__links a { font-size: 1.05rem; }
     .navbar.nav-mini .navbar__links { gap: 1.8rem; }
-    .navbar__logo img { width: 100px; height: 100px; object-fit: contain; transition: width .35s ease, height .35s ease; }
-    .navbar__links { display: flex; align-items: center; gap: 2.5rem; margin-left: 2rem; flex: 1; transition: gap .35s ease; }
+    .navbar__logo img { width: 60px; height: 60px; object-fit: contain; transition: width .35s ease, height .35s ease; }
+    .navbar__links { display: flex; align-items: center; gap: 1.5rem; margin-left: 1.25rem; flex: 1; transition: gap .35s ease; }
     .navbar__links a {
-      font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;
+      font-family: var(--font-display); font-weight: 700; font-size: 1rem;
       color: var(--white); position: relative; transition: color .2s, font-size .35s ease;
     }
     .navbar__links a::after {
@@ -60,9 +60,9 @@
 
     .navbar__burger {
       margin-left: auto; background: none; border: none; cursor: pointer;
-      display: flex; flex-direction: column; gap: 5px; padding: 6px;
+      display: flex; flex-direction: column; gap: 4px; padding: 4px;
     }
-    .navbar__burger span { display: block; width: 28px; height: 3px; background: var(--white); border-radius: 2px; transition: transform .3s, opacity .3s; }
+    .navbar__burger span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: transform .3s, opacity .3s; }
     .navbar__burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,6px); }
     .navbar__burger.open span:nth-child(2) { opacity: 0; }
     .navbar__burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-6px); }
