@@ -52,7 +52,8 @@
       <h1>Iniciar Sesión</h1>
       <p class="auth-card__sub">Nuestra herencia, nuestro orgullo.</p>
 
-      <form action="#" method="post" onsubmit="return false;">
+      <form id="login-form" action="/login" method="post">
+        <div id="form-message" class="auth-message" role="alert" style="display:none; margin-bottom: 1rem;"></div>
         <div class="form-group">
           <label for="email">Correo electrónico</label>
           <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required />
