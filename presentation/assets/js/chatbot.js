@@ -22,7 +22,18 @@ Si te preguntan algo que no tiene relación con El Salvador, su cultura, histori
 
 Responde siempre en español, de forma amable, concisa y educativa. Usa un tono cálido y cercano que refleje el orgullo por la cultura salvadoreña.`;
 
-  const PROXY_URL = '../../data/api/chat-proxy.php';
+  const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita", el asistente de Raíces SV, ahora en modo "Planificador de salidas". Tu tarea es crear un plan de salida turístico/cultural realista dentro de El Salvador, basado en la actividad deseada, el presupuesto y el tiempo disponible que te indique el usuario.
+
+Reglas:
+- Usa siempre dólares estadounidenses ($), la moneda oficial de El Salvador.
+- Recomienda lugares reales y conocidos de El Salvador (sitios culturales, históricos, gastronómicos o de leyendas según corresponda).
+- Sugiere un orden lógico de actividades considerando cercanía y tiempo disponible.
+- Da un estimado de gasto aproximado por actividad (entrada, comida, transporte) y un total, procurando que se ajuste al presupuesto indicado.
+- Sé breve pero claro, usa listas o pasos numerados y **negritas** para resaltar nombres de lugares.
+- Cierra el plan con una recomendación o tip práctico (ej. mejor horario, cómo llegar, qué llevar).
+- Responde siempre en español, con tono cálido y cercano.`;
+
+  const PROXY_URL = '/chat-proxy';
 
   const STYLES = `
     #rs-chat-widget * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
@@ -129,6 +140,46 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
       width: 7px; height: 7px; border-radius: 50%;
       background: #22c55e; display: inline-block; margin-right: 4px;
     }
+
+    #rs-planner-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,.08);
+      border: 1.5px solid rgba(190,142,86,.5);
+      color: rgba(255,255,255,.85);
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 10.5px;
+      padding: 6px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .2s, border-color .2s, color .2s;
+      white-space: nowrap;
+    }
+    #rs-planner-toggle svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+    #rs-planner-toggle:hover { background: rgba(190,142,86,.2); }
+    #rs-planner-toggle.active {
+      background: #be8e56;
+      border-color: #be8e56;
+      color: #113068;
+    }
+    #rs-planner-toggle.active:hover { background: #a87a42; }
+
+    .rs-planner-btn {
+      color: #113068;
+      background: #be8e56;
+      border-color: #be8e56;
+      font-weight: 700;
+    }
+    .rs-planner-btn:hover { background: #a87a42; }
+    .rs-cancel-btn {
+      color: rgba(255,255,255,.55);
+      border-color: rgba(255,255,255,.2);
+      background: transparent;
+    }
+    .rs-cancel-btn:hover { background: rgba(255,255,255,.08); }
 
     #rs-chat-messages {
       flex: 1;
@@ -250,6 +301,31 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
   let isLoading   = false;
   let bubbleHidden = false;
 
+  // --- Estado del planificador de salidas ---
+  let plannerMode = false;   // true = interruptor activado
+  let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'generating' | 'done' | null
+  let plannerData = {};
+
+  const PLANNER_ACTIVITY_OPTIONS = [
+    { label: '🍲 Gastronomía',        value: 'gastronomía típica salvadoreña (pupusas, mercados, comida local)' },
+    { label: '🏛️ Historia y sitios',  value: 'sitios históricos y arqueológicos (ruinas, museos, iglesias coloniales)' },
+    { label: '🎉 Eventos y fiestas',  value: 'eventos y fiestas patronales o culturales' },
+    { label: '👻 Leyendas',           value: 'lugares y rutas relacionadas con leyendas salvadoreñas' },
+    { label: '🌄 Un poco de todo',    value: 'una mezcla de gastronomía, historia y cultura general' },
+  ];
+
+  const PLANNER_BUDGET_OPTIONS = [
+    { label: '💵 Económico ($5–$15)', value: 'un presupuesto económico, entre $5 y $15 dólares' },
+    { label: '💰 Moderado ($15–$40)', value: 'un presupuesto moderado, entre $15 y $40 dólares' },
+    { label: '💎 Alto ($40+)',        value: 'un presupuesto alto, de más de $40 dólares' },
+  ];
+
+  const PLANNER_TIME_OPTIONS = [
+    { label: '⏱️ Medio día',   value: 'medio día (aproximadamente 3-4 horas)' },
+    { label: '🌞 Día completo', value: 'un día completo' },
+    { label: '📅 Fin de semana', value: 'un fin de semana completo' },
+  ];
+
   function init() {
     const styleEl = document.createElement('style');
     styleEl.textContent = STYLES;
@@ -282,6 +358,10 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
           <div class="rs-name">Pupusita — Asistente</div>
           <div class="rs-status"><span class="rs-dot"></span>En línea</div>
         </div>
+        <button id="rs-planner-toggle" aria-pressed="false" title="Activar planificador de salidas">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>
+          <span>Planificar</span>
+        </button>
       </div>
       <div id="rs-chat-messages"></div>
       <div id="rs-chat-footer">
@@ -301,6 +381,7 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
     document.getElementById('rs-chat-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
+    document.getElementById('rs-planner-toggle').addEventListener('click', togglePlannerMode);
 
     setTimeout(() => {
       if (!isOpen && !bubbleHidden) {
@@ -310,7 +391,7 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
       }
     }, 6000);
 
-    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Raíces SV. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?", true);
+    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Raíces SV. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.", true);
   }
 
   function toggleChat() {
@@ -357,6 +438,53 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
     msgs.scrollTop = msgs.scrollHeight;
   }
 
+  function addBotMessageWithButtons(text, buttons, includeCancel) {
+    const msgs = document.getElementById('rs-chat-messages');
+    if (!msgs) return;
+    const div = document.createElement('div');
+    div.className = 'rs-msg bot';
+    const formatted = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+    div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
+
+    const qWrap = document.createElement('div');
+    qWrap.className = 'rs-quick-btns';
+    buttons.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'rs-quick-btn rs-planner-btn';
+      b.textContent = opt.label;
+      b.addEventListener('click', () => {
+        qWrap.remove();
+        opt.onClick();
+      });
+      qWrap.appendChild(b);
+    });
+    if (includeCancel) {
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'rs-quick-btn rs-cancel-btn';
+      cancelBtn.textContent = '✖ Cancelar planificador';
+      cancelBtn.addEventListener('click', () => {
+        qWrap.remove();
+        setPlannerToggle(false);
+        cancelPlannerFlow();
+      });
+      qWrap.appendChild(cancelBtn);
+    }
+    div.appendChild(qWrap);
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function setInputEnabled(enabled, placeholder) {
+    const input   = document.getElementById('rs-chat-input');
+    const sendBtn = document.getElementById('rs-chat-send');
+    if (!input) return;
+    input.disabled = !enabled;
+    if (sendBtn) sendBtn.disabled = !enabled || isLoading;
+    input.placeholder = placeholder || 'Escribe tu pregunta...';
+  }
+
   function addUserMessage(text) {
     const msgs = document.getElementById('rs-chat-messages');
     if (!msgs) return;
@@ -386,11 +514,121 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // --- Lógica del planificador de salidas ---
+
+  function setPlannerToggle(active) {
+    plannerMode = active;
+    const toggleBtn = document.getElementById('rs-planner-toggle');
+    if (!toggleBtn) return;
+    toggleBtn.classList.toggle('active', active);
+    toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  }
+
+  function togglePlannerMode() {
+    if (isLoading) return;
+    if (!plannerMode) {
+      setPlannerToggle(true);
+      startPlannerFlow();
+    } else {
+      setPlannerToggle(false);
+      cancelPlannerFlow();
+    }
+  }
+
+  function startPlannerFlow() {
+    plannerStep = 'activity';
+    plannerData = {};
+    setInputEnabled(false, 'Selecciona una opción arriba...');
+    addBotMessageWithButtons(
+      '¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, ¿qué te gustaría hacer?',
+      PLANNER_ACTIVITY_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerActivity(opt) })),
+      true
+    );
+  }
+
+  function handlePlannerActivity(opt) {
+    plannerData.activity = opt.value;
+    addUserMessage(opt.label);
+    plannerStep = 'budget';
+    addBotMessageWithButtons(
+      'Genial. ¿Cuál es tu presupuesto aproximado para esta salida?',
+      PLANNER_BUDGET_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerBudget(opt) })),
+      true
+    );
+  }
+
+  function handlePlannerBudget(opt) {
+    plannerData.budget = opt.value;
+    addUserMessage(opt.label);
+    plannerStep = 'duration';
+    addBotMessageWithButtons(
+      'Perfecto. ¿Cuánto tiempo tienes disponible para tu salida?',
+      PLANNER_TIME_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerDuration(opt) })),
+      true
+    );
+  }
+
+  function handlePlannerDuration(opt) {
+    plannerData.duration = opt.value;
+    addUserMessage(opt.label);
+    plannerStep = 'generating';
+    generatePlan();
+  }
+
+  async function generatePlan() {
+    setInputEnabled(false, 'Generando tu plan...');
+    showTyping();
+
+    const userPrompt = `Planifícame una salida con estas preferencias:
+- Actividad deseada: ${plannerData.activity}
+- Presupuesto: ${plannerData.budget}
+- Tiempo disponible: ${plannerData.duration}
+
+Dame un plan concreto y realista dentro de El Salvador, con lugares específicos a visitar, un orden sugerido y un estimado de gasto total dentro del presupuesto indicado.`;
+
+    try {
+      const response = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system:   PLANNER_SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      const data = await response.json();
+      hideTyping();
+
+      const reply = data?.content?.[0]?.text || 'No pude generar tu plan en este momento. Intenta de nuevo.';
+      addBotMessage(reply);
+      plannerStep = 'done';
+
+      addBotMessageWithButtons('¿Quieres planificar otra salida o volver al chat normal?', [
+        { label: '🔁 Planificar otra salida', onClick: startPlannerFlow },
+        { label: '✅ Volver al chat normal', onClick: () => { setPlannerToggle(false); cancelPlannerFlow(true); } },
+      ], false);
+
+    } catch (err) {
+      hideTyping();
+      addBotMessage('Hubo un problema generando tu plan. Por favor intenta de nuevo.');
+      console.error('Planner error:', err);
+    }
+
+    setInputEnabled(true);
+  }
+
+  function cancelPlannerFlow(silent) {
+    plannerStep = null;
+    plannerData = {};
+    setInputEnabled(true);
+    if (!silent) addBotMessage('Planificador desactivado. Puedes seguir chateando normalmente. 😊');
+  }
+
   function sendMessage() {
     const input = document.getElementById('rs-chat-input');
     if (!input) return;
     const text = input.value.trim();
-    if (!text || isLoading) return;
+    if (!text || isLoading || (plannerStep && plannerStep !== 'done')) return;
     input.value = '';
     sendUserText(text);
   }

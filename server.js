@@ -8,6 +8,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const authRoutes = require('./routes/auth.routes');
+const chatRoutes = require('./routes/chat.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 
 app.use(express.urlencoded({ extended: true }));
@@ -74,6 +75,8 @@ app.get(['/mapa', '/mapa.html'], protectRoute, (req, res) => {
 });
 
 app.use(authRoutes);
+
+app.use(chatRoutes);
 
 app.listen(port, () => {
     console.log(`Servidor iniciado en http://localhost:${port}`);
