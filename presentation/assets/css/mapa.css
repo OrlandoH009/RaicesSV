@@ -183,7 +183,7 @@
     /* ── Contador flotante (esquina inferior izquierda del mapa) ── */
     .mapa-count-float {
       position: absolute;
-      bottom: 1rem; left: 1.25rem;
+      bottom: 1.25rem; left: 6rem;
       z-index: 1100;
       background: rgba(10,10,10,.6);
       backdrop-filter: blur(8px);
