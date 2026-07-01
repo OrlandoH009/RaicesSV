@@ -10,7 +10,6 @@ const port = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 
 if (isProduction && !process.env.SESSION_SECRET) {
-    // En producción es obligatorio definir un secreto propio y fuerte.
     console.error('FALTA SESSION_SECRET en el archivo .env. No se debe usar el valor por defecto en producción.');
     process.exit(1);
 }
@@ -19,8 +18,6 @@ const authRoutes = require('./routes/auth.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
 
-// Confía en el proxy (necesario en Render/Heroku/Nginx, etc.) para que
-// "secure" en la cookie y req.ip funcionen correctamente detrás de un proxy.
 app.set('trust proxy', 1);
 
 app.use(securityHeaders);
@@ -41,13 +38,10 @@ app.use(session({
     }
 }));
 
-// Verificación de origen para peticiones que cambian estado (defensa CSRF adicional
-// a la cookie SameSite=Lax).
 app.use(verifyOrigin);
 
 // Solo se sirven como estáticos los recursos públicos (css/js/imágenes/favicons).
-// Las vistas HTML NUNCA se sirven aquí, así el control de acceso de las rutas de
-// abajo (protectRoute) no se puede saltar pidiendo el archivo directamente.
+// Las vistas HTML NUNCA se sirven aquí.
 app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets')));
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
@@ -107,11 +101,7 @@ app.post('/logout', rateLimit({ windowMs: 15 * 60 * 1000, max: 30 }), (req, res)
     });
 });
 
-/* ───────────── Páginas protegidas (requieren sesión) ─────────────
- * Casi todo el contenido queda bloqueado hasta iniciar sesión, tal como se pidió.
- * Si en el futuro quieres dejar alguna de estas páginas pública, basta con quitarle
- * el middleware "protectRoute" a esa ruta.
- */
+/* ───────────── Páginas protegidas (requieren sesión) ───────────── */
 
 const protectedViews = [
     'mapa.html',
@@ -144,12 +134,10 @@ app.use(
 
 app.use(authRoutes);
 
-// 404 para cualquier otra cosa no definida arriba.
 app.use((req, res) => {
     res.status(404).send('Página no encontrada.');
 });
 
-// Manejador de errores genérico: nunca exponer detalles internos al cliente.
 app.use((err, req, res, next) => {
     console.error(err);
     if (res.headersSent) return next(err);
