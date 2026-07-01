@@ -143,7 +143,7 @@ function renderCatalogo(eventos) {
       </div>
       <div class="fest-card-footer">
         <span class="fest-location">${evento.depto}, El Salvador</span>
-        <a href="mapa.html" class="map-link">Ver en mapa</a>
+        <a href="mapa.html?evento=${20 + evento.id}" class="map-link">Ver en mapa</a>
       </div>
     `;
 
@@ -231,7 +231,7 @@ function setupModalEvents() {
           <p class="val">${evento.desc}</p>
         </div>
       </div>
-      <a href="mapa.html" class="modal-map-btn">Explorar en Mapa Interactivo</a>
+      <a href="mapa.html?evento=${20 + evento.id}" class="modal-map-btn">Explorar en Mapa Interactivo</a>
     `;
 
     modalOverlay.classList.add("open");
