@@ -253,6 +253,21 @@ ul    { list-style: none; }
 }
 .btn-register:hover { background: var(--gold-hover); transform: translateY(-1px); }
 
+.btn-logout {
+  display: block;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  background: rgba(255,255,255,.08);
+  color: var(--white);
+  border: 2px solid rgba(255,255,255,.5);
+  border-radius: var(--r-sm);
+  padding: .65rem 1rem;
+  transition: border-color .2s, background .2s;
+}
+.btn-logout:hover { border-color: var(--white); background: rgba(255,255,255,.14); }
+
 /* ══════════════════════════════════
    FOOTER
    ══════════════════════════════════ */
