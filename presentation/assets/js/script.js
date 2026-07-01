@@ -111,11 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotice('Sesión cerrada correctamente');
   }
 
-  /* ── Verificar protección de rutas ── */
-  const protectedPages = ['mapa.html', 'mapa', '/mapa'];
+  /* ── Verificar protección de rutas ──
+   * Nota: esto es solo una mejora de UX (evita el "parpadeo" de contenido antes de
+   * redirigir). La protección real ocurre en el servidor (middleware protectRoute),
+   * así que aunque alguien desactive este script, no podrá ver el contenido protegido.
+   */
+  const protectedPages = [
+    'mapa', 'categorias', 'calendario', 'eventos', 'gastronomia',
+    'historia', 'leyendas', 'quiz', 'recetas', 'sitios-culturales'
+  ];
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  
-  if (protectedPages.some(p => window.location.href.includes(p))) {
+
+  if (protectedPages.some(p => currentPage === p || currentPage === `${p}.html`)) {
     fetch('/auth/status', { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => {

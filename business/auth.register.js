@@ -19,7 +19,13 @@ const register = async (req, res) => {
         res.redirect('/login.html');
 
     } catch (error) {
-        res.status(400).send(error.message);
+        // Solo se muestran al usuario los mensajes controlados que lanza auth.server.js.
+        const safeMessage = error && error.expose === true
+            ? error.message
+            : 'No se pudo crear la cuenta. Inténtalo de nuevo.';
+
+        console.error(error);
+        res.status(400).send(safeMessage);
     }
 };
 
