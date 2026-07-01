@@ -6,7 +6,7 @@ const login = async (email, password) => {
     const user = await userRepository.findByEmail(email);
 
     if (!user) {
-        throw new Error('Correo incorrecto');
+        throw new Error('Correo o contraseña incorrecta');
     }
 
     let valid = false;
@@ -24,7 +24,7 @@ const login = async (email, password) => {
     }
 
     if (!valid) {
-        throw new Error('Contraseña incorrecta');
+        throw new Error('Correo o contraseña incorrecta');
     }
 
     return user;
