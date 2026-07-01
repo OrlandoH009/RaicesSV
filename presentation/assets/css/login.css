@@ -72,6 +72,7 @@
 /* Campos del formulario */
 .form-group {
   margin-bottom: 1.25rem;
+  position: relative;
 }
 .form-group label {
   display: block;
@@ -83,7 +84,7 @@
 }
 .form-group input {
   width: 100%;
-  padding: .75rem 1rem;
+  padding: .75rem 1rem .75rem 1rem;
   border: 2px solid rgba(17,48,104,.25);
   border-radius: var(--r-sm);
   font-family: var(--font-body);
@@ -93,9 +94,42 @@
   outline: none;
   transition: border-color .2s, box-shadow .2s;
 }
+.form-group input[type="password"],
+.form-group input[type="text"] {
+  padding-right: 2.8rem;
+}
 .form-group input:focus {
   border-color: var(--navy);
   box-shadow: 0 0 0 3px rgba(17,48,104,.15);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  background: var(--gold);
+  border: 2px solid var(--navy);
+  border-radius: var(--r-md);
+  color: var(--navy);
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s ease;
+  z-index: 10;
+  font-weight: bold;
+}
+.password-toggle:hover {
+  background: var(--navy);
+  color: var(--gold);
+  transform: translateY(-50%) scale(1.05);
+}
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 /* Botón submit */

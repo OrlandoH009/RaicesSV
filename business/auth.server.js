@@ -9,10 +9,19 @@ const login = async (email, password) => {
         throw new Error('Correo incorrecto');
     }
 
-    const valid = await bcrypt.compare(
-        password,
-        user.password
-    );
+    let valid = false;
+
+    if (user.password && typeof user.password === 'string') {
+        if (user.password.startsWith('$2') && user.password.length > 50) {
+            try {
+                valid = await bcrypt.compare(password, user.password);
+            } catch (error) {
+                valid = false;
+            }
+        } else {
+            valid = user.password === password;
+        }
+    }
 
     if (!valid) {
         throw new Error('Contraseña incorrecta');
