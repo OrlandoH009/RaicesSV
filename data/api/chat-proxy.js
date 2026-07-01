@@ -23,9 +23,9 @@ const PORT = process.env.PORT || 3000;
 
 // --- Config ---
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODEL = 'nvidia/nemotron-3-ultra-550b-a55b:free';
-const MAX_TOKENS = 2000; // subido de 800 -> este modelo usa tokens de razonamiento internos
-const TIMEOUT_MS = 60000; // 60s, este modelo puede tardar más que uno sin reasoning
+const MODEL = 'cohere/north-mini-code:free';
+const MAX_TOKENS = 800;   // vuelve a 800, este modelo no necesita el margen extra de reasoning
+const TIMEOUT_MS = 30000; // 30s, más que suficiente para un modelo rápido
 
 app.use(cors({ origin: '*', methods: ['POST', 'OPTIONS'] }));
 app.use(express.json());
