@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const authRoutes = require('./routes/auth.routes');
+const chatRoutes = require('./routes/chat.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 
 app.use(express.urlencoded({ extended: true }));
@@ -48,11 +49,19 @@ app.get('/estado', (req, res) => {
 });
 
 app.get('/test-db', async (req, res) => {
-try {
-    const [rows] = await pool.query('SELECT 1 + 1 AS solution');
-    res.json({db: true, result: rows[0].solution});
-} catch (e) {
-        res.status(500).json({db: false, error: e.message});
+    try {
+        const [rows] = await pool.query('SELECT 1 + 1 AS solution');
+        res.json({ db: true, result: rows[0].solution });
+    } catch (e) {
+        res.status(500).json({ db: false, error: e.message });
+    }
+});
+
+app.get('/auth/status', (req, res) => {
+    if (req.session && req.session.user) {
+        res.json({ loggedIn: true, user: req.session.user });
+    } else {
+        res.json({ loggedIn: false });
     }
 });
 
@@ -74,15 +83,8 @@ app.get(['/mapa', '/mapa.html'], protectRoute, (req, res) => {
     res.sendFile(path.join(__dirname, 'presentation', 'views', 'mapa.html'));
 });
 
-app.get('/auth/status', (req, res) => {
-    if (req.session && req.session.user) {
-        res.json({ loggedIn: true, user: req.session.user });
-    } else {
-        res.json({ loggedIn: false });
-    }
-});
-
 app.use(authRoutes);
+app.use(chatRoutes);
 
 app.listen(port, () => {
     console.log(`Servidor iniciado en http://localhost:${port}`);
