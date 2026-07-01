@@ -17,16 +17,20 @@ Solo puedes responder preguntas relacionadas con los siguientes temas del sitio:
 - Y información relacionada con el país, su gente, tradiciones, costumbres y cultura en general.
 - Recuerda que estamos en 2026, así que puedes incluir información actualizada hasta esa fecha y se directo en tus respuestas, no trates de evadir preguntas diciendo que no tienes acceso a información actualizada.
 - Asegurate que la información que brindes sea precisa y esté basada en hechos verificables, evitando la difusión de rumores o información no confirmada.
+- Ademas cuando el usuario te haga un saludo de manera calida responde de igual manera y explicale que eres un asistente virtual de Raíces SV, que puede ayudarle a conocer más sobre la cultura, historia y tradiciones de El Salvador. 
+- Si te dicen un insulto diles que su comportamiento no es apropiado y que estás aquí para ayudarles a aprender sobre la cultura salvadoreña.
+- Se más resumido y directo con la información que brindes, evitando respuestas largas y redundantes.
 
 Si te preguntan algo que no tiene relación con El Salvador, su cultura, historia, gastronomía, tradiciones o el sitio Raíces SV, responde exactamente: "No tengo respuesta a temas no relacionados al sitio."
 
 Responde siempre en español, de forma amable, concisa y educativa. Usa un tono cálido y cercano que refleje el orgullo por la cultura salvadoreña.`;
 
-  const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita", el asistente de Raíces SV, ahora en modo "Planificador de salidas". Tu tarea es crear un plan de salida turístico/cultural realista dentro de El Salvador, basado en la actividad deseada, el presupuesto y el tiempo disponible que te indique el usuario.
+  const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita", el asistente de Raíces SV, ahora en modo "Planificador de salidas". Tu tarea es crear un plan de salida turístico/cultural realista dentro de El Salvador, basado en la actividad deseada, el presupuesto, el tiempo disponible y las preferencias específicas que te indique el usuario.
 
 Reglas:
 - Usa siempre dólares estadounidenses ($), la moneda oficial de El Salvador.
 - Recomienda lugares reales y conocidos de El Salvador (sitios culturales, históricos, gastronómicos o de leyendas según corresponda).
+- Si el usuario indicó preferencias específicas (comida que le gusta, tipo de lugar, interés particular, etc.), tómalas en cuenta al elegir las actividades y lugares del plan.
 - Sugiere un orden lógico de actividades considerando cercanía y tiempo disponible.
 - Da un estimado de gasto aproximado por actividad (entrada, comida, transporte) y un total, procurando que se ajuste al presupuesto indicado.
 - Sé breve pero claro, usa listas o pasos numerados y **negritas** para resaltar nombres de lugares.
@@ -303,15 +307,15 @@ Reglas:
 
   // --- Estado del planificador de salidas ---
   let plannerMode = false;   // true = interruptor activado
-  let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'generating' | 'done' | null
+  let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'details' | 'generating' | 'done' | null
   let plannerData = {};
 
   const PLANNER_ACTIVITY_OPTIONS = [
-    { label: '🍲 Gastronomía',        value: 'gastronomía típica salvadoreña (pupusas, mercados, comida local)' },
-    { label: '🏛️ Historia y sitios',  value: 'sitios históricos y arqueológicos (ruinas, museos, iglesias coloniales)' },
-    { label: '🎉 Eventos y fiestas',  value: 'eventos y fiestas patronales o culturales' },
-    { label: '👻 Leyendas',           value: 'lugares y rutas relacionadas con leyendas salvadoreñas' },
-    { label: '🌄 Un poco de todo',    value: 'una mezcla de gastronomía, historia y cultura general' },
+    { id: 'food',    label: '🍲 Gastronomía',        value: 'gastronomía típica salvadoreña (pupusas, mercados, comida local)' },
+    { id: 'history', label: '🏛️ Historia y sitios',  value: 'sitios históricos y arqueológicos (ruinas, museos, iglesias coloniales)' },
+    { id: 'events',  label: '🎉 Eventos y fiestas',  value: 'eventos y fiestas patronales o culturales' },
+    { id: 'legends', label: '👻 Leyendas',           value: 'lugares y rutas relacionadas con leyendas salvadoreñas' },
+    { id: 'mixed',   label: '🌄 Un poco de todo',    value: 'una mezcla de gastronomía, historia y cultura general' },
   ];
 
   const PLANNER_BUDGET_OPTIONS = [
@@ -325,6 +329,16 @@ Reglas:
     { label: '🌞 Día completo', value: 'un día completo' },
     { label: '📅 Fin de semana', value: 'un fin de semana completo' },
   ];
+
+  // Pregunta de seguimiento según la actividad elegida, para afinar el plan
+  const PLANNER_DETAIL_QUESTIONS = {
+    food:    '¿Hay algún platillo o tipo de comida que te encante o quieras probar sí o sí? (ej. pupusas revueltas, mariscos, algo dulce, comida típica de algún departamento en especial...)',
+    history: '¿Te interesa más algún periodo en particular (prehispánico, colonial, siglo XX) o algún sitio específico que ya tengas en mente?',
+    events:  '¿Tienes una fecha aproximada en mente, o algún tipo de evento que prefieras (fiestas patronales, religiosas, más folclóricas)?',
+    legends: '¿Hay alguna leyenda que te llame especialmente la atención (Siguanaba, Cipitío, Cadejo, etc.) o prefieres que te sorprenda?',
+    mixed:   '¿Hay algo específico que no te quiera perder —comida, un lugar, una leyenda— para incluirlo en el plan?',
+  };
+  const PLANNER_DETAIL_FALLBACK = '¿Hay algo específico que te gustaría incluir en tu plan (comida favorita, tipo de lugar, algo que no te quieras perder)?';
 
   function init() {
     const styleEl = document.createElement('style');
@@ -547,7 +561,8 @@ Reglas:
   }
 
   function handlePlannerActivity(opt) {
-    plannerData.activity = opt.value;
+    plannerData.activity   = opt.value;
+    plannerData.activityId = opt.id;
     addUserMessage(opt.label);
     plannerStep = 'budget';
     addBotMessageWithButtons(
@@ -571,8 +586,31 @@ Reglas:
   function handlePlannerDuration(opt) {
     plannerData.duration = opt.value;
     addUserMessage(opt.label);
-    plannerStep = 'generating';
-    generatePlan();
+    askPlannerDetails();
+  }
+
+  // Pregunta de seguimiento libre, según la actividad elegida, antes de generar el plan
+  function askPlannerDetails() {
+    plannerStep = 'details';
+    const question = PLANNER_DETAIL_QUESTIONS[plannerData.activityId] || PLANNER_DETAIL_FALLBACK;
+
+    addBotMessageWithButtons(
+      `Una última cosa para personalizar tu plan 🙂\n\n${question}\n\nPuedes escribir tu respuesta abajo, o si prefieres, omite este paso.`,
+      [
+        {
+          label: '⏭️ Omitir, ya tengo suficiente',
+          onClick: () => {
+            plannerData.details = '';
+            plannerStep = 'generating';
+            generatePlan();
+          }
+        }
+      ],
+      true
+    );
+
+    setInputEnabled(true, 'Escribe tu respuesta aquí...');
+    document.getElementById('rs-chat-input')?.focus();
   }
 
   async function generatePlan() {
@@ -582,9 +620,9 @@ Reglas:
     const userPrompt = `Planifícame una salida con estas preferencias:
 - Actividad deseada: ${plannerData.activity}
 - Presupuesto: ${plannerData.budget}
-- Tiempo disponible: ${plannerData.duration}
+- Tiempo disponible: ${plannerData.duration}${plannerData.details ? `\n- Preferencias específicas del usuario: ${plannerData.details}` : ''}
 
-Dame un plan concreto y realista dentro de El Salvador, con lugares específicos a visitar, un orden sugerido y un estimado de gasto total dentro del presupuesto indicado.`;
+Dame un plan concreto y realista dentro de El Salvador, con lugares específicos a visitar, un orden sugerido y un estimado de gasto total dentro del presupuesto indicado.${plannerData.details ? ' Toma en cuenta especialmente la preferencia específica que indicó el usuario.' : ''}`;
 
     try {
       const response = await fetch(PROXY_URL, {
@@ -628,7 +666,20 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
     const input = document.getElementById('rs-chat-input');
     if (!input) return;
     const text = input.value.trim();
-    if (!text || isLoading || (plannerStep && plannerStep !== 'done')) return;
+    if (!text || isLoading) return;
+
+    // Si estamos esperando la respuesta libre de detalles del planificador,
+    // la capturamos aquí en vez de mandarla al chat normal.
+    if (plannerStep === 'details') {
+      input.value = '';
+      addUserMessage(text);
+      plannerData.details = text;
+      plannerStep = 'generating';
+      generatePlan();
+      return;
+    }
+
+    if (plannerStep && plannerStep !== 'done') return;
     input.value = '';
     sendUserText(text);
   }
