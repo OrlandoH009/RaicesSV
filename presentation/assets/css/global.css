@@ -25,7 +25,7 @@
   --r-md:  25px;
   --r-lg:  35px;
 
-  --nav-h: 64px;
+  --nav-h: 80px;
 }
 
 /* ── Reset ── */
@@ -70,6 +70,7 @@ ul    { list-style: none; }
 @keyframes fadeDown { from{opacity:0;transform:translateY(-28px)} to{opacity:1;transform:translateY(0)} }
 @keyframes fadeUp   { from{opacity:0;transform:translateY(36px)}  to{opacity:1;transform:translateY(0)} }
 @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes gradientTextShift { to { background-position: 300% center; } }
 
 /* ══════════════════════════════════
    NAVBAR
@@ -93,22 +94,21 @@ ul    { list-style: none; }
 }
 
 .navbar__logo img {
-  width: 60px;
-  height: 60px;
+  width: 100px; height: 100px;padding: 0%;
   object-fit: contain;
 }
 
 .navbar__links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-left: 1.25rem;
+  gap: 2.5rem;
+  margin-left: 2rem;
   flex: 1;
 }
 .navbar__links a {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.25rem;
   color: var(--white);
   position: relative;
   transition: color .2s;
@@ -134,13 +134,12 @@ ul    { list-style: none; }
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 4px;
+  gap: 5px;
+  padding: 6px;
 }
 .navbar__burger span {
   display: block;
-  width: 24px;
-  height: 2px;
+  width: 28px; height: 3px;
   background: var(--white);
   border-radius: 2px;
   transition: transform .3s, opacity .3s;
@@ -342,6 +341,23 @@ ul    { list-style: none; }
 @media (hover: none) {
   .card-spotlight { display: none; }
 }
+
+/* ══════════════════════════════════
+   CURSOR GLOW (efecto compartido, activado por JS en páginas con GSAP)
+   ══════════════════════════════════ */
+.cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 360px; height: 360px;
+  margin-left: -180px; margin-top: -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(190,142,86,.25), rgba(17,48,104,.1) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+@media (hover: none), (pointer: coarse) { .cursor-glow { display: none; } }
 
 /* ══════════════════════════════════
    RESPONSIVE
