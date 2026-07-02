@@ -25,6 +25,8 @@
   opacity: .18;
   pointer-events: none;
   z-index: 0;
+  transform: scale(1.08);
+  will-change: transform;
 }
 
 /* Card de formulario — estilo crema del Figma */
@@ -105,31 +107,34 @@
 
 .password-toggle {
   position: absolute;
-  right: 0.5rem;
+  right: 0.55rem;
   bottom: 0.5rem;
-  background: var(--gold);
-  border: 2px solid var(--navy);
-  border-radius: var(--r-md);
-  color: var(--navy);
-  cursor: pointer;
-  font-size: 0.9rem;
-  width: 1.9rem;
-  height: 1.9rem;
-  padding: 0;
+  width: 2.1rem;
+  height: 2.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all .2s ease;
-  z-index: 10;
-  font-weight: bold;
+  background: transparent;
+  border: 1.5px solid rgba(17,48,104,.22);
+  border-radius: 50%;
+  color: rgba(17,48,104,.55);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .12s ease;
 }
+.password-toggle svg { display: block; }
 .password-toggle:hover {
   background: var(--navy);
-  color: var(--gold);
-  transform: translateY(-50%) scale(1.05);
+  border-color: var(--navy);
+  color: var(--white);
+}
+.password-toggle:focus-visible {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(17,48,104,.18);
 }
 .password-toggle:active {
-  transform: translateY(-50%) scale(0.95);
+  transform: scale(0.9);
 }
 
 /* Botón submit */
