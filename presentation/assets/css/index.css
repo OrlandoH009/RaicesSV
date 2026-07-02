@@ -2,6 +2,27 @@
    RAÍCES SV — index.css   (estilos exclusivos del Inicio)
    ============================================================ */
 
+/* ── Paleta (extensión ligera de la paleta original navy/gold) ── */
+:root {
+  --gold-light:  #f0c98a;
+  --gradient-brand: linear-gradient(120deg, var(--navy) 0%, var(--navy-dark) 45%, var(--gold-hover) 78%, var(--gold) 100%);
+}
+
+/* ── Cursor glow (creado por index-gsap.js) ── */
+.cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 360px; height: 360px;
+  margin-left: -180px; margin-top: -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(190,142,86,.25), rgba(17,48,104,.1) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+@media (hover: none), (pointer: coarse) { .cursor-glow { display: none; } }
+
 /* ── Hero ── */
 .hero {
   position: relative;
@@ -18,23 +39,39 @@
 .hero__bg {
   position: absolute;
   inset: 0;
-  background-image: url('../MEDIA/Santa Ana Volcan.jpg');
+  background-image: url('../media/Santa Ana Volcan.jpg');
   background-size: cover;
   background-position: center;
-  transform: scale(1.06);
-  transition: transform 8s ease;
+  will-change: transform;
+  z-index: 0;
 }
-.hero__bg.loaded { transform: scale(1); }
 
 .hero__overlay {
   position: absolute;
   inset: 0;
   background: var(--overlay);
+  z-index: 1;
+}
+
+/* Partículas doradas flotantes */
+.hero__particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-particle {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--gold-light) 0%, rgba(240,201,138,0) 72%);
+  opacity: 0;
 }
 
 .hero__content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -47,7 +84,23 @@
   background: var(--card-dim);
   border-radius: var(--r-sm);
   padding: 1rem 2.8rem;
-  animation: fadeDown .8s ease both;
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+}
+.hero__title-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(240,201,138,.35) 50%, transparent 80%);
+  background-size: 220% 100%;
+  background-position: 130% 0;
+  pointer-events: none;
+}
+.hero__title-wrap.shine::before { animation: shineSweep 2.6s ease .2s 1; }
+@keyframes shineSweep {
+  0%   { background-position: 130% 0; }
+  100% { background-position: -30% 0; }
 }
 .hero__title {
   font-family: var(--font-display);
@@ -56,6 +109,10 @@
   color: var(--white);
   text-shadow: 0 4px 4px rgba(0,0,0,.45);
   white-space: nowrap;
+}
+.hero__title .char {
+  display: inline-block;
+  opacity: 0;
 }
 
 .hero__subtitle {
@@ -66,38 +123,91 @@
   line-height: 1.2;
   color: var(--white);
   text-shadow: 0 4px 4px rgba(0,0,0,.25);
-  animation: fadeIn .9s .3s ease both;
+  opacity: 0;
 }
 
 .hero__cta {
-  animation: fadeUp .8s .5s ease both;
+  opacity: 0;
 }
 
-/* Animación del título con efecto de escritura */
-#heroTitle {
-  animation: titlePulse 2s 1.2s ease both;
+/* Cursor descendente animado */
+.hero__scroll-cue {
+  position: absolute;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  color: var(--white);
+  opacity: 0;
+  font-family: var(--font-body);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
 }
+.hero__scroll-cue svg { width: 20px; height: 20px; }
 
-@keyframes titlePulse {
-  0% { opacity: 0; transform: translateY(-12px) scale(0.95); }
-  50% { opacity: 1; }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+/* ── Franja marquee cultural ── */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 0;
+  background: var(--gradient-brand);
+  background-size: 300% 300%;
+  animation: gradientShift 12s ease infinite;
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.marquee__track {
+  display: flex;
+  width: max-content;
+}
+.marquee__group {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+  padding-right: 2.2rem;
+  white-space: nowrap;
+}
+.marquee__group span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--white);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+.marquee__group .dot {
+  color: rgba(255,255,255,.55);
+  font-size: .75rem;
+  text-transform: none;
 }
 
 /* ── Estadísticas animadas ── */
 .stats {
+  position: relative;
   padding: 1rem 2rem 4rem;
   background: var(--black);
   display: flex;
   justify-content: center;
+  overflow: hidden;
 }
 .stats__grid {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 980px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.2rem;
+  perspective: 900px;
 }
 .stat {
   flex: 1 1 200px;
@@ -107,18 +217,24 @@
   border-radius: var(--r-sm);
   padding: 1.6rem 1rem;
   text-align: center;
-  transition: transform .3s, border-color .3s;
+  transition: transform .3s, border-color .3s, box-shadow .3s;
 }
 .stat:hover {
   transform: translateY(-6px);
   border-color: var(--gold);
+  box-shadow: 0 14px 30px rgba(190,142,86,.18);
 }
 .stat__num {
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(2rem, 4vw, 2.8rem);
-  color: var(--gold);
+  background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientTextShift 5s linear infinite;
 }
 .stat__label {
   font-family: var(--font-body);
@@ -145,6 +261,11 @@
   text-align: center;
   box-shadow: 0 8px 4px rgba(0,0,0,.4);
   position: relative;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 8px 4px rgba(0,0,0,.4), 0 0 0 rgba(190,142,86,0); }
+  50%      { box-shadow: 0 8px 4px rgba(0,0,0,.4), 0 0 32px rgba(190,142,86,.4); }
 }
 .fact-box__eyebrow {
   font-family: var(--font-display);
@@ -181,12 +302,16 @@
 
 /* ── Sección ¿Qué es? ── */
 .about {
+  position: relative;
   padding: 5rem 2rem;
   background: var(--black);
   display: flex;
   justify-content: center;
+  overflow: hidden;
 }
 .about__card {
+  position: relative;
+  z-index: 1;
   max-width: 900px;
   width: 100%;
   background: var(--cream);
@@ -196,6 +321,21 @@
   color: var(--black);
   text-align: center;
 }
+
+/* ── Blobs ambientales (decorativos, detrás del contenido) ── */
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .3;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+.about .ambient-blob--a { width: 380px; height: 380px; background: var(--gold); top: -120px; left: -100px; }
+.about .ambient-blob--b { width: 320px; height: 320px; background: var(--navy-dark); bottom: -140px; right: -80px; }
+.stats .ambient-blob--a { width: 340px; height: 340px; background: var(--gold-hover); top: -100px; right: -60px; }
+.home-grid .ambient-blob--a { width: 420px; height: 420px; background: var(--navy); top: -160px; left: 50%; opacity: .35; }
 .about__card h2 {
   font-family: var(--font-display);
   font-weight: 700;
@@ -230,13 +370,21 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.6rem, 3vw, 2.8rem);
-  color: var(--black);
-  text-shadow: 0 4px 4px rgba(0,0,0,.25);
   white-space: nowrap;
+  background: linear-gradient(90deg, var(--navy), var(--gold-hover), var(--gold), var(--navy));
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientTextShift 7s linear infinite;
+}
+@keyframes gradientTextShift {
+  to { background-position: 300% center; }
 }
 
 /* ── Grid de cards — Flex centrado para 5 elementos ── */
 .home-grid {
+  position: relative;
   padding: 2rem 2rem 3rem;
   background: var(--black);
   display: flex;
@@ -245,7 +393,9 @@
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  overflow: hidden;
 }
+.home-grid .home-card { position: relative; z-index: 1; }
 
 .home-card {
   position: relative;

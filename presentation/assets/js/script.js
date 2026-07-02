@@ -111,18 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotice('Sesión cerrada correctamente');
   }
 
-  /* ── Verificar protección de rutas ──
-   * Nota: esto es solo una mejora de UX (evita el "parpadeo" de contenido antes de
-   * redirigir). La protección real ocurre en el servidor (middleware protectRoute),
-   * así que aunque alguien desactive este script, no podrá ver el contenido protegido.
-   */
-  const protectedPages = [
-    'mapa', 'categorias', 'calendario', 'eventos', 'gastronomia',
-    'historia', 'leyendas', 'quiz', 'recetas', 'sitios-culturales'
-  ];
+  /* ── Verificar protección de rutas ── */
+  const protectedPages = ['mapa.html', 'mapa', '/mapa'];
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-
-  if (protectedPages.some(p => currentPage === p || currentPage === `${p}.html`)) {
+  
+  if (protectedPages.some(p => window.location.href.includes(p))) {
     fetch('/auth/status', { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => {
@@ -153,15 +146,17 @@ document.addEventListener('DOMContentLoaded', () => {
     a.classList.toggle('active', a.getAttribute('href') === page);
   });
 
-  /* ── Scroll Reveal ── */
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  /* ── Scroll Reveal (se omite si la página usa animaciones GSAP propias) ── */
+  if (!document.body.hasAttribute('data-gsap-reveal')) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
 
 });
