@@ -1,0 +1,205 @@
+/* ============================================================
+   RAÍCES SV — index-gsap.js
+   Animaciones GSAP exclusivas del Inicio:
+   - Hero con título partido en letras + partículas + parallax
+   - Marquee cultural infinito
+   - Revelado de secciones con ScrollTrigger
+   - Contadores animados con GSAP
+   - Botones magnéticos + glow de cursor
+   ============================================================ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof gsap === 'undefined') return; // fallback silencioso si el CDN no cargó
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── 1. Glow de cursor ── */
+  if (!prefersReducedMotion && window.matchMedia('(hover: hover)').matches) {
+    const cursor = document.createElement('div');
+    cursor.className = 'cursor-glow';
+    document.body.appendChild(cursor);
+    gsap.set(cursor, { xPercent: -50, yPercent: -50, opacity: 0 });
+    window.addEventListener('mousemove', (e) => {
+      gsap.to(cursor, { x: e.clientX, y: e.clientY, opacity: 1, duration: .6, ease: 'power3.out' });
+    });
+  }
+
+  /* ── 2. Hero: partir el título en letras ── */
+  const heroTitle = document.getElementById('heroTitle');
+  if (heroTitle) {
+    const original = heroTitle.textContent.trim();
+    heroTitle.setAttribute('aria-label', original);
+    heroTitle.innerHTML = '';
+    [...original].forEach((ch) => {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch === ' ' ? '\u00A0' : ch;
+      heroTitle.appendChild(span);
+    });
+  }
+
+  /* ── 3. Hero: partículas doradas flotantes ── */
+  const particleWrap = document.getElementById('heroParticles');
+  if (particleWrap && !prefersReducedMotion) {
+    const total = window.innerWidth < 600 ? 10 : 20;
+    for (let i = 0; i < total; i++) {
+      const p = document.createElement('span');
+      p.className = 'hero-particle';
+      const size = gsap.utils.random(4, 12);
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = gsap.utils.random(0, 100) + '%';
+      particleWrap.appendChild(p);
+
+      gsap.fromTo(p,
+        { y: 30, opacity: 0 },
+        {
+          y: -window.innerHeight * gsap.utils.random(0.7, 1.1),
+          x: gsap.utils.random(-60, 60),
+          opacity: gsap.utils.random(.4, .85),
+          duration: gsap.utils.random(7, 14),
+          delay: gsap.utils.random(0, 10),
+          repeat: -1,
+          ease: 'none',
+          onRepeat: () => { p.style.left = gsap.utils.random(0, 100) + '%'; }
+        }
+      );
+    }
+  }
+
+  /* ── 4. Timeline de entrada del Hero ── */
+  const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  heroTl
+    .fromTo('.hero__bg', { scale: 1.18 }, { scale: 1.05, duration: 2.6, ease: 'power2.out' }, 0)
+    .to('.hero__title-wrap', { opacity: 1, duration: .5 }, .25)
+    .to('.hero__title .char', {
+      opacity: 1, y: 0, duration: .8, stagger: .035,
+      ease: 'back.out(1.7)'
+    }, .35)
+    .add(() => document.querySelector('.hero__title-wrap')?.classList.add('shine'), .45)
+    .to('.hero__subtitle', { opacity: 1, y: 0, duration: .7 }, '-=0.35')
+    .to('.hero__cta', { opacity: 1, y: 0, duration: .6 }, '-=0.3')
+    .to('.hero__scroll-cue', { opacity: .85, y: 0, duration: .6 }, '-=0.2');
+
+  gsap.set('.hero__subtitle', { y: 18 });
+  gsap.set('.hero__cta', { y: 18 });
+  gsap.set('.hero__scroll-cue', { y: -8 });
+  gsap.set('.hero__title .char', { y: 40 });
+
+  // Rebote continuo del cursor de scroll
+  if (!prefersReducedMotion) {
+    gsap.to('.hero__scroll-cue', { y: 8, duration: 1.1, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2.2 });
+  }
+
+  // Parallax del fondo del hero al hacer scroll
+  if (!prefersReducedMotion) {
+    gsap.to('.hero__bg', {
+      yPercent: 18,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+  }
+
+  /* ── 5. Marquee cultural infinito ── */
+  const track = document.getElementById('marqueeTrack');
+  if (track) {
+    const original = track.querySelector('.marquee__group');
+    if (original) {
+      const clone = original.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+    }
+    gsap.to(track, { xPercent: -50, duration: 24, ease: 'none', repeat: -1 });
+  }
+
+  /* ── 6. Revelado de secciones (.reveal) con ScrollTrigger ── */
+  gsap.utils.toArray('.reveal').forEach((el) => {
+    gsap.fromTo(el,
+      { autoAlpha: 0, y: 46, scale: .97 },
+      {
+        autoAlpha: 1, y: 0, scale: 1, duration: .9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 87%' }
+      }
+    );
+  });
+
+  /* ── 7. Estadísticas: stagger + contador numérico ── */
+  gsap.utils.toArray('.stat').forEach((stat, i) => {
+    gsap.fromTo(stat,
+      { autoAlpha: 0, y: 45, rotateX: -20, transformPerspective: 700 },
+      {
+        autoAlpha: 1, y: 0, rotateX: 0, duration: .8, delay: i * .08, ease: 'back.out(1.6)',
+        scrollTrigger: { trigger: '.stats__grid', start: 'top 82%' }
+      }
+    );
+  });
+
+  document.querySelectorAll('.stat__num').forEach((el) => {
+    const target = parseFloat(el.dataset.count) || 0;
+    const suffix = el.dataset.suffix || '';
+    const counter = { val: 0 };
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 88%',
+      once: true,
+      onEnter: () => {
+        gsap.to(counter, {
+          val: target, duration: 1.7, ease: 'power2.out',
+          onUpdate: () => { el.textContent = Math.floor(counter.val).toLocaleString('es-SV') + suffix; },
+          onComplete: () => { el.textContent = target.toLocaleString('es-SV') + suffix; }
+        });
+      }
+    });
+  });
+
+  /* ── 8. Tarjetas del grid principal: caen y se acomodan en su lugar ── */
+  const homeCards = gsap.utils.toArray('.home-card');
+  if (homeCards.length) {
+    gsap.set(homeCards, { autoAlpha: 0, y: -46, scale: .96 });
+
+    ScrollTrigger.batch(homeCards, {
+      start: 'top 90%',
+      once: true,
+      onEnter: (batch) => {
+        gsap.to(batch, {
+          autoAlpha: 1, y: 0, scale: 1,
+          duration: .9, ease: 'power3.out', stagger: .12
+        });
+      }
+    });
+  }
+
+  /* ── 9. Botones magnéticos ── */
+  function magnetize(el, strength = 16) {
+    if (prefersReducedMotion) return;
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width / 2;
+      const y = e.clientY - r.top - r.height / 2;
+      gsap.to(el, { x: (x / r.width) * strength, y: (y / r.height) * strength, duration: .3, ease: 'power2.out' });
+    });
+    el.addEventListener('mouseleave', () => {
+      gsap.to(el, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1, 0.4)' });
+    });
+  }
+  document.querySelectorAll('.hero__cta, .home-cta-final .btn-primary').forEach((el) => magnetize(el));
+
+  /* ── 10. Ambient blobs: deriva lenta ── */
+  if (!prefersReducedMotion) {
+    gsap.utils.toArray('.ambient-blob').forEach((blob, i) => {
+      gsap.to(blob, {
+        x: gsap.utils.random(-40, 40),
+        y: gsap.utils.random(-30, 30),
+        duration: gsap.utils.random(8, 14),
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: i * .4
+      });
+    });
+  }
+
+  ScrollTrigger.refresh();
+});

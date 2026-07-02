@@ -71,17 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     requestAnimationFrame(tick);
   }
-  const counters = document.querySelectorAll('.stat__num');
-  if (counters.length) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateCount(entry.target);
-          obs.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(c => obs.observe(c));
+  if (!document.body.hasAttribute('data-gsap-counters')) {
+    const counters = document.querySelectorAll('.stat__num');
+    if (counters.length) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCount(entry.target);
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+      counters.forEach(c => obs.observe(c));
+    }
   }
 
   /* ── Rotador de datos curiosos ── */
