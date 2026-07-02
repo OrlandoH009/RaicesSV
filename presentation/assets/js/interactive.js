@@ -122,46 +122,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
   }
 
-  /* ── Buscador y filtros (Categorías) ── */
-  const searchInput = document.getElementById('categoriaSearch');
-  const filterChips = document.querySelectorAll('.filter-chip');
-  const categoriaCards = document.querySelectorAll('.categoria-card');
-  const emptyState = document.getElementById('emptyState');
-  const resultsCount = document.getElementById('resultsCount');
+  /* ── Buscador y filtros (Categorías) — se omite si la página usa su propia versión GSAP ── */
+  if (!document.body.hasAttribute('data-gsap-filters')) {
+    const searchInput = document.getElementById('categoriaSearch');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const categoriaCards = document.querySelectorAll('.categoria-card');
+    const emptyState = document.getElementById('emptyState');
+    const resultsCount = document.getElementById('resultsCount');
 
-  function applyFilters() {
-    const term = (searchInput?.value || '').toLowerCase().trim();
-    const activeChip = document.querySelector('.filter-chip.active');
-    const tag = activeChip ? activeChip.dataset.tag : 'todos';
-    let visible = 0;
+    function applyFilters() {
+      const term = (searchInput?.value || '').toLowerCase().trim();
+      const activeChip = document.querySelector('.filter-chip.active');
+      const tag = activeChip ? activeChip.dataset.tag : 'todos';
+      let visible = 0;
 
-    categoriaCards.forEach(card => {
-      const label = card.querySelector('.categoria-card__label')?.textContent.toLowerCase() || '';
-      const desc = card.querySelector('.categoria-card__desc')?.textContent.toLowerCase() || '';
-      const tags = (card.dataset.tags || '').toLowerCase();
-      const matchesTerm = !term || label.includes(term) || desc.includes(term);
-      const matchesTag = tag === 'todos' || tags.includes(tag);
-      const show = matchesTerm && matchesTag;
-      card.style.display = show ? '' : 'none';
-      card.classList.toggle('reveal', false);
-      if (show) visible++;
-    });
+      categoriaCards.forEach(card => {
+        const label = card.querySelector('.categoria-card__label')?.textContent.toLowerCase() || '';
+        const desc = card.querySelector('.categoria-card__desc')?.textContent.toLowerCase() || '';
+        const tags = (card.dataset.tags || '').toLowerCase();
+        const matchesTerm = !term || label.includes(term) || desc.includes(term);
+        const matchesTag = tag === 'todos' || tags.includes(tag);
+        const show = matchesTerm && matchesTag;
+        card.style.display = show ? '' : 'none';
+        card.classList.toggle('reveal', false);
+        if (show) visible++;
+      });
 
-    if (emptyState) emptyState.style.display = visible === 0 ? 'flex' : 'none';
-    if (resultsCount) {
-      resultsCount.textContent = term || tag !== 'todos'
-        ? `${visible} resultado${visible === 1 ? '' : 's'}`
-        : '';
+      if (emptyState) emptyState.style.display = visible === 0 ? 'flex' : 'none';
+      if (resultsCount) {
+        resultsCount.textContent = term || tag !== 'todos'
+          ? `${visible} resultado${visible === 1 ? '' : 's'}`
+          : '';
+      }
     }
-  }
 
-  searchInput?.addEventListener('input', applyFilters);
-  filterChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      filterChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      applyFilters();
+    searchInput?.addEventListener('input', applyFilters);
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        applyFilters();
+      });
     });
-  });
+  }
 
 });

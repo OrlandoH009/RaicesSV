@@ -8,21 +8,6 @@
   --gradient-brand: linear-gradient(120deg, var(--navy) 0%, var(--navy-dark) 45%, var(--gold-hover) 78%, var(--gold) 100%);
 }
 
-/* ── Cursor glow (creado por index-gsap.js) ── */
-.cursor-glow {
-  position: fixed;
-  top: 0; left: 0;
-  width: 360px; height: 360px;
-  margin-left: -180px; margin-top: -180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(190,142,86,.25), rgba(17,48,104,.1) 45%, transparent 72%);
-  pointer-events: none;
-  z-index: 5;
-  mix-blend-mode: screen;
-  will-change: transform;
-}
-@media (hover: none), (pointer: coarse) { .cursor-glow { display: none; } }
-
 /* ── Hero ── */
 .hero {
   position: relative;
@@ -378,9 +363,7 @@
   color: transparent;
   animation: gradientTextShift 7s linear infinite;
 }
-@keyframes gradientTextShift {
-  to { background-position: 300% center; }
-}
+
 
 /* ── Grid de cards — Flex centrado para 5 elementos ── */
 .home-grid {
