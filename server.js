@@ -15,6 +15,7 @@ if (isProduction && !process.env.SESSION_SECRET) {
 }
 
 const authRoutes = require('./routes/auth.routes');
+const chatRoutes = require('./routes/chat.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
 
@@ -133,6 +134,7 @@ app.use(
 );
 
 app.use(authRoutes);
+app.use(chatRoutes);
 
 app.use((req, res) => {
     res.status(404).send('Página no encontrada.');
