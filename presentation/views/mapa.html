@@ -94,32 +94,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    /* ══════════════════════════════════════════════════════════
-       NAVBAR / DRAWER / REVEAL  (igual que script.js)
-       ══════════════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', () => {
-      const navbar  = document.getElementById('navbar');
-      const burger  = document.getElementById('burger');
-      const drawer  = document.getElementById('navDrawer');
-      const overlay = document.getElementById('navOverlay');
-
-      window.addEventListener('scroll', () => {
-        navbar.classList.toggle('scrolled', scrollY > 30);
-        navbar.classList.toggle('nav-mini', scrollY > 180);
-      });
-
-      function openDrawer()  { drawer.classList.add('open'); overlay.classList.add('open'); burger.classList.add('open'); document.body.style.overflow='hidden'; }
-      function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); burger.classList.remove('open'); document.body.style.overflow=''; }
-
-      burger?.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
-      overlay?.addEventListener('click', closeDrawer);
-      drawer?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeDrawer));
-
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-      }, { threshold: 0.12 });
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    });
+    /* NAV: el comportamiento del drawer/nav es manejado globalmente por `presentation/assets/js/script.js`. */
 
     /* ══════════════════════════════════════════════════════════
        DATOS DE LANDMARKS CULTURALES
