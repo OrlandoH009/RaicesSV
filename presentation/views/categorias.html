@@ -11,7 +11,7 @@
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
 </head>
-<body data-gsap-reveal data-gsap-filters>
+<body>
 
   <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
@@ -55,7 +55,6 @@
     <section class="hero">
       <div class="hero__bg" id="heroBg"></div>
       <div class="hero__overlay"></div>
-      <div class="hero__particles" id="heroParticles"></div>
       <div class="hero__content">
         <div class="hero__title-wrap">
           <h1 class="hero__title">Explora Nuestras Categorías</h1>
@@ -83,52 +82,33 @@
 
     <!-- GRID DE CARDS -->
     <section class="categorias-grid">
-      <span class="ambient-blob ambient-blob--a"></span>
-      <span class="ambient-blob ambient-blob--b"></span>
       <a href="../views/sitios-culturales.html" class="categoria-card reveal" style="transition-delay:.05s" data-tags="patrimonio sitios arqueologia lugares">
         <img src="../assets/media/Sitios Culturales.png" alt="Sitios Culturales" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__tag">Patrimonio</span>
         <span class="categoria-card__label">Sitios Culturales</span>
         <p class="categoria-card__desc">Explora los lugares históricos y arqueológicos que definen nuestra identidad.</p>
-        <span class="categoria-card__go">Explorar
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
       </a>
       <a href="../views/gastronomia.html" class="categoria-card reveal" style="transition-delay:.15s" data-tags="comida gastronomia sabores recetas">
         <img src="../assets/media/Gastronomia.png" alt="Gastronomía" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__tag">Gastronomía</span>
         <span class="categoria-card__label">Gastronomía</span>
         <p class="categoria-card__desc">Saborea los sabores tradicionales que cuentan historias de nuestro pueblo.</p>
-        <span class="categoria-card__go">Explorar
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
       </a>
       <a href="../views/eventos.html" class="categoria-card reveal" style="transition-delay:.25s" data-tags="festividad eventos celebraciones tradiciones">
         <img src="../assets/media/Eventos Culturales.png" alt="Eventos Culturales" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__tag">Festividades</span>
         <span class="categoria-card__label">Eventos Culturales</span>
         <p class="categoria-card__desc">Vive las celebraciones y tradiciones que unen a nuestra comunidad.</p>
-        <span class="categoria-card__go">Explorar
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
       </a>
       <a href="../views/historia.html" class="categoria-card reveal" style="transition-delay:.35s" data-tags="pasado historia patrimonio">
         <img src="../assets/media/Historia.png" alt="Historia" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__tag">Pasado</span>
         <span class="categoria-card__label">Historia</span>
         <p class="categoria-card__desc">Conoce el pasado que ha forjado el presente de El Salvador.</p>
-        <span class="categoria-card__go">Explorar
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
       </a>
       <a href="../views/leyendas.html" class="categoria-card reveal" style="transition-delay:.45s" data-tags="mitologia leyendas mitos historias">
         <img src="../assets/media/Leyendas.jpg" alt="Leyendas" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__tag">Mitología</span>
         <span class="categoria-card__label">Leyendas</span>
         <p class="categoria-card__desc">Sumérgete en las historias míticas que han sido transmitidas de generación en generación.</p>
         <span class="categoria-card__go">Explorar
@@ -145,7 +125,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </span>
       </a>
-      <div class="empty-state" id="emptyState">
+            <div class="empty-state" id="emptyState">
         <span>No encontramos categorías que coincidan con tu búsqueda.</span>
       </div>
     </section>
@@ -171,12 +151,109 @@
     </div>
   </footer>
 
+  <!-- Modal de invitación para visitantes sin cuenta -->
+  <div class="guest-modal-overlay" id="guestModalOverlay">
+    <div class="guest-modal" id="guestModal">
+      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar">&times;</button>
+      <div class="guest-modal__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <h3 class="guest-modal__title">¡Qué bueno tenerte por aquí! 👋</h3>
+      <p class="guest-modal__text">
+        Puedes seguir explorando las categorías con toda libertad, pero si te registras vas a
+        disfrutar mucho más de todo lo que Raíces SV tiene para ti.
+      </p>
+      <div class="guest-modal__actions">
+        <a href="../views/registro.html" class="guest-modal__btn guest-modal__btn--primary">Crear mi cuenta</a>
+        <a href="../views/login.html" class="guest-modal__btn guest-modal__btn--secondary">Ya tengo cuenta</a>
+      </div>
+      <button class="guest-modal__skip" id="guestModalSkip">Seguir explorando sin cuenta</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/interactive.js"></script>
   <script src="../assets/js/chatbot.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../assets/js/categorias-gsap.js"></script>
+  <script>
+    // Hero image zoom on load
+    const bg = document.getElementById('heroBg');
+    setTimeout(() => bg?.classList.add('loaded'), 80);
+
+    // ── Modal de invitación a registrarse (solo si no hay sesión) ──
+    (function () {
+      const DISMISS_KEY = 'raices_guest_modal_dismissed';
+      const overlay = document.getElementById('guestModalOverlay');
+      const modal = document.getElementById('guestModal');
+      const closeBtn = document.getElementById('guestModalClose');
+      const skipBtn = document.getElementById('guestModalSkip');
+
+      if (!overlay || !modal) return;
+      if (sessionStorage.getItem(DISMISS_KEY) === '1') return;
+
+      const openModal = () => {
+        overlay.classList.add('is-visible');
+
+        if (window.gsap) {
+          gsap.set(modal, { opacity: 0, y: 30, scale: 0.9 });
+          gsap.timeline({ defaults: { ease: 'power3.out' } })
+            .to(modal, { opacity: 1, y: 0, scale: 1, duration: 0.5 })
+            .from(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__btn, .guest-modal__skip'), {
+              opacity: 0,
+              y: 12,
+              duration: 0.35,
+              stagger: 0.06
+            }, '-=0.25');
+
+          gsap.to(modal.querySelector('.guest-modal__icon'), {
+            rotate: 8,
+            duration: 1.1,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+            delay: 1
+          });
+        }
+      };
+
+      const closeModal = () => {
+        sessionStorage.setItem(DISMISS_KEY, '1');
+
+        if (window.gsap) {
+          gsap.to(modal, {
+            opacity: 0,
+            y: 20,
+            scale: 0.94,
+            duration: 0.3,
+            ease: 'power2.in',
+            onComplete: () => overlay.classList.remove('is-visible')
+          });
+        } else {
+          overlay.classList.remove('is-visible');
+        }
+      };
+
+      closeBtn?.addEventListener('click', closeModal);
+      skipBtn?.addEventListener('click', closeModal);
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) closeModal();
+      });
+
+      fetch('/auth/status')
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.loggedIn) {
+            setTimeout(openModal, 1200);
+          }
+        })
+        .catch(() => {
+          // Si no se puede verificar la sesión, no mostramos el modal para no molestar de más.
+        });
+    })();
+  </script>
 </body>
 </html></content>
 <parameter name="filePath"></parameter>

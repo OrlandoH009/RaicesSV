@@ -76,6 +76,8 @@ app.get(['/registro.html', '/views/registro.html'], (req, res) => {
     sendView('registro.html')(req, res);
 });
 
+app.get(['/categorias.html', '/categorias', '/views/categorias.html'], sendView('categorias.html'));
+
 app.get('/views', (req, res) => {
     res.redirect('/');
 });
@@ -104,10 +106,8 @@ app.post('/logout', rateLimit({ windowMs: 15 * 60 * 1000, max: 30 }), (req, res)
 });
 
 /* ───────────── Páginas protegidas (requieren sesión) ───────────── */
-
 const protectedViews = [
     'mapa.html',
-    'categorias.html',
     'calendario.html',
     'eventos.html',
     'gastronomia.html',
@@ -117,7 +117,6 @@ const protectedViews = [
     'recetas.html',
     'sitios-culturales.html'
 ];
-
 protectedViews.forEach((fileName) => {
     const base = fileName.replace(/\.html$/, '');
     app.get(
