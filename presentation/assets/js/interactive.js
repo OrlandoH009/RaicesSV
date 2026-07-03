@@ -2,7 +2,7 @@
    RAÍCES SV — interactive.js
    Mejoras dinámicas para Inicio y Categorías:
    - Barra de progreso de scroll
-   - Tarjetas con efecto tilt 3D + spotlight
+   - Tarjetas con spotlight (mismo scale del CSS en :hover)
    - Contadores animados
    - Rotador de datos curiosos
    - Buscador y filtros de categorías
@@ -23,7 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', updateProgress, { passive: true });
   updateProgress();
 
-  /* ── Tarjetas con tilt 3D + spotlight ── */
+  /* ── Tarjetas con spotlight (sin tilt 3D: el tilt inline pisaba el
+     scale(1.018) del :hover en CSS y, por el cálculo de perspective()
+     aplicado en el propio elemento, hacía que la card pareciera
+     "bajar/hundirse" al mover el mouse. El scale del hover ya lo
+     maneja el CSS, aquí solo movemos el spotlight.) ── */
   function initTiltCards(selector) {
     const cards = document.querySelectorAll(selector);
     cards.forEach(card => {
@@ -32,25 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
       spotlight.className = 'card-spotlight';
       card.appendChild(spotlight);
 
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
       card.addEventListener('mousemove', (e) => {
         const r = card.getBoundingClientRect();
         const x = e.clientX - r.left;
         const y = e.clientY - r.top;
         spotlight.style.setProperty('--mx', `${x}px`);
         spotlight.style.setProperty('--my', `${y}px`);
-
-        if (!reduceMotion) {
-          const cx = r.width / 2, cy = r.height / 2;
-          const rotateX = ((y - cy) / cy) * -6;
-          const rotateY = ((x - cx) / cx) * 6;
-          card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-        }
-      });
-
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
       });
     });
   }
