@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="drawer-username" id="drawerUsername">Invitado</div>
       </div>
       <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
+      <a href="../views/juegos.html" class="drawer-link">Juegos interactivo</a>
       <a href="../views/recetas.html" class="drawer-link">Recetario</a>
       <div class="drawer-divider"></div>
       <div class="drawer-auth"></div>
