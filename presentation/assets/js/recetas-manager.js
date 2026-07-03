@@ -140,7 +140,7 @@ function renderRecipe(key) {
   if (!data) return;
 
   const container = document.getElementById("recipe-dynamic-content");
-  
+
   // Renderizado dinámico respetando tus clases de diseño
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
@@ -188,59 +188,161 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Evento interactivo para compilar y descargar el PDF de forma dinámica
+  // ── Evento interactivo para compilar y descargar el PDF de forma dinámica ──
   document.getElementById("download-pdf-btn").addEventListener("click", () => {
     const element = document.getElementById("printable-recipe-area");
     const activeCard = element.querySelector(".recipe-card");
     const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
+    const data = recetasData[recipeKey];
 
     const opt = {
-      margin:       [12, 12, 12, 12],
+      margin:       [10, 10, 12, 10],
       filename:     `Raices_SV_Receta_${recipeKey}.pdf`,
       image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { scale: 3, useCORS: true, backgroundColor: "#ffffff" },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      html2canvas:  {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'avoid-all'] }
     };
 
+    // Contenedor blanco, fuera de pantalla, con ancho fijo tipo A4
     const pdfWrapper = document.createElement('div');
     pdfWrapper.style.position = 'fixed';
     pdfWrapper.style.top = '0';
     pdfWrapper.style.left = '-9999px';
-    pdfWrapper.style.width = '210mm';
+    pdfWrapper.style.width = '190mm';
+    pdfWrapper.style.padding = '6mm';
     pdfWrapper.style.background = '#ffffff';
-    pdfWrapper.style.color = '#111111';
+    pdfWrapper.style.color = '#1a1a1a';
+    pdfWrapper.style.fontFamily = "'Lato', Arial, sans-serif";
 
     const cloned = element.cloneNode(true);
+
+    // Reset agresivo y RECURSIVO de estilos en TODOS los nodos clonados.
+    // Esto evita el bug original: solo unas pocas clases tenían el fondo
+    // forzado a blanco, y el resto se quedaba con el fondo oscuro del sitio
+    // pero con texto ya forzado a negro -> texto invisible en el PDF.
+    const allNodes = [cloned, ...cloned.querySelectorAll('*')];
+    allNodes.forEach(node => {
+      node.style.background = 'transparent';
+      node.style.backgroundColor = 'transparent';
+      node.style.backgroundImage = 'none';
+      node.style.color = '#1a1a1a';
+      node.style.boxShadow = 'none';
+      node.style.textShadow = 'none';
+      node.style.filter = 'none';
+      node.style.backdropFilter = 'none';
+      node.style.opacity = '1';
+      node.style.transform = 'none';
+      node.style.borderColor = '#d9c8ad';
+    });
+
+    // Estilos específicos de presentación, aplicados DESPUÉS del reset
     cloned.style.background = '#ffffff';
-    cloned.style.color = '#111111';
-    cloned.querySelectorAll('*').forEach(node => {
-      node.style.color = '#111111';
-      if (node.classList.contains('recipe-card')) {
-        node.style.background = '#ffffff';
-        node.style.border = '1px solid #cccccc';
-        node.style.boxShadow = 'none';
-      }
-      if (node.classList.contains('recipe-header')) {
-        node.style.borderBottom = '1px solid #cccccc';
-      }
-      if (node.classList.contains('recipe-meta')) {
-        node.style.background = 'transparent';
-      }
-      if (node.tagName === 'UL' || node.tagName === 'OL') {
-        node.style.color = '#111111';
-      }
-      if (node.tagName === 'LI') {
-        node.style.color = '#111111';
+    cloned.style.border = 'none';
+    cloned.style.borderRadius = '0';
+    cloned.style.padding = '0';
+
+    const header = cloned.querySelector('.recipe-header');
+    if (header) {
+      header.style.borderBottom = '3px solid #be8e56';
+      header.style.paddingBottom = '10px';
+      header.style.marginBottom = '16px';
+    }
+
+    const title = cloned.querySelector('.recipe-title');
+    if (title) {
+      title.style.color = '#113068';
+      title.style.fontSize = '26px';
+      title.style.fontWeight = '700';
+      title.style.marginBottom = '8px';
+    }
+
+    const meta = cloned.querySelector('.recipe-meta');
+    if (meta) {
+      meta.style.display = 'flex';
+      meta.style.gap = '18px';
+      meta.style.flexWrap = 'wrap';
+      meta.style.fontSize = '13px';
+      meta.style.color = '#444444';
+    }
+
+    // El grid de 2 columnas se apila en 1 columna para que se lea
+    // completo y ordenado en una hoja A4 vertical.
+    const grid = cloned.querySelector('.recipe-grid');
+    if (grid) {
+      grid.style.display = 'block';
+    }
+
+    const sections = cloned.querySelectorAll('.recipe-section');
+    sections.forEach(section => {
+      section.style.marginBottom = '18px';
+      section.style.breakInside = 'avoid';
+      section.style.pageBreakInside = 'avoid';
+      const heading = section.querySelector('h3');
+      if (heading) {
+        heading.style.color = '#be8e56';
+        heading.style.fontSize = '16px';
+        heading.style.fontWeight = '700';
+        heading.style.textTransform = 'uppercase';
+        heading.style.letterSpacing = '0.04em';
+        heading.style.marginBottom = '8px';
+        heading.style.borderBottom = '1px solid #e5dccb';
+        heading.style.paddingBottom = '4px';
       }
     });
 
+    cloned.querySelectorAll('.ingredients-list li, .steps-list li').forEach(li => {
+      li.style.marginBottom = '7px';
+      li.style.lineHeight = '1.5';
+      li.style.fontSize = '13px';
+      li.style.paddingLeft = '2px';
+    });
+
+    cloned.querySelectorAll('.ingredients-list').forEach(ul => {
+      ul.style.listStyle = 'disc';
+      ul.style.paddingLeft = '20px';
+    });
+
+    cloned.querySelectorAll('.steps-list').forEach(ol => {
+      ol.style.listStyle = 'decimal';
+      ol.style.paddingLeft = '20px';
+    });
+
+    // Pie de página con marca, para que se vea presentable/terminado
+    const footer = document.createElement('div');
+    footer.style.marginTop = '22px';
+    footer.style.paddingTop = '10px';
+    footer.style.borderTop = '1px solid #e5dccb';
+    footer.style.fontSize = '11px';
+    footer.style.color = '#888888';
+    footer.style.textAlign = 'center';
+    footer.textContent = 'Raíces SV — Nuestra herencia, nuestro orgullo · raicessv.com';
+
     pdfWrapper.appendChild(cloned);
+    pdfWrapper.appendChild(footer);
     document.body.appendChild(pdfWrapper);
+
+    const btn = document.getElementById('download-pdf-btn');
+    const originalBtnText = btn ? btn.textContent : null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Generando PDF...';
+    }
 
     html2pdf().set(opt).from(pdfWrapper).save().then(() => {
       document.body.removeChild(pdfWrapper);
-    }).catch(() => {
+      if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
+    }).catch((err) => {
+      console.error('Error generando PDF:', err);
       document.body.removeChild(pdfWrapper);
+      if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
     });
   });
 });
