@@ -225,6 +225,31 @@ ul    { list-style: none; }
   letter-spacing: .1em;
 }
 
+/* Perfil dentro del drawer (avatar + nombre) */
+.drawer-profile {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .5rem 0 .9rem 0;
+}
+.drawer-avatar {
+  width: 48px; height: 48px;
+  flex: 0 0 48px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+}
+.drawer-avatar svg { display:block; }
+.drawer-username {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--white);
+  font-size: 1rem;
+}
+
 .btn-login {
   display: block;
   text-align: center;
