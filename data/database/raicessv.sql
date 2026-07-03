@@ -40,4 +40,11 @@ Create Table IF NOT EXISTS tests(
     description text not null
 );
 
+CREATE TABLE IF NOT EXISTS rols(
+    id_rol int auto_increment primary key,
+    rol varchar (50) not null
+);
+
 Insert into users(name, email, password) values('Admin', 'admin@example.com', 'admin123');
+Insert into rols(rol) values('Admin');
+Insert into rols(rol) values('Usuario');
