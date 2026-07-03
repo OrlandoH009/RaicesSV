@@ -17,6 +17,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const drawer   = document.getElementById('navDrawer');
   const overlay  = document.getElementById('navOverlay');
 
+  // Reconstruir el contenido del drawer para mantenerlo consistente
+  // en todas las vistas: solo incluir Quiz Cultural y Recetario,
+  // y un bloque de perfil/autoridad que será rellenado por renderAuthMenu().
+  if (drawer) {
+    drawer.innerHTML = `
+      <div class="nav-drawer__head"><span>Menú</span></div>
+      <div class="drawer-profile" id="drawerProfile">
+        <div class="drawer-avatar" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="avatar">
+            <rect width="24" height="24" rx="6" fill="rgba(255,255,255,0.06)" />
+            <path d="M12 12a3 3 0 100-6 3 3 0 000 6z" fill="#fff" />
+            <path d="M4 20a8 8 0 0116 0" fill="#fff" opacity="0.9" />
+          </svg>
+        </div>
+        <div class="drawer-username" id="drawerUsername">Invitado</div>
+      </div>
+      <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
+      <a href="../views/recetas.html" class="drawer-link">Recetario</a>
+      <div class="drawer-divider"></div>
+      <div class="drawer-auth"></div>
+    `;
+  }
+
   function openDrawer() {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
@@ -65,16 +88,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderAuthMenu = async () => {
     if (!authContainer) return;
 
+    const drawerProfile = document.getElementById('drawerProfile');
+    const drawerUsername = document.getElementById('drawerUsername');
+
     try {
       const response = await fetch('/auth/status', { credentials: 'same-origin' });
       const data = await response.json();
 
       if (data.loggedIn) {
+        // Mostrar nombre en el área de perfil
+        if (drawerUsername) drawerUsername.textContent = data.user?.name || data.user?.email || 'Usuario';
+
         authContainer.innerHTML = `
-          <p class="drawer-auth-label">Hola, ${data.user?.name || data.user?.email || 'Usuario'}</p>
+          <p class="drawer-auth-label">Conectado</p>
           <button type="button" class="btn-logout" id="logout-link">Cerrar sesión</button>
         `;
       } else {
+        if (drawerUsername) drawerUsername.textContent = 'Invitado';
         authContainer.innerHTML = `
           <p class="drawer-auth-label">Mi cuenta</p>
           <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
@@ -143,7 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Active link ── */
   const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.navbar__links a, .drawer-link').forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === page);
+    const href = a.getAttribute('href') || '';
+    const hrefPage = href.split('/').pop();
+    a.classList.toggle('active', hrefPage === page);
   });
 
   /* ── Scroll Reveal (se omite si la página usa animaciones GSAP propias) ── */
