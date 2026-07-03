@@ -192,3 +192,92 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
+
+/* ============================================================
+   MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
+   (Bloque agregado, no modifica nada existente)
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html'];
+
+  const lockModalHTML = `
+    <div class="lock-modal-overlay" id="lockModalOverlay">
+      <div class="lock-modal" id="lockModal" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
+        <button class="lock-modal__close" id="lockModalClose" aria-label="Cerrar">&times;</button>
+        <div class="lock-modal__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="10" width="16" height="10" rx="2"/>
+            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+          </svg>
+        </div>
+        <h3 class="lock-modal__title" id="lockModalTitle">¡Un momento! 🔒</h3>
+        <p class="lock-modal__text">
+          Perdona, debes registrarte para poder seguir disfrutando de nuestra información.
+          Es rápido y gratis.
+        </p>
+        <div class="lock-modal__actions">
+          <a href="/registro.html" class="lock-modal__btn lock-modal__btn--primary" id="lockModalRegister">Registrarme</a>
+          <a href="/login.html" class="lock-modal__btn lock-modal__btn--secondary" id="lockModalLogin">Ya tengo cuenta</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (!document.getElementById('lockModalOverlay')) {
+    document.body.insertAdjacentHTML('beforeend', lockModalHTML);
+  }
+
+  const lockOverlay = document.getElementById('lockModalOverlay');
+  const lockClose = document.getElementById('lockModalClose');
+  const lockRegisterBtn = document.getElementById('lockModalRegister');
+  const lockLoginBtn = document.getElementById('lockModalLogin');
+
+  const openLockModal = (destinationPath) => {
+    const redirectTo = destinationPath ? '?redirect=' + encodeURIComponent(destinationPath) : '';
+    if (lockRegisterBtn) lockRegisterBtn.href = '/registro.html' + redirectTo;
+    if (lockLoginBtn) lockLoginBtn.href = '/login.html' + redirectTo;
+
+    lockOverlay?.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLockModal = () => {
+    lockOverlay?.classList.remove('is-visible');
+    document.body.style.overflow = '';
+  };
+
+  lockClose?.addEventListener('click', closeLockModal);
+  lockOverlay?.addEventListener('click', (event) => {
+    if (event.target === lockOverlay) closeLockModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && lockOverlay?.classList.contains('is-visible')) closeLockModal();
+  });
+
+  // Interceptar cualquier click sobre un enlace que apunte a una vista protegida.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+
+    const href = link.getAttribute('href') || '';
+    const fileName = href.split('/').pop().split('?')[0].split('#')[0];
+
+    if (!lockPages.includes(fileName)) return;
+
+    event.preventDefault();
+
+    fetch('/auth/status', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.loggedIn) {
+          const destUrl = new URL(link.href, window.location.origin);
+          openLockModal(destUrl.pathname + destUrl.search);
+        } else {
+          window.location.href = link.href;
+        }
+      })
+      .catch(() => {
+        window.location.href = link.href;
+      });
+  });
+});

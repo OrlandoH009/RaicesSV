@@ -390,3 +390,123 @@ ul    { list-style: none; }
 @media (max-width: 600px) {
   .navbar__links { display: none; }
 }
+/* ============================================================
+   MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
+   Se inyecta dinámicamente desde script.js en todas las vistas.
+   ============================================================ */
+.lock-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 48, 104, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.lock-modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lock-modal {
+ position: relative;
+ background: var(--cream);
+ border-radius: var(--r-md);
+ max-width: 420px;
+ width: 100%;
+ padding: 2.4rem 2.2rem 2rem;
+ text-align: center;
+ box-shadow: 0 20px 60px rgba(0,0,0,.5);
+ transform: translateY(20px) scale(.96);
+ opacity: 0;
+ transition: transform .3s ease, opacity .3s ease;
+}
+.lock-modal-overlay.is-visible .lock-modal {
+ transform: translateY(0) scale(1);
+ opacity: 1;
+}
+
+.lock-modal__close {
+ position: absolute;
+ top: .8rem;
+ right: .9rem;
+ background: none;
+ border: none;
+ font-size: 1.5rem;
+ line-height: 1;
+ color: rgba(17,48,104,.5);
+ cursor: pointer;
+ padding: .2rem .5rem;
+ transition: color .2s ease;
+}
+.lock-modal__close:hover { color: var(--navy); }
+
+.lock-modal__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.1rem;
+  border-radius: 50%;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+.lock-modal__icon svg { width: 28px; height: 28px; }
+
+.lock-modal__title {
+ font-family: var(--font-display);
+ font-weight: 700;
+ font-size: 1.4rem;
+ color: var(--navy);
+ margin-bottom: .6rem;
+}
+
+.lock-modal__text {
+ font-family: var(--font-body);
+  font-size: .96rem;
+  color: rgba(0,0,0,.65);
+  line-height: 1.5;
+  margin-bottom: 1.6rem;
+}
+
+.lock-modal__actions {
+ display: flex;
+ flex-direction: column;
+ gap: .7rem;
+}
+
+.lock-modal__btn {
+ display: block;
+ padding: .8rem 1rem;
+ border-radius: var(--r-lg);
+ font-family: var(--font-display);
+ font-weight: 700;
+ font-size: 1rem;
+ text-decoration: none;
+ border: none;
+ cursor: pointer;
+ transition: transform .2s ease, background-color .2s ease;
+}
+.lock-modal__btn--primary {
+  background: var(--gold);
+  color: var(--white);
+  border: 3px solid var(--black);
+}
+.lock-modal__btn--primary:hover { background: var(--gold-hover); }
+
+.lock-modal__btn--secondary {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid rgba(17,48,104,.35);
+}
+.lock-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
+
+@media (max-width: 480px) {
+.lock-modal { padding: 2rem 1.4rem 1.6rem; }
+}
