@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const session = require('express-session');
 const path = require('path');
+const ngrok = require('@ngrok/ngrok');
 
 dotenv.config();
 
@@ -146,6 +147,18 @@ app.use((err, req, res, next) => {
     res.status(500).send('Ocurrió un error inesperado. Inténtalo de nuevo más tarde.');
 });
 
-app.listen(port, () => {
+app.listen(port, async() => {
     console.log(`Servidor iniciado en http://localhost:${port}`);
+
+    if (process.env.NGROK_ENABLED === 'true') {
+        try {
+            const listener = await ngrok.forward({
+                addr: port,
+                authtoken_from_env: true,
+            });
+            console.log (`La URL de ngrok es: ${listener.url()}`);
+        }catch (e) {
+            console.error('Error al iniciar ngrok:', e);
+        }
+    }
 });
