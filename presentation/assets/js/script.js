@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
    (Bloque agregado, no modifica nada existente)
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html'];
+  const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html', 'juegos.html'];
 
   const lockModalHTML = `
     <div class="lock-modal-overlay" id="lockModalOverlay">
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
           </svg>
         </div>
-        <h3 class="lock-modal__title" id="lockModalTitle">¡Un momento! 🔒</h3>
+        <h3 class="lock-modal__title" id="lockModalTitle">¡Un momento!</h3>
         <p class="lock-modal__text">
           Perdona, debes registrarte para poder seguir disfrutando de nuestra información.
           Es rápido y gratis.

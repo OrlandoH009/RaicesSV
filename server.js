@@ -118,7 +118,8 @@ const protectedViews = [
     'leyendas.html',
     'quiz.html',
     'recetas.html',
-    'sitios-culturales.html'
+    'sitios-culturales.html',
+    'juegos.html'
 ];
 protectedViews.forEach((fileName) => {
     const base = fileName.replace(/\.html$/, '');
