@@ -5,7 +5,9 @@ Create Table IF NOT EXISTS users(
     id_user int auto_increment primary key,
     name varchar(125) not null,
     email varchar(125) not null unique,
-    password varchar(125) not null
+    password varchar(125) not null,
+    id_rol int not null,
+    FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
 );
 
 Create Table IF NOT EXISTS properties(
