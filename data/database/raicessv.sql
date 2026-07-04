@@ -1,6 +1,11 @@
 Create Database IF NOT EXISTS raicessv;
 USE raicessv;
 
+CREATE TABLE IF NOT EXISTS rols(
+    id_rol int auto_increment primary key,
+    rol varchar (50) not null
+);
+
 Create Table IF NOT EXISTS users(
     id_user int auto_increment primary key,
     name varchar(125) not null,
@@ -8,6 +13,12 @@ Create Table IF NOT EXISTS users(
     password varchar(125) not null,
     id_rol int not null,
     FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
+);
+
+Create Table IF NOT EXISTS tests(
+    id_test int auto_increment primary key,
+    title varchar(125) not null,
+    description text not null
 );
 
 Create Table IF NOT EXISTS properties(
@@ -34,17 +45,6 @@ Create Table IF NOT EXISTS scores(
     score int not null,
     FOREIGN KEY (id_user) REFERENCES users(id_user),
     FOREIGN KEY (id_test) REFERENCES tests(id_test)
-);
-
-Create Table IF NOT EXISTS tests(
-    id_test int auto_increment primary key,
-    title varchar(125) not null,
-    description text not null
-);
-
-CREATE TABLE IF NOT EXISTS rols(
-    id_rol int auto_increment primary key,
-    rol varchar (50) not null
 );
 
 Insert into users(name, email, password) values('Admin', 'admin@example.com', 'admin123');
