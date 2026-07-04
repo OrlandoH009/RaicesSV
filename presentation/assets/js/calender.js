@@ -1,6 +1,7 @@
+const hoyInicial = new Date();
 const calendarState = {
-  currentYear: 2026,
-  currentMonth: 0, // 0 = Enero, 11 = Diciembre
+  currentYear: hoyInicial.getFullYear(),
+  currentMonth: hoyInicial.getMonth(), // 0 = Enero, 11 = Diciembre
   selectedDay: null,
   festividades: [] 
 };
@@ -54,6 +55,7 @@ function initCalendar() {
   renderYearTitle();
   renderMonthPills();
   renderCalendarGrid();
+  renderTodayEvent();
 }
 
 function setupCalendarEvents() {
@@ -207,5 +209,38 @@ function triggerGridAnimation() {
     calGrid.classList.remove("fade-transition");
     void calGrid.offsetWidth; // Forzar reflow para reiniciar ciclo de animación CSS
     calGrid.classList.add("fade-transition");
+  }
+}
+
+// Muestra en el panel superior si hay algún evento cultural para el día de hoy real
+function renderTodayEvent() {
+  const panel = document.getElementById("todayEventPanel");
+  const titleEl = document.getElementById("todayEventTitle");
+  if (!panel || !titleEl) return;
+
+  const hoy = new Date();
+  const eventosHoy = calendarState.festividades.filter(
+    f => f.dia === hoy.getDate() && f.mes === hoy.getMonth() && f.anio === hoy.getFullYear()
+  );
+
+  panel.classList.remove("has-event", "no-event");
+
+  if (eventosHoy.length > 0) {
+    panel.classList.add("has-event");
+    titleEl.textContent = eventosHoy.length === 1
+      ? eventosHoy[0].nombre
+      : `${eventosHoy[0].nombre} y ${eventosHoy.length - 1} más`;
+
+    panel.style.cursor = "pointer";
+    panel.onclick = () => {
+      if (typeof window.abrirDetallesEvento === "function") {
+        window.abrirDetallesEvento(eventosHoy[0]);
+      }
+    };
+  } else {
+    panel.classList.add("no-event");
+    titleEl.textContent = "No hay ningún evento cultural para este día";
+    panel.style.cursor = "default";
+    panel.onclick = null;
   }
 }

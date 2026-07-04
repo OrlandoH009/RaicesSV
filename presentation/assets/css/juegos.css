@@ -166,6 +166,75 @@ canvas {
   cursor: pointer;
 }
 
+/* ── Controles del canvas (pausa + mute + pantalla completa) ── */
+.canvas-controls {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  z-index: 7;
+  display: flex;
+  gap: .5rem;
+}
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: rgba(17,48,104,.75);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+  font-size: 1rem;
+}
+.icon-btn:hover { background: var(--navy); transform: scale(1.08); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ── HUD superpuesto: siempre visible dentro del recuadro del juego,
+   incluso en pantalla completa ── */
+.hud--overlay {
+  position: absolute;
+  top: .7rem;
+  left: .7rem;
+  z-index: 7;
+  max-width: 62%;
+}
+.hud--overlay .hud-item {
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 3px 10px rgba(0,0,0,.25);
+}
+
+/* ── Overlay de pausa ── */
+.canvas-wrap.is-paused canvas { filter: brightness(.55); }
+.overlay-card--pause { max-width: 380px; }
+
+.canvas-wrap:fullscreen,
+.canvas-wrap:-webkit-full-screen,
+.canvas-wrap.is-fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b1a33;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.canvas-wrap:fullscreen canvas,
+.canvas-wrap:-webkit-full-screen canvas,
+.canvas-wrap.is-fullscreen canvas {
+  width: auto;
+  height: 92vh;
+  max-width: 96vw;
+}
+.canvas-wrap:fullscreen .overlay,
+.canvas-wrap:-webkit-full-screen .overlay,
+.canvas-wrap.is-fullscreen .overlay {
+  max-width: 96vw;
+  margin: 0 auto;
+}
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -182,8 +251,8 @@ canvas {
   border: 3px solid var(--navy);
   border-radius: var(--r-md);
   box-shadow: 0 8px 4px rgba(0,0,0,.4);
-  padding: 1.8rem 2rem;
-  max-width: 320px;
+  padding: 1.9rem 2.4rem;
+  max-width: 560px;
   width: 100%;
   text-align: center;
 }
@@ -215,6 +284,41 @@ canvas {
   line-height: 1.5;
   margin-bottom: 1.1rem;
 }
+.rules-list {
+  text-align: left;
+  list-style: disc;
+  padding-left: 1.15rem;
+  margin: 0 0 1.2rem;
+  font-family: var(--font-body);
+  font-size: .86rem;
+  color: #4a4a4a;
+  line-height: 1.55;
+}
+.rules-list li { margin-bottom: .45rem; }
+.rules-list li:last-child { margin-bottom: 0; }
+
+.rules-title {
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .74rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin: 0 0 .55rem;
+  padding-top: .3rem;
+  border-top: 1px solid rgba(17,48,104,.15);
+}
+
+.rule-good, .rule-bad {
+  list-style: none;
+  margin-left: -1.15rem;
+  padding: .35rem .5rem;
+  border-radius: var(--r-sm);
+}
+.rule-good { background: rgba(60,140,90,.1); }
+.rule-bad { background: rgba(190,60,50,.1); }
+.rule-icon { margin-right: .3rem; }
 .overlay-score {
   font-family: var(--font-display);
   font-weight: 700;
@@ -244,4 +348,8 @@ canvas {
 @media (max-width: 600px) {
   .game-panel { padding: 1.4rem 1.2rem 1.6rem; }
   .page-hero { padding: calc(var(--nav-h) + 2rem) 1.2rem 2.4rem; }
+  .hud--overlay { max-width: 78%; gap: .35rem; }
+  .hud--overlay .hud-item { min-width: 60px; padding: .3rem .5rem; font-size: .68rem; }
+  .hud--overlay .hud-item b { font-size: .95rem; }
+  .icon-btn { width: 32px; height: 32px; }
 }
