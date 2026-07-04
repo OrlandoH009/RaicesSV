@@ -116,7 +116,7 @@
   ];
 
   let score = 0, lives = 3, timeLeft = 30, running = false, paused = false;
-  let lastTime = null, spawnAccum = 0, clockAccum = 0, nextSpawnIn = randomSpawnInterval();
+  let lastTime = null, lastDelta = 1000/60, spawnAccum = 0, clockAccum = 0, nextSpawnIn = randomSpawnInterval();
 
   function randomSpawnInterval(){
     return 1600 + Math.random()*250; // 1.6s – 2.5s entre objetos: más jugable
@@ -168,6 +168,7 @@
     paused = false;
     running = true;
     lastTime = null; // evita un salto grande de tiempo tras la pausa
+    lastDelta = 1000/60;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -211,10 +212,21 @@
   function step(timestamp){
     if(!running) return;
     if(lastTime === null) lastTime = timestamp;
-    const dt = Math.min(timestamp - lastTime, 100); // ms reales desde el último frame (con tope por si la pestaña estuvo inactiva)
+    // ms reales desde el último frame (con piso/techo para evitar saltos si
+    // la pestaña estuvo inactiva o el navegador tuvo un frame raro)
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
     lastTime = timestamp;
 
-    Engine.update(engine, 1000/60);
+    // Antes se llamaba Engine.update(engine, 1000/60) SIEMPRE, como si cada
+    // cuadro durara exactamente 1/60s. En equipos con menos FPS (o pantallas
+    // más lentas) cada cuadro real tarda MÁS que eso, así que la física
+    // avanzaba menos tiempo simulado del que en verdad pasaba y todo se veía
+    // en cámara lenta. Ahora se le pasa el tiempo real transcurrido (dt) más
+    // un factor de corrección, que es lo que Matter.js recomienda para que
+    // la simulación se vea igual de rápida sin importar los FPS del equipo.
+    const correction = dt / lastDelta;
+    Engine.update(engine, dt, correction);
+    lastDelta = dt;
 
     for(const b of [...world.bodies]){
       if(b.label==='good' || b.label==='bad'){
@@ -300,7 +312,7 @@
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    lastTime = null; spawnAccum = 0; clockAccum = 0; nextSpawnIn = randomSpawnInterval();
+    lastTime = null; lastDelta = 1000/60; spawnAccum = 0; clockAccum = 0; nextSpawnIn = randomSpawnInterval();
     document.getElementById('p-score').textContent = 0;
     document.getElementById('p-lives').textContent = 3;
     document.getElementById('p-time').textContent = 30;
@@ -329,5 +341,3 @@
   ctx.fillRect(0, CH-20, CW, 20);
   drawEmoji('🫓', CW/2, CH/2-40, 60, 0);
 })();
-
-
