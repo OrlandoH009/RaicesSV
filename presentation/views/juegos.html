@@ -33,6 +33,13 @@
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
     <div class="nav-drawer__head"><span>Menú</span></div>
+    <div class="drawer-section-label">Principal</div>
+    <a href="../views/index.html" class="drawer-link">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Explorar</div>
     <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
     <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
     <a href="../views/recetas.html" class="drawer-link">Recetario</a>
@@ -41,7 +48,6 @@
     <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
     <a href="../views/juegos.html" class="drawer-link active">Juegos Interactivos</a>
     <a href="../views/leyendas.html" class="drawer-link">Leyendas</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
       <p class="drawer-auth-label">Mi cuenta</p>
@@ -76,40 +82,14 @@
             <h2 id="game-title">Atrapa la pupusa</h2>
             <p id="game-desc">Mové el comal con el mouse (o el dedo) y atrapá las pupusas antes de que se hagan añicos en el suelo. Ojo con lo que no se come.</p>
           </div>
+          <div class="hud" id="hud"></div>
         </div>
 
         <div class="canvas-wrap">
-          <div class="hud hud--overlay" id="hud"></div>
-
-          <div class="canvas-controls">
-            <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pausar juego" title="Pausar juego">
-              <span id="pauseIcon">⏸️</span>
-            </button>
-            <button class="icon-btn" id="muteBtn" type="button" aria-label="Silenciar música" title="Silenciar música">
-              <span id="muteIcon">🔊</span>
-            </button>
-            <button class="icon-btn fullscreen-btn" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
-              </svg>
-            </button>
-          </div>
-
           <canvas id="canvas" width="820" height="440"></canvas>
-          <div class="overlay hidden" id="pauseOverlay">
-            <div class="overlay-card overlay-card--pause">
-              <span class="overlay-tag">Pausa</span>
-              <h3>⏸️ Juego en pausa</h3>
-              <p>Le diste al botón de pausa. Cuando quieras seguir, tocá "Continuar".</p>
-              <button class="btn-primary" id="resumeBtn">Continuar</button>
-            </div>
-          </div>
           <div class="overlay" id="overlay">
             <div class="overlay-card" id="overlay-card"></div>
           </div>
-          <audio id="bgMusic" loop preload="none">
-            <source src="../assets/media/musica-salvadorena.mp3" type="audio/mpeg" />
-          </audio>
         </div>
       </div>
 
