@@ -36,6 +36,13 @@ a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
 
+/* Evita que palabras largas o títulos se corten/desborden en pantallas angostas */
+h1, h2, h3, h4, h5, h6, p, a, span, li, button {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 /* ── Botón primario (dorado) ── */
 .btn-primary {
   display: inline-flex;
@@ -191,6 +198,17 @@ ul    { list-style: none; }
   color: var(--gold);
   text-transform: uppercase;
   letter-spacing: .08em;
+}
+
+/* Etiqueta de sección dentro del drawer (Principal / Explorar) */
+.drawer-section-label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .72rem;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: .6rem .5rem .3rem;
 }
 
 .nav-drawer a.drawer-link {
@@ -385,10 +403,118 @@ ul    { list-style: none; }
 @media (hover: none), (pointer: coarse) { .cursor-glow { display: none; } }
 
 /* ══════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — MÓVIL
+   Punto de referencia: Samsung Galaxy A15
+   (viewport CSS ≈ 393 × 851px, DPR ~2.75)
    ══════════════════════════════════ */
+
+/* Tablets pequeñas / móviles grandes */
 @media (max-width: 600px) {
+  :root {
+    --nav-h: 64px;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  /* ── Navbar ── */
+  .navbar {
+    padding: 0 .9rem;
+  }
   .navbar__links { display: none; }
+  .navbar__logo img {
+    width: 46px;
+    height: 46px;
+  }
+  .navbar__burger {
+    padding: .6rem;
+    /* área táctil cómoda (~44px) */
+  }
+  .navbar__burger span { width: 24px; }
+
+  /* ── Drawer lateral ── */
+  .nav-drawer {
+    width: min(82vw, 300px);
+    right: calc(-1 * min(82vw, 300px) - 20px);
+    padding: 1.25rem 1.1rem;
+    overflow-x: hidden;
+  }
+  .nav-drawer a.drawer-link {
+    font-size: 1rem;
+    line-height: 1.3;
+    padding: .95rem .5rem;
+    /* filas más altas = más fáciles de tocar, texto nunca se recorta (wrap natural) */
+  }
+  .drawer-link.active { color: var(--gold); }
+  .drawer-section-label:first-of-type { padding-top: .2rem; }
+  .drawer-avatar { width: 42px; height: 42px; flex-basis: 42px; }
+
+  .btn-login, .btn-register, .btn-logout {
+    padding: .85rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* ── Botón primario ── */
+  .btn-primary {
+    width: 100%;
+    max-width: 340px;
+    padding: 1rem 1.75rem;
+    border-radius: var(--r-md);
+  }
+
+  /* ── Footer ── */
+  .footer { padding: 2rem 1.25rem; }
+  .footer__inner { gap: .85rem; }
+  .footer__logo { width: 60px; height: 60px; }
+  .footer__name { font-size: clamp(1.05rem, 4.5vw, 1.2rem); }
+  .footer__links {
+    gap: .9rem 1.4rem;
+    font-size: .9rem;
+  }
+  .footer__links a { padding: .35rem 0; display: inline-block; }
+  .footer__copy {
+    font-size: .8rem;
+    line-height: 1.5;
+    padding: 0 .5rem;
+  }
+
+  /* ── Barra de progreso más fina en móvil ── */
+  .scroll-progress { height: 2px; }
+}
+
+/* Móviles medianos (Samsung A15 y similares, ~393px) */
+@media (max-width: 430px) {
+  .navbar { padding: 0 .7rem; height: 60px; }
+  :root { --nav-h: 60px; }
+  .navbar__logo img { width: 40px; height: 40px; }
+
+  .nav-drawer { width: min(86vw, 280px); padding: 1.1rem .9rem; }
+  .nav-drawer__head span { font-size: .9rem; }
+  .nav-drawer a.drawer-link { font-size: .96rem; padding: .85rem .4rem; }
+  .drawer-section-label { font-size: .68rem; }
+
+  .btn-primary {
+    font-size: clamp(1rem, 4.5vw, 1.3rem);
+    padding: .9rem 1.4rem;
+  }
+
+  .footer__links { flex-direction: column; gap: .65rem; }
+  .footer__copy { font-size: .78rem; line-height: 1.5; }
+}
+
+/* Móviles muy pequeños (<360px) */
+@media (max-width: 360px) {
+  .navbar__logo img { width: 36px; height: 36px; }
+  .nav-drawer { width: 88vw; }
+}
+
+/* ── Ajustes táctiles y de legibilidad para cualquier pantalla táctil ── */
+@media (hover: none) and (pointer: coarse) {
+  a, button, .drawer-link, .navbar__links a {
+    -webkit-tap-highlight-color: rgba(190,142,86,.25);
+  }
+  .btn-primary, .btn-login, .btn-register, .btn-logout, .lock-modal__btn {
+    min-height: 44px; /* área táctil mínima recomendada */
+  }
 }
 /* ============================================================
    MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
@@ -508,5 +634,20 @@ ul    { list-style: none; }
 .lock-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
 
 @media (max-width: 480px) {
-.lock-modal { padding: 2rem 1.4rem 1.6rem; }
+  .lock-modal-overlay { padding: 1rem; align-items: flex-end; }
+  .lock-modal {
+    padding: 1.9rem 1.3rem 1.5rem;
+    max-width: 100%;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+  }
+  .lock-modal-overlay.is-visible .lock-modal { transform: translateY(0) scale(1); }
+  .lock-modal__icon { width: 54px; height: 54px; }
+  .lock-modal__icon svg { width: 24px; height: 24px; }
+  .lock-modal__title { font-size: 1.2rem; }
+  .lock-modal__text { font-size: .9rem; margin-bottom: 1.3rem; }
+  .lock-modal__btn { padding: .85rem 1rem; font-size: .95rem; }
+  .lock-modal__close {
+    top: .5rem; right: .6rem;
+    padding: .5rem .7rem; /* más área táctil */
+  }
 }
