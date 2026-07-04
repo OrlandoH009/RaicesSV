@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS rols(
 
 Create Table IF NOT EXISTS users(
     id_user int auto_increment primary key,
+    id_rol int not null,
     name varchar(125) not null,
     email varchar(125) not null unique,
-    password varchar(125) not null,
-    id_rol int not null,
+    password varchar(125) null,
     FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
 );
 
@@ -47,6 +47,6 @@ Create Table IF NOT EXISTS scores(
     FOREIGN KEY (id_test) REFERENCES tests(id_test)
 );
 
-Insert into users(name, email, password) values('Admin', 'admin@example.com', 'admin123');
 Insert into rols(rol) values('Admin');
 Insert into rols(rol) values('Usuario');
+Insert into users(name, email, password, id_rol) values('Admin', 'admin@example.com', 'admin123', 1);
