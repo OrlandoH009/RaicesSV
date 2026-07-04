@@ -230,7 +230,7 @@
 
     for(const b of [...world.bodies]){
       if(b.label==='good' || b.label==='bad'){
-        if(b.velocity.y > 1.5){ Body.setVelocity(b, { x: b.velocity.x, y: 1.5 }); }
+        if(b.velocity.y > 3.1){ Body.setVelocity(b, { x: b.velocity.x, y: 3.1 }); }
         if(b.position.y > CH+40){
           World.remove(world, b);
           if(b.label==='good'){ lives -= 1; }
