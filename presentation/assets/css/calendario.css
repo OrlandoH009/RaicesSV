@@ -260,6 +260,83 @@ section {
   border-color: var(--tierra-lt);
 }
 
+/* ── Panel: evento cultural de hoy ── */
+.today-event-panel {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(43, 95, 138, 0.18) 0%, rgba(27, 22, 18, 0.85) 100%);
+  border: 1px solid rgba(200, 154, 59, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform .3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow .3s ease, border-color .3s ease;
+}
+
+.today-event-panel.has-event {
+  border-color: var(--oro);
+}
+
+.today-event-panel.has-event:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(200, 154, 59, 0.25);
+}
+
+.today-event-panel.no-event {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(27, 22, 18, 0.6);
+}
+
+.today-event-panel__icon {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  filter: grayscale(0);
+}
+
+.today-event-panel.no-event .today-event-panel__icon {
+  filter: grayscale(1);
+  opacity: .5;
+}
+
+.today-event-panel__text {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-width: 0;
+}
+
+.today-event-panel__label {
+  font-family: 'Cinzel', serif;
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--oro);
+}
+
+.today-event-panel.no-event .today-event-panel__label {
+  color: var(--crema-dk);
+}
+
+.today-event-panel__title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-event-panel.no-event .today-event-panel__title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: .92rem;
+  color: var(--crema-dk);
+  white-space: normal;
+}
+
 /* ── Grid del calendario ── */
 .calendar-wrap {
   background: #16120e; /* Tono oscuro interno */

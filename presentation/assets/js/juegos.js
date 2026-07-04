@@ -13,19 +13,40 @@
   items.forEach(el=> io.observe(el));
 })();
 
-/* Drawer / burger (por si script.js no maneja esta página) */
-(function initDrawer(){
-  const burger = document.getElementById('burger');
-  const drawer = document.getElementById('navDrawer');
-  const overlay = document.getElementById('navOverlay');
-  if(!burger || !drawer || !overlay) return;
-  function toggle(open){
-    burger.classList.toggle('open', open);
-    drawer.classList.toggle('open', open);
-    overlay.classList.toggle('open', open);
+/* Nota: el menú hamburguesa (drawer) ya lo maneja script.js en todas las
+   páginas. Antes había aquí un segundo listener para el burger que chocaba
+   con el de script.js: al hacer clic, uno abría el drawer y el otro lo
+   cerraba en el mismo instante, por eso el menú "no abría". Se elimina
+   para dejar que script.js sea la única fuente de verdad. */
+
+/* Botón de pantalla completa (reutilizable para ambos juegos) */
+(function initFullscreenButtons(){
+  const buttons = document.querySelectorAll('.fullscreen-btn');
+  if(!buttons.length) return;
+
+  buttons.forEach(btn=>{
+    const wrap = btn.closest('.canvas-wrap');
+    if(!wrap) return;
+    btn.addEventListener('click', ()=>{
+      const isCurrent = document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
+      if(!isCurrent){
+        const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.msRequestFullscreen;
+        req?.call(wrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  });
+
+  function syncFullscreenClass(){
+    const fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
+    document.querySelectorAll('.canvas-wrap').forEach(wrap=>{
+      wrap.classList.toggle('is-fullscreen', wrap === fsEl);
+    });
   }
-  burger.addEventListener('click', ()=> toggle(!drawer.classList.contains('open')));
-  overlay.addEventListener('click', ()=> toggle(false));
+  document.addEventListener('fullscreenchange', syncFullscreenClass);
+  document.addEventListener('webkitfullscreenchange', syncFullscreenClass);
 })();
 
 /* ---------------------------------------------------------
@@ -65,7 +86,7 @@
     <div class="hud-item">Tiempo<b id="p-time">30</b></div>`;
 
   const engine = Engine.create();
-  engine.gravity.y = 0.9;
+  engine.gravity.y = 0.55;
   const world = engine.world;
 
   const paddleY = CH - 60;
@@ -94,7 +115,70 @@
     {emoji:'🦴', pts:-1}
   ];
 
-  let score = 0, lives = 3, timeLeft = 30, running = false, spawnTimer = 0, clockTimer = 0;
+  let score = 0, lives = 3, timeLeft = 30, running = false, paused = false;
+  let lastTime = null, spawnAccum = 0, clockAccum = 0, nextSpawnIn = randomSpawnInterval();
+
+  function randomSpawnInterval(){
+    return 1600 + Math.random()*250; // 1.6s – 2.5s entre objetos: más jugable
+  }
+
+  /* ── Música de fondo ── */
+  const bgMusic = document.getElementById('bgMusic');
+  const muteBtn = document.getElementById('muteBtn');
+  const muteIcon = document.getElementById('muteIcon');
+  let muted = false;
+
+  muteBtn?.addEventListener('click', ()=>{
+    muted = !muted;
+    if(bgMusic) bgMusic.muted = muted;
+    if(muteIcon) muteIcon.textContent = muted ? '🔇' : '🔊';
+  });
+
+  function playMusic(){
+    if(!bgMusic) return;
+    bgMusic.muted = muted;
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(()=>{ /* el navegador puede bloquear el autoplay; se ignora */ });
+  }
+  function stopMusic(){
+    if(!bgMusic) return;
+    bgMusic.pause();
+  }
+
+  /* ── Pausa ── */
+  const canvasWrap = canvas.closest('.canvas-wrap');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const pauseOverlay = document.getElementById('pauseOverlay');
+  const resumeBtn = document.getElementById('resumeBtn');
+
+  function pauseGame(){
+    if(!running) return; // no hay partida activa para pausar
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+
+  function resumeGame(){
+    if(!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null; // evita un salto grande de tiempo tras la pausa
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if(!muted) bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+
+  pauseBtn?.addEventListener('click', ()=>{
+    if(paused) resumeGame(); else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
 
   function spawn(){
     const isBad = Math.random() < 0.28;
@@ -102,11 +186,11 @@
     const item = set[Math.floor(Math.random()*set.length)];
     const x = 40 + Math.random()*(CW-80);
     const body = Bodies.circle(x, -20, 24, {
-      restitution:0.15, friction:0.6, label: isBad ? 'bad' : 'good'
+      restitution:0.1, friction:0.6, frictionAir: 0.012, label: isBad ? 'bad' : 'good'
     });
     body.foodEmoji = item.emoji;
     body.points = item.pts;
-    Body.setAngularVelocity(body, (Math.random()-0.5)*0.15);
+    Body.setAngularVelocity(body, (Math.random()-0.5)*0.1);
     World.add(world, body);
   }
 
@@ -124,12 +208,17 @@
     }
   });
 
-  function step(){
+  function step(timestamp){
     if(!running) return;
+    if(lastTime === null) lastTime = timestamp;
+    const dt = Math.min(timestamp - lastTime, 100); // ms reales desde el último frame (con tope por si la pestaña estuvo inactiva)
+    lastTime = timestamp;
+
     Engine.update(engine, 1000/60);
 
     for(const b of [...world.bodies]){
       if(b.label==='good' || b.label==='bad'){
+        if(b.velocity.y > 1.5){ Body.setVelocity(b, { x: b.velocity.x, y: 1.5 }); }
         if(b.position.y > CH+40){
           World.remove(world, b);
           if(b.label==='good'){ lives -= 1; }
@@ -137,15 +226,24 @@
       }
     }
 
-    spawnTimer++;
-    if(spawnTimer > 55){ spawnTimer = 0; spawn(); }
-
-    clockTimer++;
-    if(clockTimer >= 60){
-      clockTimer = 0;
-      timeLeft -= 1;
-      document.getElementById('p-time').textContent = timeLeft;
+    // Aparición de objetos basada en tiempo real (no en frames), para que
+    // la cadencia sea igual en cualquier pantalla, sin importar los FPS.
+    spawnAccum += dt;
+    if(spawnAccum >= nextSpawnIn){
+      spawnAccum = 0;
+      nextSpawnIn = randomSpawnInterval();
+      spawn();
     }
+
+    // Temporizador basado en tiempo real: antes contaba frames (60 = 1s),
+    // lo que hacía que en pantallas de alta frecuencia (120Hz, 144Hz) el
+    // tiempo corriera más rápido de lo debido. Ahora usa milisegundos reales.
+    clockAccum += dt;
+    while(clockAccum >= 1000 && timeLeft > 0){
+      clockAccum -= 1000;
+      timeLeft -= 1;
+    }
+    document.getElementById('p-time').textContent = Math.max(0, timeLeft);
 
     Body.setPosition(paddle, { x: Math.max(65, Math.min(CW-65, mouseX)), y: paddleY });
 
@@ -155,6 +253,7 @@
     if(lives <= 0 || timeLeft <= 0){
       running = false;
       endGame();
+      return;
     }
 
     clearCanvas();
@@ -178,8 +277,13 @@
   }
 
   function endGame(){
-    let text = score >= 80 ? '¡Sos toda una maestra pupusera!' :
-               score >= 40 ? 'Nada mal, ya casi cocinás como abuela.' :
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    let text = score >= 85 ? '¡Sos toda una maestra pupusera!' :
+               score >= 45 ? 'Nada mal, ya casi cocinás como abuela.' :
                'Bueno, para reponer pupusas hay que practicar más.';
     showOverlay(`
       <span class="overlay-tag">Se acabó el comal</span>
@@ -192,19 +296,31 @@
 
   function start(){
     for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
-    score=0; lives=3; timeLeft=30; spawnTimer=0; clockTimer=0; running=true;
+    score=0; lives=3; timeLeft=30; running=true; paused=false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    lastTime = null; spawnAccum = 0; clockAccum = 0; nextSpawnIn = randomSpawnInterval();
     document.getElementById('p-score').textContent = 0;
     document.getElementById('p-lives').textContent = 3;
     document.getElementById('p-time').textContent = 30;
     hideOverlay();
     cancelAnimationFrame(rafId);
-    step();
+    playMusic();
+    rafId = requestAnimationFrame(step);
   }
 
   showOverlay(`
     <span class="overlay-tag">Ruta 01</span>
     <h3>🫓 Atrapa la pupusa</h3>
-    <p>Mové el comal con el mouse (o el dedo) y atrapá las pupusas antes de que se hagan añicos en el suelo. Ojo con lo que no se come.</p>
+    <p>Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.</p>
+    <p class="rules-title">Reglas del juego</p>
+    <ul class="rules-list">
+      <li class="rule-good"><span class="rule-icon">✅</span> Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.</li>
+      <li>Si una pupusa, un quesillo o un elote toca el suelo sin que lo atrapés, también perdés una vida.</li>
+      <li>Tenés 3 vidas y 30 segundos. ¡Sumá la mayor cantidad de puntos posible!</li>
+    </ul>
     <button class="btn-primary" id="p-start">Empezar</button>`);
   document.getElementById('p-start').onclick = start;
 
@@ -213,3 +329,5 @@
   ctx.fillRect(0, CH-20, CW, 20);
   drawEmoji('🫓', CW/2, CH/2-40, 60, 0);
 })();
+
+
