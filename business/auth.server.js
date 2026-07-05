@@ -89,7 +89,22 @@ const register = async (name, email, password) => {
     }
 };
 
+const loginOrRegisterWithGoogle = async (name, email, googleId) => {
+    if (typeof name !== 'string' || typeof googleId !=='string' || !googleId.trim()) {
+        const e = new Error('No se logró terminar el incio de sesión con Google'); e.expose = true; throw e;
+    }
+
+    const existingByGoogle = await userRepository.findByGoogleId(googleId);
+
+    if (existingByGoogle) {
+        return existingByGoogle;
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingByEmail = await userRepository.findByEmail(normalizedEmail);
+};
+
 module.exports = {
     login,
-    register
+    register,
+    loginOrRegisterWithGoogle
 };
