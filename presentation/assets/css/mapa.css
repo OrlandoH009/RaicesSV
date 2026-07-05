@@ -13,7 +13,6 @@
       --r-sm:  15px;
       --r-md:  25px;
       --r-lg:  35px;
-      --nav-h: 80px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,7 +57,7 @@
       position: absolute;
       top: 1.25rem; left: 50%;
       transform: translateX(-50%);
-      z-index: 1100;
+      z-index: 20;
       width: max-content;
       max-width: calc(100% - 2.5rem);
       display: flex; flex-wrap: nowrap; gap: .85rem;
@@ -88,7 +87,7 @@
     .mapa-count-float {
       position: absolute;
       bottom: 1.25rem; left: 6rem;
-      z-index: 1100;
+      z-index: 20;
       background: rgba(10,10,10,.6);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(190,142,86,.3);
