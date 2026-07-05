@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay  = document.getElementById('navOverlay');
 
   // Reconstruir el contenido del drawer para mantenerlo consistente
-  // en todas las vistas: solo incluir Quiz Cultural y Recetario,
-  // y un bloque de perfil/autoridad que será rellenado por renderAuthMenu().
+  // en todas las vistas. El grupo "Principales" (los mismos links del
+  // navbar) solo se muestra en pantallas móviles vía CSS, ya que en
+  // escritorio esos links ya están visibles en el navbar de arriba.
+  // El bloque de perfil/autoridad lo rellena renderAuthMenu().
   if (drawer) {
     drawer.innerHTML = `
       <div class="nav-drawer__head"><span>Menú</span></div>
@@ -33,6 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="drawer-username" id="drawerUsername">Invitado</div>
       </div>
+      <div class="drawer-group--principales">
+        <div class="drawer-section-label">Principales</div>
+        <a href="../views/index.html" class="drawer-link">Inicio</a>
+        <a href="../views/categorias.html" class="drawer-link">Categorías</a>
+        <a href="../views/mapa.html" class="drawer-link">Mapa</a>
+        <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+        <div class="drawer-divider"></div>
+      </div>
+      <div class="drawer-section-label drawer-label--extras">Extras</div>
       <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
       <a href="../views/juegos.html" class="drawer-link">Juegos interactivo</a>
       <a href="../views/recetas.html" class="drawer-link">Recetario</a>
