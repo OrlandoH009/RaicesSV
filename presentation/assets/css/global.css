@@ -91,7 +91,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   display: flex;
   align-items: center;
   padding: 0 2rem;
-  z-index: 1000;
+  z-index: 5000;
   box-shadow: 0 2px 20px rgba(0,0,0,.45);
   transition: background .3s;
 }
@@ -161,7 +161,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.55);
-  z-index: 998;
+  z-index: 4998;
 }
 .nav-overlay.open { display: block; }
 
@@ -175,7 +175,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  z-index: 999;
+  z-index: 4999;
   border-left: 3px solid var(--gold);
   box-shadow: -4px 0 25px rgba(0,0,0,.6);
   transition: right .35s cubic-bezier(.4,0,.2,1);
@@ -209,6 +209,14 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   text-transform: uppercase;
   letter-spacing: .1em;
   padding: .6rem .5rem .3rem;
+}
+
+/* El grupo "Principales" (mismos links del navbar) y la etiqueta
+   "Extras" solo se muestran en móvil: en escritorio esos links ya
+   están visibles arriba en el navbar, así que no hace falta repetirlos. */
+.drawer-group--principales,
+.drawer-label--extras {
+  display: none;
 }
 
 .nav-drawer a.drawer-link {
@@ -360,7 +368,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   height: 3px;
   width: 0%;
   background: linear-gradient(90deg, var(--gold), #f0c98a);
-  z-index: 1200;
+  z-index: 5001;
   transition: width .08s linear;
   box-shadow: 0 0 8px rgba(190,142,86,.6);
 }
@@ -416,7 +424,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 
   html { -webkit-text-size-adjust: 100%; }
 
-  /* ── Navbar ── */
+  /* ── Navbar: en móvil solo logo + hamburguesa; todo lo demás vive en el drawer ── */
   .navbar {
     padding: 0 .9rem;
   }
@@ -447,6 +455,13 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   .drawer-link.active { color: var(--gold); }
   .drawer-section-label:first-of-type { padding-top: .2rem; }
   .drawer-avatar { width: 42px; height: 42px; flex-basis: 42px; }
+
+  /* En móvil sí mostramos "Principales" (Inicio/Categorías/Mapa/Calendario)
+     y la etiqueta "Extras", ya que el navbar de arriba los oculta */
+  .drawer-group--principales,
+  .drawer-label--extras {
+    display: block;
+  }
 
   .btn-login, .btn-register, .btn-logout {
     padding: .85rem 1rem;
