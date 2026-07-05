@@ -17,6 +17,32 @@ const findByEmail = (email) => {
     });
 };
 
+const findByGoogleId = (googleId) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT * FROM users WHERE google_id = ?',
+            [googleId],
+            (e, results) => {
+                if (e) return reject(e);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const createGoogleUser = (name, email, googleId) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO users(name, email, google_id, id_rol) VALUES (?,?,?, (SELECT id_rol FROM rols WHERE rol = "Usuario"))',
+            [name, email, googleId],
+            (e, result) => {
+                if (e) return reject(e);
+                resolve(result);
+            }
+        );
+    });
+};
+
 const createUser = (name, email, password) => {
     return new Promise((resolve, reject) => {
 
@@ -53,6 +79,8 @@ const updatePassword = (id_user, newHash) => {
 
 module.exports = {
     findByEmail,
+    findByGoogleId,
+    createGoogleUser,
     createUser,
     updatePassword
 };
