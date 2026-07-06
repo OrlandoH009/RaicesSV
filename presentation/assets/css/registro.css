@@ -183,32 +183,59 @@
 }
 .auth-footer-link a:hover { color: var(--gold); border-color: var(--gold); }
 
-/* Términos y condiciones */
-.terms-check {
+/* Botón "Continuar con Google" — compacto, moderno */
+.auth-google-btn {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: .6rem;
-  margin-bottom: 1.2rem;
-}
-.terms-check input[type="checkbox"] {
-  width: 18px; height: 18px;
-  margin-top: 2px;
-  accent-color: var(--navy);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.terms-check label {
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: .65rem 1.1rem;
+  background: var(--white);
+  color: rgba(0,0,0,.75);
+  border: 1.5px solid rgba(17,48,104,.15);
+  border-radius: 999px;
   font-family: var(--font-body);
-  font-size: .88rem;
-  color: rgba(0,0,0,.65);
-  cursor: pointer;
-}
-.terms-check label a {
-  color: var(--navy);
   font-weight: 700;
-  border-bottom: 1px solid var(--navy);
+  font-size: .92rem;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease, color .25s ease;
 }
-.terms-check label a:hover { color: var(--gold); }
+
+.auth-google-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, transparent 0%, rgba(190,142,86,.16) 45%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform .6s ease;
+}
+
+.auth-google-btn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+  box-shadow: 0 8px 22px rgba(17,48,104,.16);
+}
+
+.auth-google-btn:hover::before { transform: translateX(120%); }
+
+.auth-google-btn:active { transform: scale(.97); }
+
+.auth-google-btn .google-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+
+.auth-google-btn:hover .google-icon { transform: scale(1.12) rotate(-4deg); }
 
 @media (max-width: 520px) {
   .auth-card { padding: 2rem 1.25rem; }

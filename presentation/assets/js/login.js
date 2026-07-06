@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const logoImg = card.querySelector('.auth-card__logo img');
       const rest = Array.from(card.querySelectorAll(
-        'h1, .auth-card__sub, .form-group, .auth-submit, .auth-divider, .auth-footer-link'
+        'h1, .auth-card__sub, .form-group, .auth-submit, .auth-divider, .auth-google-btn, .auth-footer-link'
       ));
 
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -106,6 +106,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       submitBtn.addEventListener('click', () => {
         gsap.fromTo(submitBtn, { scale: 0.9 }, { scale: 1.05, duration: 0.35, ease: 'back.out(3)' });
+      });
+    }
+
+    const googleBtn = document.querySelector('.auth-google-btn');
+    if (googleBtn) {
+      const icon = googleBtn.querySelector('.google-icon');
+      googleBtn.addEventListener('mouseenter', () => {
+        gsap.to(googleBtn, { y: -3, scale: 1.02, duration: 0.25, ease: 'power2.out' });
+        if (icon) gsap.to(icon, { rotate: -8, duration: 0.35, ease: 'back.out(3)' });
+      });
+      googleBtn.addEventListener('mouseleave', () => {
+        gsap.to(googleBtn, { y: 0, scale: 1, duration: 0.3, ease: 'power2.out' });
+        if (icon) gsap.to(icon, { rotate: 0, duration: 0.35, ease: 'power2.out' });
+      });
+      googleBtn.addEventListener('click', () => {
+        gsap.fromTo(googleBtn, { scale: 0.94 }, { scale: 1, duration: 0.35, ease: 'back.out(3)' });
       });
     }
 
