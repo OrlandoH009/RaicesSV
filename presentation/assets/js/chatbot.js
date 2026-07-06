@@ -5,6 +5,16 @@
 
 (function () {
 
+  // Lista real de los lugares/eventos que existen en el mapa interactivo (mapa.html),
+  // usada para que el modelo solo recomiende sitios verificados dentro de El Salvador.
+  const RAICES_LANDMARKS_INFO = `
+SITIOS CULTURALES: Tazumal (Chalchuapa, Santa Ana), Joya de Cerén (San Juan Opico, La Libertad), Salvador del Mundo (San Salvador), Suchitoto (Cuscatlán), Catedral Metropolitana (San Salvador), MUNA (San Salvador), Ruinas de San Andrés (Ciudad Arce, La Libertad), El Boquerón (Volcán de San Salvador, San Salvador).
+GASTRONOMÍA: Pupusería El Caserío (Santa Ana), Semitas de Cojutepeque (Cuscatlán), Mercado Central de San Salvador (San Salvador), Nahuizalco - Mercado Nocturno (Sonsonate).
+EVENTOS Y FESTIVIDADES: Plaza las Américas (San Salvador), Panchimalco (San Salvador), Festival de Suchitoto (Cuscatlán), Catedral de Santa Ana (Santa Ana), Fiestas Agostinas (San Salvador), Día de los Farolitos (Ahuachapán), Fiestas Julias (Santa Ana), Fiestas Patronales de San Vicente (San Vicente), Festival de las Flores y Palmas (La Libertad), Gran Carnaval de San Miguel (San Miguel), Fiestas de los Historiantes de Cuisnahuat (Sonsonate), Festival del Jocote Corona (Santa Ana), Día de la Calabiuza (Cuscatlán), Festival de los Canastos (Cabañas), Día de la Cruz (San Salvador), Festival del Maíz (Chalatenango), Fiestas del Bálsamo (La Libertad), Feria del Membrillo (Morazán), Fiestas Patronales de La Unión (La Unión), Festival de los Farolitos en Ataco (Ahuachapán), Festival de la Panela (Cuscatlán), Fiestas del Rey Guajactial (Sonsonate), Festival del Cangrejo (La Paz), Romería de Esquipulas (Chalatenango), Festival del Barro (Cabañas), Fiestas del Arroz (San Vicente), Festival de la Juventudes Populares (Morazán), Feria del Marisco (Usulután), Fiesta de la Primicia de la Cosecha (La Unión), Carnaval de la Panela de Verapaz (San Vicente), Fiestas Patronales de Cojutepeque (Cuscatlán), Festival del Añil (Cuscatlán), Fiestas Patronales de Gotera (Morazán), Festival Internacional del Chicharrón (La Libertad).
+HISTORIA: Casa de la Cultura de Izalco (Sonsonate), Casa de la Independencia (San Salvador), Iglesia El Rosario (San Salvador).
+LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco).
+  `.trim();
+
   const SYSTEM_PROMPT = `Eres el asistente virtual de Raíces SV, una plataforma web dedicada a la cultura, historia y tradiciones de El Salvador. Tu nombre es "Pupusita".
 
 Solo puedes responder preguntas relacionadas con los siguientes temas del sitio:
@@ -19,7 +29,13 @@ Solo puedes responder preguntas relacionadas con los siguientes temas del sitio:
 - Asegurate que la información que brindes sea precisa y esté basada en hechos verificables, evitando la difusión de rumores o información no confirmada.
 - Ademas cuando el usuario te haga un saludo de manera calida responde de igual manera y explicale que eres un asistente virtual de Raíces SV, que puede ayudarle a conocer más sobre la cultura, historia y tradiciones de El Salvador. 
 - Si te dicen un insulto diles que su comportamiento no es apropiado y que estás aquí para ayudarles a aprender sobre la cultura salvadoreña.
-- Se más resumido y directo con la información que brindes, evitando respuestas largas y redundantes.
+- Tus respuestas deben ser cortas: máximo 3-4 líneas o unas 60-80 palabras, salvo que el usuario pida explícitamente más detalle o una explicación extensa.
+- Ve directo al punto en la primera oración. Evita introducciones largas, rodeos o repetir la pregunta del usuario.
+- No uses más de una idea o dato curioso adicional por respuesta; si hay mucho que decir, resume lo esencial y ofrece ampliar si el usuario quiere.
+- Resalta siempre en **negrita** el nombre principal del tema, lugar, platillo, evento o leyenda por el que preguntó el usuario (ej. si preguntan por el Tazumal, escribe **Tazumal** la primera vez que lo menciones).
+- Estos son los lugares y eventos reales que existen en el mapa interactivo de Raíces SV, todos ubicados dentro de El Salvador:
+${RAICES_LANDMARKS_INFO}
+Cuando tu respuesta se relacione con alguno de ellos, escribe su nombre exactamente como aparece en esta lista al menos una vez (esto permite mostrarle al usuario un botón para verlo en el mapa interactivo del sitio). Puedes mencionar otros lugares reales de El Salvador aunque no estén en esta lista, pero no inventes lugares que no existan.
 
 Si te preguntan algo que no tiene relación con El Salvador, su cultura, historia, gastronomía, tradiciones o el sitio Raíces SV, responde exactamente: "No tengo respuesta a temas no relacionados al sitio."
 
@@ -28,12 +44,16 @@ Responde siempre en español, de forma amable, concisa y educativa. Usa un tono 
   const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita", el asistente de Raíces SV, ahora en modo "Planificador de salidas". Tu tarea es crear un plan de salida turístico/cultural realista dentro de El Salvador, basado en la actividad deseada, el presupuesto, el tiempo disponible y las preferencias específicas que te indique el usuario.
 
 Reglas:
+- IMPORTANTE: Todos los lugares del plan deben existir realmente y estar ubicados dentro de El Salvador. Nunca recomiendes lugares de otros países, ni lugares inventados o inciertos. Si no estás seguro de que un lugar exista o esté en El Salvador, no lo incluyas.
 - Usa siempre dólares estadounidenses ($), la moneda oficial de El Salvador.
 - Recomienda lugares reales y conocidos de El Salvador (sitios culturales, históricos, gastronómicos o de leyendas según corresponda).
 - Si el usuario indicó preferencias específicas (comida que le gusta, tipo de lugar, interés particular, etc.), tómalas en cuenta al elegir las actividades y lugares del plan.
-- Sugiere un orden lógico de actividades considerando cercanía y tiempo disponible.
+- Sugiere un orden lógico de actividades considerando cercanía y tiempo disponible dentro de El Salvador.
 - Da un estimado de gasto aproximado por actividad (entrada, comida, transporte) y un total, procurando que se ajuste al presupuesto indicado.
-- Sé breve pero claro, usa listas o pasos numerados y **negritas** para resaltar nombres de lugares.
+- Sé breve pero claro: máximo 1-2 líneas de descripción por actividad, usa listas o pasos numerados y **negritas** para resaltar nombres de lugares. Evita párrafos largos de contexto histórico o cultural salvo que el usuario lo pida.
+- Estos lugares y eventos ya existen en el mapa interactivo de Raíces SV, todos ubicados dentro de El Salvador; priorízalos cuando encajen con lo que pide el usuario, y escribe su nombre exactamente como aparece aquí (esto permite mostrar un botón para verlos en el mapa):
+${RAICES_LANDMARKS_INFO}
+Puedes incluir otros lugares reales de El Salvador si hacen falta para completar el plan, pero nunca inventes lugares ni sugieras algo fuera del país.
 - Cierra el plan con una recomendación o tip práctico (ej. mejor horario, cómo llegar, qué llevar).
 - Responde siempre en español, con tono cálido y cercano.`;
 
@@ -202,7 +222,7 @@ Reglas:
     .rs-msg { display: flex; flex-direction: column; max-width: 82%; }
     .rs-msg.bot  { align-self: flex-start; }
     .rs-msg.user { align-self: flex-end; }
-    .rs-msg-bubble { padding: 10px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; }
+    .rs-msg-bubble { padding: 9px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.5; }
     .rs-msg.bot  .rs-msg-bubble {
       background: #0d0d0d;
       border: 1px solid rgba(190,142,86,.25);
@@ -214,6 +234,7 @@ Reglas:
       color: #fff;
       border-radius: 14px 14px 4px 14px;
     }
+
 
     .rs-typing {
       display: flex; gap: 5px; align-items: center;
@@ -251,7 +272,7 @@ Reglas:
       border-radius: 20px;
       padding: 9px 14px;
       color: #fff;
-      font-size: 13.5px;
+      font-size: 12.5px;
       outline: none;
       transition: border-color .2s;
       font-family: 'Lato', sans-serif;
@@ -287,6 +308,14 @@ Reglas:
     }
     .rs-quick-btn:hover { background: rgba(190,142,86,.22); }
 
+    .rs-map-btn {
+      color: #7fc3f0;
+      background: rgba(82,160,224,.12);
+      border-color: rgba(82,160,224,.4);
+      text-decoration: none;
+    }
+    .rs-map-btn:hover { background: rgba(82,160,224,.22); }
+
     @media (max-width: 420px) {
       #rs-chat-window { width: calc(100vw - 24px); left: 12px; bottom: 90px; }
       #rs-chat-btn    { left: 16px; bottom: 16px; }
@@ -300,6 +329,63 @@ Reglas:
     '¿Cuándo son las Fiestas Agostinas?',
   ];
 
+  // Mismos id + nombre que el array LANDMARKS de mapa.html.
+  // Si agregas/editas landmarks allá, actualiza esta lista también para que los botones de mapa sigan funcionando.
+  const LANDMARKS_MINI = [
+    { id: 1,  nombre: 'Tazumal' },
+    { id: 2,  nombre: 'Joya de Cerén' },
+    { id: 3,  nombre: 'Salvador del Mundo' },
+    { id: 4,  nombre: 'Suchitoto' },
+    { id: 5,  nombre: 'Catedral Metropolitana' },
+    { id: 6,  nombre: 'MUNA' },
+    { id: 7,  nombre: 'Ruinas de San Andrés' },
+    { id: 8,  nombre: 'Pupusería El Caserío' },
+    { id: 9,  nombre: 'Semitas de Cojutepeque' },
+    { id: 10, nombre: 'Mercado Central de San Salvador' },
+    { id: 11, nombre: 'Nahuizalco — Mercado Nocturno' },
+    { id: 12, nombre: 'Plaza las Américas' },
+    { id: 13, nombre: 'Panchimalco' },
+    { id: 14, nombre: 'Festival de Suchitoto' },
+    { id: 15, nombre: 'Catedral de Santa Ana' },
+    { id: 16, nombre: 'Casa de la Cultura de Izalco' },
+    { id: 17, nombre: 'Casa de la Independencia' },
+    { id: 18, nombre: 'Iglesia El Rosario' },
+    { id: 19, nombre: 'Lago de Coatepeque' },
+    { id: 20, nombre: 'Bosque El Imposible' },
+    { id: 21, nombre: 'Fiestas Agostinas' },
+    { id: 22, nombre: 'Día de los Farolitos' },
+    { id: 23, nombre: 'Fiestas Julias' },
+    { id: 24, nombre: 'Fiestas Patronales de San Vicente' },
+    { id: 25, nombre: 'Festival de las Flores y Palmas' },
+    { id: 26, nombre: 'Gran Carnaval de San Miguel' },
+    { id: 27, nombre: 'Fiestas de los Historiantes de Cuisnahuat' },
+    { id: 28, nombre: 'Festival del Jocote Corona' },
+    { id: 29, nombre: 'Día de la Calabiuza' },
+    { id: 30, nombre: 'Festival de los Canastos' },
+    { id: 31, nombre: 'Día de la Cruz' },
+    { id: 32, nombre: 'Festival del Maíz' },
+    { id: 33, nombre: 'Fiestas del Bálsamo' },
+    { id: 34, nombre: 'Feria del Membrillo' },
+    { id: 35, nombre: 'Fiestas Patronales de La Unión' },
+    { id: 36, nombre: 'Festival de los Farolitos en Ataco' },
+    { id: 37, nombre: 'Festival de la Panela' },
+    { id: 38, nombre: 'Fiestas del Rey Guajactial' },
+    { id: 39, nombre: 'Festival del Cangrejo' },
+    { id: 40, nombre: 'Romería de Esquipulas' },
+    { id: 41, nombre: 'Festival del Barro' },
+    { id: 42, nombre: 'Fiestas del Arroz' },
+    { id: 43, nombre: 'Festival de la Juventudes Populares' },
+    { id: 44, nombre: 'Feria del Marisco' },
+    { id: 45, nombre: 'Fiesta de la Primicia de la Cosecha' },
+    { id: 46, nombre: 'Carnaval de la Panela de Verapaz' },
+    { id: 47, nombre: 'Fiestas Patronales de Cojutepeque' },
+    { id: 48, nombre: 'Festival del Añil' },
+    { id: 49, nombre: 'Fiestas Patronales de Gotera' },
+    { id: 50, nombre: 'Festival Internacional del Chicharrón' },
+    { id: 51, nombre: 'El Boquerón' },
+    { id: 52, nombre: 'Puerta del Diablo' },
+  ];
+
   let conversationHistory = [];
   let isOpen      = false;
   let isLoading   = false;
@@ -309,6 +395,7 @@ Reglas:
   let plannerMode = false;   // true = interruptor activado
   let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'details' | 'generating' | 'done' | null
   let plannerData = {};
+  let pendingButtonsWrap = null; // referencia a botones de opción pendientes en el chat
 
   const PLANNER_ACTIVITY_OPTIONS = [
     { id: 'food',    label: '🍲 Gastronomía',        value: 'gastronomía típica salvadoreña (pupusas, mercados, comida local)' },
@@ -427,14 +514,47 @@ Reglas:
     }
   }
 
-  function addBotMessage(text, withQuick = false) {
+  // Convierte Markdown simple (negrita, saltos de línea) a HTML seguro para las burbujas del chat.
+  function formatMessageText(text) {
+    return escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
+
+  // Reutiliza el link "Mapa" que ya existe en el navbar de la página actual,
+  // así el botón siempre apunta a la ruta relativa correcta sin importar en qué página esté el chatbot.
+  function getMapaUrl() {
+    const navLink = document.querySelector('a[href$="mapa.html"], a[href*="mapa.html"]');
+    if (navLink) return navLink.getAttribute('href');
+    return 'mapa.html'; // fallback si no se encuentra el link en la página
+  }
+
+  // Busca en el texto de la respuesta del bot nombres de landmarks reales del mapa,
+  // para poder ofrecer un botón "Ver en el mapa" por cada uno (máximo 4 para no saturar el chat).
+  function findMentionedLandmarks(text) {
+    if (!text) return [];
+    const found = [];
+    let workingText = text;
+    const sorted = [...LANDMARKS_MINI].sort((a, b) => b.nombre.length - a.nombre.length);
+    sorted.forEach(lm => {
+      const escapedName = lm.nombre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(escapedName, 'i');
+      if (re.test(workingText)) {
+        found.push(lm);
+        // Se quita del texto de trabajo para que un nombre corto (ej. "Suchitoto")
+        // no se detecte doble dentro de uno más largo (ej. "Festival de Suchitoto").
+        workingText = workingText.replace(re, '');
+      }
+    });
+    return found.slice(0, 4);
+  }
+
+  function addBotMessage(text, withQuick = false, mapLandmarks = []) {
     const msgs = document.getElementById('rs-chat-messages');
     if (!msgs) return;
     const div = document.createElement('div');
     div.className = 'rs-msg bot';
-    const formatted = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
+    const formatted = formatMessageText(text);
     div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
     if (withQuick) {
       const qWrap = document.createElement('div');
@@ -448,6 +568,21 @@ Reglas:
       });
       div.appendChild(qWrap);
     }
+    if (mapLandmarks && mapLandmarks.length) {
+      const mapWrap = document.createElement('div');
+      mapWrap.className = 'rs-quick-btns';
+      const mapaUrl = getMapaUrl();
+      mapLandmarks.forEach(lm => {
+        const a = document.createElement('a');
+        a.className = 'rs-quick-btn rs-map-btn';
+        a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+        mapWrap.appendChild(a);
+      });
+      div.appendChild(mapWrap);
+    }
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
@@ -457,9 +592,7 @@ Reglas:
     if (!msgs) return;
     const div = document.createElement('div');
     div.className = 'rs-msg bot';
-    const formatted = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
+    const formatted = formatMessageText(text);
     div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
 
     const qWrap = document.createElement('div');
@@ -470,6 +603,7 @@ Reglas:
       b.textContent = opt.label;
       b.addEventListener('click', () => {
         qWrap.remove();
+        if (pendingButtonsWrap === qWrap) pendingButtonsWrap = null;
         opt.onClick();
       });
       qWrap.appendChild(b);
@@ -480,6 +614,7 @@ Reglas:
       cancelBtn.textContent = '✖ Cancelar planificador';
       cancelBtn.addEventListener('click', () => {
         qWrap.remove();
+        if (pendingButtonsWrap === qWrap) pendingButtonsWrap = null;
         setPlannerToggle(false);
         cancelPlannerFlow();
       });
@@ -488,6 +623,7 @@ Reglas:
     div.appendChild(qWrap);
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
+    pendingButtonsWrap = qWrap;
   }
 
   function setInputEnabled(enabled, placeholder) {
@@ -638,7 +774,7 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
       hideTyping();
 
       const reply = data?.content?.[0]?.text || 'No pude generar tu plan en este momento. Intenta de nuevo.';
-      addBotMessage(reply);
+      addBotMessage(reply, false, findMentionedLandmarks(reply));
       plannerStep = 'done';
 
       addBotMessageWithButtons('¿Quieres planificar otra salida o volver al chat normal?', [
@@ -650,6 +786,7 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
       hideTyping();
       addBotMessage('Hubo un problema generando tu plan. Por favor intenta de nuevo.');
       console.error('Planner error:', err);
+      plannerStep = 'done';
     }
 
     setInputEnabled(true);
@@ -671,6 +808,8 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
     // Si estamos esperando la respuesta libre de detalles del planificador,
     // la capturamos aquí en vez de mandarla al chat normal.
     if (plannerStep === 'details') {
+      pendingButtonsWrap?.remove();
+      pendingButtonsWrap = null;
       input.value = '';
       addUserMessage(text);
       plannerData.details = text;
@@ -709,7 +848,7 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
 
       const reply = data?.content?.[0]?.text || 'Lo siento, hubo un problema. Intenta de nuevo.';
       conversationHistory.push({ role: 'assistant', content: reply });
-      addBotMessage(reply);
+      addBotMessage(reply, false, findMentionedLandmarks(reply));
 
     } catch (err) {
       hideTyping();

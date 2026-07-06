@@ -82,13 +82,30 @@
             <h2 id="game-title">Atrapa la pupusa</h2>
             <p id="game-desc">Mové el comal con el mouse (o el dedo) y atrapá las pupusas antes de que se hagan añicos en el suelo. Ojo con lo que no se come.</p>
           </div>
-          <div class="hud" id="hud"></div>
         </div>
 
         <div class="canvas-wrap">
+          <div class="hud hud--overlay" id="hud" aria-label="HUD del juego"></div>
+          <div class="canvas-controls">
+            <button class="icon-btn" id="pauseBtn" aria-label="Pausar o reanudar"><span id="pauseIcon">⏸️</span></button>
+            <button class="icon-btn fullscreen-btn" aria-label="Pantalla completa">⛶</button>
+            <div class="volume-group" aria-label="Control de volumen">
+              <span class="volume-icon" id="volumeIcon">🔊</span>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
+            </div>
+          </div>
           <canvas id="canvas" width="820" height="440"></canvas>
+          <audio id="bgMusic" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
           <div class="overlay" id="overlay">
             <div class="overlay-card" id="overlay-card"></div>
+          </div>
+          <div class="overlay hidden" id="pauseOverlay">
+            <div class="overlay-card overlay-card--pause">
+              <span class="overlay-tag">Pausa</span>
+              <h3>Juego en pausa</h3>
+              <p>Presioná reanudar para volver a atrapar pupusas.</p>
+              <button class="btn-primary" id="resumeBtn">Reanudar</button>
+            </div>
           </div>
         </div>
       </div>
