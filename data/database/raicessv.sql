@@ -12,7 +12,7 @@ Create Table IF NOT EXISTS users(
     name varchar(125) not null,
     email varchar(125) not null unique,
     password varchar(125) null,
-    google_id varchar (255) unique null,
+    google_id varchar (191) unique null,
     FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
 );
 
