@@ -3,8 +3,11 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const path = require('path');
 const ngrok = require('@ngrok/ngrok');
+const passport = require('passport');
 
 dotenv.config();
+
+require('./data/config/passport.config');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +28,8 @@ app.set('trust proxy', 1);
 app.use(securityHeaders);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(passport.initialize());
 
 app.use(session({
     name: 'raices.sid',
