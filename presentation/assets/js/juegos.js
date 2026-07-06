@@ -64,7 +64,20 @@
   const overlay = document.getElementById('overlay');
   const overlayCard = document.getElementById('overlay-card');
 
-  function showOverlay(html){ overlayCard.innerHTML = html; overlay.classList.remove('hidden'); }
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    if(window.gsap){
+      gsap.fromTo(overlayCard,
+        { autoAlpha: 0, y: 18, scale: 0.96 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(2)' }
+      );
+      gsap.fromTo(overlay,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.45, ease: 'power1.out' }
+      );
+    }
+  }
   function hideOverlay(){ overlay.classList.add('hidden'); }
   function clearCanvas(){ ctx.clearRect(0,0,CW,CH); }
   function drawEmoji(emoji, x, y, size, angle){
@@ -80,6 +93,7 @@
 
   let rafId = null;
 
+  const totalLives = 3;
   hud.innerHTML = `
     <div class="hud-item">
       <span>Puntos</span>
@@ -87,7 +101,7 @@
     </div>
     <div class="hud-item lives">
       <span>Vidas</span>
-      <b id="p-lives">❤️❤️❤️</b>
+      <b id="p-lives">${renderLives(3)}</b>
     </div>
     <div class="hud-item">
       <span>Tiempo</span>
@@ -95,14 +109,31 @@
     </div>`;
 
   function renderLives(count){
-    return '❤️'.repeat(Math.max(0, count));
+    const hearts = [];
+    for(let i = 0; i < totalLives; i++){
+      const active = i < count;
+      hearts.push(`<span class="heart${active ? '' : ' broken'}">${active ? '❤️' : '💔'}</span>`);
+    }
+    return hearts.join('');
+  }
+  function animateHeartLoss(){
+    if(!window.gsap) return;
+    const hearts = Array.from(document.querySelectorAll('#p-lives .heart'));
+    const broken = hearts.filter(h=>h.classList.contains('broken'));
+    const lastBroken = broken[broken.length - 1];
+    if(lastBroken){
+      gsap.fromTo(lastBroken,
+        { scale: 1.6, rotate: -15, opacity: 0 },
+        { scale: 1, rotate: 0, opacity: 1, duration: 0.45, ease: 'back.out(2)' }
+      );
+    }
   }
   function updateHud(){
     const scoreEl = document.getElementById('p-score');
     const livesEl = document.getElementById('p-lives');
     const timeEl = document.getElementById('p-time');
     if(scoreEl) scoreEl.textContent = score;
-    if(livesEl) livesEl.textContent = renderLives(lives);
+    if(livesEl) livesEl.innerHTML = renderLives(lives);
     if(timeEl) timeEl.textContent = Math.max(0, timeLeft);
   }
 
@@ -147,6 +178,7 @@
   const bgMusic = document.getElementById('bgMusic');
   const volumeSlider = document.getElementById('volumeSlider');
   const volumeIcon = document.getElementById('volumeIcon');
+  const damageOverlay = document.getElementById('damageOverlay');
   let volume = Number(volumeSlider?.value || 0.45);
 
   function updateVolumeIcon(value){
@@ -182,6 +214,23 @@
     bgMusic.pause();
   }
 
+  function flashDamage(){
+    if(!damageOverlay) return;
+    if(window.gsap){
+      gsap.fromTo(damageOverlay,
+        { opacity: 0.5 },
+        { opacity: 0, duration: 0.45, ease: 'power1.out' }
+      );
+      gsap.fromTo(canvas,
+        { x: -4 },
+        { x: 0, duration: 0.25, ease: 'power1.out' }
+      );
+    } else {
+      damageOverlay.style.opacity = '0.45';
+      setTimeout(()=>{ if(damageOverlay) damageOverlay.style.opacity = '0'; }, 220);
+    }
+  }
+
   /* ── Pausa ── */
   const canvasWrap = canvas.closest('.canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn');
@@ -214,7 +263,13 @@
   }
 
   pauseBtn?.addEventListener('click', ()=>{
-    if(paused) resumeGame(); else pauseGame();
+    if(!running && !paused){
+      start();
+    } else if(paused){
+      resumeGame();
+    } else {
+      pauseGame();
+    }
   });
   resumeBtn?.addEventListener('click', resumeGame);
 
@@ -240,7 +295,12 @@
       if(paddleHit && item && !item.caught){
         item.caught = true;
         score += item.points;
-        if(item.points < 0){ lives -= 1; }
+        if(item.points < 0){
+          lives -= 1;
+          updateHud();
+          animateHeartLoss();
+          flashDamage();
+        }
         World.remove(world, item);
       }
     }
@@ -270,7 +330,12 @@
         if(b.velocity.y > 3.1){ Body.setVelocity(b, { x: b.velocity.x, y: 3.1 }); }
         if(b.position.y > CH+40){
           World.remove(world, b);
-          if(b.label==='good'){ lives -= 1; }
+          if(b.label==='good'){
+            lives -= 1;
+            updateHud();
+            animateHeartLoss();
+            flashDamage();
+          }
         }
       }
     }
@@ -369,6 +434,14 @@
     </ul>
     <button class="btn-primary" id="p-start">Empezar</button>`);
   document.getElementById('p-start').onclick = start;
+
+  if(window.gsap){
+    gsap.from('.hud--overlay', { y: -20, opacity: 0, duration: 0.8, ease: 'power3.out' });
+    gsap.from('.canvas-controls', { y: -18, opacity: 0, duration: 0.8, delay: 0.1, ease: 'back.out(2)' });
+    gsap.from('#game-title', { y: 16, opacity: 0, duration: 0.8, delay: 0.15, ease: 'power3.out' });
+    gsap.from('#game-desc', { y: 16, opacity: 0, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+    gsap.from('.game-panel__head', { y: 10, opacity: 0, duration: 0.8, delay: 0.05, ease: 'power3.out' });
+  }
 
   clearCanvas();
   ctx.fillStyle = '#5a4634';
