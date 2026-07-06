@@ -101,6 +101,13 @@ const loginOrRegisterWithGoogle = async (name, email, googleId) => {
     }
     const normalizedEmail = email.trim().toLowerCase();
     const existingByEmail = await userRepository.findByEmail(normalizedEmail);
+    if (existingByEmail) {
+        await userRepository.linkGoogleId(existingByEmail.id_user, googleId);
+        return existingByEmail;
+    }
+   await userRepository.createGoogleUser(name.trim(), normalizedEmail, googleId);
+   const newUser = await userRepository.findByGoogleId(googleId);
+   return newUser;
 };
 
 module.exports = {
