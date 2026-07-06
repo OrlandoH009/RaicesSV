@@ -6,8 +6,8 @@
 .hero {
   position: relative;
   width: 100%;
-  height: 64vh;
-  min-height: 580px;
+  height: 50vh;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,7 +18,6 @@
 .hero__bg {
   position: absolute;
   inset: 0;
-  background-image: url('../MEDIA/Santa Ana Volcan.jpg');
   background-size: cover;
   background-position: center;
   transform: scale(1.06);

@@ -52,22 +52,52 @@
     }
     #mapa-leaflet { width: 100%; height: 100%; }
 
-    /* ── Filtros flotando, centrados y en una sola línea ── */
+    /* ── Filtros flotando, centrados y en una sola línea ──
+       z-index alto (por encima de marker-pane/popup-pane/controles de Leaflet,
+       que llegan hasta 1000) para que nunca quede tapada al interactuar con el mapa. */
     .mapa-filters-float {
       position: absolute;
       top: 1.25rem; left: 50%;
       transform: translateX(-50%);
-      z-index: 20;
+      z-index: 1200;
       width: max-content;
       max-width: calc(100% - 2.5rem);
-      display: flex; flex-wrap: nowrap; gap: .85rem;
+      display: flex; flex-wrap: nowrap; gap: .6rem;
       justify-content: center; align-items: center;
       background: rgba(10,10,10,.55);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(190,142,86,.35);
       border-radius: 50px;
-      padding: .9rem 1.6rem;
+      padding: .7rem 1rem;
       box-shadow: 0 10px 30px rgba(0,0,0,.5);
+      transition: padding .25s ease;
+    }
+    .filters-toggle {
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: rgba(190,142,86,.18);
+      border: 2px solid rgba(190,142,86,.4);
+      color: var(--gold);
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .3s;
+    }
+    .filters-toggle:hover { background: rgba(190,142,86,.3); border-color: var(--gold); }
+    .filters-toggle svg { width: 16px; height: 16px; fill: currentColor; transition: transform .3s ease; }
+    .mapa-filters-float.collapsed .filters-toggle svg { transform: rotate(-90deg); }
+    .filters-list {
+      display: flex; flex-wrap: nowrap; gap: .85rem; align-items: center;
+      overflow: hidden;
+      max-width: 900px;
+      opacity: 1;
+      transition: max-width .35s ease, opacity .25s ease, margin .35s ease;
+    }
+    .mapa-filters-float.collapsed .filters-list {
+      max-width: 0;
+      opacity: 0;
+      margin: 0;
+      pointer-events: none;
     }
     .filter-btn {
       display: flex; align-items: center; gap: .5rem;
@@ -87,7 +117,7 @@
     .mapa-count-float {
       position: absolute;
       bottom: 1.25rem; left: 6rem;
-      z-index: 20;
+      z-index: 1200;
       background: rgba(10,10,10,.6);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(190,142,86,.3);
@@ -211,12 +241,14 @@
         transform: none;
         width: auto; max-width: none;
         justify-content: flex-start;
+        gap: .5rem; padding: .6rem .8rem;
+      }
+      .filters-list {
         overflow-x: auto;
-        gap: .6rem; padding: .7rem 1rem;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
       }
-      .mapa-filters-float::-webkit-scrollbar { display: none; }
+      .filters-list::-webkit-scrollbar { display: none; }
       .filter-btn { font-size: .85rem; padding: .45rem 1rem; flex-shrink: 0; }
       .mapa-count-float { left: .75rem; bottom: .75rem; font-size: .78rem; }
     }

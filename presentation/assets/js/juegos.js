@@ -81,9 +81,30 @@
   let rafId = null;
 
   hud.innerHTML = `
-    <div class="hud-item">Puntos<b id="p-score">0</b></div>
-    <div class="hud-item">Vidas<b id="p-lives">3</b></div>
-    <div class="hud-item">Tiempo<b id="p-time">30</b></div>`;
+    <div class="hud-item">
+      <span>Puntos</span>
+      <b id="p-score">0</b>
+    </div>
+    <div class="hud-item lives">
+      <span>Vidas</span>
+      <b id="p-lives">❤️❤️❤️</b>
+    </div>
+    <div class="hud-item">
+      <span>Tiempo</span>
+      <b id="p-time">30</b>
+    </div>`;
+
+  function renderLives(count){
+    return '❤️'.repeat(Math.max(0, count));
+  }
+  function updateHud(){
+    const scoreEl = document.getElementById('p-score');
+    const livesEl = document.getElementById('p-lives');
+    const timeEl = document.getElementById('p-time');
+    if(scoreEl) scoreEl.textContent = score;
+    if(livesEl) livesEl.textContent = renderLives(lives);
+    if(timeEl) timeEl.textContent = Math.max(0, timeLeft);
+  }
 
   const engine = Engine.create();
   engine.gravity.y = 0.55;
@@ -124,19 +145,35 @@
 
   /* ── Música de fondo ── */
   const bgMusic = document.getElementById('bgMusic');
-  const muteBtn = document.getElementById('muteBtn');
-  const muteIcon = document.getElementById('muteIcon');
-  let muted = false;
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeIcon = document.getElementById('volumeIcon');
+  let volume = Number(volumeSlider?.value || 0.45);
 
-  muteBtn?.addEventListener('click', ()=>{
-    muted = !muted;
-    if(bgMusic) bgMusic.muted = muted;
-    if(muteIcon) muteIcon.textContent = muted ? '🔇' : '🔊';
+  function updateVolumeIcon(value){
+    if(!volumeIcon) return;
+    volumeIcon.textContent = value <= 0 ? '🔇' : value < 0.35 ? '🔉' : '🔊';
+  }
+
+  if(bgMusic){
+    bgMusic.volume = volume;
+    bgMusic.muted = false;
+  }
+  updateVolumeIcon(volume);
+
+  volumeSlider?.addEventListener('input', (event)=>{
+    const value = Number(event.target.value);
+    volume = value;
+    if(bgMusic){
+      bgMusic.volume = value;
+      bgMusic.muted = value <= 0;
+    }
+    updateVolumeIcon(value);
   });
 
   function playMusic(){
     if(!bgMusic) return;
-    bgMusic.muted = muted;
+    bgMusic.muted = false;
+    bgMusic.volume = volume;
     bgMusic.currentTime = 0;
     bgMusic.play().catch(()=>{ /* el navegador puede bloquear el autoplay; se ignora */ });
   }
@@ -172,7 +209,7 @@
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    if(!muted) bgMusic?.play().catch(()=>{});
+    if(volume > 0) bgMusic?.play().catch(()=>{});
     rafId = requestAnimationFrame(step);
   }
 
@@ -230,7 +267,7 @@
 
     for(const b of [...world.bodies]){
       if(b.label==='good' || b.label==='bad'){
-        if(b.velocity.y > 1.5){ Body.setVelocity(b, { x: b.velocity.x, y: 1.5 }); }
+        if(b.velocity.y > 3.1){ Body.setVelocity(b, { x: b.velocity.x, y: 3.1 }); }
         if(b.position.y > CH+40){
           World.remove(world, b);
           if(b.label==='good'){ lives -= 1; }
@@ -259,8 +296,7 @@
 
     Body.setPosition(paddle, { x: Math.max(65, Math.min(CW-65, mouseX)), y: paddleY });
 
-    document.getElementById('p-score').textContent = score;
-    document.getElementById('p-lives').textContent = Math.max(0,lives);
+    updateHud();
 
     if(lives <= 0 || timeLeft <= 0){
       running = false;
@@ -313,9 +349,7 @@
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     lastTime = null; lastDelta = 1000/60; spawnAccum = 0; clockAccum = 0; nextSpawnIn = randomSpawnInterval();
-    document.getElementById('p-score').textContent = 0;
-    document.getElementById('p-lives').textContent = 3;
-    document.getElementById('p-time').textContent = 30;
+    updateHud();
     hideOverlay();
     cancelAnimationFrame(rafId);
     playMusic();

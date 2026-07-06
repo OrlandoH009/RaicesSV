@@ -67,30 +67,35 @@
       <div id="mapa-leaflet"></div>
 
       <!-- FILTROS FLOTANTES SOBRE EL MAPA -->
-      <div class="mapa-filters-float">
-        <button class="filter-btn active" data-cat="todas">
-          <span class="filter-dot" style="background:#ffffff"></span> Todos
+      <div class="mapa-filters-float" id="mapaFiltersFloat">
+        <button class="filters-toggle" id="filtersToggle" type="button" aria-label="Ocultar filtros" aria-expanded="true" title="Mostrar/ocultar filtros">
+          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
         </button>
-        <button class="filter-btn" data-cat="cultural">
-          <span class="filter-dot dot-cultural"></span> Sitios Culturales
-        </button>
-        <button class="filter-btn" data-cat="gastronomia">
-          <span class="filter-dot dot-gastro"></span> Gastronomía
-        </button>
-        <button class="filter-btn" data-cat="evento">
-          <span class="filter-dot dot-evento"></span> Eventos
-        </button>
-        <button class="filter-btn" data-cat="historia">
-          <span class="filter-dot dot-historia"></span> Historia
-        </button>
-        <button class="filter-btn" data-cat="leyenda">
-          <span class="filter-dot dot-leyenda"></span> Leyendas
-        </button>
+        <div class="filters-list" id="filtersList">
+          <button class="filter-btn active" data-cat="todas">
+            <span class="filter-dot" style="background:#ffffff"></span> Todos
+          </button>
+          <button class="filter-btn" data-cat="cultural">
+            <span class="filter-dot dot-cultural"></span> Sitios Culturales
+          </button>
+          <button class="filter-btn" data-cat="gastronomia">
+            <span class="filter-dot dot-gastro"></span> Gastronomía
+          </button>
+          <button class="filter-btn" data-cat="evento">
+            <span class="filter-dot dot-evento"></span> Eventos
+          </button>
+          <button class="filter-btn" data-cat="historia">
+            <span class="filter-dot dot-historia"></span> Historia
+          </button>
+          <button class="filter-btn" data-cat="leyenda">
+            <span class="filter-dot dot-leyenda"></span> Leyendas
+          </button>
+        </div>
       </div>
 
       <!-- CONTADOR FLOTANTE (esquina del mapa) -->
       <p class="mapa-count-float">
-        Mostrando <strong id="visibleCount">50</strong> de <strong>50</strong> landmarks
+        Mostrando <strong id="visibleCount">52</strong> de <strong>52</strong> landmarks
       </p>
     </section>
 
@@ -518,6 +523,24 @@
         chips: ['Feria Municipal', '12 de Diciembre', 'La Libertad'],
         coords: [13.6769, -89.2797]
       },
+
+      /* ── NUEVOS LUGARES ── */
+      {
+        id: 51, cat: 'cultural', emoji: '🌋', color: '#be8e56',
+        nombre: 'El Boquerón',
+        lugar: 'Volcán de San Salvador, San Salvador',
+        desc: 'Cráter del volcán de San Salvador, con miradores y senderos para caminar por su borde con vista panorámica de la capital.',
+        chips: ['Volcán', 'Senderismo', 'Mirador'],
+        coords: [13.7358, -89.2822]
+      },
+      {
+        id: 52, cat: 'leyenda', emoji: '🪨', color: '#52c07c',
+        nombre: 'Puerta del Diablo',
+        lugar: 'Los Planes de Renderos, Panchimalco',
+        desc: 'Formación rocosa con vista al valle de San Salvador, envuelta en leyendas populares sobre un portal al inframundo.',
+        chips: ['Leyenda', 'Mirador', 'Senderismo'],
+        coords: [13.6183, -89.1619]
+      },
     ];
 
     /* ══════════════════════════════════════════════════════════
@@ -623,6 +646,20 @@
       mapa.setView(lm.coords, 13, { animate: true });
       setTimeout(() => targetMarker.openPopup(), 550);
     })();
+
+    /* ══════════════════════════════════════════════════════════
+       MOSTRAR / OCULTAR BARRA DE FILTROS
+       ══════════════════════════════════════════════════════════ */
+    const filtersToggle = document.getElementById('filtersToggle');
+    const mapaFiltersFloat = document.getElementById('mapaFiltersFloat');
+
+    if (filtersToggle && mapaFiltersFloat) {
+      filtersToggle.addEventListener('click', () => {
+        const isCollapsed = mapaFiltersFloat.classList.toggle('collapsed');
+        filtersToggle.setAttribute('aria-expanded', String(!isCollapsed));
+        filtersToggle.setAttribute('aria-label', isCollapsed ? 'Mostrar filtros' : 'Ocultar filtros');
+      });
+    }
 
     /* ══════════════════════════════════════════════════════════
        FILTROS INTERACTIVOS
