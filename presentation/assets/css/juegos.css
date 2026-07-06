@@ -246,7 +246,7 @@ canvas {
   position: absolute;
   top: .8rem;
   left: .8rem;
-  z-index: 7;
+  z-index: 10;
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
@@ -259,13 +259,55 @@ canvas {
 }
 .hud-item span {
   display: block;
-  font-size: .7rem;
+  font-size: .72rem;
   color: rgba(17,48,104,.8);
   margin-bottom: .15rem;
 }
 .hud-item.lives b {
-  letter-spacing: .08em;
+  display: flex;
+  justify-content: center;
+  gap: .18rem;
+  flex-wrap: wrap;
+  letter-spacing: 0;
 }
+.hud-item .heart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: transform .2s ease, opacity .2s ease;
+}
+.hud-item .heart.broken { opacity: .65; }
+.damage-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(220, 35, 35, .48);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 6;
+  transition: opacity .25s ease;
+}
+.canvas-controls {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  z-index: 11;
+  display: flex;
+  gap: .5rem;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17,48,104,.55);
+  border-radius: var(--r-sm);
+  padding: 1rem;
+  z-index: 15;
+}
+.canvas-wrap.is-paused .overlay { z-index: 15; }
+.overlay.hidden { display: none; }
 
 
 /* ── Overlay de pausa ── */
@@ -314,11 +356,12 @@ canvas {
   border-radius: var(--r-md);
   box-shadow: 0 8px 4px rgba(0,0,0,.4);
   padding: 1.6rem 1.8rem;
-  max-width: min(560px, 90vw);
+  max-width: min(560px, 88vw);
   width: 100%;
   text-align: center;
   box-sizing: border-box;
 }
+.overlay-card--pause { max-width: 320px; }
 .overlay-tag {
   display: inline-block;
   background: var(--gold);
