@@ -77,10 +77,25 @@ const updatePassword = (id_user, newHash) => {
     });
 };
 
+const linkGoogleId = (id_user, googleId) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE users SET google_id = ? WHERE id_user =?',
+            [googleId, id_user],
+            (e, result) => {
+                if (e) return reject(e);
+                resolve(result);       
+            }
+        );
+    });    
+};
+
+
 module.exports = {
     findByEmail,
     findByGoogleId,
     createGoogleUser,
     createUser,
-    updatePassword
+    updatePassword,
+    linkGoogleId
 };
