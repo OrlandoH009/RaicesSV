@@ -47,7 +47,7 @@ const createUser = (name, email, password) => {
     return new Promise((resolve, reject) => {
 
         db.query(
-            'INSERT INTO users(name,email,password) VALUES (?,?,?)',
+            'INSERT INTO users(name, email, password, id_rol) VALUES (?, ?, ?, (SELECT id_rol FROM rols WHERE rol = "Usuario"))',
             [name, email, password],
             (err, result) => {
 
