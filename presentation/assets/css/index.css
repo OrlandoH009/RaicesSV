@@ -470,7 +470,7 @@
 
 /* Sección CTA final */
 .home-cta-final {
-  padding: 4rem 2rem 6rem;
+  padding: 2rem 2rem 3rem;
   background: var(--black);
   display: flex;
   justify-content: center;

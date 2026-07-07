@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Raíces SV — Juegos Interactivos</title>
-  <meta name="description" content="Raíces SV — Poné a prueba tus reflejos con juegos inspirados en la cultura salvadoreña." />
+  <meta name="description" content="Raíces SV — Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña." />
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/juegos.css" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
@@ -62,7 +62,7 @@
     <section class="page-hero">
       <span class="page-hero__eyebrow">Aprender jugando</span>
       <h1 class="page-hero__title">Juegos Interactivos</h1>
-      <p class="page-hero__subtitle">Poné a prueba tus reflejos con física real y sabor salvadoreño.</p>
+      <p class="page-hero__subtitle">Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña.</p>
       <nav class="breadcrumb" aria-label="Ruta de navegación">
         <a href="../views/index.html">Inicio</a>
         <span>/</span>
@@ -75,43 +75,105 @@
       <span class="ambient-blob ambient-blob--a"></span>
       <span class="ambient-blob ambient-blob--b"></span>
 
-      <div class="game-panel reveal">
-        <div class="game-panel__head">
-          <div>
-            <span class="game-panel__tag">Ruta 01</span>
-            <h2 id="game-title">Atrapa la pupusa</h2>
-            <p id="game-desc">Mové el comal con el mouse (o el dedo) y atrapá las pupusas antes de que se hagan añicos en el suelo. Ojo con lo que no se come.</p>
-          </div>
+      <!-- TABS DE JUEGOS -->
+      <div class="game-tabs-container reveal">
+        <div class="game-tabs">
+          <button class="game-tab-btn active" data-game="pupusa">
+            <span class="tab-icon">🫓</span>
+            <span class="tab-text">Atrapa Pupusa</span>
+          </button>
+          <button class="game-tab-btn" data-game="trompos">
+            <span class="tab-icon">⚡</span>
+            <span class="tab-text">Batalla Trompos</span>
+          </button>
         </div>
-
-        <div class="canvas-wrap">
-          <div class="hud hud--overlay" id="hud" aria-label="HUD del juego"></div>
-          <div class="canvas-controls">
-            <button class="icon-btn" id="pauseBtn" aria-label="Pausar o reanudar"><span id="pauseIcon">⏸️</span></button>
-            <button class="icon-btn fullscreen-btn" aria-label="Pantalla completa">⛶</button>
-            <div class="volume-group" aria-label="Control de volumen">
-              <span class="volume-icon" id="volumeIcon">🔊</span>
-              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
-            </div>
-          </div>
-          <canvas id="canvas" width="820" height="440"></canvas>
-          <div class="damage-overlay" id="damageOverlay" aria-hidden="true"></div>
-          <audio id="bgMusic" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
-          <div class="overlay" id="overlay">
-            <div class="overlay-card" id="overlay-card"></div>
-          </div>
-          <div class="overlay hidden" id="pauseOverlay">
-            <div class="overlay-card overlay-card--pause">
-              <span class="overlay-tag">Pausa</span>
-              <h3>Juego en pausa</h3>
-              <p>Presioná reanudar para volver a atrapar pupusas.</p>
-              <button class="btn-primary" id="resumeBtn">Reanudar</button>
-            </div>
-          </div>
-        </div>
+        <div class="tab-indicator"></div>
       </div>
 
-      <p class="games-footnote reveal">Más juegos de la cultura salvadoreña, próximamente.</p>
+      <!-- CONTENEDOR DE JUEGOS -->
+      <div class="games-container">
+
+        <!-- JUEGO 1: ATRAPA PUPUSA -->
+        <div class="game-content active" id="game-pupusa">
+          <div class="game-panel reveal">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag">Ruta 01</span>
+                <h2 id="game-title">🫓 Atrapa la Pupusa</h2>
+                <p id="game-desc">Mové el comal con el mouse (o el dedo) y atrapá las pupusas antes de que se hagan añicos en el suelo. Ojo con lo que no se come.</p>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="pupusa-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-pupusa" aria-label="HUD del juego"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-pupusa" aria-label="Pausar o reanudar"><span id="pauseIcon-pupusa">⏸️</span></button>
+                <button class="icon-btn fullscreen-btn" aria-label="Pantalla completa">⛶</button>
+                <div class="volume-group" aria-label="Control de volumen">
+                  <span class="volume-icon" id="volumeIcon">🔊</span>
+                  <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
+                </div>
+              </div>
+              <canvas id="canvas-pupusa" width="820" height="440"></canvas>
+              <div class="damage-overlay" id="damageOverlay-pupusa" aria-hidden="true"></div>
+              <audio id="bgMusic" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-pupusa">
+                <div class="overlay-card" id="overlay-card-pupusa"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-pupusa">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag">Pausa</span>
+                  <h3>Juego en pausa</h3>
+                  <p>Presioná reanudar para volver a atrapar pupusas.</p>
+                  <button class="btn-primary" id="resumeBtn-pupusa">Reanudar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JUEGO 2: BATALLA DE TROMPOS -->
+        <div class="game-content" id="game-trompos">
+          <div class="game-panel reveal">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag">Ruta 02</span>
+                <h2 id="game-title-trompos">⚡ Batalla de Trompos</h2>
+                <p id="game-desc-trompos">Prepará tu trompo para la batalla. Controlá su movimiento y vencé a tu oponente. El primero que cae pierde todo.</p>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="trompos-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-trompos" aria-label="HUD del juego"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-trompos" aria-label="Pausar o reanudar"><span id="pauseIcon-trompos">⏸️</span></button>
+                <button class="icon-btn fullscreen-btn" aria-label="Pantalla completa">⛶</button>
+                <div class="volume-group" aria-label="Control de volumen">
+                  <span class="volume-icon" id="volumeIcon-trompos">🔊</span>
+                  <input type="range" id="volumeSlider-trompos" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
+                </div>
+              </div>
+              <canvas id="canvas-trompos" width="920" height="520"></canvas>
+              <div class="damage-overlay" id="damageOverlay-trompos" aria-hidden="true"></div>
+              <audio id="bgMusic-trompos" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-trompos">
+                <div class="overlay-card" id="overlay-card-trompos"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-trompos">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag">Pausa</span>
+                  <h3>Batalla en pausa</h3>
+                  <p>Presioná reanudar para continuar la batalla.</p>
+                  <button class="btn-primary" id="resumeBtn-trompos">Reanudar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="games-footnote reveal">Juegos de la cultura salvadoreña — ¡Desafía tus habilidades!</p>
     </section>
 
   </main>
