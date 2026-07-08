@@ -638,9 +638,9 @@
   
   let gameConfig = {
     npc: {
-      easy: { speed: 2.5, precision: 0.4, reaction: 400 },
-      medium: { speed: 4.0, precision: 0.6, reaction: 250 },
-      hard: { speed: 5.5, precision: 0.85, reaction: 120 }
+      easy: { speed: 1.2, precision: 0.2, reaction: 700, moveChance: 0.3 },
+      medium: { speed: 2.5, precision: 0.45, reaction: 400, moveChance: 0.6 },
+      hard: { speed: 4.2, precision: 0.75, reaction: 200, moveChance: 0.8 }
     }
   };
 
@@ -722,6 +722,8 @@
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
   let npcLastAction = 0;
+  let lastCollisionTime = 0;
+  const COLLISION_COOLDOWN = 300; // ms entre colisiones
 
   const bgMusicTrompos = document.getElementById('bgMusic-trompos');
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
@@ -807,32 +809,57 @@
       const distY = top.body.position.y - bottom.body.position.y;
       const distance = Math.sqrt(distX*distX + distY*distY);
       
+      // Decidir aleatoriamente si el NPC se mueve o no (según moveChance)
+      if(Math.random() > config.moveChance){
+        // No hacer nada, dejar que se ralentice
+        return;
+      }
+      
       if(distance > 50){
+        // Seguir al jugador con precisión variable
         const targetX = bottom.body.position.x + (distX * config.precision);
         const targetY = bottom.body.position.y + (distY * config.precision);
         
-        const moveX = (targetX - bottom.body.position.x) * 0.08;
-        const moveY = (targetY - bottom.body.position.y) * 0.08;
+        const moveX = (targetX - bottom.body.position.x) * 0.06;
+        const moveY = (targetY - bottom.body.position.y) * 0.06;
         
         Body.setVelocity(bottom.body, { x: moveX * config.speed, y: moveY * config.speed });
       } else {
+        // Movimiento evasivo cuando está cerca
+        const angle = Math.random() * Math.PI * 2;
         Body.setVelocity(bottom.body, {
-          x: Math.cos(Math.random() * Math.PI * 2) * config.speed * 1.5,
-          y: Math.sin(Math.random() * Math.PI * 2) * config.speed * 1.5
+          x: Math.cos(angle) * config.speed * 0.8,
+          y: Math.sin(angle) * config.speed * 0.8
         });
       }
     }
   }
 
   Events.on(engine, 'collisionStart', (evt)=>{
+    const now = Date.now();
+    
     for(const pair of evt.pairs){
       const { bodyA, bodyB } = pair;
       if((bodyA.label === 'trompo1' && bodyB.label === 'trompo2') ||
          (bodyA.label === 'trompo2' && bodyB.label === 'trompo1')){
-        flashDamage();
-        animateImpact(pair.activeContacts[0]?.x || CW/2, pair.activeContacts[0]?.y || CH/2);
-        top.energy -= 5;
-        bottom.energy -= 5;
+        
+        // Solo aplicar daño si pasó el tiempo de cooldown
+        if(now - lastCollisionTime > COLLISION_COOLDOWN){
+          lastCollisionTime = now;
+          
+          // Calcular velocidad de impacto
+          const relVelX = top.body.velocity.x - bottom.body.velocity.x;
+          const relVelY = top.body.velocity.y - bottom.body.velocity.y;
+          const impactForce = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
+          
+          // Daño proporcional al impacto (mínimo 2, máximo 8)
+          const damage = Math.min(8, Math.max(2, Math.round(impactForce / 2)));
+          
+          flashDamage();
+          animateImpact(pair.activeContacts[0]?.x || CW/2, pair.activeContacts[0]?.y || CH/2);
+          top.energy -= damage;
+          bottom.energy -= damage;
+        }
       }
     }
   });

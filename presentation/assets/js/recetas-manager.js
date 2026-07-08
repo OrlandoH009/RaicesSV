@@ -134,14 +134,14 @@ const recetasData = {
   }
 };
 
-// Función para inyectar la receta activa dinámicamente con la estructura visual
+// Función para inyectar la receta activa dinámicamente
 function renderRecipe(key) {
   const data = recetasData[key];
   if (!data) return;
 
   const container = document.getElementById("recipe-dynamic-content");
+  if (!container) return;
 
-  // Renderizado dinámico respetando tus clases de diseño
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
       <div class="recipe-header">
@@ -170,17 +170,245 @@ function renderRecipe(key) {
   `;
 }
 
-// Manejador de eventos para el cambio de pestañas (Tabs)
+// Función para generar y descargar PDF con previsualización de Chrome
+function generateAndDownloadPDF() {
+  const btn = document.getElementById('download-pdf-btn');
+  if (!btn) return;
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Abriendo previsualización...';
+
+  try {
+    // Obtener contenedor y receta actual
+    const container = document.getElementById("recipe-dynamic-content");
+    const activeCard = container ? container.querySelector(".recipe-card") : null;
+    const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
+    const data = recetasData[recipeKey];
+
+    if (!data) {
+      throw new Error('Receta no encontrada');
+    }
+
+    // Crear HTML limpio para impresión/PDF
+    const printHTML = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${data.titulo} - Raíces SV</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Lato', Arial, sans-serif;
+      color: #1a1a1a;
+      background: #ffffff;
+      line-height: 1.6;
+      padding: 20mm;
+    }
+
+    .recipe-container {
+      max-width: 210mm;
+      background: white;
+      color: #1a1a1a;
+    }
+
+    .recipe-header {
+      border-bottom: 4px solid #be8e56;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .recipe-title {
+      color: #113068;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .recipe-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .recipe-meta div strong {
+      color: #113068;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .recipe-section h3 {
+      color: #be8e56;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid #be8e56;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .ingredients-list,
+    .steps-list {
+      padding-left: 22px;
+    }
+
+    .ingredients-list li,
+    .steps-list li {
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .ingredients-list li {
+      list-style: disc;
+    }
+
+    .steps-list li {
+      list-style: decimal;
+    }
+
+    .recipe-footer {
+      border-top: 1px solid #e5dccb;
+      padding-top: 14px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+    }
+
+    .recipe-footer strong {
+      color: #be8e56;
+      font-weight: 700;
+    }
+
+    @media print {
+      body {
+        padding: 15mm;
+      }
+
+      .recipe-section {
+        page-break-inside: avoid;
+      }
+
+      .recipe-header {
+        page-break-after: avoid;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="recipe-container">
+    <div class="recipe-header">
+      <h1 class="recipe-title">${data.titulo}</h1>
+      <div class="recipe-meta">
+        <div>
+          <strong>👥 Porciones</strong>
+          ${data.porciones}
+        </div>
+        <div>
+          <strong>⏱️ Tiempo</strong>
+          ${data.tiempo}
+        </div>
+        <div>
+          <strong>📊 Dificultad</strong>
+          ${data.dificultad}
+        </div>
+      </div>
+    </div>
+
+    <div class="recipe-grid">
+      <div class="recipe-section">
+        <h3>📋 Ingredientes</h3>
+        <ul class="ingredients-list">
+          ${data.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="recipe-section">
+        <h3>👨‍🍳 Preparación</h3>
+        <ol class="steps-list">
+          ${data.pasos.map(paso => `<li>${paso}</li>`).join('')}
+        </ol>
+      </div>
+    </div>
+
+    <div class="recipe-footer">
+      <strong>Raíces SV</strong> — Nuestra herencia, nuestro orgullo<br>
+      <small>Receta de la cocina salvadoreña tradicional</small>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      window.print();
+    });
+  </script>
+</body>
+</html>
+    `;
+
+    // Abrir ventana nueva con el contenido
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+
+    // Cuando se cierre el diálogo de impresión/descarga
+    printWindow.addEventListener('afterprint', () => {
+      printWindow.close();
+      btn.disabled = false;
+      btn.textContent = originalText;
+    });
+
+    // Fallback si afterprint no funciona
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }, 3000);
+
+  } catch (error) {
+    console.error('Error generando PDF:', error);
+    btn.textContent = '❌ Error';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }, 2000);
+  }
+}
+
+// Inicialización cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializa con la receta de pupusas
+  // Inicializar con receta de pupusas
   renderRecipe("pupusas");
 
+  // Event listeners para tabs de recetas
   const tabButtons = document.querySelectorAll("[data-recipe]");
   tabButtons.forEach(button => {
     button.addEventListener("click", (e) => {
-      // Remover clase activa de los botones previos
+      e.preventDefault();
       tabButtons.forEach(btn => btn.classList.remove("active"));
-      // Agregar al actual
       e.target.classList.add("active");
 
       const recipeKey = e.target.getAttribute("data-recipe");
@@ -188,161 +416,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── Evento interactivo para compilar y descargar el PDF de forma dinámica ──
-  document.getElementById("download-pdf-btn").addEventListener("click", () => {
-    const element = document.getElementById("printable-recipe-area");
-    const activeCard = element.querySelector(".recipe-card");
-    const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
-    const data = recetasData[recipeKey];
-
-    const opt = {
-      margin:       [10, 10, 12, 10],
-      filename:     `Raices_SV_Receta_${recipeKey}.pdf`,
-      image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0
-      },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak:    { mode: ['css', 'avoid-all'] }
-    };
-
-    // Contenedor blanco, fuera de pantalla, con ancho fijo tipo A4
-    const pdfWrapper = document.createElement('div');
-    pdfWrapper.style.position = 'fixed';
-    pdfWrapper.style.top = '0';
-    pdfWrapper.style.left = '-9999px';
-    pdfWrapper.style.width = '190mm';
-    pdfWrapper.style.padding = '6mm';
-    pdfWrapper.style.background = '#ffffff';
-    pdfWrapper.style.color = '#1a1a1a';
-    pdfWrapper.style.fontFamily = "'Lato', Arial, sans-serif";
-
-    const cloned = element.cloneNode(true);
-
-    // Reset agresivo y RECURSIVO de estilos en TODOS los nodos clonados.
-    // Esto evita el bug original: solo unas pocas clases tenían el fondo
-    // forzado a blanco, y el resto se quedaba con el fondo oscuro del sitio
-    // pero con texto ya forzado a negro -> texto invisible en el PDF.
-    const allNodes = [cloned, ...cloned.querySelectorAll('*')];
-    allNodes.forEach(node => {
-      node.style.background = 'transparent';
-      node.style.backgroundColor = 'transparent';
-      node.style.backgroundImage = 'none';
-      node.style.color = '#1a1a1a';
-      node.style.boxShadow = 'none';
-      node.style.textShadow = 'none';
-      node.style.filter = 'none';
-      node.style.backdropFilter = 'none';
-      node.style.opacity = '1';
-      node.style.transform = 'none';
-      node.style.borderColor = '#d9c8ad';
-    });
-
-    // Estilos específicos de presentación, aplicados DESPUÉS del reset
-    cloned.style.background = '#ffffff';
-    cloned.style.border = 'none';
-    cloned.style.borderRadius = '0';
-    cloned.style.padding = '0';
-
-    const header = cloned.querySelector('.recipe-header');
-    if (header) {
-      header.style.borderBottom = '3px solid #be8e56';
-      header.style.paddingBottom = '10px';
-      header.style.marginBottom = '16px';
-    }
-
-    const title = cloned.querySelector('.recipe-title');
-    if (title) {
-      title.style.color = '#113068';
-      title.style.fontSize = '26px';
-      title.style.fontWeight = '700';
-      title.style.marginBottom = '8px';
-    }
-
-    const meta = cloned.querySelector('.recipe-meta');
-    if (meta) {
-      meta.style.display = 'flex';
-      meta.style.gap = '18px';
-      meta.style.flexWrap = 'wrap';
-      meta.style.fontSize = '13px';
-      meta.style.color = '#444444';
-    }
-
-    // El grid de 2 columnas se apila en 1 columna para que se lea
-    // completo y ordenado en una hoja A4 vertical.
-    const grid = cloned.querySelector('.recipe-grid');
-    if (grid) {
-      grid.style.display = 'block';
-    }
-
-    const sections = cloned.querySelectorAll('.recipe-section');
-    sections.forEach(section => {
-      section.style.marginBottom = '18px';
-      section.style.breakInside = 'avoid';
-      section.style.pageBreakInside = 'avoid';
-      const heading = section.querySelector('h3');
-      if (heading) {
-        heading.style.color = '#be8e56';
-        heading.style.fontSize = '16px';
-        heading.style.fontWeight = '700';
-        heading.style.textTransform = 'uppercase';
-        heading.style.letterSpacing = '0.04em';
-        heading.style.marginBottom = '8px';
-        heading.style.borderBottom = '1px solid #e5dccb';
-        heading.style.paddingBottom = '4px';
-      }
-    });
-
-    cloned.querySelectorAll('.ingredients-list li, .steps-list li').forEach(li => {
-      li.style.marginBottom = '7px';
-      li.style.lineHeight = '1.5';
-      li.style.fontSize = '13px';
-      li.style.paddingLeft = '2px';
-    });
-
-    cloned.querySelectorAll('.ingredients-list').forEach(ul => {
-      ul.style.listStyle = 'disc';
-      ul.style.paddingLeft = '20px';
-    });
-
-    cloned.querySelectorAll('.steps-list').forEach(ol => {
-      ol.style.listStyle = 'decimal';
-      ol.style.paddingLeft = '20px';
-    });
-
-    // Pie de página con marca, para que se vea presentable/terminado
-    const footer = document.createElement('div');
-    footer.style.marginTop = '22px';
-    footer.style.paddingTop = '10px';
-    footer.style.borderTop = '1px solid #e5dccb';
-    footer.style.fontSize = '11px';
-    footer.style.color = '#888888';
-    footer.style.textAlign = 'center';
-    footer.textContent = 'Raíces SV — Nuestra herencia, nuestro orgullo · raicessv.com';
-
-    pdfWrapper.appendChild(cloned);
-    pdfWrapper.appendChild(footer);
-    document.body.appendChild(pdfWrapper);
-
-    const btn = document.getElementById('download-pdf-btn');
-    const originalBtnText = btn ? btn.textContent : null;
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Generando PDF...';
-    }
-
-    html2pdf().set(opt).from(pdfWrapper).save().then(() => {
-      document.body.removeChild(pdfWrapper);
-      if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
-    }).catch((err) => {
-      console.error('Error generando PDF:', err);
-      document.body.removeChild(pdfWrapper);
-      if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
-    });
-  });
+  // Event listener para botón descargar PDF
+  const downloadBtn = document.getElementById("download-pdf-btn");
+  if (downloadBtn) {
+    downloadBtn.addEventListener("click", generateAndDownloadPDF);
+  }
 });
