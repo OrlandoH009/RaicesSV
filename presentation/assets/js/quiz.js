@@ -246,6 +246,8 @@ let respondida = false;
 
 const quizSetup    = document.getElementById('quizSetup');
 const quizZone     = document.getElementById('quizZone');
+const quizWelcome  = document.getElementById('quizWelcome');
+const startQuizBtn = document.getElementById('startQuizBtn');
 const levelCards   = document.querySelectorAll('.level-card');
 const catBtns      = document.querySelectorAll('.cat-btn');
 const startBtn     = document.getElementById('startBtn');
@@ -265,7 +267,18 @@ const levelBadge   = document.getElementById('levelBadge');
    EVENT LISTENERS Y LÓGICA
    ══════════════════════════════════════════════════════════ */
 
-levelCards.forEach(card => {
+// Mostrar pantalla de setup al hacer click en botón de bienvenida
+if (startQuizBtn) {
+  startQuizBtn.addEventListener('click', () => {
+    if (typeof gsap !== 'undefined') {
+      gsap.to(quizWelcome, { opacity: 0, y: -20, duration: 0.5, ease: 'power2.in' });
+      gsap.to(quizSetup, { opacity: 1, y: 0, duration: 0.6, delay: 0.3, ease: 'power2.out' });
+    }
+    quizWelcome.style.display = 'none';
+    quizSetup.style.display = 'block';
+  });
+}
+ levelCards.forEach(card => {
   card.addEventListener('click', () => {
     levelCards.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
@@ -455,6 +468,17 @@ retryBtn.addEventListener('click', () => {
 
   quizSetup.style.display = '';
   quizZone.classList.remove('active');
+
+  // Mostrar bienvenida de nuevo
+  if (quizWelcome) {
+    quizWelcome.style.display = 'block';
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(quizWelcome, 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+      );
+    }
+  }
 
   levelCards.forEach(c => c.classList.remove('selected'));
   catBtns.forEach(b => b.classList.remove('selected'));
