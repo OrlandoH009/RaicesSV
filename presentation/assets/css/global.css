@@ -143,13 +143,30 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   flex-direction: column;
   gap: 5px;
   padding: 6px;
+  position: relative;
+  transition: all .3s ease;
+}
+.navbar__burger::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  background: rgba(190, 142, 86, 0);
+  border-radius: 8px;
+  transition: background .3s ease;
+  z-index: -1;
+}
+.navbar__burger:hover::before {
+  background: rgba(190, 142, 86, 0.15);
+}
+.navbar__burger:hover span {
+  background: var(--gold);
 }
 .navbar__burger span {
   display: block;
   width: 28px; height: 3px;
   background: var(--white);
   border-radius: 2px;
-  transition: transform .3s, opacity .3s;
+  transition: transform .3s, opacity .3s, background .3s ease;
 }
 .navbar__burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,6px); }
 .navbar__burger.open span:nth-child(2) { opacity: 0; }
