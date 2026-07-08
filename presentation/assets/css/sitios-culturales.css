@@ -79,6 +79,31 @@
   pointer-events: none;
 }
 
+/* ── Botón "Ver en mapa" dentro de cada panel de sitio ── */
+.sitio-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 1.5rem;
+  padding: .7rem 1.6rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--cream);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .95rem;
+  text-decoration: none;
+  transition: background .25s, color .25s;
+}
+.sitio-map-link::before {
+  content: "📍";
+  font-size: .9rem;
+}
+.sitio-map-link:hover {
+  background: var(--cream);
+  color: var(--black);
+}
+
 /* ── CTA ── */
 .page-cta {
   padding: 2.5rem 2rem 5rem;
