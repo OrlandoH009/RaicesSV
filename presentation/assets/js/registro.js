@@ -112,17 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const googleBtn = document.querySelector('.auth-google-btn');
     if (googleBtn) {
-      const icon = googleBtn.querySelector('.google-icon');
-      googleBtn.addEventListener('mouseenter', () => {
-        gsap.to(googleBtn, { y: -3, scale: 1.02, duration: 0.25, ease: 'power2.out' });
-        if (icon) gsap.to(icon, { rotate: -8, duration: 0.35, ease: 'back.out(3)' });
-      });
-      googleBtn.addEventListener('mouseleave', () => {
-        gsap.to(googleBtn, { y: 0, scale: 1, duration: 0.3, ease: 'power2.out' });
-        if (icon) gsap.to(icon, { rotate: 0, duration: 0.35, ease: 'power2.out' });
-      });
       googleBtn.addEventListener('click', () => {
-        gsap.fromTo(googleBtn, { scale: 0.94 }, { scale: 1, duration: 0.35, ease: 'back.out(3)' });
+        gsap.fromTo(googleBtn, { scale: 0.95 }, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.6)' });
       });
     }
 
