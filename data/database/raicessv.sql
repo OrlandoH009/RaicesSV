@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS rols(
 
 Create Table IF NOT EXISTS users(
     id_user int auto_increment primary key,
-    id_rol int not null,
+    id_rol int not null default 2,
     name varchar(125) not null,
     email varchar(125) not null unique,
     password varchar(125) null,
