@@ -326,7 +326,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .footer {
   background: var(--footer-bg);
   color: var(--black);
-  padding: 2.5rem 2rem;
+  padding: 1.5rem 2rem;
 }
 .footer__inner {
   max-width: 1100px;
@@ -334,30 +334,30 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.6rem;
   text-align: center;
 }
-.footer__logo { width: 76px; height: 76px; object-fit: contain; }
+.footer__logo { width: 56px; height: 56px; object-fit: contain; }
 .footer__name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   color: var(--navy);
 }
 .footer__links {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
   justify-content: center;
 }
 .footer__links a {
   font-family: var(--font-body);
-  font-size: .9rem;
+  font-size: 0.85rem;
   color: var(--navy);
   transition: color .2s;
 }
 .footer__links a:hover { color: var(--gold); }
-.footer__copy { font-size: .8rem; color: #555; margin-top: .5rem; }
+.footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
 
 /* ══════════════════════════════════
    BARRA DE PROGRESO DE SCROLL
@@ -477,19 +477,19 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   }
 
   /* ── Footer ── */
-  .footer { padding: 2rem 1.25rem; }
-  .footer__inner { gap: .85rem; }
-  .footer__logo { width: 60px; height: 60px; }
-  .footer__name { font-size: clamp(1.05rem, 4.5vw, 1.2rem); }
+  .footer { padding: 1.3rem 1.1rem; }
+  .footer__inner { gap: 0.5rem; }
+  .footer__logo { width: 48px; height: 48px; }
+  .footer__name { font-size: clamp(0.95rem, 4vw, 1rem); }
   .footer__links {
-    gap: .9rem 1.4rem;
-    font-size: .9rem;
+    gap: 0.8rem 1.2rem;
+    font-size: 0.8rem;
   }
-  .footer__links a { padding: .35rem 0; display: inline-block; }
+  .footer__links a { padding: 0.25rem 0; display: inline-block; }
   .footer__copy {
-    font-size: .8rem;
-    line-height: 1.5;
-    padding: 0 .5rem;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    padding: 0 .3rem;
   }
 
   /* ── Barra de progreso más fina en móvil ── */
@@ -512,8 +512,8 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
     padding: .9rem 1.4rem;
   }
 
-  .footer__links { flex-direction: column; gap: .65rem; }
-  .footer__copy { font-size: .78rem; line-height: 1.5; }
+  .footer__links { flex-direction: column; gap: 0.5rem; }
+  .footer__copy { font-size: 0.7rem; line-height: 1.4; }
 }
 
 /* Móviles muy pequeños (<360px) */
