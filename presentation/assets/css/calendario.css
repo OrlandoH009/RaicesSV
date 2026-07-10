@@ -562,9 +562,15 @@ section {
   flex-wrap: wrap;
 }
 
+.load-more-container {
+  text-align: center; 
+  margin-top: 2.5rem; 
+  display: none;
+}
+
 /* ── Botones ── */
 .btn-filter {
-  padding: .75rem 1.3rem;
+  padding: .65rem 1.25rem;
   background: var(--tierra);
   color: var(--white);
   border: none;
@@ -574,6 +580,7 @@ section {
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
   letter-spacing: .02em;
+  margin: auto;
 }
 
 .btn-filter:hover {

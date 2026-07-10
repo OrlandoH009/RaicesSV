@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3000;
 
 // --- Config ---
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODEL = 'cohere/north-mini-code:free';
+const MODEL = 'poolside/laguna-xs-2.1:free'; // modelo rápido y gratuito, sin necesidad de reasoning extra
 const MAX_TOKENS = 800;   // vuelve a 800, este modelo no necesita el margen extra de reasoning
 const TIMEOUT_MS = 30000; // 30s, más que suficiente para un modelo rápido
 
