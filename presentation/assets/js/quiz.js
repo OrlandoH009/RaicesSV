@@ -201,6 +201,151 @@ const PREGUNTAS = [
   { cat: 'gastronomia', nivel: 'guanaco', pregunta: '¿Qué hace que el curtido sea probiótico y beneficioso?', opciones: ['Vinagre añadido', 'Colonización de Lactobacillus durante fermentación anaeróbica controlada', 'Especias únicamente', 'Fermentación rápida'], correcta: 1, explicacion: 'Los Lactobacillus producen ácido láctico y crean ambiente probiótico beneficioso para digestión.' },
   { cat: 'gastronomia', nivel: 'guanaco', pregunta: '¿Cuál es el futuro de la gastronomía salvadoreña frente a globalización?', opciones: ['Desaparición total', 'Evolución dinámica preservando identidad mientras innova', 'Estancamiento', 'Adopción total de cocina internacional'], correcta: 1, explicacion: 'La cocina salvadoreña evoluciona manteniendo identidad profunda mientras explora técnicas modernas.' },
   { cat: 'gastronomia', nivel: 'guanaco', pregunta: '¿Qué certificación internacional recibió la pupusa?', opciones: ['Solo nacional', 'Patrimonio Cultural Inmaterial de la Humanidad por UNESCO', 'Marca registrada', 'Protección de patente'], correcta: 1, explicacion: 'Las pupusas fueron declaradas Patrimonio Cultural Inmaterial de la Humanidad por la UNESCO en 2005.' },
+
+  /* ═════════════════════════════════════════════════════════
+     SITIOS CULTURALES — 15 PREGUNTAS POR NIVEL
+     ═════════════════════════════════════════════════════════ */
+
+  // FÁCIL
+  { cat: 'sitios', nivel: 'facil', pregunta: '¿En qué departamento se encuentra el sitio arqueológico Joya de Cerén?', opciones: ['La Libertad', 'Santa Ana', 'San Vicente', 'Cuscatlán'], correcta: 0, explicacion: 'Joya de Cerén está en el municipio de San Juan Opico, departamento de La Libertad.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: '¿Cómo se le conoce popularmente a Joya de Cerén por su extraordinario estado de conservación?', opciones: ['La Pompeya de América', 'El Machu Picchu salvadoreño', 'La Atlántida de Centroamérica', 'El Petén salvadoreño'], correcta: 0, explicacion: 'Se le llama "la Pompeya de América" porque, igual que la ciudad italiana, quedó sepultada bajo ceniza volcánica que conservó la vida cotidiana de sus habitantes.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'El sitio arqueológico Tazumal se ubica en el municipio de Chalchuapa, en el departamento de:', opciones: ['Santa Ana', 'Sonsonate', 'Ahuachapán', 'La Unión'], correcta: 0, explicacion: 'Tazumal está en Chalchuapa, departamento de Santa Ana, a unos 80 km al occidente de San Salvador.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: '¿Qué pueblo colonial es reconocido por su arquitectura, sus calles empedradas y su tradición del añil?', opciones: ['Suchitoto', 'Ilobasco', 'Nahuizalco', 'Berlín'], correcta: 0, explicacion: 'Suchitoto, en el departamento de Cuscatlán, es célebre por su arquitectura colonial, el lago Suchitlán y su historia ligada al cultivo del añil.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'La formación rocosa conocida como Puerta del Diablo se encuentra en Los Planes de Renderos, cerca de:', opciones: ['Panchimalco', 'Concepción de Ataco', 'Juayúa', 'Perquín'], correcta: 0, explicacion: 'Puerta del Diablo es un mirador natural ubicado en Los Planes de Renderos, muy cerca del pueblo de Panchimalco.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'La Ruta de las Flores atraviesa pueblos de los departamentos de Sonsonate y:', opciones: ['Ahuachapán', 'Morazán', 'Usulután', 'La Unión'], correcta: 0, explicacion: 'La Ruta de las Flores recorre pueblos como Nahuizalco, Juayúa y Apaneca en Sonsonate, y Concepción de Ataco y Tacuba en Ahuachapán.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'La Catedral Metropolitana de San Salvador es famosa por la fachada de mosaicos creada por el artista:', opciones: ['Fernando Llort', 'Salarrué', 'Roque Dalton', 'Claudia Lars'], correcta: 0, explicacion: 'El colorido mosaico de la fachada de la Catedral fue diseñado por el reconocido artista plástico salvadoreño Fernando Llort.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'El Parque Nacional El Boquerón corresponde al cráter de qué volcán?', opciones: ['Volcán de San Salvador', 'Volcán de Izalco', 'Volcán de San Vicente', 'Volcán de Santa Ana'], correcta: 0, explicacion: 'El Boquerón es el cráter del volcán de San Salvador, convertido en parque nacional.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: '¿Cómo se llama el museo en San Salvador dedicado a la arqueología y antropología del país?', opciones: ['Museo Nacional de Antropología David J. Guzmán', 'Museo de Arte de El Salvador', 'Museo de la Palabra y la Imagen', 'Museo Tin Marín'], correcta: 0, explicacion: 'El MUNA (Museo Nacional de Antropología David J. Guzmán) resguarda piezas arqueológicas y etnográficas del país.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'El pueblo de Concepción de Ataco, en la Ruta de las Flores, es conocido especialmente por:', opciones: ['Sus coloridos murales en las fachadas', 'Sus playas', 'Su producción de cerámica', 'Su carnaval anual'], correcta: 0, explicacion: 'Concepción de Ataco destaca por los murales artísticos que decoran las fachadas de sus calles.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'En la Catedral Metropolitana de San Salvador descansan los restos de:', opciones: ['Monseñor Óscar Arnulfo Romero', 'El presidente José Matías Delgado', 'El general Maximiliano Hernández Martínez', 'El poeta Francisco Gavidia'], correcta: 0, explicacion: 'La cripta de la Catedral Metropolitana alberga la tumba de Monseñor Óscar Arnulfo Romero.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'El Teatro Nacional de San Salvador es reconocido por ser:', opciones: ['El teatro más antiguo de Centroamérica', 'El teatro más grande de Latinoamérica', 'Una antigua fortaleza colonial', 'Una réplica del Teatro Colón'], correcta: 0, explicacion: 'El Teatro Nacional de San Salvador es considerado el teatro más antiguo de Centroamérica.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: '¿Qué tipo de sitio es Joya de Cerén, según los arqueólogos?', opciones: ['Una aldea agrícola maya', 'Un palacio real', 'Una fortaleza militar', 'Un centro ceremonial azteca'], correcta: 0, explicacion: 'Joya de Cerén fue una aldea agrícola maya del período Clásico, tributaria del centro político de San Andrés.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'Panchimalco, cerca de San Salvador, es célebre por su festividad llamada:', opciones: ['Fiesta de las Flores y las Palmas', 'Festival del Añil', 'Carnaval de San Miguel', 'Feria de la Paz'], correcta: 0, explicacion: 'Panchimalco celebra cada año la tradicional Fiesta de las Flores y las Palmas, de raíz indígena.' },
+  { cat: 'sitios', nivel: 'facil', pregunta: 'El sitio arqueológico Tazumal forma parte de una zona arqueológica más amplia que también incluye:', opciones: ['Casa Blanca y El Trapiche', 'Copán y Tikal', 'Joya de Cerén y San Andrés', 'Cihuatán y Quelepa'], correcta: 0, explicacion: 'La zona arqueológica de Chalchuapa agrupa a Tazumal junto a otros sitios como Casa Blanca y El Trapiche.' },
+
+  // MEDIO
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿En qué año fue declarada Joya de Cerén Patrimonio de la Humanidad por la UNESCO?', opciones: ['1993', '1985', '2001', '1976'], correcta: 0, explicacion: 'Joya de Cerén fue declarada Patrimonio de la Humanidad por la UNESCO en 1993.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿En qué año fueron descubiertas las estructuras de Joya de Cerén?', opciones: ['1976', '1960', '1993', '1950'], correcta: 0, explicacion: 'Fue descubierto accidentalmente en 1976, mientras se preparaba el terreno para construir silos de granos.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Qué volcán sepultó bajo su ceniza a la aldea de Joya de Cerén hace unos 1,400 años?', opciones: ['Volcán Loma Caldera', 'Volcán de Izalco', 'Volcán de San Miguel', 'Volcán Chaparrastique'], correcta: 0, explicacion: 'La erupción del volcán Loma Caldera, hacia el año 600 d.C., sepultó la aldea bajo varias capas de ceniza.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Qué arqueólogo estadounidense lideró las primeras investigaciones científicas en Joya de Cerén?', opciones: ['Payson Sheets', 'Stanley Boggs', 'John Longyear', 'William Fash'], correcta: 0, explicacion: 'El Dr. Payson Sheets, de la Universidad de Colorado en Boulder, dirigió las primeras investigaciones entre 1978 y 1980.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: 'La pirámide principal del sitio Tazumal alcanza una altura aproximada de:', opciones: ['24 metros', '10 metros', '40 metros', '60 metros'], correcta: 0, explicacion: 'La Estructura 1 de Tazumal, la más grande del sitio, alcanza unos 24 metros de altura.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Qué arqueólogo realizó las primeras excavaciones formales en Tazumal, a partir de 1940?', opciones: ['Stanley Boggs', 'Payson Sheets', 'Santiago Barberena', 'David Guzmán'], correcta: 0, explicacion: 'Stanley Boggs inició en 1940 las investigaciones formales de Tazumal, identificando 13 estructuras.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: 'Según los especialistas, el nombre "Tazumal" significa aproximadamente:', opciones: ['Lugar donde se consumen las almas', 'Lugar de las joyas', 'Valle de las flores', 'Ciudad de los dioses'], correcta: 0, explicacion: 'En lengua nahua-quiché, "Tazumal" se traduce aproximadamente como "lugar donde se consumen las almas".' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Quién descubrió la estela conocida como "La Virgen de Tazumal" en 1892?', opciones: ['Santiago Barberena', 'Stanley Boggs', 'Payson Sheets', 'Jorge Lardé'], correcta: 0, explicacion: 'El historiador Santiago Barberena encontró esta estela en 1892 y la trasladó al Museo Nacional.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: 'El sitio arqueológico San Andrés, un antiguo centro político maya, se ubica en el valle de:', opciones: ['Zapotitán', 'Jiboa', 'Sensunapán', 'Lempa'], correcta: 0, explicacion: 'San Andrés se encuentra en el valle de Zapotitán, departamento de La Libertad, y dominó la región durante el Clásico tardío.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿A qué sitio arqueológico estaba tributaria la aldea agrícola de Joya de Cerén?', opciones: ['San Andrés', 'Tazumal', 'Cihuatán', 'Casa Blanca'], correcta: 0, explicacion: 'Joya de Cerén era una aldea tributaria del centro político de San Andrés, que dominaba el valle de Zapotitán.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿En qué departamento se localiza el pueblo colonial de Suchitoto?', opciones: ['Cuscatlán', 'La Paz', 'Chalatenango', 'San Vicente'], correcta: 0, explicacion: 'Suchitoto pertenece al departamento de Cuscatlán.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Cerca de qué lago se encuentra Suchitoto?', opciones: ['Lago Suchitlán', 'Lago de Coatepeque', 'Lago de Ilopango', 'Laguna de Alegría'], correcta: 0, explicacion: 'Suchitoto está a orillas del embalse conocido como lago Suchitlán.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: 'El monolito conocido como "La Piedra de las Victorias", hallado en Tazumal, muestra una clara influencia de la cultura:', opciones: ['Olmeca', 'Azteca', 'Inca', 'Maya clásica'], correcta: 0, explicacion: 'Este monolito con petrograbados en sus cuatro lados presenta un estilo típicamente olmeca.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: '¿Cuál era el propósito de los trabajos de tierra que llevaron al descubrimiento accidental de Joya de Cerén?', opciones: ['Construir silos para almacenar granos', 'Construir una carretera', 'Ampliar un cementerio', 'Sembrar café'], correcta: 0, explicacion: 'Un tractor nivelaba terreno para construir silos de granos cuando reveló las primeras estructuras del sitio.' },
+  { cat: 'sitios', nivel: 'medio', pregunta: 'La zona arqueológica de Chalchuapa, donde se ubica Tazumal, tiene una extensión aproximada de:', opciones: ['10 km²', '1 km²', '50 km²', '100 km²'], correcta: 0, explicacion: 'La zona arqueológica de Chalchuapa abarca aproximadamente 10 km², con varios sitios además de Tazumal.' },
+
+  // DIFÍCIL
+  { cat: 'sitios', nivel: 'dificil', pregunta: '¿En qué fecha exacta fue declarada Joya de Cerén Patrimonio de la Humanidad?', opciones: ['11 de diciembre de 1993', '5 de mayo de 1993', '19 de junio de 1993', '27 de noviembre de 1989'], correcta: 0, explicacion: 'La UNESCO declaró a Joya de Cerén Patrimonio de la Humanidad el 11 de diciembre de 1993.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: '¿A qué universidad pertenecía el arqueólogo Payson Sheets, quien lideró las primeras excavaciones en Joya de Cerén?', opciones: ['Universidad de Colorado en Boulder', 'Universidad de Harvard', 'Universidad de Yale', 'Universidad de Arizona'], correcta: 0, explicacion: 'Payson Sheets era profesor de antropología en la Universidad de Colorado en Boulder, Estados Unidos.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'Las excavaciones en Joya de Cerén fueron interrumpidas por la guerra civil y retomadas en:', opciones: ['1989', '1980', '1996', '1976'], correcta: 0, explicacion: 'Los trabajos se retomaron en 1989 tras la interrupción por el conflicto armado, y continuaron hasta 1996.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: '¿Cuántas estructuras identificó Stanley Boggs en su investigación formal del sitio Tazumal?', opciones: ['13', '6', '20', '8'], correcta: 0, explicacion: 'Boggs identificó 13 estructuras en total, siete de las cuales fueron asignadas después al área de "Nuevo Tazumal".' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'La segunda pirámide de Tazumal, de estilo tolteca, tuvo un templo en su cima que se derrumbó en:', opciones: ['Octubre de 2004', 'Enero de 1990', 'Marzo de 2010', 'Julio de 1998'], correcta: 0, explicacion: 'El templo que coronaba la Estructura 2, de estilo tolteca, se derrumbó en octubre de 2004.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: '¿En qué año inició Stanley Boggs la primera de doce temporadas de investigación en Tazumal?', opciones: ['1942', '1950', '1960', '1935'], correcta: 0, explicacion: 'En 1942 comenzó la primera de las doce temporadas de investigación arqueológica de Boggs en el sitio.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'El museo de sitio de Tazumal lleva el nombre de su principal investigador y fue fundado el 16 de abril de:', opciones: ['1952', '1970', '1940', '1993'], correcta: 0, explicacion: 'El Museo Stanley Boggs, ubicado en Tazumal, fue fundado el 16 de abril de 1952.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'Aproximadamente, ¿desde qué año antes de Cristo muestra evidencia de ocupación humana continua la zona de Chalchuapa?', opciones: ['1200 a.C.', '500 a.C.', '300 d.C.', '2000 a.C.'], correcta: 0, explicacion: 'Chalchuapa es uno de los asentamientos más antiguos y continuos de El Salvador, con ocupación desde aproximadamente 1200 a.C.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'El sitio arqueológico Cihuatán, en el actual departamento de San Salvador, corresponde al período:', opciones: ['Posclásico', 'Preclásico', 'Clásico temprano', 'Colonial'], correcta: 0, explicacion: 'Cihuatán es un sitio del período Posclásico vinculado a la migración pipil, que fue destruido y quemado.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'La aldea de Joya de Cerén fue fundada poco después de la erupción del volcán:', opciones: ['Ilopango', 'Loma Caldera', 'Izalco', 'San Miguel'], correcta: 0, explicacion: 'Tras la erupción del volcán de Ilopango, el valle fue reocupado y ahí se fundó posteriormente Joya de Cerén, que luego fue sepultada por Loma Caldera.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: '¿Qué material de construcción, usado en la reconstrucción de Tazumal en los años 40, generó controversia entre arqueólogos?', opciones: ['Cemento', 'Adobe', 'Piedra caliza', 'Estuco de cal'], correcta: 0, explicacion: 'El uso de cemento moderno por Stanley Boggs en la reconstrucción de las estructuras fue muy criticado en su momento.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'La estructura principal de Tazumal fue construida en trece etapas distintas, entre los años:', opciones: ['100 y 800 d.C.', '1200 y 1500 d.C.', '400 a.C. y 100 d.C.', '900 y 1200 d.C.'], correcta: 0, explicacion: 'La Estructura 1 (B1-1) se construyó en trece etapas sucesivas entre los años 100 y 800 d.C.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'El decreto legislativo que declaró Monumento Nacional a Joya de Cerén data de:', opciones: ['31 de agosto de 1989', '11 de diciembre de 1993', '1 de enero de 1980', '5 de mayo de 1976'], correcta: 0, explicacion: 'El Decreto Legislativo N.º 320, del 31 de agosto de 1989, declaró a Joya de Cerén Monumento Nacional.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'Hasta la actualidad, Joya de Cerén es:', opciones: ['El único sitio de El Salvador declarado Patrimonio de la Humanidad por la UNESCO', 'Uno de cinco sitios salvadoreños con esa distinción', 'El segundo sitio más visitado del país', 'Parte de un conjunto binacional con Honduras'], correcta: 0, explicacion: 'Joya de Cerén sigue siendo, hasta el momento, el único sitio salvadoreño declarado Patrimonio Mundial por la UNESCO.' },
+  { cat: 'sitios', nivel: 'dificil', pregunta: 'El área arqueológica de Chalchuapa incluye, además de Tazumal, sitios como El Trapiche y:', opciones: ['Casa Blanca', 'Cihuatán', 'San Andrés', 'Quelepa'], correcta: 0, explicacion: 'Casa Blanca es otro de los sitios que integran la zona arqueológica de Chalchuapa, junto con El Trapiche.' },
+
+  // 100% GUANACO
+  { cat: 'sitios', nivel: 'guanaco', pregunta: '¿Qué elemento permitió la excepcional conservación de las estructuras de Joya de Cerén pese a estar hechas de tierra compactada?', opciones: ['El sepultamiento bajo capas de ceniza volcánica a distintas temperaturas', 'La aplicación posterior de resinas sintéticas', 'Un microclima seco constante', 'El uso de piedra en vez de adobe'], correcta: 0, explicacion: 'La erupción de Loma Caldera cubrió la aldea con varias capas de ceniza a temperaturas entre 100 y 500°C, sellando y preservando las estructuras de tierra y los objetos cotidianos.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'En la tumba principal de la Estructura 1 de Tazumal se hallaron ofrendas que incluían más de:', opciones: ['116 vasijas', '20 vasijas', '500 vasijas', '50 vasijas'], correcta: 0, explicacion: 'Se hallaron tumbas con más de 116 vasijas, joyería de jade y espejos de pirita de hierro, entre otros objetos.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'La Estela de Tazumal, conocida popularmente como "la Virgen", mide aproximadamente:', opciones: ['2.65 metros de altura', '1 metro de altura', '5 metros de altura', '0.5 metros de altura'], correcta: 0, explicacion: 'La estela mide 2.65 metros de altura por 1.16 de ancho, y representa a un personaje con ricos atuendos sosteniendo un cetro.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'La Piedra de las Victorias, hallada cerca de Tazumal, presenta petrograbados en sus cuatro lados y se fecha aproximadamente en:', opciones: ['700 a.C.', '1200 d.C.', '300 d.C.', '1500 a.C.'], correcta: 0, explicacion: 'Este monolito de estilo olmeca, con grabados en sus cuatro caras, se fecha aproximadamente en el año 700 a.C.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'Antes de la fundación de Joya de Cerén, gran parte del centro y occidente de El Salvador quedó sepultada por ceniza del volcán de Ilopango, hecho ocurrido alrededor del año:', opciones: ['250 d.C.', '1000 d.C.', '600 a.C.', '1500 d.C.'], correcta: 0, explicacion: 'La erupción del Ilopango, hacia el año 250 d.C., sepultó gran parte de la región e interrumpió la ocupación por siglos.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'El grupo cerámico "Guazapa", común en contextos funerarios en Tazumal y otros sitios del centro del país, se caracteriza por:', opciones: ['Adornos de engobe raspado', 'Vidriado azul cobalto', 'Incrustaciones de oro', 'Pintura al fresco policromada'], correcta: 0, explicacion: 'La cerámica Guazapa se distingue por sus adornos de engobe raspado, encontrados en varios sitios del centro de El Salvador.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'Durante el período Clásico, tanto San Andrés como Joya de Cerén recibieron una notable influencia cultural proveniente de:', opciones: ['Copán', 'Teotihuacán', 'Tenochtitlán', 'Machu Picchu'], correcta: 0, explicacion: 'Ambos sitios del valle de Zapotitán muestran similitudes e influencia de la ciudad maya de Copán, en la actual Honduras.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'La reconstrucción de las Estructuras 1 y 2 de Tazumal en la década de 1940, realizada por Stanley Boggs, fue criticada porque:', opciones: ['Utilizó cemento moderno en un sitio prehispánico', 'Eliminó por completo las estructuras originales', 'Se hizo sin ningún tipo de registro', 'Se financió con fondos extranjeros sin autorización'], correcta: 0, explicacion: 'El uso de cemento en la reconstrucción fue muy criticado, aunque en ese momento se consideró necesario para evitar más destrucción del sitio.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'El volcán Loma Caldera, que sepultó Joya de Cerén, se ubica a una distancia del asentamiento de apenas:', opciones: ['Menos de 1 kilómetro', '20 kilómetros', '5 kilómetros', '50 kilómetros'], correcta: 0, explicacion: 'Loma Caldera está a menos de 1 km de Joya de Cerén, por lo que la erupción sepultó la aldea casi por completo.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'La ocupación arqueológica de Tazumal, considerando todas sus fases, abarca aproximadamente desde:', opciones: ['1200 a.C. hasta 1200 d.C.', '100 d.C. hasta 1500 d.C.', '500 a.C. hasta 500 d.C.', '800 d.C. hasta 1521 d.C.'], correcta: 0, explicacion: 'Tazumal fue ocupado de forma discontinua desde aproximadamente 1200 a.C. hasta su abandono definitivo hacia 1200 d.C.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'En Joya de Cerén se identificó una estructura de tipo temazcal, es decir:', opciones: ['Un baño de vapor ritual', 'Una bodega de granos', 'Un templo funerario', 'Una vivienda de un líder político'], correcta: 0, explicacion: 'La Estructura 9 del sitio corresponde a un temazcal, un baño de vapor usado con fines rituales y de higiene.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'El área total del Parque Arqueológico Joya de Cerén, entre zona de reserva y área administrativa, es de aproximadamente:', opciones: ['5 hectáreas', '1 hectárea', '20 hectáreas', '50 hectáreas'], correcta: 0, explicacion: 'El parque cuenta con unas 5 hectáreas distribuidas entre la reserva arqueológica y el área administrativa.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'Las fases cerámicas Xocco y Payu, identificadas en Joya de Cerén, corresponden respectivamente a los períodos:', opciones: ['400-600 d.C. y 600-900 d.C.', '100-300 d.C. y 300-500 d.C.', '900-1100 d.C. y 1100-1300 d.C.', '1200-1000 a.C. y 1000-800 a.C.'], correcta: 0, explicacion: 'La cultura material del sitio corresponde a la fase Xocco (400-600 d.C.) y a la fase Payu (600-900 d.C.).' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'En el Museo de sitio de Tazumal se exhibe, entre otras piezas, un objeto ritual mesoamericano conocido como:', opciones: ['Chac Mool', 'Trono jaguar', 'Disco solar de jade', 'Máscara de obsidiana'], correcta: 0, explicacion: 'Un Chac Mool fue encontrado en la zona conocida como Laguna Seca de Chalchuapa y forma parte de las piezas destacadas del sitio.' },
+  { cat: 'sitios', nivel: 'guanaco', pregunta: 'Joya de Cerén reabrió al público tras una extensa remodelación auspiciada por Francia y El Salvador en:', opciones: ['Diciembre de 2021', 'Enero de 2015', 'Julio de 2018', 'Marzo de 2023'], correcta: 0, explicacion: 'Tras un año de trabajos de conservación auspiciados por el Gobierno de Francia y El Salvador, el sitio reabrió en diciembre de 2021.' },
+
+  /* ═════════════════════════════════════════════════════════
+     LEYENDAS — 15 PREGUNTAS POR NIVEL
+     ═════════════════════════════════════════════════════════ */
+
+  // FÁCIL
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Quién es la madre de El Cipitío, según la leyenda salvadoreña?', opciones: ['La Siguanaba', 'La Llorona', 'La Carreta Bruja', 'La Chancha'], correcta: 0, explicacion: 'El Cipitío es, según la tradición, hijo de La Siguanaba.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿A qué edad quedó condenado El Cipitío a permanecer para siempre?', opciones: ['10 años', '5 años', '15 años', '7 años'], correcta: 0, explicacion: 'El Cipitío fue condenado a permanecer eternamente como un niño de 10 años.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: 'Según la leyenda, ¿cómo se muestra La Siguanaba a los hombres al principio?', opciones: ['Como una mujer hermosa', 'Como un anciano', 'Como un animal', 'Como una sombra sin rostro'], correcta: 0, explicacion: 'La Siguanaba se presenta de lejos como una mujer hermosa, pero al acercarse revela un rostro horrible.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿En qué colores se presenta tradicionalmente El Cadejo?', opciones: ['Blanco y negro', 'Rojo y azul', 'Dorado y plateado', 'Verde y café'], correcta: 0, explicacion: 'El Cadejo tiene dos versiones: una blanca, protectora, y otra negra, maligna.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Cómo se llama la carreta fantasma que anuncia mala suerte o muerte en la tradición salvadoreña?', opciones: ['La Carreta Bruja (o Chillona)', 'El Carro de Fuego', 'La Diligencia Negra', 'El Tren Fantasma'], correcta: 0, explicacion: 'La Carreta Bruja, también llamada Carreta Chillona, recorre los caminos de noche como presagio de desgracia.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué le gusta hacer a El Cipitío, según la tradición popular?', opciones: ['Revolcarse entre las cenizas', 'Nadar en el mar', 'Cazar animales', 'Tocar la marimba'], correcta: 0, explicacion: 'Al Cipitío le encanta revolcarse y comer cenizas, dejando pequeñas huellas cerca de los hornos.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: 'Los pasos de El Cadejo suenan de manera similar a las pisadas de:', opciones: ['Una cabra', 'Un caballo', 'Un perro grande', 'Un gato'], correcta: 0, explicacion: 'Sus pasos se asemejan al sonido de pezuñas de cabra.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué parte del cuerpo de El Cipitío aparece "al revés" en la leyenda?', opciones: ['Sus pies', 'Sus manos', 'Su cabeza', 'Sus orejas'], correcta: 0, explicacion: 'Sus pies están volteados hacia atrás, lo que confunde a quienes intentan seguir sus huellas.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿En qué lugar de San Salvador se dice que aparece El Padre sin Cabeza?', opciones: ['Cerca de la Iglesia El Rosario', 'En el Parque Cuscatlán', 'En el Zócalo', 'En el Mercado Central'], correcta: 0, explicacion: 'Según la leyenda, el Padre sin Cabeza sale por las puertas de la Iglesia El Rosario los viernes a medianoche.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué figura de la mitología salvadoreña se aparece principalmente a hombres infieles o trasnochadores cerca de los ríos?', opciones: ['La Siguanaba', 'El Cipitío', 'El Cadejo blanco', 'El Justo Juez'], correcta: 0, explicacion: 'La Siguanaba busca engañar y asustar a los hombres mujeriegos o infieles que andan solos de noche.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué prenda característica usa El Cipitío en la cabeza, según las descripciones populares?', opciones: ['Un sombrero grande y puntiagudo', 'Una corona de flores', 'Un casco de guerrero', 'Un turbante'], correcta: 0, explicacion: 'El Cipitío suele describirse con un gran sombrero de palma puntiagudo.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Cuál es el nombre del espíritu nocturno que, según la tradición, castiga a quienes rompen las normas de la noche?', opciones: ['El Justo Juez de la Noche', 'El Cipitío', 'La Carreta Bruja', 'El Cadejo negro'], correcta: 0, explicacion: 'El Justo Juez de la Noche es un personaje que, según la leyenda, castiga las faltas cometidas durante la noche.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué creencia indígena pipil sostiene que ciertas personas pueden transformarse en animales protectores?', opciones: ['El nahualismo', 'El curanderismo', 'El totemismo azteca', 'El chamanismo maya'], correcta: 0, explicacion: 'El nahualismo era una creencia muy extendida entre los pueblos pipiles.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Qué flor mágica, según la leyenda, solo pueden ver y recoger las personas mudas?', opciones: ['La Flor de Amate', 'La Flor de Izote', 'La Rosa de Cuscatlán', 'La Flor de Loto'], correcta: 0, explicacion: 'La Flor de Amate es una flor legendaria asociada a la buena suerte, visible únicamente para personas mudas.' },
+  { cat: 'leyendas', nivel: 'facil', pregunta: '¿Cuál de estos personajes NO pertenece a las leyendas salvadoreñas?', opciones: ['El Minotauro', 'La Siguanaba', 'El Cipitío', 'El Cadejo'], correcta: 0, explicacion: 'El Minotauro pertenece a la mitología griega; los otros tres son personajes clásicos del folclore salvadoreño.' },
+
+  // MEDIO
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'Antes de ser maldecida, ¿cómo se llamaba la mujer que se convertiría en La Siguanaba?', opciones: ['Sihuehuet', 'Zipitía', 'Xochitl', 'Ixchel'], correcta: 0, explicacion: '"Sihuehuet" significa "mujer hermosa" en náhuat, antes de recibir la maldición que la transformó en la Siguanaba.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué significa el nombre "Siguanaba" según la tradición?', opciones: ['Mujer horrible', 'Mujer sabia', 'Madre de la noche', 'Espíritu del agua'], correcta: 0, explicacion: 'Tras la maldición, su nuevo nombre pasó a significar "mujer horrible".' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué significa la palabra "Cipit" en idioma náhuat?', opciones: ['Niño', 'Fuego', 'Luna', 'Serpiente'], correcta: 0, explicacion: '"Cipit" significa simplemente "niño" en náhuat, origen del nombre del Cipitío.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'Según la regla popular sobre El Cadejo, si escuchas sus pasos muy cerca, en realidad significa que:', opciones: ['Está lejos', 'Está a punto de atacar', 'Está detrás de ti', 'Se ha ido'], correcta: 0, explicacion: 'La leyenda dice que si se escucha cerca, está lejos; y si se escucha lejos, está muy cerca.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué color de Cadejo se considera protector de los caminantes nocturnos de buen corazón?', opciones: ['El blanco', 'El negro', 'El gris', 'El rojo'], correcta: 0, explicacion: 'El Cadejo blanco es considerado un ser protector y guía de quienes caminan de noche con buenas intenciones.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'En la historia popular de la Carreta Bruja, ¿qué apodo recibía el hombre que se negó a bendecir su carreta?', opciones: ['Pedro el Malo', 'Juan sin Miedo', 'El Diablo Cojuelo', 'Concho el Bribón'], correcta: 0, explicacion: 'En una de las versiones más conocidas, el hombre castigado era apodado "Pedro el Malo".' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'La escena de la maldición de la Carreta Bruja ocurre, según una versión popular, durante la celebración de qué santo patrono?', opciones: ['San Isidro Labrador', 'San Miguel Arcángel', 'San Salvador del Mundo', 'Santa Ana'], correcta: 0, explicacion: 'La leyenda sitúa el episodio en la fiesta de San Isidro Labrador, cuando los carreteros llevaban sus carretas a bendecir.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'Según la leyenda, ¿en qué día de la semana aparece El Padre sin Cabeza cerca de la Iglesia El Rosario?', opciones: ['Los viernes', 'Los lunes', 'Los domingos', 'Los martes'], correcta: 0, explicacion: 'Se dice que aparece todos los viernes a la medianoche.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'En la creencia del nahualismo, ¿quién invocaba el espíritu animal protector de un recién nacido?', opciones: ['Un hechicero o chamán', 'El sacerdote católico del pueblo', 'El propio niño al crecer', 'El jefe militar de la región'], correcta: 0, explicacion: 'Un hechicero invocaba, al nacer el niño, un espíritu animal que se convertía en su nahual protector.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿En qué región de El Salvador se ubica tradicionalmente la leyenda de El Cipitío, aunque puede transportarse a cualquier lugar?', opciones: ['San Vicente', 'Morazán', 'La Unión', 'Chalatenango'], correcta: 0, explicacion: 'La tradición sitúa a El Cipitío principalmente en el departamento de San Vicente.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué versión explica el origen de El Padre sin Cabeza relacionándolo con un conflicto social?', opciones: ['Fue decapitado por participar en una revuelta campesina', 'Murió luchando contra piratas', 'Fue ejecutado por herejía en la colonia', 'Murió en un duelo por amor'], correcta: 0, explicacion: 'Una de las versiones cuenta que el sacerdote fue decapitado por tomar parte en un levantamiento campesino.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué característica corporal, además de sus pies al revés, suele destacarse en las descripciones de El Cipitío?', opciones: ['Su enorme barriga', 'Sus alas de murciélago', 'Su piel escamosa', 'Sus cuernos'], correcta: 0, explicacion: 'Se le describe con una gran barriga, resultado de su gusto por comer cenizas.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: 'Según algunas versiones, El Cipitío también frecuenta los trapiches de moliendas de caña porque le atrae:', opciones: ['La miel y el dulce de atado', 'El humo de los hornos', 'El sonido de las campanas', 'Las herramientas de los trabajadores'], correcta: 0, explicacion: 'Le atraen la miel de dedo y el dulce de atado que se producen en los trapiches.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Cuál es una de las razones por las que, según la leyenda, la Carreta Bruja visita ciertos pueblos?', opciones: ['Porque en ellos no hay amor ni armonía', 'Porque son los más ricos del país', 'Porque tienen iglesias abandonadas', 'Porque están cerca del mar'], correcta: 0, explicacion: 'Se dice que la carreta ronda los pueblos donde falta el amor y la armonía entre sus habitantes.' },
+  { cat: 'leyendas', nivel: 'medio', pregunta: '¿Qué tipo de espíritu es, en general, un "nahual" dentro de la tradición pipil?', opciones: ['Un espíritu animal protector asignado al nacer', 'Un fantasma vengativo', 'Un dios menor de la lluvia', 'Un objeto encantado'], correcta: 0, explicacion: 'El nahual es un espíritu animal protector que, según la creencia, se asigna a la persona desde su nacimiento.' },
+
+  // DIFÍCIL
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'En una de las versiones, ¿quién es descrito como el "Dios de dioses" que lanza la maldición sobre la madre de El Cipitío?', opciones: ['Teotl', 'Tláloc', 'Itzamná', 'Quetzalcóatl'], correcta: 0, explicacion: 'En esta versión, Teotl, el "dios de los dioses", condena a la madre y a su hijo tras el romance ilícito.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'Según una versión detallada de la leyenda, la madre de El Cipitío tuvo un romance ilícito con:', opciones: ['Un lucero de la mañana', 'Un guerrero extranjero', 'Un sacerdote maya', 'Un espíritu del bosque'], correcta: 0, explicacion: 'En esta variante, Sihuehuet mantuvo un romance con un lucero de la mañana, lo que originó la maldición.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Con qué cerro se asocia tradicionalmente el hogar de La Siguanaba y su hijo El Cipitío?', opciones: ['El cerro Sihuatepeque', 'El volcán de Izalco', 'El cerro de Guazapa', 'El volcán Chaparrastique'], correcta: 0, explicacion: 'El cerro Sihuatepeque, que significa "cerro de la mujer", se asocia con la región de origen de estos personajes.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'Según ciertas versiones, ¿qué debía hacer una muchacha para lograr que El Cipitío dejara de molestarla?', opciones: ['Descuidar su higiene por varios días', 'Ofrecerle flores blancas', 'Recitar una oración especial', 'Regalarle dulce de atado'], correcta: 0, explicacion: 'Se dice que al Cipitío le disgustan los malos hábitos de higiene, por lo que las jóvenes usaban esto como manera de ahuyentarlo.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Qué elemento sonoro distintivo advierte, según la tradición, la cercanía de la Carreta Bruja?', opciones: ['Un chirrido de ruedas de madera', 'Un canto de gallo', 'El tañido de campanas', 'El aullido de perros'], correcta: 0, explicacion: 'El terrible chirrido de sus ruedas de madera anuncia la llegada de la Carreta Bruja.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'Los folcloristas suelen clasificar las leyendas salvadoreñas en varias categorías; ¿cuál de las siguientes es una de ellas?', opciones: ['Leyendas etiológicas', 'Leyendas cósmicas', 'Leyendas bélicas', 'Leyendas marítimas'], correcta: 0, explicacion: 'Entre las categorías usadas están las etiológicas (origen de lugares), las indígenas, de seres extraordinarios, de fantasmas, de animales y de lugares encantados.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Qué otros seres legendarios de forma animal se mencionan junto al Cadejo en la tradición salvadoreña?', opciones: ['El Mico Brujo y La Chancha', 'El Grifo y la Esfinge', 'El Unicornio y el Dragón', 'El Basilisco y la Hidra'], correcta: 0, explicacion: 'El Mico Brujo y La Chancha son otros personajes de forma animal presentes en el folclore salvadoreño.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'En algunas interpretaciones, el nombre "Cipit" se ha relacionado con una deidad mesoamericana llamada:', opciones: ['Xipe Tótec', 'Huitzilopochtli', 'Quetzalcóatl', 'Itzamná'], correcta: 0, explicacion: 'Algunas versiones relacionan el nombre del Cipitío con la deidad mesoamericana Xipe Tótec.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'Según la leyenda, ¿qué dos versiones explican por qué El Padre sin Cabeza perdió la cabeza?', opciones: ['Murió en pecado mortal sin confesarse, o fue decapitado por unirse a una revuelta campesina', 'Fue decapitado por un rayo y por una maldición gitana', 'Murió en batalla naval y en un incendio', 'Fue ejecutado por el rey de España y por brujería'], correcta: 0, explicacion: 'Existen dos versiones principales sobre su origen: una religiosa (pecado sin confesar) y otra social (participación en una revuelta).' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Qué representan, en conjunto, los dos Cadejos (blanco y negro) dentro del imaginario popular?', opciones: ['La lucha entre el bien y el mal', 'El día y la noche', 'La riqueza y la pobreza', 'El campo y la ciudad'], correcta: 0, explicacion: 'Ambos cadejos simbolizan la eterna lucha entre las fuerzas del bien y del mal.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'Según la leyenda, tras salir de la Iglesia El Rosario, ¿hacia qué dirección se dice que camina El Padre sin Cabeza?', opciones: ['Hacia el norte', 'Hacia el sur', 'Hacia el oriente', 'Hacia el poniente'], correcta: 0, explicacion: 'Según los relatos, camina hacia el norte por la sexta avenida tras salir de la iglesia.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'En la tradición popular, ¿qué función cumplía el nahual asignado a un recién nacido?', opciones: ['Servir como espíritu animal protector de por vida', 'Determinar su oficio futuro', 'Curar enfermedades de la familia', 'Proteger la cosecha del pueblo'], correcta: 0, explicacion: 'El nahual acompañaba y protegía a la persona durante toda su vida, según esta creencia pipil.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Qué elemento hace que la leyenda de El Cipitío tenga un fuerte componente simbólico sobre la moral colonial/indígena?', opciones: ['Representa el castigo por el amor o romance ilícito', 'Representa la lucha por la independencia', 'Representa el conflicto entre pueblos indígenas', 'Representa la llegada de los españoles'], correcta: 0, explicacion: 'La maldición de la Siguanaba y su hijo simboliza el castigo social hacia el romance considerado ilícito.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: 'En una de las versiones sobre el origen de La Siguanaba, su verdadero nombre "Sihuehuet" está relacionado con qué significado?', opciones: ['Mujer hermosa', 'Madre de la luna', 'Guardiana del río', 'Hija del sol'], correcta: 0, explicacion: '"Sihuehuet" se traduce como "mujer hermosa" antes de que recayera sobre ella la maldición.' },
+  { cat: 'leyendas', nivel: 'dificil', pregunta: '¿Qué come principalmente El Cipitío, además de cenizas, según ciertas versiones de la leyenda?', opciones: ['Guineo y dulce de atado', 'Carne cruda', 'Insectos', 'Solo agua de los ríos'], correcta: 0, explicacion: 'Según algunas versiones, su alimento favorito es el guineo y el dulce de atado, además de las cenizas.' },
+
+  // 100% GUANACO
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'Desde una perspectiva antropológica, la dualidad del Cadejo blanco y negro suele interpretarse como:', opciones: ['Una representación del conflicto moral entre el bien y el mal en el imaginario colonial mestizo', 'Un vestigio directo de mitología griega llevada por los conquistadores', 'Una alegoría exclusiva sobre el clima tropical', 'Una crítica política moderna sin raíces coloniales'], correcta: 0, explicacion: 'Los folcloristas interpretan esta dualidad como una expresión simbólica del conflicto entre el bien y el mal, propia del sincretismo cultural colonial.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'La leyenda de La Siguanaba combina elementos de una deidad prehispánica con un discurso moralizante que castiga principalmente:', opciones: ['La infidelidad y el abandono de las responsabilidades maternas', 'El robo de tierras comunales', 'La resistencia armada indígena', 'El comercio ilegal de añil'], correcta: 0, explicacion: 'La narrativa castiga tanto la infidelidad masculina como el abandono de responsabilidades familiares por parte de la madre.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'El fenómeno acústico descrito en la leyenda del Cadejo, donde la cercanía del sonido indica lo contrario a la distancia real, funciona narrativamente como:', opciones: ['Un recurso de tensión que aumenta la incertidumbre del oyente nocturno', 'Una explicación científica real sobre el eco en zonas montañosas', 'Una referencia a instrumentos musicales prehispánicos', 'Un dato astronómico sobre las fases lunares'], correcta: 0, explicacion: 'Esta paradoja sonora funciona como un recurso narrativo que aumenta el suspenso y la incertidumbre del relato.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'La clasificación folclórica de "leyendas etiológicas" en El Salvador se refiere específicamente a relatos que explican:', opciones: ['El origen de lugares, cerros, volcanes o pueblos', 'El origen del universo entero', 'El origen de los apellidos salvadoreños', 'El origen de los idiomas indígenas'], correcta: 0, explicacion: 'Las leyendas etiológicas narran cómo se formaron determinados lugares, cerros, volcanes o pueblos.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'En la narrativa de la Carreta Bruja, la negativa de "Pedro el Malo" a bendecir su carreta durante la fiesta patronal simboliza:', opciones: ['El rechazo a la autoridad religiosa y la ruptura del orden comunitario', 'Una crítica al sistema colonial de impuestos', 'Un acto de rebeldía política contra la corona española', 'Una protesta por la propiedad de la tierra'], correcta: 0, explicacion: 'El gesto de rechazar la bendición representa simbólicamente la ruptura con el orden religioso y comunitario del pueblo.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'El personaje de El Cipitío, con pies invertidos que confunden a quienes intentan seguirlo, cumple narrativamente la función de:', opciones: ['Un espíritu burlón e inatrapable, ligado al desorden y la travesura', 'Un guardián estricto de la moral pública', 'Un mensajero de los dioses del inframundo', 'Un símbolo exclusivamente agrícola'], correcta: 0, explicacion: 'Sus pies al revés refuerzan su naturaleza de espíritu burlón e imposible de atrapar.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'Comparando las distintas versiones sobre el origen de El Cipitío, los folcloristas señalan que estas variaciones se deben principalmente a:', opciones: ['La transmisión oral y la diversidad regional del relato', 'La existencia de un texto único y oficial', 'Traducciones erróneas de crónicas coloniales', 'La censura de la Iglesia católica'], correcta: 0, explicacion: 'Al tratarse de tradición oral, cada región y narrador aporta variantes propias a la historia.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'En la tradición sobre el nahualismo pipil, el animal asignado como nahual protector se determinaba, según la creencia, mediante:', opciones: ['La invocación de un hechicero al momento del nacimiento', 'Un sorteo comunitario anual', 'La elección libre del niño al llegar a la adultez', 'La posición de las estrellas en el matrimonio de los padres'], correcta: 0, explicacion: 'Un hechicero invocaba el espíritu animal protector en el momento del nacimiento del niño.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'La figura de El Justo Juez de la Noche, dentro de la clasificación de "seres extraordinarios" salvadoreños, se distingue por:', opciones: ['Castigar a quienes rompen las normas sociales o rituales durante la noche', 'Proteger exclusivamente las cosechas de maíz', 'Guiar a los viajeros perdidos hacia sus hogares', 'Representar la justicia agraria del siglo XX'], correcta: 0, explicacion: 'Este personaje se distingue por castigar a quienes transgreden las normas nocturnas de la comunidad.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'El motivo de "la mujer hermosa de lejos, horrenda de cerca" en La Siguanaba se repite en otras mitologías mesoamericanas como una advertencia simbólica sobre:', opciones: ['Las apariencias engañosas y el castigo a la infidelidad masculina', 'El peligro de los ríos crecidos en época de lluvias', 'La prohibición de bañarse de noche por razones higiénicas', 'El respeto obligatorio a los ancianos del pueblo'], correcta: 0, explicacion: 'Este motivo funciona como advertencia moral sobre las apariencias engañosas y el castigo a la infidelidad.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'Las leyendas de "seres extraordinarios" como la Siguanaba y el Cipitío se diferencian de las "leyendas indígenas" salvadoreñas principalmente porque estas últimas:', opciones: ['Incorporan sucesos o personajes anteriores a la conquista española de forma más directa', 'Ocurren exclusivamente en la época colonial', 'Carecen de cualquier componente sobrenatural', 'Fueron creadas después de la independencia'], correcta: 0, explicacion: 'Las leyendas indígenas suelen narrar directamente sucesos o personajes del período previo a la conquista española.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'En algunas variantes, El Padre sin Cabeza recorre una ruta específica del centro histórico de San Salvador; este tipo de detalle geográfico concreto en una leyenda urbana cumple la función de:', opciones: ['Anclar el relato en un espacio reconocible que refuerza su credibilidad local', 'Servir como mapa turístico oficial de la ciudad', 'Sustituir registros históricos verificados', 'Anunciar una ruta de peregrinación religiosa oficial'], correcta: 0, explicacion: 'Los detalles geográficos concretos anclan la leyenda a un espacio real, reforzando su credibilidad entre quienes la escuchan.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'El uso recurrente de ríos y quebradas como escenario de La Siguanaba y El Cipitío responde, según los folcloristas, a que estos lugares:', opciones: ['Eran puntos de encuentro social nocturno y por tanto propicios para advertencias morales', 'Eran considerados territorios prohibidos por ley colonial', 'Solo existían en la zona oriental del país', 'Se asociaban exclusivamente con rituales agrícolas mayas'], correcta: 0, explicacion: 'Los ríos eran lugares comunes de encuentro nocturno (lavado de ropa, baño), lo que los volvía escenarios propicios para estas advertencias morales.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'La "Flor de Amate", visible solo para personas mudas según la leyenda, ejemplifica un recurso narrativo común en el folclore centroamericano conocido como:', opciones: ['El objeto mágico condicionado, accesible solo bajo una característica especial', 'La maldición hereditaria transmitida por sangre', 'El pacto explícito con seres sobrenaturales', 'La transformación física permanente del protagonista'], correcta: 0, explicacion: 'Este recurso narrativo condiciona el acceso a un objeto mágico a una característica particular del personaje.' },
+  { cat: 'leyendas', nivel: 'guanaco', pregunta: 'La pervivencia de leyendas como El Cipitío en productos culturales modernos, como series educativas infantiles, ilustra un proceso conocido como:', opciones: ['La resignificación y adaptación del folclore tradicional a nuevos medios', 'La desaparición total del relato oral original', 'La prohibición estatal de la tradición oral', 'La sustitución completa por mitología extranjera'], correcta: 0, explicacion: 'La adaptación de estas leyendas a medios modernos, como la televisión educativa, muestra cómo el folclore se resignifica sin perder su esencia.' },
+
 ];
 
 /* ══════════════════════════════════════════════════════════
@@ -262,6 +407,15 @@ const nextBtn      = document.getElementById('nextBtn');
 const results      = document.getElementById('quizResults');
 const retryBtn     = document.getElementById('retryBtn');
 const levelBadge   = document.getElementById('levelBadge');
+const quizCardEl   = document.getElementById('quizCard');
+
+// Mantiene siempre visible el inicio de la zona de juego, sin que haya
+// que bajar para ver la pregunta, el feedback o el botón de siguiente.
+function alinearVista() {
+  requestAnimationFrame(() => {
+    quizZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
 
 /* ══════════════════════════════════════════════════════════
    EVENT LISTENERS Y LÓGICA
@@ -271,18 +425,37 @@ const levelBadge   = document.getElementById('levelBadge');
 if (startQuizBtn) {
   startQuizBtn.addEventListener('click', () => {
     if (typeof gsap !== 'undefined') {
-      gsap.to(quizWelcome, { opacity: 0, y: -20, duration: 0.5, ease: 'power2.in' });
-      gsap.to(quizSetup, { opacity: 1, y: 0, duration: 0.6, delay: 0.3, ease: 'power2.out' });
+      gsap.to(quizWelcome, {
+        opacity: 0, y: -20, scale: 0.97, duration: 0.4, ease: 'power2.in',
+        onComplete: () => {
+          quizWelcome.style.display = 'none';
+          quizSetup.style.display = 'block';
+          gsap.fromTo(quizSetup,
+            { opacity: 0, y: 25 },
+            { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }
+          );
+        }
+      });
+    } else {
+      quizWelcome.style.display = 'none';
+      quizSetup.style.display = 'block';
     }
-    quizWelcome.style.display = 'none';
-    quizSetup.style.display = 'block';
   });
 }
- levelCards.forEach(card => {
+function pulso(el) {
+  if (typeof gsap === 'undefined') return;
+  gsap.fromTo(el, { scale: 0.94 }, {
+    scale: 1.04, duration: 0.22, ease: 'back.out(3)',
+    onComplete: () => gsap.set(el, { clearProps: 'transform' })
+  });
+}
+
+levelCards.forEach(card => {
   card.addEventListener('click', () => {
     levelCards.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     nivelSeleccionado = card.dataset.level;
+    pulso(card);
     verificarListo();
   });
 });
@@ -292,6 +465,7 @@ catBtns.forEach(btn => {
     catBtns.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     categoriaSeleccionada = btn.dataset.cat;
+    pulso(btn);
     verificarListo();
   });
 });
@@ -318,20 +492,26 @@ startBtn.addEventListener('click', () => {
   indice = 0;
   puntaje = 0;
 
-  quizSetup.style.display = 'none';
-  quizZone.classList.add('active');
-  results.classList.remove('show');
-
   const NIVEL_LABELS = { facil: 'Fácil', medio: 'Medio', dificil: 'Difícil', guanaco: '100% Guanaco' };
   levelBadge.textContent = NIVEL_LABELS[nivelSeleccionado];
   levelBadge.className = `quiz-level-badge ${nivelSeleccionado}`;
 
-  // ANIMACIÓN GSAP
-  if (typeof gsap !== 'undefined') {
-    gsap.fromTo('.quiz-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' });
-  }
+  const activar = () => {
+    quizSetup.style.display = 'none';
+    quizZone.classList.add('active');
+    results.classList.remove('show');
+    mostrarPregunta();
+    alinearVista();
+  };
 
-  mostrarPregunta();
+  if (typeof gsap !== 'undefined') {
+    gsap.to(quizSetup, {
+      opacity: 0, y: -15, duration: 0.35, ease: 'power2.in',
+      onComplete: activar
+    });
+  } else {
+    activar();
+  }
 });
 
 function mostrarPregunta() {
@@ -348,7 +528,7 @@ function mostrarPregunta() {
 
   const CAT_LABELS = {
     historia: 'Historia', gastronomia: 'Gastronomía',
-    sitios: 'Sitios Culturales', leyendas: 'Leyendas', eventos: 'Eventos'
+    sitios: 'Sitios Culturales', leyendas: 'Leyendas'
   };
   qCategory.textContent = CAT_LABELS[q.cat] || q.cat;
   qText.textContent = q.pregunta;
@@ -357,23 +537,26 @@ function mostrarPregunta() {
   const indices = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
   const correctaMezclada = indices.indexOf(q.correcta);
 
-  // ANIMACIÓN GSAP para opciones
-  if (typeof gsap !== 'undefined') {
-    gsap.set('.quiz-option', { opacity: 0, x: -20 });
-  }
-
   indices.forEach((origIdx, newIdx) => {
     const btn = document.createElement('button');
     btn.className = 'quiz-option';
     btn.textContent = q.opciones[origIdx];
     btn.addEventListener('click', () => seleccionar(btn, newIdx, correctaMezclada, q));
     optionsDiv.appendChild(btn);
-
-    // Animar entrada
-    if (typeof gsap !== 'undefined') {
-      gsap.to(btn, { opacity: 1, x: 0, duration: 0.4, delay: newIdx * 0.05, ease: 'power2.out' });
-    }
   });
+
+  // ANIMACIÓN GSAP: entrada de la tarjeta y de las opciones en cascada
+  if (typeof gsap !== 'undefined') {
+    gsap.set([quizCardEl, optionsDiv, feedback], { opacity: 1, y: 0 });
+    gsap.fromTo(quizCardEl,
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+    );
+    gsap.set(optionsDiv.children, { opacity: 0, y: 14 });
+    gsap.to(optionsDiv.children, {
+      opacity: 1, y: 0, duration: 0.4, stagger: 0.07, delay: 0.12, ease: 'power2.out'
+    });
+  }
 }
 
 function seleccionar(btn, newIdx, correctaMezclada, q) {
@@ -385,25 +568,24 @@ function seleccionar(btn, newIdx, correctaMezclada, q) {
 
   const esCorrecta = newIdx === correctaMezclada;
 
-  // ANIMACIÓN GSAP para respuesta
-  if (typeof gsap !== 'undefined') {
-    if (esCorrecta) {
-      gsap.to(btn, { scale: 1.05, duration: 0.3, ease: 'back.out' });
-    } else {
-      gsap.to(btn, { x: -10, duration: 0.1, yoyo: true, repeat: 3 });
-    }
+  // ANIMACIÓN GSAP para el acierto (el error ya se anima por CSS con .wrong)
+  if (typeof gsap !== 'undefined' && esCorrecta) {
+    gsap.fromTo(btn, { scale: 1 }, {
+      scale: 1.04, duration: 0.3, ease: 'back.out(2)',
+      onComplete: () => gsap.set(btn, { clearProps: 'transform' })
+    });
   }
 
   if (esCorrecta) {
     btn.classList.add('correct');
     puntaje += nivelPuntos();
     feedback.className = 'quiz-feedback show correct-fb';
-    feedback.innerHTML = `<strong>✓ Correcto — +${nivelPuntos()} puntos</strong><p>${q.explicacion}</p>`;
+    feedback.innerHTML = `<strong>Correcto — +${nivelPuntos()} puntos</strong><p>${q.explicacion}</p>`;
   } else {
     btn.classList.add('wrong');
     opts[correctaMezclada].classList.add('correct');
     feedback.className = 'quiz-feedback show wrong-fb';
-    feedback.innerHTML = `<strong>✗ Incorrecto</strong><p>${q.explicacion}</p>`;
+    feedback.innerHTML = `<strong>Incorrecto</strong><p>${q.explicacion}</p>`;
   }
 
   scoreLive.textContent = `Puntos: ${puntaje}`;
@@ -416,8 +598,20 @@ function nivelPuntos() {
 }
 
 nextBtn.addEventListener('click', () => {
-  indice++;
-  indice < preguntasActivas.length ? mostrarPregunta() : mostrarResultados();
+  const avanzar = () => {
+    indice++;
+    indice < preguntasActivas.length ? mostrarPregunta() : mostrarResultados();
+    alinearVista();
+  };
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to([quizCardEl, optionsDiv, feedback], {
+      opacity: 0, y: -12, duration: 0.25, ease: 'power1.in',
+      onComplete: avanzar
+    });
+  } else {
+    avanzar();
+  }
 });
 
 function mostrarResultados() {
@@ -435,28 +629,99 @@ function mostrarResultados() {
   guardarPuntaje(nivelSeleccionado, categoriaSeleccionada, puntaje, maximo);
 
   const MENSAJES = [
-    { min: 100, titulo: '🎯 Perfecto', msg: 'Dominio absoluto de las Raíces SV. Eres un referente de la cultura salvadoreña.' },
-    { min: 80, titulo: '⭐ Excelente', msg: 'Conoces muy bien la cultura de El Salvador. Estás al nivel de un guanaco de corazón.' },
-    { min: 60, titulo: '👍 Buen trabajo', msg: 'Buen conocimiento de las Raíces SV. Repasa para mejorar tu desempeño.' },
-    { min: 40, titulo: '📚 Sigue aprendiendo', msg: 'Hay mucho por descubrir. Explora las secciones informativas y reinten.' },
-    { min: 0, titulo: '🌱 Comenzando', msg: 'El Salvador tiene una cultura riquísima. Explora y vuelve a intentarlo.' }
+    { min: 100, titulo: 'Perfecto', msg: 'Dominio absoluto de las Raíces SV. Eres un referente de la cultura salvadoreña.' },
+    { min: 80, titulo: 'Excelente', msg: 'Conoces muy bien la cultura de El Salvador. Estás al nivel de un guanaco de corazón.' },
+    { min: 60, titulo: 'Buen trabajo', msg: 'Buen conocimiento de las Raíces SV. Repasa para mejorar tu desempeño.' },
+    { min: 40, titulo: 'Sigue aprendiendo', msg: 'Hay mucho por descubrir. Explora las secciones informativas y vuelve a intentarlo.' },
+    { min: 0, titulo: 'Comenzando', msg: 'El Salvador tiene una cultura riquísima. Explora y vuelve a intentarlo.' }
   ];
 
   const { titulo, msg } = MENSAJES.find(m => porcentaje >= m.min);
 
+  const resultsScoreEl = document.getElementById('resultsScore');
+
   document.getElementById('resultsRank').textContent = `Nivel — ${levelBadge.textContent}`;
   document.getElementById('resultsTitle').textContent = titulo;
-  document.getElementById('resultsScore').textContent = `${puntaje} / ${maximo} pts`;
   document.getElementById('resultsMessage').textContent = msg;
 
   const pctFill = document.getElementById('resultsPctFill');
   results.classList.add('show');
-  
-  // ANIMACIÓN GSAP para barra de porcentaje
+
   if (typeof gsap !== 'undefined') {
-    gsap.fromTo(pctFill, { width: '0%' }, { width: porcentaje + '%', duration: 1.5, ease: 'power2.out' });
-    gsap.fromTo(results, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out' });
+    resultsScoreEl.textContent = `0 / ${maximo} pts`;
+
+    gsap.fromTo(results,
+      { opacity: 0, scale: 0.9, y: 20 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.5)' }
+    );
+
+    // Revelado en cascada de los elementos de resultado
+    gsap.fromTo(
+      ['#resultsRank', '#resultsTitle', '#resultsScore', '.quiz-results__pct-bar', '#resultsMessage', '.quiz-results__actions'],
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.45, stagger: 0.1, delay: 0.15, ease: 'power2.out' }
+    );
+
+    // Barra de porcentaje
+    gsap.fromTo(pctFill, { width: '0%' }, { width: porcentaje + '%', duration: 1.4, delay: 0.35, ease: 'power2.out' });
+
+    // Contador de puntaje animado
+    const contador = { val: 0 };
+    gsap.to(contador, {
+      val: puntaje,
+      duration: 1.3,
+      delay: 0.3,
+      ease: 'power1.out',
+      onUpdate: () => { resultsScoreEl.textContent = `${Math.round(contador.val)} / ${maximo} pts`; },
+      onComplete: () => { resultsScoreEl.textContent = `${puntaje} / ${maximo} pts`; }
+    });
+
+    // Confeti para buenos resultados
+    if (porcentaje >= 60) {
+      setTimeout(lanzarConfeti, 200);
+    }
+  } else {
+    resultsScoreEl.textContent = `${puntaje} / ${maximo} pts`;
+    pctFill.style.width = porcentaje + '%';
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CONFETI DE CELEBRACIÓN (solo cuando el resultado es bueno)
+   ══════════════════════════════════════════════════════════ */
+function lanzarConfeti() {
+  if (typeof gsap === 'undefined') return;
+
+  const colores = ['#be8e56', '#d4af37', '#e5eaff', '#10b981', '#ffffff'];
+  const contenedor = document.createElement('div');
+  contenedor.className = 'confetti-container';
+  document.body.appendChild(contenedor);
+
+  const totalPiezas = 46;
+  for (let i = 0; i < totalPiezas; i++) {
+    const pieza = document.createElement('div');
+    pieza.className = 'confetti-piece';
+    pieza.style.background = colores[Math.floor(Math.random() * colores.length)];
+    pieza.style.left = `${Math.random() * 100}vw`;
+    const tam = 6 + Math.random() * 6;
+    pieza.style.width = `${tam}px`;
+    pieza.style.height = `${tam * 0.4}px`;
+    contenedor.appendChild(pieza);
+
+    gsap.set(pieza, { y: -20, opacity: 1, rotation: Math.random() * 360 });
+    gsap.to(pieza, {
+      y: '100vh',
+      x: (Math.random() - 0.5) * 220,
+      rotation: `+=${360 + Math.random() * 360}`,
+      opacity: 0,
+      duration: 2 + Math.random() * 1.5,
+      delay: Math.random() * 0.35,
+      ease: 'power1.in',
+      onComplete: () => pieza.remove()
+    });
+  }
+
+  setTimeout(() => contenedor.remove(), 4200);
 }
 
 retryBtn.addEventListener('click', () => {
