@@ -408,14 +408,74 @@ const results      = document.getElementById('quizResults');
 const retryBtn     = document.getElementById('retryBtn');
 const levelBadge   = document.getElementById('levelBadge');
 const quizCardEl   = document.getElementById('quizCard');
+const quizBackdrop = document.getElementById('quizBackdrop');
+const closeQuizBtn = document.getElementById('closeQuizBtn');
+const quizConfirmOverlay = document.getElementById('quizConfirmOverlay');
+const confirmExitBtn = document.getElementById('confirmExitBtn');
+const cancelExitBtn  = document.getElementById('cancelExitBtn');
 
-// Mantiene siempre visible el inicio de la zona de juego, sin que haya
-// que bajar para ver la pregunta, el feedback o el botón de siguiente.
-function alinearVista() {
-  requestAnimationFrame(() => {
-    quizZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+/* ══════════════════════════════════════════════════════════
+   MODAL DEL QUIZ: abrir, cerrar y confirmar salida
+   ══════════════════════════════════════════════════════════ */
+
+function abrirModalQuiz() {
+  quizBackdrop.classList.add('show');
+  quizZone.classList.add('active');
+  document.body.classList.add('quiz-modal-open');
+}
+
+function cerrarModalQuiz() {
+  const limpiar = () => {
+    quizZone.classList.remove('active');
+    quizBackdrop.classList.remove('show');
+    document.body.classList.remove('quiz-modal-open');
+
+    // Restaurar visibilidad de elementos por si veníamos de la pantalla de resultados
+    document.getElementById('quizCard').style.display = '';
+    optionsDiv.style.display = '';
+    feedback.style.display = '';
+    nextBtn.style.display = '';
+    results.classList.remove('show');
+
+    quizSetup.style.display = 'block';
+  };
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to(quizZone, { opacity: 0, scale: 0.95, duration: 0.25, ease: 'power1.in' });
+    gsap.to(quizBackdrop, { opacity: 0, duration: 0.25, onComplete: () => {
+      gsap.set(quizZone, { clearProps: 'opacity,scale' });
+      limpiar();
+    }});
+  } else {
+    limpiar();
+  }
+}
+
+if (closeQuizBtn) {
+  closeQuizBtn.addEventListener('click', () => {
+    quizConfirmOverlay.classList.add('show');
   });
 }
+
+if (cancelExitBtn) {
+  cancelExitBtn.addEventListener('click', () => {
+    quizConfirmOverlay.classList.remove('show');
+  });
+}
+
+if (confirmExitBtn) {
+  confirmExitBtn.addEventListener('click', () => {
+    quizConfirmOverlay.classList.remove('show');
+    cerrarModalQuiz();
+  });
+}
+
+// Tecla Escape también pide confirmación para salir
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && quizZone.classList.contains('active')) {
+    quizConfirmOverlay.classList.add('show');
+  }
+});
 
 /* ══════════════════════════════════════════════════════════
    EVENT LISTENERS Y LÓGICA
@@ -498,10 +558,9 @@ startBtn.addEventListener('click', () => {
 
   const activar = () => {
     quizSetup.style.display = 'none';
-    quizZone.classList.add('active');
+    abrirModalQuiz();
     results.classList.remove('show');
     mostrarPregunta();
-    alinearVista();
   };
 
   if (typeof gsap !== 'undefined') {
@@ -601,7 +660,6 @@ nextBtn.addEventListener('click', () => {
   const avanzar = () => {
     indice++;
     indice < preguntasActivas.length ? mostrarPregunta() : mostrarResultados();
-    alinearVista();
   };
 
   if (typeof gsap !== 'undefined') {
@@ -733,6 +791,8 @@ retryBtn.addEventListener('click', () => {
 
   quizSetup.style.display = '';
   quizZone.classList.remove('active');
+  quizBackdrop.classList.remove('show');
+  document.body.classList.remove('quiz-modal-open');
 
   // Mostrar bienvenida de nuevo
   if (quizWelcome) {

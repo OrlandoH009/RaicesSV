@@ -130,8 +130,13 @@
 
     </div>
 
-    <!-- ══ ZONA DE JUEGO ══ -->
+    <!-- ══ FONDO OSCURO DEL MODAL ══ -->
+    <div class="quiz-backdrop" id="quizBackdrop"></div>
+
+    <!-- ══ ZONA DE JUEGO (VENTANA FLOTANTE) ══ -->
     <div class="quiz-zone" id="quizZone">
+
+      <button class="quiz-close-btn" id="closeQuizBtn" aria-label="Cerrar quiz">&times;</button>
 
       <!-- Cabecera: nivel + barra de progreso -->
       <div class="quiz-header">
@@ -173,6 +178,18 @@
         <div class="quiz-results__actions">
           <button class="btn-retry" id="retryBtn">Jugar de nuevo</button>
           <a href="../views/index.html" class="btn-explore">Volver al Inicio</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONFIRMACIÓN DE SALIDA ══ -->
+    <div class="quiz-confirm-overlay" id="quizConfirmOverlay">
+      <div class="quiz-confirm-box">
+        <p class="quiz-confirm-title">¿Seguro que deseas salir?</p>
+        <p class="quiz-confirm-text">Perderás el progreso de esta partida.</p>
+        <div class="quiz-confirm-actions">
+          <button class="btn-cancel-exit" id="cancelExitBtn">Seguir jugando</button>
+          <button class="btn-confirm-exit" id="confirmExitBtn">Sí, salir</button>
         </div>
       </div>
     </div>
