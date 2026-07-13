@@ -365,108 +365,109 @@
 }
 
 
-/* ── Grid de cards — Flex centrado para 5 elementos ── */
+/* ══════════════════════════════════
+   CATEGORÍAS — Bento grid
+   1 tarjeta grande (Sitios Culturales) + 4 tarjetas
+   pequeñas alrededor. Imagen de fondo + degradado +
+   etiqueta y botón anclados abajo a la izquierda.
+   ══════════════════════════════════ */
 .home-grid {
   position: relative;
   padding: 2rem 2rem 3rem;
   background: var(--black);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5rem;
-  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  grid-template-rows: repeat(2, 220px);
+  gap: 14px;
+  max-width: 1100px;
   margin: 0 auto;
-  overflow: hidden;
 }
 .home-grid .home-card { position: relative; z-index: 1; }
 
 .home-card {
   position: relative;
-  /* Exactamente 3 por fila: (1200 - 2*2rem - 2*1.5rem) / 3 ≈ 370px */
-  flex: 0 0 calc(33.333% - 1rem);
-  min-width: 220px;
-  height: 360px;
   border-radius: var(--r-sm);
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: transform .3s, box-shadow .3s;
   background: var(--black);
 }
 .home-card:hover {
-  transform: scale(1.018);
-  box-shadow: 0 14px 35px rgba(0,0,0,.7);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 35px rgba(0,0,0,.6);
 }
+
+/* La primera tarjeta (Sitios Culturales) ocupa 2 filas a la izquierda */
+.home-card:nth-of-type(1) { grid-column: 1; grid-row: 1 / span 2; }
+.home-card:nth-of-type(2) { grid-column: 2; grid-row: 1; }
+.home-card:nth-of-type(3) { grid-column: 3; grid-row: 1; }
+.home-card:nth-of-type(4) { grid-column: 2; grid-row: 2; }
+.home-card:nth-of-type(5) { grid-column: 3; grid-row: 2; }
+
 .home-card img {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
-  opacity: .6;
-  transition: opacity .35s ease, filter .35s ease;
+  opacity: 1;
+  transition: transform .4s ease;
   z-index: 0;
 }
-.home-card:hover img { opacity: .3; filter: blur(4px); }
+.home-card:hover img { transform: scale(1.05); }
 .home-card__grad {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.15) 50%, transparent 75%);
   z-index: 1;
-  transition: opacity .35s ease;
 }
-.home-card:hover .home-card__grad { opacity: 0.4; }
 .home-card__label {
   position: absolute;
+  left: 1.3rem;
+  bottom: 3.6rem;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.15rem, 2vw, 1.75rem);
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
   color: var(--white);
-  text-align: center;
-  text-shadow: 0 6px 4px rgba(0,0,0,.25);
-  white-space: nowrap;
+  text-align: left;
+  text-shadow: 0 4px 10px rgba(0,0,0,.4);
+  white-space: normal;
   pointer-events: none;
   z-index: 3;
-  transition: transform .3s ease, opacity .35s ease, filter .35s ease;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
+  top: auto;
+  transform: none;
 }
-.home-card:hover .home-card__label { opacity: 0.5; filter: blur(2px); }
+.home-card:nth-of-type(1) .home-card__label { font-size: clamp(1.5rem, 2.6vw, 2.1rem); bottom: 4.4rem; }
 
-/* Botón dentro de las cards */
+/* Botón anclado abajo, siempre visible (no oculto hasta hover) */
 .home-card__btn {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%) scale(0.85);
-  background: var(--gold);
-  color: var(--white);
+  left: 1.3rem;
+  bottom: 1.2rem;
+  top: auto;
+  transform: none;
+  background: none;
+  color: var(--gold);
   border: none;
-  border-radius: var(--r-lg);
-  padding: 0.85rem 2.4rem;
-  font-family: var(--font-display);
+  border-radius: 0;
+  padding: 0;
+  font-family: var(--font-body);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: .88rem;
+  letter-spacing: .03em;
   cursor: pointer;
-  z-index: 5;
-  transition: all .35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  opacity: 0;
-  pointer-events: none;
-  box-shadow: 0 8px 20px rgba(0,0,0,.25);
-}
-.home-card:hover .home-card__btn {
+  z-index: 3;
   opacity: 1;
-  transform: translateX(-50%) translateY(-50%) scale(1);
   pointer-events: auto;
+  box-shadow: none;
+  transition: transform .2s ease;
 }
-.home-card__btn:hover {
-  background: var(--gold-hover);
-  transform: translateX(-50%) translateY(-50%) scale(1.05);
-  box-shadow: 0 12px 30px rgba(0,0,0,.4);
+.home-card__btn::after {
+  content: '→';
+  margin-left: .35rem;
+  transition: margin-left .2s ease;
 }
+.home-card:hover .home-card__btn::after { margin-left: .65rem; }
 
 /* Sección CTA final */
 .home-cta-final {
@@ -489,18 +490,35 @@
   justify-content: center;
 }
 
-/* ── Responsive ── */
+/* ── Responsive del bento grid ── */
 @media (max-width: 900px) {
-  .home-card {
-    flex: 0 0 calc(50% - 0.75rem);
-    height: 300px;
+  .home-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 240px repeat(2, 180px);
   }
+  .home-card:nth-of-type(1) { grid-column: 1 / span 2; grid-row: 1; }
+  .home-card:nth-of-type(2) { grid-column: 1; grid-row: 2; }
+  .home-card:nth-of-type(3) { grid-column: 2; grid-row: 2; }
+  .home-card:nth-of-type(4) { grid-column: 1; grid-row: 3; }
+  .home-card:nth-of-type(5) { grid-column: 2; grid-row: 3; }
 }
 @media (max-width: 580px) {
-  .home-card {
-    flex: 0 0 100%;
-    height: 260px;
+  .home-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px repeat(4, 170px);
+    gap: 10px;
   }
+  .home-card:nth-of-type(1),
+  .home-card:nth-of-type(2),
+  .home-card:nth-of-type(3),
+  .home-card:nth-of-type(4),
+  .home-card:nth-of-type(5) { grid-column: 1; }
+  .home-card:nth-of-type(1) { grid-row: 1; }
+  .home-card:nth-of-type(2) { grid-row: 2; }
+  .home-card:nth-of-type(3) { grid-row: 3; }
+  .home-card:nth-of-type(4) { grid-row: 4; }
+  .home-card:nth-of-type(5) { grid-row: 5; }
+
   .hero__title { white-space: normal; }
   .about__card { padding: 2rem 1.5rem; }
   .info-badge__inner { padding: 1rem 1.5rem; }
