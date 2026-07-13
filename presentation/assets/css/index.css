@@ -340,7 +340,7 @@
 
 /* ── Badge "Información para ti" ── */
 .info-badge {
-  padding: 3rem 2rem 2rem;
+  padding: 1.5rem 2rem 2rem;
   background: var(--black);
   display: flex;
   justify-content: center;
