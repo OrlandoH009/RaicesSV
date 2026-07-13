@@ -5,9 +5,9 @@
 
 /* ── Tokens ── */
 :root {
-  --añil:       #2b5f8a;
-  --añil-deep:  #214b6f;
-  --añil-light: #4a7da2;
+  --añil:       #113068;
+  --añil-deep:  #0a1d42;
+  --añil-light: #1b4a94;
   --tierra:     #b4632f;
   --tierra-lt:  #c97a45;
   --oro:        #c89a3b;
@@ -35,6 +35,35 @@ body {
   background: linear-gradient(135deg, #1a1510 0%, #2a241d 50%, #1f1a14 100%);
   color: var(--crema); /* Actualizado para contraste en fondo oscuro */
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── Fondo animado sutil: aurora navy/dorada que se desplaza detrás de todo el contenido ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 25%, rgba(17, 48, 104, .35), transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(200, 154, 59, .12), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(17, 48, 104, .28), transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(10, 29, 66, .3), transparent 45%);
+  background-repeat: no-repeat;
+  animation: auroraDrift 22s ease-in-out infinite alternate;
+  filter: blur(10px);
+}
+
+@keyframes auroraDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-3%, 2%) scale(1.08); }
+  100% { transform: translate(2%, -3%) scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
 }
 
 
@@ -247,12 +276,12 @@ section {
   color: var(--white);
   font-weight: 600;
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(43, 95, 138, 0.4);
+  box-shadow: 0 0 15px rgba(17, 48, 104, 0.4);
   animation: pulse-active 2s infinite alternate;
 }
 
 @keyframes pulse-active {
-  0% { box-shadow: 0 0 12px rgba(43, 95, 138, 0.4); }
+  0% { box-shadow: 0 0 12px rgba(17, 48, 104, 0.4); }
   100% { box-shadow: 0 0 20px rgba(74, 125, 162, 0.7); }
 }
 
@@ -268,7 +297,7 @@ section {
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, rgba(43, 95, 138, 0.18) 0%, rgba(27, 22, 18, 0.85) 100%);
+  background: linear-gradient(135deg, rgba(17, 48, 104, 0.18) 0%, rgba(27, 22, 18, 0.85) 100%);
   border: 1px solid rgba(200, 154, 59, 0.35);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   transition: transform .3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow .3s ease, border-color .3s ease;
@@ -399,7 +428,7 @@ section {
 
 .cal-day.has-event {
   cursor: pointer;
-  background: linear-gradient(135deg, rgba(43, 95, 138, 0.15) 0%, rgba(27, 22, 18, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(17, 48, 104, 0.15) 0%, rgba(27, 22, 18, 0.8) 100%);
 }
 
 .cal-day.has-event::before {
@@ -412,7 +441,7 @@ section {
 }
 
 .cal-day.has-event:hover {
-  background: linear-gradient(135deg, rgba(43, 95, 138, 0.3) 0%, rgba(180, 99, 47, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(17, 48, 104, 0.3) 0%, rgba(180, 99, 47, 0.2) 100%);
   transform: scale(1.03);
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
   z-index: 5;
@@ -481,7 +510,7 @@ section {
    FILTRO
 ════════════════════════════════════════ */
 .filter-section {
-  background: linear-gradient(180deg, var(--añil-deep) 0%, rgba(42,81,133,.95) 100%);
+  background: linear-gradient(180deg, var(--añil-deep) 0%, rgba(10,29,66,.95) 100%);
   border-radius: calc(var(--radius) * 1.2);
   padding: 1.75rem;
   margin: 2rem 0 0;
@@ -736,7 +765,7 @@ section {
 }
 
 .badge-dept {
-  background: rgba(43, 95, 138, 0.2);
+  background: rgba(17, 48, 104, 0.2);
   color: var(--añil-light);
 }
 
@@ -1025,6 +1054,17 @@ section {
 .fest-card:nth-child(4) { animation-delay: 0.2s; }
 .fest-card:nth-child(5) { animation-delay: 0.25s; }
 .fest-card:nth-child(6) { animation-delay: 0.3s; }
+
+/* ── Resaltado al regresar desde el mapa a la tarjeta que se estaba viendo ── */
+.fest-card--highlight {
+  animation: cardReturnHighlight 1.8s ease;
+}
+
+@keyframes cardReturnHighlight {
+  0%   { box-shadow: 0 0 0 3px rgba(200,154,59,.9), var(--shadow-md); transform: translateY(-3px); }
+  60%  { box-shadow: 0 0 0 3px rgba(200,154,59,.5), var(--shadow-md); }
+  100% { box-shadow: var(--shadow-sm); transform: translateY(0); }
+}
 
 @keyframes cardFadeIn {
   to {
