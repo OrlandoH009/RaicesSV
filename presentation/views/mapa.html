@@ -63,8 +63,47 @@
 
   <main>
     <!-- MAPA (cubre toda la pantalla debajo de la nav, sin recuadro) -->
-    <section class="mapa-section reveal" style="transition-delay:.1s">
+    <section class="mapa-section reveal" style="transition-delay:.1s" id="mapaSection">
       <div id="mapa-leaflet"></div>
+
+      <!-- SIDEBAR IZQUIERDA ESTILO GOOGLE MAPS -->
+      <aside class="mapa-sidebar" id="mapaSidebar" aria-hidden="true">
+        <button class="mapa-sidebar__close" id="sidebarClose" type="button" aria-label="Cerrar información">
+          <svg viewBox="0 0 24 24"><path d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7A1 1 0 0 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.4z"/></svg>
+        </button>
+        <div class="mapa-sidebar__hero">
+          <div class="mapa-sidebar__image" id="sbImageWrap">
+            <img id="sbImage" src="" alt="" />
+            <span class="mapa-sidebar__emoji-badge" id="sbEmojiBadge"></span>
+          </div>
+          <p class="mapa-sidebar__cat" id="sbCat"></p>
+          <h2 class="mapa-sidebar__title" id="sbTitle"></h2>
+          <p class="mapa-sidebar__place">📍 <span id="sbPlace"></span></p>
+        </div>
+        <div class="mapa-sidebar__body">
+          <div class="mapa-sidebar__divider"></div>
+          <p class="mapa-sidebar__section-label">Descripción</p>
+          <p class="mapa-sidebar__desc" id="sbDesc"></p>
+          <p class="mapa-sidebar__section-label">Detalles</p>
+          <div class="mapa-sidebar__chips" id="sbChips"></div>
+          <div class="mapa-sidebar__actions">
+            <button class="mapa-sidebar__btn primary" id="sbDirections" type="button">
+              <svg viewBox="0 0 24 24"><path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5z"/></svg>
+              Cómo llegar
+            </button>
+            <button class="mapa-sidebar__btn" id="sbCenter" type="button">
+              <svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.94 3H23v2h-2.06A9.005 9.005 0 0 1 13 20.94V23h-2v-2.06A9.005 9.005 0 0 1 3.06 13H1v-2h2.06A9.005 9.005 0 0 1 11 3.06V1h2v2.06A9.005 9.005 0 0 1 20.94 11zM12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/></svg>
+              Centrar
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- BOTÓN VOLVER (solo aparece si se llegó desde otra página con estado, ej. Calendario) -->
+      <button class="mapa-back-btn" id="mapaBackBtn" type="button" style="display:none;">
+        <span id="mapaBackBtnLabel">Volver</span>
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+      </button>
 
       <!-- FILTROS FLOTANTES SOBRE EL MAPA -->
       <div class="mapa-filters-float" id="mapaFiltersFloat">
@@ -568,9 +607,9 @@
       return L.divIcon({
         className: '',
         html: `<div class="custom-marker" style="background:${color};">${emoji}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -18]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -14]
       });
     }
 
@@ -590,29 +629,147 @@
       leyenda:    'Leyenda'
     };
 
-    /* ── Renderizar popups y markers ── */
+    /* ══════════════════════════════════════════════════════════
+       IMAGEN DE REFERENCIA POR LUGAR
+       ══════════════════════════════════════════════════════════
+       Si el landmark trae "img" se usa esa URL; si no, se genera
+       una imagen de relleno consistente (misma por id) mientras
+       se agregan las fotos reales.
+       ══════════════════════════════════════════════════════════ */
+    function getImgUrl(lm) {
+      return lm.img || `https://picsum.photos/seed/raicessv-${lm.id}/500/320`;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SIDEBAR ESTILO GOOGLE MAPS
+       ══════════════════════════════════════════════════════════ */
+    const mapaSection   = document.getElementById('mapaSection');
+    const mapaSidebar   = document.getElementById('mapaSidebar');
+    const sidebarClose  = document.getElementById('sidebarClose');
+    const sbImage       = document.getElementById('sbImage');
+    const sbEmojiBadge  = document.getElementById('sbEmojiBadge');
+    const sbCat         = document.getElementById('sbCat');
+    const sbTitle       = document.getElementById('sbTitle');
+    const sbPlace       = document.getElementById('sbPlace');
+    const sbDesc        = document.getElementById('sbDesc');
+    const sbChips       = document.getElementById('sbChips');
+    const sbDirections  = document.getElementById('sbDirections');
+    const sbCenter      = document.getElementById('sbCenter');
+
+    let activeMarker = null;
+    let activeLandmark = null;
+
+    function abrirSidebar(lm, marker) {
+      sbImage.src = getImgUrl(lm);
+      sbImage.alt = lm.nombre;
+      sbEmojiBadge.textContent = lm.emoji;
+      sbEmojiBadge.style.background = lm.color;
+      sbCat.textContent = `${lm.emoji} ${CAT_LABELS[lm.cat]}`;
+      sbCat.style.color = CAT_COLORS[lm.cat];
+      sbTitle.textContent = lm.nombre;
+      sbPlace.textContent = lm.lugar;
+      sbDesc.textContent = lm.desc;
+      sbChips.innerHTML = lm.chips.map(c => `<span class="popup-chip">${c}</span>`).join('');
+
+      if (activeMarker && activeMarker !== marker) {
+        activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+      }
+      activeMarker = marker;
+      activeLandmark = lm;
+      marker._icon?.querySelector('.custom-marker')?.classList.add('custom-marker--active');
+
+      mapaSidebar.classList.add('open');
+      mapaSidebar.setAttribute('aria-hidden', 'false');
+      mapaSection.classList.add('sidebar-open');
+
+      setTimeout(() => mapa.invalidateSize(), 380);
+    }
+
+    function cerrarSidebar() {
+      mapaSidebar.classList.remove('open');
+      mapaSidebar.setAttribute('aria-hidden', 'true');
+      mapaSection.classList.remove('sidebar-open');
+      if (activeMarker) {
+        activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+      }
+      activeMarker = null;
+      activeLandmark = null;
+      setTimeout(() => mapa.invalidateSize(), 380);
+    }
+
+    sidebarClose.addEventListener('click', cerrarSidebar);
+
+    sbCenter.addEventListener('click', () => {
+      if (activeLandmark) mapa.setView(activeLandmark.coords, 14, { animate: true });
+    });
+
+    sbDirections.addEventListener('click', () => {
+      if (!activeLandmark) return;
+      const [lat, lng] = activeLandmark.coords;
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    });
+
+    /* ── Renderizar markers (info se muestra en la sidebar, sin popup) ── */
     const markers = [];
 
     LANDMARKS.forEach(lm => {
-      const icono   = crearIcono(lm.emoji, lm.color);
-      const chipsHtml = lm.chips.map(c => `<span class="popup-chip">${c}</span>`).join('');
-      const popupContent = `
-        <div class="popup-inner">
-          <p class="popup-cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${CAT_LABELS[lm.cat]}</p>
-          <h3 class="popup-title">${lm.nombre}</h3>
-          <p class="popup-desc">${lm.desc}</p>
-          <div>${chipsHtml}</div>
-          <p style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:.6rem;font-family:'Lato',sans-serif;">📍 ${lm.lugar}</p>
-        </div>`;
+      const icono = crearIcono(lm.emoji, lm.color);
 
-      const marker = L.marker(lm.coords, { icon: icono })
-        .bindPopup(popupContent, { maxWidth: 280, minWidth: 220 })
-        .addTo(mapa);
+      const marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
 
       marker._landmarkCat = lm.cat;
       marker._landmarkId  = lm.id;
+
+      /* ── Tooltip hover: nombre + imagen de referencia ── */
+      marker.bindTooltip(
+        `<div class="marker-tooltip">
+           <img src="${getImgUrl(lm)}" alt="${lm.nombre}" loading="lazy" />
+           <div class="marker-tooltip__info">
+             <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${CAT_LABELS[lm.cat]}</span>
+             <span class="marker-tooltip__name">${lm.nombre}</span>
+           </div>
+         </div>`,
+        { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
+      );
+
+      marker.on('click', () => abrirSidebar(lm, marker));
+
       markers.push(marker);
     });
+
+    /* ══════════════════════════════════════════════════════════
+       BOTÓN "VOLVER" — regresa a la página de origen
+       (ej. Calendario) llegada vía ?from=calendario.html.
+       El estado que se estaba navegando allí (filtros, vista,
+       tarjeta abierta, scroll) lo restaura esa misma página
+       leyendo su propio sessionStorage al cargar.
+       ══════════════════════════════════════════════════════════ */
+    (function configurarBotonVolver() {
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from');
+      const backBtn = document.getElementById('mapaBackBtn');
+      const backBtnLabel = document.getElementById('mapaBackBtnLabel');
+      if (!from || !backBtn) return;
+
+      // Solo permitir rutas relativas propias del sitio (evita redirecciones externas)
+      const esRutaSegura = /^[a-zA-Z0-9_\-]+\.html$/.test(from);
+      if (!esRutaSegura) return;
+
+      const etiquetas = {
+        'calendario.html': 'Volver al calendario',
+        'sitios-culturales.html': 'Volver a sitios culturales',
+        'gastronomia.html': 'Volver a gastronomía',
+        'eventos.html': 'Volver a eventos',
+        'historia.html': 'Volver a historia',
+        'leyendas.html': 'Volver a leyendas'
+      };
+      backBtnLabel.textContent = etiquetas[from] || 'Volver';
+      backBtn.style.display = 'flex';
+
+      backBtn.addEventListener('click', () => {
+        window.location.href = from;
+      });
+    })();
 
     /* ══════════════════════════════════════════════════════════
        DESTACAR LANDMARK BUSCADO (llega desde "Ver en mapa" /
@@ -635,16 +792,16 @@
             ${lm.emoji}
             <span class="marker-pulse-ring"></span>
           </div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -18]
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -14]
       });
 
       targetMarker.setIcon(iconoDestacado);
       targetMarker.setZIndexOffset(1000);
 
       mapa.setView(lm.coords, 13, { animate: true });
-      setTimeout(() => targetMarker.openPopup(), 550);
+      setTimeout(() => abrirSidebar(lm, targetMarker), 550);
     })();
 
     /* ══════════════════════════════════════════════════════════

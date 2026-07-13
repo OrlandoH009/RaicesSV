@@ -6,10 +6,12 @@
 // Variables de control de renderizado local
 let listaEventosFiltrados = [];
 let currentLimit = 6; // Límite base estricto
+let eventoActivoModalId = null; // ID del evento actualmente mostrado en el modal
 
 document.addEventListener("DOMContentLoaded", () => {
   initCatalogAndFilters();
   setupModalEvents();
+  restaurarEstadoCalendario();
 });
 
 function initCatalogAndFilters() {
@@ -130,6 +132,8 @@ function renderCatalogo(eventos) {
       card.style.animationDelay = `${(index - 6) * 0.03}s`;
     }
 
+    card.dataset.eventId = evento.id;
+
     card.innerHTML = `
       <div class="fest-card-banner"></div>
       <div class="fest-card-body">
@@ -143,7 +147,7 @@ function renderCatalogo(eventos) {
       </div>
       <div class="fest-card-footer">
         <span class="fest-location">${evento.depto}, El Salvador</span>
-        <a href="mapa.html?evento=${20 + evento.id}" class="map-link">Ver en mapa</a>
+        <a href="mapa.html?evento=${20 + evento.id}&from=calendario.html" class="map-link">Ver en mapa</a>
       </div>
     `;
 
@@ -231,9 +235,10 @@ function setupModalEvents() {
           <p class="val">${evento.desc}</p>
         </div>
       </div>
-      <a href="mapa.html?evento=${20 + evento.id}" class="modal-map-btn">Explorar en Mapa Interactivo</a>
+      <a href="mapa.html?evento=${20 + evento.id}&from=calendario.html" class="modal-map-btn">Explorar en Mapa Interactivo</a>
     `;
 
+    eventoActivoModalId = evento.id;
     modalOverlay.classList.add("open");
   };
 }
@@ -245,4 +250,109 @@ function triggerCatalogAnimation() {
     void catalogGrid.offsetWidth; 
     catalogGrid.classList.add("fade-transition");
   }
+}
+
+/**
+ * ══════════════════════════════════════════════════════════
+ * ESTADO DE RETORNO DESDE EL MAPA
+ * ══════════════════════════════════════════════════════════
+ * Antes de ir al mapa ("Ver en mapa" / "Explorar en Mapa
+ * Interactivo") guardamos en sessionStorage los filtros, la
+ * vista, el límite de tarjetas y cuál evento se estaba viendo.
+ * El botón "Volver" del mapa regresa aquí y esta misma página,
+ * al cargar, restaura esa vista exacta.
+ * ══════════════════════════════════════════════════════════
+ */
+const RAICESSV_RETURN_KEY = "raicessv_calendario_return";
+
+function guardarEstadoCalendario(eventoId) {
+  const estado = {
+    scrollY: window.scrollY,
+    filtros: {
+      dept: document.getElementById("f-dept")?.value || "",
+      month: document.getElementById("f-month")?.value || "",
+      type: document.getElementById("f-type")?.value || "",
+      search: document.getElementById("f-search")?.value || ""
+    },
+    vista: document.getElementById("catalogGrid")?.classList.contains("list-view") ? "list" : "grid",
+    limite: currentLimit,
+    eventoId: eventoId || null
+  };
+
+  try {
+    sessionStorage.setItem(RAICESSV_RETURN_KEY, JSON.stringify(estado));
+  } catch (e) {
+    /* sessionStorage no disponible; el botón volver seguirá funcionando, solo sin restaurar estado */
+  }
+}
+
+// Delegación: cualquier enlace "Ver en mapa" (catálogo) o "Explorar en Mapa Interactivo" (modal)
+document.addEventListener("click", (e) => {
+  const link = e.target.closest(".map-link, .modal-map-btn");
+  if (!link) return;
+
+  const tarjeta = link.closest(".fest-card");
+  const eventoId = tarjeta ? tarjeta.dataset.eventId : eventoActivoModalId;
+  guardarEstadoCalendario(eventoId);
+});
+
+function restaurarEstadoCalendario() {
+  let raw;
+  try {
+    raw = sessionStorage.getItem(RAICESSV_RETURN_KEY);
+  } catch (e) {
+    return;
+  }
+  if (!raw) return;
+  sessionStorage.removeItem(RAICESSV_RETURN_KEY);
+
+  let estado;
+  try {
+    estado = JSON.parse(raw);
+  } catch (e) {
+    return;
+  }
+
+  const fDept = document.getElementById("f-dept");
+  const fMonth = document.getElementById("f-month");
+  const fType = document.getElementById("f-type");
+  const fSearch = document.getElementById("f-search");
+  const catalogGrid = document.getElementById("catalogGrid");
+  const gridViewBtn = document.getElementById("gridViewBtn");
+  const listViewBtn = document.getElementById("listViewBtn");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+  if (fDept) fDept.value = estado.filtros?.dept || "";
+  if (fMonth) fMonth.value = estado.filtros?.month || "";
+  if (fType) fType.value = estado.filtros?.type || "";
+  if (fSearch) fSearch.value = estado.filtros?.search || "";
+
+  if (estado.vista === "list" && catalogGrid) {
+    catalogGrid.classList.add("list-view");
+    listViewBtn?.classList.add("active");
+    gridViewBtn?.classList.remove("active");
+  }
+
+  currentLimit = estado.limite === 30 ? 30 : 6;
+  if (loadMoreBtn) {
+    loadMoreBtn.textContent = currentLimit === 30 ? "Mostrar menos" : "Mostrar más celebraciones";
+  }
+
+  // Reaplica los filtros restaurados y vuelve a pintar el catálogo con el límite correcto
+  filtrarFestividades();
+
+  // Regresa la vista exactamente a donde estaba: a la tarjeta del evento o al scroll guardado
+  requestAnimationFrame(() => {
+    const tarjeta = estado.eventoId
+      ? document.querySelector(`.fest-card[data-event-id="${estado.eventoId}"]`)
+      : null;
+
+    if (tarjeta) {
+      tarjeta.scrollIntoView({ behavior: "smooth", block: "center" });
+      tarjeta.classList.add("fest-card--highlight");
+      setTimeout(() => tarjeta.classList.remove("fest-card--highlight"), 1800);
+    } else if (typeof estado.scrollY === "number") {
+      window.scrollTo({ top: estado.scrollY, behavior: "smooth" });
+    }
+  });
 }
