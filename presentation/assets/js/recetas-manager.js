@@ -1,10 +1,11 @@
-// Base de datos local de recetas estructuradas
+// Base de datos local de recetas estructuradas con imágenes
 const recetasData = {
   pupusas: {
     titulo: "Pupusas Revueltas",
     porciones: "4-6 personas",
     tiempo: "45 min",
     dificultad: "Media",
+    imagen: "../assets/media/recetas/Pupusas-Revueltas.webp", // Ruta a tu imagen de pupusas
     ingredientes: [
       "2 tazas de masa de maíz (o arroz)",
       "1½ tazas de agua tibia",
@@ -27,6 +28,7 @@ const recetasData = {
     porciones: "12-15 tamales",
     tiempo: "2 horas",
     dificultad: "Alta",
+    imagen: "../assets/media/recetas/tamales.webp", // Ruta a tu imagen de tamales
     ingredientes: [
       "1 libra de masa de maíz nixtamalizado",
       "1 litro de caldo de pollo concentrado",
@@ -49,6 +51,7 @@ const recetasData = {
     porciones: "6 porciones",
     tiempo: "3 horas",
     dificultad: "Alta",
+    imagen: "../assets/media/recetas/sopa-de-pata.webp", // Ruta a tu imagen de sopa de pata
     ingredientes: [
       "2 libras de pata de res limpia",
       "1 libra de tripa de res (mondongo)",
@@ -71,6 +74,7 @@ const recetasData = {
     porciones: "4 porciones",
     tiempo: "40 min",
     dificultad: "Fácil",
+    imagen: "../assets/media/recetas/yuca-frita.webp", // Ruta a tu imagen de yuca frita
     ingredientes: [
       "2 libras de yuca grande",
       "1 libra de chicharrón de cerdo crujiente",
@@ -93,6 +97,7 @@ const recetasData = {
     porciones: "5 tazas",
     tiempo: "30 min",
     dificultad: "Fácil",
+    imagen: "../assets/media/recetas/atol-de-elote.webp", // Ruta a tu imagen de atol de elote
     ingredientes: [
       "6 elotes maduros desgranados",
       "2 tazas de leche entera",
@@ -115,6 +120,7 @@ const recetasData = {
     porciones: "8 porciones",
     tiempo: "1 hora",
     dificultad: "Media",
+    imagen: "../assets/media/recetas/semita.webp", // Ruta a tu imagen de semita
     ingredientes: [
       "3 tazas de harina de trigo",
       "1 taza de manteca vegetal o mantequilla",
@@ -144,26 +150,31 @@ function renderRecipe(key) {
 
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
-      <div class="recipe-header">
-        <h2 class="recipe-title">${data.titulo}</h2>
-        <div class="recipe-meta">
-          <span><strong>Porciones:</strong> ${data.porciones}</span>
-          <span><strong>Tiempo:</strong> ${data.tiempo}</span>
-          <span><strong>Dificultad:</strong> ${data.dificultad}</span>
-        </div>
+      <div class="recipe-image-container">
+        <img src="${data.imagen}" alt="${data.titulo}" class="recipe-image" />
       </div>
-      <div class="recipe-grid">
-        <div class="recipe-section">
-          <h3>Ingredientes</h3>
-          <ul class="ingredients-list">
-            ${data.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
-          </ul>
+      <div class="recipe-content-wrapper">
+        <div class="recipe-header">
+          <h2 class="recipe-title">${data.titulo}</h2>
+          <div class="recipe-meta">
+            <span><strong>Porciones:</strong> ${data.porciones}</span>
+            <span><strong>Tiempo:</strong> ${data.tiempo}</span>
+            <span><strong>Dificultad:</strong> ${data.dificultad}</span>
+          </div>
         </div>
-        <div class="recipe-section">
-          <h3>Preparación</h3>
-          <ol class="steps-list">
-            ${data.pasos.map(paso => `<li>${paso}</li>`).join('')}
-          </ol>
+        <div class="recipe-grid">
+          <div class="recipe-section ingredients-section">
+            <h3>📋 Ingredientes</h3>
+            <ul class="ingredients-list">
+              ${data.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="recipe-section steps-section">
+            <h3>👨‍🍳 Preparación</h3>
+            <ol class="steps-list">
+              ${data.pasos.map(paso => `<li>${paso}</li>`).join('')}
+            </ol>
+          </div>
         </div>
       </div>
     </div>
@@ -175,7 +186,7 @@ function generateAndDownloadPDF() {
   const btn = document.getElementById('download-pdf-btn');
   if (!btn) return;
 
-  const originalText = btn.textContent;
+  const originalText = btn.innerHTML;
   btn.disabled = true;
   btn.textContent = '⏳ Abriendo previsualización...';
 
@@ -190,6 +201,11 @@ function generateAndDownloadPDF() {
       throw new Error('Receta no encontrada');
     }
 
+    // Convertir la imagen relativa a absoluta para que html2pdf la cargue
+    const tempImg = new Image();
+    tempImg.src = data.imagen;
+    const absoluteImgSrc = tempImg.src;
+
     // Crear HTML limpio para impresión/PDF
     const printHTML = `
 <!DOCTYPE html>
@@ -199,82 +215,101 @@ function generateAndDownloadPDF() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${data.titulo} - Raíces SV</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Lato', Arial, sans-serif;
       color: #1a1a1a;
       background: #ffffff;
-      line-height: 1.6;
-      padding: 20mm;
+      line-height: 1.5;
+      padding: 10mm;
+      font-size: 12px;
     }
 
-    .recipe-container {
-      max-width: 210mm;
-      background: white;
-      color: #1a1a1a;
+    .pdf-container {
+      max-width: 210mm; /* A4 width */
+      margin: 0 auto;
     }
 
     .recipe-header {
-      border-bottom: 4px solid #be8e56;
-      padding-bottom: 16px;
-      margin-bottom: 24px;
+      border-bottom: 3px solid #be8e56;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .recipe-title-group {
+      flex: 1;
     }
 
     .recipe-title {
       color: #113068;
-      font-size: 32px;
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 5px;
       font-family: 'Playfair Display', serif;
     }
 
     .recipe-meta {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      font-size: 14px;
-      color: #444;
+      display: flex;
+      gap: 15px;
+      font-size: 11px;
+      color: #555;
     }
 
-    .recipe-meta div strong {
+    .recipe-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .recipe-meta-item strong {
       color: #113068;
-      display: block;
-      margin-bottom: 4px;
+    }
+
+    .main-image-container {
+      width: 100%;
+      height: 180px; /* Reducido para que quepa todo */
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 2px solid #be8e56;
+    }
+
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .recipe-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 20px;
     }
 
     .recipe-section h3 {
       color: #be8e56;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      border-bottom: 2px solid #be8e56;
-      padding-bottom: 10px;
-      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .ingredients-list,
-    .steps-list {
-      padding-left: 22px;
+    .ingredients-list, .steps-list {
+      padding-left: 18px;
     }
 
-    .ingredients-list li,
-    .steps-list li {
-      margin-bottom: 10px;
-      font-size: 13px;
-      line-height: 1.6;
+    .ingredients-list li, .steps-list li {
+      margin-bottom: 5px;
+      font-size: 11px;
+      color: #333;
     }
 
     .ingredients-list li {
@@ -287,9 +322,9 @@ function generateAndDownloadPDF() {
 
     .recipe-footer {
       border-top: 1px solid #e5dccb;
-      padding-top: 14px;
-      margin-top: 24px;
-      font-size: 12px;
+      padding-top: 10px;
+      margin-top: 20px;
+      font-size: 10px;
       color: #999;
       text-align: center;
     }
@@ -300,43 +335,37 @@ function generateAndDownloadPDF() {
     }
 
     @media print {
-      body {
-        padding: 15mm;
-      }
-
-      .recipe-section {
-        page-break-inside: avoid;
-      }
-
-      .recipe-header {
-        page-break-after: avoid;
-      }
+      body { padding: 10mm; }
+      .main-image-container { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
     @page {
       size: A4;
-      margin: 15mm;
+      margin: 10mm;
     }
   </style>
 </head>
 <body>
-  <div class="recipe-container">
+  <div class="pdf-container">
     <div class="recipe-header">
-      <h1 class="recipe-title">${data.titulo}</h1>
-      <div class="recipe-meta">
-        <div>
-          <strong>👥 Porciones</strong>
-          ${data.porciones}
-        </div>
-        <div>
-          <strong>⏱️ Tiempo</strong>
-          ${data.tiempo}
-        </div>
-        <div>
-          <strong>📊 Dificultad</strong>
-          ${data.dificultad}
+      <div class="recipe-title-group">
+        <h1 class="recipe-title">${data.titulo}</h1>
+        <div class="recipe-meta">
+          <div class="recipe-meta-item">
+            <strong>👥 Porciones:</strong> ${data.porciones}
+          </div>
+          <div class="recipe-meta-item">
+            <strong>⏱️ Tiempo:</strong> ${data.tiempo}
+          </div>
+          <div class="recipe-meta-item">
+            <strong>📊 Dificultad:</strong> ${data.dificultad}
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="main-image-container">
+      <img src="${absoluteImgSrc}" alt="${data.titulo}" class="main-image" />
     </div>
 
     <div class="recipe-grid">
@@ -362,8 +391,12 @@ function generateAndDownloadPDF() {
   </div>
 
   <script>
+    // Esperar a que la imagen se cargue completamente antes de imprimir
     window.addEventListener('load', () => {
-      window.print();
+      // Un pequeño retraso adicional asegura que todo esté renderizado
+      setTimeout(() => {
+        window.print();
+      }, 500);
     });
   </script>
 </body>
@@ -371,29 +404,36 @@ function generateAndDownloadPDF() {
     `;
 
     // Abrir ventana nueva con el contenido
-    const printWindow = window.open('', '', 'width=800,height=600');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      throw new Error('No se pudo abrir la ventana de impresión. Por favor, permite los pop-ups para este sitio.');
+    }
     printWindow.document.write(printHTML);
     printWindow.document.close();
 
-    // Cuando se cierre el diálogo de impresión/descarga
+    // Cuando se cierre el diálogo de impresión/descarga (o si se cancela)
     printWindow.addEventListener('afterprint', () => {
       printWindow.close();
       btn.disabled = false;
-      btn.textContent = originalText;
+      btn.innerHTML = originalText;
     });
 
-    // Fallback si afterprint no funciona
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = originalText;
-    }, 3000);
+    // Fallback por si afterprint no funciona (algunos navegadores)
+    // Usamos focus para detectar cuando el usuario vuelve a la pestaña original
+    window.addEventListener('focus', function windowFocusHandler() {
+      if (printWindow.closed || !printWindow.document) {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        window.removeEventListener('focus', windowFocusHandler);
+      }
+    }, { once: true });
 
   } catch (error) {
     console.error('Error generando PDF:', error);
     btn.textContent = '❌ Error';
     setTimeout(() => {
       btn.disabled = false;
-      btn.textContent = originalText;
+      btn.innerHTML = originalText;
     }, 2000);
   }
 }
