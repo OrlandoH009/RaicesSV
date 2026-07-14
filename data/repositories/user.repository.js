@@ -91,6 +91,7 @@ const linkGoogleId = (id_user, googleId) => {
 };
 
 
+
 module.exports = {
     findByEmail,
     findByGoogleId,
