@@ -1,28 +1,4 @@
-:root {
-      --navy:         #113068;
-      --navy-dark:    #0f2f66;
-      --gold:         #be8e56;
-      --gold-hover:   #a87a42;
-      --cream:        #e5eaff;
-      --black:        #000000;
-      --white:        #ffffff;
-      --footer-bg:    #d9d9d9;
-      --overlay:      rgba(15,47,102,0.45);
-      --font-display: 'Playfair Display', serif;
-      --font-body:    'Lato', sans-serif;
-      --r-sm:  15px;
-      --r-md:  25px;
-      --r-lg:  35px;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html  { scroll-behavior: smooth; }
-    body  { font-family: var(--font-body); background: var(--black); color: var(--white); overflow-x: hidden; }
-    a     { text-decoration: none; color: inherit; }
-    img   { display: block; max-width: 100%; }
-    ul    { list-style: none; }
-
-    /* ════════════════════════════════════
+/* ════════════════════════════════════
        PÁGINA: MAPA CULTURAL
        ════════════════════════════════════ */
 
@@ -38,7 +14,7 @@
     }
     .page-badge__inner h1 {
       font-family: var(--font-display); font-weight: 700;
-      font-size: clamp(1.6rem, 3vw, 2.8rem); color: var(--black);
+      font-size: clamp(1.6rem, 2.5vw, 2.8rem); color: var(--black);
       text-shadow: 0 4px 4px rgba(0,0,0,.25); white-space: nowrap;
     }
 
@@ -53,30 +29,28 @@
     }
     #mapa-leaflet { width: 100%; height: 100%; }
 
-    /* ── Filtros flotando, centrados y en una sola línea ──
-       z-index alto (por encima de marker-pane/popup-pane/controles de Leaflet,
-       que llegan hasta 1000) para que nunca quede tapada al interactuar con el mapa. */
+    /* ── Filtros flotando, centrados y en una sola línea ── */
     .mapa-filters-float {
       position: absolute;
-      top: 1rem; left: 50%;
+      top: 1.25rem; left: 50%;
       transform: translateX(-50%);
       z-index: 1200;
       width: max-content;
-      max-width: calc(100% - 2.5rem);
+      max-width: min(90%, 900px); /* Evita que se deforme en monitores ultra-wide */
       display: flex; flex-wrap: nowrap; gap: .4rem;
       justify-content: center; align-items: center;
-      background: rgba(10,10,10,.55);
-      backdrop-filter: blur(10px);
+      background: rgba(10,10,10,.65);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(190,142,86,.35);
       border-radius: 50px;
-      padding: .4rem .55rem;
-      box-shadow: 0 8px 22px rgba(0,0,0,.5);
-      transition: padding .25s ease, left .35s ease, transform .35s ease;
+      padding: .45rem .6rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.6);
+      transition: padding .25s ease, left .35s cubic-bezier(.4, 0, .2, 1), transform .35s cubic-bezier(.4, 0, .2, 1);
     }
     .filters-toggle {
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      width: 26px; height: 26px;
+      width: 28px; height: 28px;
       border-radius: 50%;
       background: rgba(190,142,86,.18);
       border: 2px solid rgba(190,142,86,.4);
@@ -87,6 +61,7 @@
     .filters-toggle:hover { background: rgba(190,142,86,.3); border-color: var(--gold); }
     .filters-toggle svg { width: 13px; height: 13px; fill: currentColor; transition: transform .3s ease; }
     .mapa-filters-float.collapsed .filters-toggle svg { transform: rotate(-90deg); }
+    
     .filters-list {
       display: flex; flex-wrap: nowrap; gap: .4rem; align-items: center;
       overflow: hidden;
@@ -102,11 +77,11 @@
     }
     .filter-btn {
       display: flex; align-items: center; gap: .35rem;
-      font-family: var(--font-display); font-weight: 700; font-size: .72rem;
-      color: rgba(255,255,255,.75);
+      font-family: var(--font-display); font-weight: 700; font-size: .75rem;
+      color: rgba(255,255,255,.8);
       background: rgba(255,255,255,.07);
       border: 1.5px solid rgba(255,255,255,.15);
-      border-radius: 50px; padding: .32rem .75rem;
+      border-radius: 50px; padding: .35rem .85rem;
       white-space: nowrap;
       cursor: pointer; transition: background .2s, border-color .2s, color .2s, transform .15s;
     }
@@ -117,33 +92,35 @@
     /* ── Contador flotante (esquina inferior izquierda del mapa) ── */
     .mapa-count-float {
       position: absolute;
-      bottom: 1.25rem; left: 6rem;
+      bottom: 1.5rem; left: 2rem; /* Alineación limpia con los márgenes estándar */
       z-index: 1200;
-      background: rgba(10,10,10,.6);
-      backdrop-filter: blur(8px);
+      background: rgba(10,10,10,.65);
+      backdrop-filter: blur(10px);
       border: 1px solid rgba(190,142,86,.3);
       border-radius: 50px;
-      padding: .5rem 1.1rem;
+      padding: .55rem 1.25rem;
       font-family: var(--font-body); font-size: .85rem;
-      color: rgba(255,255,255,.75);
-      transition: left .35s ease;
+      color: rgba(255,255,255,.8);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      transition: left .35s cubic-bezier(.4, 0, .2, 1);
     }
     .mapa-count-float strong { color: var(--gold); }
 
     /* ── Info bajo el mapa (leyenda) ── */
     .mapa-info {
-      padding: 1.5rem 2rem 0;
+      padding: 2rem 2rem 0;
       background: var(--black);
-      max-width: 1200px; margin: 0 auto;
+      max-width: 1300px; /* Un poco más amplio para pantallas de escritorio amplias */
+      margin: 0 auto;
     }
 
     /* ── Leyenda ── */
     .mapa-legend {
       margin-top: 1.5rem;
-      display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+      display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;
     }
     .mapa-legend__item {
-      display: flex; align-items: center; gap: .6rem;
+      display: flex; align-items: center; gap: .7rem;
       font-family: var(--font-body); font-size: .95rem;
       color: rgba(255,255,255,.8);
     }
@@ -154,7 +131,7 @@
     .dot-historia  { background: #7c52e0; }
     .dot-leyenda   { background: #52c07c; }
 
-    .page-cta { padding: 2rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; }
+    .page-cta { padding: 2.5rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; }
 
     /* ── Leaflet popup personalizado ── */
     .leaflet-popup-content-wrapper {
@@ -164,14 +141,14 @@
       box-shadow: 0 8px 32px rgba(0,0,0,.7) !important;
       color: var(--white) !important;
       padding: 0 !important;
-      min-width: 220px;
+      min-width: 240px;
     }
     .leaflet-popup-content { margin: 0 !important; padding: 0 !important; }
     .leaflet-popup-tip { background: #0d0d0d !important; }
-    .leaflet-popup-close-button { color: rgba(255,255,255,.5) !important; font-size: 18px !important; right: 8px !important; top: 6px !important; }
+    .leaflet-popup-close-button { color: rgba(255,255,255,.5) !important; font-size: 18px !important; right: 10px !important; top: 8px !important; }
     .leaflet-popup-close-button:hover { color: var(--gold) !important; }
 
-    .popup-inner { padding: 1.1rem 1.3rem 1.2rem; }
+    .popup-inner { padding: 1.2rem 1.4rem 1.3rem; }
     .popup-cat {
       font-family: var(--font-body); font-size: .72rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .1em;
@@ -179,18 +156,18 @@
     }
     .popup-title {
       font-family: var(--font-display); font-weight: 700;
-      font-size: 1.1rem; color: var(--white);
+      font-size: 1.15rem; color: var(--white);
       margin-bottom: .4rem; line-height: 1.2;
     }
     .popup-desc {
-      font-family: var(--font-body); font-size: .85rem;
+      font-family: var(--font-body); font-size: .88rem;
       color: rgba(255,255,255,.7); line-height: 1.5; margin-bottom: .8rem;
     }
     .popup-chip {
       display: inline-block;
       background: rgba(190,142,86,.15); border: 1px solid rgba(190,142,86,.35);
       border-radius: 20px; padding: .18rem .55rem;
-      font-size: .66rem; font-weight: 700;
+      font-size: .68rem; font-weight: 700;
       color: var(--gold); letter-spacing: .03em;
       margin-right: .3rem; margin-top: .2rem;
     }
@@ -210,7 +187,7 @@
       box-shadow: 0 0 0 3px rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.6);
     }
 
-    /* ── Marker destacado (llega desde "Ver en mapa" del Calendario) ── */
+    /* ── Marker destacado (Calendario) ── */
     .custom-marker--highlight {
       border-color: #ffffff;
       box-shadow: 0 0 0 rgba(255,255,255,.6), 0 4px 18px rgba(0,0,0,.65);
@@ -240,7 +217,7 @@
       100% { transform: scale(1); }
     }
 
-    /* ── Tooltip hover del marker (nombre + imagen) ── */
+    /* ── Tooltip hover del marker ── */
     .leaflet-tooltip.marker-tooltip-wrap {
       background: transparent !important;
       border: none !important;
@@ -250,7 +227,7 @@
     }
     .leaflet-tooltip.marker-tooltip-wrap::before { display: none !important; }
     .marker-tooltip {
-      width: 190px;
+      width: 200px;
       background: #0d0d0d;
       border: 1.5px solid rgba(190,142,86,.4);
       border-radius: 12px;
@@ -258,11 +235,11 @@
       box-shadow: 0 8px 28px rgba(0,0,0,.65);
     }
     .marker-tooltip img {
-      width: 100%; height: 100px;
+      width: 100%; height: 110px;
       object-fit: cover;
       display: block;
     }
-    .marker-tooltip__info { padding: .6rem .75rem .7rem; }
+    .marker-tooltip__info { padding: .7rem .8rem .8rem; }
     .marker-tooltip__cat {
       display: block;
       font-family: var(--font-body); font-size: .65rem; font-weight: 700;
@@ -278,16 +255,16 @@
     /* ── Botón flotante "Volver" (esquina superior derecha) ── */
     .mapa-back-btn {
       position: absolute;
-      top: 1rem; right: 1rem;
+      top: 1.25rem; right: 1.25rem;
       z-index: 1250;
       display: flex; align-items: center; gap: .5rem;
-      font-family: var(--font-display); font-weight: 700; font-size: .82rem;
+      font-family: var(--font-display); font-weight: 700; font-size: .85rem;
       color: var(--white);
-      background: rgba(10,10,10,.6);
+      background: rgba(10,10,10,.65);
       backdrop-filter: blur(10px);
       border: 1.5px solid rgba(190,142,86,.4);
       border-radius: 50px;
-      padding: .55rem .8rem .55rem 1.1rem;
+      padding: .6rem .9rem .6rem 1.2rem;
       cursor: pointer;
       box-shadow: 0 8px 24px rgba(0,0,0,.5);
       transition: background .2s, border-color .2s, transform .15s;
@@ -301,10 +278,6 @@
       to   { opacity: 1; transform: translateX(0); }
     }
 
-    @media (max-width: 900px) {
-      .mapa-back-btn { top: .75rem; right: .75rem; font-size: .75rem; padding: .5rem .7rem .5rem .9rem; }
-    }
-
     /* ═══════════════════════════════════════════════════
        SIDEBAR IZQUIERDA ESTILO GOOGLE MAPS
        ═══════════════════════════════════════════════════ */
@@ -312,14 +285,14 @@
       position: absolute;
       top: 0; left: 0;
       height: 100%;
-      width: 380px;
-      max-width: 88vw;
+      width: 400px; /* Ajuste óptimo para albergar info de forma legible */
+      max-width: 90vw;
       background: #0d0d0d;
       border-right: 1.5px solid rgba(190,142,86,.35);
       box-shadow: 8px 0 32px rgba(0,0,0,.55);
       z-index: 1300;
       transform: translateX(-100%);
-      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      transition: transform .35s cubic-bezier(.4, 0, .2, 1);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -328,8 +301,8 @@
 
     .mapa-sidebar__close {
       position: absolute;
-      top: .9rem; right: .9rem;
-      width: 34px; height: 34px;
+      top: 1rem; right: 1rem;
+      width: 36px; height: 36px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       background: rgba(255,255,255,.08);
@@ -344,17 +317,17 @@
 
     .mapa-sidebar__hero {
       position: relative;
-      padding: 1.5rem 1.3rem .9rem;
+      padding: 1.75rem 1.5rem 1rem;
       flex-shrink: 0;
     }
     .mapa-sidebar__image {
       position: relative;
       width: 100%;
-      aspect-ratio: 16 / 7;
+      aspect-ratio: 16 / 9; /* Mantener siempre la proporción cinemática en computadoras */
       border-radius: var(--r-sm);
       overflow: hidden;
       background: linear-gradient(135deg, rgba(190,142,86,.25), rgba(255,255,255,.05));
-      margin-bottom: .75rem;
+      margin-bottom: .9rem;
       box-shadow: 0 6px 16px rgba(0,0,0,.4);
     }
     .mapa-sidebar__image img {
@@ -365,60 +338,60 @@
     .mapa-sidebar__emoji-badge {
       position: absolute;
       bottom: .5rem; left: .5rem;
-      width: 30px; height: 30px;
+      width: 32px; height: 32px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
+      font-size: 1.1rem;
       border: 2px solid rgba(255,255,255,.85);
       box-shadow: 0 3px 10px rgba(0,0,0,.5);
     }
     .mapa-sidebar__cat {
-      font-family: var(--font-body); font-size: .66rem; font-weight: 700;
+      font-family: var(--font-body); font-size: .68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .09em;
       margin-bottom: .25rem;
     }
     .mapa-sidebar__title {
       font-family: var(--font-display); font-weight: 700;
-      font-size: 1.2rem; color: var(--white);
-      line-height: 1.15; margin-bottom: .35rem;
+      font-size: 1.35rem; color: var(--white);
+      line-height: 1.15; margin-bottom: .4rem;
     }
     .mapa-sidebar__place {
       display: flex; align-items: center; gap: .35rem;
-      font-family: var(--font-body); font-size: .76rem;
+      font-family: var(--font-body); font-size: .8rem;
       color: rgba(255,255,255,.55);
     }
 
     .mapa-sidebar__body {
-      padding: 0 1.3rem 1.3rem;
+      padding: 0 1.5rem 1.5rem;
       overflow-y: auto;
       flex: 1;
     }
     .mapa-sidebar__divider {
       height: 1px;
       background: rgba(255,255,255,.1);
-      margin: 0 0 .9rem;
+      margin: 0 0 1rem;
     }
     .mapa-sidebar__desc {
-      font-family: var(--font-body); font-size: .82rem; line-height: 1.5;
+      font-family: var(--font-body); font-size: .88rem; line-height: 1.6;
       color: rgba(255,255,255,.8);
-      margin-bottom: .9rem;
+      margin-bottom: 1rem;
     }
     .mapa-sidebar__chips {
       display: flex; flex-wrap: wrap; gap: .4rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
     .mapa-sidebar__section-label {
-      font-family: var(--font-body); font-size: .64rem; font-weight: 700;
+      font-family: var(--font-body); font-size: .68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .09em;
       color: rgba(255,255,255,.4);
-      margin-bottom: .45rem;
+      margin-bottom: .5rem;
     }
-    .mapa-sidebar__actions { display: flex; gap: .55rem; margin-top: .2rem; }
+    .mapa-sidebar__actions { display: flex; gap: .6rem; margin-top: .2rem; }
     .mapa-sidebar__btn {
       display: flex; align-items: center; justify-content: center; gap: .4rem;
       flex: 1;
-      font-family: var(--font-body); font-weight: 700; font-size: .78rem;
-      padding: .6rem .9rem;
+      font-family: var(--font-body); font-weight: 700; font-size: .8rem;
+      padding: .7rem .9rem;
       border-radius: 50px;
       cursor: pointer;
       transition: transform .15s, background .2s, border-color .2s;
@@ -431,25 +404,49 @@
     .mapa-sidebar__btn:not(.primary):hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
     .mapa-sidebar__btn svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
 
-    /* Empujar filtros/contador cuando la sidebar está abierta (desktop) */
+
+    /* ═══════════════════════════════════════════════════
+       BLOQUES RESPONSIVOS Y MEDIA QUERIES (COMPUTADORAS Y MÓVILES)
+       ═══════════════════════════════════════════════════ */
+
+    /* [COMPUTADORAS] Empujar elementos cuando la sidebar se abre para evitar colisiones */
     @media (min-width: 901px) {
-      .mapa-section.sidebar-open .mapa-filters-float { left: calc(50% + 190px); }
-      .mapa-section.sidebar-open .mapa-count-float { left: calc(6rem + 380px); }
+      .mapa-section.sidebar-open .mapa-filters-float { 
+        left: calc(50% + 200px); /* El cálculo usa exactamente la mitad del ancho de la sidebar (400px / 2 = 200px) */
+      }
+      .mapa-section.sidebar-open .mapa-count-float { 
+        left: calc(2rem + 400px); /* Se desplaza exactamente después de la sidebar */
+      }
     }
 
-    /* En móvil, la sidebar ocupa casi toda la pantalla */
-    @media (max-width: 600px) {
-      .mapa-sidebar { width: 100%; max-width: 100%; }
+    /* [MONITORES GRANDES - ULTRA WIDE (Pantallas >= 1440px)] */
+    @media (min-width: 1440px) {
+      .mapa-sidebar {
+        width: 440px; /* Más espacioso para pantallas gigantes */
+      }
+      .mapa-section.sidebar-open .mapa-filters-float { 
+        left: calc(50% + 220px); 
+      }
+      .mapa-section.sidebar-open .mapa-count-float { 
+        left: calc(2rem + 440px); 
+      }
+      .filter-btn {
+        font-size: .8rem;
+        padding: .4rem 1rem;
+      }
     }
 
-    /* ── Responsive ── */
+    /* [PANTALLAS MEDIANAS / TABLETS (Hasta 900px)] */
     @media (max-width: 900px) {
+      .mapa-back-btn { top: .75rem; right: .75rem; font-size: .75rem; padding: .5rem .7rem .5rem .9rem; }
+      
       .mapa-filters-float {
         top: .6rem; left: .6rem; right: .6rem;
         transform: none;
         width: auto; max-width: none;
         justify-content: flex-start;
         gap: .35rem; padding: .35rem .5rem;
+        border-radius: 30px;
       }
       .filters-list {
         overflow-x: auto;
@@ -460,6 +457,138 @@
       .filter-btn { font-size: .68rem; padding: .3rem .7rem; flex-shrink: 0; }
       .mapa-count-float { left: .75rem; bottom: .75rem; font-size: .78rem; }
     }
+
+    /* [MÓVILES (Hasta 600px)] */
     @media (max-width: 600px) {
       .navbar__links { display: none; }
+      .mapa-sidebar { width: 100%; max-width: 100%; }
+    }
+    /* ── PANTALLAS DE 1280x720 (Y SIMILARES) ── */
+    @media (max-width: 1300px) and (max-height: 780px) {
+      /* 1. Reducir el título principal de la página si se llega a ver */
+      .page-badge__inner { padding: 0.8rem 2.5rem; }
+      .page-badge__inner h1 { font-size: 1.5rem; }
+
+      /* 2. Ajustes en la Sidebar para que no sature el alto */
+      .mapa-sidebar { width: 360px; } /* Un poco más delgada */
+      .mapa-sidebar__hero { padding: 1.2rem 1.1rem 0.6rem; }
+      
+      /* Reducimos el aspecto de la imagen para ganar valioso espacio vertical */
+      .mapa-sidebar__image { aspect-ratio: 16 / 6; margin-bottom: 0.6rem; }
+      .mapa-sidebar__title { font-size: 1.15rem; margin-bottom: 0.25rem; }
+      
+      /* Achicamos la descripción corta y el espacio del contenedor */
+      .mapa-sidebar__body { padding: 0 1.1rem 1.1rem; }
+      .mapa-sidebar__desc { font-size: 0.82rem; line-height: 1.45; margin-bottom: 0.75rem; }
+      .mapa-sidebar__chips { margin-bottom: 0.85rem; }
+      .mapa-sidebar__btn { padding: 0.55rem 0.8rem; font-size: 0.75rem; }
+
+      /* Ajuste dinámico de las posiciones de los filtros por el cambio de ancho */
+      .mapa-section.sidebar-open .mapa-filters-float { left: calc(50% + 180px); }
+      .mapa-section.sidebar-open .mapa-count-float { left: calc(2rem + 360px); }
+
+      /* 3. Ajustes en los Popups de Leaflet (por si se abren allí) */
+      .leaflet-popup-content-wrapper { min-width: 210px; }
+      .popup-inner { padding: 0.9rem 1.1rem 1rem; }
+      .popup-title { font-size: 1rem; }
+      .popup-desc { font-size: 0.8rem; line-height: 1.4; margin-bottom: 0.6rem; }
+    }
+
+    /* ── 1280x720 con 125% de Escala (Alto útil < 620px) ── */
+    @media (max-width: 1300px) and (max-height: 620px) {
+      /* Reducimos el ancho de la sidebar para que no tape tanto mapa */
+      .mapa-sidebar { 
+        width: 320px; 
+      }
+      
+      /* Rediseño ultra-compacto de la cabecera de la sidebar */
+      .mapa-sidebar__hero { 
+        padding: 0.8rem 1rem 0.4rem; 
+      }
+      
+      /* Ocultamos temporalmente la imagen para priorizar la lectura del texto,
+         o la hacemos extremadamente delgada (tipo banner de 35px) */
+      .mapa-sidebar__image { 
+        aspect-ratio: 21 / 5; 
+        margin-bottom: 0.4rem; 
+      }
+      
+      /* Ajuste de textos en sidebar */
+      .mapa-sidebar__title { 
+        font-size: 1.05rem; 
+        margin-bottom: 0.15rem; 
+      }
+      .mapa-sidebar__cat {
+        font-size: 0.6rem;
+      }
+      .mapa-sidebar__place { 
+        font-size: 0.72rem; 
+      }
+
+      /* Cuerpo y Descripción */
+      .mapa-sidebar__body { 
+        padding: 0 1rem 0.8rem; 
+      }
+      .mapa-sidebar__divider {
+        margin: 0 0 0.5rem;
+      }
+      .mapa-sidebar__desc { 
+        font-size: 0.78rem; 
+        line-height: 1.35; 
+        margin-bottom: 0.6rem; 
+      }
+      
+      /* Achicamos botones y etiquetas para que quepan en una sola pantalla sin scroll */
+      .mapa-sidebar__section-label {
+        font-size: 0.6rem;
+        margin-bottom: 0.3rem;
+      }
+      .mapa-sidebar__chips { 
+        margin-bottom: 0.6rem; 
+        gap: 0.25rem;
+      }
+      .mapa-sidebar__btn { 
+        padding: 0.45rem 0.7rem; 
+        font-size: 0.72rem; 
+      }
+
+      /* Recalcular posición de filtros y contador por la sidebar más angosta (320px) */
+      .mapa-section.sidebar-open .mapa-filters-float { 
+        left: calc(50% + 160px); 
+      }
+      .mapa-section.sidebar-open .mapa-count-float { 
+        left: calc(1.5rem + 320px); 
+      }
+
+      /* Reducir también los filtros flotantes para que no colisionen */
+      .mapa-filters-float {
+        top: 0.75rem;
+        padding: 0.35rem 0.5rem;
+      }
+      .filter-btn {
+        font-size: 0.7rem;
+        padding: 0.28rem 0.65rem;
+      }
+      .mapa-count-float {
+        bottom: 1rem;
+        left: 1.5rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.78rem;
+      }
+
+      /* Popups de Leaflet súper compactos */
+      .leaflet-popup-content-wrapper { 
+        min-width: 190px; 
+      }
+      .popup-inner { 
+        padding: 0.75rem 0.9rem 0.8rem; 
+      }
+      .popup-title { 
+        font-size: 0.95rem; 
+      }
+      .popup-desc { 
+        font-size: 0.75rem; 
+        line-height: 1.3; 
+        margin-bottom: 0.5rem; 
+      }
     }

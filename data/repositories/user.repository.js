@@ -175,6 +175,7 @@ const deleteUser = (id_user) => {
     });
 };
 
+
 module.exports = {
     findByEmail,
     findByGoogleId,
