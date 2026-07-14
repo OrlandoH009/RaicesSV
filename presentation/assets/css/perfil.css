@@ -1,0 +1,330 @@
+/* ============================================================
+   RAÍCES SV — perfil.css
+   ============================================================ */
+
+.perfil-page {
+  min-height: 100vh;
+  background: var(--black);
+  padding: calc(var(--nav-h) + 2.5rem) 1.5rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.perfil-page__bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('../media/Santa Ana Volcan.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: .12;
+  pointer-events: none;
+  z-index: 0;
+  transform: scale(1.08);
+}
+
+.perfil-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.perfil-header {
+  text-align: center;
+  margin-bottom: 2.2rem;
+}
+.perfil-header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--white);
+  margin-bottom: .3rem;
+}
+.perfil-header p {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: rgba(255,255,255,.55);
+  font-size: .95rem;
+}
+
+/* ── Avatar con anillo animado ── */
+.avatar-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .9rem;
+  margin-bottom: 2.4rem;
+}
+
+.avatar-ring {
+  position: relative;
+  width: 132px;
+  height: 132px;
+}
+.avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--gold), transparent 30%, var(--gold) 60%, transparent 90%, var(--gold));
+  animation: avatarSpin 6s linear infinite;
+}
+@keyframes avatarSpin { to { transform: rotate(360deg); } }
+
+.avatar-dropzone {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  transition: transform .2s ease;
+}
+.avatar-dropzone:hover { transform: scale(1.03); }
+.avatar-dropzone.dragging {
+  outline: 3px dashed var(--gold);
+  outline-offset: 4px;
+}
+.avatar-dropzone img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.avatar-dropzone__placeholder {
+  color: var(--navy);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.4rem;
+}
+.avatar-dropzone__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(17,48,104,.55);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: .8rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 .6rem;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.avatar-dropzone:hover .avatar-dropzone__overlay,
+.avatar-dropzone.dragging .avatar-dropzone__overlay { opacity: 1; }
+
+.avatar-actions {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.avatar-actions button {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .82rem;
+  color: var(--white);
+  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.3);
+  border-radius: var(--r-sm);
+  padding: .5rem .9rem;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, transform .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+.avatar-actions button:hover { background: rgba(255,255,255,.16); border-color: var(--gold); }
+.avatar-actions button:active { transform: scale(.96); }
+.avatar-actions button svg { width: 15px; height: 15px; }
+
+/* ── Tarjetas ── */
+.perfil-card {
+  background: var(--cream);
+  border-radius: var(--r-md);
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--black);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.perfil-card--danger {
+  background: rgba(220, 70, 60, .1);
+  border: 1.5px solid rgba(220, 70, 60, .35);
+}
+.perfil-card h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--navy);
+  margin-bottom: .3rem;
+}
+.perfil-card--danger h2 { color: #a1281e; }
+.perfil-card__desc {
+  font-size: .88rem;
+  color: rgba(0,0,0,.6);
+  margin-bottom: 1.2rem;
+}
+
+.perfil-card .form-group textarea {
+  width: 100%;
+  border: 2px solid rgba(17,48,104,.25);
+  border-radius: var(--r-sm);
+  padding: .75rem 1rem;
+  font-family: var(--font-body);
+  font-size: .95rem;
+  color: var(--black);
+  background: var(--white);
+  resize: vertical;
+  min-height: 90px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+.perfil-card .form-group textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(17,48,104,.15);
+}
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: .75rem;
+  color: rgba(0,0,0,.45);
+  margin-top: .25rem;
+}
+.char-count.limit-near { color: #a1281e; }
+
+.perfil-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: .4rem;
+}
+
+.perfil-session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ── Botón peligro (eliminar cuenta) ── */
+.btn-danger {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .9rem;
+  background: transparent;
+  color: #a1281e;
+  border: 2px solid rgba(161,40,30,.5);
+  border-radius: var(--r-sm);
+  padding: .6rem 1.1rem;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.btn-danger:hover { background: rgba(161,40,30,.08); border-color: #a1281e; }
+
+/* ── Estado de guardado ── */
+.save-status {
+  font-size: .85rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.save-status.show { opacity: 1; transform: translateY(0); }
+.save-status--success { color: #1e6b34; }
+.save-status--error { color: #a1281e; }
+
+/* ── Modal eliminar cuenta ── */
+.perfil-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17,48,104,.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.perfil-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+
+.perfil-modal {
+  background: var(--cream);
+  border-radius: var(--r-md);
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem 1.8rem;
+  text-align: center;
+  color: var(--black);
+  transform: translateY(16px) scale(.96);
+  opacity: 0;
+  transition: transform .3s ease, opacity .3s ease;
+}
+.perfil-modal-overlay.is-visible .perfil-modal { transform: translateY(0) scale(1); opacity: 1; }
+
+.perfil-modal h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #a1281e;
+  margin-bottom: .6rem;
+}
+.perfil-modal p {
+  font-size: .9rem;
+  color: rgba(0,0,0,.65);
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+.perfil-modal input {
+  width: 100%;
+  padding: .7rem 1rem;
+  border: 2px solid rgba(161,40,30,.35);
+  border-radius: var(--r-sm);
+  font-size: .95rem;
+  margin-bottom: 1.2rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.perfil-modal-actions {
+  display: flex;
+  gap: .7rem;
+}
+.perfil-modal-actions button { flex: 1; }
+
+/* ── Toast propio (para no chocar con el de script.js) ── */
+#perfil-toast {
+  position: fixed;
+  right: 1rem;
+  top: 1rem;
+  z-index: 9999;
+  padding: .8rem 1.1rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  opacity: 0;
+  transform: translateY(-10px) scale(.95);
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--white);
+}
+#perfil-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+#perfil-toast.success { background: #1e6b34; }
+#perfil-toast.error { background: #a1281e; }
+
+@media (max-width: 520px) {
+  .perfil-card { padding: 1.4rem 1.3rem; }
+  .perfil-session-row { flex-direction: column; align-items: flex-start; }
+}

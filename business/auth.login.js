@@ -14,7 +14,8 @@ const login = async (req, res) => {
         const sessionData = {
             id: user.id_user,
             name: user.name,
-            email: user.email
+            email: user.email,
+            avatarUrl: user.avatar_url || null
         };
 
         req.session.regenerate((err) => {
