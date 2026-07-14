@@ -10,9 +10,10 @@ passport.use(new GoogleStrategy({
     const name = profile.displayName;
     const email = profile.emails[0].value;
     const googleId = profile.id;
+    const googlePhotoUrl = profile.photos && profile.photos[0] ? profile.photos[0].value : null;
 
     try {
-        const user = await authService.loginOrRegisterWithGoogle(name, email, googleId);
+        const user = await authService.loginOrRegisterWithGoogle(name, email, googleId, googlePhotoUrl);
         done(null, user);
     } catch (e) {
         done(e);

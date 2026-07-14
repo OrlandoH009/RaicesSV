@@ -414,14 +414,26 @@ const quizConfirmOverlay = document.getElementById('quizConfirmOverlay');
 const confirmExitBtn = document.getElementById('confirmExitBtn');
 const cancelExitBtn  = document.getElementById('cancelExitBtn');
 
+// Movemos el modal (fondo, ventana y confirmación) directamente al <body>.
+// Esto evita que un contenedor padre (por ejemplo, uno con transform aplicado
+// para animaciones de scroll) rompa el position:fixed y lo deje "flotando"
+// en un lugar incorrecto de la página.
+document.body.appendChild(quizBackdrop);
+document.body.appendChild(quizZone);
+document.body.appendChild(quizConfirmOverlay);
+
 /* ══════════════════════════════════════════════════════════
    MODAL DEL QUIZ: abrir, cerrar y confirmar salida
    ══════════════════════════════════════════════════════════ */
 
+let scrollAntesDelModal = 0;
+
 function abrirModalQuiz() {
+  scrollAntesDelModal = window.scrollY;
   quizBackdrop.classList.add('show');
   quizZone.classList.add('active');
   document.body.classList.add('quiz-modal-open');
+  document.documentElement.classList.add('quiz-modal-open');
 }
 
 function cerrarModalQuiz() {
@@ -429,6 +441,8 @@ function cerrarModalQuiz() {
     quizZone.classList.remove('active');
     quizBackdrop.classList.remove('show');
     document.body.classList.remove('quiz-modal-open');
+    document.documentElement.classList.remove('quiz-modal-open');
+    window.scrollTo({ top: scrollAntesDelModal });
 
     // Restaurar visibilidad de elementos por si veníamos de la pantalla de resultados
     document.getElementById('quizCard').style.display = '';
@@ -436,8 +450,6 @@ function cerrarModalQuiz() {
     feedback.style.display = '';
     nextBtn.style.display = '';
     results.classList.remove('show');
-
-    quizSetup.style.display = 'block';
   };
 
   if (typeof gsap !== 'undefined') {
@@ -557,20 +569,12 @@ startBtn.addEventListener('click', () => {
   levelBadge.className = `quiz-level-badge ${nivelSeleccionado}`;
 
   const activar = () => {
-    quizSetup.style.display = 'none';
     abrirModalQuiz();
     results.classList.remove('show');
     mostrarPregunta();
   };
 
-  if (typeof gsap !== 'undefined') {
-    gsap.to(quizSetup, {
-      opacity: 0, y: -15, duration: 0.35, ease: 'power2.in',
-      onComplete: activar
-    });
-  } else {
-    activar();
-  }
+  activar();
 });
 
 function mostrarPregunta() {
@@ -793,6 +797,8 @@ retryBtn.addEventListener('click', () => {
   quizZone.classList.remove('active');
   quizBackdrop.classList.remove('show');
   document.body.classList.remove('quiz-modal-open');
+  document.documentElement.classList.remove('quiz-modal-open');
+  window.scrollTo({ top: scrollAntesDelModal });
 
   // Mostrar bienvenida de nuevo
   if (quizWelcome) {

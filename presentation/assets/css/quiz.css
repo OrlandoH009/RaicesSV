@@ -21,8 +21,11 @@
   --wrong: #ef4444;
 }
 
+html.quiz-modal-open,
 body.quiz-modal-open {
   overflow: hidden;
+  height: 100%;
+  transform: none !important;
 }
 
 /* ════════════════════════════════════════════════════════════
