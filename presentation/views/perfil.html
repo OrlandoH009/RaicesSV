@@ -52,6 +52,7 @@
 
     <main class="perfil-wrap">
       <div class="perfil-header reveal">
+        <span class="eyebrow">Mi cuenta</span>
         <h1>Mi perfil</h1>
         <p>Nuestra herencia, nuestro orgullo.</p>
       </div>
@@ -99,13 +100,13 @@
         </div>
 
         <div class="perfil-card-footer">
-          <button type="submit" class="auth-submit" style="width:auto; padding:.7rem 1.6rem;">Guardar cambios</button>
+          <button type="submit" class="perfil-btn">Guardar cambios</button>
           <span class="save-status" id="profileStatus"></span>
         </div>
       </form>
 
       <!-- SEGURIDAD -->
-      <form class="perfil-card reveal" id="passwordForm" style="transition-delay:.1s">
+      <form class="perfil-card perfil-card--security reveal" id="passwordForm" style="transition-delay:.1s">
         <h2>Seguridad</h2>
         <p class="perfil-card__desc" id="passwordDesc">Cambia tu contraseña cuando quieras.</p>
 
@@ -119,13 +120,13 @@
         </div>
 
         <div class="perfil-card-footer">
-          <button type="submit" class="auth-submit" style="width:auto; padding:.7rem 1.6rem;">Actualizar contraseña</button>
+          <button type="submit" class="perfil-btn">Actualizar contraseña</button>
           <span class="save-status" id="passwordStatus"></span>
         </div>
       </form>
 
       <!-- SESIÓN -->
-      <div class="perfil-card reveal perfil-session-row" style="transition-delay:.15s">
+      <div class="perfil-card perfil-card--session reveal perfil-session-row" style="transition-delay:.15s">
         <div>
           <h2>Sesión</h2>
           <p class="perfil-card__desc" style="margin-bottom:0;">Cierra tu sesión en este dispositivo.</p>
@@ -152,7 +153,7 @@
         <input type="password" id="deleteCurrentPassword" autocomplete="current-password" />
       </div>
       <div class="perfil-modal-actions">
-        <button type="button" id="cancelDeleteBtn" class="auth-google-btn-full" style="margin:0;">Cancelar</button>
+        <button type="button" id="cancelDeleteBtn" class="btn-cancel">Cancelar</button>
         <button type="button" id="confirmDeleteBtn" class="btn-danger" style="border-width:2px;">Sí, eliminar</button>
       </div>
     </div>
@@ -161,5 +162,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/perfil.js"></script>
+  <script src="../assets/js/perfil-anim.js"></script>
 </body>
 </html>
