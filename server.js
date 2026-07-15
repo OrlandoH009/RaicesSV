@@ -83,8 +83,6 @@ app.get(['/registro.html', '/views/registro.html'], (req, res) => {
 
 app.get(['/categorias.html', '/categorias', '/views/categorias.html'], sendView('categorias.html'));
 
-// Página de juegos interactivos (pública)
-app.get(['/juegos.html', '/juegos', '/views/juegos.html'], sendView('juegos.html'));
 
 app.get('/views', (req, res) => {
     res.redirect('/');
