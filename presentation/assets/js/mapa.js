@@ -463,46 +463,92 @@
     /* ══════════════════════════════════════════════════════════
        GEOLOCALIZACIÓN AUTOMÁTICA DEL USUARIO
        ══════════════════════════════════════════════════════════ */
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          const userCoords = [userLat, userLng];
+/* ══════════════════════════════════════════════════════════
+   GEOLOCALIZACIÓN AUTOMÁTICA DEL USUARIO
+   ══════════════════════════════════════════════════════════ */
 
-          // Hace un paneo fluido y zoom cercano (14.5 es ideal para ver calles y locales a la redonda)
-          mapa.flyTo(userCoords, 14.5, {
-            animate: true,
-            duration: 1.5 // Duración de la animación en segundos
-          });
+/* ── Toast simple para avisos de geolocalización ── */
+function mostrarToastGeo(mensaje, tipo = 'info') {
+  // Evita duplicar toasts si ya hay uno visible
+  const existente = document.querySelector('.geo-toast');
+  if (existente) existente.remove();
 
-          // Creamos el icono del punto azul con pulso (usa las clases CSS que te di antes)
-          const userMarkerIcon = L.divIcon({
-            className: 'user-location-marker',
-            html: '<div class="user-pulse"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-          });
+  const toast = document.createElement('div');
+  toast.className = `geo-toast geo-toast--${tipo}`;
+  toast.innerHTML = `
+    <span class="geo-toast__icon">${tipo === 'error' ? '📍' : 'ℹ️'}</span>
+    <span class="geo-toast__msg">${mensaje}</span>
+  `;
+  document.body.appendChild(toast);
 
-          // Añadimos el marcador de "Estás aquí" al mapa
-          L.marker(userCoords, { icon: userMarkerIcon })
-            .addTo(mapa)
-            .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b><br><span style="color:#ccc; font-size:12px;">Descubre lo que tienes cerca.</span>')
-            .openPopup();
-        },
-        (error) => {
-          // Si el usuario lo rechaza o falla, el mapa simplemente se queda quieto en tus coordenadas por defecto [13.7, -88.95]
-          console.warn("Geolocalización rechazada o no disponible. Usando vista por defecto.", error);
-        },
-        {
-          enableHighAccuracy: true, // Intenta obtener la ubicación más exacta posible
-          timeout: 6000,            // Espera máxima de 6 segundos
-          maximumAge: 0             // No usar ubicaciones viejas guardadas en caché
-        }
-      );
-    } else {
-      console.log("El navegador no soporta la geolocalización nativa.");
+  // Forzar reflow para que la animación de entrada funcione
+  requestAnimationFrame(() => toast.classList.add('geo-toast--visible'));
+
+  // Auto-ocultar después de 5 segundos
+  setTimeout(() => {
+    toast.classList.remove('geo-toast--visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      const userCoords = [userLat, userLng];
+
+      // Hace un paneo fluido y zoom cercano (14.5 es ideal para ver calles y locales a la redonda)
+      mapa.flyTo(userCoords, 14.5, {
+        animate: true,
+        duration: 1.5 // Duración de la animación en segundos
+      });
+
+      // Creamos el icono del punto azul con pulso (usa las clases CSS que te di antes)
+      const userMarkerIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: '<div class="user-pulse"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+
+      // Añadimos el marcador de "Estás aquí" al mapa
+      L.marker(userCoords, { icon: userMarkerIcon })
+        .addTo(mapa)
+        .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b><br><span style="color:#ccc; font-size:12px;">Descubre lo que tienes cerca.</span>')
+        .openPopup();
+    },
+    (error) => {
+      // Si el usuario lo rechaza o falla, el mapa simplemente se queda quieto en tus coordenadas por defecto [13.7, -88.95]
+      console.warn("Geolocalización rechazada o no disponible. Usando vista por defecto.", error);
+
+      // Mensaje distinto según el tipo de error (PositionError.code)
+      let mensaje;
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          mensaje = 'No se pudo acceder a tu ubicación porque el permiso fue denegado. Mostrando vista general de El Salvador.';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          mensaje = 'Tu ubicación no está disponible en este momento. Mostrando vista general de El Salvador.';
+          break;
+        case error.TIMEOUT:
+          mensaje = 'Tardamos demasiado en obtener tu ubicación. Mostrando vista general de El Salvador.';
+          break;
+        default:
+          mensaje = 'No pudimos obtener tu ubicación. Mostrando vista general de El Salvador.';
+      }
+      mostrarToastGeo(mensaje, 'error');
+    },
+    {
+      enableHighAccuracy: true, // Intenta obtener la ubicación más exacta posible
+      timeout: 6000,            // Espera máxima de 6 segundos
+      maximumAge: 0             // No usar ubicaciones viejas guardadas en caché
     }
+  );
+} else {
+  console.log("El navegador no soporta la geolocalización nativa.");
+  mostrarToastGeo('Tu navegador no soporta geolocalización. Mostrando vista general de El Salvador.', 'error');
+}
 
     /* ── Crear ícono personalizado con emoji ── */
     function crearIcono(emoji, color) {
