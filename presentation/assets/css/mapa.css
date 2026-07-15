@@ -404,6 +404,48 @@
     .mapa-sidebar__btn:not(.primary):hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
     .mapa-sidebar__btn svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
 
+    /* ── Marcador de Ubicación del Usuario (Punto Azul con Pulso) ── */
+    .user-location-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-pulse {
+      width: 14px;
+      height: 14px;
+      background: #2b82c9;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    /* El anillo que se expande alrededor del punto */
+    .user-pulse::after {
+      content: '';
+      position: absolute;
+      top: -6px; left: -6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 3px solid #2b82c9;
+      opacity: 0;
+      animation: userLocationPulse 2s infinite ease-out;
+    }
+
+    @keyframes userLocationPulse {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
+    }
 
     /* ═══════════════════════════════════════════════════
        BLOQUES RESPONSIVOS Y MEDIA QUERIES (COMPUTADORAS Y MÓVILES)
