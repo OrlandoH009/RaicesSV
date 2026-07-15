@@ -1,25 +1,47 @@
 /* ============================================================
-   RAÍCES SV — perfil.css
+   RAÍCES SV — perfil.css (rediseño)
+   Paleta: navy profundo + dorado (acento primario) + verde jade
+   (acento secundario, reservado para "seguridad/éxito")
    ============================================================ */
+
+:root {
+  --surface:        rgba(255, 255, 255, .045);
+  --surface-hover:   rgba(255, 255, 255, .075);
+  --surface-border:  rgba(255, 255, 255, .10);
+  --jade:            #4f8f6b;
+  --jade-hover:      #3f7357;
+  --danger:          #c0483b;
+  --danger-hover:    #a63c31;
+}
 
 .perfil-page {
   min-height: 100vh;
   background: var(--black);
-  padding: calc(var(--nav-h) + 2.5rem) 1.5rem 4rem;
+  padding: calc(var(--nav-h) + 3rem) 1.5rem 5rem;
   position: relative;
   overflow: hidden;
 }
 
+/* Fondo: silueta de volcán muy tenue + aurora navy/dorada, igual espíritu que calendario */
 .perfil-page__bg {
   position: fixed;
   inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background-image: url('../media/Santa Ana Volcan.jpg');
   background-size: cover;
-  background-position: center;
-  opacity: .12;
-  pointer-events: none;
-  z-index: 0;
+  background-position: center 30%;
+  opacity: .08;
   transform: scale(1.08);
+}
+.perfil-page__bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 15%, rgba(190, 142, 86, .10), transparent 42%),
+    radial-gradient(circle at 85% 75%, rgba(17, 48, 104, .55), transparent 50%),
+    linear-gradient(180deg, transparent 0%, var(--black) 92%);
 }
 
 .perfil-wrap {
@@ -31,87 +53,104 @@
 
 .perfil-header {
   text-align: center;
-  margin-bottom: 2.2rem;
+  margin-bottom: 2.6rem;
+}
+.perfil-header .eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .7rem;
 }
 .perfil-header h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: clamp(2rem, 4.5vw, 2.7rem);
   color: var(--white);
-  margin-bottom: .3rem;
+  margin-bottom: .4rem;
+  letter-spacing: -.01em;
 }
 .perfil-header p {
   font-family: var(--font-display);
   font-style: italic;
-  color: rgba(255,255,255,.55);
+  color: rgba(255, 255, 255, .45);
   font-size: .95rem;
 }
 
-/* ── Avatar con anillo animado ── */
+/* ── Avatar: anillo dorado/jade alternado, elemento firma de la página ── */
 .avatar-zone {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .9rem;
-  margin-bottom: 2.4rem;
+  gap: 1.1rem;
+  margin-bottom: 2.8rem;
 }
 
 .avatar-ring {
   position: relative;
-  width: 132px;
-  height: 132px;
+  width: 140px;
+  height: 140px;
 }
 .avatar-ring::before {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: -7px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--gold), transparent 30%, var(--gold) 60%, transparent 90%, var(--gold));
-  animation: avatarSpin 6s linear infinite;
+  background: conic-gradient(from 0deg,
+    var(--gold) 0deg, var(--gold) 70deg,
+    transparent 70deg, transparent 110deg,
+    var(--jade) 110deg, var(--jade) 180deg,
+    transparent 180deg, transparent 220deg,
+    var(--gold) 220deg, var(--gold) 290deg,
+    transparent 290deg, transparent 360deg);
+  animation: avatarSpin 10s linear infinite;
+  will-change: transform;
 }
 @keyframes avatarSpin { to { transform: rotate(360deg); } }
 
 .avatar-dropzone {
   position: relative;
-  width: 132px;
-  height: 132px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--cream);
+  background: var(--navy);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 1;
-  box-shadow: 0 8px 24px rgba(0,0,0,.5);
-  transition: transform .2s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .55), inset 0 0 0 3px var(--black);
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
 }
-.avatar-dropzone:hover { transform: scale(1.03); }
+.avatar-dropzone:hover { transform: scale(1.045); }
 .avatar-dropzone.dragging {
   outline: 3px dashed var(--gold);
-  outline-offset: 4px;
+  outline-offset: 5px;
 }
-.avatar-dropzone img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
+.avatar-dropzone img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-dropzone__placeholder {
-  color: var(--navy);
+  color: var(--white);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 2.4rem;
+  font-size: 2.6rem;
 }
 .avatar-dropzone__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(17,48,104,.55);
+  background: rgba(10, 20, 40, .72);
+  backdrop-filter: blur(2px);
   color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  font-size: .8rem;
+  font-size: .78rem;
   font-weight: 700;
+  letter-spacing: .02em;
   text-align: center;
   padding: 0 .6rem;
   opacity: 0;
@@ -120,92 +159,153 @@
 .avatar-dropzone:hover .avatar-dropzone__overlay,
 .avatar-dropzone.dragging .avatar-dropzone__overlay { opacity: 1; }
 
-.avatar-actions {
-  display: flex;
-  gap: .6rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+.avatar-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
 .avatar-actions button {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: .82rem;
+  font-size: .8rem;
   color: var(--white);
-  background: rgba(255,255,255,.08);
-  border: 1.5px solid rgba(255,255,255,.3);
+  background: var(--surface);
+  border: 1.5px solid var(--surface-border);
   border-radius: var(--r-sm);
-  padding: .5rem .9rem;
+  padding: .55rem 1rem;
   cursor: pointer;
   transition: background .2s, border-color .2s, transform .15s;
   display: inline-flex;
   align-items: center;
-  gap: .4rem;
+  gap: .45rem;
 }
-.avatar-actions button:hover { background: rgba(255,255,255,.16); border-color: var(--gold); }
+.avatar-actions button:hover { background: var(--surface-hover); border-color: var(--gold); }
 .avatar-actions button:active { transform: scale(.96); }
 .avatar-actions button svg { width: 15px; height: 15px; }
 
-/* ── Tarjetas ── */
+/* ── Tarjetas de vidrio oscuro ── */
 .perfil-card {
-  background: var(--cream);
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
   border-radius: var(--r-md);
-  padding: 1.8rem 2rem;
-  margin-bottom: 1.5rem;
-  color: var(--black);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  padding: 1.9rem 2rem 1.9rem 2.2rem;
+  margin-bottom: 1.4rem;
+  color: var(--white);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  transition: border-color .35s cubic-bezier(.22,1,.36,1),
+              background .35s cubic-bezier(.22,1,.36,1),
+              box-shadow .35s cubic-bezier(.22,1,.36,1),
+              transform .35s cubic-bezier(.22,1,.36,1);
+  will-change: transform;
 }
+.perfil-card:hover {
+  background: var(--surface-hover);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+}
+
+/* barra lateral de color: codifica de un vistazo qué tipo de sección es */
+.perfil-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--gold);
+}
+.perfil-card--security::before { background: var(--jade); }
+.perfil-card--session::before  { background: rgba(255,255,255,.35); }
+.perfil-card--danger::before   { background: var(--danger); }
 .perfil-card--danger {
-  background: rgba(220, 70, 60, .1);
-  border: 1.5px solid rgba(220, 70, 60, .35);
+  background: rgba(192, 72, 59, .06);
+  border-color: rgba(192, 72, 59, .25);
 }
+.perfil-card--danger:hover { background: rgba(192, 72, 59, .1); }
+
 .perfil-card h2 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--navy);
+  font-size: 1.3rem;
+  color: var(--white);
   margin-bottom: .3rem;
 }
-.perfil-card--danger h2 { color: #a1281e; }
+.perfil-card--danger h2 { color: #e08579; }
 .perfil-card__desc {
-  font-size: .88rem;
-  color: rgba(0,0,0,.6);
-  margin-bottom: 1.2rem;
+  font-size: .87rem;
+  color: rgba(255, 255, 255, .5);
+  margin-bottom: 1.3rem;
+  line-height: 1.5;
 }
 
+/* ── Inputs sobre fondo oscuro ── */
+.perfil-card .form-group { margin-bottom: 1.1rem; }
+.perfil-card .form-group label {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .78rem;
+  letter-spacing: .03em;
+  color: rgba(255, 255, 255, .55);
+  margin-bottom: .4rem;
+}
+.perfil-card .form-group input,
 .perfil-card .form-group textarea {
   width: 100%;
-  border: 2px solid rgba(17,48,104,.25);
+  border: 1.5px solid var(--surface-border);
   border-radius: var(--r-sm);
   padding: .75rem 1rem;
   font-family: var(--font-body);
   font-size: .95rem;
-  color: var(--black);
-  background: var(--white);
-  resize: vertical;
-  min-height: 90px;
+  color: var(--white);
+  background: rgba(0, 0, 0, .25);
   outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, box-shadow .2s, background .2s;
   box-sizing: border-box;
 }
+.perfil-card .form-group textarea { resize: vertical; min-height: 90px; }
+.perfil-card .form-group input::placeholder,
+.perfil-card .form-group textarea::placeholder { color: rgba(255,255,255,.32); }
+.perfil-card .form-group input:focus,
 .perfil-card .form-group textarea:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(17,48,104,.15);
+  border-color: var(--gold);
+  background: rgba(0, 0, 0, .4);
+  box-shadow: 0 0 0 3px rgba(190, 142, 86, .15);
 }
+.perfil-card--security .form-group input:focus {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 3px rgba(79, 143, 107, .18);
+}
+
 .char-count {
   display: block;
   text-align: right;
-  font-size: .75rem;
-  color: rgba(0,0,0,.45);
-  margin-top: .25rem;
+  font-size: .74rem;
+  color: rgba(255, 255, 255, .35);
+  margin-top: .3rem;
 }
-.char-count.limit-near { color: #a1281e; }
+.char-count.limit-near { color: #e0a17a; }
 
 .perfil-card-footer {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-top: .4rem;
+  margin-top: .5rem;
+  flex-wrap: wrap;
 }
+
+/* botón de guardado propio (evita depender de .auth-submit externo) */
+.perfil-btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--black);
+  background: var(--gold);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: .7rem 1.7rem;
+  cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.perfil-btn:hover { background: var(--gold-hover); box-shadow: 0 6px 18px rgba(190,142,86,.25); }
+.perfil-btn:active { transform: scale(.97); }
+.perfil-card--security .perfil-btn { background: var(--jade); color: var(--white); }
+.perfil-card--security .perfil-btn:hover { background: var(--jade-hover); box-shadow: 0 6px 18px rgba(79,143,107,.25); }
 
 .perfil-session-row {
   display: flex;
@@ -215,39 +315,38 @@
   flex-wrap: wrap;
 }
 
-/* ── Botón peligro (eliminar cuenta) ── */
 .btn-danger {
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: .9rem;
+  font-size: .88rem;
   background: transparent;
-  color: #a1281e;
-  border: 2px solid rgba(161,40,30,.5);
+  color: #e08579;
+  border: 1.5px solid rgba(224, 133, 121, .45);
   border-radius: var(--r-sm);
-  padding: .6rem 1.1rem;
+  padding: .6rem 1.15rem;
   cursor: pointer;
   transition: background .2s, border-color .2s;
 }
-.btn-danger:hover { background: rgba(161,40,30,.08); border-color: #a1281e; }
+.btn-danger:hover { background: rgba(192, 72, 59, .12); border-color: var(--danger); }
 
-/* ── Estado de guardado ── */
 .save-status {
-  font-size: .85rem;
+  font-family: var(--font-body);
+  font-size: .82rem;
   font-weight: 700;
   opacity: 0;
   transform: translateY(4px);
   transition: opacity .25s ease, transform .25s ease;
 }
 .save-status.show { opacity: 1; transform: translateY(0); }
-.save-status--success { color: #1e6b34; }
-.save-status--error { color: #a1281e; }
+.save-status--success { color: #6fbf8f; }
+.save-status--error { color: #e08579; }
 
 /* ── Modal eliminar cuenta ── */
 .perfil-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(17,48,104,.6);
-  backdrop-filter: blur(3px);
+  background: rgba(10, 15, 30, .72);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,13 +359,14 @@
 .perfil-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
 
 .perfil-modal {
-  background: var(--cream);
+  background: #14203c;
+  border: 1px solid rgba(224, 133, 121, .25);
   border-radius: var(--r-md);
   max-width: 400px;
   width: 100%;
-  padding: 2rem 1.8rem;
+  padding: 2.1rem 1.9rem;
   text-align: center;
-  color: var(--black);
+  color: var(--white);
   transform: translateY(16px) scale(.96);
   opacity: 0;
   transition: transform .3s ease, opacity .3s ease;
@@ -276,33 +376,52 @@
 .perfil-modal h3 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.3rem;
-  color: #a1281e;
+  font-size: 1.35rem;
+  color: #e08579;
   margin-bottom: .6rem;
 }
 .perfil-modal p {
-  font-size: .9rem;
-  color: rgba(0,0,0,.65);
-  margin-bottom: 1.2rem;
-  line-height: 1.5;
+  font-size: .88rem;
+  color: rgba(255, 255, 255, .6);
+  margin-bottom: 1.3rem;
+  line-height: 1.55;
+}
+.perfil-modal .form-group { text-align: left; margin-bottom: 1.2rem; }
+.perfil-modal .form-group label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.55);
+  margin-bottom: .4rem;
 }
 .perfil-modal input {
   width: 100%;
   padding: .7rem 1rem;
-  border: 2px solid rgba(161,40,30,.35);
+  border: 1.5px solid rgba(224, 133, 121, .35);
   border-radius: var(--r-sm);
   font-size: .95rem;
-  margin-bottom: 1.2rem;
+  background: rgba(0,0,0,.3);
+  color: var(--white);
   outline: none;
   box-sizing: border-box;
 }
-.perfil-modal-actions {
-  display: flex;
-  gap: .7rem;
-}
+.perfil-modal-actions { display: flex; gap: .7rem; }
 .perfil-modal-actions button { flex: 1; }
+.perfil-modal-actions .btn-cancel {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .88rem;
+  background: var(--surface);
+  color: var(--white);
+  border: 1.5px solid var(--surface-border);
+  border-radius: var(--r-sm);
+  padding: .65rem 1rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.perfil-modal-actions .btn-cancel:hover { background: var(--surface-hover); }
 
-/* ── Toast propio (para no chocar con el de script.js) ── */
+/* ── Toast ── */
 #perfil-toast {
   position: fixed;
   right: 1rem;
@@ -310,21 +429,26 @@
   z-index: 9999;
   padding: .8rem 1.1rem;
   border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
   opacity: 0;
   transform: translateY(-10px) scale(.95);
-  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
   pointer-events: none;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: .88rem;
+  font-size: .86rem;
   color: var(--white);
 }
 #perfil-toast.show { opacity: 1; transform: translateY(0) scale(1); }
-#perfil-toast.success { background: #1e6b34; }
-#perfil-toast.error { background: #a1281e; }
+#perfil-toast.success { background: var(--jade); }
+#perfil-toast.error { background: var(--danger); }
 
 @media (max-width: 520px) {
-  .perfil-card { padding: 1.4rem 1.3rem; }
+  .perfil-card { padding: 1.5rem 1.3rem 1.5rem 1.6rem; }
   .perfil-session-row { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-ring::before { animation: none; }
+  .perfil-card, .avatar-dropzone { transition: none; }
 }

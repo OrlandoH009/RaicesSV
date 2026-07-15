@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let profileState = null;
 
+  // Avisa al menú hamburguesa (script.js) que el nombre/avatar cambiaron,
+  // para que se actualice al instante sin necesidad de recargar la página.
+  const notifyDrawer = () => {
+    window.dispatchEvent(new CustomEvent('raices:profile-updated', { detail: profileState }));
+  };
+
   const renderAvatar = (avatarUrl) => {
     const existingImg = avatarDropzone.querySelector('img');
     if (avatarUrl) {
@@ -125,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
       profileState = { ...profileState, ...data.user };
       setStatus(statusEl, 'Cambios guardados', 'success');
       showToast('Tu perfil se actualizó correctamente.');
+      notifyDrawer();
 
     } catch (err) {
       console.error(err);
@@ -224,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
       profileState = { ...profileState, ...data.user };
       renderAvatar(profileState.avatarUrl);
       showToast('Foto de perfil actualizada.');
+      notifyDrawer();
 
     } catch (err) {
       console.error(err);
@@ -274,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
       profileState = { ...profileState, ...data.user };
       renderAvatar(profileState.avatarUrl);
       showToast('Ahora usas tu foto de Google.');
+      notifyDrawer();
 
     } catch (err) {
       console.error(err);
