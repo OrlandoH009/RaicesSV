@@ -37,7 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="drawer-avatar" id="drawerAvatar" aria-hidden="true">
           ${defaultAvatarSVG}
         </div>
-        <div class="drawer-username" id="drawerUsername">Invitado</div>
+        <div>
+          <div class="drawer-username" id="drawerUsername">Invitado</div>
+          <span class="drawer-profile-caption" id="drawerProfileCaption">Iniciar sesión</span>
+        </div>
       </a>
       <div class="drawer-group--principales">
         <div class="drawer-section-label">Principales</div>
@@ -101,23 +104,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2600);
   };
 
-  const renderAuthMenu = async () => {
+  const renderAuthMenu = async (overrideUser) => {
     if (!authContainer) return;
 
     const drawerUsername = document.getElementById('drawerUsername');
     const drawerAvatar = document.getElementById('drawerAvatar');
+    const drawerProfileCaption = document.getElementById('drawerProfileCaption');
+    const drawerProfileLink = document.getElementById('drawerProfile');
 
     try {
-      const response = await fetch('/auth/status', { credentials: 'same-origin' });
-      const data = await response.json();
+      let loggedIn = true;
+      let user = overrideUser;
 
-      if (data.loggedIn) {
+      // Si no nos pasan datos ya frescos (ej. justo tras guardar el perfil),
+      // se consulta el estado de sesión como antes.
+      if (!user) {
+        const response = await fetch('/auth/status', { credentials: 'same-origin' });
+        const data = await response.json();
+        loggedIn = data.loggedIn;
+        user = data.user;
+      }
+
+      if (loggedIn) {
         // Mostrar nombre en el área de perfil
-        if (drawerUsername) drawerUsername.textContent = data.user?.name || data.user?.email || 'Usuario';
+        if (drawerUsername) drawerUsername.textContent = user?.name || user?.email || 'Usuario';
+        if (drawerProfileCaption) drawerProfileCaption.textContent = 'Ver mi perfil';
+        if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/perfil.html');
 
         if (drawerAvatar) {
-          drawerAvatar.innerHTML = data.user?.avatarUrl
-            ? `<img src="${data.user.avatarUrl}" alt="Tu foto de perfil" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />`
+          drawerAvatar.innerHTML = user?.avatarUrl
+            ? `<img src="${user.avatarUrl}" alt="Tu foto de perfil" style="width:100%;height:100%;object-fit:cover;" />`
             : defaultAvatarSVG;
         }
 
@@ -128,6 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       } else {
         if (drawerUsername) drawerUsername.textContent = 'Invitado';
+        if (drawerProfileCaption) drawerProfileCaption.textContent = 'Iniciar sesión';
+        if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/login.html');
         if (drawerAvatar) drawerAvatar.innerHTML = defaultAvatarSVG;
 
         authContainer.innerHTML = `
@@ -142,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   renderAuthMenu();
+
+  // Permite que otras páginas (ej. perfil.js tras guardar cambios) actualicen
+  // el nombre/avatar del menú hamburguesa al instante, sin recargar la página.
+  // Se usa un evento en window porque script.js y perfil.js son módulos
+  // independientes y no comparten estado directamente.
+  window.addEventListener('raices:profile-updated', (event) => {
+    renderAuthMenu(event.detail);
+  });
 
   document.addEventListener('click', async (event) => {
     const logoutButton = event.target.closest('#logout-link, .btn-logout');
