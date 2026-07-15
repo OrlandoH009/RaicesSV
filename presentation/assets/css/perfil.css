@@ -124,7 +124,7 @@
   cursor: pointer;
   z-index: 1;
   box-shadow: 0 10px 30px rgba(0, 0, 0, .55), inset 0 0 0 3px var(--black);
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
 }
 .avatar-dropzone:hover { transform: scale(1.045); }
 .avatar-dropzone.dragging {
@@ -190,9 +190,16 @@
   color: var(--white);
   backdrop-filter: blur(14px);
   overflow: hidden;
-  transition: border-color .25s, background .25s;
+  transition: border-color .35s cubic-bezier(.22,1,.36,1),
+              background .35s cubic-bezier(.22,1,.36,1),
+              box-shadow .35s cubic-bezier(.22,1,.36,1),
+              transform .35s cubic-bezier(.22,1,.36,1);
+  will-change: transform;
 }
-.perfil-card:hover { background: var(--surface-hover); }
+.perfil-card:hover {
+  background: var(--surface-hover);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+}
 
 /* barra lateral de color: codifica de un vistazo qué tipo de sección es */
 .perfil-card::before {
