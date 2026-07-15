@@ -13,7 +13,6 @@
 </head>
 <body data-gsap-reveal>
 
-  <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
     <div class="navbar__logo">
       <a href="../views/index.html">
@@ -58,7 +57,6 @@
 
   <main>
 
-    <!-- PAGE HERO -->
     <section class="page-hero">
       <span class="page-hero__eyebrow">Aprender jugando</span>
       <h1 class="page-hero__title">Juegos Interactivos</h1>
@@ -70,12 +68,10 @@
       </nav>
     </section>
 
-    <!-- GAME SECTION -->
     <section class="games-section">
       <span class="ambient-blob ambient-blob--a"></span>
       <span class="ambient-blob ambient-blob--b"></span>
 
-      <!-- TABS DE JUEGOS -->
       <div class="game-tabs-container reveal">
         <div class="game-tabs">
           <button class="game-tab-btn active" data-game="pupusa">
@@ -90,10 +86,8 @@
         <div class="tab-indicator"></div>
       </div>
 
-      <!-- CONTENEDOR DE JUEGOS -->
       <div class="games-container">
 
-        <!-- JUEGO 1: ATRAPA PUPUSA -->
         <div class="game-content active" id="game-pupusa">
           <div class="game-panel reveal">
             <div class="game-panel__head">
@@ -114,7 +108,7 @@
                   <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
                 </div>
               </div>
-              <canvas id="canvas-pupusa" width="820" height="440"></canvas>
+              <canvas id="canvas-pupusa"></canvas>
               <div class="damage-overlay" id="damageOverlay-pupusa" aria-hidden="true"></div>
               <audio id="bgMusic" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-pupusa">
@@ -132,7 +126,6 @@
           </div>
         </div>
 
-        <!-- JUEGO 2: BATALLA DE TROMPOS -->
         <div class="game-content" id="game-trompos">
           <div class="game-panel reveal">
             <div class="game-panel__head">
@@ -153,7 +146,7 @@
                   <input type="range" id="volumeSlider-trompos" min="0" max="1" step="0.05" value="0.45" aria-label="Volumen" />
                 </div>
               </div>
-              <canvas id="canvas-trompos" width="920" height="520"></canvas>
+              <canvas id="canvas-trompos"></canvas>
               <div class="damage-overlay" id="damageOverlay-trompos" aria-hidden="true"></div>
               <audio id="bgMusic-trompos" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-trompos">
@@ -178,7 +171,6 @@
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
       <img class="footer__logo" src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />

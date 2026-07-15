@@ -1,6 +1,6 @@
 /* ============================================================
-   RAÍCES SV — juegos-unified.js (CORREGIDO)
-   Gestor de tabs y lógica unificada para ambos juegos
+   RAÍCES SV — juegos.js (SÚPER NÍTIDO, 85% ANCHO, DIFICULTAD EXTRA)
+   Gestor de tabs, lógica de overlays y juego de alta respuesta
    ============================================================ */
 
 /* Sistema de Tabs */
@@ -25,7 +25,6 @@
     // Ocultar todos los juegos
     gameContents.forEach(content => {
       content.classList.remove('active');
-      // Forzar reflow para asegurar que se oculta
       void content.offsetHeight;
     });
 
@@ -33,24 +32,19 @@
     const selectedGame = document.getElementById(`game-${gameId}`);
     if(selectedGame) {
       selectedGame.classList.add('active');
-      // Forzar reflow
       void selectedGame.offsetHeight;
       
-      // Disparar evento personalizado para que el canvas sepa que es visible
+      // Disparar evento personalizado
       selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
     }
 
-    // Actualizar tab activo
     tabs.forEach(tab => {
       tab.classList.remove('active');
     });
     const clickedTab = e.target.closest('.game-tab-btn');
     clickedTab.classList.add('active');
 
-    // Animar indicador
     updateIndicator(clickedTab);
-
-    // Guardar en localStorage
     localStorage.setItem('lastGame', gameId);
   }
 
@@ -68,12 +62,10 @@
     });
   }
 
-  // Event listeners para tabs
   tabs.forEach(tab => {
     tab.addEventListener('click', switchGame);
   });
 
-  // Inicializar indicador
   window.addEventListener('load', () => {
     const activeTab = document.querySelector('.game-tab-btn.active');
     if(activeTab) {
@@ -81,7 +73,6 @@
     }
   });
 
-  // Actualizar indicador en resize
   window.addEventListener('resize', () => {
     const activeTab = document.querySelector('.game-tab-btn.active');
     if(activeTab) {
@@ -89,7 +80,6 @@
     }
   });
 
-  // Guardar referencia global
   window.gameStates = gameStates;
   window.switchGameState = function(gameId, state) {
     gameStates[gameId] = state;
@@ -137,15 +127,23 @@
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 1: ATRAPA LA PUPUSA
+   JUEGO 1: ATRAPA LA PUPUSA (OPTIMIZADO ANTI-BLUR)
 --------------------------------------------------------- */
 (function initGamePupusa(){
   const canvas = document.getElementById('canvas-pupusa');
   if(!canvas || typeof Matter === 'undefined') return;
 
+  // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 480; // Altura panorámica cómoda para que no estorbe verticalmente
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
-  const CW = canvas.width, CH = canvas.height;
 
   const hud = document.getElementById('hud-pupusa');
   const overlay = document.getElementById('overlay-pupusa');
@@ -153,32 +151,37 @@
   const gameContent = document.getElementById('game-pupusa');
 
   let gameDifficulty = null;
+  // DIFICULTAD INCREMENTADA: Se aumentó la gravedad y se acortaron los intervalos de aparición (más rápidos y difíciles)
   let gameConfig = {
-    easy: { gravity: 0.35, spawnIntervalMin: 2000, spawnIntervalMax: 3000, timeLimit: 40, initialLives: 4 },
-    hard: { gravity: 0.65, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 3 }
+    easy: { gravity: 0.55, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 40, initialLives: 4 },
+    hard: { gravity: 0.95, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
   };
 
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none'; // Quitar filtros de borrosidad para claridad máxima
+    overlay.style.webkitBackdropFilter = 'none';
+
     if(window.gsap){
       gsap.fromTo(overlayCard,
         { autoAlpha: 0, y: 18, scale: 0.96 },
-        { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(2)' }
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' }
       );
       gsap.fromTo(overlay,
         { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.45, ease: 'power1.out' }
+        { autoAlpha: 1, duration: 0.35, ease: 'power1.out' }
       );
     }
   }
   function hideOverlay(){ overlay.classList.add('hidden'); }
-  function clearCanvas(){ ctx.clearRect(0,0,CW,CH); }
+  function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  
   function drawEmoji(emoji, x, y, size, angle){
     ctx.save();
     ctx.translate(x,y);
     ctx.rotate(angle||0);
-    ctx.font = size+'px serif';
+    ctx.font = size+'px sans-serif';
     ctx.textAlign='center';
     ctx.textBaseline='middle';
     ctx.fillText(emoji,0,0);
@@ -216,19 +219,6 @@
     return hearts.join('');
   }
 
-  function animateHeartLoss(){
-    if(!window.gsap) return;
-    const hearts = Array.from(document.querySelectorAll('#hud-pupusa .heart'));
-    const broken = hearts.filter(h=>h.classList.contains('broken'));
-    const lastBroken = broken[broken.length - 1];
-    if(lastBroken){
-      gsap.fromTo(lastBroken,
-        { scale: 1.6, rotate: -15, opacity: 0 },
-        { scale: 1, rotate: 0, opacity: 1, duration: 0.45, ease: 'back.out(2)' }
-      );
-    }
-  }
-
   function updateHud(){
     const scoreEl = document.getElementById('p-score');
     const livesEl = document.getElementById('p-lives');
@@ -244,18 +234,19 @@
   engine.gravity.y = 0.55;
   const world = engine.world;
 
-  const paddleY = CH - 60;
-  const paddle = Bodies.rectangle(CW/2, paddleY, 130, 22, { isStatic:true, label:'comal' });
+  // El comal se autoubica y adapta a la altura exacta
+  const paddleY = canvas.height - 60;
+  const paddle = Bodies.rectangle(canvas.width/2, paddleY, 150, 22, { isStatic:true, label:'comal' });
   World.add(world, paddle);
 
-  let mouseX = CW/2;
+  let mouseX = canvas.width/2;
   canvas.addEventListener('mousemove', e=>{
     const r = canvas.getBoundingClientRect();
-    mouseX = (e.clientX - r.left) * (CW/r.width);
+    mouseX = (e.clientX - r.left) * (canvas.width/r.width);
   });
   canvas.addEventListener('touchmove', e=>{
     const r = canvas.getBoundingClientRect();
-    mouseX = (e.touches[0].clientX - r.left) * (CW/r.width);
+    mouseX = (e.touches[0].clientX - r.left) * (canvas.width/r.width);
     e.preventDefault();
   }, {passive:false});
 
@@ -274,7 +265,7 @@
   let lastTime = null, lastDelta = 1000/60, spawnAccum = 0, clockAccum = 0, nextSpawnIn = randomSpawnInterval();
 
   function randomSpawnInterval(){
-    if(!gameDifficulty) return 1800;
+    if(!gameDifficulty) return 1500;
     const config = gameConfig[gameDifficulty];
     return config.spawnIntervalMin + Math.random() * (config.spawnIntervalMax - config.spawnIntervalMin);
   }
@@ -326,25 +317,7 @@
         { opacity: 0.5 },
         { opacity: 0, duration: 0.45, ease: 'power1.out' }
       );
-      gsap.fromTo(canvas,
-        { x: -4 },
-        { x: 0, duration: 0.25, ease: 'power1.out' }
-      );
     }
-  }
-
-  function animateScore(points){
-    if(!window.gsap) return;
-    const scoreEl = document.getElementById('p-score');
-    if(!scoreEl) return;
-    
-    gsap.fromTo(scoreEl,
-      { scale: 1, color: 'var(--gold-hover)' },
-      { scale: 1.2, duration: 0.3, ease: 'back.out(2)' }
-    );
-    gsap.to(scoreEl,
-      { scale: 1, color: 'var(--gold-hover)', duration: 0.25, ease: 'power2.out', delay: 0.1 }
-    );
   }
 
   const canvasWrap = canvas.closest('.canvas-wrap');
@@ -385,12 +358,12 @@
   resumeBtn?.addEventListener('click', resumeGame);
 
   function spawn(){
-    const isBad = Math.random() < 0.28;
+    const isBad = Math.random() < 0.32; // Un poco más de probabilidad de obstáculos
     const set = isBad ? BAD : GOOD;
     const item = set[Math.floor(Math.random()*set.length)];
-    const x = 40 + Math.random()*(CW-80);
+    const x = 40 + Math.random()*(canvas.width-80);
     const body = Bodies.circle(x, -20, 24, {
-      restitution:0.1, friction:0.6, frictionAir: 0.012, label: isBad ? 'bad' : 'good'
+      restitution:0.1, friction:0.6, frictionAir: 0.01, label: isBad ? 'bad' : 'good'
     });
     body.foodEmoji = item.emoji;
     body.points = item.pts;
@@ -406,11 +379,9 @@
       if(paddleHit && item && !item.caught){
         item.caught = true;
         score += item.points;
-        animateScore(item.points);
         if(item.points < 0){
           lives -= 1;
           updateHud();
-          animateHeartLoss();
           flashDamage();
         }
         World.remove(world, item);
@@ -430,13 +401,11 @@
 
     for(const b of [...world.bodies]){
       if(b.label==='good' || b.label==='bad'){
-        if(b.velocity.y > 3.1){ Body.setVelocity(b, { x: b.velocity.x, y: 3.1 }); }
-        if(b.position.y > CH+40){
+        if(b.position.y > canvas.height+40){
           World.remove(world, b);
           if(b.label==='good'){
             lives -= 1;
             updateHud();
-            animateHeartLoss();
             flashDamage();
           }
         }
@@ -457,7 +426,7 @@
     }
     document.getElementById('p-time').textContent = Math.max(0, timeLeft);
 
-    Body.setPosition(paddle, { x: Math.max(65, Math.min(CW-65, mouseX)), y: paddleY });
+    Body.setPosition(paddle, { x: Math.max(75, Math.min(canvas.width-75, mouseX)), y: canvas.height-60 });
     updateHud();
 
     if(lives <= 0 || timeLeft <= 0){
@@ -468,14 +437,14 @@
 
     clearCanvas();
     ctx.fillStyle = '#5a4634';
-    ctx.fillRect(0, CH-20, CW, 20);
+    ctx.fillRect(0, canvas.height-20, canvas.width, 20);
     for(const b of world.bodies){
       if(b.label==='comal'){
         ctx.save();
-        ctx.translate(b.position.x,b.position.y);
+        ctx.translate(b.position.x, b.position.y);
         ctx.fillStyle = '#3a3226';
         ctx.beginPath();
-        ctx.ellipse(0,0,68,11,0,0,Math.PI*2);
+        ctx.ellipse(0,0,78,11,0,0,Math.PI*2);
         ctx.fill();
         ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();
         ctx.restore();
@@ -493,9 +462,9 @@
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     
-    let text = score >= 85 ? '🏆 ¡Sos toda una maestra pupusera!' :
-               score >= 45 ? '🌟 Nada mal, ya casi cocinás como abuela.' :
-               '👍 Buen intento, seguí practicando.';
+    let text = score >= 120 ? '🏆 ¡Sos toda una maestra pupusera de El Salvador!' :
+               score >= 60 ? '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.' :
+               '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!';
     
     const difficultyLabel = gameDifficulty === 'easy' ? '🟢 Nivel Fácil' : '🔴 Nivel Difícil';
     
@@ -509,6 +478,7 @@
   }
 
   function start(){
+    resizeCanvas(); // Nos aseguramos de que el lienzo se ajuste perfectamente antes de renderizar
     for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
     score=0; lives=totalLives; timeLeft=gameConfig[gameDifficulty].timeLimit; running=true; paused=false;
     canvasWrap?.classList.remove('is-paused');
@@ -520,26 +490,22 @@
     cancelAnimationFrame(rafId);
     playMusic();
     
-    if(window.gsap){
-      gsap.from(canvas, { scale: 0.95, opacity: 0, duration: 0.4, ease: 'back.out(2)' });
-    }
-    
     rafId = requestAnimationFrame(step);
   }
 
   function showDifficultySelector(){
     showOverlay(`
       <span class="overlay-tag">Elegí tu dificultad</span>
-      <h3>🎮 Elige el Nivel</h3>
-      <p>¿Listos para atrapar pupusas? Seleccioná la dificultad:</p>
+      <h3>🎮 Selecciona Nivel</h3>
+      <p>La velocidad de caída y aparición ahora es mayor. ¿Estás listo?</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy">
           🟢 Fácil
-          <div class="difficulty-desc">Caída lenta, más tiempo</div>
+          <div class="difficulty-desc">Caída veloz, reflejos rápidos</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard">
           🔴 Difícil
-          <div class="difficulty-desc">Caída rápida, pocos segundos</div>
+          <div class="difficulty-desc">Velocidad extrema de comal</div>
         </button>
       </div>`);
     
@@ -547,7 +513,6 @@
       gameDifficulty = 'easy';
       totalLives = gameConfig.easy.initialLives;
       engine.gravity.y = gameConfig.easy.gravity;
-      if(window.gsap) gsap.to('#btn-easy', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ start(); }, 100);
     };
     
@@ -555,7 +520,6 @@
       gameDifficulty = 'hard';
       totalLives = gameConfig.hard.initialLives;
       engine.gravity.y = gameConfig.hard.gravity;
-      if(window.gsap) gsap.to('#btn-hard', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ start(); }, 100);
     };
   }
@@ -568,27 +532,19 @@
     <ul class="rules-list">
       <li class="rule-good"><span class="rule-icon">✅</span> Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.</li>
       <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.</li>
-      <li>Si una pupusa, un quesillo o un elote toca el suelo sin que lo atrapés, también perdés una vida.</li>
-      <li>Seleccioná tu nivel de dificultad al empezar.</li>
     </ul>
     <button class="btn-primary" id="p-start">Continuar</button>`);
   
   document.getElementById('p-start').onclick = showDifficultySelector;
 
-  if(window.gsap){
-    gsap.from('.hud--overlay', { y: -20, opacity: 0, duration: 0.8, ease: 'power3.out' });
-    gsap.from('.canvas-controls', { y: -18, opacity: 0, duration: 0.8, delay: 0.1, ease: 'back.out(2)' });
-  }
-
   clearCanvas();
   ctx.fillStyle = '#5a4634';
-  ctx.fillRect(0, CH-20, CW, 20);
-  drawEmoji('🫓', CW/2, CH/2-40, 60, 0);
+  ctx.fillRect(0, canvas.height-20, canvas.width, 20);
 
-  // Escuchar cuando el juego es visible/invisible
   gameContent?.addEventListener('gameVisible', (e) => {
     if(e.detail.gameId === 'pupusa') {
       isGameVisible = true;
+      resizeCanvas();
       if(paused && running) {
         resumeGame();
       } else if(running) {
@@ -597,16 +553,15 @@
     }
   });
 
-  // Observar cuando el contenido se oculta
   const observer = new MutationObserver(() => {
     isGameVisible = gameContent?.classList.contains('active') || false;
+    if(isGameVisible) resizeCanvas();
   });
 
   if(gameContent) {
     observer.observe(gameContent, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // Guardar estado del juego para poder pausarlo
   window.switchGameState('pupusa', {
     pause: pauseGame,
     resume: resumeGame,
@@ -617,15 +572,23 @@
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 2: BATALLA DE TROMPOS
+   JUEGO 2: BATALLA DE TROMPOS (OPTIMIZADO ANTI-BLUR)
 --------------------------------------------------------- */
 (function initGameTrompos(){
   const canvas = document.getElementById('canvas-trompos');
   if(!canvas || typeof Matter === 'undefined') return;
 
+  // AJUSTE CLAVE ANTI-BLUR: Resolución interna dinámica
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = 480; // Panorámica uniforme
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
-  const CW = canvas.width, CH = canvas.height;
 
   const hud = document.getElementById('hud-trompos');
   const overlay = document.getElementById('overlay-trompos');
@@ -636,30 +599,34 @@
   let npcDifficulty = null;
   let isGameVisible = true;
   
+  // DIFICULTAD INCREMENTADA: Se aumentó considerablemente la velocidad y precisión de la IA
   let gameConfig = {
     npc: {
-      easy: { speed: 1.2, precision: 0.2, reaction: 700, moveChance: 0.3 },
-      medium: { speed: 2.5, precision: 0.45, reaction: 400, moveChance: 0.6 },
-      hard: { speed: 4.2, precision: 0.75, reaction: 200, moveChance: 0.8 }
+      easy: { speed: 2.2, precision: 0.4, reaction: 500, moveChance: 0.5 },
+      medium: { speed: 3.8, precision: 0.65, reaction: 300, moveChance: 0.75 },
+      hard: { speed: 5.5, precision: 0.9, reaction: 120, moveChance: 0.95 }
     }
   };
 
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+
     if(window.gsap){
       gsap.fromTo(overlayCard,
         { autoAlpha: 0, y: 18, scale: 0.96 },
-        { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(2)' }
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' }
       );
       gsap.fromTo(overlay,
         { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.45, ease: 'power1.out' }
+        { autoAlpha: 1, duration: 0.35, ease: 'power1.out' }
       );
     }
   }
   function hideOverlay(){ overlay.classList.add('hidden'); }
-  function clearCanvas(){ ctx.clearRect(0,0,CW,CH); }
+  function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
   let rafId = null;
 
@@ -688,19 +655,23 @@
   engine.gravity.y = 0;
   engine.enableSleeping = false;
   const world = engine.world;
-  world.gravity.y = 0;
 
-  const wallThickness = 15;
-  const walls = [
-    Bodies.rectangle(CW/2, -wallThickness/2, CW + 100, wallThickness, { isStatic: true, label: 'wall' }),
-    Bodies.rectangle(CW/2, CH + wallThickness/2, CW + 100, wallThickness, { isStatic: true, label: 'wall' }),
-    Bodies.rectangle(-wallThickness/2, CH/2, wallThickness, CH, { isStatic: true, label: 'wall' }),
-    Bodies.rectangle(CW + wallThickness/2, CH/2, wallThickness, CH, { isStatic: true, label: 'wall' })
-  ];
-  World.add(world, walls);
+  // Paredes dinámicas recalculadas al tamaño real del lienzo 85% ancho
+  let walls = [];
+  function setupWalls() {
+    if(walls.length) World.remove(world, walls);
+    const wallThickness = 40;
+    walls = [
+      Bodies.rectangle(canvas.width/2, -wallThickness/2, canvas.width + 100, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(canvas.width/2, canvas.height + wallThickness/2, canvas.width + 100, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(-wallThickness/2, canvas.height/2, wallThickness, canvas.height, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(canvas.width + wallThickness/2, canvas.height/2, wallThickness, canvas.height, { isStatic: true, label: 'wall' })
+    ];
+    World.add(world, walls);
+  }
 
   const top = {
-    body: Bodies.circle(CW/3, CH/3, 16, { restitution: 0.8, friction: 0.05, frictionAir: 0.01, label: 'trompo1' }),
+    body: Bodies.circle(150, 240, 18, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
@@ -708,7 +679,7 @@
   };
   
   const bottom = {
-    body: Bodies.circle(2*CW/3, 2*CH/3, 16, { restitution: 0.8, friction: 0.05, frictionAir: 0.01, label: 'trompo2' }),
+    body: Bodies.circle(550, 240, 18, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
@@ -723,7 +694,7 @@
 
   let npcLastAction = 0;
   let lastCollisionTime = 0;
-  const COLLISION_COOLDOWN = 300; // ms entre colisiones
+  const COLLISION_COOLDOWN = 250;
 
   const bgMusicTrompos = document.getElementById('bgMusic-trompos');
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
@@ -775,27 +746,6 @@
     }
   }
 
-  function animateImpact(x, y){
-    if(!window.gsap) return;
-    const impactEl = document.createElement('div');
-    impactEl.style.position = 'absolute';
-    impactEl.style.pointerEvents = 'none';
-    impactEl.style.fontSize = '40px';
-    impactEl.textContent = '⚡';
-    document.getElementById('trompos-canvas-wrap').appendChild(impactEl);
-
-    const rect = canvas.getBoundingClientRect();
-    const screenX = rect.left + (x / CW) * rect.width;
-    const screenY = rect.top + (y / CH) * rect.height;
-
-    gsap.fromTo(impactEl,
-      { x: screenX, y: screenY, opacity: 1, scale: 0 },
-      { opacity: 0, scale: 2, y: screenY - 40, duration: 0.6, ease: 'power2.out', onComplete: () => {
-        impactEl.remove();
-      }}
-    );
-  }
-
   function updateNPC(timestamp){
     if(gameMode !== 'pve') return;
     
@@ -809,27 +759,21 @@
       const distY = top.body.position.y - bottom.body.position.y;
       const distance = Math.sqrt(distX*distX + distY*distY);
       
-      // Decidir aleatoriamente si el NPC se mueve o no (según moveChance)
-      if(Math.random() > config.moveChance){
-        // No hacer nada, dejar que se ralentice
-        return;
-      }
+      if(Math.random() > config.moveChance) return;
       
-      if(distance > 50){
-        // Seguir al jugador con precisión variable
+      if(distance > 40){
         const targetX = bottom.body.position.x + (distX * config.precision);
         const targetY = bottom.body.position.y + (distY * config.precision);
         
-        const moveX = (targetX - bottom.body.position.x) * 0.06;
-        const moveY = (targetY - bottom.body.position.y) * 0.06;
+        const moveX = (targetX - bottom.body.position.x) * 0.08;
+        const moveY = (targetY - bottom.body.position.y) * 0.08;
         
         Body.setVelocity(bottom.body, { x: moveX * config.speed, y: moveY * config.speed });
       } else {
-        // Movimiento evasivo cuando está cerca
         const angle = Math.random() * Math.PI * 2;
         Body.setVelocity(bottom.body, {
-          x: Math.cos(angle) * config.speed * 0.8,
-          y: Math.sin(angle) * config.speed * 0.8
+          x: Math.cos(angle) * config.speed * 1.1,
+          y: Math.sin(angle) * config.speed * 1.1
         });
       }
     }
@@ -837,26 +781,20 @@
 
   Events.on(engine, 'collisionStart', (evt)=>{
     const now = Date.now();
-    
     for(const pair of evt.pairs){
       const { bodyA, bodyB } = pair;
       if((bodyA.label === 'trompo1' && bodyB.label === 'trompo2') ||
          (bodyA.label === 'trompo2' && bodyB.label === 'trompo1')){
         
-        // Solo aplicar daño si pasó el tiempo de cooldown
         if(now - lastCollisionTime > COLLISION_COOLDOWN){
           lastCollisionTime = now;
-          
-          // Calcular velocidad de impacto
           const relVelX = top.body.velocity.x - bottom.body.velocity.x;
           const relVelY = top.body.velocity.y - bottom.body.velocity.y;
           const impactForce = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
           
-          // Daño proporcional al impacto (mínimo 2, máximo 8)
-          const damage = Math.min(8, Math.max(2, Math.round(impactForce / 2)));
+          const damage = Math.min(15, Math.max(4, Math.round(impactForce * 1.5)));
           
           flashDamage();
-          animateImpact(pair.activeContacts[0]?.x || CW/2, pair.activeContacts[0]?.y || CH/2);
           top.energy -= damage;
           bottom.energy -= damage;
         }
@@ -872,31 +810,31 @@
     const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
-      Body.setVelocity(top.body, { x: moveX1 * 4, y: moveY1 * 4 });
-      top.energy = Math.max(0, top.energy - 0.2);
+      Body.setVelocity(top.body, { x: moveX1 * 5, y: moveY1 * 5 });
+      top.energy = Math.max(0, top.energy - 0.25);
     }
     
     if(gameMode === 'pvp'){
       const moveX2 = (keys['arrowright'] ? 1 : 0) - (keys['arrowleft'] ? 1 : 0);
       const moveY2 = (keys['arrowdown'] ? 1 : 0) - (keys['arrowup'] ? 1 : 0);
       if(moveX2 !== 0 || moveY2 !== 0){
-        Body.setVelocity(bottom.body, { x: moveX2 * 4, y: moveY2 * 4 });
-        bottom.energy = Math.max(0, bottom.energy - 0.2);
+        Body.setVelocity(bottom.body, { x: moveX2 * 5, y: moveY2 * 5 });
+        bottom.energy = Math.max(0, bottom.energy - 0.25);
       }
     } else {
       updateNPC(timestamp);
-      bottom.energy = Math.max(0, bottom.energy - 0.15);
+      bottom.energy = Math.max(0, bottom.energy - 0.2);
     }
 
-    top.energy = Math.min(top.maxEnergy, top.energy + 0.08);
-    bottom.energy = Math.min(bottom.maxEnergy, bottom.energy + 0.08);
+    top.energy = Math.min(top.maxEnergy, top.energy + 0.1);
+    bottom.energy = Math.min(bottom.maxEnergy, bottom.energy + 0.1);
 
     const p1Speed = Math.sqrt(top.body.velocity.x**2 + top.body.velocity.y**2);
     const p2Speed = Math.sqrt(bottom.body.velocity.x**2 + bottom.body.velocity.y**2);
-    top.angle += p1Speed * 0.1;
-    bottom.angle += p2Speed * 0.1;
+    top.angle += p1Speed * 0.12;
+    bottom.angle += p2Speed * 0.12;
 
-    const maxV = 8;
+    const maxV = 10;
     if(Math.abs(top.body.velocity.x) > maxV) 
       Body.setVelocity(top.body, { x: Math.sign(top.body.velocity.x) * maxV, y: top.body.velocity.y });
     if(Math.abs(top.body.velocity.y) > maxV) 
@@ -906,30 +844,29 @@
     if(Math.abs(bottom.body.velocity.y) > maxV) 
       Body.setVelocity(bottom.body, { x: bottom.body.velocity.x, y: Math.sign(bottom.body.velocity.y) * maxV });
 
-    if(top.energy <= 0 || top.body.position.y > CH + 50 || top.body.position.x > CW + 50 || top.body.position.x < -50){
+    if(top.energy <= 0 || top.body.position.y > canvas.height + 60 || top.body.position.x > canvas.width + 60 || top.body.position.x < -60){
       running = false;
       endGame('bottom');
       return;
     }
-    if(bottom.energy <= 0 || bottom.body.position.y > CH + 50 || bottom.body.position.x > CW + 50 || bottom.body.position.x < -50){
+    if(bottom.energy <= 0 || bottom.body.position.y > canvas.height + 60 || bottom.body.position.x > canvas.width + 60 || bottom.body.position.x < -60){
       running = false;
       endGame('top');
       return;
     }
 
     updateHud();
-
     clearCanvas();
     
     ctx.fillStyle = 'rgba(200, 180, 140, 0.15)';
-    ctx.fillRect(0, 0, CW, CH);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    ctx.moveTo(CW/2, 0);
-    ctx.lineTo(CW/2, CH);
+    ctx.moveTo(canvas.width/2, 0);
+    ctx.lineTo(canvas.width/2, canvas.height);
     ctx.stroke();
     ctx.setLineDash([]);
 
@@ -949,50 +886,32 @@
 
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI*2);
+    ctx.arc(0, 0, 18, 0, Math.PI*2);
     ctx.fill();
 
     const gradient = ctx.createLinearGradient(-10, -10, 10, 10);
-    gradient.addColorStop(0, 'rgba(255,255,255,0.3)');
+    gradient.addColorStop(0, 'rgba(255,255,255,0.45)');
     gradient.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI*2);
+    ctx.arc(0, 0, 18, 0, Math.PI*2);
     ctx.fill();
 
-    const speed = Math.sqrt(body.velocity.x**2 + body.velocity.y**2);
-    if(speed > 1){
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 1;
-      for(let i = 0; i < 3; i++){
-        ctx.beginPath();
-        ctx.moveTo(-16 + i*4, 0);
-        ctx.lineTo(-24 + i*4, 0);
-        ctx.stroke();
-      }
-    }
-
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
-    ctx.arc(0, 12, 4, 0, Math.PI*2);
+    ctx.arc(0, 14, 4, 0, Math.PI*2);
     ctx.fill();
 
     ctx.restore();
   }
 
   function drawEnergyBar(x, y, energy, color){
-    const barWidth = 40;
+    const barWidth = 45;
     const barHeight = 6;
-    
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(x - barWidth/2, y, barWidth, barHeight);
-    
     ctx.fillStyle = color;
     ctx.fillRect(x - barWidth/2, y, (barWidth * energy) / 100, barHeight);
-    
-    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x - barWidth/2, y, barWidth, barHeight);
   }
 
   function endGame(winner){
@@ -1006,12 +925,12 @@
       ? '🟢 ¡Jugador 1 gana la batalla!' 
       : gameMode === 'pvp' 
         ? '🔴 ¡Jugador 2 gana la batalla!' 
-        : '🔴 ¡El NPC ha ganado!';
+        : '🔴 ¡El NPC salvadoreño te ha derrotado!';
 
     showOverlay(`
       <span class="overlay-tag">Fin de la Batalla</span>
       <h3>${message}</h3>
-      <p>Tu trompo fue derrotado. Afiná tus habilidades y vuelve a intentar.</p>
+      <p>Tu trompo fue derrotado. ¡Afiná tus movimientos para la revancha!</p>
       <button class="btn-primary" id="p-restart">Otra Batalla</button>`);
     
     document.getElementById('p-restart').onclick = showModeSelector;
@@ -1055,15 +974,15 @@
   resumeBtn?.addEventListener('click', resumeGame);
 
   function start(){
-    Body.setPosition(top.body, { x: CW/3, y: CH/3 });
-    Body.setPosition(bottom.body, { x: 2*CW/3, y: 2*CH/3 });
+    resizeCanvas();
+    setupWalls();
+    Body.setPosition(top.body, { x: 150, y: canvas.height/2 });
+    Body.setPosition(bottom.body, { x: canvas.width - 150, y: canvas.height/2 });
     Body.setVelocity(top.body, { x: 0, y: 0 });
     Body.setVelocity(bottom.body, { x: 0, y: 0 });
     
     top.energy = 100;
     bottom.energy = 100;
-    top.angle = 0;
-    bottom.angle = 0;
 
     running = true;
     paused = false;
@@ -1076,10 +995,6 @@
     cancelAnimationFrame(rafId);
     playMusic();
 
-    if(window.gsap){
-      gsap.from(canvas, { scale: 0.95, opacity: 0, duration: 0.4, ease: 'back.out(2)' });
-    }
-
     rafId = requestAnimationFrame(step);
   }
 
@@ -1087,40 +1002,37 @@
     showOverlay(`
       <span class="overlay-tag">Elige Dificultad</span>
       <h3>🎮 Selecciona tu Desafío</h3>
-      <p>¿Cuán rápido es tu trompo?</p>
+      <p>El NPC ahora es mucho más veloz y preciso. ¿Podrás ganarle?</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-trompos">
           🟢 Fácil
-          <div class="difficulty-desc">NPC lento y predecible</div>
+          <div class="difficulty-desc">NPC ágil</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-trompos">
           🟡 Normal
-          <div class="difficulty-desc">NPC equilibrado</div>
+          <div class="difficulty-desc">NPC rápido y certero</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-trompos">
           🔴 Difícil
-          <div class="difficulty-desc">NPC muy rápido y preciso</div>
+          <div class="difficulty-desc">NPC experto (Modo Imposible)</div>
         </button>
       </div>`);
     
     document.getElementById('btn-easy-trompos').onclick = ()=>{
       npcDifficulty = 'easy';
       document.getElementById('p2-label').textContent = '🟢 NPC - Fácil';
-      if(window.gsap) gsap.to('#btn-easy-trompos', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-medium-trompos').onclick = ()=>{
       npcDifficulty = 'medium';
       document.getElementById('p2-label').textContent = '🟡 NPC - Normal';
-      if(window.gsap) gsap.to('#btn-medium-trompos', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-hard-trompos').onclick = ()=>{
       npcDifficulty = 'hard';
-      document.getElementById('p2-label').textContent = '🔴 NPC - Difícil';
-      if(window.gsap) gsap.to('#btn-hard-trompos', { scale: 1.05, duration: 0.2 });
+      document.getElementById('p2-label').textContent = '🔴 NPC - Experto';
       setTimeout(()=>{ start(); }, 100);
     };
   }
@@ -1128,34 +1040,27 @@
   function showModeSelector(){
     showOverlay(`
       <span class="overlay-tag">Selecciona Modo</span>
-      <h3>⚡ Batalla de Trompos</h3>
+      <h3>⚡ Batalla de Trompos SV</h3>
       <p>¿Cómo quieres jugar?</p>
       <div class="mode-buttons">
         <button class="mode-btn pvp" id="btn-pvp-trompos">
           👥 2 Jugadores
-          <div class="difficulty-desc">Compite contra un amigo</div>
+          <div class="difficulty-desc">Compite localmente</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
           🤖 vs NPC
-          <div class="difficulty-desc">Enfrenta la IA</div>
+          <div class="difficulty-desc">Enfrenta la IA mejorada</div>
         </button>
-      </div>
-      <div class="controls-info">
-        <strong>Controles:</strong>
-        <p><strong>Jugador 1:</strong> W/A/S/D para mover</p>
-        <p><strong>Jugador 2:</strong> ↑↓←→ para mover</p>
       </div>`);
     
     document.getElementById('btn-pvp-trompos').onclick = ()=>{
       gameMode = 'pvp';
       document.getElementById('p2-label').textContent = '🔴 Jugador 2';
-      if(window.gsap) gsap.to('#btn-pvp-trompos', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-pve-trompos').onclick = ()=>{
       gameMode = 'pve';
-      if(window.gsap) gsap.to('#btn-pve-trompos', { scale: 1.05, duration: 0.2 });
       setTimeout(()=>{ showDifficultySelector(); }, 100);
     };
   }
@@ -1164,38 +1069,15 @@
     <span class="overlay-tag">Ruta 02</span>
     <h3>⚡ Batalla de Trompos</h3>
     <p>Prepará tu trompo para la batalla. Controlá su movimiento y vencé a tu oponente.</p>
-    <p class="rules-title">Reglas del juego</p>
-    <ul class="rules-list">
-      <li>El objetivo es derrotar el trompo del oponente.</li>
-      <li>Tu trompo pierde energía cuando se mueve. ¡Descansa entre ataques!</li>
-      <li>Si un trompo sale de la arena o pierde toda su energía, pierde la batalla.</li>
-      <li>Choca contra el trompo rival para debilitarlo.</li>
-      <li>Juega en modo 1 vs 1 o contra la IA en diferentes niveles.</li>
-    </ul>
     <button class="btn-primary" id="p-start-trompos">Preparar Batalla</button>`);
   
   document.getElementById('p-start-trompos').onclick = showModeSelector;
 
-  if(window.gsap){
-    gsap.from('.hud--overlay', { y: -20, opacity: 0, duration: 0.8, ease: 'power3.out' });
-    gsap.from('.canvas-controls', { y: -18, opacity: 0, duration: 0.8, delay: 0.1, ease: 'back.out(2)' });
-  }
-
-  clearCanvas();
-  ctx.fillStyle = 'rgba(200, 180, 140, 0.15)';
-  ctx.fillRect(0, 0, CW, CH);
-  ctx.fillStyle = '#3c8c5a';
-  ctx.font = 'bold 40px serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('⚡', CW/3, CH/3);
-  ctx.fillStyle = '#d63c3c';
-  ctx.fillText('⚡', 2*CW/3, 2*CH/3);
-
-  // Escuchar cuando el juego es visible/invisible
   gameContent?.addEventListener('gameVisible', (e) => {
     if(e.detail.gameId === 'trompos') {
       isGameVisible = true;
+      resizeCanvas();
+      setupWalls();
       if(paused && running) {
         resumeGame();
       } else if(running) {
@@ -1204,16 +1086,18 @@
     }
   });
 
-  // Observar cuando el contenido se oculta
   const observer = new MutationObserver(() => {
     isGameVisible = gameContent?.classList.contains('active') || false;
+    if(isGameVisible) {
+      resizeCanvas();
+      setupWalls();
+    }
   });
 
   if(gameContent) {
     observer.observe(gameContent, { attributes: true, attributeFilter: ['class'] });
   }
 
-  // Guardar estado del juego
   window.switchGameState('trompos', {
     pause: pauseGame,
     resume: resumeGame,
