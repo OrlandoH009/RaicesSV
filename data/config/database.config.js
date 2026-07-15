@@ -11,6 +11,37 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME || 'raicessv'
 });
 
+const ensureProfileColumns = () => {
+    const migrations = [
+        { name: 'description', definition: 'VARCHAR(300) NULL' },
+        { name: 'avatar_url', definition: 'VARCHAR(255) NULL' },
+        { name: 'avatar_source', definition: "ENUM('local', 'google') NULL" },
+        { name: 'google_avatar_url', definition: 'VARCHAR(255) NULL' }
+    ];
+
+    const runMigration = ({ name, definition }) => new Promise((resolve) => {
+        db.query('SHOW COLUMNS FROM users LIKE ?', [name], (err, results) => {
+            if (err) {
+                console.error(`No se pudo verificar la columna ${name}:`, err);
+                return resolve();
+            }
+
+            if (results && results.length > 0) {
+                return resolve();
+            }
+
+            db.query(`ALTER TABLE users ADD COLUMN ${name} ${definition}`, (alterErr) => {
+                if (alterErr && !/duplicate column|already exists/i.test(alterErr.message)) {
+                    console.error(`No se pudo agregar la columna ${name}:`, alterErr);
+                }
+                resolve();
+            });
+        });
+    });
+
+    return Promise.all(migrations.map(runMigration));
+};
+
 db.connect((err) => {
     if (err) {
         console.log(err);
@@ -18,6 +49,14 @@ db.connect((err) => {
     }
 
     console.log('MySQL conectado');
+
+    ensureProfileColumns()
+        .then(() => {
+            console.log('Migración de perfil verificada');
+        })
+        .catch((error) => {
+            console.error('Error al verificar la migración de perfil:', error);
+        });
 });
 
 module.exports = db;

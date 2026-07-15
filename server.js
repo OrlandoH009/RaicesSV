@@ -20,6 +20,7 @@ if (isProduction && !process.env.SESSION_SECRET) {
 
 const authRoutes = require('./routes/auth.routes');
 const chatRoutes = require('./routes/chat.routes');
+const profileRoutes = require('./routes/profile.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
 
@@ -124,7 +125,8 @@ const protectedViews = [
     'quiz.html',
     'recetas.html',
     'sitios-culturales.html',
-    'juegos.html'
+    'juegos.html',
+    'perfil.html'
 ];
 protectedViews.forEach((fileName) => {
     const base = fileName.replace(/\.html$/, '');
@@ -144,6 +146,7 @@ app.use(
 
 app.use(authRoutes);
 app.use(chatRoutes);
+app.use(profileRoutes);
 
 app.use((req, res) => {
     res.status(404).send('Página no encontrada.');
