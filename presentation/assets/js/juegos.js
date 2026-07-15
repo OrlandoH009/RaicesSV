@@ -134,10 +134,11 @@
   if(!canvas || typeof Matter === 'undefined') return;
 
   // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
+// Reemplaza esta función dentro de initGamePupusa()
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
-    canvas.height = 480; // Altura panorámica cómoda para que no estorbe verticalmente
+    canvas.height = rect.height; // Lee dinámicamente el tamaño calculado por el CSS (60vh)
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -572,17 +573,17 @@
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 2: BATALLA DE TROMPOS (OPTIMIZADO ANTI-BLUR)
+   JUEGO 2: BATALLA DE TROMPOS (SELECCIÓN DE RONDAS Y BALANCES)
 --------------------------------------------------------- */
+
 (function initGameTrompos(){
   const canvas = document.getElementById('canvas-trompos');
   if(!canvas || typeof Matter === 'undefined') return;
 
-  // AJUSTE CLAVE ANTI-BLUR: Resolución interna dinámica
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
-    canvas.height = 480; // Panorámica uniforme
+    canvas.height = rect.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -599,12 +600,18 @@
   let npcDifficulty = null;
   let isGameVisible = true;
   
-  // DIFICULTAD INCREMENTADA: Se aumentó considerablemente la velocidad y precisión de la IA
+  // Rondas del juego
+  let maxRounds = 3;
+  let currentRound = 1;
+  let playerWins = 0;
+  let rivalWins = 0;
+
+  // DIFICULTAD REDUCIDA (Bot más amigable y lento)
   let gameConfig = {
     npc: {
-      easy: { speed: 2.2, precision: 0.4, reaction: 500, moveChance: 0.5 },
-      medium: { speed: 3.8, precision: 0.65, reaction: 300, moveChance: 0.75 },
-      hard: { speed: 5.5, precision: 0.9, reaction: 120, moveChance: 0.95 }
+      easy: { speed: 1.2, precision: 0.15, reaction: 850, moveChance: 0.3 },
+      medium: { speed: 2.2, precision: 0.35, reaction: 550, moveChance: 0.5 },
+      hard: { speed: 3.5, precision: 0.6, reaction: 350, moveChance: 0.75 }
     }
   };
 
@@ -641,14 +648,28 @@
     </div>
     <div class="hud-item">
       <span>Ronda</span>
-      <b id="round">1</b>
+      <b id="round-val">1/3</b>
     </div>`;
 
   function updateHud(){
     const p1El = document.getElementById('p1-energy');
     const p2El = document.getElementById('p2-energy');
+    const roundEl = document.getElementById('round-val');
     if(p1El) p1El.textContent = Math.max(0, Math.round(top.energy)) + '%';
     if(p2El) p2El.textContent = Math.max(0, Math.round(bottom.energy)) + '%';
+    if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (J1: ${playerWins} - Riv: ${rivalWins})`;
+  }
+
+  // Animación del HUD al recibir daño
+  function triggerHudDamageFlash(playerKey) {
+    const elId = playerKey === 'top' ? 'p1-energy' : 'p2-energy';
+    const element = document.getElementById(elId);
+    if (element) {
+      element.classList.remove('damage-flash');
+      void element.offsetWidth; // Dispara reflow para reiniciar animación
+      element.classList.add('damage-flash');
+      setTimeout(() => element.classList.remove('damage-flash'), 500);
+    }
   }
 
   const engine = Engine.create();
@@ -656,34 +677,41 @@
   engine.enableSleeping = false;
   const world = engine.world;
 
-  // Paredes dinámicas recalculadas al tamaño real del lienzo 85% ancho
+  // RING MÁS GRANDE (Se amplía al 85% de la pantalla)
   let walls = [];
   function setupWalls() {
     if(walls.length) World.remove(world, walls);
     const wallThickness = 40;
+    
+    const mapWidth = canvas.width * 0.85;
+    const mapHeight = canvas.height * 0.85;
+    const offsetX = (canvas.width - mapWidth) / 2;
+    const offsetY = (canvas.height - mapHeight) / 2;
+
     walls = [
-      Bodies.rectangle(canvas.width/2, -wallThickness/2, canvas.width + 100, wallThickness, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(canvas.width/2, canvas.height + wallThickness/2, canvas.width + 100, wallThickness, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(-wallThickness/2, canvas.height/2, wallThickness, canvas.height, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(canvas.width + wallThickness/2, canvas.height/2, wallThickness, canvas.height, { isStatic: true, label: 'wall' })
+      Bodies.rectangle(canvas.width/2, offsetY - wallThickness/2, mapWidth + 100, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(canvas.width/2, canvas.height - offsetY + wallThickness/2, mapWidth + 100, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(offsetX - wallThickness/2, canvas.height/2, wallThickness, mapHeight, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(canvas.width - offsetX + wallThickness/2, canvas.height/2, wallThickness, mapHeight, { isStatic: true, label: 'wall' })
     ];
     World.add(world, walls);
   }
 
+  // TROMPOS MÁS GRANDES (Aumentado de 18 a 32 de radio)
   const top = {
-    body: Bodies.circle(150, 240, 18, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
+    body: Bodies.circle(150, 240, 32, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
-    color: '#3c8c5a'
+    color: '#D4A373'
   };
   
   const bottom = {
-    body: Bodies.circle(550, 240, 18, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
+    body: Bodies.circle(550, 240, 32, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
-    color: '#d63c3c'
+    color: '#A26967'
   };
 
   World.add(world, [top.body, bottom.body]);
@@ -694,7 +722,7 @@
 
   let npcLastAction = 0;
   let lastCollisionTime = 0;
-  const COLLISION_COOLDOWN = 250;
+  const COLLISION_COOLDOWN = 180;
 
   const bgMusicTrompos = document.getElementById('bgMusic-trompos');
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
@@ -740,7 +768,7 @@
     if(!damageOverlay) return;
     if(window.gsap){
       gsap.fromTo(damageOverlay,
-        { opacity: 0.4 },
+        { opacity: 0.45 },
         { opacity: 0, duration: 0.3, ease: 'power1.out' }
       );
     }
@@ -761,7 +789,7 @@
       
       if(Math.random() > config.moveChance) return;
       
-      if(distance > 40){
+      if(distance > 70){
         const targetX = bottom.body.position.x + (distX * config.precision);
         const targetY = bottom.body.position.y + (distY * config.precision);
         
@@ -779,6 +807,7 @@
     }
   }
 
+  // DETECCION DE COLISIONES Y ASIGNACIÓN DE DAÑOS CON ANIMACIÓN DE HUD
   Events.on(engine, 'collisionStart', (evt)=>{
     const now = Date.now();
     for(const pair of evt.pairs){
@@ -788,15 +817,31 @@
         
         if(now - lastCollisionTime > COLLISION_COOLDOWN){
           lastCollisionTime = now;
-          const relVelX = top.body.velocity.x - bottom.body.velocity.x;
-          const relVelY = top.body.velocity.y - bottom.body.velocity.y;
-          const impactForce = Math.sqrt(relVelX * relVelX + relVelY * relVelY);
+
+          const vel1 = top.body.velocity;
+          const vel2 = bottom.body.velocity;
           
-          const damage = Math.min(15, Math.max(4, Math.round(impactForce * 1.5)));
+          const speed1 = Math.sqrt(vel1.x * vel1.x + vel1.y * vel1.y);
+          const speed2 = Math.sqrt(vel2.x * vel2.x + vel2.y * vel2.y);
+          
+          const impactForce = Math.sqrt(Math.pow(vel1.x - vel2.x, 2) + Math.pow(vel1.y - vel2.y, 2));
+          const damage = Math.min(35, Math.max(8, Math.round(impactForce * 2.8)));
           
           flashDamage();
-          top.energy -= damage;
-          bottom.energy -= damage;
+
+          if (speed1 > speed2 + 0.3) {
+            bottom.energy = Math.max(0, bottom.energy - damage);
+            triggerHudDamageFlash('bottom'); // Anima barra de vida oponente
+          } else if (speed2 > speed1 + 0.3) {
+            top.energy = Math.max(0, top.energy - damage);
+            triggerHudDamageFlash('top');    // Anima tu barra de vida
+          } else {
+            const splitDamage = Math.round(damage / 1.6);
+            top.energy = Math.max(0, top.energy - splitDamage);
+            bottom.energy = Math.max(0, bottom.energy - splitDamage);
+            triggerHudDamageFlash('top');
+            triggerHudDamageFlash('bottom');
+          }
         }
       }
     }
@@ -807,11 +852,11 @@
 
     Engine.update(engine, 1000/60);
 
+    // Movimiento
     const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
       Body.setVelocity(top.body, { x: moveX1 * 5, y: moveY1 * 5 });
-      top.energy = Math.max(0, top.energy - 0.25);
     }
     
     if(gameMode === 'pvp'){
@@ -819,15 +864,10 @@
       const moveY2 = (keys['arrowdown'] ? 1 : 0) - (keys['arrowup'] ? 1 : 0);
       if(moveX2 !== 0 || moveY2 !== 0){
         Body.setVelocity(bottom.body, { x: moveX2 * 5, y: moveY2 * 5 });
-        bottom.energy = Math.max(0, bottom.energy - 0.25);
       }
     } else {
       updateNPC(timestamp);
-      bottom.energy = Math.max(0, bottom.energy - 0.2);
     }
-
-    top.energy = Math.min(top.maxEnergy, top.energy + 0.1);
-    bottom.energy = Math.min(bottom.maxEnergy, bottom.energy + 0.1);
 
     const p1Speed = Math.sqrt(top.body.velocity.x**2 + top.body.velocity.y**2);
     const p2Speed = Math.sqrt(bottom.body.velocity.x**2 + bottom.body.velocity.y**2);
@@ -844,74 +884,166 @@
     if(Math.abs(bottom.body.velocity.y) > maxV) 
       Body.setVelocity(bottom.body, { x: bottom.body.velocity.x, y: Math.sign(bottom.body.velocity.y) * maxV });
 
-    if(top.energy <= 0 || top.body.position.y > canvas.height + 60 || top.body.position.x > canvas.width + 60 || top.body.position.x < -60){
+    const mapWidth = canvas.width * 0.85;
+    const mapHeight = canvas.height * 0.85;
+    const offsetX = (canvas.width - mapWidth) / 2;
+    const offsetY = (canvas.height - mapHeight) / 2;
+
+    if(top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40){
       running = false;
-      endGame('bottom');
+      handleRoundEnd('bottom');
       return;
     }
-    if(bottom.energy <= 0 || bottom.body.position.y > canvas.height + 60 || bottom.body.position.x > canvas.width + 60 || bottom.body.position.x < -60){
+    if(bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40){
       running = false;
-      endGame('top');
+      handleRoundEnd('top');
       return;
     }
 
     updateHud();
     clearCanvas();
     
-    ctx.fillStyle = 'rgba(200, 180, 140, 0.15)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Dibujar el Ring Ampliado
+    ctx.fillStyle = '#E4D5C3'; 
+    ctx.fillRect(offsetX, offsetY, mapWidth, mapHeight);
     
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.strokeStyle = '#8E7355';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(offsetX, offsetY, mapWidth, mapHeight);
+    
+    ctx.strokeStyle = 'rgba(142, 115, 85, 0.2)';
     ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
+    ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(canvas.width/2, 0);
-    ctx.lineTo(canvas.width/2, canvas.height);
+    ctx.moveTo(canvas.width/2, offsetY);
+    ctx.lineTo(canvas.width/2, canvas.height - offsetY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    drawTrompo(top.body, top.angle, top.color, top.energy);
-    drawTrompo(bottom.body, bottom.angle, bottom.color, bottom.energy);
+    // Trompos tradicionales realistas
+    drawTrompo(top.body, top.angle, top.color, '#2D6A4F');
+    drawTrompo(bottom.body, bottom.angle, bottom.color, '#9B2226');
 
-    drawEnergyBar(top.body.position.x, top.body.position.y - 40, top.energy, '#3c8c5a');
-    drawEnergyBar(bottom.body.position.x, bottom.body.position.y - 40, bottom.energy, '#d63c3c');
+    drawEnergyBar(top.body.position.x, top.body.position.y - 45, top.energy, '#2D6A4F');
+    drawEnergyBar(bottom.body.position.x, bottom.body.position.y - 45, bottom.energy, '#9B2226');
 
     rafId = requestAnimationFrame(step);
   }
 
-  function drawTrompo(body, angle, color, energy){
+  function drawTrompo(body, angle, bodyColor, lineDecorColor){
     ctx.save();
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(angle);
 
-    ctx.fillStyle = color;
+    const radius = 32; // Ajustado a la física
+
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.beginPath();
-    ctx.arc(0, 0, 18, 0, Math.PI*2);
+    ctx.ellipse(5, 5, radius * 0.9, radius * 0.6, 0.2, 0, Math.PI*2);
     ctx.fill();
 
-    const gradient = ctx.createLinearGradient(-10, -10, 10, 10);
-    gradient.addColorStop(0, 'rgba(255,255,255,0.45)');
-    gradient.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = bodyColor;
     ctx.beginPath();
-    ctx.arc(0, 0, 18, 0, Math.PI*2);
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, 14, 4, 0, Math.PI*2);
+    ctx.arc(0, 0, radius * 0.7, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.45, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = lineDecorColor;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.6, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.28, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#495057';
+    ctx.beginPath();
+    ctx.arc(0, 0, 7, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(-2, -2, 2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();
   }
 
   function drawEnergyBar(x, y, energy, color){
-    const barWidth = 45;
-    const barHeight = 6;
+    const barWidth = 64;
+    const barHeight = 8;
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(x - barWidth/2, y, barWidth, barHeight);
     ctx.fillStyle = color;
     ctx.fillRect(x - barWidth/2, y, (barWidth * energy) / 100, barHeight);
+  }
+
+  // MANEJO DE RONDAS Y FIN DE COMBATE
+  function handleRoundEnd(winner) {
+    stopMusic();
+    if (winner === 'top') {
+      playerWins++;
+    } else {
+      rivalWins++;
+    }
+
+    const neededToWin = Math.ceil(maxRounds / 2);
+
+    if (playerWins >= neededToWin || rivalWins >= neededToWin || currentRound >= maxRounds) {
+      // Fin del Juego Completo
+      const finalWinner = playerWins > rivalWins ? 'top' : 'bottom';
+      endGame(finalWinner);
+    } else {
+      // Siguiente ronda
+      currentRound++;
+      showOverlay(`
+        <span class="overlay-tag">Fin de Ronda</span>
+        <h3>Ronda ${currentRound - 1} finalizada</h3>
+        <p>Ganador: ${winner === 'top' ? '🟢 Jugador 1' : '🔴 Rival'}</p>
+        <div style="font-size: 1.2rem; font-weight: bold; margin: 15px 0;">
+          Marcador: J1 ${playerWins} - ${rivalWins} Rival
+        </div>
+        <button class="btn-primary" id="btn-next-round">Siguiente Ronda</button>
+      `);
+      document.getElementById('btn-next-round').onclick = startNextRound;
+    }
+  }
+
+  function startNextRound() {
+    hideOverlay();
+    resetPositions();
+    running = true;
+    updateHud();
+    playMusic();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function resetPositions() {
+    const mapWidth = canvas.width * 0.85;
+    const offsetX = (canvas.width - mapWidth) / 2;
+    
+    Body.setPosition(top.body, { x: offsetX + 100, y: canvas.height/2 });
+    Body.setPosition(bottom.body, { x: canvas.width - offsetX - 100, y: canvas.height/2 });
+    Body.setVelocity(top.body, { x: 0, y: 0 });
+    Body.setVelocity(bottom.body, { x: 0, y: 0 });
+    
+    top.energy = 100;
+    bottom.energy = 100;
   }
 
   function endGame(winner){
@@ -922,16 +1054,16 @@
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
     let message = winner === 'top' 
-      ? '🟢 ¡Jugador 1 gana la batalla!' 
-      : gameMode === 'pvp' 
-        ? '🔴 ¡Jugador 2 gana la batalla!' 
-        : '🔴 ¡El NPC salvadoreño te ha derrotado!';
+      ? `🟢 ¡Felicidades! Has ganado el duelo (${playerWins} - ${rivalWins})`
+      : gameMode === 'pvp'
+        ? `🔴 ¡Jugador 2 gana el duelo! (${rivalWins} - ${playerWins})`
+        : `🔴 El NPC salvadoreño te ha ganado (${rivalWins} - ${playerWins})`;
 
     showOverlay(`
       <span class="overlay-tag">Fin de la Batalla</span>
       <h3>${message}</h3>
-      <p>Tu trompo fue derrotado. ¡Afiná tus movimientos para la revancha!</p>
-      <button class="btn-primary" id="p-restart">Otra Batalla</button>`);
+      <p>¿Listo para una revancha?</p>
+      <button class="btn-primary" id="p-restart">Volver a Jugar</button>`);
     
     document.getElementById('p-restart').onclick = showModeSelector;
   }
@@ -941,6 +1073,7 @@
   const pauseIcon = document.getElementById('pauseIcon-trompos');
   const pauseOverlay = document.getElementById('pauseOverlay-trompos');
   const resumeBtn = document.getElementById('resumeBtn-trompos');
+  const menuBtn = document.getElementById('menuBtn-trompos');
 
   let running = false, paused = false;
 
@@ -966,24 +1099,35 @@
     rafId = requestAnimationFrame(step);
   }
 
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    
+    Body.setVelocity(top.body, { x: 0, y: 0 });
+    Body.setVelocity(bottom.body, { x: 0, y: 0 });
+    
+    showModeSelector();
+  }
+
   pauseBtn?.addEventListener('click', ()=>{
     if(!running && !paused) start();
     else if(paused) resumeGame();
     else pauseGame();
   });
+  
   resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
 
   function start(){
     resizeCanvas();
     setupWalls();
-    Body.setPosition(top.body, { x: 150, y: canvas.height/2 });
-    Body.setPosition(bottom.body, { x: canvas.width - 150, y: canvas.height/2 });
-    Body.setVelocity(top.body, { x: 0, y: 0 });
-    Body.setVelocity(bottom.body, { x: 0, y: 0 });
+    resetPositions();
     
-    top.energy = 100;
-    bottom.energy = 100;
-
     running = true;
     paused = false;
     canvasWrap?.classList.remove('is-paused');
@@ -1002,7 +1146,7 @@
     showOverlay(`
       <span class="overlay-tag">Elige Dificultad</span>
       <h3>🎮 Selecciona tu Desafío</h3>
-      <p>El NPC ahora es mucho más veloz y preciso. ¿Podrás ganarle?</p>
+      <p>Elige el nivel de agilidad que tendrá la IA.</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-trompos">
           🟢 Fácil
@@ -1037,6 +1181,37 @@
     };
   }
 
+  // NUEVO SELECTOR DE RONDAS
+  function showRoundSelector(){
+    showOverlay(`
+      <span class="overlay-tag">Configuración</span>
+      <h3>🏁 ¿A cuántas rondas jugamos?</h3>
+      <p>El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.</p>
+      <div class="difficulty-buttons" style="display: flex; gap: 15px; margin-top: 15px;">
+        <button class="btn-primary" id="rounds-1" style="flex: 1;">1 Ronda</button>
+        <button class="btn-primary" id="rounds-3" style="flex: 1;">Best of 3</button>
+        <button class="btn-primary" id="rounds-5" style="flex: 1;">Best of 5</button>
+      </div>
+    `);
+
+    document.getElementById('rounds-1').onclick = () => { selectRounds(1); };
+    document.getElementById('rounds-3').onclick = () => { selectRounds(3); };
+    document.getElementById('rounds-5').onclick = () => { selectRounds(5); };
+  }
+
+  function selectRounds(ronds) {
+    maxRounds = ronds;
+    currentRound = 1;
+    playerWins = 0;
+    rivalWins = 0;
+    
+    if (gameMode === 'pvp') {
+      start();
+    } else {
+      showDifficultySelector();
+    }
+  }
+
   function showModeSelector(){
     showOverlay(`
       <span class="overlay-tag">Selecciona Modo</span>
@@ -1049,19 +1224,19 @@
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
           🤖 vs NPC
-          <div class="difficulty-desc">Enfrenta la IA mejorada</div>
+          <div class="difficulty-desc">Enfrenta la IA de práctica</div>
         </button>
       </div>`);
     
     document.getElementById('btn-pvp-trompos').onclick = ()=>{
       gameMode = 'pvp';
       document.getElementById('p2-label').textContent = '🔴 Jugador 2';
-      setTimeout(()=>{ start(); }, 100);
+      setTimeout(()=>{ showRoundSelector(); }, 100);
     };
     
     document.getElementById('btn-pve-trompos').onclick = ()=>{
       gameMode = 'pve';
-      setTimeout(()=>{ showDifficultySelector(); }, 100);
+      setTimeout(()=>{ showRoundSelector(); }, 100);
     };
   }
 
@@ -1102,6 +1277,602 @@
     pause: pauseGame,
     resume: resumeGame,
     stop: stopMusic,
+    running: () => running,
+    setVisible: (visible) => { isGameVisible = visible; }
+  });
+})();
+
+/* ============================================================
+   SISTEMA DE MODALES Y COMPORTAMIENTO DE JUEGOS FLOTANTES
+   ============================================================ */
+(function initGameModals() {
+  const triggers = document.querySelectorAll('[data-open-modal]');
+  const closeButtons = document.querySelectorAll('[data-close-modal]');
+
+  triggers.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gameId = btn.dataset.openModal;
+      const modal = document.getElementById(`modal-${gameId}`);
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Evita scroll de fondo
+
+        // Activa el estado visible para el motor del juego y ajusta canvas
+        const selectedGame = document.getElementById(`game-${gameId}`) || modal;
+        selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+      }
+    });
+  });
+
+  closeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const gameId = btn.dataset.closeModal;
+      const modal = document.getElementById(`modal-${gameId}`);
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Devuelve el scroll normal
+
+        // Pausa automática y detención de música al cerrar la ventana flotante
+        if (window.gameStates && window.gameStates[gameId]) {
+          if (window.gameStates[gameId].pause) window.gameStates[gameId].pause();
+          if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
+          if (window.gameStates[gameId].setVisible) window.gameStates[gameId].setVisible(false);
+        }
+      }
+    });
+  });
+})();
+
+/* ---------------------------------------------------------
+   JUEGO 3: GUERRA DE COASTERS (CARRERA ARCADE) - CORREGIDO
+--------------------------------------------------------- */
+(function initGameCoasters(){
+  const canvas = document.getElementById('canvas-coasters');
+  if(!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const hud = document.getElementById('hud-coasters');
+  const overlay = document.getElementById('overlay-coasters');
+  const overlayCard = document.getElementById('overlay-card-coasters');
+  const gameContent = document.getElementById('modal-coasters'); // Vinculado a tu contenedor modal
+  
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  // Parámetros de Juego
+  let botDifficulty = 'easy';
+  let targetDistance = 2000; // Metros de carrera
+  
+  // Jugador y Bot
+  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8, lane: 1, targetX: 0, distance: 0, passengers: 0 };
+  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5, lane: 2, targetX: 0, distance: 0 };
+  
+  // Configuración de la carretera
+  const lanesCount = 4;
+  let laneWidth = 0;
+  let roadY = 0; // Desplazamiento del mapa
+
+  // Obstáculos, Pasajeros y Tráfico
+  let obstacles = [];
+  let passengers = [];
+  let trafficCars = [];
+  const lanePositions = [];
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    laneWidth = canvas.width / lanesCount;
+    for(let i=0; i<lanesCount; i++){
+      lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    }
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // Controles
+  let keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if(running && !paused) {
+      if(e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
+      if(e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
+    }
+  });
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  function moveLane(direction) {
+    let nextLane = player.lane + direction;
+    if(nextLane >= 0 && nextLane < lanesCount) {
+      player.lane = nextLane;
+    }
+  }
+
+  // Generar HUD dinámicamente
+  if(hud) {
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>🚌 Ruta 44 (Tú)</span>
+        <div class="coasters-progress-bar"><div id="p-prog" class="coasters-progress-fill"></div></div>
+        <b id="p-dist">0m</b>
+      </div>
+      <div class="hud-item">
+        <span>🚍 Ruta 101-D (Bot)</span>
+        <div class="coasters-progress-bar"><div id="b-prog" class="coasters-progress-fill bot"></div></div>
+        <b id="b-dist">0m</b>
+      </div>
+      <div class="hud-item">
+        <span>Pasajeros</span>
+        <b id="p-passengers">0</b>
+      </div>`;
+  }
+
+  function updateHud(){
+    const pProg = document.getElementById('p-prog');
+    const bProg = document.getElementById('b-prog');
+    const pDist = document.getElementById('p-dist');
+    const bDist = document.getElementById('b-dist');
+    const pPass = document.getElementById('p-passengers');
+
+    if(pProg) pProg.style.width = Math.min(100, (player.distance / targetDistance) * 100) + '%';
+    if(bProg) bProg.style.width = Math.min(100, (bot.distance / targetDistance) * 100) + '%';
+    if(pDist) pDist.textContent = Math.round(player.distance) + 'm / ' + targetDistance + 'm';
+    if(bDist) bDist.textContent = Math.round(bot.distance) + 'm';
+    if(pPass) pPass.textContent = player.passengers;
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-coasters');
+  const volumeSlider = document.getElementById('volumeSlider-coasters');
+  const volumeIcon = document.getElementById('volumeIcon-coasters');
+  const damageOverlay = document.getElementById('damageOverlay-coasters');
+  let volume = Number(volumeSlider?.value || 0.45);
+
+  if(bgMusic){
+    bgMusic.volume = volume;
+    bgMusic.muted = false;
+  }
+
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){
+      bgMusic.volume = volume;
+      bgMusic.muted = volume <= 0;
+    }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+
+  function flashDamage(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+  }
+  function hideOverlay(){ overlay.classList.add('hidden'); }
+
+  // REINICIO DE ESTADOS (Corregido el orden de asignación de botDifficulty)
+  function resetGame() {
+    resizeCanvas();
+    player.lane = 1;
+    player.x = lanePositions[1];
+    player.targetX = lanePositions[1];
+    player.y = canvas.height - 120;
+    player.speed = 0;
+    player.distance = 0;
+    player.passengers = 0;
+
+    bot.lane = 2;
+    bot.x = lanePositions[2];
+    bot.targetX = lanePositions[2];
+    bot.y = canvas.height - 120;
+    bot.speed = 0;
+    bot.distance = 0;
+
+    // Se asigna la velocidad adecuada según la dificultad seleccionada
+    if (botDifficulty === 'easy') {
+      bot.maxSpeed = 5.5;
+    } else if (botDifficulty === 'medium') {
+      bot.maxSpeed = 7.2;
+    } else {
+      bot.maxSpeed = 8.8; // Hard
+    }
+
+    obstacles = [];
+    passengers = [];
+    trafficCars = [];
+    roadY = 0;
+  }
+
+  function spawnEntities() {
+    if(Math.random() < 0.012 && obstacles.length < 5) {
+      obstacles.push({
+        x: lanePositions[Math.floor(Math.random() * lanesCount)],
+        y: -50,
+        type: Math.random() > 0.5 ? 'bache' : 'tumulo',
+        lane: Math.floor(Math.random() * lanesCount)
+      });
+    }
+
+    if(Math.random() < 0.015 && passengers.length < 4) {
+      passengers.push({
+        x: Math.random() > 0.5 ? 15 : canvas.width - 15,
+        y: -50,
+        collected: false
+      });
+    }
+
+    if(Math.random() < 0.006 && trafficCars.length < 2) {
+      const lane = Math.floor(Math.random() * lanesCount);
+      trafficCars.push({
+        x: lanePositions[lane],
+        y: -100,
+        lane: lane,
+        speed: 2 + Math.random() * 2,
+        color: ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)]
+      });
+    }
+  }
+
+  function step(timestamp){
+    if(!running || !isGameVisible) return;
+
+    const speedMultiplier = player.speed;
+    roadY += speedMultiplier;
+    player.distance += speedMultiplier * 0.1;
+    bot.distance += bot.speed * 0.1;
+
+    spawnEntities();
+
+    // Movimiento jugador
+    if(keys['w'] || keys['arrowup']) {
+      player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
+    } else if(keys['s'] || keys['arrowdown']) {
+      player.speed = Math.max(0, player.speed - 0.15);
+    } else {
+      player.speed = Math.max(1, player.speed - 0.04);
+    }
+
+    player.targetX = lanePositions[player.lane];
+    player.x += (player.targetX - player.x) * 0.22;
+
+    // Movimiento Bot (IA)
+    if(bot.distance < targetDistance){
+      bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.06);
+    }
+
+    // Esquivar obstáculos automáticamente
+    let botTargetLane = bot.lane;
+    obstacles.concat(trafficCars).forEach(item => {
+      if(item.lane === bot.lane && Math.abs(item.y - bot.y) < 220) {
+        if(bot.lane === 0) botTargetLane = 1;
+        else if(bot.lane === lanesCount - 1) botTargetLane = lanesCount - 2;
+        else botTargetLane = bot.lane + (Math.random() > 0.5 ? 1 : -1);
+      }
+    });
+    bot.lane = botTargetLane;
+    bot.targetX = lanePositions[bot.lane];
+    bot.x += (bot.targetX - bot.x) * 0.15;
+
+    // Actualizar obstáculos
+    obstacles.forEach((obs, idx) => {
+      obs.y += speedMultiplier;
+      if(Math.abs(obs.x - player.x) < 25 && Math.abs(obs.y - player.y) < 40) {
+        player.speed = Math.max(1, player.speed - 3);
+        flashDamage();
+        obstacles.splice(idx, 1);
+      }
+      if(Math.abs(obs.x - bot.x) < 25 && Math.abs(obs.y - bot.y) < 40) {
+        bot.speed = Math.max(1, bot.speed - 2.5);
+        obstacles.splice(idx, 1);
+      }
+      if(obs.y > canvas.height) obstacles.splice(idx, 1);
+    });
+
+    // Actualizar particulares
+    trafficCars.forEach((car, idx) => {
+      car.y += (speedMultiplier - car.speed);
+      if(Math.abs(car.x - player.x) < 32 && Math.abs(car.y - player.y) < 60) {
+        player.speed = 1.5;
+        flashDamage();
+        trafficCars.splice(idx, 1);
+      }
+      if(Math.abs(car.x - bot.x) < 32 && Math.abs(car.y - bot.y) < 60) {
+        bot.speed = 1.5;
+        trafficCars.splice(idx, 1);
+      }
+      if(car.y > canvas.height || car.y < -200) trafficCars.splice(idx, 1);
+    });
+
+    // Recoger pasajeros
+    passengers.forEach((p, idx) => {
+      p.y += speedMultiplier;
+      if(!p.collected && Math.abs(p.y - player.y) < 55) {
+        if((p.x < 50 && player.lane === 0) || (p.x > canvas.width - 50 && player.lane === lanesCount - 1)) {
+          p.collected = true;
+          player.passengers++;
+          player.speed = Math.min(player.maxSpeed + 2, player.speed + 1.8);
+          passengers.splice(idx, 1);
+        }
+      }
+      if(p.y > canvas.height) passengers.splice(idx, 1);
+    });
+
+    // Validar final
+    if(player.distance >= targetDistance) {
+      endRace('player');
+      return;
+    } else if(bot.distance >= targetDistance) {
+      endRace('bot');
+      return;
+    }
+
+    // Renderizar
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawRoad();
+    
+    obstacles.forEach(drawObstacle);
+    passengers.forEach(drawPassenger);
+    trafficCars.forEach(drawTrafficCar);
+
+    drawBus(player.x, player.y, '#d62828', 'R-44'); 
+    drawBus(bot.x, bot.y, '#003049', 'R-101D'); 
+
+    updateHud();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function drawRoad() {
+    ctx.fillStyle = '#424242';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#8d8d8d';
+    ctx.fillRect(0, 0, 15, canvas.height);
+    ctx.fillRect(canvas.width - 15, 0, 15, canvas.height);
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([20, 30]);
+    for(let i = 1; i < lanesCount; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * laneWidth, -100 + (roadY % 50));
+      ctx.lineTo(i * laneWidth, canvas.height + 100);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  function drawBus(x, y, color, label) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(-17, -35, 34, 80);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(-15, -40, 30, 75, 4);
+    ctx.fill();
+    ctx.fillStyle = '#a5f3fc';
+    ctx.fillRect(-12, -35, 24, 12);
+    ctx.fillStyle = '#ffeb3b';
+    ctx.beginPath();
+    ctx.arc(-11, -39, 3, 0, Math.PI*2);
+    ctx.arc(11, -39, 3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(-8, -21, 16, 5);
+    ctx.fillStyle = '#00e676';
+    ctx.font = 'bold 5px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, 0, -17);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(-14, -6, 4, 35);
+    ctx.fillRect(10, -6, 4, 35);
+    ctx.restore();
+  }
+
+  function drawObstacle(obs) {
+    ctx.save();
+    if(obs.type === 'bache') {
+      ctx.fillStyle = '#222222';
+      ctx.beginPath();
+      ctx.ellipse(obs.x, obs.y, 18, 10, 0, 0, Math.PI*2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = '#ffb300';
+      ctx.fillRect(obs.x - 22, obs.y - 4, 44, 8);
+      ctx.fillStyle = '#000000';
+      for(let i = -18; i <= 18; i += 10) {
+        ctx.fillRect(obs.x + i, obs.y - 4, 4, 8);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawPassenger(p) {
+    ctx.fillStyle = '#ff5722';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#ffcc80';
+    ctx.beginPath();
+    ctx.arc(p.x, p.y - 4, 4, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawTrafficCar(car) {
+    ctx.save();
+    ctx.translate(car.x, car.y);
+    ctx.fillStyle = car.color;
+    ctx.beginPath();
+    ctx.roundRect(-12, -22, 24, 44, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function endRace(winner) {
+    running = false;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+
+    let title, msg;
+    if(winner === 'player') {
+      title = "🏆 ¡VICTORIA TOTAL!";
+      msg = `¡La Ruta 44 llegó primero! Recogiste a <b>${player.passengers}</b> pasajeros en el camino.`;
+    } else {
+      title = "🏁 Te ganaron el pasaje...";
+      msg = "La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!";
+    }
+
+    showOverlay(`
+      <span class="overlay-tag">Fin de la Carrera</span>
+      <h3>${title}</h3>
+      <p>${msg}</p>
+      <button class="btn-primary" id="btn-restart-coasters">Revancha</button>
+    `);
+    document.getElementById('btn-restart-coasters').onclick = showModeSelector;
+  }
+
+  function showDistanceSelector() {
+    showOverlay(`
+      <span class="overlay-tag">Configuración</span>
+      <h3>🏁 Elige la Distancia</h3>
+      <p>¿Qué tan largo será el trayecto?</p>
+      <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-primary" id="dist-1">Express (1000m)</button>
+        <button class="btn-primary" id="dist-2">Normal (2500m)</button>
+        <button class="btn-primary" id="dist-3">Costa a Costa (5000m)</button>
+      </div>
+    `);
+
+    document.getElementById('dist-1').onclick = () => { selectDistance(1000); };
+    document.getElementById('dist-2').onclick = () => { selectDistance(2500); };
+    document.getElementById('dist-3').onclick = () => { selectDistance(5000); };
+  }
+
+  function selectDistance(dist) {
+    targetDistance = dist;
+    showDifficultySelector();
+  }
+
+  function showDifficultySelector() {
+    showOverlay(`
+      <span class="overlay-tag">Dificultad</span>
+      <h3>🚦 ¿Qué tan veloz es tu rival?</h3>
+      <p>Ajusta el nivel del motorista oponente.</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-coasters">
+          🟢 Tranquilo
+          <div class="difficulty-desc">Va despacio</div>
+        </button>
+        <button class="difficulty-btn medium" id="btn-medium-coasters">
+          🟡 Apurado
+          <div class="difficulty-desc">Busca rebasarte</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-coasters">
+          🔴 Hora Pico
+          <div class="difficulty-desc">Maneja a lo loco</div>
+        </button>
+      </div>`);
+
+    document.getElementById('btn-easy-coasters').onclick = () => { startGame('easy'); };
+    document.getElementById('btn-medium-coasters').onclick = () => { startGame('medium'); };
+    document.getElementById('btn-hard-coasters').onclick = () => { startGame('hard'); };
+  }
+
+  function startGame(difficulty) {
+    botDifficulty = difficulty; // 1. Asignamos primero la dificultad seleccionada
+    resetGame();                // 2. Reiniciamos parámetros (ahora leerá bien 'medium')
+    hideOverlay();
+    
+    running = true;
+    paused = false;
+    if(bgMusic) {
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(()=>{});
+    }
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showModeSelector() {
+    showOverlay(`
+      <span class="overlay-tag">Preparar Motor</span>
+      <h3>🚌 Guerra de Coasters SV</h3>
+      <p>Esquiva baches y recoge pasajeros usando 'A' y 'D' (o flechas) para ganarle a la Ruta 101-D.</p>
+      <button class="btn-primary" id="btn-start-coasters">Siguiente</button>
+    `);
+    document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
+  }
+
+  // Eventos y Pausa
+  const canvasWrap = document.getElementById('coasters-canvas-wrap');
+  const pauseBtn = document.getElementById('pauseBtn-coasters');
+  const pauseIcon = document.getElementById('pauseIcon-coasters');
+  const pauseOverlay = document.getElementById('pauseOverlay-coasters');
+  const resumeBtn = document.getElementById('resumeBtn-coasters');
+  const menuBtn = document.getElementById('menuBtn-coasters');
+
+  function pauseGame() {
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+
+  function resumeGame() {
+    if(!paused) return;
+    paused = false;
+    running = true;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+
+  function returnToMenu() {
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    showModeSelector();
+  }
+
+  pauseBtn?.addEventListener('click', () => {
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  // Inicializar menú básico
+  showModeSelector();
+
+  // Integración perfecta con el selector global de visibilidad de Raíces SV
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'coasters') {
+      isGameVisible = true;
+      resizeCanvas();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('coasters', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: () => bgMusic?.pause(),
     running: () => running,
     setVisible: (visible) => { isGameVisible = visible; }
   });

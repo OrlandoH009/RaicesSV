@@ -13,6 +13,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: url('../media/Hero-Categorias.jpg') center/cover no-repeat;
 }
 
 .hero__bg {
