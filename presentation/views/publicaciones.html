@@ -1,8 +1,3 @@
-<!-- ============================================================
-     RAÍCES SV — Sección de Publicaciones
-     Frontend interactivo con hover y navegación al mapa
-     ============================================================ -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,27 +7,68 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/publicaciones.css">
+  
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#113068" />
 </head>
 <body>
 
-  <!-- ════════════════════════════════════
-       SECCIÓN DE PUBLICACIONES
-       ════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo">
+      <a href="../views/index.html">
+        <img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo Raíces SV" />
+      </a>
+    </div>
+    <ul class="navbar__links">
+      <li><a href="../views/index.html">Inicio</a></li>
+      <li><a href="../views/categorias.html">Categorías</a></li>
+      <li><a href="../views/mapa.html">Mapa</a></li>
+      <li><a href="../views/calendario.html">Calendario</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <div class="drawer-section-label">Principal</div>
+    <a href="../views/index.html" class="drawer-link">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Explorar</div>
+    <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
+    <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
+    <a href="../views/recetas.html" class="drawer-link">Recetario</a>
+    <a href="../views/eventos.html" class="drawer-link">Eventos Culturales</a>
+    <a href="../views/historia.html" class="drawer-link">Historia</a>
+    <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
+    <a href="../views/leyendas.html" class="drawer-link">Leyendas</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
   <section class="publications-section">
     <div class="publications-container">
-      <!-- Encabezado -->
       <div class="publications-header">
         <h1>Comparte la Magia de El Salvador</h1>
         <p>Descubre fotografías y historias de lugares increíbles compartidas por nuestra comunidad</p>
       </div>
 
-      <!-- Grid de publicaciones -->
       <div class="publications-grid" id="publicationsGrid">
-        <!-- Las publicaciones se cargarán aquí con JavaScript -->
-      </div>
+        </div>
 
-      <!-- Estado vacío (si no hay publicaciones) -->
       <div class="publications-empty" id="emptyState" style="display: none;">
         <div class="publications-empty-icon">📸</div>
         <p>No hay publicaciones aún</p>
@@ -41,9 +77,6 @@
     </div>
   </section>
 
-  <!-- ════════════════════════════════════
-       SECCIÓN DE CREAR PUBLICACIÓN
-       ════════════════════════════════════ -->
   <section class="create-publication-section">
     <div class="create-publication-container">
       <div class="create-publication-header">
@@ -52,19 +85,16 @@
       </div>
 
       <form class="publication-form" id="publicationForm">
-        <!-- Título -->
         <div class="form-group">
           <label for="pubTitle">Título del Lugar</label>
           <input type="text" id="pubTitle" placeholder="Ej: Cascada de Siete Pozos" required>
         </div>
 
-        <!-- Descripción -->
         <div class="form-group">
           <label for="pubDescription">Descripción</label>
           <textarea id="pubDescription" placeholder="Describe tu experiencia en este lugar..." required></textarea>
         </div>
 
-        <!-- Ubicación -->
         <div class="form-group">
           <label for="pubLocation">Ubicación</label>
           <select id="pubLocation" required>
@@ -83,7 +113,6 @@
           </select>
         </div>
 
-        <!-- Imagen -->
         <div class="form-group form-file-input">
           <label for="pubImage" class="form-file-label">
             <div class="form-file-icon">📷</div>
@@ -97,7 +126,6 @@
           </div>
         </div>
 
-        <!-- Botones -->
         <div class="form-submit-group">
           <button type="submit" class="form-submit-btn">Publicar</button>
           <button type="reset" class="form-cancel-btn">Limpiar</button>
@@ -106,7 +134,46 @@
     </div>
   </section>
 
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />
+      <p class="footer__name">Raíces SV</p>
+      <ul class="footer__links">
+        <li><a href="../views/index.html">Inicio</a></li>
+        <li><a href="../views/mapa.html">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
+        <li><a href="../views/eventos.html">Eventos</a></li>
+        <li><a href="../views/historia.html">Historia</a></li>
+        <li><a href="../views/juegos.html">Juegos</a></li>
+      </ul>
+      <p class="footer__copy">&copy; 2026 Raíces SV — Nuestra herencia, nuestro orgullo.</p>
+    </div>
+  </footer>
 
+  <div class="guest-modal-overlay" id="guestModalOverlay">
+    <div class="guest-modal" id="guestModal">
+      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar">&times;</button>
+      <div class="guest-modal__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <h3 class="guest-modal__title">¡Qué bueno tenerte por aquí! 👋</h3>
+      <p class="guest-modal__text">
+        Puedes seguir explorando las categorías con toda libertad, pero si te registras vas a
+        disfrutar mucho más de todo lo que Raíces SV tiene para ti.
+      </p>
+      <div class="guest-modal__actions">
+        <a href="../views/registro.html" class="guest-modal__btn guest-modal__btn--primary">Crear mi cuenta</a>
+        <a href="../views/login.html" class="guest-modal__btn guest-modal__btn--secondary">Ya tengo cuenta</a>
+      </div>
+      <button class="guest-modal__skip" id="guestModalSkip">Seguir explorando sin cuenta</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/chatbot.js"></script>
   <script src="../assets/js/publicaciones.js"></script>

@@ -1,0 +1,691 @@
+    /* ── Variables ── */
+    :root {
+      --navy: #113068;
+      --navy-dark: #0f2f66;
+      --gold: #be8e56;
+      --gold-hover: #a87a42;
+      --cream: #e5eaff;
+      --black: #1d1919;
+      --white: #ffffff;
+      --overlay: rgba(15, 47, 102, 0.45);
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'Lato', sans-serif;
+      --r-sm: 15px;
+      --r-md: 25px;
+    }
+
+    /* ── Reset ── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* ══════════════════════════════════
+       SECCIÓN DE PUBLICACIONES
+       ══════════════════════════════════ */
+
+    .publications-section {
+      min-height: 100vh;
+      padding: 1.5rem 2rem 4rem;
+      background: linear-gradient(135deg, #1d1919 0%, #2a2624 100%);
+      position: relative;
+    }
+
+    .publications-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(to bottom, rgba(190, 142, 86, 0.08), transparent);
+      pointer-events: none;
+    }
+
+    .publications-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .publications-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .publications-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.8rem;
+    }
+
+    .publications-header p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .publications-header::after {
+      content: '';
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 1.5rem auto 0;
+      display: block;
+    }
+
+    /* ── Grid de publicaciones ── */
+    .publications-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Tarjeta de publicación ── */
+    .publication-card {
+      background: rgba(29, 25, 25, 0.6);
+      border: 1px solid rgba(190, 142, 86, 0.3);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .publication-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--gold);
+      box-shadow: 0 12px 40px rgba(190, 142, 86, 0.25);
+      background: rgba(29, 25, 25, 0.8);
+    }
+
+    .publication-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(190, 142, 86, 0.1) 0%, rgba(17, 48, 104, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .publication-card:hover::before {
+      opacity: 1;
+    }
+
+    /* ── Contenedor de imagen ── */
+    .publication-image-container {
+      position: relative;
+      width: 100%;
+      padding-top: 66.66%;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+    }
+
+    .publication-image-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .publication-card:hover .publication-image-container img {
+      transform: scale(1.08);
+    }
+
+    /* ── Overlay en imagen ── */
+    .publication-image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(17, 48, 104, 0.8));
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      z-index: 2;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+
+    .publication-card:hover .publication-image-overlay {
+      opacity: 1;
+    }
+
+    .publication-image-overlay-text {
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Contenido de la tarjeta ── */
+    .publication-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 2;
+    }
+
+    .publication-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .publication-description {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 1.2rem;
+      flex: 1;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Información de ubicación ── */
+    .publication-location {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(190, 142, 86, 0.2);
+    }
+
+    .publication-location-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(190, 142, 86, 0.2);
+      border-radius: 50%;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .publication-location-text {
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ── Botón de acción ── */
+    .publication-action {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(190, 142, 86, 0.2);
+    }
+
+    .publication-btn {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+      color: var(--white);
+      border: none;
+      border-radius: var(--r-sm);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .publication-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
+    }
+
+    .publication-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ── Estado vacío ── */
+    .publications-empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .publications-empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .publications-empty p {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ══════════════════════════════════
+       SECCIÓN DE FORMULARIO (CREAR PUBLICACIÓN)
+       ══════════════════════════════════ */
+
+    .create-publication-section {
+      background: rgba(17, 48, 104, 0.5);
+      border-top: 2px solid var(--gold);
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+    }
+
+    .create-publication-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .create-publication-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .create-publication-header h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .create-publication-header p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ── Formulario ── */
+    .publication-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--white);
+      margin-bottom: 0.6rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 0.9rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(190, 142, 86, 0.3);
+      border-radius: var(--r-sm);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(190, 142, 86, 0.15);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* ── Input archivo ── */
+    .form-file-input {
+      position: relative;
+    }
+
+    .form-file-input input[type="file"] {
+      display: none;
+    }
+
+    .form-file-label {
+      display: block;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(190, 142, 86, 0.15) 0%, rgba(17, 48, 104, 0.15) 100%);
+      border: 2px dashed var(--gold);
+      border-radius: var(--r-sm);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .form-file-label:hover {
+      background: linear-gradient(135deg, rgba(190, 142, 86, 0.25) 0%, rgba(17, 48, 104, 0.25) 100%);
+      border-color: var(--gold-hover);
+    }
+
+    .form-file-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-file-text {
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .form-file-subtext {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+    }
+
+    /* ── Preview de imagen ── */
+    .form-file-preview {
+      display: none;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .form-file-preview img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(190, 142, 86, 0.3);
+    }
+
+    .form-file-preview.show {
+      display: block;
+    }
+
+    .form-file-remove {
+      margin-top: 0.8rem;
+      padding: 0.6rem 1rem;
+      background: rgba(220, 53, 69, 0.2);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-file-remove:hover {
+      background: rgba(220, 53, 69, 0.3);
+      border-color: #ff6b6b;
+    }
+
+    /* ── Botón enviar ── */
+    .form-submit-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-submit-btn,
+    .form-cancel-btn {
+      flex: 1;
+      padding: 1rem;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-submit-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+      color: var(--white);
+    }
+
+    .form-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
+    }
+
+    .form-cancel-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .form-cancel-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ══════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════ */
+
+    @media (max-width: 768px) {
+      .publications-section {
+        padding: 4rem 1.5rem 3rem;
+      }
+
+      .publications-header {
+        margin-bottom: 2.5rem;
+      }
+
+      .publications-header h1 {
+        font-size: 2rem;
+      }
+
+      .publications-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .create-publication-section {
+        padding: 2rem 1.5rem;
+      }
+
+      .create-publication-header h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .publications-section {
+        padding: 3rem 1rem 2rem;
+      }
+
+      .publications-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .publications-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+
+      .publication-title {
+        font-size: 1.2rem;
+      }
+
+      .publication-description {
+        font-size: 0.9rem;
+      }
+
+      .create-publication-section {
+        padding: 1.5rem 1rem;
+      }
+
+      .create-publication-header h2 {
+        font-size: 1.3rem;
+      }
+
+      .form-submit-group {
+        flex-direction: column;
+      }
+    }
+
+    /* ── Animaciones de aparición ── */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .publication-card {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .publication-card:nth-child(1) { animation-delay: 0.1s; }
+    .publication-card:nth-child(2) { animation-delay: 0.2s; }
+    .publication-card:nth-child(3) { animation-delay: 0.3s; }
+    .publication-card:nth-child(4) { animation-delay: 0.4s; }
+    .publication-card:nth-child(5) { animation-delay: 0.5s; }
+    .publication-card:nth-child(6) { animation-delay: 0.6s; }
+
+    /* ── MEJORAS DE DISEÑO PARA LA PARTE INFERIOR ── */
+
+/* Transición suave y balanceada entre el formulario de creación y el Footer */
+.create-publication-section {
+  background: linear-gradient(to bottom, rgba(17, 48, 104, 0.45) 0%, rgba(29, 25, 25, 0.95) 100%);
+  border-top: 2px solid var(--gold);
+  padding: 5rem 2rem; /* Más espacio vertical para que respire el formulario */
+  margin-top: 0; /* Unificado directamente con la sección anterior */
+}
+
+/* Compensar el espacio superior del body para que el Navbar fijo no tape el título */
+body {
+  padding-top: 80px; /* Ajusta este valor si tu navbar es más alto/bajo */
+}
+
+/* Unificación de estilos para el Footer dentro de la página de publicaciones */
+.footer {
+  background-color: var(--black) !important;
+  border-top: 1px solid rgba(190, 142, 86, 0.2);
+  padding: 4rem 2rem;
+}
+/* ══════════════════════════════════
+   BLOQUEO ELEGANTE PARA INVITADOS
+   ══════════════════════════════════ */
+
+.create-publication-section.is-guest {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Capa oscura y difuminada sobre el formulario */
+.guest-blocker-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(29, 25, 25, 0.85); /* Fondo oscuro semi-transparente */
+  backdrop-filter: blur(8px); /* Efecto esmerilado de desenfoque */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Caja de contenido del bloqueo */
+.blocker-content {
+  max-width: 420px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.blocker-icon {
+  font-size: 3.5rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 8px rgba(190, 142, 86, 0.4));
+}
+
+.blocker-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--white);
+  margin-bottom: 0.8rem;
+}
+
+.blocker-text {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1rem;
+  margin-bottom: 1.8rem;
+  line-height: 1.5;
+}
+
+.blocker-btn {
+  padding: 0.9rem 2.2rem;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.blocker-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
+}
