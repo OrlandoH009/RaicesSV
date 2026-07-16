@@ -678,6 +678,27 @@ LANDMARKS.forEach(lm => {
   markers.push(marker);
 });
 
+(function manejarPublicacionDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const location = params.get('location');
+  const latParam = params.get('lat');
+  const lngParam = params.get('lng');
+
+  if (!location || !latParam || !lngParam) return;
+
+  const lat = parseFloat(latParam);
+  const lng = parseFloat(lngParam);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+
+  const marker = L.marker([lat, lng], {
+    icon: crearIcono('📍', '#be8e56')
+  }).addTo(mapa);
+
+  marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
+  mapa.setView([lat, lng], 14, { animate: true });
+})();
+
 /* ══════════════════════════════════════════════════════════
    BOTÓN "VOLVER"
    ══════════════════════════════════════════════════════════ */
