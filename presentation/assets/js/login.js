@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.to(submitBtn, {
           scale: 1,
           y: 0,
-          boxShadow: 'none',
+          boxShadow: '0 2px 8px rgba(0,0,0,.12)', // Volvemos a la sombra original de tu CSS
           duration: 0.25,
           ease: 'power2.out',
           onComplete: () => { if (glowTween) glowTween.resume(); }
