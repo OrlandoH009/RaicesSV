@@ -79,21 +79,31 @@
   pointer-events: none;
 }
 
+/* ── Fila de acciones (Ver en mapa / Ver publicaciones) ── */
+.sitio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 /* ── Botón "Ver en mapa" dentro de cada panel de sitio ── */
 .sitio-map-link {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  margin-top: 1.5rem;
+  margin-top: 0;
   padding: .7rem 1.6rem;
   border-radius: var(--r-sm);
   border: 1px solid var(--cream);
+  background: transparent;
   color: var(--cream);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: .95rem;
   text-decoration: none;
-  transition: background .25s, color .25s;
+  cursor: pointer;
+  transition: background .25s, color .25s, transform .2s, box-shadow .25s;
 }
 .sitio-map-link::before {
   content: "📍";
@@ -102,6 +112,37 @@
 .sitio-map-link:hover {
   background: var(--cream);
   color: var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+}
+
+/* ── Botón "Ver publicaciones" — variante en tono dorado, hermano del de mapa ── */
+.sitio-pub-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 0;
+  padding: .7rem 1.6rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--gold, #be8e56);
+  background: transparent;
+  color: var(--gold, #be8e56);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .95rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .25s, color .25s, transform .2s, box-shadow .25s;
+}
+.sitio-pub-link::before {
+  content: "📸";
+  font-size: .9rem;
+}
+.sitio-pub-link:hover {
+  background: var(--gold, #be8e56);
+  color: var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
 }
 
 /* ── CTA ── */

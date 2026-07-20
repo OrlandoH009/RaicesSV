@@ -1,4 +1,4 @@
-    /* ── Variables ── */
+/* ── Variables ── */
     :root {
       --navy: #113068;
       --navy-dark: #0f2f66;
@@ -98,6 +98,51 @@
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
       margin: 1.5rem auto 0;
       display: block;
+    }
+
+    /* ── Chip de filtro activo por sitio ── */
+    .publications-filter {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: .8rem;
+      flex-wrap: wrap;
+      margin: -2rem auto 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .publications-filter.is-active { display: flex; }
+    .publications-filter__label {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .55rem 1.2rem;
+      border-radius: 999px;
+      background: rgba(190, 142, 86, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: .95rem;
+    }
+    .publications-filter__clear {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .55rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-family: var(--font-body);
+      font-size: .9rem;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .publications-filter__clear:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      border-color: rgba(255,255,255,0.4);
     }
 
     /* ── Grid de publicaciones ── */
@@ -224,7 +269,6 @@
       flex: 1;
       line-height: 1.6;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
