@@ -1,10 +1,14 @@
 const authService = require('./auth.server');
-
+const isSafeRedirect = (path) => {
+    if (!path || typeof path !== 'string') return false;
+    return path.startsWith('/') && !path.startsWith('//') && !path.includes('http');
+}
 const login = async (req, res) => {
 
     try {
 
-        const { email, password } = req.body;
+        const { email, password, redirect } = req.body;
+        const safeRedirect = isSafeRedirect(redirect) ? redirect : '/';
 
         const user = await authService.login(
             email,
@@ -32,7 +36,7 @@ const login = async (req, res) => {
                     return res.status(500).send('No se pudo iniciar sesión. Inténtalo de nuevo.');
                 }
 
-                res.redirect('/');
+                res.redirect(safeRedirect);
             });
         });
 
