@@ -436,6 +436,40 @@ const LANDMARKS = [
     chips: ['Leyenda', 'Mirador', 'Senderismo'],
     coords: [13.6183, -89.1619]
   },
+
+  /* ── SITIOS CULTURALES (añadidos desde la ficha de "Sitios Culturales") ── */
+  {
+    id: 53, cat: 'cultural', emoji: '🏺', color: '#be8e56',
+    nombre: 'Casa Blanca',
+    lugar: 'Chalchuapa, Santa Ana',
+    desc: 'Sitio arqueológico maya-pipil junto a Tazumal, con un taller demostrativo de teñido con añil.',
+    chips: ['Maya-Pipil', 'Taller de añil', 'Entrada con costo'],
+    coords: [13.9825, -89.6825]
+  },
+  {
+    id: 54, cat: 'cultural', emoji: '🏛️', color: '#be8e56',
+    nombre: 'Palacio Nacional',
+    lugar: 'Centro Histórico, San Salvador',
+    desc: 'Antigua sede de los tres poderes del Estado, inaugurado en 1911, hoy funciona como museo de entrada libre.',
+    chips: ['Inaugurado 1911', 'Neoclásico', 'Museo, entrada libre'],
+    coords: [13.6989, -89.1912]
+  },
+  {
+    id: 55, cat: 'cultural', emoji: '🎭', color: '#be8e56',
+    nombre: 'Teatro Nacional',
+    lugar: 'Centro Histórico, San Salvador',
+    desc: 'El teatro más antiguo que sigue en funciones en Centroamérica, inaugurado en 1917 con estilo neoclásico francés.',
+    chips: ['Inaugurado 1917', 'Neoclásico francés', 'Sede cultural'],
+    coords: [13.6980, -89.1918]
+  },
+  {
+    id: 56, cat: 'cultural', emoji: '⛪', color: '#be8e56',
+    nombre: 'Iglesia El Rosario',
+    lugar: 'Centro Histórico, San Salvador',
+    desc: 'Templo de arquitectura moderna en concreto expuesto, célebre por sus vitrales de colores que iluminan todo el interior.',
+    chips: ['Construida en los 70s', 'Arquitectura moderna', 'Acceso libre'],
+    coords: [13.6972, -89.1905]
+  },
 ];
 
 /* ══════════════════════════════════════════════════════════
@@ -729,14 +763,40 @@ LANDMARKS.forEach(lm => {
 })();
 
 /* ══════════════════════════════════════════════════════════
+   MAPA DE SLUGS → ID DE LANDMARK
+   (usado por el botón "Ver en mapa" de sitios-culturales.html,
+   que enlaza con ?sitio=slug en vez de ?evento=id)
+   ══════════════════════════════════════════════════════════ */
+const SLUG_TO_LANDMARK_ID = {
+  salvador: 3,
+  tazumal: 1,
+  joya: 2,
+  suchitoto: 4,
+  catedral: 5,
+  muna: 6,
+  sanandres: 7,
+  casablanca: 53,
+  palacionacional: 54,
+  teatronacional: 55,
+  elrosario: 56
+};
+
+/* ══════════════════════════════════════════════════════════
    DESTACAR LANDMARK BUSCADO
    ══════════════════════════════════════════════════════════ */
 (function resaltarLandmarkDesdeURL() {
   const params = new URLSearchParams(window.location.search);
   const idParam = params.get('evento');
-  if (!idParam) return;
+  const sitioParam = params.get('sitio');
 
-  const targetId = parseInt(idParam, 10);
+  let targetId = null;
+  if (idParam) {
+    targetId = parseInt(idParam, 10);
+  } else if (sitioParam && SLUG_TO_LANDMARK_ID[sitioParam] !== undefined) {
+    targetId = SLUG_TO_LANDMARK_ID[sitioParam];
+  }
+  if (targetId === null) return;
+
   const lm = LANDMARKS.find(l => l.id === targetId);
   const targetMarker = markers.find(m => m._landmarkId === targetId);
   if (!lm || !targetMarker) return;
