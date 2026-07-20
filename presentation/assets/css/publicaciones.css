@@ -733,3 +733,185 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
 }
+/* ============================================================
+   Modal de invitación para visitantes sin cuenta
+   ============================================================ */
+.guest-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 48, 104, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+}
+.guest-modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.guest-modal {
+  position: relative;
+  background: var(--cream);
+  border-radius: var(--r-md);
+  max-width: 420px;
+  width: 100%;
+  padding: 2.4rem 2.2rem 2rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+
+.guest-modal__close {
+  position: absolute;
+  top: .8rem;
+  right: .9rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: rgba(17,48,104,.5);
+  cursor: pointer;
+  padding: .2rem .5rem;
+  transition: color .2s ease;
+}
+.guest-modal__close:hover { color: var(--navy); }
+
+.guest-modal__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.1rem;
+  border-radius: 50%;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+.guest-modal__icon svg { width: 30px; height: 30px; }
+
+.guest-modal__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--navy);
+  margin-bottom: .6rem;
+}
+
+.guest-modal__text {
+  font-family: var(--font-body);
+  font-size: .96rem;
+  color: rgba(0,0,0,.65);
+  line-height: 1.5;
+  margin-bottom: 1.6rem;
+}
+
+.guest-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+
+.guest-modal__btn {
+  display: block;
+  padding: .8rem 1rem;
+  border-radius: var(--r-lg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: transform .2s ease, background-color .2s ease;
+}
+.guest-modal__btn--primary {
+  background: var(--gold);
+  color: var(--white);
+  border: 3px solid var(--black);
+}
+.guest-modal__btn--primary:hover { background: var(--gold-hover); }
+
+.guest-modal__btn--secondary {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid rgba(17,48,104,.35);
+}
+.guest-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
+
+.guest-modal__skip {
+  background: none;
+  border: none;
+  color: rgba(0,0,0,.45);
+  font-family: var(--font-body);
+  font-size: .85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.guest-modal__skip:hover { color: rgba(0,0,0,.7); }
+
+@media (max-width: 480px) {
+  .guest-modal { padding: 2rem 1.4rem 1.6rem; }
+}
+    /* ════════════════════════════════════
+       ESTILOS DEL BLOQUEADOR DEL FORMULARIO
+       ════════════════════════════════════ */
+    .create-publication-section.is-guest {
+      position: relative;
+    }
+    .guest-blocker-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(9, 20, 43, 0.85);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .blocker-content {
+      max-width: 400px;
+      text-align: center;
+      background: #11254c;
+      border: 1px solid rgba(190, 142, 86, 0.3);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+    .blocker-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    .blocker-title {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .blocker-text {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .blocker-btn {
+      background: #be8e56;
+      color: #0b1528;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .blocker-btn:hover {
+      background: #d4a36a;
+      transform: translateY(-2px);
+    }

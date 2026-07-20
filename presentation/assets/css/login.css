@@ -170,6 +170,11 @@ button.auth-submit {
   appearance: none;
 }
 
+/* Esto fuerza al botón a regresar a su eje original si no se le hace hover */
+.auth-submit:not(:hover) {
+  transform: none !important;
+}
+
 .auth-submit::before {
   content: '';
   position: absolute;
@@ -228,6 +233,7 @@ button.auth-submit {
   white-space: nowrap;
 }
 /* Botón Google completo — estilo moderno debajo del submit */
+/* Busca esta clase en tu CSS y añade la línea con el comentario */
 .auth-google-btn-full {
   display: flex;
   align-items: center;
@@ -247,10 +253,22 @@ button.auth-submit {
   text-decoration: none;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  
+  /* 1. AGREGA ESTA LÍNEA para asegurar que empiece en su posición original */
+  transform: translateY(0); 
   transition: all .22s ease;
   overflow: hidden;
   position: relative;
   isolation: isolate;
+}
+
+/* Tu hover actual se encargará del resto y la transición "all .22s" 
+   hará que baje suavemente al quitar el cursor */
+.auth-google-btn-full:hover {
+  border-color: rgba(17,48,104,.35);
+  box-shadow: 0 6px 20px rgba(17,48,104,.12);
+  transform: translateY(-2px);
+  color: var(--navy);
 }
 .auth-google-btn-full::before {
   content: '';
@@ -262,12 +280,6 @@ button.auth-submit {
   background: linear-gradient(90deg, rgba(66,133,244,.08), rgba(52,168,83,.08));
   transition: left .22s ease;
   z-index: -1;
-}
-.auth-google-btn-full:hover {
-  border-color: rgba(17,48,104,.35);
-  box-shadow: 0 6px 20px rgba(17,48,104,.12);
-  transform: translateY(-2px);
-  color: var(--navy);
 }
 .auth-google-btn-full:hover::before {
   left: 0;
