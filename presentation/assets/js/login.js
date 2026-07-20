@@ -152,9 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
 
     const formData = new FormData(form);
+    const params = new URLSearchParams(window.location.search);
     const payload = {
       email: formData.get('email'),
-      password: formData.get('password')
+      password: formData.get('password'),
+      redirect: params.get('redirect') || ''
     };
 
     try {
