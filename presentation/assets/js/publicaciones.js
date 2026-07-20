@@ -167,16 +167,21 @@ function showGuestModal() {
 // ════════════════════════════════════
 // MANEJAR CLIC EN TARJETA
 // ════════════════════════════════════
+// ════════════════════════════════════
+// MANEJAR CLIC EN TARJETA (Corregido)
+// ════════════════════════════════════
 function handleCardClick(e) {
-  // Si el usuario no ha iniciado sesión, evitamos la redirección y mostramos tu modal
+  // Prevenir cualquier comportamiento extraño y detener propagación
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Si el usuario no ha iniciado sesión, mostramos tu modal de invitación
   if (!isUserLoggedIn) {
-    e.preventDefault();
-    e.stopPropagation();
     showGuestModal();
     return;
   }
 
-  // Si está logeado, continúa su flujo hacia el mapa normalmente
+  // Si está logeado, obtenemos los datos de la tarjeta contenedora
   const card = e.currentTarget;
   const location = card.dataset.location;
   const lat = parseFloat(card.dataset.lat);
@@ -194,7 +199,7 @@ function handleCardClick(e) {
 }
 
 // ════════════════════════════════════
-// CONTROL DE ACCESOS PARA SUBIDA
+// CONTROL DE ACCESOS PARA SUBIDA (Corregido con Event Listener Directo)
 // ════════════════════════════════════
 function checkGuestFormAccess() {
   const formSection = document.querySelector('.create-publication-section');
@@ -208,23 +213,39 @@ function checkGuestFormAccess() {
     const overlay = document.createElement('div');
     overlay.className = 'guest-blocker-overlay';
     overlay.innerHTML = `
-      <div class="blocker-content">
+      <div class="blocker-content" style="position: relative; z-index: 20;">
         <div class="blocker-icon">🔒</div>
         <h3 class="blocker-title">¿Quieres compartir un lugar?</h3>
         <p class="blocker-text">Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.</p>
-        <button class="blocker-btn" onclick="window.location.href='/views/login.html'">Iniciar Sesión / Registrarse</button>
+        <button class="blocker-btn" id="goToLoginBtn" type="button" style="pointer-events: auto; cursor: pointer;">Iniciar Sesión / Registrarse</button>
       </div>
     `;
     formSection.appendChild(overlay);
 
-    // Deshabilitar todos los controles dentro del formulario para seguridad extra
-    const inputs = formSection.querySelectorAll('input, textarea, select, button');
-    inputs.forEach(input => {
-      input.disabled = true;
-      input.tabIndex = -1; // Evita enfocar con la tecla TAB
-    });
+    // Asignamos el evento de redirección directamente con JavaScript
+    const loginBtn = document.getElementById('goToLoginBtn');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = 'login.html';
+      });
+    }
+
+    // Deshabilitar únicamente los elementos originales del formulario interno
+    const originalForm = document.getElementById('publicationForm');
+    if (originalForm) {
+      const inputs = originalForm.querySelectorAll('input, textarea, select, button');
+      inputs.forEach(input => {
+        // Evitamos deshabilitar nuestro nuevo botón de login por accidente
+        if (input.id !== 'goToLoginBtn') {
+          input.disabled = true;
+          input.tabIndex = -1;
+        }
+      });
+    }
   }
-}
+} 
 
 // ════════════════════════════════════
 // MANEJAR FORMULARIO
