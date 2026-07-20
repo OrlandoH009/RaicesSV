@@ -49,8 +49,77 @@ const publicationsData = [
     location: "Bosque El Imposible",
     image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=350&fit=crop",
     coordinates: { lat: 13.8667, lng: -89.9333 }
+  },
+  {
+    id: 7,
+    title: "Salas del Museo Nacional de Antropología",
+    description: "Recorrido por las salas del MUNA, con piezas arqueológicas y etnográficas que cuentan la historia de El Salvador.",
+    location: "MUNA",
+    image: "https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.7020, lng: -89.2230 }
+  },
+  {
+    id: 8,
+    title: "Acrópolis de las Ruinas de San Andrés",
+    description: "La gran plaza ceremonial maya de San Andrés, rodeada de vegetación y con el volcán de fondo.",
+    location: "Ruinas de San Andrés",
+    image: "https://images.unsplash.com/photo-1518537774776-6d0c9de1efba?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.8044, lng: -89.3939 }
+  },
+  {
+    id: 9,
+    title: "Taller de añil en Casa Blanca",
+    description: "Aprendiendo el proceso artesanal del teñido con añil en el taller demostrativo de Casa Blanca, Chalchuapa.",
+    location: "Casa Blanca",
+    image: "https://images.unsplash.com/photo-1528283260755-3a97f5e88af1?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.9825, lng: -89.6825 }
+  },
+  {
+    id: 10,
+    title: "Salones del Palacio Nacional",
+    description: "Los salones Azul, Rojo y Amarillo del Palacio Nacional, con su mármol italiano y detalles neoclásicos.",
+    location: "Palacio Nacional",
+    image: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6989, lng: -89.1912 }
+  },
+  {
+    id: 11,
+    title: "Noche de gala en el Teatro Nacional",
+    description: "El teatro más antiguo de Centroamérica, con sus balcones dorados y terciopelo rojo, listo para una función.",
+    location: "Teatro Nacional",
+    image: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6980, lng: -89.1918 }
+  },
+  {
+    id: 12,
+    title: "Vitrales de la Iglesia El Rosario",
+    description: "El arcoíris de luz que atraviesa los vitrales de la Iglesia El Rosario en el Centro Histórico de San Salvador.",
+    location: "Iglesia El Rosario",
+    image: "https://images.unsplash.com/photo-1548625149-fc4a29cf7092?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6972, lng: -89.1905 }
   }
 ];
+
+// ════════════════════════════════════
+// MAPA DE SLUGS DE SITIO (usados en las URLs con ?sitio=slug)
+// Debe mantenerse alineado con SLUG_TO_LANDMARK_ID en mapa.js
+// ════════════════════════════════════
+const SITE_SLUG_TO_LOCATION = {
+  salvador: 'Salvador del Mundo',
+  tazumal: 'Tazumal',
+  joya: 'Joya de Cerén',
+  suchitoto: 'Suchitoto',
+  catedral: 'Catedral Metropolitana',
+  muna: 'MUNA',
+  sanandres: 'Ruinas de San Andrés',
+  casablanca: 'Casa Blanca',
+  palacionacional: 'Palacio Nacional',
+  teatronacional: 'Teatro Nacional',
+  elrosario: 'Iglesia El Rosario'
+};
+
+// Slug actualmente activo como filtro (null = mostrar todas)
+let activeSiteSlug = null;
 
 // Variable global para controlar si el usuario está logeado o no
 let isUserLoggedIn = false;
@@ -62,14 +131,18 @@ function renderPublications() {
   const grid = document.getElementById('publicationsGrid');
   const emptyState = document.getElementById('emptyState');
 
-  if (publicationsData.length === 0) {
+  const filtered = activeSiteSlug
+    ? publicationsData.filter(pub => pub.location === SITE_SLUG_TO_LOCATION[activeSiteSlug])
+    : publicationsData;
+
+  if (filtered.length === 0) {
     emptyState.style.display = 'block';
     grid.innerHTML = '';
     return;
   }
 
   emptyState.style.display = 'none';
-  grid.innerHTML = publicationsData.map(pub => `
+  grid.innerHTML = filtered.map(pub => `
     <article class="publication-card" data-location="${pub.location}" data-lat="${pub.coordinates.lat}" data-lng="${pub.coordinates.lng}">
       <div class="publication-image-container">
         <img src="${pub.image}" alt="${pub.title}" loading="lazy">
@@ -258,6 +331,10 @@ document.getElementById('publicationForm').addEventListener('submit', function(e
     'Catedral Metropolitana': { lat: 13.6929, lng: -89.2167 },
     'MUNA': { lat: 13.6952, lng: -89.2233 },
     'Ruinas de San Andrés': { lat: 13.8639, lng: -89.4317 },
+    'Casa Blanca': { lat: 13.9825, lng: -89.6825 },
+    'Palacio Nacional': { lat: 13.6989, lng: -89.1912 },
+    'Teatro Nacional': { lat: 13.6980, lng: -89.1918 },
+    'Iglesia El Rosario': { lat: 13.6972, lng: -89.1905 },
     'El Boquerón': { lat: 13.6844, lng: -89.2272 },
     'Lago de Coatepeque': { lat: 13.8753, lng: -89.5417 },
     'Bosque El Imposible': { lat: 13.8667, lng: -89.9333 },
@@ -353,9 +430,58 @@ if (fileLabel) {
 }
 
 // ════════════════════════════════════
+// FILTRO POR SITIO (desde el botón "Ver publicaciones" de sitios-culturales.html)
+// ════════════════════════════════════
+function actualizarEmptyStateTexto() {
+  const emptyState = document.getElementById('emptyState');
+  if (!emptyState) return;
+  const titulo = emptyState.querySelector('p');
+  if (!titulo) return;
+  if (activeSiteSlug) {
+    const nombre = SITE_SLUG_TO_LOCATION[activeSiteSlug];
+    titulo.textContent = `Aún no hay publicaciones de ${nombre}`;
+  } else {
+    titulo.textContent = 'No hay publicaciones aún';
+  }
+}
+
+function aplicarFiltroSitio(slug) {
+  activeSiteSlug = slug;
+
+  const filterBar = document.getElementById('publicationsFilter');
+  const filterName = document.getElementById('publicationsFilterName');
+
+  if (slug && SITE_SLUG_TO_LOCATION[slug]) {
+    filterBar?.classList.add('is-active');
+    if (filterName) filterName.textContent = SITE_SLUG_TO_LOCATION[slug];
+  } else {
+    activeSiteSlug = null;
+    filterBar?.classList.remove('is-active');
+  }
+
+  actualizarEmptyStateTexto();
+  renderPublications();
+}
+
+function inicializarFiltroDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('sitio');
+  aplicarFiltroSitio(slug);
+}
+
+document.getElementById('publicationsFilterClear')?.addEventListener('click', () => {
+  // Limpiamos el filtro y también el parámetro de la URL, sin recargar la página
+  const url = new URL(window.location.href);
+  url.searchParams.delete('sitio');
+  window.history.replaceState({}, '', url);
+  aplicarFiltroSitio(null);
+  document.querySelector('.publications-section')?.scrollIntoView({ behavior: 'smooth' });
+});
+
+// ════════════════════════════════════
 // INICIALIZAR Y COMPROBAR AUTENTICACIÓN
 // ════════════════════════════════════
-renderPublications();
+inicializarFiltroDesdeURL();
 
 // Consultamos al backend/servidor si el usuario está logeado (tal como lo haces en categorias.html)
 fetch('/auth/status')
