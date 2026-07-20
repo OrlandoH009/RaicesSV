@@ -10,6 +10,7 @@
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 <body>
 
@@ -43,29 +44,45 @@
       </div>
     </section>
 
-    <div class="info-tabs reveal visible">
-      <p class="info-tabs__label">Selecciona una receta para cocinar:</p>
-      <div class="info-tabs__list">
-        <button class="tab-btn active" data-recipe="pupusas">Pupusas</button>
-        <button class="tab-btn" data-recipe="tamales">Tamales</button>
-        <button class="tab-btn" data-recipe="sopa">Sopa de Pata</button>
-        <button class="tab-btn" data-recipe="yuca">Yuca Frita</button>
-        <button class="tab-btn" data-recipe="atol">Atol de Elote</button>
-        <button class="tab-btn" data-recipe="semita">Semita</button>
+    <div class="recipes-intro reveal visible">
+      <p>Explora <strong>14 platillos típicos</strong> de la cocina salvadoreña. Toca una tarjeta para ver ingredientes y preparación paso a paso.</p>
+    </div>
+
+    <div class="recipe-filters" id="recipe-filters"></div>
+
+    <section class="recipes-grid" id="recipes-grid"></section>
+
+    <!-- Modal flotante de receta -->
+    <div class="recipe-modal-overlay" id="recipeModalOverlay">
+      <div class="recipe-modal" id="recipeModal">
+        <button class="recipe-modal__close" id="recipeModalClose" aria-label="Cerrar receta">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="recipe-modal__scroll" id="printable-recipe-area">
+          <div class="recipe-container" id="recipe-dynamic-content"></div>
+          <div class="download-area">
+            <button class="btn-download" id="download-pdf-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Descargar Receta en PDF
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <section class="recipe-container reveal visible" id="printable-recipe-area">
-      <div id="recipe-dynamic-content">
-        </div>
+    <section class="video-tutorial reveal visible">
+      <h2 class="video-tutorial__title">🎥 Video Tutorial: Cómo hacer Pupusas</h2>
+      <div class="video-tutorial__frame">
+        <iframe
+          src="https://www.youtube.com/embed/Bm9pcy9BF-g"
+          title="Cómo hacer pupusas salvadoreñas"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen loading="lazy">
+        </iframe>
+      </div>
+      <p class="video-tutorial__caption">Aprende la técnica tradicional para palmear y rellenar pupusas como en El Salvador.</p>
     </section>
-
-    <div class="download-area reveal visible">
-      <button class="btn-download" id="download-pdf-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Descargar Receta en PDF
-      </button>
-    </div>
   </main>
 
   <footer class="footer">

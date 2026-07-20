@@ -2,10 +2,11 @@
 const recetasData = {
   pupusas: {
     titulo: "Pupusas Revueltas",
+    categoria: "Plato insignia",
     porciones: "4-6 personas",
     tiempo: "45 min",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/Pupusas-Revueltas.webp", // Ruta a tu imagen de pupusas
+    imagen: "../assets/media/recetas/Pupusas-Revueltas.webp",
     ingredientes: [
       "2 tazas de masa de maíz (o arroz)",
       "1½ tazas de agua tibia",
@@ -23,58 +24,13 @@ const recetasData = {
       "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas."
     ]
   },
-  tamales: {
-    titulo: "Tamales de Pollo",
-    porciones: "12-15 tamales",
-    tiempo: "2 horas",
-    dificultad: "Alta",
-    imagen: "../assets/media/recetas/tamales.webp", // Ruta a tu imagen de tamales
-    ingredientes: [
-      "1 libra de masa de maíz nixtamalizado",
-      "1 litro de caldo de pollo concentrado",
-      "½ taza de manteca de cerdo o aceite",
-      "Hojas de plátano previamente pasadas por agua hirviendo",
-      "Pollo desmenuzado cocido en recaudo",
-      "Papas, aceitunas y alcaparras para el adorno"
-    ],
-    pasos: [
-      "Cocine la masa junto con el caldo de pollo y la manteca a fuego medio, moviendo constantemente hasta que espese uniformemente.",
-      "Limpie y corte las hojas de plátano en rectángulos de aproximadamente 30x30 cm.",
-      "Coloque una cucharada grande de masa caliente en el centro de la hoja.",
-      "Agregue el pollo con recaudo, una tira de papa, una aceituna y alcaparras.",
-      "Envuelva doblando los extremos firmemente para evitar filtraciones de agua.",
-      "Cocine al vapor en una olla grande con base de hojas durante 1 hora y 15 minutos."
-    ]
-  },
-  sopa: {
-    titulo: "Sopa de Pata",
-    porciones: "6 porciones",
-    tiempo: "3 horas",
-    dificultad: "Alta",
-    imagen: "../assets/media/recetas/sopa-de-pata.webp", // Ruta a tu imagen de sopa de pata
-    ingredientes: [
-      "2 libras de pata de res limpia",
-      "1 libra de tripa de res (mondongo)",
-      "Yuca, güisquil, elote y plátano verde en trozos",
-      "Hojas de chipilín fresco",
-      "Cebolla, ajo, chile verde y achiote",
-      "Limón y cilantro para servir"
-    ],
-    pasos: [
-      "Ablande la pata y la tripa en una olla grande con suficiente agua, ajo y cebolla durante aproximadamente 2 horas.",
-      "Cuando la carne esté suave, retire la tripa, córtela en trozos pequeños y regrésela al caldo.",
-      "Incorpore el achiote para darle color junto con el elote y la yuca, que requieren más cocción.",
-      "Pasados 15 minutos, añada el güisquil, el plátano verde y las ramitas de chipilín.",
-      "Deje hervir a fuego lento hasta que todas las verduras estén completamente tiernas.",
-      "Sirva caliente acompañado de cebolla picada, cilantro y unas gotas de limón."
-    ]
-  },
   yuca: {
     titulo: "Yuca Frita con Chicharrón",
+    categoria: "Antojo callejero",
     porciones: "4 porciones",
     tiempo: "40 min",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/yuca-frita.webp", // Ruta a tu imagen de yuca frita
+    imagen: "../assets/media/recetas/yuca-frita.webp",
     ingredientes: [
       "2 libras de yuca grande",
       "1 libra de chicharrón de cerdo crujiente",
@@ -92,12 +48,109 @@ const recetasData = {
       "Corone el plato con los chicharrones calientes y bañe con salsa de tomate tradicional."
     ]
   },
+  sopa: {
+    titulo: "Sopa de Pata",
+    categoria: "Plato de fin de semana",
+    porciones: "6 porciones",
+    tiempo: "3 horas",
+    dificultad: "Alta",
+    imagen: "../assets/media/recetas/Sopa de Pata.jpg",
+    ingredientes: [
+      "2 libras de pata de res limpia",
+      "1 libra de tripa de res (mondongo)",
+      "Yuca, güisquil, elote y plátano verde en trozos",
+      "Hojas de chipilín fresco",
+      "Cebolla, ajo, chile verde y achiote",
+      "Limón y cilantro para servir"
+    ],
+    pasos: [
+      "Ablande la pata y la tripa en una olla grande con suficiente agua, ajo y cebolla durante aproximadamente 2 horas.",
+      "Cuando la carne esté suave, retire la tripa, córtela en trozos pequeños y regrésela al caldo.",
+      "Incorpore el achiote para darle color junto con el elote y la yuca, que requieren más cocción.",
+      "Pasados 15 minutos, añada el güisquil, el plátano verde y las ramitas de chipilín.",
+      "Deje hervir a fuego lento hasta que todas las verduras estén completamente tiernas.",
+      "Sirva caliente acompañado de cebolla picada, cilantro y unas gotas de limón."
+    ]
+  },
+  gallinaindia: {
+    titulo: "Sopa de Gallina India",
+    categoria: "Plato de fin de semana",
+    porciones: "6 porciones",
+    tiempo: "2 horas",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/gallina-india.jpg",
+    ingredientes: [
+      "1 gallina india entera (criolla), en piezas",
+      "Papas y güisquil en trozos grandes",
+      "Elote tierno partido en rodajas",
+      "Cebolla, ajo, tomate y hierbabuena",
+      "Achiote y consomé de gallina",
+      "Arroz blanco para acompañar"
+    ],
+    pasos: [
+      "Lave bien las piezas de gallina y cocínelas en una olla grande con agua, ajo y cebolla hasta que estén tiernas.",
+      "Retire la espuma que suba a la superficie para lograr un caldo limpio y dorado.",
+      "Licúe el tomate con un poco de achiote y agréguelo al caldo para darle color y sabor de fondo.",
+      "Incorpore las papas y el elote, que necesitan más tiempo de cocción.",
+      "Añada el güisquil y deje hervir hasta que todas las verduras estén suaves.",
+      "Al final agregue hojas de hierbabuena fresca y sirva con arroz blanco aparte."
+    ]
+  },
+  panesconpollo: {
+    titulo: "Panes con Pollo",
+    categoria: "Comida de celebración",
+    porciones: "8 panes",
+    tiempo: "1 hora 30 min",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/panes-con-pollo.jpg",
+    ingredientes: [
+      "8 panes franceses salvadoreños (birote)",
+      "1 gallina o pollo entero en piezas",
+      "Recado rojo (achiote, especias)",
+      "Verduras encurtidas: rábano, repollo, chile",
+      "Tomate, cebolla, mostaza y mayonesa",
+      "Lechuga y hojas de hierbabuena"
+    ],
+    pasos: [
+      "Cocine el pollo con el recado rojo, ajo y cebolla hasta que la carne esté suave y jugosa.",
+      "Desmenuce el pollo y resérvelo bañado en un poco de su propio caldo sazonado.",
+      "Corte los panes por la mitad y unte generosamente con mostaza y mayonesa.",
+      "Coloque una cama de lechuga y agregue rodajas de tomate fresco.",
+      "Rellene con abundante pollo desmenuzado y su salsa de recado.",
+      "Corone con verduras encurtidas y una ramita de hierbabuena antes de cerrar el pan."
+    ]
+  },
+  tamales: {
+    titulo: "Tamales Salvadoreños",
+    categoria: "Tradición navideña",
+    porciones: "12-15 tamales",
+    tiempo: "2 horas",
+    dificultad: "Alta",
+    imagen: "../assets/media/recetas/tamales.webp",
+    ingredientes: [
+      "1 libra de masa de maíz nixtamalizado",
+      "1 litro de caldo de pollo concentrado",
+      "½ taza de manteca de cerdo o aceite",
+      "Hojas de plátano previamente pasadas por agua hirviendo",
+      "Pollo desmenuzado cocido en recaudo",
+      "Papas, aceitunas y alcaparras para el adorno"
+    ],
+    pasos: [
+      "Cocine la masa junto con el caldo de pollo y la manteca a fuego medio, moviendo constantemente hasta que espese uniformemente.",
+      "Limpie y corte las hojas de plátano en rectángulos de aproximadamente 30x30 cm.",
+      "Coloque una cucharada grande de masa caliente en el centro de la hoja.",
+      "Agregue el pollo con recaudo, una tira de papa, una aceituna y alcaparras.",
+      "Envuelva doblando los extremos firmemente para evitar filtraciones de agua.",
+      "Cocine al vapor en una olla grande con base de hojas durante 1 hora y 15 minutos."
+    ]
+  },
   atol: {
     titulo: "Atol de Elote",
+    categoria: "Bebida ancestral",
     porciones: "5 tazas",
     tiempo: "30 min",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/atol-de-elote.webp", // Ruta a tu imagen de atol de elote
+    imagen: "../assets/media/recetas/atol-elote.jpg",
     ingredientes: [
       "6 elotes maduros desgranados",
       "2 tazas de leche entera",
@@ -115,30 +168,318 @@ const recetasData = {
       "Deje hervir durante 5 minutos adicionales y sirva bien caliente en una taza de barro."
     ]
   },
-  semita: {
-    titulo: "Semita de Piña",
+  riguas: {
+    titulo: "Riguas",
+    categoria: "Antojo callejero",
+    porciones: "10 riguas",
+    tiempo: "40 min",
+    dificultad: "Fácil",
+    imagen: "../assets/media/recetas/riguas.jpg",
+    ingredientes: [
+      "6 elotes tiernos desgranados",
+      "2 cucharadas de azúcar",
+      "1 cucharadita de sal",
+      "2 cucharadas de mantequilla derretida",
+      "Hojas de elote (tusa) para envolver",
+      "Queso duro rallado (opcional)"
+    ],
+    pasos: [
+      "Muela los granos de elote tierno en un procesador hasta lograr una masa espesa y ligeramente granulada.",
+      "Mezcle la masa con el azúcar, la sal y la mantequilla derretida hasta integrar bien.",
+      "Si lo desea, incorpore queso rallado a la mezcla para una versión más salada.",
+      "Coloque una porción de la mezcla sobre una hoja de tusa y doble formando un paquete plano.",
+      "Cocine las riguas en un comal caliente durante 6-8 minutos por cada lado.",
+      "Sirva calientes, recién salidas del comal, solas o acompañadas de crema."
+    ]
+  },
+  empanadasplatano: {
+    titulo: "Empanadas de Plátano",
+    categoria: "Postre tradicional",
+    porciones: "8 empanadas",
+    tiempo: "50 min",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/empanadas-platano.jpg",
+    ingredientes: [
+      "4 plátanos maduros grandes",
+      "1 taza de frijoles refritos dulces o leche condensada",
+      "2 cucharadas de harina de maíz o de trigo",
+      "Azúcar al gusto",
+      "Aceite para freír",
+      "Canela en polvo para espolvorear"
+    ],
+    pasos: [
+      "Cocine los plátanos con cáscara en agua hirviendo hasta que estén muy suaves.",
+      "Pele los plátanos y hágalos puré, incorporando la harina poco a poco hasta lograr una masa manejable.",
+      "Tome una porción de masa, aplánela en la palma de la mano y coloque relleno de frijol dulce o leche condensada en el centro.",
+      "Cierre formando una empanada ovalada, sellando bien los bordes con los dedos húmedos.",
+      "Fría las empanadas en aceite caliente hasta que doren uniformemente por ambos lados.",
+      "Escurra el exceso de aceite y espolvoree con azúcar y canela antes de servir."
+    ]
+  },
+  mariscada: {
+    titulo: "Mariscada",
+    categoria: "Plato costero",
+    porciones: "6 porciones",
+    tiempo: "1 hora",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/mariscada.jpg",
+    ingredientes: [
+      "1 libra de camarones limpios",
+      "1 libra de pescado en trozos firmes",
+      "1 libra de mariscos variados (pulpo, calamar, conchas)",
+      "Leche de coco",
+      "Tomate, cebolla, chile dulce y culantro",
+      "Yuca o plátano verde en trozos"
+    ],
+    pasos: [
+      "Prepare un sofrito con cebolla, tomate y chile dulce picados finamente en aceite caliente.",
+      "Agregue la leche de coco al sofrito y deje que hierva suavemente para que se integren los sabores.",
+      "Incorpore la yuca o el plátano verde, que necesitan más tiempo para ablandarse.",
+      "Añada el pescado y los mariscos más firmes primero, dejando los camarones para el final.",
+      "Cocine los camarones apenas unos minutos para que no pierdan su textura jugosa.",
+      "Finalice con culantro fresco picado y sirva caliente en un tazón hondo."
+    ]
+  },
+  casamiento: {
+    titulo: "Casamiento",
+    categoria: "Plato de diario",
+    porciones: "4 porciones",
+    tiempo: "25 min",
+    dificultad: "Fácil",
+    imagen: "../assets/media/recetas/casamiento.jpg",
+    ingredientes: [
+      "2 tazas de arroz blanco ya cocido",
+      "2 tazas de frijoles rojos cocidos con su caldo",
+      "2 cucharadas de aceite o margarina",
+      "1 chile verde entero",
+      "2 cucharadas de cebolla picada",
+      "1 diente de ajo"
+    ],
+    pasos: [
+      "Caliente el aceite o la margarina en una sartén grande y sofría la cebolla y el ajo hasta que estén transparentes.",
+      "Agregue el chile verde entero y sofría un momento más para liberar su aroma.",
+      "Incorpore los frijoles cocidos junto con un poco de su caldo, mezclando bien con el sofrito.",
+      "Añada el arroz cocido y mezcle todo hasta integrar completamente los ingredientes.",
+      "Cocine a fuego medio-bajo durante 10 minutos, revolviendo ocasionalmente hasta que los sabores se unan.",
+      "Retire el chile y sirva caliente, tradicionalmente acompañado de crema y queso fresco."
+    ]
+  },
+  enchiladas: {
+    titulo: "Enchiladas Salvadoreñas",
+    categoria: "Antojo callejero",
+    porciones: "6 enchiladas",
+    tiempo: "1 hora",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/enchiladas.jpg",
+    ingredientes: [
+      "6 tortillas de maíz fritas hasta quedar crujientes",
+      "1 libra de carne molida de res",
+      "Repollo encurtido (curtido)",
+      "Salsa de tomate casera",
+      "Remolacha cocida en rodajas",
+      "Huevo duro y queso duro rallado"
+    ],
+    pasos: [
+      "Fría las tortillas de maíz en aceite caliente hasta que queden completamente crujientes y doradas.",
+      "Cocine la carne molida con cebolla, ajo y tomate hasta que esté bien sazonada y sin líquido.",
+      "Prepare o tenga lista una porción generosa de curtido de repollo.",
+      "Sobre cada tortilla crujiente, extienda una capa de carne molida.",
+      "Cubra con abundante curtido, salsa de tomate y rodajas de remolacha.",
+      "Termine con huevo duro picado y queso rallado antes de servir de inmediato."
+    ]
+  },
+  nuegadosyuca: {
+    titulo: "Nuégados de Yuca",
+    categoria: "Postre tradicional",
+    porciones: "20 nuégados",
+    tiempo: "1 hora",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/nuegados-yuca.jpg",
+    ingredientes: [
+      "2 libras de yuca rallada finamente",
+      "2 cucharadas de harina de trigo",
+      "Aceite abundante para freír",
+      "2 tazas de dulce de panela (rapadura)",
+      "1 raja de canela",
+      "Clavos de olor (opcional)"
+    ],
+    pasos: [
+      "Ralle la yuca finamente y exprima el exceso de agua con un paño limpio.",
+      "Mezcle la yuca rallada con la harina hasta formar una masa que se pueda moldear.",
+      "Forme bolitas pequeñas con la masa de yuca entre las palmas de las manos.",
+      "Fría las bolitas en aceite caliente hasta que doren de manera uniforme y queden crujientes.",
+      "Prepare la miel disolviendo la panela con agua, canela y clavos, dejando hervir hasta espesar.",
+      "Bañe los nuégados fritos con la miel caliente justo antes de servir."
+    ]
+  },
+  chilateconnuegados: {
+    titulo: "Chilate con Nuégados",
+    categoria: "Bebida ancestral",
+    porciones: "6 tazas",
+    tiempo: "1 hora",
+    dificultad: "Media",
+    imagen: "../assets/media/recetas/chilate.jpg",
+    ingredientes: [
+      "1 libra de maíz blanco tostado y molido",
+      "1 raja de canela y unos clavos de olor",
+      "Jengibre en trozo pequeño",
+      "Azúcar o panela al gusto",
+      "Agua suficiente",
+      "Nuégados de yuca ya preparados"
+    ],
+    pasos: [
+      "Tueste el maíz en un comal seco hasta que adquiera un color dorado y aroma característico.",
+      "Muela el maíz tostado hasta obtener un polvo fino, similar a una harina.",
+      "Diluya la harina de maíz en agua fría, evitando que se formen grumos.",
+      "Cocine a fuego medio junto con la canela, clavos y jengibre, revolviendo constantemente hasta que espese.",
+      "Endulce al gusto con azúcar o panela y deje hervir unos minutos más.",
+      "Sirva el chilate caliente en tazas de barro acompañado de nuégados de yuca bañados en miel."
+    ]
+  },
+  torrejas: {
+    titulo: "Torrejas",
+    categoria: "Tradición de Semana Santa",
     porciones: "8 porciones",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/semita.webp", // Ruta a tu imagen de semita
+    imagen: "../assets/media/recetas/torrejas.jpg",
     ingredientes: [
-      "3 tazas de harina de trigo",
-      "1 taza de manteca vegetal o mantequilla",
-      "½ taza de azúcar",
-      "1 cucharadita de polvo de hornear",
-      "1½ tazas de mermelada artesanal de piña",
-      "Un huevo batido para barnizar"
+      "1 pan francés o baguette del día anterior",
+      "4 huevos batidos",
+      "2 tazas de dulce de panela (rapadura)",
+      "1 raja de canela y clavos de olor",
+      "Aceite para freír",
+      "Agua"
     ],
     pasos: [
-      "Mezcle la harina, el polvo de hornear, el azúcar y la manteca hasta lograr una textura arenosa.",
-      "Agregue agua fría poco a poco hasta formar una masa suave. Divídala en dos partes (60% para la base, 40% para el diseño superior).",
-      "Estire la base de la masa en un molde previamente engrasado.",
-      "Distribuya uniformemente toda la mermelada de piña sobre la base de masa.",
-      "Estire el resto de la masa, córtela en tiras y colóquelas cruzadas en forma de enrejado sobre la mermelada.",
-      "Barnice con huevo batido, espolvoree azúcar encima y hornee a 180°C (350°F) durante 35 minutos."
+      "Corte el pan en rebanadas gruesas y déjelas secar un poco para que absorban mejor el líquido.",
+      "Bata los huevos y remoje cada rebanada de pan, cubriendo bien ambos lados.",
+      "Fría las rebanadas de pan en aceite caliente hasta que doren por completo.",
+      "Prepare la miel disolviendo la panela en agua junto con la canela y los clavos, hirviendo hasta espesar ligeramente.",
+      "Sumerja las rebanadas fritas en la miel caliente, dejando que absorban el dulce por varios minutos.",
+      "Sirva las torrejas tibias, bañadas en abundante miel de panela."
     ]
   }
 };
+
+// Categorías para el filtro dinámico
+function getCategorias() {
+  const cats = new Set(Object.values(recetasData).map(r => r.categoria));
+  return ["Todas", ...Array.from(cats)];
+}
+
+// Renderiza la grilla completa de tarjetas de recetas
+function renderGrid(filtro = "Todas") {
+  const grid = document.getElementById("recipes-grid");
+  if (!grid) return;
+
+  grid.innerHTML = Object.entries(recetasData)
+    .filter(([key, data]) => filtro === "Todas" || data.categoria === filtro)
+    .map(([key, data]) => `
+      <article class="recipe-mini-card" data-key="${key}" tabindex="0">
+        <div class="recipe-mini-card__img">
+          <img src="${data.imagen}" alt="${data.titulo}" loading="lazy" />
+          <span class="recipe-mini-card__badge">${data.categoria}</span>
+        </div>
+        <div class="recipe-mini-card__body">
+          <h3>${data.titulo}</h3>
+          <div class="recipe-mini-card__meta">
+            <span>⏱ ${data.tiempo}</span>
+            <span>📊 ${data.dificultad}</span>
+          </div>
+        </div>
+      </article>
+    `).join("");
+
+  // Animación de entrada escalonada para las tarjetas
+  const cards = grid.querySelectorAll(".recipe-mini-card");
+  if (window.gsap) {
+    gsap.killTweensOf(cards);
+    gsap.fromTo(cards,
+      { opacity: 0, y: 25, scale: 0.96 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.05, ease: "power2.out" }
+    );
+  }
+
+  // Listeners para abrir la receta seleccionada en el modal flotante
+  grid.querySelectorAll(".recipe-mini-card").forEach(card => {
+    const open = () => {
+      const key = card.getAttribute("data-key");
+      renderRecipe(key);
+      openRecipeModal();
+    };
+    card.addEventListener("click", open);
+    card.addEventListener("keypress", (e) => { if (e.key === "Enter") open(); });
+  });
+}
+
+// ===== Modal flotante de receta con animaciones GSAP =====
+let modalScrollLocked = false;
+
+function openRecipeModal() {
+  const overlay = document.getElementById("recipeModalOverlay");
+  const modal = document.getElementById("recipeModal");
+  const scrollArea = document.getElementById("printable-recipe-area");
+  if (!overlay || !modal) return;
+
+  if (scrollArea) scrollArea.scrollTop = 0;
+
+  overlay.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+  modalScrollLocked = true;
+
+  if (window.gsap) {
+    gsap.killTweensOf([overlay, modal]);
+    gsap.set(overlay, { opacity: 0 });
+    gsap.set(modal, { opacity: 0, scale: 0.85, y: 40 });
+    gsap.to(overlay, { opacity: 1, duration: 0.3, ease: "power2.out" });
+    gsap.to(modal, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(1.6)" });
+
+    // Animar entrada del contenido de la receta
+    const card = modal.querySelector(".recipe-card");
+    if (card) {
+      gsap.fromTo(card, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.15, ease: "power2.out" });
+    }
+  } else {
+    overlay.style.opacity = "1";
+  }
+}
+
+function closeRecipeModal() {
+  const overlay = document.getElementById("recipeModalOverlay");
+  const modal = document.getElementById("recipeModal");
+  if (!overlay || !modal) return;
+
+  const finish = () => {
+    overlay.classList.remove("is-open");
+    document.body.style.overflow = "";
+    modalScrollLocked = false;
+  };
+
+  if (window.gsap) {
+    gsap.killTweensOf([overlay, modal]);
+    gsap.to(modal, { opacity: 0, scale: 0.9, y: 30, duration: 0.3, ease: "power2.in" });
+    gsap.to(overlay, { opacity: 0, duration: 0.3, ease: "power2.in", onComplete: finish });
+  } else {
+    finish();
+  }
+}
+
+// Renderiza los botones de filtro por categoría
+function renderFilters() {
+  const wrap = document.getElementById("recipe-filters");
+  if (!wrap) return;
+  const cats = getCategorias();
+  wrap.innerHTML = cats.map((c, i) => `<button class="filter-chip${i === 0 ? ' active' : ''}" data-filter="${c}">${c}</button>`).join("");
+
+  wrap.querySelectorAll(".filter-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderGrid(btn.getAttribute("data-filter"));
+    });
+  });
+}
 
 // Función para inyectar la receta activa dinámicamente
 function renderRecipe(key) {
@@ -152,6 +493,7 @@ function renderRecipe(key) {
     <div class="recipe-card" data-current="${key}">
       <div class="recipe-image-container">
         <img src="${data.imagen}" alt="${data.titulo}" class="recipe-image" />
+        <span class="recipe-card__badge">${data.categoria}</span>
       </div>
       <div class="recipe-content-wrapper">
         <div class="recipe-header">
@@ -179,6 +521,11 @@ function renderRecipe(key) {
       </div>
     </div>
   `;
+
+  // Sincronizar tarjeta activa en el grid
+  document.querySelectorAll(".recipe-mini-card").forEach(c => {
+    c.classList.toggle("is-active", c.getAttribute("data-key") === key);
+  });
 }
 
 // Función para generar y descargar PDF con previsualización de Chrome
@@ -440,25 +787,32 @@ function generateAndDownloadPDF() {
 
 // Inicialización cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializar con receta de pupusas
-  renderRecipe("pupusas");
-
-  // Event listeners para tabs de recetas
-  const tabButtons = document.querySelectorAll("[data-recipe]");
-  tabButtons.forEach(button => {
-    button.addEventListener("click", (e) => {
-      e.preventDefault();
-      tabButtons.forEach(btn => btn.classList.remove("active"));
-      e.target.classList.add("active");
-
-      const recipeKey = e.target.getAttribute("data-recipe");
-      renderRecipe(recipeKey);
-    });
-  });
+  // Construir filtros y grilla dinámica
+  renderFilters();
+  renderGrid("Todas");
 
   // Event listener para botón descargar PDF
   const downloadBtn = document.getElementById("download-pdf-btn");
   if (downloadBtn) {
     downloadBtn.addEventListener("click", generateAndDownloadPDF);
   }
+
+  // Cerrar modal: botón X, click en overlay, tecla Escape
+  const overlay = document.getElementById("recipeModalOverlay");
+  const modal = document.getElementById("recipeModal");
+  const closeBtn = document.getElementById("recipeModalClose");
+
+  if (closeBtn) closeBtn.addEventListener("click", closeRecipeModal);
+
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeRecipeModal();
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay && overlay.classList.contains("is-open")) {
+      closeRecipeModal();
+    }
+  });
 });
