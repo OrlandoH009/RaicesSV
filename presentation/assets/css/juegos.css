@@ -818,7 +818,7 @@ canvas {
 }
 
 .btn-play-trigger:active {
-  transform: scale(0.98);
+  transform: scale(1.03);
 }
 
 /* ── VENTANA FLOTANTE (MODAL JUEGOS) ── */
@@ -924,4 +924,37 @@ canvas {
   opacity: 0;
   z-index: 2;
   transition: opacity 0.15s ease;
+}
+/* Styling preparatorio para animaciones de entrada con GSAP */
+.hero-fade,
+.reveal-grid .game-card {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* 1. Estado inicial del emoji y transición suave */
+.game-card__emoji {
+  display: inline-block;
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efecto elástico (back out) nativo */
+  
+  /* Animación de flotación constante mientras NO se hace hover */
+  animation: floatEmoji 3s ease-in-out infinite;
+}
+
+/* 2. Animación infinita de flotación */
+@keyframes floatEmoji {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 3. ¡EL HOVER CON CSS! */
+/* Cuando el usuario pasa el mouse sobre la TARJETA, el EMOJI reacciona */
+.game-card:hover .game-card__emoji {
+  animation-play-state: paused; /* Pausa la flotación para que no parpadee */
+  transform: scale(1.3) rotate(12deg) translateY(-10px);
 }

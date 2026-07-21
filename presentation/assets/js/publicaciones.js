@@ -97,6 +97,128 @@ const publicationsData = [
     location: "Iglesia El Rosario",
     image: "https://images.unsplash.com/photo-1548625149-fc4a29cf7092?w=500&h=350&fit=crop",
     coordinates: { lat: 13.6972, lng: -89.1905 }
+  },
+
+  /* ── PUBLICACIONES DE EVENTOS CULTURALES ── */
+  {
+    id: 13,
+    title: "Bajada del Salvador en las Fiestas Agostinas",
+    description: "Acompañé la procesión del Divino Salvador del Mundo entre fuegos artificiales y miles de personas. Una experiencia que eriza la piel.",
+    location: "Fiestas Agostinas",
+    image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6929, lng: -89.2182 }
+  },
+  {
+    id: 14,
+    title: "Alfombras de aserrín en Semana Santa",
+    description: "Ver a la comunidad crear alfombras de flores y aserrín antes de la procesión fue como presenciar arte efímero en vivo.",
+    location: "Semana Santa Nacional",
+    image: "https://images.unsplash.com/photo-1544396821-4dd40b938ad3?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6989, lng: -89.1914 }
+  },
+  {
+    id: 15,
+    title: "Desfile del 15 de Septiembre",
+    description: "Las palillonas y bandas de guerra desfilando con los colores patrios fue puro orgullo salvadoreño.",
+    location: "Día de la Independencia",
+    image: "https://images.unsplash.com/photo-1541278107931-e006523892df?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6994, lng: -89.1912 }
+  },
+  {
+    id: 16,
+    title: "Ofrendas en el Día de los Difuntos",
+    description: "Ayudamos a limpiar y adornar la tumba de mi abuela con flores; el cementerio se llenó de velas y recuerdos.",
+    location: "Día de los Difuntos",
+    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6833, lng: -89.1980 }
+  },
+  {
+    id: 17,
+    title: "Posadas navideñas en familia",
+    description: "Rezamos, rompimos piñata y compartimos ponche en la posada de mi cuadra. Así se vive la Navidad en El Salvador.",
+    location: "Navidad y Posadas",
+    image: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6929, lng: -89.2182 }
+  },
+  {
+    id: 18,
+    title: "Feria patronal en honor a Santa Ana",
+    description: "Las Fiestas Julias llenaron el centro de Santa Ana de música, comida y devoción religiosa.",
+    location: "Fiestas Julias",
+    image: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.9942, lng: -89.5597 }
+  },
+  {
+    id: 19,
+    title: "Comparsas del Carnaval de San Miguel",
+    description: "Las orquestas en vivo y los disfraces del carnaval más grande de Centroamérica no tienen comparación.",
+    location: "Gran Carnaval de San Miguel",
+    image: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.4833, lng: -88.1833 }
+  },
+  {
+    id: 20,
+    title: "Arte urbano en el Festival de Suchitoto",
+    description: "Artistas de toda Latinoamérica llenaron las calles coloniales de música y exposiciones.",
+    location: "Festival de Suchitoto",
+    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500&h=350&fit=crop",
+    coordinates: { lat: 14.0311, lng: -89.0281 }
+  },
+  {
+    id: 21,
+    title: "Personajes de leyenda en la Calabiuza",
+    description: "Ver a la Siguanaba y al Cadejo cobrar vida en el desfile nocturno de Tonacatepeque fue inolvidable.",
+    location: "Día de la Calabiuza",
+    image: "https://images.unsplash.com/photo-1509557965043-3ecbca6ad6cc?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.7167, lng: -88.9333 }
+  },
+  {
+    id: 22,
+    title: "Miles de faroles en Ataco",
+    description: "Concepción de Ataco iluminada por completo con faroles artesanales: el pueblo entero brilla esa noche.",
+    location: "Día de los Farolitos",
+    image: "https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.8722, lng: -89.8494 }
+  },
+  {
+    id: 23,
+    title: "Taller de añil en el Festival del Añil",
+    description: "Aprendí de primera mano las técnicas prehispánicas de teñido en el Festival del Añil de Suchitoto.",
+    location: "Festival del Añil",
+    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=500&h=350&fit=crop",
+    coordinates: { lat: 14.0311, lng: -89.0281 }
+  },
+  {
+    id: 24,
+    title: "Figuras de barro en Ilobasco",
+    description: "Visitamos los talleres de Ilobasco durante el Festival del Barro y vimos crear las famosas miniaturas.",
+    location: "Festival del Barro",
+    image: "https://images.unsplash.com/photo-1565193566173-7a0af771d71a?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.8422, lng: -88.8508 }
+  },
+  {
+    id: 25,
+    title: "Procesión de las Palmas en Panchimalco",
+    description: "El Festival de las Flores y Palmas llenó las calles de Panchimalco de color al inicio de la época lluviosa.",
+    location: "Festival de las Flores y Palmas",
+    image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6769, lng: -89.2797 }
+  },
+  {
+    id: 26,
+    title: "Chicharrón en Santa Tecla",
+    description: "El Festival Internacional del Chicharrón reunió a cocineros de todo el país en una fiesta de sabores.",
+    location: "Festival Internacional del Chicharrón",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.6769, lng: -89.2797 }
+  },
+  {
+    id: 27,
+    title: "Dulces de jocote en el Cerro Verde",
+    description: "El Festival del Jocote Corona en Santa Ana ofrece desde jocotes en miel hasta postres artesanales.",
+    location: "Festival del Jocote Corona",
+    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&h=350&fit=crop",
+    coordinates: { lat: 13.8494, lng: -89.6309 }
   }
 ];
 
@@ -115,7 +237,24 @@ const SITE_SLUG_TO_LOCATION = {
   casablanca: 'Casa Blanca',
   palacionacional: 'Palacio Nacional',
   teatronacional: 'Teatro Nacional',
-  elrosario: 'Iglesia El Rosario'
+  elrosario: 'Iglesia El Rosario',
+
+  // Eventos Culturales
+  agostinas: 'Fiestas Agostinas',
+  semanasanta: 'Semana Santa Nacional',
+  independencia: 'Día de la Independencia',
+  difuntos: 'Día de los Difuntos',
+  navidad: 'Navidad y Posadas',
+  fiestasjulias: 'Fiestas Julias',
+  carnavalsm: 'Gran Carnaval de San Miguel',
+  festivalsuchitoto: 'Festival de Suchitoto',
+  calabiuza: 'Día de la Calabiuza',
+  farolitosataco: 'Día de los Farolitos',
+  festivalanil: 'Festival del Añil',
+  festivalbarro: 'Festival del Barro',
+  flores: 'Festival de las Flores y Palmas',
+  chicharron: 'Festival Internacional del Chicharrón',
+  jocote: 'Festival del Jocote Corona'
 };
 
 // Slug actualmente activo como filtro (null = mostrar todas)
