@@ -2,6 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('register-form');
   const messageBox = document.getElementById('form-message');
 
+  const googleLinkBtn = document.querySelector('.auth-google-btn-full');
+  if (googleLinkBtn) {
+    const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+    if (redirectParam) {
+      googleLinkBtn.href = '/auth/google?redirect=' + encodeURIComponent(redirectParam);
+    }
+  }
+
   const EYE_ICON = '<svg viewBox="0 0 24 24" width="18" height="18"><ellipse cx="12" cy="12" rx="9" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg>';
   const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" width="18" height="18"><ellipse cx="12" cy="12" rx="9" ry="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
@@ -187,15 +195,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify(payload)
       });
-
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.redirect || '/';
+        window.location.href = data.redirect || '/login.html';
         return;
       }
-
       const text = await response.text();
-      showMessage(text || 'No se pudo crear la cuenta...');
+      showMessage(text || 'No se pudo crear la cuenta.');
     } catch (error) {
       showMessage('No se pudo conectar con el servidor.');
     }

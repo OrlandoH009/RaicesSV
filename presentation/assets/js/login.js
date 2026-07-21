@@ -181,8 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 1. Si las credenciales son correctas (status 200)
       if (response.ok) {
-        // Redirección forzada desde el frontend usando la URL de la barra de direcciones
-        window.location.href = decodeURIComponent(targetRedirect);
+        const data = await response.json();
+        window.location.href = data.redirect || '/';
         return;
       }
 
