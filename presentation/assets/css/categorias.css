@@ -368,3 +368,39 @@
 @media (max-width: 480px) {
   .guest-modal { padding: 2rem 1.4rem 1.6rem; }
 }
+
+/* ============================================================
+    SCROLLBAR PERSONALIZADO DE LA DERECHA
+   ============================================================ */
+
+/* 1. Definir el ancho de la barra lateral */
+::-webkit-scrollbar {
+  width: 10px;               /* Grosor ideal para que sea scannable pero elegante */
+}
+
+/* 2. El fondo de la barra (el carril por donde se mueve) */
+::-webkit-scrollbar-track {
+  background: #16120e;       /* Tono oscuro que combina con el fondo de la app */
+  border-left: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* 3. El indicador que se arrastra (Thumb) con tus colores premium */
+::-webkit-scrollbar-thumb {
+  /* Degradado vertical de Añil a Tierra y termina en Oro */
+  background: linear-gradient(180deg, #113068 0%, #b4632f 50%, #c89a3b 100%); 
+  border-radius: 999px;      /* Bordes completamente redondeados */
+  border: 2px solid #16120e; /* Crea un efecto flotante muy fino */
+}
+
+/* 4. Efecto sutil cuando el usuario pasa el mouse por encima */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #1b4a94 0%, #c97a45 50%, #c89a3b 100%);
+}
+
+/* 5. Soporte para Firefox (para que no se rompa la estética en ningún navegador) */
+@supports (scrollbar-color: auto) {
+  html {
+    scrollbar-color: #c89a3b #16120e; /* thumb (oro) y track (oscuro) */
+    scrollbar-width: thin;
+  }
+}
