@@ -487,7 +487,7 @@ L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
 /* Tile layer gris oscuro mate (Stadia Alidade Smooth Dark — gratuito) */
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-  maxZoom: 17,
+  maxZoom: 16.5,
   attribution: '...',
   
   // ════════ PROPIEDADES DE RENDIMIENTO ════════
@@ -547,9 +547,9 @@ if (navigator.geolocation) {
       const tieneDestino = params.has('evento') || params.has('sitio');
       
       if (!tieneDestino) {
-        mapa.flyTo(userCoords, 14, {
+        mapa.flyTo(userCoords, 13.9, {
           animate: true,
-          duration: 1.2
+          duration: 1.5
         });
       }
     },
@@ -745,7 +745,7 @@ marker.on('click', () => {
   }).addTo(mapa);
 
   marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
-  mapa.setView([lat, lng], 14, { animate: true });
+  mapa.setView([lat, lng], 13.9, { animate: true });
 })();
 
 /* ══════════════════════════════════════════════════════════
