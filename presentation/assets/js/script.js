@@ -163,6 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAuthMenu();
 
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href*="login.html"], a[href*="registro.html"]');
+    if (!link) return;
+    if (link.href.includes('redirect=')) return;
+
+    const url = new URL(link.href, window.location.origin);
+    url.searchParams.set('redirect', window.location.pathname);
+    link.href= url.toString();
+  })
+
   // Permite que otras páginas (ej. perfil.js tras guardar cambios) actualicen
   // el nombre/avatar del menú hamburguesa al instante, sin recargar la página.
   // Se usa un evento en window porque script.js y perfil.js son módulos
