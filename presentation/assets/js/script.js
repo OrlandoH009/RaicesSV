@@ -144,16 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="btn-logout" id="logout-link">Cerrar sesión</button>
         `;
       } else {
-        const redirectQuery = '?redirect=' +encodeURIComponent(window.location.pathname);
         if (drawerUsername) drawerUsername.textContent = 'Invitado';
         if (drawerProfileCaption) drawerProfileCaption.textContent = 'Iniciar sesión';
-        if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/login.html' + redirectQuery);
+        if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/login.html');
         if (drawerAvatar) drawerAvatar.innerHTML = defaultAvatarSVG;
 
         authContainer.innerHTML = `
           <p class="drawer-auth-label">Mi cuenta</p>
-          <a href="../views/login.html${redirectQuery}" class="btn-login">Iniciar Sesión</a>
-          <a href="../views/registro.html${redirectQuery}" class="btn-register">Registrarse</a>
+          <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
+          <a href="../views/registro.html" class="btn-register">Registrarse</a>
         `;
       }
     } catch (error) {
