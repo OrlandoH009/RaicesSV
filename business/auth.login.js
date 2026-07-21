@@ -36,7 +36,13 @@ const login = async (req, res) => {
                     return res.status(500).send('No se pudo iniciar sesión. Inténtalo de nuevo.');
                 }
 
-                res.redirect(safeRedirect);
+                    //res.redirect(safeRedirect);
+                    // REEMPLAZA CON ESTO:
+                    return res.json({ 
+                        success: true, 
+                        message: 'Sesión iniciada correctamente', 
+                        redirect: safeRedirect 
+});
             });
         });
 
