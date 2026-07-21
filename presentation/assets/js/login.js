@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       redirect: targetRedirect
     };
 
-    try {
+     try {
       const response = await fetch('/login', {
         method: 'POST',
         headers: {
@@ -181,11 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 1. Si las credenciales son correctas (status 200)
       if (response.ok) {
-        // LEER el JSON que envía el backend
-        const data = await response.json(); 
-        
-        // Redirigir a la ruta exacta que devolvió el servidor
-        window.location.href = data.redirect || '/';
+        // Redirección forzada desde el frontend usando la URL de la barra de direcciones
+        window.location.href = decodeURIComponent(targetRedirect);
         return;
       }
 
