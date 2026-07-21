@@ -65,6 +65,46 @@
 
 .page-cta { padding: 2.5rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; }
 
+/* Botones de acción de cada evento cultural */
+.evento-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(190,142,86,.25);
+}
+.evento-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .75rem 1.5rem;
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  background: rgba(190,142,86,.1);
+  transition: background .25s, color .25s, transform .2s;
+  cursor: pointer;
+}
+.evento-actions__btn:hover {
+  background: var(--gold);
+  color: var(--black);
+  transform: translateY(-2px);
+}
+.evento-actions__btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+@media (max-width: 480px) {
+  .evento-actions { flex-direction: column; align-items: stretch; }
+  .evento-actions__btn { justify-content: center; }
+}
+
 @media (max-width: 768px) {
   .eventos-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 260px); }
   .page-badge__inner { padding: 1rem 1.5rem; }

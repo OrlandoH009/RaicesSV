@@ -169,10 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const targetRedirect = params.get('redirect') || '/';
+
     const payload = {
       name,
       email: formData.get('email'),
-      password
+      password,
+      redirect: targetRedirect
     };
 
     try {
@@ -184,14 +188,14 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
 
-      const text = await response.text();
-
-      if (response.ok || response.redirected) {
-        window.location.href = response.url || '/login.html';
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = data.redirect || '/';
         return;
       }
 
-      showMessage(text || 'No se pudo crear la cuenta.');
+      const text = await response.text();
+      showMessage(text || 'No se pudo crear la cuenta...');
     } catch (error) {
       showMessage('No se pudo conectar con el servidor.');
     }

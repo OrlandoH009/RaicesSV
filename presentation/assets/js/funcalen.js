@@ -12,7 +12,21 @@ document.addEventListener("DOMContentLoaded", () => {
   initCatalogAndFilters();
   setupModalEvents();
   restaurarEstadoCalendario();
+  abrirEventoDesdeURL();
 });
+
+// Si llegamos con ?id=<n> (por ejemplo desde Eventos Culturales), abrimos
+// directamente el modal de detalle de esa festividad.
+function abrirEventoDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get("id");
+  if (!idParam) return;
+
+  const evento = calendarState.festividades.find(f => f.id === Number(idParam));
+  if (evento && typeof window.abrirDetallesEvento === "function") {
+    window.abrirDetallesEvento(evento);
+  }
+}
 
 function initCatalogAndFilters() {
   const gridViewBtn = document.getElementById("gridViewBtn");
