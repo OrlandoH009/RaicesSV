@@ -22,6 +22,7 @@
       li.style.setProperty('--delay', (i % 8) * 0.06 + 's');
 
       li.innerHTML = `
+        <div class="tl-node__connector" aria-hidden="true"></div>
         <button class="tl-node__dot" aria-label="Ver detalle: ${ev.title}">
           <span class="tl-node__ring"></span>
           <span class="tl-node__core"></span>

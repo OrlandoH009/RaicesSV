@@ -68,6 +68,20 @@
 
     <!-- ============ LÍNEA DE TIEMPO ============ -->
     <section class="timeline-wrap">
+      <div class="hist-rail hist-rail--left" aria-hidden="true">
+        <svg viewBox="0 0 140 700" preserveAspectRatio="none">
+          <path class="rail-line rail-line--1" d="M 20 0 C 10 40, 35 70, 15 110 C 0 145, 30 170, 18 210 C 5 250, 32 280, 15 320 C 0 355, 30 385, 18 420 C 5 460, 32 490, 15 530 C 0 565, 30 595, 18 630 C 5 665, 30 690, 20 700" />
+          <path class="rail-line rail-line--2" d="M 60 0 C 75 35, 50 65, 68 100 C 85 130, 55 160, 70 195 C 88 230, 58 260, 72 295 C 90 330, 60 360, 75 395 C 92 430, 62 460, 78 495 C 95 530, 65 560, 80 595 C 95 625, 68 655, 82 700" />
+          <path class="rail-line rail-line--3" d="M 100 0 C 90 45, 112 80, 98 120 C 88 155, 108 185, 96 220 C 86 255, 108 285, 98 320 C 88 355, 110 385, 98 420 C 88 460, 108 490, 98 525 C 88 560, 108 590, 98 625 C 90 660, 106 680, 100 700" />
+        </svg>
+      </div>
+      <div class="hist-rail hist-rail--right" aria-hidden="true">
+        <svg viewBox="0 0 140 700" preserveAspectRatio="none">
+          <path class="rail-line rail-line--1" d="M 120 0 C 130 40, 105 70, 125 110 C 140 145, 110 170, 122 210 C 135 250, 108 280, 125 320 C 140 355, 110 385, 122 420 C 135 460, 108 490, 125 530 C 140 565, 110 595, 122 630 C 135 665, 110 690, 120 700" />
+          <path class="rail-line rail-line--2" d="M 80 0 C 65 35, 90 65, 72 100 C 55 130, 85 160, 70 195 C 52 230, 82 260, 68 295 C 50 330, 80 360, 65 395 C 48 430, 78 460, 62 495 C 45 530, 75 560, 60 595 C 45 625, 72 655, 58 700" />
+          <path class="rail-line rail-line--3" d="M 40 0 C 50 45, 28 80, 42 120 C 52 155, 32 185, 44 220 C 54 255, 32 285, 42 320 C 52 355, 30 385, 42 420 C 52 460, 32 490, 42 525 C 52 560, 32 590, 42 625 C 50 660, 34 680, 40 700" />
+        </svg>
+      </div>
       <div class="timeline-spine" aria-hidden="true"></div>
       <ol class="timeline-list" id="timelineList"><!-- generado por JS --></ol>
     </section>
@@ -117,8 +131,10 @@
   </footer>
   <script src="../assets/js/script.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/historia-data.js"></script>
   <script src="../assets/js/historia-timeline.js"></script>
+  <script src="../assets/js/historia-rails.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>
 </html>
