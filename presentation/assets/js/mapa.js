@@ -629,9 +629,9 @@ function crearIcono(emoji, color) {
   return L.divIcon({
     className: '',
     html: `<div class="custom-marker" style="background:${color};">${emoji}</div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -14]
+    iconSize: [34, 34],       
+    iconAnchor: [17, 17],     
+    popupAnchor: [0, -20]     
   });
 }
 
@@ -916,3 +916,114 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     actualizarFiltro(btn.dataset.cat);
   });
 });
+/* ══════════════════════════════════════════════════════════
+   GEOLOCALIZACIÓN AUTOMÁTICA Y BOTÓN DE CENTRADO
+   ══════════════════════════════════════════════════════════ */
+
+// Variable global para guardar la ubicación del usuario
+let miUbicacionActual = null;
+
+/* ── Toast simple para avisos de geolocalización ── */
+function mostrarToastGeo(mensaje, tipo = 'info') {
+  const existente = document.querySelector('.geo-toast');
+  if (existente) existente.remove();
+
+  const toast = document.createElement('div');
+  toast.className = `geo-toast geo-toast--${tipo}`;
+  toast.innerHTML = `
+    <span class="geo-toast__icon">${tipo === 'error' ? '📍' : 'ℹ️'}</span>
+    <span class="geo-toast__msg">${mensaje}</span>
+  `;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add('geo-toast--visible'));
+
+  setTimeout(() => {
+    toast.classList.remove('geo-toast--visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
+}
+
+// Función encargada de obtener la posición actual
+function obtenerYCentrarUbicacion(debeCentrar = false) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        miUbicacionActual = [userLat, userLng]; // Guardamos globalmente
+
+        // Creamos el icono del punto azul con pulso si no existe uno ya en el mapa
+        const userMarkerIcon = L.divIcon({
+          className: 'user-location-marker',
+          html: '<div class="user-pulse"></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+
+        // Añadimos el marcador de "Estás aquí" al mapa
+        L.marker(miUbicacionActual, { icon: userMarkerIcon })
+          .addTo(mapa)
+          .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b><br><span style="color:#ccc; font-size:12px;">Descubre lo que tienes cerca.</span>');
+
+        // Si se presionó el botón o no hay destino en la URL, centramos
+        const params = new URLSearchParams(window.location.search);
+        const tieneDestino = params.has('evento') || params.has('sitio');
+        
+        if (debeCentrar || !tieneDestino) {
+          mapa.flyTo(miUbicacionActual, 13.9, {
+            animate: true,
+            duration: 1.5
+          });
+        }
+      },
+      (error) => {
+        console.warn("Geolocalización rechazada o no disponible.", error);
+
+        let mensaje;
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            mensaje = 'No se pudo acceder a tu ubicación porque el permiso fue denegado.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            mensaje = 'Tu ubicación no está disponible en este momento.';
+            break;
+          case error.TIMEOUT:
+            mensaje = 'Tardamos demasiado en obtener tu ubicación.';
+            break;
+          default:
+            mensaje = 'No pudimos obtener tu ubicación.';
+        }
+        mostrarToastGeo(mensaje, 'error');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 6000,
+        maximumAge: 0
+      }
+    );
+  } else {
+    mostrarToastGeo('Tu navegador no soporta geolocalización.', 'error');
+  }
+}
+
+// 1. Ejecución inicial automática al cargar la app
+obtenerYCentrarUbicacion(false);
+
+// 2. Evento del botón para re-centrar cuando el usuario se pierda
+const btnMiUbicacion = document.getElementById('btn-mi-ubicacion');
+if (btnMiUbicacion) {
+  btnMiUbicacion.addEventListener('click', () => {
+    if (miUbicacionActual) {
+      // Si ya conocemos su ubicación, vamos directo fluidamente
+      mapa.flyTo(miUbicacionActual, 14, {
+        animate: true,
+        duration: 1.2
+      });
+    } else {
+      // Si falló antes o es primera vez, volvemos a solicitarla y forzamos el centrado
+      mostrarToastGeo('Buscando tu ubicación exacta...', 'info');
+      obtenerYCentrarUbicacion(true);
+    }
+  });
+}
