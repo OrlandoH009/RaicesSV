@@ -153,10 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
+    
+    // Capturamos la ruta a la que quería ir el usuario (?redirect=...)
+    const targetRedirect = params.get('redirect') || '/';
+
     const payload = {
       email: formData.get('email'),
       password: formData.get('password'),
-      redirect: params.get('redirect') || ''
+      redirect: targetRedirect
     };
 
     try {
@@ -168,14 +172,17 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
 
-      const text = await response.text();
-
-      if (response.ok || response.redirected) {
-        window.location.href = response.url || '/';
+      // 1. Si las credenciales son correctas (status 200)
+      if (response.ok) {
+        // Redirección forzada desde el frontend usando la URL de la barra de direcciones
+        window.location.href = decodeURIComponent(targetRedirect);
         return;
       }
 
+      // 2. Si hay algún error (como contraseña incorrecta)
+      const text = await response.text();
       showMessage(text || 'No se pudo iniciar sesión.');
+      
     } catch (error) {
       showMessage('No se pudo conectar con el servidor.');
     }
