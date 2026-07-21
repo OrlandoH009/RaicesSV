@@ -470,6 +470,40 @@ const LANDMARKS = [
     chips: ['Construida en los 70s', 'Arquitectura moderna', 'Acceso libre'],
     coords: [13.6972, -89.1905]
   },
+
+  /* ── EVENTOS CULTURALES NACIONALES (página Eventos Culturales) ── */
+  {
+    id: 57, cat: 'evento', emoji: '✝️', color: '#52a0e0',
+    nombre: 'Semana Santa Nacional',
+    lugar: 'Catedral Metropolitana, San Salvador',
+    desc: 'Procesiones, vía crucis y alfombras de aserrín se viven en todo el país durante la Semana Santa, del 29 de marzo al 5 de abril de 2026.',
+    chips: ['29 marzo–5 abril 2026', 'Procesiones', 'Alfombras de aserrín'],
+    coords: [13.6989, -89.1914]
+  },
+  {
+    id: 58, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Día de la Independencia',
+    lugar: 'Plaza Cívica, San Salvador',
+    desc: 'El 15 de septiembre de 2026 se conmemora la Independencia de Centroamérica con desfiles escolares y la Carrera de la Antorcha.',
+    chips: ['15 de septiembre 2026', 'Desfiles', 'Antorcha de la Libertad'],
+    coords: [13.6994, -89.1912]
+  },
+  {
+    id: 59, cat: 'evento', emoji: '🕯️', color: '#52a0e0',
+    nombre: 'Día de los Difuntos',
+    lugar: 'Cementerio General, San Salvador',
+    desc: 'El 1 y 2 de noviembre de 2026 las familias visitan los cementerios del país para honrar a sus seres queridos con flores y el tradicional fiambre.',
+    chips: ['1–2 noviembre 2026', 'Cementerios', 'Fiambre'],
+    coords: [13.6833, -89.1980]
+  },
+  {
+    id: 60, cat: 'evento', emoji: '🎄', color: '#52a0e0',
+    nombre: 'Navidad y Posadas',
+    lugar: 'San Salvador',
+    desc: 'Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche.',
+    chips: ['16–24 diciembre 2026', 'Posadas', 'Nochebuena'],
+    coords: [13.6929, -89.2182]
+  },
 ];
 
 /* ══════════════════════════════════════════════════════════

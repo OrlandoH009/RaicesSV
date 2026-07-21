@@ -6,6 +6,7 @@
   <title>Raíces SV — Eventos Culturales</title>
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/info-shared.css" />
+  <link rel="stylesheet" href="../assets/css/eventos.css" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
@@ -44,14 +45,23 @@
     </section>
 
     <div class="info-tabs reveal">
-      <p class="info-tabs__label">¿Qué evento quieres conocer?</p>
+      <p class="info-tabs__label">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
       <div class="info-tabs__list">
         <button class="tab-btn active" data-tab="agostinas">Fiestas Agostinas</button>
-        <button class="tab-btn" data-tab="patronales">Fiestas Patronales</button>
         <button class="tab-btn" data-tab="semana-santa">Semana Santa</button>
         <button class="tab-btn" data-tab="independencia">Independencia</button>
         <button class="tab-btn" data-tab="dia-muertos">Día de los Difuntos</button>
         <button class="tab-btn" data-tab="navidad">Navidad</button>
+        <button class="tab-btn" data-tab="fiestas-julias">Fiestas Julias</button>
+        <button class="tab-btn" data-tab="carnaval-sm">Carnaval de San Miguel</button>
+        <button class="tab-btn" data-tab="festival-suchitoto">Festival de Suchitoto</button>
+        <button class="tab-btn" data-tab="calabiuza">Día de la Calabiuza</button>
+        <button class="tab-btn" data-tab="farolitos">Día de los Farolitos</button>
+        <button class="tab-btn" data-tab="festival-anil">Festival del Añil</button>
+        <button class="tab-btn" data-tab="festival-barro">Festival del Barro</button>
+        <button class="tab-btn" data-tab="flores-palmas">Flores y Palmas</button>
+        <button class="tab-btn" data-tab="chicharron">Festival del Chicharrón</button>
+        <button class="tab-btn" data-tab="jocote">Festival del Jocote</button>
       </div>
     </div>
 
@@ -61,48 +71,31 @@
           <img src="../assets/media/Eventos Culturales.png" alt="Fiestas Agostinas" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Fiestas Agostinas</h2>
-          <p class="info-content__hero-sub">Agosto — Las fiestas más grandes del país</p>
+          <p class="info-content__hero-sub">1–6 de Agosto de 2026 — Las fiestas más grandes del país</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Todo agosto</span>
+            <span class="info-chip">1–6 agosto 2026</span>
             <span class="info-chip">San Salvador y todo el país</span>
             <span class="info-chip">Procesión, fuegos, feria</span>
-            <span class="info-chip">Festividad religiosa y popular</span>
           </div>
-          <h3>El mes más festivo de El Salvador</h3>
-          <p>Las Fiestas Agostinas son las celebraciones más importantes y masivas de El Salvador. Durante todo el mes de agosto, el país honra al Divino Salvador del Mundo, patrón de la nación. Las festividades combinan elementos religiosos y populares en una explosión de color, música y tradición.</p>
-          <p>El evento principal es la Bajada del Salvador, una procesión que recorre las calles de San Salvador con la imagen del Divino Salvador del Mundo. Esta procesión congrega a cientos de miles de personas que acompañan la imagen entre cantos, rezos y fuegos artificiales.</p>
-          <h3>La Feria Agostina</h3>
-          <p>Junto con las celebraciones religiosas, se instala una enorme feria con juegos mecánicos, puestos de comida típica, artesanías y espectáculos culturales. El estadio Nacional Jorge "Mágico" González y el Parque Infantil son sedes de conciertos, peleas de gallo, corridas de toros y otros eventos populares.</p>
-          <h3>Gastronomía de agosto</h3>
-          <p>Las fiestas agostinas tienen su propia gastronomía: tamales de elote, atol de elote, choco-bananos, algodón de azúcar, marquesotes y un sinfín de dulces típicos que llenan los puestos callejeros durante todo el mes. Es el mejor momento para probar la comida festiva salvadoreña.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="info-panel" id="tab-patronales">
-      <div class="info-content reveal">
-        <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Fiestas Patronales" style="object-position: center 40%;" />
-          <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Fiestas Patronales</h2>
-          <p class="info-content__hero-sub">Todo el año — En cada municipio del país</p>
-        </div>
-        <div class="info-content__body">
-          <div class="info-chips">
-            <span class="info-chip">Todo el año</span>
-            <span class="info-chip">262 municipios</span>
-            <span class="info-chip">Música, danza, feria</span>
-            <span class="info-chip">Identidad local</span>
+          <p>Las Fiestas Agostinas son las celebraciones más importantes y masivas de El Salvador. Cada agosto el país honra al Divino Salvador del Mundo, patrón de la nación, en una explosión de color, música y tradición que combina elementos religiosos y populares.</p>
+          <p>El evento principal es la Bajada del Salvador, una procesión que recorre las calles de San Salvador con la imagen del Divino Salvador del Mundo, acompañada de cantos, rezos y fuegos artificiales que congregan a cientos de miles de personas.</p>
+          <p>Junto con las celebraciones religiosas se instala una enorme feria con juegos mecánicos, puestos de comida típica —tamales de elote, atol de elote, choco-bananos— y espectáculos culturales en el Estadio Nacional y el Parque Infantil.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=21&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=agostinas" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=1" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
           </div>
-          <h3>La identidad de cada pueblo</h3>
-          <p>Cada uno de los 262 municipios de El Salvador celebra anualmente las fiestas en honor a su santo patrono. Estas festividades son el corazón de la identidad cultural local y reúnen a los habitantes del municipio, incluidos aquellos que han emigrado, en una celebración comunitaria única.</p>
-          <p>Las fiestas patronales generalmente duran entre tres y ocho días e incluyen: misas solemnes, procesiones con la imagen del santo patrón, feria con juegos y comida, bailes populares y espectáculos culturales.</p>
-          <h3>Tradiciones específicas</h3>
-          <p>Algunas fiestas patronales son famosas a nivel nacional. La de Panchimalco (agosto) incluye la Procesión de las Palmas, una tradición indígena única. La de Nahuizalco incluye danzas folclóricas de raíz indígena. La Feria de Chalchuapa, celebrada en honor a Santiago Apóstol, es famosa por sus eventos artesanales y culturales.</p>
-          <h3>Las Pasadas</h3>
-          <p>Una costumbre muy especial de algunas fiestas patronales son "Las Pasadas", donde grupos de personas llevan la imagen del santo de casa en casa durante varios días antes de la fiesta principal, rezando, comiendo y celebrando juntos. Es una tradición que fortalece los lazos comunitarios y la fe popular.</p>
         </div>
       </div>
     </div>
@@ -113,21 +106,31 @@
           <img src="../assets/media/Eventos Culturales.png" alt="Semana Santa" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Semana Santa</h2>
-          <p class="info-content__hero-sub">Marzo o Abril — La semana más sagrada</p>
+          <p class="info-content__hero-sub">29 de Marzo – 5 de Abril de 2026 — Fe y tradición en cada calle</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Marzo–Abril</span>
+            <span class="info-chip">29 marzo–5 abril 2026</span>
             <span class="info-chip">Procesiones</span>
-            <span class="info-chip">Alfombras de flores</span>
-            <span class="info-chip">Playa y tradición</span>
+            <span class="info-chip">Alfombras de aserrín</span>
           </div>
-          <h3>La semana más especial</h3>
           <p>La Semana Santa salvadoreña combina profunda devoción religiosa con tradiciones culturales únicas. Las procesiones del Domingo de Ramos, Martes Santo, Miércoles Santo y Viernes Santo recorren las calles de ciudades y pueblos de todo el país, acompañadas de música de banda, incienso y miles de devotos.</p>
-          <h3>Las alfombras</h3>
-          <p>Una de las tradiciones más hermosas es la elaboración de alfombras de flores, aserrín de colores, frutas y vegetales sobre las calles por donde pasarán las procesiones. Las alfombras de Nahuizalco y de algunos municipios del occidente son especialmente elaboradas y artísticas, convirtiéndose en verdaderas obras de arte efímeras.</p>
-          <h3>Tradición y playa</h3>
-          <p>La Semana Santa es también la época de mayor afluencia a las playas salvadoreñas. Las playas del Pacífico como El Tunco, El Zonte, La Libertad y Costa del Sol reciben a cientos de miles de visitantes. Esta combinación de fe y descanso es característica del Semana Santa salvadoreña.</p>
+          <p>Una de las tradiciones más hermosas es la elaboración de alfombras de flores, aserrín de colores, frutas y vegetales sobre las calles por donde pasarán las procesiones. Las de Nahuizalco y otros municipios del occidente son especialmente elaboradas, verdaderas obras de arte efímeras.</p>
+          <p>Es también la época de mayor afluencia a las playas salvadoreñas: El Tunco, El Zonte, La Libertad y Costa del Sol reciben a cientos de miles de visitantes, combinando fe y descanso.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=57&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=semanasanta" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=31" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -135,24 +138,34 @@
     <div class="info-panel" id="tab-independencia">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Independencia" />
+          <img src="../assets/media/Eventos Culturales.png" alt="Día de la Independencia" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Día de la Independencia</h2>
-          <p class="info-content__hero-sub">15 de Septiembre — Orgullo nacional</p>
+          <p class="info-content__hero-sub">15 de Septiembre de 2026 — Orgullo nacional</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">15 de septiembre</span>
+            <span class="info-chip">15 de septiembre 2026</span>
             <span class="info-chip">Desfiles escolares</span>
-            <span class="info-chip">Antorcha</span>
-            <span class="info-chip">Identidad nacional</span>
+            <span class="info-chip">Antorcha de la Libertad</span>
           </div>
-          <h3>La celebración más patriótica</h3>
-          <p>El 15 de septiembre es el día más patriótico de El Salvador. En esta fecha se conmemora la Independencia de Centroamérica, proclamada en 1821. Todo el país se viste con los colores de la bandera nacional — azul y blanco — y el ambiente festivo se siente en cada rincón del territorio.</p>
-          <h3>La Antorcha de la Libertad</h3>
-          <p>Una de las tradiciones más emblemáticas es la Carrera de la Antorcha. Una llama simbólica es encendida en Guatemala el 14 de septiembre y transportada en carrera de relevo por jóvenes atletas a través de todos los países de Centroamérica, llegando a El Salvador la noche del 14 para encender oficialmente las festividades del 15.</p>
-          <h3>Desfiles escolares</h3>
-          <p>El 15 de septiembre las calles de todos los municipios del país se llenan de coloridos desfiles escolares. Estudiantes de todos los niveles marchan con uniformes especiales, bandas musicales y palillonas (majorettes), mientras la población los aplaude en las aceras. Los desfiles son un orgullo para las escuelas y los estudiantes que participan en ellos.</p>
+          <p>El 15 de septiembre es el día más patriótico de El Salvador. En esta fecha se conmemora la Independencia de Centroamérica, proclamada en 1821. Todo el país se viste con los colores de la bandera nacional y el ambiente festivo se siente en cada rincón del territorio.</p>
+          <p>Una de las tradiciones más emblemáticas es la Carrera de la Antorcha: una llama simbólica encendida en Guatemala el 14 de septiembre y transportada en relevo por jóvenes atletas a través de Centroamérica, llegando a El Salvador la noche previa para encender oficialmente las festividades.</p>
+          <p>Las calles de todos los municipios se llenan de coloridos desfiles escolares, con estudiantes marchando en uniformes especiales, bandas musicales y palillonas, mientras la población los aplaude desde las aceras.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=58&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=independencia" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=32" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -160,25 +173,34 @@
     <div class="info-panel" id="tab-dia-muertos">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Día de los Difuntos" style="object-position: center 60%;" />
+          <img src="../assets/media/Eventos Culturales.png" alt="Día de los Difuntos" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Día de los Difuntos</h2>
-          <p class="info-content__hero-sub">1 y 2 de Noviembre — Recordando a los que se fueron</p>
+          <p class="info-content__hero-sub">1 y 2 de Noviembre de 2026 — Recordando a los que se fueron</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">1–2 noviembre</span>
+            <span class="info-chip">1–2 noviembre 2026</span>
             <span class="info-chip">Cementerios</span>
             <span class="info-chip">Ofrendas florales</span>
-            <span class="info-chip">Reunión familiar</span>
           </div>
-          <h3>Honrando la memoria</h3>
           <p>El Día de Todos los Santos (1 de noviembre) y el Día de los Difuntos (2 de noviembre) son días de profunda significación para los salvadoreños. Las familias visitan los cementerios para limpiar y adornar las tumbas de sus seres queridos con flores, velas y ofrendas.</p>
-          <p>Los cementerios, habitualmente silenciosos, se transforman en espacios vibrantes y coloridos durante estos días. El olor a flores y el parpadeo de miles de velas crean una atmósfera emotiva y hermosa que combina el duelo con la celebración de la vida.</p>
-          <h3>Tradiciones locales</h3>
-          <p>En algunos municipios, especialmente en el oriente del país, se conservan tradiciones más elaboradas que incluyen la preparación de comida especial para depositar en las tumbas, la contratación de mariachis o grupos musicales para tocar las canciones favoritas del difunto, y velaciones nocturnas en el cementerio.</p>
-          <h3>El fiambre</h3>
-          <p>El fiambre es la comida tradicional del Día de los Difuntos en El Salvador: una ensalada fría elaborada con embutidos, verduras cocidas, aceitunas, alcaparras y una salsa especial de vinagre. Su preparación es un ritual familiar que involucra a todos y se disfruta en el cementerio o en casa durante estos días de recordación.</p>
+          <p>Los cementerios, habitualmente silenciosos, se transforman en espacios vibrantes y coloridos durante estos días. El olor a flores y el parpadeo de miles de velas crean una atmósfera emotiva que combina el duelo con la celebración de la vida.</p>
+          <p>El fiambre es la comida tradicional de estas fechas: una ensalada fría de embutidos, verduras cocidas, aceitunas y una salsa especial de vinagre, cuya preparación es un ritual familiar que se comparte en el cementerio o en casa.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=59&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=difuntos" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=33" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -186,24 +208,384 @@
     <div class="info-panel" id="tab-navidad">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Navidad" />
+          <img src="../assets/media/Eventos Culturales.png" alt="Navidad y Posadas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Navidad</h2>
-          <p class="info-content__hero-sub">Diciembre — La época más mágica del año</p>
+          <h2 class="info-content__hero-title">Navidad y Posadas</h2>
+          <p class="info-content__hero-sub">Diciembre de 2026 — La época más mágica del año</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Diciembre</span>
+            <span class="info-chip">16–24 diciembre 2026</span>
             <span class="info-chip">Posadas y nacimientos</span>
-            <span class="info-chip">Pólvora y cohetes</span>
             <span class="info-chip">Tamales navideños</span>
           </div>
-          <h3>La Navidad salvadoreña</h3>
-          <p>La Navidad en El Salvador tiene un sabor y una atmósfera únicos. Desde el 1 de diciembre, las calles se llenan de luces, nacimientos y decoraciones navideñas. La temperatura fresca de diciembre y enero, conocida como "el veranillo de San Miguel", hace que el ambiente navideño se sienta especialmente agradable.</p>
-          <h3>Las Posadas</h3>
-          <p>Las posadas son celebraciones tradicionales que se realizan del 16 al 24 de diciembre y representan la búsqueda de José y María de un lugar donde dar a luz a Jesús. Las familias y comunidades se reúnen en casas diferentes cada noche para rezar, cantar villancicos, romper piñatas y compartir ponche, buñuelos y otras delicias navideñas.</p>
-          <h3>La Nochebuena</h3>
-          <p>La noche del 24 de diciembre es el momento cumbre de la Navidad salvadoreña. A las 12 de la noche, todo el país estalla en cohetes y pólvora que iluminan el cielo. Las familias se reúnen para cenar tamales, pavo, ensalada rusa, chumpe en salsa y ponche de frutas. El nacimiento navideño en cada hogar es el centro simbólico de la celebración.</p>
+          <p>La Navidad en El Salvador tiene un sabor y una atmósfera únicos. Desde el 1 de diciembre, las calles se llenan de luces, nacimientos y decoraciones. El fresco de diciembre, conocido como 'el veranillo de San Miguel', hace el ambiente especialmente agradable.</p>
+          <p>Las posadas se realizan del 16 al 24 de diciembre y representan la búsqueda de José y María de un lugar donde dar a luz a Jesús. Familias y comunidades se reúnen cada noche en una casa distinta para rezar, cantar villancicos, romper piñatas y compartir ponche y buñuelos.</p>
+          <p>La noche del 24 es el momento cumbre: a las 12, todo el país estalla en cohetes y pólvora, y las familias se reúnen para cenar tamales, pavo y ponche de frutas frente al nacimiento navideño de cada hogar.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=60&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=navidad" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=34" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-fiestas-julias">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Fiestas Julias de Santa Ana" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Fiestas Julias de Santa Ana</h2>
+          <p class="info-content__hero-sub">26 de Julio de 2026 — La Ciudad Heroica en fiesta</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">26 de julio 2026</span>
+            <span class="info-chip">Santa Ana</span>
+            <span class="info-chip">Fiesta patronal</span>
+          </div>
+          <p>Las Fiestas Julias son la celebración patronal de Santa Ana en honor a Nuestra Señora Santa Ana. Durante varios días la 'Ciudad Heroica' se llena de procesiones, música en vivo y actividades culturales frente a su emblemática catedral neogótica.</p>
+          <p>La feria incluye desfiles de carrozas, elección de reina de las fiestas, ferias artesanales y gastronómicas en el parque central, además de conciertos que atraen visitantes de todo el occidente del país.</p>
+          <p>Es también una oportunidad para admirar el patrimonio arquitectónico de Santa Ana, incluyendo el Teatro de Santa Ana y el Palacio Municipal, iluminados especialmente durante la temporada de fiestas.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=23&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=fiestasjulias" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=3" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-carnaval-sm">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Gran Carnaval de San Miguel" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Gran Carnaval de San Miguel</h2>
+          <p class="info-content__hero-sub">28 de Noviembre de 2026 — El carnaval más grande de Centroamérica</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">28 de noviembre 2026</span>
+            <span class="info-chip">San Miguel</span>
+            <span class="info-chip">Orquestas en vivo</span>
+          </div>
+          <p>El Carnaval de San Miguel, celebrado en honor a la Virgen de la Paz, es reconocido como el carnaval más grande de Centroamérica. Decenas de orquestas nacionales e internacionales tocan en vivo mientras miles de personas bailan por las calles del centro migueleño.</p>
+          <p>Comparsas, carrozas alegóricas y disfiles llenos de color recorren la ciudad durante toda la noche, en un ambiente de alegría colectiva que combina música tropical, cumbia y ritmos salvadoreños.</p>
+          <p>El carnaval es también un motor económico importante para la ciudad, atrayendo turismo nacional e internacional y dinamizando el comercio local de comida y bebidas típicas.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=26&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=carnavalsm" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=6" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-festival-suchitoto">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival de Suchitoto" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival de Suchitoto</h2>
+          <p class="info-content__hero-sub">Febrero de 2026 — Arte y cultura en la ciudad colonial</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">Festival Internacional</span>
+            <span class="info-chip">Suchitoto, Cuscatlán</span>
+            <span class="info-chip">Arte y música</span>
+          </div>
+          <p>El Festival Internacional de Arte y Cultura de Suchitoto convoca cada año a artistas de toda Latinoamérica en las calles empedradas de este pueblo colonial a orillas del Lago Suchitlán.</p>
+          <p>Durante varios días, las plazas y casonas coloniales se transforman en escenarios de música, teatro, danza y exposiciones de arte visual, atrayendo tanto a artistas consagrados como a talentos emergentes.</p>
+          <p>Suchitoto, con su arquitectura colonial intacta y su tradición añilera, ofrece el marco perfecto para este encuentro cultural que combina patrimonio histórico y creación contemporánea.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=14&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalsuchitoto" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-calabiuza">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Día de la Calabiuza" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Día de la Calabiuza</h2>
+          <p class="info-content__hero-sub">1 de Noviembre de 2026 — Las leyendas cobran vida</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">1 de noviembre 2026</span>
+            <span class="info-chip">Tonacatepeque, Cuscatlán</span>
+            <span class="info-chip">Desfile nocturno</span>
+          </div>
+          <p>El Día de la Calabiuza es un desfile tradicional nocturno en Tonacatepeque donde cobran vida los personajes de las leyendas salvadoreñas: la Siguanaba, el Cadejo, la Carreta Bruja y el Cipitío recorren las calles entre luces y música.</p>
+          <p>La celebración combina el imaginario del Día de los Difuntos con el folclore local, convirtiéndose en una de las expresiones más originales de la cultura popular salvadoreña.</p>
+          <p>Cientos de personas se disfrazan de estos personajes y participan en el desfile, que ha crecido hasta convertirse en un referente cultural reconocido a nivel nacional.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=29&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=calabiuza" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=9" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-farolitos">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Día de los Farolitos" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Día de los Farolitos</h2>
+          <p class="info-content__hero-sub">7 de Septiembre de 2026 — Ataco se ilumina</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">7 de septiembre 2026</span>
+            <span class="info-chip">Concepción de Ataco, Ahuachapán</span>
+            <span class="info-chip">Faroles artesanales</span>
+          </div>
+          <p>El Día de los Farolitos es una hermosa tradición donde las calles de Concepción de Ataco se iluminan por completo con miles de faroles artesanales, conmemorando el nacimiento de la Virgen María.</p>
+          <p>Familias enteras participan en la elaboración de los faroles de papel, que se encienden al caer la noche transformando el pueblo en un espectáculo de luces cálidas y colores.</p>
+          <p>La festividad se acompaña de música folclórica, gastronomía local y actividades culturales que atraen visitantes de toda la Ruta de las Flores.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=36&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=farolitosataco" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=16" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-festival-anil">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival del Añil" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival del Añil</h2>
+          <p class="info-content__hero-sub">4 de Octubre de 2026 — El oro azul de Suchitoto</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">4 de octubre 2026</span>
+            <span class="info-chip">Suchitoto, Cuscatlán</span>
+            <span class="info-chip">Teñido artesanal</span>
+          </div>
+          <p>El Festival del Añil, celebrado en Suchitoto, rinde homenaje al 'oro azul': el añil que fue durante siglos el principal producto de exportación de El Salvador y motor de su economía colonial.</p>
+          <p>Talleres demostrativos enseñan las técnicas prehispánicas y coloniales de teñido artesanal con añil, permitiendo a los visitantes crear sus propias piezas teñidas a mano.</p>
+          <p>El festival también incluye recorridos históricos, exposiciones de textiles y actividades educativas sobre el impacto del añil en la historia económica y social del país.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=48&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalanil" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=28" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-festival-barro">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival del Barro" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival del Barro</h2>
+          <p class="info-content__hero-sub">8 de Noviembre de 2026 — La tradición alfarera de Ilobasco</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">8 de noviembre 2026</span>
+            <span class="info-chip">Ilobasco, Cabañas</span>
+            <span class="info-chip">Miniaturas de barro</span>
+          </div>
+          <p>El Festival del Barro es una exposición artesanal en Ilobasco que rinde homenaje a los maestros alfareros y sus famosas figuras en miniatura, conocidas internacionalmente como 'sorpresas'.</p>
+          <p>Los visitantes pueden recorrer talleres familiares donde generaciones de artesanos moldean, pintan y cuecen piezas de barro con técnicas heredadas de sus abuelos.</p>
+          <p>El festival incluye concursos de piezas artesanales, ferias de venta directa y demostraciones en vivo del proceso completo, desde el moldeado hasta el horneado en hornos tradicionales de leña.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=41&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalbarro" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=21" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-flores-palmas">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival de las Flores y Palmas" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival de las Flores y Palmas</h2>
+          <p class="info-content__hero-sub">10 de Mayo de 2026 — El inicio de la época lluviosa</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">10 de mayo 2026</span>
+            <span class="info-chip">Panchimalco, San Salvador</span>
+            <span class="info-chip">Procesión de las Palmas</span>
+          </div>
+          <p>El Festival de las Flores y Palmas es una tradición colorida en Panchimalco que marca el inicio de la época lluviosa con procesiones adornadas de palmas y flores silvestres.</p>
+          <p>La Procesión de las Palmas es una de las expresiones indígenas más auténticas del país: los habitantes de este municipio de raíz pipil decoran palmas con flores y las llevan en procesión hasta la iglesia colonial.</p>
+          <p>El evento se acompaña de danzas folclóricas, música tradicional y ferias de artesanía que reflejan la identidad indígena de Panchimalco, uno de los municipios que mejor conserva sus raíces ancestrales.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=25&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=flores" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=5" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-chicharron">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival Internacional del Chicharrón" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival Internacional del Chicharrón</h2>
+          <p class="info-content__hero-sub">12 de Diciembre de 2026 — Sabor y tradición en Santa Tecla</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">12 de diciembre 2026</span>
+            <span class="info-chip">Santa Tecla, La Libertad</span>
+            <span class="info-chip">Feria gastronómica</span>
+          </div>
+          <p>El Festival Internacional del Chicharrón es una feria culinaria de gran afluencia turística celebrada en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo.</p>
+          <p>Cocineros y restaurantes de todo el país compiten y comparten recetas que van desde el chicharrón tradicional hasta creaciones gourmet, acompañadas de música en vivo y espacios familiares.</p>
+          <p>El festival se ha convertido en un referente gastronómico nacional que combina tradición culinaria, emprendimiento local y turismo interno en una de las ciudades más visitadas del área metropolitana.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=50&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=chicharron" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=30" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-panel" id="tab-jocote">
+      <div class="info-content reveal">
+        <div class="info-content__hero">
+          <img src="../assets/media/Eventos Culturales.png" alt="Festival del Jocote Corona" />
+          <div class="info-content__hero-grad"></div>
+          <h2 class="info-content__hero-title">Festival del Jocote Corona</h2>
+          <p class="info-content__hero-sub">18 de Octubre de 2026 — El fruto emblemático del Cerro Verde</p>
+        </div>
+        <div class="info-content__body">
+          <div class="info-chips">
+            <span class="info-chip">18 de octubre 2026</span>
+            <span class="info-chip">Santa Ana</span>
+            <span class="info-chip">Feria gastronómica</span>
+          </div>
+          <p>El Festival del Jocote Corona es una feria gastronómica celebrada en la zona del Cerro Verde, dedicada a la comercialización y platillos derivados de este icónico fruto salvadoreño.</p>
+          <p>Productores locales ofrecen jocotes en miel, encurtidos, mermeladas y otros derivados, además de platillos típicos que incorporan esta fruta de temporada en preparaciones dulces y saladas.</p>
+          <p>El festival impulsa la economía de los pequeños productores de la zona occidental y es una oportunidad para conocer de cerca la agricultura tradicional salvadoreña.</p>
+          <div class="evento-actions">
+            <a class="evento-actions__btn" href="../views/mapa.html?evento=28&from=eventos.html" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+              Ver en mapa
+            </a>
+            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=jocote" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+              Ver publicaciones
+            </a>
+            <a class="evento-actions__btn" href="../views/calendario.html?id=8" target="_self">
+              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+              Revisar el calendario
+            </a>
+          </div>
         </div>
       </div>
     </div>

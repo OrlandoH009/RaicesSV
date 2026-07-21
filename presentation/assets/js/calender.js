@@ -43,7 +43,12 @@ calendarState.festividades = [
   { id: 27, nombre: "Fiestas Patronales de Cojutepeque", dia: 15, mes: 0, anio: 2026, depto: "Cuscatlán", tipo: "Fiesta Patronal", desc: "Celebración en honor a San Sebastián Mártir, conocida a nivel nacional por sus tradicionales e incomparables embutidos." },
   { id: 28, nombre: "Festival del Añil", dia: 4, mes: 9, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Celebración en Suchitoto dedicada al 'oro azul', exponiendo técnicas prehispánicas de teñido artesanal e historia colonial." },
   { id: 29, nombre: "Fiestas Patronales de Gotera", dia: 15, mes: 10, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", desc: "Eventos dedicados a San Francisco de Asís en San Francisco Gotera, combinando fe, jaripeos populares y danzas de la región." },
-  { id: 30, nombre: "Festival Internacional del Chicharrón", dia: 12, mes: 11, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", desc: "Feria culinaria de gran afluencia turística en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo." }
+  { id: 30, nombre: "Festival Internacional del Chicharrón", dia: 12, mes: 11, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", desc: "Feria culinaria de gran afluencia turística en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo." },
+  // FECHAS NACIONALES — Eventos Culturales
+  { id: 31, nombre: "Semana Santa Nacional", dia: 29, mes: 2, anio: 2026, depto: "San Salvador", tipo: "Celebración Religiosa", desc: "Del 29 de marzo al 5 de abril de 2026: procesiones, vía crucis y alfombras de aserrín en ciudades y pueblos de todo el país." },
+  { id: 32, nombre: "Día de la Independencia", dia: 15, mes: 8, anio: 2026, depto: "San Salvador", tipo: "Festividad Nacional", desc: "El 15 de septiembre de 2026 se conmemora la Independencia de Centroamérica con desfiles escolares y la Carrera de la Antorcha de la Libertad." },
+  { id: 33, nombre: "Día de los Difuntos", dia: 2, mes: 10, anio: 2026, depto: "San Salvador", tipo: "Celebración Religiosa", desc: "El 1 y 2 de noviembre de 2026 las familias visitan los cementerios para honrar a sus difuntos con flores, velas y el tradicional fiambre." },
+  { id: 34, nombre: "Navidad y Posadas", dia: 24, mes: 11, anio: 2026, depto: "San Salvador", tipo: "Festival Cultural", desc: "Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
