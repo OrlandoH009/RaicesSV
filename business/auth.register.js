@@ -1,5 +1,10 @@
 const authService = require('./auth.server');
 
+const isSafeRedirect = (path) => {
+    if (!path || typeof path !== 'string') return false;
+    return path.startsWith('/') && !path.startsWith('//') && !path.includes('http');
+}
+
 const register = async (req, res) => {
 
     try {
@@ -7,8 +12,11 @@ const register = async (req, res) => {
         const {
             name,
             email,
-            password
+            password,
+            redirect
         } = req.body;
+
+        const safeRedirect = isSafeRedirect(redirect) ? redirect : '/';
 
         await authService.register(
             name,
@@ -16,7 +24,13 @@ const register = async (req, res) => {
             password
         );
 
-        res.redirect('/login.html');
+        const loginUrl = '/login.html' + (safeRedirect !== '/' ? '?redirect=' + encodeURIComponent(safeRedirect) : '');
+
+        res.json({
+            success: true,
+            message: 'Cuenta creada correctamente',
+            redirect: loginUrl
+        });
 
     } catch (error) {
         const safeMessage = error && error.expose === true
