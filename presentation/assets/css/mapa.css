@@ -92,16 +92,16 @@
     /* ── Contador flotante (esquina inferior izquierda del mapa) ── */
     .mapa-count-float {
       position: absolute;
-      bottom: 1.5rem; left: 2rem; /* Alineación limpia con los márgenes estándar */
+      bottom: 1.5rem; left: 2rem;
       z-index: 1200;
-      background: rgba(10,10,10,.65);
+      background: rgba(10,10,10,.8);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(190,142,86,.3);
+      border: 1px solid rgba(190,142,86,.4);
       border-radius: 50px;
-      padding: .55rem 1.25rem;
-      font-family: var(--font-body); font-size: .85rem;
-      color: rgba(255,255,255,.8);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      padding: .7rem 1.5rem; /* Incrementado */
+      font-family: var(--font-body); font-size: 1rem; /* Incrementado de .85rem */
+      color: rgba(255,255,255,.9);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       transition: left .35s cubic-bezier(.4, 0, .2, 1);
     }
     .mapa-count-float strong { color: var(--gold); }
@@ -136,12 +136,40 @@
     /* ── Leaflet popup personalizado ── */
     .leaflet-popup-content-wrapper {
       background: #0d0d0d !important;
-      border: 1.5px solid rgba(190,142,86,.4) !important;
-      border-radius: 12px !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,.7) !important;
+      border: 2px solid rgba(190,142,86,.5) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 10px 36px rgba(0,0,0,.75) !important;
       color: var(--white) !important;
       padding: 0 !important;
-      min-width: 240px;
+      min-width: 280px; /* Incrementado para mejor legibilidad */
+    }
+
+    .popup-inner { padding: 1.4rem 1.6rem 1.5rem; }
+
+    .popup-cat {
+      font-family: var(--font-body); font-size: .85rem; font-weight: 700; /* Incrementado */
+      text-transform: uppercase; letter-spacing: .1em;
+      margin-bottom: .45rem;
+    }
+
+    .popup-title {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: 1.35rem; color: var(--white); /* Incrementado de 1.15rem */
+      margin-bottom: .5rem; line-height: 1.25;
+    }
+
+    .popup-desc {
+      font-family: var(--font-body); font-size: 1rem; /* Incrementado de .88rem */
+      color: rgba(255,255,255,.75); line-height: 1.6; margin-bottom: .9rem;
+    }
+
+    .popup-chip {
+      display: inline-block;
+      background: rgba(190,142,86,.15); border: 1px solid rgba(190,142,86,.35);
+      border-radius: 20px; padding: .25rem .7rem; /* Incrementado */
+      font-size: .78rem; font-weight: 700; /* Incrementado */
+      color: var(--gold); letter-spacing: .03em;
+      margin-right: .4rem; margin-top: .3rem;
     }
     .leaflet-popup-content { margin: 0 !important; padding: 0 !important; }
     .leaflet-popup-tip { background: #0d0d0d !important; }
@@ -175,16 +203,17 @@
     /* ── Custom marker icon ── */
     .custom-marker {
       position: relative;
-      width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.85);
+      width: 34px; height: 34px; border-radius: 50%; /* Aumentado de 24px a 34px */
+      border: 2px solid rgba(255,255,255,.95);
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,.55);
-      transition: transform .2s;
+      font-size: 16px; cursor: pointer; /* Emoji e iconos internos más grandes */
+      box-shadow: 0 4px 12px rgba(0,0,0,.6);
+      transition: transform .2s cubic-bezier(.4, 0, .2, 1);
     }
+
     .custom-marker--active {
-      transform: scale(1.2);
-      box-shadow: 0 0 0 3px rgba(255,255,255,.25), 0 4px 14px rgba(0,0,0,.6);
+      transform: scale(1.25);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.35), 0 6px 18px rgba(0,0,0,.75);
     }
 
     /* ── Marker destacado (Calendario) ── */
@@ -227,29 +256,33 @@
     }
     .leaflet-tooltip.marker-tooltip-wrap::before { display: none !important; }
     .marker-tooltip {
-      width: 200px;
+      width: 240px; /* Incrementado de 200px */
       background: #0d0d0d;
       border: 1.5px solid rgba(190,142,86,.4);
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 8px 28px rgba(0,0,0,.65);
     }
+
     .marker-tooltip img {
-      width: 100%; height: 110px;
+      width: 100%; height: 130px; /* Incrementado de 110px */
       object-fit: cover;
       display: block;
     }
-    .marker-tooltip__info { padding: .7rem .8rem .8rem; }
+
+    .marker-tooltip__info { padding: .8rem 1rem .9rem; }
+
     .marker-tooltip__cat {
       display: block;
-      font-family: var(--font-body); font-size: .65rem; font-weight: 700;
+      font-family: var(--font-body); font-size: .75rem; font-weight: 700; /* Incrementado */
       text-transform: uppercase; letter-spacing: .08em;
-      margin-bottom: .25rem;
+      margin-bottom: .3rem;
     }
+
     .marker-tooltip__name {
       display: block;
       font-family: var(--font-display); font-weight: 700;
-      font-size: .95rem; color: var(--white); line-height: 1.25;
+      font-size: 1.1rem; color: var(--white); line-height: 1.3; /* Incrementado */
     }
 
     /* ── Botón flotante "Volver" (esquina superior derecha) ── */
@@ -429,12 +462,11 @@
     }
 
     .user-pulse {
-      width: 14px;
-      height: 14px;
+      width: 18px; height: 18px; /* Aumentado de 14px */
       background: #2b82c9;
       border: 2px solid #ffffff;
       border-radius: 50%;
-      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      box-shadow: 0 0 6px rgba(0,0,0,0.6);
       position: relative;
     }
 
@@ -699,10 +731,71 @@
   flex: 1;
 }
 
+/* Botón flotante de geolocalización */
+.btn-geo-float {
+  position: absolute;
+  bottom: 120px; /* Subido levemente para evitar pisar el control de zoom grande */
+  right: 12px;
+  z-index: 1000;
+  width: 52px; height: 52px;
+  background-color: #1e1e1e;
+  border: 1.5px solid #be8e56;
+  border-radius: 50%; /* Convertido a círculo para mejor ergonomía */
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+}
+
+.btn-geo-float__icon {
+  font-size: 24px; /* Icono de objetivo/mira más grande */
+}
+
+.btn-geo-float:hover {
+  background-color: #2a2a2a;
+  transform: scale(1.05);
+
+}
+
 @media (max-width: 480px) {
   .geo-toast {
     bottom: 16px;
     font-size: 13px;
     padding: 10px 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .mapa-sidebar {
+    width: 350px;
+    max-width: 85vw;
+  }
+  
+  .mapa-filters-float {
+    top: .6rem; left: .6rem; right: .6rem;
+    transform: none;
+    width: auto; max-width: none;
+    justify-content: flex-start;
+    gap: .35rem; padding: .45rem .6rem;
+    border-radius: 30px;
+  }
+
+  .filter-btn {
+    font-size: .8rem; /* Mantiene legibilidad táctil en pantallas chicas */
+    padding: .4rem .9rem;
+  }
+
+  /* Ajustar los elementos flotantes inferiores para que no colisionen en tablets */
+  .mapa-count-float { 
+    left: .75rem; 
+    bottom: .75rem; 
+    font-size: .88rem; 
+    padding: .5rem 1rem;
+  }
+
+  .btn-geo-float {
+    bottom: 80px; /* Se reposiciona para no chocar con atribuciones o barras inferiores */
+    right: .75rem;
+    width: 46px; height: 46px;
   }
 }
