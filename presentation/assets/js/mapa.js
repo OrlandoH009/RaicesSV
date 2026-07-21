@@ -485,13 +485,16 @@ const mapa = L.map('mapa-leaflet', {
 
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
-/* Tile layer oscuro (Carto Dark Matter — gratuito, sin API key) */
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 17
+/* Tile layer gris oscuro mate (Stadia Alidade Smooth Dark — gratuito) */
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+  maxZoom: 16.5,
+  attribution: '...',
+  
+  // ════════ PROPIEDADES DE RENDIMIENTO ════════
+  updateWhenIdle: true,    // No carga mapas nuevos mientras la cámara se está moviendo (espera a que frene)
+  updateWhenZooming: false, // Evita parpadeos agresivos al hacer zoom
+  keepBuffer: 8,           // Mantiene en memoria los fragmentos de mapa cercanos para que no se vuelvan a descargar si te mueves un poco
 }).addTo(mapa);
-
 
 /* ══════════════════════════════════════════════════════════
    GEOLOCALIZACIÓN AUTOMÁTICA DEL USUARIO
@@ -539,9 +542,12 @@ if (navigator.geolocation) {
         .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b><br><span style="color:#ccc; font-size:12px;">Descubre lo que tienes cerca.</span>');
 
       // CORRECCIÓN: Solo hacemos flyTo (paneo fluido) si NO venimos buscando un evento en la URL
+      // CORRECCIÓN COMPLETA: Solo hacemos flyTo si NO venimos buscando un evento ni un sitio en la URL
       const params = new URLSearchParams(window.location.search);
-      if (!params.has('evento')) {
-        mapa.flyTo(userCoords, 14.5, {
+      const tieneDestino = params.has('evento') || params.has('sitio');
+      
+      if (!tieneDestino) {
+        mapa.flyTo(userCoords, 13.9, {
           animate: true,
           duration: 1.5
         });
@@ -678,7 +684,9 @@ function cerrarSidebar() {
 sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
-  if (activeLandmark) mapa.setView(activeLandmark.coords, 14, { animate: true });
+  if (activeMarker) {
+    mapa.panTo(activeMarker.getLatLng(), { animate: true, duration: 0.8 });
+  }
 });
 
 sbDirections.addEventListener('click', () => {
@@ -690,6 +698,7 @@ sbDirections.addEventListener('click', () => {
 /* ── Renderizar markers ── */
 const markers = [];
 
+/* CAMBIO EN LA RENDERIZACIÓN DE MARKERS */
 LANDMARKS.forEach(lm => {
   const icono = crearIcono(lm.emoji, lm.color);
   const marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
@@ -697,8 +706,11 @@ LANDMARKS.forEach(lm => {
   marker._landmarkCat = lm.cat;
   marker._landmarkId  = lm.id;
 
+  // CORRECCIÓN: Agrega loading="lazy" (que ya tenías pero Leaflet a veces ignora si no se abre)
+  // O mejor aún, genera el contenido dinámicamente en el evento 'tooltipopen'
   marker.bindTooltip(
     `<div class="marker-tooltip">
+       <!-- loading="lazy" obliga al navegador a esperar -->
        <img src="${getImgUrl(lm)}" alt="${lm.nombre}" loading="lazy" />
        <div class="marker-tooltip__info">
          <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${CAT_LABELS[lm.cat]}</span>
@@ -707,8 +719,11 @@ LANDMARKS.forEach(lm => {
      </div>`,
     { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
   );
-
-  marker.on('click', () => abrirSidebar(lm, marker));
+marker.on('click', () => {
+    abrirSidebar(lm, marker);
+    // Centrado suave manteniendo el zoom actual
+    mapa.panTo(marker.getLatLng(), { animate: true, duration: 0.8 });
+  });
   markers.push(marker);
 });
 
@@ -730,7 +745,7 @@ LANDMARKS.forEach(lm => {
   }).addTo(mapa);
 
   marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
-  mapa.setView([lat, lng], 14, { animate: true });
+  mapa.setView([lat, lng], 13.9, { animate: true });
 })();
 
 /* ══════════════════════════════════════════════════════════
@@ -816,9 +831,12 @@ const SLUG_TO_LANDMARK_ID = {
   targetMarker.setIcon(iconoDestacado);
   targetMarker.setZIndexOffset(1000);
 
-  // Hace focus directo e inmediato en el landmark con zoom 13
-  mapa.setView(lm.coords, 13, { animate: true });
-  setTimeout(() => abrirSidebar(lm, targetMarker), 550);
+  // SOLUCIÓN: Esperamos 300ms a que el mapa termine de renderizar en el inicio antes de mover la cámara y abrir el sidebar
+  setTimeout(() => {
+    // Usamos zoom 16 para que se acerque bien al monumento
+    mapa.setView(targetMarker.getLatLng(), 13, { animate: true });
+    abrirSidebar(lm, targetMarker);
+  }, 300);
 })();
 
 /* ══════════════════════════════════════════════════════════

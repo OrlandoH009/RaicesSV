@@ -287,8 +287,13 @@
       height: 100%;
       width: 400px; /* Ajuste óptimo para albergar info de forma legible */
       max-width: 90vw;
-      background: #0d0d0d;
-      border-right: 1.5px solid rgba(190,142,86,.35);
+      
+      /* CAMBIO AQUÍ: Tono grisáceo menos oscuro (#242427) en lugar del negro puro */
+      background: #242427; 
+      
+      /* CAMBIO AQUÍ: Borde sutil a juego con el fondo gris de la barra */
+      border-right: 1.5px solid rgba(255, 255, 255, 0.12);
+      
       box-shadow: 8px 0 32px rgba(0,0,0,.55);
       z-index: 1300;
       transform: translateX(-100%);
@@ -297,23 +302,35 @@
       flex-direction: column;
       overflow: hidden;
     }
-    .mapa-sidebar.open { transform: translateX(0); }
+    .mapa-sidebar.open { 
+      transform: translateX(0); 
+    
+    }
 
     .mapa-sidebar__close {
       position: absolute;
-      top: 1rem; right: 1rem;
+      /* Movido más arriba y hacia la derecha */
+      top: 0.75rem; right: 0.75rem; 
       width: 36px; height: 36px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      color: rgba(255,255,255,.7);
+      
+      background: rgba(15, 15, 15, 0.85); 
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.9);
+      
       cursor: pointer;
-      transition: background .2s, color .2s, border-color .2s;
-      z-index: 2;
+      backdrop-filter: blur(4px); /* Sutil efecto premium sobre la imagen */
+      transition: background .2s, color .2s, border-color .2s, transform .2s;
+      z-index: 10; /* Lo empuja por encima de cualquier imagen o degradado */
     }
-    .mapa-sidebar__close:hover { background: rgba(190,142,86,.2); border-color: var(--gold); color: var(--white); }
-    .mapa-sidebar__close svg { width: 16px; height: 16px; fill: currentColor; }
+    .mapa-sidebar__close:hover { 
+      background: var(--gold); 
+      border-color: var(--gold); 
+      color: var(--white); 
+      transform: scale(1.05); 
+    }
+    .mapa-sidebar__close svg { width: 14px; height: 14px; fill: currentColor; }
 
     .mapa-sidebar__hero {
       position: relative;
