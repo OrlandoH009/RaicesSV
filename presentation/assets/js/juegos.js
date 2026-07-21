@@ -1877,3 +1877,50 @@
     setVisible: (visible) => { isGameVisible = visible; }
   });
 })();
+/* ============================================================
+   RAÍCES SV — ANIMACIONES GSAP CORREGIDAS
+   ============================================================ */
+/* ============================================================
+   RAÍCES SV — ENTRADA CON GSAP (HOVER EN CSS)
+   ============================================================ */
+(function initStartAnimations(){
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof gsap === 'undefined') return;
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // 1. Entrada del Hero
+    tl.fromTo(".hero-fade", 
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15 }
+    );
+
+    // 2. Fondos ambientales
+    tl.fromTo(".ambient-blob",
+      { scale: 0.5, opacity: 0 },
+      { scale: 1, opacity: 0.4, duration: 1.5, stagger: 0.3 },
+      "-=0.6"
+    );
+
+    // 3. Entrada de las tarjetas (Animamos la tarjeta completa, no el emoji)
+    tl.fromTo(".reveal-grid .game-card",
+      { opacity: 0, y: 50, scale: 0.95 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.2, ease: "back.out(1)" },
+      "-=0.8"
+    );
+
+    // 4. Animación de hover en boton (solo si no es móvil)
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if(!isMobile) {
+      const buttons = document.querySelectorAll('.btn-play-trigger, .btn-primary, .mode-btn, .difficulty-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+          gsap.to(btn, { scale: 1.02, duration: 0.3 });
+        });
+        btn.addEventListener('mouseleave', () => {
+          gsap.to(btn, { scale: 1, duration: 0.2 });
+        });
+      });
+    }
+  });
+})();
