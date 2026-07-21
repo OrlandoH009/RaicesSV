@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const protectedPages = ['mapa.html', 'mapa', '/mapa'];
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   
-  if (protectedPages.some(p => window.location.href.includes(p))) {
+  if (protectedPages.includes(currentPage)) {
     fetch('/auth/status', { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => {
