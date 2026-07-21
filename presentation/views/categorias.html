@@ -60,6 +60,8 @@
     <!-- HERO -->
     <section class="hero">
       <div class="hero__bg" id="heroBg"></div>
+      <!-- Agregamos este contenedor para que el JS renderice las partículas doradas -->
+      <div id="heroParticles" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;"></div>
       <div class="hero__overlay"></div>
       <div class="hero__content">
         <div class="hero__title-wrap">
@@ -171,6 +173,17 @@
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/interactive.js"></script>
   <script src="../assets/js/chatbot.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- 2. Plugin ScrollTrigger requerido para los efectos de scroll y batching -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <!-- Scripts de comportamiento lógico -->
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/interactive.js"></script>
+  <script src="../assets/js/chatbot.js"></script>
+  
+  <!-- 3. Tu nuevo script de animaciones exclusivas (Cargado en orden asíncrono seguro) -->
+  <script src="../assets/js/categorias-gsap.js" defer></script>
   <script>
     // Hero image zoom on load
     const bg = document.getElementById('heroBg');

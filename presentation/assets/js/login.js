@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
     
-    // Capturamos la ruta a la que quería ir el usuario (?redirect=...)
+    // Capturamos la ruta destino por si acaso
     const targetRedirect = params.get('redirect') || '/';
 
     const payload = {
@@ -181,8 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 1. Si las credenciales son correctas (status 200)
       if (response.ok) {
-        // Redirección forzada desde el frontend usando la URL de la barra de direcciones
-        window.location.href = decodeURIComponent(targetRedirect);
+        // LEER el JSON que envía el backend
+        const data = await response.json(); 
+        
+        // Redirigir a la ruta exacta que devolvió el servidor
+        window.location.href = data.redirect || '/';
         return;
       }
 
