@@ -187,15 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         body: JSON.stringify(payload)
       });
-
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.redirect || '/';
+        window.location.href = data.redirect || '/login.html';
         return;
       }
-
       const text = await response.text();
-      showMessage(text || 'No se pudo crear la cuenta...');
+      showMessage(text || 'No se pudo crear la cuenta.');
     } catch (error) {
       showMessage('No se pudo conectar con el servidor.');
     }
