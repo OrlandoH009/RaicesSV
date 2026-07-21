@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const googleLinkBtn = document.querySelector('.auth-google-btn-full');
+  if (googleLinkBtn) {
+    const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+    if (redirectParam) {
+      googleLinkBtn.href = '/auth/google?redirect=' + encodeURIComponent(redirectParam);
+    }
+  }
   const form = document.getElementById('login-form');
   const messageBox = document.getElementById('form-message');
   const passwordInput = document.querySelector('input[name="password"]');
