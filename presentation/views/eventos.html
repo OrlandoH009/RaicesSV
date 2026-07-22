@@ -44,26 +44,34 @@
       <div class="page-badge__inner reveal"><h1>Eventos Culturales</h1></div>
     </section>
 
-    <div class="info-tabs reveal">
-      <p class="info-tabs__label">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
-      <div class="info-tabs__list">
-        <button class="tab-btn active" data-tab="agostinas">Fiestas Agostinas</button>
-        <button class="tab-btn" data-tab="semana-santa">Semana Santa</button>
-        <button class="tab-btn" data-tab="independencia">Independencia</button>
-        <button class="tab-btn" data-tab="dia-muertos">Día de los Difuntos</button>
-        <button class="tab-btn" data-tab="navidad">Navidad</button>
-        <button class="tab-btn" data-tab="fiestas-julias">Fiestas Julias</button>
-        <button class="tab-btn" data-tab="carnaval-sm">Carnaval de San Miguel</button>
-        <button class="tab-btn" data-tab="festival-suchitoto">Festival de Suchitoto</button>
-        <button class="tab-btn" data-tab="calabiuza">Día de la Calabiuza</button>
-        <button class="tab-btn" data-tab="farolitos">Día de los Farolitos</button>
-        <button class="tab-btn" data-tab="festival-anil">Festival del Añil</button>
-        <button class="tab-btn" data-tab="festival-barro">Festival del Barro</button>
-        <button class="tab-btn" data-tab="flores-palmas">Flores y Palmas</button>
-        <button class="tab-btn" data-tab="chicharron">Festival del Chicharrón</button>
-        <button class="tab-btn" data-tab="jocote">Festival del Jocote</button>
-      </div>
+<div class="info-tabs reveal">
+  <p class="info-tabs__label">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
+  <div class="info-tabs__carousel">
+    <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+    </button>
+    <div class="info-tabs__list" id="tabsList">
+      <button class="tab-btn active" data-tab="agostinas">Fiestas Agostinas</button>
+      <button class="tab-btn" data-tab="semana-santa">Semana Santa</button>
+      <button class="tab-btn" data-tab="independencia">Independencia</button>
+      <button class="tab-btn" data-tab="dia-muertos">Día de los Difuntos</button>
+      <button class="tab-btn" data-tab="navidad">Navidad</button>
+      <button class="tab-btn" data-tab="fiestas-julias">Fiestas Julias</button>
+      <button class="tab-btn" data-tab="carnaval-sm">Carnaval de San Miguel</button>
+      <button class="tab-btn" data-tab="festival-suchitoto">Festival de Suchitoto</button>
+      <button class="tab-btn" data-tab="calabiuza">Día de la Calabiuza</button>
+      <button class="tab-btn" data-tab="farolitos">Día de los Farolitos</button>
+      <button class="tab-btn" data-tab="festival-anil">Festival del Añil</button>
+      <button class="tab-btn" data-tab="festival-barro">Festival del Barro</button>
+      <button class="tab-btn" data-tab="flores-palmas">Flores y Palmas</button>
+      <button class="tab-btn" data-tab="chicharron">Festival del Chicharrón</button>
+      <button class="tab-btn" data-tab="jocote">Festival del Jocote</button>
     </div>
+    <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente">
+      <svg viewBox="0 0 24 24"><path d="m8.6 16.6 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
+    </button>
+  </div>
+</div>
 
     <div class="info-panel active" id="tab-agostinas">
       <div class="info-content reveal">
