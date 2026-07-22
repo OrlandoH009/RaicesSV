@@ -346,3 +346,43 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 });
+
+/* ============================================================
+   Blindaje contra el botón "atrás/adelante" del navegador
+   (BFCache) tras iniciar o cerrar sesión.
+   ============================================================
+   El servidor ya envía Cache-Control: no-store en las vistas, pero
+   algunos navegadores igual restauran una versión visual desde el
+   BFCache al navegar con las flechas. El evento "pageshow" con
+   event.persisted === true detecta justamente ese caso: se vuelve
+   a verificar el estado real de sesión contra el servidor y, si no
+   coincide con lo que se ve en pantalla, se fuerza una recarga para
+   que el usuario nunca vea una vista protegida "fantasma" después de
+   cerrar sesión, ni una página de login ya autenticada. */
+window.addEventListener('pageshow', (event) => {
+  if (!event.persisted) return; // navegación normal, no vino del BFCache
+
+  const path = window.location.pathname;
+  const isAuthPage = /\/(login|registro|recuperar|restablecer)\.html$/.test(path);
+
+  fetch('/auth/status', { credentials: 'same-origin', cache: 'no-store' })
+    .then((r) => r.json())
+    .then((data) => {
+      if (isAuthPage && data.loggedIn) {
+        // El usuario ya inició sesión pero el navegador restauró la
+        // pantalla de login/registro desde caché: recargamos para que
+        // el servidor lo redirija a donde corresponde.
+        window.location.reload();
+      } else if (!isAuthPage && !data.loggedIn) {
+        // El usuario cerró sesión pero el navegador restauró una vista
+        // protegida desde caché: recargamos para que el servidor la
+        // bloquee y mande a login.
+        window.location.reload();
+      }
+    })
+    .catch(() => {
+      // Ante la duda (p. ej. sin red), recargar es más seguro que
+      // dejar una vista potencialmente desactualizada en pantalla.
+      window.location.reload();
+    });
+});

@@ -176,6 +176,62 @@ const deleteUser = (id_user) => {
 };
 
 
+// ── Nuevo: recuperación de contraseña ──
+
+const createPasswordReset = (id_user, tokenHash, expiresAt) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO password_resets(id_user, token_hash, expires_at) VALUES (?, ?, ?)',
+            [id_user, tokenHash, expiresAt],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const findValidPasswordReset = (tokenHash) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT * FROM password_resets
+             WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()
+             ORDER BY id_reset DESC LIMIT 1`,
+            [tokenHash],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const markPasswordResetUsed = (id_reset) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE password_resets SET used_at = NOW() WHERE id_reset = ?',
+            [id_reset],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const invalidateUserPasswordResets = (id_user) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE password_resets SET used_at = NOW() WHERE id_user = ? AND used_at IS NULL',
+            [id_user],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
 module.exports = {
     findByEmail,
     findByGoogleId,
@@ -189,5 +245,9 @@ module.exports = {
     updateGoogleAvatarCache,
     deleteComentsByUser,
     deleteScoresByUser,
-    deleteUser
+    deleteUser,
+    createPasswordReset,
+    findValidPasswordReset,
+    markPasswordResetUsed,
+    invalidateUserPasswordResets
 };

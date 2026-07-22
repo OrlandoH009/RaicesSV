@@ -54,6 +54,15 @@ app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets')
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
 const sendView = (name) => (req, res) => {
+    // Evita que el navegador (o su caché "atrás/adelante" / bfcache) reutilice
+    // una versión previamente renderizada de esta vista. Esto es clave para
+    // que, tras iniciar sesión o cerrar sesión, el botón "atrás" del navegador
+    // no muestre una página desactualizada (p. ej. login ya autenticado, o
+    // una vista protegida después de haber cerrado sesión).
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     res.sendFile(path.join(viewsDir, name), (err) => {
         if (err) {
             console.error(err);
@@ -84,6 +93,20 @@ app.get(['/registro.html', '/views/registro.html'], (req, res) => {
         return res.redirect('/');
     }
     sendView('registro.html')(req, res);
+});
+
+app.get(['/recuperar.html', '/views/recuperar.html'], (req, res) => {
+    if (req.session && req.session.user) {
+        return res.redirect('/');
+    }
+    sendView('recuperar.html')(req, res);
+});
+
+app.get(['/restablecer.html', '/views/restablecer.html'], (req, res) => {
+    if (req.session && req.session.user) {
+        return res.redirect('/');
+    }
+    sendView('restablecer.html')(req, res);
 });
 
 app.get(['/categorias.html', '/categorias', '/views/categorias.html'], sendView('categorias.html'));

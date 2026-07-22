@@ -72,6 +72,9 @@
           <label for="password">Contraseña</label>
           <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
         </div>
+        <p class="auth-forgot-link">
+          <a href="../views/recuperar.html">¿Olvidaste tu contraseña?</a>
+        </p>
         <button type="submit" class="auth-submit">Entrar</button>
       </form>
       <a href="/auth/google" class="auth-google-btn-full">
@@ -103,6 +106,15 @@
       if (redirectTo) {
         // Asignamos la ruta decodificada al input oculto antes de hacer el envío POST
         document.getElementById('redirect-input').value = decodeURIComponent(redirectTo);
+      }
+
+      if (urlParams.get('passwordReset') === '1') {
+        const msg = document.getElementById('form-message');
+        if (msg) {
+          msg.textContent = 'Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.';
+          msg.style.color = '#2e7d32';
+          msg.style.display = 'block';
+        }
       }
     });
   </script>
