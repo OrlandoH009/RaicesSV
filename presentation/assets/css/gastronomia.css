@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — gastronomia.css
+   RAÍCES SV — gastronomia.css (rediseño)
    ============================================================ */
 
 .page-badge {
@@ -7,12 +7,25 @@
   background: var(--black);
   display: flex;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.page-badge::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(190,142,86,.12) 0%, transparent 60%);
+  pointer-events: none;
 }
 .page-badge__inner {
   background: var(--cream);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
+  animation: badgePop .7s cubic-bezier(.2,.8,.25,1);
+}
+@keyframes badgePop {
+  0%   { opacity: 0; transform: translateY(-16px) scale(.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .page-badge__inner h1 {
   font-family: var(--font-display);
@@ -23,7 +36,7 @@
   white-space: nowrap;
 }
 
-/* Grid gastronómica: 1 grande + 2 pequeñas abajo */
+/* ============ Grid gastronómica ============ */
 .gastro-grid {
   padding: 1.5rem 2rem 2rem;
   background: var(--black);
@@ -35,11 +48,7 @@
   margin: 0 auto;
 }
 
-/* Card grande ocupa 2 columnas */
-.gastro-card--wide {
-  grid-column: 1 / -1;
-  grid-row: 1;
-}
+.gastro-card--wide { grid-column: 1 / -1; grid-row: 1; }
 
 .gastro-card {
   position: relative;
@@ -49,24 +58,31 @@
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
   display: block;
   background: var(--black);
-  transition: transform .3s, box-shadow .3s;
+  border: 1px solid rgba(190,142,86,.15);
+  opacity: 0;
+  transform: translateY(28px);
+  animation: cardRise .7s cubic-bezier(.2,.8,.25,1) forwards;
+  animation-delay: var(--delay, 0s);
+  transition: transform .35s cubic-bezier(.2,.8,.25,1), box-shadow .35s, border-color .35s;
+}
+@keyframes cardRise {
+  to { opacity: 1; transform: translateY(0); }
 }
 .gastro-card:hover {
-  transform: scale(1.018);
-  box-shadow: 0 14px 36px rgba(0,0,0,.7);
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 44px rgba(0,0,0,.65), 0 0 0 1px rgba(190,142,86,.35);
+  border-color: rgba(190,142,86,.55);
 }
 .gastro-card img {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
   opacity: .6;
-  transition: opacity .3s, transform .4s;
+  transition: opacity .4s, transform .6s cubic-bezier(.2,.8,.25,1);
 }
-.gastro-card:hover img { opacity: .78; transform: scale(1.04); }
+.gastro-card:hover img { opacity: .8; transform: scale(1.06); }
 .gastro-card__grad {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
 }
 .gastro-card__label {
@@ -82,7 +98,29 @@
   text-shadow: 0 6px 4px rgba(0,0,0,.25);
   white-space: nowrap;
   pointer-events: none;
+  transition: transform .35s cubic-bezier(.2,.8,.25,1);
 }
+.gastro-card:hover .gastro-card__label { transform: translateX(-50%) translateY(-4px); }
+
+.gastro-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: var(--r-sm);
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(190,142,86,0), rgba(190,142,86,.6), rgba(46,98,196,0));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity .35s;
+  pointer-events: none;
+  z-index: 2;
+}
+.gastro-card:hover::before { opacity: 1; }
+
+.gastro-grid .gastro-card:nth-child(1) { --delay: .05s; }
+.gastro-grid .gastro-card:nth-child(2) { --delay: .2s; }
+.gastro-grid .gastro-card:nth-child(3) { --delay: .3s; }
 
 .page-cta {
   padding: 2.5rem 2rem 5rem;
@@ -91,9 +129,147 @@
   justify-content: center;
 }
 
+/* ============ Chips reforzados con fade escalonado ============ */
+.info-chip {
+  animation: chipFade .5s ease both;
+}
+.info-chip:nth-child(1) { animation-delay: .05s; }
+.info-chip:nth-child(2) { animation-delay: .15s; }
+.info-chip:nth-child(3) { animation-delay: .25s; }
+@keyframes chipFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============ Galería de recetas dentro del panel (si existe) ============ */
+.info-gallery__item {
+  transition: transform .35s cubic-bezier(.2,.8,.25,1);
+}
+.info-gallery__item:hover { transform: translateY(-4px); }
+
 @media (max-width: 768px) {
   .gastro-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 260px); }
   .gastro-card--wide { grid-column: 1; }
   .page-badge__inner { padding: 1rem 1.5rem; }
   .page-badge__inner h1 { white-space: normal; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gastro-card, .page-badge__inner, .info-chip { animation: none; opacity: 1; transform: none; }
+}
+
+/* ── Selector de apartados (tabs) — carrusel moderno ── */
+.info-tabs {
+  padding: 0 2rem 2rem;
+  background: var(--black);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.info-tabs__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.info-tabs__carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.info-tabs__arrow {
+  flex-shrink: 0;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.05);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  transition: background .25s, border-color .25s, transform .2s, opacity .25s;
+}
+.info-tabs__arrow svg { width: 16px; height: 16px; fill: currentColor; }
+.info-tabs__arrow:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--black);
+  transform: scale(1.08);
+}
+.info-tabs__arrow:active { transform: scale(.95); }
+.info-tabs__arrow[disabled] { opacity: .2; pointer-events: none; }
+
+.info-tabs__list {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: .3rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  padding: .3rem .2rem .7rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.info-tabs__list::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  position: relative;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .9rem;
+  color: rgba(255,255,255,.55);
+  background: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: .55rem .9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .3s;
+}
+.tab-btn::before { content: none; }
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 0; height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: width .35s cubic-bezier(.2,.8,.25,1);
+}
+.tab-btn:hover {
+  background: none;
+  border-color: transparent;
+  color: rgba(255,255,255,.9);
+  transform: none;
+}
+.tab-btn:hover::after { width: 40%; }
+.tab-btn.active {
+  background: none;
+  border-color: transparent;
+  color: var(--gold);
+  font-weight: 700;
+  box-shadow: none;
+  transform: none;
+}
+.tab-btn.active::after {
+  width: 70%;
+  box-shadow: 0 0 8px rgba(190,142,86,.7);
+}
+
+@media (max-width: 640px) {
+  .info-tabs__arrow { display: none; }
 }
