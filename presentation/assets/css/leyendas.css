@@ -1,196 +1,593 @@
 /* ============================================================
-   RAÍCES SV — leyendas.css (estilo colores gastronomía)
+   RAÍCES SV — leyendas.css
+   Rediseño: concepto de "Leyenda" + biblioteca de portadas + modal
    ============================================================ */
 
-.page-badge {
-  padding: calc(var(--nav-h) + 3rem) 2rem 2.5rem;
-  background: var(--black);
-  display: flex;
-  justify-content: center;
-}
-.page-badge__inner {
-  background: var(--cream);
-  border-radius: var(--r-md);
-  padding: 1.1rem 4rem;
-  box-shadow: 0 8px 4px rgba(255,255,255,.25);
-}
-.page-badge__inner h1 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.6rem, 3vw, 2.8rem);
-  color: var(--black);
-  text-shadow: 0 4px 4px rgba(0,0,0,.25);
-  white-space: nowrap;
-}
-
-/* Atmosfera de misterio en el fondo */
+/* Atmósfera de fondo */
 .leyendas-bg {
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 20% 50%, rgba(0,0,0,.35) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(0,0,0,.25) 0%, transparent 50%);
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(190,142,86,.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 60%, rgba(17,48,104,.35) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Datos destacados (chips) */
-.info-chips {
+/* ── Hero de bienvenida ── */
+.leyenda-hero {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - var(--nav-h));
   display: flex;
-  flex-wrap: wrap;
-  gap: .6rem;
-  margin: 1.5rem 0;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 2rem) 2rem 3rem;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(17,48,104,.5) 0%, transparent 55%),
+    var(--black);
 }
-.info-chip {
-  background: rgba(190,142,86,.15);
+.leyenda-hero__glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 700px; height: 700px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(190,142,86,.12) 0%, transparent 70%);
+  pointer-events: none;
+  animation: heroGlow 6s ease-in-out infinite;
+}
+@keyframes heroGlow {
+  0%, 100% { opacity: .6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+}
+.leyenda-hero__firefly {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 12px 4px rgba(190,142,86,.7);
+  opacity: 0;
+  animation: fireflyFloat 8s ease-in-out infinite;
+}
+.f1 { top: 25%; left: 12%; animation-delay: 0s; }
+.f2 { top: 65%; left: 20%; animation-delay: 2s; }
+.f3 { top: 30%; left: 85%; animation-delay: 4s; }
+.f4 { top: 70%; left: 78%; animation-delay: 6s; }
+@keyframes fireflyFloat {
+  0%   { opacity: 0; transform: translate(0,0); }
+  15%  { opacity: 1; }
+  50%  { opacity: .6; transform: translate(20px, -30px); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-10px, -60px); }
+}
+.leyenda-hero__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+  text-align: center;
+}
+.leyenda-hero__eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .8rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
   border: 1px solid rgba(190,142,86,.4);
   border-radius: 50px;
-  padding: .35rem .9rem;
-  font-family: var(--font-body);
-  font-size: .82rem;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: .04em;
+  padding: .4rem 1.1rem;
+  margin-bottom: 1.4rem;
+  background: rgba(190,142,86,.08);
 }
-.tab-btn {
+.leyenda-hero__inner h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.2;
+  color: var(--white);
+  margin-bottom: 1.2rem;
+  text-shadow: 0 4px 24px rgba(0,0,0,.6);
+}
+.leyenda-hero__inner p {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.7;
+  color: rgba(255,255,255,.75);
+  max-width: 560px;
+  margin: 0 auto 2.2rem;
+}
+.leyenda-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  background: var(--gold);
+  color: var(--black);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
-  color: rgba(255,255,255,.75);
-  background: rgba(255,255,255,.07);
-  border: 2px solid rgba(255,255,255,.15);
+  padding: .85rem 1.8rem;
   border-radius: 50px;
-  padding: .55rem 1.4rem;
-  cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s, transform .15s;
+  box-shadow: 0 8px 24px rgba(190,142,86,.35);
+  transition: transform .25s, box-shadow .25s, background .25s;
 }
-.tab-btn:hover {
-  background: rgba(255,255,255,.12);
-  border-color: rgba(255,255,255,.35);
-  color: var(--white);
-  transform: translateY(-2px);
+.leyenda-hero__cta:hover {
+  transform: translateY(-3px);
+  background: var(--gold-hover);
+  box-shadow: 0 12px 30px rgba(190,142,86,.5);
 }
-.tab-btn.active {
-  background: rgba(255,255,255,.18);
-  border-color: rgba(255,255,255,.45);
-  color: var(--white);
-  box-shadow: 0 4px 16px rgba(0,0,0,.6);
+.leyenda-hero__cta svg {
+  width: 18px; height: 18px;
+  animation: ctaBounce 1.6s ease-in-out infinite;
+}
+@keyframes ctaBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
 
-/* Panel */
-.info-panel {
-  display: none;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem 4rem;
-  animation: fadeIn .4s ease;
+/* ── Concepto: 3 tarjetas flip cortas ── */
+.leyenda-concepto {
   position: relative;
   z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2rem 1rem;
 }
-.info-panel.active { display: block; }
-
-/* Tarjeta de leyenda */
-.leyenda-card {
-  background: var(--black);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: var(--r-md);
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+.leyenda-concepto__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6rem;
 }
-
-.leyenda-card__hero {
+.leyenda-flip {
+  perspective: 1200px;
+  height: 210px;
+  cursor: pointer;
+}
+.leyenda-flip__inner {
   position: relative;
-  height: 320px;
-  overflow: hidden;
+  width: 100%; height: 100%;
+  transition: transform .6s cubic-bezier(.2,.8,.3,1);
+  transform-style: preserve-3d;
 }
-.leyenda-card__hero img {
+.leyenda-flip.is-flipped .leyenda-flip__inner,
+.leyenda-flip:hover .leyenda-flip__inner {
+  transform: rotateY(180deg);
+}
+.leyenda-flip__front,
+.leyenda-flip__back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--r-md);
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.leyenda-flip__front {
+  background: linear-gradient(160deg, #101010 0%, #161616 100%);
+  border: 1px solid rgba(190,142,86,.25);
+}
+.leyenda-flip__icon {
+  font-size: 2.2rem;
+  margin-bottom: .7rem;
+}
+.leyenda-flip__front h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--white);
+  margin-bottom: .6rem;
+}
+.leyenda-flip__hint {
+  font-family: var(--font-body);
+  font-size: .74rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: rgba(190,142,86,.7);
+}
+.leyenda-flip__back {
+  background: linear-gradient(160deg, var(--navy) 0%, #0a1a3d 100%);
+  border: 1px solid rgba(190,142,86,.4);
+  transform: rotateY(180deg);
+}
+.leyenda-flip__back p {
+  font-family: var(--font-body);
+  font-size: .92rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,.9);
+  margin: 0;
+}
+
+/* ── Biblioteca de portadas ── */
+.leyenda-library {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 2rem 5rem;
+}
+.leyenda-library__head {
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.leyenda-library__head span {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+}
+.leyenda-library__head h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  color: var(--white);
+  margin-top: .5rem;
+}
+
+.leyenda-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.8rem 1.6rem;
+}
+
+/* Portada tipo libro */
+.leyenda-book {
+  position: relative;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  perspective: 900px;
+}
+.leyenda-book__cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px 12px 12px 8px;
+  overflow: hidden;
+  background: linear-gradient(155deg, var(--navy) 0%, #0a1a3d 100%);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.06) inset,
+    -6px 0 0 rgba(0,0,0,.35) inset,
+    0 14px 28px rgba(0,0,0,.55);
+  transition: transform .35s cubic-bezier(.2,.8,.3,1.1), box-shadow .35s;
+}
+.leyenda-book:hover .leyenda-book__cover {
+  transform: translateY(-8px) rotateY(-6deg);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.08) inset,
+    -6px 0 0 rgba(0,0,0,.35) inset,
+    0 22px 40px rgba(0,0,0,.65);
+}
+.leyenda-book__cover img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
-  opacity: .5;
-  filter: saturate(.7);
-  transition: opacity .4s;
+  opacity: 0;
 }
-.leyenda-card__hero:hover img { opacity: .65; }
+.leyenda-book__cover img.loaded { opacity: .78; }
 
-.leyenda-card__hero-grad {
+.leyenda-book__placeholder {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 60%);
-}
-
-.leyenda-card__hero-title {
-  position: absolute;
-  bottom: 1.8rem; left: 2.5rem;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.8rem, 3.5vw, 3rem);
-  color: var(--white);
-  text-shadow: 0 0 20px rgba(0,0,0,.9), 0 4px 12px rgba(0,0,0,.8);
-}
-
-.leyenda-card__hero-sub {
-  position: absolute;
-  bottom: .8rem; left: 2.5rem;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(.9rem, 1.4vw, 1.1rem);
-  color: rgba(255,255,255,.65);
-}
-
-/* Body */
-.leyenda-card__body {
-  padding: 2.5rem;
-}
-.leyenda-card__body h3 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-  color: var(--white);
-  margin-bottom: 1rem;
-  border-left: 4px solid rgba(255,255,255,.35);
-  padding-left: .85rem;
-}
-.leyenda-card__body p {
-  font-family: var(--font-body);
-  font-size: clamp(.9rem, 1.3vw, 1.05rem);
-  color: rgba(255,255,255,.78);
-  line-height: 1.9;
-  margin-bottom: 1.2rem;
-}
-.leyenda-card__body p em {
-  color: rgba(255,255,255,.9);
-  font-style: normal;
-}
-
-/* Chips */
-.leyenda-chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: .6rem;
-  margin: 1.2rem 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: rgba(255,255,255,.18);
 }
-.leyenda-chip {
+
+.leyenda-book__grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.15) 45%, transparent 70%);
+}
+.leyenda-book__spine {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 7px;
+  background: linear-gradient(to right, rgba(0,0,0,.5), transparent);
+}
+.leyenda-book__num {
+  position: absolute;
+  top: .7rem; right: .8rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .72rem;
+  color: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.leyenda-book__title {
+  position: absolute;
+  bottom: 1rem; left: .9rem; right: .9rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(.95rem, 1.4vw, 1.15rem);
+  color: var(--white);
+  line-height: 1.25;
+  text-shadow: 0 3px 10px rgba(0,0,0,.8);
+}
+.leyenda-book__tag {
+  position: absolute;
+  bottom: .3rem; left: .9rem; right: .9rem;
+  font-family: var(--font-body);
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .3s, transform .3s;
+}
+.leyenda-book:hover .leyenda-book__tag { opacity: 1; transform: translateY(0); }
+.leyenda-book__tag { bottom: unset; margin-top: 2.15rem; position: relative; }
+
+/* Reacomodo: título y etiqueta apiladas dentro del mismo bloque inferior */
+.leyenda-book__footer {
+  position: absolute;
+  bottom: 1rem; left: .9rem; right: .9rem;
+}
+.leyenda-book__footer .leyenda-book__title { position: static; margin-bottom: .25rem; }
+.leyenda-book__footer .leyenda-book__tag { position: static; }
+
+/* ============================================================
+   Modal — "abrir el libro"
+   ============================================================ */
+.leyenda-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,10,.82);
+  backdrop-filter: blur(6px);
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 1.2rem) 1.5rem 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+.leyenda-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.leyenda-modal {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  max-height: calc(100vh - var(--nav-h) - 2.7rem);
+  background: #0d0d0d;
+  border: 1px solid rgba(190,142,86,.3);
+  border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px rgba(0,0,0,.7);
+  overflow: hidden;
+  display: flex;
+  transform: scale(.92) translateY(30px);
+  opacity: 0;
+  transition: transform .4s cubic-bezier(.2,.8,.3,1.05), opacity .35s;
+}
+.leyenda-modal-overlay.open .leyenda-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Botón cerrar */
+.leyenda-modal__close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 40px; height: 40px;
+  border-radius: 50%;
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.2);
-  border-radius: 50px;
-  padding: .35rem .9rem;
-  font-size: .82rem;
+  color: var(--white);
+  font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background .2s, transform .2s;
+}
+.leyenda-modal__close:hover {
+  background: rgba(255,255,255,.18);
+  transform: rotate(90deg);
+}
+
+/* Botón narrar (bocina), un poco más alejado del close */
+.leyenda-modal__narrate {
+  position: absolute;
+  top: 1rem; right: 4.4rem;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(190,142,86,.15);
+  border: 1px solid rgba(190,142,86,.5);
+  color: var(--gold);
+  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background .2s, transform .2s, color .2s;
+}
+.leyenda-modal__narrate:hover {
+  background: var(--gold);
+  color: var(--black);
+  transform: scale(1.08);
+}
+.leyenda-modal__narrate.speaking {
+  background: var(--gold);
+  color: var(--black);
+  animation: narratePulse 1.1s ease-in-out infinite;
+}
+@keyframes narratePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(190,142,86,.5); }
+  50% { box-shadow: 0 0 0 8px rgba(190,142,86,0); }
+}
+
+/* Ventanita de origen — al lado del botón narrar, más pequeña */
+.leyenda-modal__origin {
+  position: absolute;
+  top: 3.7rem; right: 1rem;
+  width: 230px;
+  background: rgba(17,48,104,.85);
+  border: 1px solid rgba(190,142,86,.35);
+  border-radius: 12px;
+  padding: .75rem .9rem;
+  z-index: 19;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity .25s, transform .25s;
+  box-shadow: 0 10px 25px rgba(0,0,0,.5);
+}
+.leyenda-modal__origin.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.leyenda-modal__origin span {
+  display: block;
+  font-family: var(--font-body);
   font-weight: 700;
-  color: rgba(255,255,255,.85);
-  letter-spacing: .04em;
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .3rem;
+}
+.leyenda-modal__origin p {
+  font-family: var(--font-body);
+  font-size: .78rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,.9);
+  margin: 0;
 }
 
-.page-cta {
-  padding: 1rem 2rem 5rem;
-  background: var(--black);
-  display: flex;
-  justify-content: center;
+/* Panel izquierdo: imagen del mito (espacio para que el usuario ponga imágenes) */
+.leyenda-modal__media {
+  flex: 0 0 34%;
   position: relative;
-  z-index: 1;
+  background: linear-gradient(160deg, var(--navy) 0%, #08152f 100%);
+  min-height: 320px;
+}
+.leyenda-modal__media img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.leyenda-modal__media img.loaded { opacity: 1; }
+.leyenda-modal__media-placeholder {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  color: rgba(255,255,255,.25);
+  text-align: center;
+  padding: 1rem;
+}
+.leyenda-modal__media-placeholder svg { width: 46px; height: 46px; opacity: .5; }
+.leyenda-modal__media-placeholder small {
+  font-family: var(--font-body);
+  font-size: .72rem;
+  letter-spacing: .05em;
+}
+.leyenda-modal__media-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 45%);
 }
 
+/* Panel derecho: texto scrollable */
+.leyenda-modal__content {
+  flex: 1;
+  padding: 3.6rem 3.4rem 2.4rem;
+  overflow-y: auto;
+}
+.leyenda-modal__content::-webkit-scrollbar { width: 8px; }
+.leyenda-modal__content::-webkit-scrollbar-thumb {
+  background: rgba(190,142,86,.4);
+  border-radius: 10px;
+}
+.leyenda-modal__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1.1rem;
+}
+.leyenda-modal__chip {
+  background: rgba(190,142,86,.15);
+  border: 1px solid rgba(190,142,86,.4);
+  border-radius: 50px;
+  padding: .3rem .8rem;
+  font-family: var(--font-body);
+  font-size: .74rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.leyenda-modal__content h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  color: var(--white);
+  margin-bottom: .3rem;
+}
+.leyenda-modal__content .leyenda-modal__sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 1.6rem;
+  font-size: .95rem;
+}
+
+/* Relato narrado como cuento continuo */
+.leyenda-modal__relato p {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 2;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 1.3rem;
+  text-align: justify;
+}
+.leyenda-modal__relato p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 3.4rem;
+  line-height: .8;
+  float: left;
+  padding: .1rem .5rem 0 0;
+  color: var(--gold);
+}
+.leyenda-modal__relato p:last-child { margin-bottom: 0; }
+
+body.modal-lock { overflow: hidden; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .leyenda-grid { grid-template-columns: repeat(3, 1fr); }
+  .leyenda-rasgos { grid-template-columns: 1fr; }
+}
 @media (max-width: 768px) {
-  .page-badge__inner { padding: 1rem 1.5rem; }
-  .page-badge__inner h1 { white-space: normal; text-align: center; }
-  .leyenda-card__hero { height: 220px; }
-  .leyenda-card__body { padding: 1.5rem; }
-  .leyenda-card__hero-title { font-size: 1.4rem; left: 1.2rem; }
+  .leyenda-hero { min-height: auto; padding: calc(var(--nav-h) + 2.5rem) 1.4rem 2.5rem; }
+  .leyenda-hero__inner p { max-width: 100%; }
+  .leyenda-concepto__cards { grid-template-columns: 1fr; }
+  .leyenda-flip { height: 170px; }
+  .leyenda-grid { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+  .leyenda-modal { flex-direction: column; max-height: 92vh; }
+  .leyenda-modal__media { flex: 0 0 180px; min-height: 180px; }
+  .leyenda-modal__content { padding: 2.2rem 1.4rem 1.6rem; }
+  .leyenda-modal__origin { width: 170px; font-size: .7rem; top: 3.4rem; }
+  .leyenda-modal__narrate { top: .7rem; right: 3.8rem; width: 36px; height: 36px; }
+  .leyenda-modal__close { top: .7rem; right: .7rem; width: 36px; height: 36px; }
+  .leyenda-modal__relato p { text-align: left; line-height: 1.85; }
+  .leyenda-modal__relato p:first-of-type::first-letter { font-size: 2.6rem; }
+}
+@media (max-width: 480px) {
+  .leyenda-grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+  .leyenda-book__title { font-size: .85rem; }
 }
