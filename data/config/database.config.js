@@ -42,6 +42,28 @@ const ensureProfileColumns = () => {
     return Promise.all(migrations.map(runMigration));
 };
 
+const ensurePasswordResetsTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS password_resets (
+            id_reset INT AUTO_INCREMENT PRIMARY KEY,
+            id_user INT NOT NULL,
+            token_hash CHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            used_at DATETIME NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+            INDEX idx_password_resets_token_hash (token_hash),
+            INDEX idx_password_resets_user (id_user)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla password_resets:', err);
+            }
+            resolve();
+        }
+    );
+});
+
 db.connect((err) => {
     if (err) {
         console.log(err);
@@ -53,6 +75,10 @@ db.connect((err) => {
     ensureProfileColumns()
         .then(() => {
             console.log('Migración de perfil verificada');
+            return ensurePasswordResetsTable();
+        })
+        .then(() => {
+            console.log('Tabla password_resets verificada');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);

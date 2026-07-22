@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raíces SV — Recuperar contraseña</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/login.css" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#ffffff" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo Raíces SV" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="../views/index.html">Inicio</a></li>
+      <li><a href="../views/categorias.html">Categorías</a></li>
+      <li><a href="../views/mapa.html">Mapa</a></li>
+      <li><a href="../views/calendario.html">Calendario</a></li>
+    </ul>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span>Menú</span></div>
+    <div class="drawer-section-label">Principal</div>
+    <a href="../views/index.html" class="drawer-link">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+    </div>
+  </nav>
+
+  <div class="auth-page__bg"></div>
+
+  <main class="auth-page">
+    <div class="auth-card reveal">
+      <div class="auth-card__logo">
+        <img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo Raíces SV" />
+      </div>
+      <h1>Recuperar contraseña</h1>
+      <p class="auth-card__sub">Te enviaremos un enlace a tu correo para restablecerla.</p>
+
+      <form id="forgot-form">
+        <div id="form-message" class="auth-message" role="alert" style="display:none; margin-bottom: 1rem;"></div>
+        <div class="form-group">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email" />
+        </div>
+        <button type="submit" class="auth-submit">Enviar enlace</button>
+      </form>
+
+      <p class="auth-footer-link">
+        <a href="../views/login.html">Volver a iniciar sesión</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="../assets/js/recuperar.js"></script>
+  <script src="../assets/js/script.js"></script>
+</body>
+</html>

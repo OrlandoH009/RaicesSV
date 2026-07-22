@@ -314,3 +314,23 @@ button.auth-submit {
 @media (max-width: 520px) {
   .auth-card { padding: 2rem 1.5rem; }
 }
+
+.auth-footer-link a:hover {
+  text-decoration: underline;
+}
+.auth-forgot-link {
+  margin: -0.6rem 0 1.1rem;
+  padding: 0;
+  text-align: right;
+  font-family: var(--font-body);
+  font-size: .8rem;
+}
+.auth-forgot-link a {
+  color: rgba(0,0,0,.6);
+  text-decoration: none;
+  transition: color .18s ease;
+}
+.auth-forgot-link a:hover {
+  color: var(--navy);
+  text-decoration: underline;
+}

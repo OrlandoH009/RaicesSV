@@ -1,10 +1,17 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const userRepository = require('../data/repositories/user.repository');
+const { sendMail } = require('../data/config/mailer.config');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
 
 const INVALID_CREDENTIALS_MSG = 'Correo o contraseña incorrectos';
+
+const RESET_TOKEN_BYTES = 32;
+const RESET_TOKEN_TTL_MINUTES = 30;
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 const login = async (email, password) => {
 
@@ -235,6 +242,82 @@ const deleteAccount = async (id_user, { currentPassword } = {}) => {
     await userRepository.deleteUser(id_user);
 };
 
+// ── Nuevo: recuperación de contraseña ──
+
+/**
+ * Genera (si aplica) un token de recuperación y envía el correo.
+ * Por seguridad, esta función NUNCA revela si el correo existe o no:
+ * el controlador siempre responde el mismo mensaje genérico, exista o
+ * no la cuenta, para evitar enumeración de usuarios.
+ */
+const requestPasswordReset = async (email, appBaseUrl) => {
+    if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+        return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await userRepository.findByEmail(normalizedEmail);
+
+    if (!user) return;
+
+    // Las cuentas creadas solo con Google no tienen contraseña local que resetear.
+    if (!user.password) return;
+
+    // Invalida cualquier token anterior sin usar, para que solo el más reciente sirva.
+    await userRepository.invalidateUserPasswordResets(user.id_user);
+
+    const rawToken = crypto.randomBytes(RESET_TOKEN_BYTES).toString('hex');
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+    // Formato MySQL DATETIME
+    const expiresAtSql = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
+
+    await userRepository.createPasswordReset(user.id_user, tokenHash, expiresAtSql);
+
+    const resetLink = `${appBaseUrl}/restablecer.html?token=${rawToken}`;
+
+    const html = `
+        <p>Hola ${user.name || ''},</p>
+        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Raíces SV.</p>
+        <p>Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos:</p>
+        <p><a href="${resetLink}">${resetLink}</a></p>
+        <p>Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.</p>
+    `;
+
+    await sendMail({
+        to: user.email,
+        subject: 'Recupera tu contraseña — Raíces SV',
+        html,
+        text: `Recupera tu contraseña en Raíces SV: ${resetLink} (válido por ${RESET_TOKEN_TTL_MINUTES} minutos)`
+    });
+};
+
+/**
+ * Valida el token recibido (comparando su hash) y, si es válido y no expiró,
+ * actualiza la contraseña e invalida el token para que no pueda reutilizarse.
+ */
+const resetPassword = async (rawToken, newPassword) => {
+    if (typeof rawToken !== 'string' || !rawToken.trim()) {
+        const err = new Error('El enlace de recuperación no es válido o ya expiró.'); err.expose = true; throw err;
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD_LENGTH) {
+        const err = new Error(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`); err.expose = true; throw err;
+    }
+
+    const tokenHash = hashToken(rawToken.trim());
+    const resetRecord = await userRepository.findValidPasswordReset(tokenHash);
+
+    if (!resetRecord) {
+        const err = new Error('El enlace de recuperación no es válido o ya expiró.'); err.expose = true; throw err;
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await userRepository.updatePassword(resetRecord.id_user, newHash);
+    await userRepository.markPasswordResetUsed(resetRecord.id_reset);
+};
+
 module.exports = {
     login,
     register,
@@ -243,5 +326,7 @@ module.exports = {
     updateProfile,
     setLocalAvatar,
     setGoogleAvatar,
-    deleteAccount
+    deleteAccount,
+    requestPasswordReset,
+    resetPassword
 };
