@@ -83,14 +83,18 @@ app.get('/views/publicaciones.html', sendView('publicaciones.html'));
 
 app.get(['/login.html', '/views/login.html'], (req, res) => {
     if (req.session && req.session.user) {
-        return res.redirect('/');
+        const redirect = req.query.redirect;
+        const isSafe = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('http');
+        return res.redirect(isSafe ? redirect : '/');
     }
     sendView('login.html')(req, res);
 });
 
 app.get(['/registro.html', '/views/registro.html'], (req, res) => {
     if (req.session && req.session.user) {
-        return res.redirect('/');
+        const redirect = req.query.redirect;
+        const isSafe = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('http');
+        return res.redirect(isSafe ? redirect : '/');
     }
     sendView('registro.html')(req, res);
 });
