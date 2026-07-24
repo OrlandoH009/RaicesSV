@@ -1,6 +1,193 @@
 /* ============================================================
-   RAÍCES SV — sitios-culturales.css (rediseño)
+   RAÍCES SV — sitios-culturales.css (v3, animado con GSAP)
    ============================================================ */
+
+/* ============ Bienvenida interactiva ============ */
+body.welcome-lock { overflow: hidden; }
+
+.welcome-overlay {
+  position: fixed; inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black);
+  cursor: pointer;
+  overflow: hidden;
+}
+.welcome-overlay__bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 25% 20%, rgba(190,142,86,.16) 0%, transparent 55%),
+              radial-gradient(ellipse at 80% 85%, rgba(17,48,104,.32) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* Anillo orbital de emojis decorativos detrás del contenido */
+.welcome-overlay__orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 640px; height: 640px;
+  margin: -320px 0 0 -320px;
+  pointer-events: none;
+  z-index: 0;
+}
+.welcome-orbit-item {
+  position: absolute;
+  top: 50%; left: 50%;
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 12px rgba(0,0,0,.6));
+}
+.welcome-orbit-item:nth-child(1) { transform: rotate(0deg)   translate(300px) rotate(0deg); }
+.welcome-orbit-item:nth-child(2) { transform: rotate(60deg)  translate(300px) rotate(-60deg); }
+.welcome-orbit-item:nth-child(3) { transform: rotate(120deg) translate(300px) rotate(-120deg); }
+.welcome-orbit-item:nth-child(4) { transform: rotate(180deg) translate(300px) rotate(-180deg); }
+.welcome-orbit-item:nth-child(5) { transform: rotate(240deg) translate(300px) rotate(-240deg); }
+.welcome-orbit-item:nth-child(6) { transform: rotate(300deg) translate(300px) rotate(-300deg); }
+
+.welcome-overlay__content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  padding: 2.5rem;
+  text-align: center;
+  cursor: default;
+}
+.welcome-overlay__emoji {
+  display: inline-block;
+  font-size: clamp(2.6rem, 7vw, 3.8rem);
+  margin-bottom: .6rem;
+  cursor: pointer;
+}
+.welcome-overlay__eyebrow {
+  font-family: var(--font-body);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .6rem;
+}
+.welcome-overlay__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  color: var(--white);
+  margin-bottom: .7rem;
+}
+.welcome-overlay__sub {
+  font-family: var(--font-body);
+  font-size: clamp(.9rem, 1.5vw, 1.05rem);
+  color: rgba(255,255,255,.7);
+  line-height: 1.6;
+  max-width: 460px;
+  margin: 0 auto 1.6rem;
+}
+
+/* Estadísticas con contador animado */
+.welcome-overlay__stats {
+  display: flex;
+  justify-content: center;
+  gap: 2.2rem;
+  margin-bottom: 1.6rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(190,142,86,.2);
+  border-bottom: 1px solid rgba(190,142,86,.2);
+}
+.welcome-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.welcome-stat__num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.welcome-stat__label {
+  font-family: var(--font-body);
+  font-size: .68rem;
+  color: rgba(255,255,255,.55);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: .35rem;
+  text-align: center;
+}
+
+/* Dato curioso rotativo */
+.welcome-overlay__fact {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(190,142,86,.2);
+  border-radius: var(--r-sm);
+  padding: .9rem 1.2rem;
+  margin-bottom: 1.8rem;
+  font-family: var(--font-body);
+  font-size: .85rem;
+  color: rgba(255,255,255,.8);
+  line-height: 1.55;
+  min-height: 3.6em;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.welcome-fact__label {
+  font-weight: 700;
+  color: var(--navy-light, #5b83d6);
+  flex-shrink: 0;
+}
+
+.welcome-overlay__cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--black);
+  background: var(--gold);
+  border: none;
+  padding: .9rem 2.2rem;
+  border-radius: var(--r-lg, 999px);
+  cursor: pointer;
+  transition: background .25s, transform .25s, box-shadow .25s;
+}
+.welcome-overlay__cta:hover {
+  background: var(--gold-hover, var(--gold));
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(190,142,86,.35);
+}
+.welcome-overlay__hint {
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-size: .75rem;
+  color: rgba(255,255,255,.4);
+}
+.welcome-overlay__hint kbd {
+  font-family: var(--font-body);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 4px;
+  padding: .05rem .4rem;
+  font-size: .7rem;
+}
+
+@media (max-width: 640px) {
+  .welcome-overlay__content { padding: 1.5rem; }
+  .welcome-overlay__stats { gap: 1.2rem; }
+  .welcome-overlay__orbit { width: 420px; height: 420px; margin: -210px 0 0 -210px; }
+  .welcome-orbit-item { font-size: 1.3rem; }
+  .welcome-orbit-item:nth-child(n) { }
+}
+@media (max-width: 640px) {
+  .welcome-orbit-item:nth-child(1) { transform: rotate(0deg)   translate(190px) rotate(0deg); }
+  .welcome-orbit-item:nth-child(2) { transform: rotate(60deg)  translate(190px) rotate(-60deg); }
+  .welcome-orbit-item:nth-child(3) { transform: rotate(120deg) translate(190px) rotate(-120deg); }
+  .welcome-orbit-item:nth-child(4) { transform: rotate(180deg) translate(190px) rotate(-180deg); }
+  .welcome-orbit-item:nth-child(5) { transform: rotate(240deg) translate(190px) rotate(-240deg); }
+  .welcome-orbit-item:nth-child(6) { transform: rotate(300deg) translate(190px) rotate(-300deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-overlay__orbit { display: none; }
+}
 
 .page-badge {
   padding: calc(var(--nav-h) + 3rem) 2rem 2.5rem;
@@ -8,24 +195,26 @@
   display: flex;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  margin-bottom: -1px;
 }
 .page-badge::before {
   content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(190,142,86,.12) 0%, transparent 60%);
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: calc(100% + 100px);
+  background: radial-gradient(ellipse at 50% 0%, rgba(219, 161, 95, 0.39) 0%, transparent 62%),
+              radial-gradient(ellipse at 80% 100%, rgba(22, 57, 121, 0.199) 0%, transparent 55%);
   pointer-events: none;
+  z-index: 0;
 }
 .page-badge__inner {
   background: var(--cream);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
-  animation: badgePop .7s cubic-bezier(.2,.8,.25,1);
-}
-@keyframes badgePop {
-  0%   { opacity: 0; transform: translateY(-16px) scale(.96); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  position: relative;
+  z-index: 1;
 }
 .page-badge__inner h1 {
   font-family: var(--font-display);
@@ -57,19 +246,7 @@
   display: block;
   background: var(--black);
   border: 1px solid rgba(190,142,86,.15);
-  opacity: 0;
-  transform: translateY(28px);
-  animation: cardRise .7s cubic-bezier(.2,.8,.25,1) forwards;
-  animation-delay: var(--delay, 0s);
-  transition: transform .35s cubic-bezier(.2,.8,.25,1), box-shadow .35s, border-color .35s;
-}
-@keyframes cardRise {
-  to { opacity: 1; transform: translateY(0); }
-}
-.sitio-card:hover {
-  transform: translateY(-6px) scale(1.015);
-  box-shadow: 0 20px 44px rgba(0,0,0,.65), 0 0 0 1px rgba(190,142,86,.35);
-  border-color: rgba(190,142,86,.55);
+  will-change: transform;
 }
 .sitio-card img {
   position: absolute;
@@ -77,14 +254,38 @@
   width: 100%; height: 100%;
   object-fit: cover;
   opacity: .6;
-  transition: opacity .4s, transform .6s cubic-bezier(.2,.8,.25,1);
+  will-change: transform, opacity;
 }
-.sitio-card:hover img { opacity: .8; transform: scale(1.06); }
 .sitio-card__grad {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.1) 45%, transparent 65%);
 }
+
+.sitio-card__pin {
+  position: absolute;
+  top: 1.1rem; left: 1.2rem;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(190,142,86,.18);
+  z-index: 2;
+}
+.sitio-card__pin::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  opacity: .6;
+  animation: pinPulse 2.4s ease-in-out infinite;
+}
+@keyframes pinPulse {
+  0%   { transform: scale(.7); opacity: .8; }
+  70%  { transform: scale(1.9); opacity: 0; }
+  100% { opacity: 0; }
+}
+
 .sitio-card__label {
   position: absolute;
   bottom: 1.6rem;
@@ -98,16 +299,14 @@
   text-shadow: 0 6px 4px rgba(0,0,0,.25);
   white-space: nowrap;
   pointer-events: none;
-  transition: transform .35s cubic-bezier(.2,.8,.25,1);
 }
-.sitio-card:hover .sitio-card__label { transform: translateX(-50%) translateY(-4px); }
 
 .sitio-card::before {
   content: '';
   position: absolute; inset: 0;
   border-radius: var(--r-sm);
   padding: 1px;
-  background: linear-gradient(120deg, rgba(190,142,86,0), rgba(190,142,86,.6), rgba(46,98,196,0));
+  background: linear-gradient(120deg, rgba(190,142,86,0), rgba(190,142,86,.6), rgba(46,98,196,.5));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -117,11 +316,6 @@
   z-index: 2;
 }
 .sitio-card:hover::before { opacity: 1; }
-
-.sitios-grid .sitio-card:nth-child(1) { --delay: .05s; }
-.sitios-grid .sitio-card:nth-child(2) { --delay: .15s; }
-.sitios-grid .sitio-card:nth-child(3) { --delay: .25s; }
-.sitios-grid .sitio-card:nth-child(4) { --delay: .35s; }
 
 /* ============ Fila de acciones ============ */
 .sitio-actions {
@@ -135,7 +329,6 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  margin-top: 0;
   padding: .7rem 1.6rem;
   border-radius: var(--r-sm);
   border: 1px solid var(--cream);
@@ -146,8 +339,6 @@
   font-size: .95rem;
   text-decoration: none;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
   transition: background .3s, color .3s, transform .25s cubic-bezier(.2,.8,.25,1), box-shadow .3s;
 }
 .sitio-map-link::before { content: "📍"; font-size: .9rem; }
@@ -162,7 +353,6 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  margin-top: 0;
   padding: .7rem 1.6rem;
   border-radius: var(--r-sm);
   border: 1px solid var(--gold, #be8e56);
@@ -183,16 +373,59 @@
   box-shadow: 0 10px 24px rgba(190,142,86,.35);
 }
 
-/* ============ Chips ============ */
-.info-chip {
-  animation: chipFade .5s ease both;
+/* ============ Chips: etiquetas de dato, no botones ============ */
+.info-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: .4rem;
 }
-.info-chip:nth-child(1) { animation-delay: .05s; }
-.info-chip:nth-child(2) { animation-delay: .15s; }
-.info-chip:nth-child(3) { animation-delay: .25s; }
-@keyframes chipFade {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+.info-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: rgba(255,255,255,.7);
+  background: none;
+  border: none;
+  padding: 0 .9rem 0 0;
+  margin-right: .9rem;
+  border-right: 1px solid rgba(190,142,86,.3);
+  cursor: default;
+}
+.info-chip:last-child {
+  border-right: none;
+  margin-right: 0;
+  padding-right: 0;
+}
+.info-chip:first-child {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ============ Panel de info ============ */
+.info-content__hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.info-content__body h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  position: relative;
+  padding-bottom: .55rem;
+  margin-bottom: .4rem;
+}
+.info-content__body h3::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 34px; height: 2px;
+  background: linear-gradient(to right, var(--gold), var(--navy));
+  border-radius: 2px;
 }
 
 .page-cta {
@@ -210,13 +443,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sitio-card, .page-badge__inner, .info-chip { animation: none; opacity: 1; transform: none; }
+  .sitio-card__pin::before { animation: none; }
 }
 
 /* ── Selector de apartados (tabs) — carrusel moderno ── */
 .info-tabs {
   padding: 0 2rem 2rem;
-  background: var(--black);
+  background: transparent;
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
 }
