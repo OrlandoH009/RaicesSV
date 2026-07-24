@@ -1,53 +1,62 @@
-Create Database IF NOT EXISTS raicessv;
+CREATE DATABASE IF NOT EXISTS raicessv;
 USE raicessv;
 
 CREATE TABLE IF NOT EXISTS rols(
-    id_rol int auto_increment primary key,
-    rol varchar (50) not null unique
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    rol VARCHAR(50) NOT NULL UNIQUE
 );
 
-Create Table IF NOT EXISTS users(
-    id_user int auto_increment primary key,
-    id_rol int not null default 2,
-    name varchar(125) not null,
-    email varchar(125) not null unique,
-    password varchar(125) null,
-    google_id varchar (191) unique null,
+CREATE TABLE IF NOT EXISTS users(
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    id_rol INT NOT NULL DEFAULT 2,
+    name VARCHAR(125) NOT NULL,
+    email VARCHAR(125) NOT NULL UNIQUE,
+    password VARCHAR(125) NULL,
+    google_id VARCHAR(191) UNIQUE NULL,
+    description VARCHAR(300) NULL,
+    avatar_url VARCHAR(255) NULL,
+    avatar_source ENUM('local', 'google') NULL,
+    google_avatar_url VARCHAR(255) NULL,
     FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
 );
 
-Create Table IF NOT EXISTS tests(
-    id_test int auto_increment primary key,
-    title varchar(125) not null,
-    description text not null
+CREATE TABLE IF NOT EXISTS properties(
+    id_property INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(125) NOT NULL,
+    description TEXT NOT NULL,
+    location VARCHAR(125) NOT NULL,
+    image VARCHAR(125) NOT NULL
 );
 
-Create Table IF NOT EXISTS properties(
-    id_property int auto_increment primary key,
-    title varchar(125) not null,
-    description text not null,
-    location varchar(125) not null,
-    image varchar(125) not null
-);
-
-Create Table IF NOT EXISTS coments(
-    id_coment int auto_increment primary key,
-    id_user int not null,
-    id_property int not null,
-    coment text not null,
+CREATE TABLE IF NOT EXISTS coments(
+    id_coment INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_property INT NOT NULL,
+    coment TEXT NOT NULL,
     FOREIGN KEY (id_user) REFERENCES users(id_user),
     FOREIGN KEY (id_property) REFERENCES properties(id_property)
 );
 
-Create Table IF NOT EXISTS scores(
-    id_score int auto_increment primary key,
-    id_user int not null,
-    id_test int not null,
-    score int not null,
-    FOREIGN KEY (id_user) REFERENCES users(id_user),
-    FOREIGN KEY (id_test) REFERENCES tests(id_test)
+CREATE TABLE IF NOT EXISTS scores(
+    id_score INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_test INT NOT NULL,
+    score INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 
-INSERT IGNORE INTO rols(rol) values('Admin');
-INSERT IGNORE INTO rols(rol) values('Usuario');
-Insert into users(name, email, password, id_rol) values('Admin', 'admin@example.com', 'admin123', 1);
+CREATE TABLE IF NOT EXISTS password_resets (
+    id_reset INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_password_resets_token_hash (token_hash),
+    INDEX idx_password_resets_user (id_user)
+);
+
+INSERT IGNORE INTO rols(rol) VALUES ('Admin');
+INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', 1);
