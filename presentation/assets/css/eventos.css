@@ -202,9 +202,9 @@ body.welcome-lock { overflow: hidden; }
   content: '';
   position: absolute;
   left: 0; right: 0; top: 0;
-  height: calc(100% + 100px);
-  background: radial-gradient(ellipse at 50% 0%, rgba(219, 161, 95, 0.39) 0%, transparent 62%),
-              radial-gradient(ellipse at 80% 100%, rgba(22, 57, 121, 0.199) 0%, transparent 55%);
+  height: calc(100% + 340px);
+  background: radial-gradient(ellipse at 50% 0%, rgba(190,142,86,.14) 0%, transparent 62%),
+              radial-gradient(ellipse at 80% 100%, rgba(17,48,104,.16) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
 }
@@ -307,6 +307,61 @@ body.welcome-lock { overflow: hidden; }
   height: 1px;
   background: linear-gradient(to right, rgba(190,142,86,.4), rgba(17,48,104,.3), transparent);
   opacity: .5;
+}
+
+/* ============ Botones de acción del evento (mapa / publicaciones / calendario) ============ */
+.evento-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+
+.evento-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .7rem 1.4rem;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(190,142,86,.35);
+  background: rgba(255,255,255,.03);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: .9rem;
+  text-decoration: none;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .3s, border-color .3s, color .3s, transform .25s cubic-bezier(.2,.8,.25,1), box-shadow .3s;
+}
+.evento-actions__btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+.evento-actions__btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--black);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(190,142,86,.3);
+}
+
+/* Variante: segundo botón (publicaciones) con acento navy */
+.evento-actions__btn:nth-child(2) {
+  border-color: rgba(46,98,196,.35);
+}
+.evento-actions__btn:nth-child(2):hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+  box-shadow: 0 10px 24px rgba(17,48,104,.35);
+}
+
+@media (max-width: 640px) {
+  .evento-actions { flex-direction: column; align-items: stretch; }
+  .evento-actions__btn { justify-content: center; }
 }
 
 /* ── Selector de apartados (tabs) — carrusel moderno ── */
