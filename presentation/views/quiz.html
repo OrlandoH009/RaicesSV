@@ -43,50 +43,51 @@
       <a href="../views/registro.html" class="btn-register">Registrarse</a>
     </div>
   </nav>
+<main>
 
-  <main>
+  <section class="page-badge">
+    <div class="page-badge__inner reveal"><h1>Quiz Cultural</h1></div>
+  </section>
 
-    <section class="page-badge">
-      <div class="page-badge__inner reveal"><h1>Quiz Cultural</h1></div>
-    </section>
-    <!-- SECCIÓN DE BIENVENIDA -->
-<div id="quizWelcome" class="quiz-welcome">
+  <!-- 1. NUEVO: TÍTULO PERSISTENTE (Colocado fuera de los contenedores que se ocultan) -->
+  <h1 class="quiz-global-title">Quiz de Raíces SV</h1>
 
-  <h1 class="quiz-welcome__title">Quiz de Raíces SV</h1>
+  <!-- 2. SECCIÓN DE BIENVENIDA (Ahora empieza con la clase active y sin el h1 dentro) -->
+  <div id="quizWelcome" class="quiz-welcome quiz-setup-section active">
 
-  <p class="quiz-welcome__subtitle">
-    Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.
-    Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.
-  </p>
+    <p class="quiz-welcome__subtitle">
+      Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.
+      Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.
+    </p>
 
-  <div class="quiz-welcome__divider"></div>
+    <div class="quiz-welcome__divider"></div>
 
-  <div class="quiz-welcome__stats">
-    <div class="quiz-stat">
-      <div class="quiz-stat__number">448+</div>
-      <div class="quiz-stat__label">Preguntas</div>
+    <div class="quiz-welcome__stats">
+      <div class="quiz-stat">
+        <div class="quiz-stat__number">448+</div>
+        <div class="quiz-stat__label">Preguntas</div>
+      </div>
+      <div class="quiz-stat">
+        <div class="quiz-stat__number">4</div>
+        <div class="quiz-stat__label">Categorías</div>
+      </div>
+      <div class="quiz-stat">
+        <div class="quiz-stat__number">4</div>
+        <div class="quiz-stat__label">Niveles</div>
+      </div>
     </div>
-    <div class="quiz-stat">
-      <div class="quiz-stat__number">4</div>
-      <div class="quiz-stat__label">Categorías</div>
-    </div>
-    <div class="quiz-stat">
-      <div class="quiz-stat__number">4</div>
-      <div class="quiz-stat__label">Niveles</div>
-    </div>
+
+    <button id="startQuizBtn" class="quiz-welcome__btn">
+      Comenzar Quiz
+    </button>
+
   </div>
 
-  <button id="startQuizBtn" class="quiz-welcome__btn">
-    Comenzar Quiz
-  </button>
-
-</div>
-
-<!-- FIN SECCIÓN DE BIENVENIDA -->
-
-    <!-- ══ PANTALLA DE SELECCIÓN ══ -->
-    <div class="quiz-setup reveal" id="quizSetup">
-
+  <div class="quiz-setup reveal quiz-setup-section" id="quizSetup">
+    <!-- Agrega este botón dentro de tu contenedor .quiz-setup -->
+    <button type="button" class="quiz-back-to-welcome-btn">
+      <span class="btn-icon">←</span> Volver al Inicio
+    </button>
       <!-- Niveles -->
       <p class="quiz-setup__label">Selecciona un nivel</p>
       <div class="quiz-levels">
@@ -195,6 +196,10 @@
     </div>
   </main>
 
+    <!-- SECCIÓN DEL LEADERBOARD -->
+<section id="quizLeaderboardSection" class="leaderboard-container">
+</section>
+
   <footer class="footer">
     <div class="footer__inner">
       <img class="footer__logo" src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" />
@@ -214,7 +219,7 @@
   </footer>
 
   <script src="../assets/js/script.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="[https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js](https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js)"></script>
   <script src="../assets/js/quiz.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>

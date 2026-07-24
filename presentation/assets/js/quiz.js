@@ -522,6 +522,25 @@ function pulso(el) {
   });
 }
 
+document.querySelectorAll('.btn-regresar, .btn-back, [data-action="regresar"]').forEach(boton => {
+  boton.addEventListener('click', () => {
+    // 1. Oculta la sección actual donde está el usuario
+    const seccionActual = boton.closest('section') || boton.parentElement;
+    if (seccionActual) seccionActual.classList.add('hidden');
+    
+    // 2. Muestra la pantalla de bienvenida
+    const pantallaWelcome = document.getElementById('welcome');
+    if (pantallaWelcome) {
+      pantallaWelcome.classList.remove('hidden');
+      
+      // 3. Le hace el efecto visual de entrada a la bienvenida si usas GSAP
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(pantallaWelcome, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 });
+      }
+    }
+  });
+});
+
 levelCards.forEach(card => {
   card.addEventListener('click', () => {
     levelCards.forEach(c => c.classList.remove('selected'));
@@ -817,3 +836,193 @@ retryBtn.addEventListener('click', () => {
   nivelSeleccionado = null;
   categoriaSeleccionada = null;
 });
+
+document.getElementById('startQuizBtn').addEventListener('click', () => {
+  // Oculta la descripción de bienvenida
+  document.getElementById('quizWelcome').classList.remove('active');
+  
+  // Muestra la selección de niveles y categorías en la parte superior
+  document.getElementById('quizSetup').classList.add('active');
+  
+  // Desplaza suavemente hacia arriba para centrar la vista
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+// ==========================================
+// LÓGICA PARA VOLVER A LA PANTALLA DE BIENVENIDA
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+  const backToWelcomeBtn = document.querySelector(".quiz-back-to-welcome-btn");
+  const quizSetup = document.getElementById("quizSetup");
+  const quizWelcome = document.getElementById("quizWelcome");
+
+  if (backToWelcomeBtn && quizSetup && quizWelcome) {
+    backToWelcomeBtn.addEventListener("click", () => {
+      
+      // Animación de salida exagerada para #quizSetup
+      gsap.to(quizSetup, {
+        duration: 0.6,          // Más tiempo para que se aprecie
+        opacity: 0,
+        y: 50,                  // Desplazamiento más largo hacia abajo
+        ease: "back.in(1.5)",   // Efecto de "impulso" antes de caer
+        onComplete: () => {
+          quizSetup.classList.remove("active");
+          quizSetup.style.display = "none";
+
+          // Preparar y mostrar #quizWelcome
+          quizWelcome.style.display = "block";
+          quizWelcome.classList.add("active");
+          
+          // Animación de entrada espectacular para #quizWelcome
+          gsap.fromTo(quizWelcome, 
+            { 
+              opacity: 0, 
+              y: -70,           // Viene desde más arriba
+              scale: 0.95       // Empieza ligeramente más pequeño
+            }, 
+            { 
+              duration: 1, 
+              opacity: 1, 
+              y: 0, 
+              scale: 1,
+              ease: "back.out(1.7)" // Efecto de rebote elástico al llegar
+            }
+          );
+        }
+      });
+
+    });
+  }
+});
+/* ============================================================
+   RAÍCES SV — quiz-mejorado.js (v2.0)
+   SECCIÓN DE LEADERBOARD OSCURO & RÉCORDS LOCALES
+   ============================================================ */
+
+/* ============================================================
+   RAÍCES SV — quiz-mejorado.js (v3.0 - GSAP & Clean Board)
+   ============================================================ */
+
+// Inicializar el almacenamiento vacío (sin registros quemados)
+if (!localStorage.getItem(STORAGE_KEY)) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+}
+
+function traducirLabel(tipo, valor) {
+  const diccionario = {
+    'historia': '📜 Historia',
+    'gastronomia': '🫓 Gastronomía',
+    'sitios': '🗿 Sitios Culturales',
+    'leyendas': '🗣️ Leyendas',
+    'facil': '🟢 Fácil',
+    'medio': '🟡 Medio',
+    'dificil': '🔴 Difícil',
+    'guanaco': '🔥 100% Guanaco'
+  };
+  return diccionario[valor] || valor;
+}
+
+function renderizarLeaderboardOpciones() {
+  let leaderboardSeccion = document.getElementById('quizLeaderboardSection');
+  
+  if (!leaderboardSeccion) {
+    leaderboardSeccion = document.createElement('section');
+    leaderboardSeccion.id = 'quizLeaderboardSection';
+    leaderboardSeccion.className = 'leaderboard-container'; // Aplica el CSS nativo
+    
+    leaderboardSeccion.style.opacity = '0';
+    leaderboardSeccion.style.transform = 'translateY(25px)';
+    
+    const contenedorPadre = document.querySelector('main') || document.body;
+    contenedorPadre.appendChild(leaderboardSeccion);
+  }
+
+  const todosLosPuntajes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  const puntajesOrdenados = todosLosPuntajes.sort((a, b) => (b.puntaje / b.maximo) - (a.puntaje / a.maximo));
+
+  let tablaFilasHTML = '';
+  const hayRegistros = puntajesOrdenados.length > 0;
+  
+  if (!hayRegistros) {
+    tablaFilasHTML = `
+      <tr class="no-records-row">
+        <td colspan="5" class="col-center text-empty">
+          <div class="empty-state">
+            <span>📭</span>
+            <p>No hay récords locales registrados todavía. ¡Sé el primero en jugar!</p>
+          </div>
+        </td>
+      </tr>
+    `;
+  } else {
+    puntajesOrdenados.forEach((record, index) => {
+      const medalla = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+      const nombreUsuario = record.nombre || 'Cuscatleco Anónimo';
+      const porcentaje = Math.round((record.puntaje / record.maximo) * 100);
+      const idCategoria = record.categoria || record.cat; 
+
+      tablaFilasHTML += `
+        <tr class="leaderboard-row" style="opacity: 0; transform: translateY(10px);">
+          <td class="col-center text-gold">${medalla}</td>
+          <td class="text-player">${nombreUsuario}</td>
+          <td>${traducirLabel('cat', idCategoria)}</td>
+          <td>${traducirLabel('nivel', record.nivel)}</td>
+          <td class="col-right text-score">
+            ${record.puntaje}/${record.maximo} <span class="text-percent">(${porcentaje}%)</span>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  leaderboardSeccion.innerHTML = `
+    <div class="leaderboard-header">
+      <div>
+        <h2 class="leaderboard-title">🏆 Récords Locales</h2>
+        <p class="leaderboard-subtitle">Clasificación en tiempo real de los mejores puntajes en este dispositivo.</p>
+      </div>
+    </div>
+
+    <div class="leaderboard-wrapper">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th class="col-center" style="width: 50px;">Pos</th>
+            <th>Guanaco / Jugador</th>
+            <th>Categoría</th>
+            <th>Dificultad</th>
+            <th class="col-right">Puntaje</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tablaFilasHTML}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Ejecución limpia de GSAP
+  if (typeof gsap !== 'undefined') {
+    gsap.to(leaderboardSeccion, {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      onComplete: () => {
+        if (hayRegistros) {
+          gsap.to('.leaderboard-row', {
+            opacity: 1,
+            y: 0,
+            duration: 0.35,
+            stagger: 0.06,
+            ease: 'power1.out'
+          });
+        }
+      }
+    });
+  } else {
+    leaderboardSeccion.style.opacity = '1';
+    leaderboardSeccion.style.transform = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', renderizarLeaderboardOpciones);
