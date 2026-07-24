@@ -372,6 +372,42 @@ body.welcome-lock { overflow: hidden; }
   border-radius: 2px;
 }
 
+/* ============ Botón "Ver la receta" al final de cada panel ============ */
+.recipe-cta {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px dashed rgba(190, 142, 86, 0.3);
+  display: flex;
+  justify-content: center;
+}
+.btn-ver-receta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--black);
+  background: var(--gold);
+  border: 2px solid var(--gold);
+  border-radius: var(--r-lg, 999px);
+  padding: 0.7rem 1.8rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .25s, transform .25s, box-shadow .25s, color .25s;
+}
+.btn-ver-receta svg {
+  transition: transform .25s;
+}
+.btn-ver-receta:hover {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--navy);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(17,48,104,.35);
+}
+.btn-ver-receta:hover svg { transform: translateY(2px); }
+
 /* ============ Galería de recetas dentro del panel (si existe) ============ */
 .info-gallery__item {
   border-radius: var(--r-sm);
