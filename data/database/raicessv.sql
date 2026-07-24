@@ -3,7 +3,7 @@ USE raicessv;
 
 CREATE TABLE IF NOT EXISTS rols(
     id_rol int auto_increment primary key,
-    rol varchar (50) not null
+    rol varchar (50) not null unique
 );
 
 Create Table IF NOT EXISTS users(
@@ -48,6 +48,6 @@ Create Table IF NOT EXISTS scores(
     FOREIGN KEY (id_test) REFERENCES tests(id_test)
 );
 
-Insert into rols(rol) values('Admin');
-Insert into rols(rol) values('Usuario');
+INSERT IGNORE INTO rols(rol) values('Admin');
+INSERT IGNORE INTO rols(rol) values('Usuario');
 Insert into users(name, email, password, id_rol) values('Admin', 'admin@example.com', 'admin123', 1);
