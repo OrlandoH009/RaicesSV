@@ -78,7 +78,7 @@ const recetasData = {
     porciones: "6 porciones",
     tiempo: "2 horas",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/gallina-india.jpg",
+    imagen: "../assets/media/recetas/Sopa-de-Gallina-India.webp",
     ingredientes: [
       "1 gallina india entera (criolla), en piezas",
       "Papas y güisquil en trozos grandes",
@@ -102,7 +102,7 @@ const recetasData = {
     porciones: "8 panes",
     tiempo: "1 hora 30 min",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/panes-con-pollo.jpg",
+    imagen: "../assets/media/recetas/Panes-con-Pollo.webp",
     ingredientes: [
       "8 panes franceses salvadoreños (birote)",
       "1 gallina o pollo entero en piezas",
@@ -126,7 +126,7 @@ const recetasData = {
     porciones: "12-15 tamales",
     tiempo: "2 horas",
     dificultad: "Alta",
-    imagen: "../assets/media/recetas/tamales.webp",
+    imagen: "../assets/media/recetas/tamales-de-pollo.webp",
     ingredientes: [
       "1 libra de masa de maíz nixtamalizado",
       "1 litro de caldo de pollo concentrado",
@@ -174,7 +174,7 @@ const recetasData = {
     porciones: "10 riguas",
     tiempo: "40 min",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/riguas.jpg",
+    imagen: "../assets/media/recetas/riguas.webp",
     ingredientes: [
       "6 elotes tiernos desgranados",
       "2 cucharadas de azúcar",
@@ -198,7 +198,7 @@ const recetasData = {
     porciones: "8 empanadas",
     tiempo: "50 min",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/empanadas-platano.jpg",
+    imagen: "../assets/media/recetas/empanadas.webp",
     ingredientes: [
       "4 plátanos maduros grandes",
       "1 taza de frijoles refritos dulces o leche condensada",
@@ -222,7 +222,7 @@ const recetasData = {
     porciones: "6 porciones",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/mariscada.jpg",
+    imagen: "../assets/media/recetas/mariscada.webp",
     ingredientes: [
       "1 libra de camarones limpios",
       "1 libra de pescado en trozos firmes",
@@ -246,7 +246,7 @@ const recetasData = {
     porciones: "4 porciones",
     tiempo: "25 min",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/casamiento.jpg",
+    imagen: "../assets/media/recetas/casamiento.webp",
     ingredientes: [
       "2 tazas de arroz blanco ya cocido",
       "2 tazas de frijoles rojos cocidos con su caldo",
@@ -270,7 +270,7 @@ const recetasData = {
     porciones: "6 enchiladas",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/enchiladas.jpg",
+    imagen: "../assets/media/recetas/enchiladas-salvadorenas.webp",
     ingredientes: [
       "6 tortillas de maíz fritas hasta quedar crujientes",
       "1 libra de carne molida de res",
@@ -294,7 +294,7 @@ const recetasData = {
     porciones: "20 nuégados",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/nuegados-yuca.jpg",
+    imagen: "../assets/media/recetas/Nuegados-de-Yuca.webp",
     ingredientes: [
       "2 libras de yuca rallada finamente",
       "2 cucharadas de harina de trigo",
@@ -318,7 +318,7 @@ const recetasData = {
     porciones: "6 tazas",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/chilate.jpg",
+    imagen: "../assets/media/recetas/chilate-con-nuegados.webp",
     ingredientes: [
       "1 libra de maíz blanco tostado y molido",
       "1 raja de canela y unos clavos de olor",
@@ -342,7 +342,7 @@ const recetasData = {
     porciones: "8 porciones",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/torrejas.jpg",
+    imagen: "../assets/media/recetas/Torreja.webp",
     ingredientes: [
       "1 pan francés o baguette del día anterior",
       "4 huevos batidos",
