@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const userRepository = require('../data/repositories/user.repository');
 const { sendMail } = require('../data/config/mailer.config');
+const {domainHasMailServer} = require('../data/config/emailVerifier.config');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -73,6 +74,13 @@ const register = async (name, email, password) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+
+    const domainIsReal = await domainHasMailServer(normalizedEmail);
+    if (!domainIsReal) {
+        const err = new Error('Su dominio de correo electrónico no existe o no recibe correos');
+        err.expose = true
+        throw err;
+    }
 
     const existing = await userRepository.findByEmail(normalizedEmail);
 
