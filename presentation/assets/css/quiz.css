@@ -19,6 +19,10 @@
   --r-lg: 35px;
   --correct: #10b981;
   --wrong: #ef4444;
+  --quiz-primary: #4A90E2;       /* Color principal de tu app */
+  --quiz-text: #333333;          /* Color de texto principal */
+  --quiz-border: #e2e8f0;        /* Color de bordes y separadores */
+  --quiz-hover: #f8fafc;         /* Color al pasar el mouse por encima */
 }
 
 html.quiz-modal-open,
@@ -77,14 +81,13 @@ body.quiz-modal-open {
 }
 
 .quiz-welcome__subtitle {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.8rem;
-  line-height: 1.7;
-  max-width: 620px;
+  font-size: 1.3rem; /* Más grande */
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 2.2rem;
+  line-height: 1.8;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
 @keyframes fadeIn {
@@ -154,30 +157,39 @@ body.quiz-modal-open {
 }
 
 .quiz-stat__number {
-  font-size: 1.8rem;
+  font-size: 2.2rem; /* Más grande */
   font-weight: 700;
   color: var(--gold);
   font-family: 'Playfair Display', serif;
 }
 
 .quiz-stat__label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 0.4rem;
+  font-size: 1.05rem; /* Más grande */
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .quiz-setup-section {
-  display: none;
+  display: none !important;
   animation: fadeIn 0.6s ease-out;
 }
 
 .quiz-setup-section.active {
-  display: block;
+  display: block !important;
 }
 
 /* ══════════════════════════════════════════════════════════
    PÁGINA DE SELECCIÓN
    ══════════════════════════════════════════════════════════ */
+.quiz-global-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  font-family: 'Playfair Display', serif;
+  animation: slideInDown 0.6s ease-out;
+}
 
 .quiz-setup {
   animation: fadeInUp 0.8s ease-out;
@@ -194,13 +206,12 @@ body.quiz-modal-open {
 }
 
 .quiz-setup__label {
-  font-size: 1.2rem;
+  font-size: 1.35rem; /* Más grande */
   font-weight: 700;
   color: var(--gold);
   margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  font-family: 'Playfair Display', serif;
 }
 
 /* ── Tarjetas de nivel ── */
@@ -280,18 +291,16 @@ body.quiz-modal-open {
 }
 
 .level-card__name {
-  font-size: 1.1rem;
+  font-size: 1.3rem; /* Más grande */
   font-weight: 700;
   color: var(--gold);
-  margin-bottom: 0.6rem;
-  font-family: 'Playfair Display', serif;
 }
 
 .level-card__sub {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.5;
-}
+  font-size: 1.05rem; /* Más grande */
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+} 
 
 /* ── Categorías ── */
 .quiz-cats {
@@ -303,17 +312,17 @@ body.quiz-modal-open {
 }
 
 .cat-btn {
-  padding: 0.7rem 1.6rem;
   background: rgba(26, 40, 69, 0.7);
   color: rgba(255, 255, 255, 0.85);
   border: 1.5px solid rgba(190, 142, 86, 0.2);
   border-radius: 50px;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
+  padding: 0.9rem 2rem; /* Más espaciado */
+  font-size: 1.1rem; /* Más grande */
+  font-weight: 600;
 }
 
 .cat-btn::after {
@@ -391,6 +400,7 @@ body.quiz-modal-open {
    ══════════════════════════════════════════════════════════ */
 
 .quiz-backdrop {
+  display: none; /* Evita que bloquee interacciones al inicio */
   position: fixed;
   inset: 0;
   background: rgba(8, 12, 22, 0.75);
@@ -402,6 +412,7 @@ body.quiz-modal-open {
 }
 
 .quiz-backdrop.show {
+  display: block;
   opacity: 1;
   pointer-events: auto;
 }
@@ -410,29 +421,54 @@ body.quiz-modal-open {
    ZONA DE JUEGO — VENTANA MODAL FLOTANTE
    ══════════════════════════════════════════════════════════ */
 
+/* ── Botón para regresar al inicio ── */
+.quiz-back-to-welcome-btn {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid rgba(190, 142, 86, 0.4);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.quiz-back-to-welcome-btn:hover {
+  background: rgba(190, 142, 86, 0.1);
+  border-color: var(--gold);
+  transform: translateX(-4px);
+}
+
+.quiz-back-to-welcome-btn .btn-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+.quiz-zone.active {
+  display: block; /* O flex, según manejes tu estructura */
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
 .quiz-zone {
+  display: none; /* Agrega esto para asegurarte de que ni pinte el bloque vacío */
   opacity: 0;
   pointer-events: none;
+  position: fixed;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
-  width: min(600px, calc(100vw - 2.5rem));
-  max-height: min(680px, 88vh);
+  width: min(700px, calc(100vw - 2.5rem)); /* Modal más ancho para textos grandes */
+  max-height: min(750px, 90vh);
   overflow-y: auto;
   background: var(--card-bg);
-  border: 1px solid rgba(190, 142, 86, 0.25);
-  border-radius: var(--r-md);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
-  padding: 2rem 1.75rem 1.75rem;
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+  padding: 2.2rem;
   z-index: 100;
-}
-
-.quiz-zone.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
 }
 
 /* Scrollbar discreto dentro del modal */
@@ -552,12 +588,10 @@ body.quiz-modal-open {
 }
 
 .quiz-card__question {
-  font-size: 1.4rem;
+  font-size: 1.6rem; /* Pregunta más grande */
   font-weight: 700;
   color: var(--white);
   line-height: 1.6;
-  margin: 0;
-  font-family: 'Playfair Display', serif;
 }
 
 /* ── Opciones ── */
@@ -569,12 +603,10 @@ body.quiz-modal-open {
 }
 
 .quiz-option {
-  padding: 1rem 1.2rem;
   background: rgba(26, 40, 69, 0.9);
   border: 1.5px solid rgba(190, 142, 86, 0.2);
   border-radius: var(--r-sm);
   cursor: pointer;
-  font-size: 0.98rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.85);
   text-align: left;
@@ -583,7 +615,10 @@ body.quiz-modal-open {
   overflow: hidden;
   display: flex;
   align-items: center;
+  padding: 1.2rem 1.4rem;
+  font-size: 1.15rem; /* Opciones más grandes */
 }
+
 
 @media (max-width: 600px) {
   .quiz-options {
@@ -998,5 +1033,128 @@ body.quiz-modal-open {
   .btn-retry,
   .btn-explore {
     width: 100%;
+  }
+}
+/* ============================================================
+   ESTILOS LEADERBOARD OPTIMIZADOS (85% ANCHO & TEXTO CÓMODO)
+   ============================================================ */
+
+.leaderboard-container {
+  width: 85%; /* Ocupa exactamente el 85% de la pantalla */
+  max-width: 1000px; /* Límite máximo para pantallas ultra anchas */
+  margin: 2.5rem auto;
+  padding: 1.25rem;
+  background-color: #121212; 
+  color: #f5f5f5;
+  border-radius: 10px;
+  border: 1px solid #2d2d2d;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard-header {
+  border-bottom: 1px solid #2d2d2d;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.leaderboard-title {
+  font-size: 1.35rem; /* Texto más pequeño y cómodo */
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.leaderboard-subtitle {
+  font-size: 0.8rem; /* Reducido para mejor legibilidad */
+  color: #a0a0a0;
+  margin-top: 0.2rem;
+}
+
+/* Envoltura y Estructura de Tabla */
+.leaderboard-wrapper {
+  overflow-x: auto;
+  border: 1px solid #333333;
+  border-radius: 6px;
+  background-color: #1a1a1a;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+/* Encabezados más estilizados y compactos */
+.leaderboard-table th {
+  background-color: #242424;
+  color: #a3a3a3;
+  font-weight: 700;
+  font-size: 0.75rem; /* Reducido */
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 10px 14px; /* Padding más ajustado */
+  border-bottom: 2px solid #333333;
+  border-right: 1px solid #2d2d2d;
+}
+
+/* Filas con textos suavizados */
+.leaderboard-table td {
+  padding: 10px 14px; /* Más compacto, menos tosco */
+  border-bottom: 1px solid #2d2d2d;
+  border-right: 1px solid #2d2d2d;
+  color: #d4d4d4;
+  font-size: 0.825rem; /* Reducción general de los registros */
+  vertical-align: middle;
+}
+
+/* Quitar bordes sobrantes terminales */
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+  border-right: none;
+}
+
+.leaderboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Efecto Hover */
+.leaderboard-table tr:hover:not(.no-records-row) {
+  background-color: #202020;
+}
+
+/* Modificadores de celdas */
+.col-center { text-align: center; }
+.col-right { text-align: right; }
+.text-gold { color: #fbbf24; font-weight: bold; }
+.text-player { color: #ffffff; font-weight: 600; }
+.text-score { font-family: monospace; font-size: 0.875rem; color: #34d399; }
+.text-percent { color: #888888; font-size: 0.75rem; font-weight: normal; }
+
+/* Estado vacío */
+.text-empty {
+  padding: 2.5rem !important;
+  color: #737373;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.empty-state span {
+  font-size: 2rem; /* Emoji levemente más pequeño */
+}
+.empty-state p {
+  margin: 0;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Ajuste responsivo extra para pantallas pequeñas */
+@media (max-width: 600px) {
+  .leaderboard-container {
+    width: 95%; /* En móviles dejamos que aproveche más espacio */
+    padding: 1rem;
   }
 }
