@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — eventos.css
+   RAÍCES SV — eventos.css (rediseño)
    ============================================================ */
 
 .page-badge {
@@ -7,12 +7,26 @@
   background: var(--black);
   display: flex;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.page-badge::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(190,142,86,.12) 0%, transparent 60%);
+  pointer-events: none;
 }
 .page-badge__inner {
   background: var(--cream);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
+  position: relative;
+  animation: badgePop .7s cubic-bezier(.2,.8,.25,1);
+}
+@keyframes badgePop {
+  0%   { opacity: 0; transform: translateY(-16px) scale(.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .page-badge__inner h1 {
   font-family: var(--font-display);
@@ -23,90 +37,118 @@
   white-space: nowrap;
 }
 
-/* Grid de eventos: espejo del Figma (grande izq + pequeña der, luego inverso) */
-.eventos-grid {
-  padding: 1.5rem 2rem 2rem;
+/* ── Selector de apartados (tabs) — carrusel moderno ── */
+.info-tabs {
+  padding: 0 2rem 2rem;
   background: var(--black);
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  grid-template-rows: 370px 370px;
-  gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
+.info-tabs__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
 
-.evento-card {
+.info-tabs__carousel {
   position: relative;
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: 0 6px 4px rgba(0,0,0,.35);
-  display: block;
-  background: var(--black);
-  transition: transform .3s, box-shadow .3s;
-}
-.evento-card:hover { transform: scale(1.018); box-shadow: 0 14px 36px rgba(0,0,0,.7); }
-.evento-card img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover; opacity: .55;
-  transition: opacity .3s, transform .4s;
-}
-.evento-card:hover img { opacity: .75; transform: scale(1.04); }
-.evento-card__grad { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 55%); }
-.evento-card__label {
-  position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%);
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(1.2rem, 2vw, 1.8rem);
-  color: var(--white); text-align: center;
-  text-shadow: 0 6px 4px rgba(0,0,0,.25);
-  white-space: nowrap; pointer-events: none;
-}
-
-.page-cta { padding: 2.5rem 2rem 5rem; background: var(--black); display: flex; justify-content: center; }
-
-/* Botones de acción de cada evento cultural */
-.evento-actions {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(190,142,86,.25);
-}
-.evento-actions__btn {
-  display: inline-flex;
   align-items: center;
   gap: .5rem;
-  padding: .75rem 1.5rem;
-  border-radius: 50px;
-  font-family: var(--font-body);
-  font-size: .88rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  text-decoration: none;
-  border: 1px solid var(--gold);
-  color: var(--gold);
-  background: rgba(190,142,86,.1);
-  transition: background .25s, color .25s, transform .2s;
+}
+
+.info-tabs__arrow {
+  flex-shrink: 0;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.05);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  z-index: 3;
+  transition: background .25s, border-color .25s, transform .2s, opacity .25s;
 }
-.evento-actions__btn:hover {
+.info-tabs__arrow svg { width: 16px; height: 16px; fill: currentColor; }
+.info-tabs__arrow:hover {
   background: var(--gold);
+  border-color: var(--gold);
   color: var(--black);
-  transform: translateY(-2px);
+  transform: scale(1.08);
 }
-.evento-actions__btn svg { width: 16px; height: 16px; fill: currentColor; }
+.info-tabs__arrow:active { transform: scale(.95); }
+.info-tabs__arrow[disabled] { opacity: .2; pointer-events: none; }
 
-@media (max-width: 480px) {
-  .evento-actions { flex-direction: column; align-items: stretch; }
-  .evento-actions__btn { justify-content: center; }
+.info-tabs__list {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: .3rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  padding: .3rem .2rem .7rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.info-tabs__list::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  position: relative;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .9rem;
+  color: rgba(255,255,255,.55);
+  background: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: .55rem .9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .3s;
+}
+.tab-btn::before { content: none; }
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 0; height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: width .35s cubic-bezier(.2,.8,.25,1);
+}
+.tab-btn:hover {
+  background: none;
+  border-color: transparent;
+  color: rgba(255,255,255,.9);
+  transform: none;
+}
+.tab-btn:hover::after { width: 40%; }
+.tab-btn.active {
+  background: none;
+  border-color: transparent;
+  color: var(--gold);
+  font-weight: 700;
+  box-shadow: none;
+  transform: none;
+}
+.tab-btn.active::after {
+  width: 70%;
+  box-shadow: 0 0 8px rgba(190,142,86,.7);
 }
 
-@media (max-width: 768px) {
-  .eventos-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 260px); }
-  .page-badge__inner { padding: 1rem 1.5rem; }
-  .page-badge__inner h1 { white-space: normal; text-align: center; }
+@media (max-width: 640px) {
+  .info-tabs__arrow { display: none; }
 }

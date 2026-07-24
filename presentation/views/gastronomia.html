@@ -39,27 +39,35 @@
       <div class="page-badge__inner reveal"><h1>Gastronomía</h1></div>
     </section>
 
-    <div class="info-tabs reveal">
-      <p class="info-tabs__label">¿Qué platillo quieres conocer?</p>
-      <div class="info-tabs__list">
-        <button class="tab-btn active" data-tab="pupusas">Pupusas</button>
-        <button class="tab-btn" data-tab="tamales">Tamales</button>
-        <button class="tab-btn" data-tab="sopa">Sopa de Pata</button>
-        <button class="tab-btn" data-tab="yuca">Yuca Frita</button>
-        <button class="tab-btn" data-tab="atol">Atol de Elote</button>
-        <button class="tab-btn" data-tab="semita">Semita</button>
-        <button class="tab-btn" data-tab="gallinaindia">Gallina India</button>
-        <button class="tab-btn" data-tab="panesconpollo">Panes con Pollo</button>
-        <button class="tab-btn" data-tab="riguas">Riguas</button>
-        <button class="tab-btn" data-tab="empanadasplatano">Empanadas de Plátano</button>
-        <button class="tab-btn" data-tab="mariscada">Mariscada</button>
-        <button class="tab-btn" data-tab="casamiento">Casamiento</button>
-        <button class="tab-btn" data-tab="enchiladas">Enchiladas</button>
-        <button class="tab-btn" data-tab="nuegadosyuca">Nuégados de Yuca</button>
-        <button class="tab-btn" data-tab="chilate">Chilate con Nuégados</button>
-        <button class="tab-btn" data-tab="torrejas">Torrejas</button>
-      </div>
+<div class="info-tabs reveal">
+  <p class="info-tabs__label">¿Qué platillo quieres conocer?</p>
+  <div class="info-tabs__carousel">
+    <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+    </button>
+    <div class="info-tabs__list" id="tabsList">
+      <button class="tab-btn active" data-tab="pupusas">Pupusas</button>
+      <button class="tab-btn" data-tab="tamales">Tamales</button>
+      <button class="tab-btn" data-tab="sopa">Sopa de Pata</button>
+      <button class="tab-btn" data-tab="yuca">Yuca Frita</button>
+      <button class="tab-btn" data-tab="atol">Atol de Elote</button>
+      <button class="tab-btn" data-tab="semita">Semita</button>
+      <button class="tab-btn" data-tab="gallinaindia">Gallina India</button>
+      <button class="tab-btn" data-tab="panesconpollo">Panes con Pollo</button>
+      <button class="tab-btn" data-tab="riguas">Riguas</button>
+      <button class="tab-btn" data-tab="empanadasplatano">Empanadas de Plátano</button>
+      <button class="tab-btn" data-tab="mariscada">Mariscada</button>
+      <button class="tab-btn" data-tab="casamiento">Casamiento</button>
+      <button class="tab-btn" data-tab="enchiladas">Enchiladas</button>
+      <button class="tab-btn" data-tab="nuegadosyuca">Nuégados de Yuca</button>
+      <button class="tab-btn" data-tab="chilate">Chilate con Nuégados</button>
+      <button class="tab-btn" data-tab="torrejas">Torrejas</button>
     </div>
+    <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente">
+      <svg viewBox="0 0 24 24"><path d="m8.6 16.6 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
+    </button>
+  </div>
+</div>
 
     <div class="info-panel active" id="tab-pupusas">
       <div class="info-content reveal">
