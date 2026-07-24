@@ -67,7 +67,7 @@ const LANDMARKS = [
 
   /* ── GASTRONOMÍA ── */
   {
-    id: 8, cat: 'gastronomia', emoji: '🫓', color: '#e05252',
+    id: 8, cat: 'gastronomia', emoji: '🫓', color: '#e05252',// Nose si existe
     nombre: 'Pupusería El Caserío',
     lugar: 'Santa Ana (zona típica)',
     desc: 'Zona emblemática de pupuserías tradicionales de occidente, con las mejores pupusas de chicharrón y queso.',
@@ -75,7 +75,7 @@ const LANDMARKS = [
     coords: [13.9989, -89.5597]
   },
   {
-    id: 9, cat: 'gastronomia', emoji: '🍞', color: '#e05252',
+    id: 9, cat: 'gastronomia', emoji: '🍞', color: '#e05252',//Cambiarlo a lugar para probar y no una comida en especial
     nombre: 'Semitas de Cojutepeque',
     lugar: 'Cojutepeque, Cuscatlán',
     desc: 'Ciudad famosa por la Semita Papalona, pan dulce artesanal elaborado en horno de leña con relleno de piña o mora.',
@@ -143,7 +143,7 @@ const LANDMARKS = [
     coords: [13.7500, -89.6692]
   },
   {
-    id: 17, cat: 'historia', emoji: '🏛️', color: '#7c52e0',
+    id: 17, cat: 'historia', emoji: '🏛️', color: '#7c52e0',//Ver si de verdad existe
     nombre: 'Casa de la Independencia',
     lugar: 'San Salvador',
     desc: 'Lugar simbólico donde se gestaron los primeros gritos de independencia en 1811 liderados por José Matías Delgado.',
@@ -252,7 +252,7 @@ const LANDMARKS = [
   },
   {
     id: 30, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Festival de los Canastos',
+    nombre: 'Festival de los Canastos',//Nose si existe
     lugar: 'Cabañas, El Salvador',
     desc: 'Celebrado en Sensuntepeque para honrar la destreza artesanal de la confección de canastos y el patrimonio de la localidad.',
     chips: ['Festival Cultural', '21 de Diciembre', 'Cabañas'],
@@ -276,7 +276,7 @@ const LANDMARKS = [
   },
   {
     id: 33, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Fiestas del Bálsamo',
+    nombre: 'Fiestas del Bálsamo',//Nose si existe
     lugar: 'La Libertad, El Salvador',
     desc: 'Celebración en los municipios de la cordillera costera, destacando la extracción ancestral de la resina aromática.',
     chips: ['Festival Cultural', '15 de Febrero', 'La Libertad'],
@@ -284,7 +284,7 @@ const LANDMARKS = [
   },
   {
     id: 34, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Feria del Membrillo',
+    nombre: 'Feria del Membrillo',//Nose si existe
     lugar: 'Morazán, El Salvador',
     desc: 'Feria local en Perquín que expone el cultivo y derivados gastronómicos de la fruta del membrillo típica del clima fresco.',
     chips: ['Feria Municipal', '14 de Junio', 'Morazán'],
@@ -299,7 +299,7 @@ const LANDMARKS = [
     coords: [13.3372, -87.8447]
   },
   {
-    id: 36, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 36, cat: 'evento', emoji: '📅', color: '#52a0e0',//Nose si existe
     nombre: 'Festival de los Farolitos en Ataco',
     lugar: 'Ahuachapán, El Salvador',
     desc: 'Concepción de Ataco se viste de luces, música folclórica y alta gastronomía para conmemorar el nacimiento de la Virgen María.',
@@ -316,7 +316,7 @@ const LANDMARKS = [
   },
   {
     id: 38, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Fiestas del Rey Guajactial',
+    nombre: 'Fiestas del Rey Guajactial',//Nose si existe
     lugar: 'Sonsonate, El Salvador',
     desc: 'Conmemoración histórica y rescate de la identidad pipil en Izalco, recordando el legado de los caciques ancestrales.',
     chips: ['Festival Cultural', '18 de Enero', 'Sonsonate'],
@@ -655,8 +655,10 @@ const CAT_LABELS = {
    IMAGEN DE REFERENCIA POR LUGAR
    ══════════════════════════════════════════════════════════ */
 function getImgUrl(lm) {
-  return lm.img || `https://picsum.photos/seed/raicessv-${lm.id}/500/320`;
+  // El "../" sube un nivel de carpeta antes de buscar
+  return `../assets/media/mapa/${lm.id}.webp?v=${new Date().getTime()}`;
 }
+
 
 /* ══════════════════════════════════════════════════════════
    SIDEBAR ESTILO GOOGLE MAPS

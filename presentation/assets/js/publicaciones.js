@@ -327,12 +327,14 @@ function showGuestModal() {
     // 2. Hacer visible el overlay
     overlay.classList.add('is-visible');
 
+
     // 3. Ejecutar la animación suave utilizando GSAP
     if (window.gsap) {
       gsap.set(modal, { opacity: 0, y: 30, scale: 0.9 });
       gsap.timeline({ defaults: { ease: 'power3.out' } })
         .to(modal, { opacity: 1, y: 0, scale: 1, duration: 0.5 })
-        .from(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__btn, .guest-modal__skip'), {
+        // 👇 CAMBIAMOS '.guest-modal__btn' POR '.guest-modal__actions' AQUÍ ABAJO:
+        .from(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__actions, .guest-modal__skip'), {
           opacity: 0,
           y: 12,
           duration: 0.35,

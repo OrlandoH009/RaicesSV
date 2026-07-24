@@ -733,3 +733,156 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
 }
+
+/* =═════════════════════════════════
+   ESTILOS PARA EL MODAL FLOTANTE (INVITADOS)
+   ══════════════════════════════════ */
+
+/* Contenedor oscuro de fondo (Overlay) */
+.guest-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(17, 48, 104, 0.6); /* Color azul marino oscuro traslúcido */
+  backdrop-filter: blur(10px); /* Efecto difuminado moderno */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Asegura que esté por encima de todo */
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* Clase que activa el JavaScript para mostrarlo */
+.guest-modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* La tarjeta/ventana flotante */
+.guest-modal {
+  background: linear-gradient(135deg, #1d1919 0%, #2a2624 100%);
+  border: 1px solid var(--gold);
+  border-radius: var(--r-md);
+  padding: 2.5rem 2rem;
+  max-width: 450px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(190, 142, 86, 0.15);
+}
+
+/* Botón "X" para cerrar */
+.guest-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.guest-modal__close:hover {
+  color: var(--gold);
+}
+
+/* Ícono del usuario/mapa */
+.guest-modal__icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+  background: rgba(190, 142, 86, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+
+.guest-modal__icon svg {
+  width: 35px;
+  height: 35px;
+}
+
+/* Títulos y textos */
+.guest-modal__title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.guest-modal__text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Contenedor de los botones */
+.guest-modal__actions {
+  display: flex !important; /* Forzamos a que se muestre el contenedor */
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1.5rem 0; /* Le damos espacio arriba y abajo */
+}
+
+/* Estilos base de los botones (corrigiendo la herencia de color) */
+.guest-modal__btn {
+  display: block !important;
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-sizing: border-box; /* Evita que el padding deforme el botón */
+}
+
+/* Botón Crear Cuenta (Dorado con texto blanco) */
+.guest-modal__btn--primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%) !important;
+  color: #ffffff !important; /* 👈 Forzamos texto blanco */
+}
+
+.guest-modal__btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
+  scale: 1.02;
+}
+
+/* Botón Ya tengo cuenta (Borde dorado con texto dorado) */
+.guest-modal__btn--secondary {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--gold) !important; /* 👈 Forzamos texto dorado en vez de transparente/blanco */
+  border: 1px solid var(--gold) !important;
+}
+
+.guest-modal__btn--secondary:hover {
+  background: rgba(190, 142, 86, 0.15);
+  scale: 1.02;
+  color: #ffffff !important; /* Al pasar el mouse, el texto se vuelve blanco */
+}
+
+/* Enlace inferior de omitir/salir */
+.guest-modal__skip {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.guest-modal__skip:hover {
+  color: var(--white);
+}
