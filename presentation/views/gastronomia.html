@@ -6,11 +6,140 @@
   <title>Raíces SV — Gastronomía</title>
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/info-shared.css" />
+  <link rel="stylesheet" href="../assets/css/gastronomia.css" />
     <link rel="icon" href="../assets/favicon/favicon.ico" />
     <link rel="manifest" href="../assets/favicon/site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   </head>
 <body>
+
+  <div class="welcome-overlay" id="welcomeOverlay">
+    <div class="welcome-overlay__bg"></div>
+    <div class="welcome-overlay__orbit" aria-hidden="true">
+      <span class="welcome-orbit-item">🫓</span>
+      <span class="welcome-orbit-item">🌽</span>
+      <span class="welcome-orbit-item">🍯</span>
+      <span class="welcome-orbit-item">🫘</span>
+      <span class="welcome-orbit-item">🌶️</span>
+      <span class="welcome-orbit-item">🥥</span>
+    </div>
+    <div class="welcome-overlay__content">
+      <span class="welcome-overlay__emoji" id="welcomeEmoji">🫓</span>
+      <p class="welcome-overlay__eyebrow">Raíces SV — Gastronomía</p>
+      <h2 class="welcome-overlay__title">Sabores de El Salvador</h2>
+      <p class="welcome-overlay__sub">16 platillos, bebidas y postres que cuentan la historia del país en cada bocado</p>
+
+      <div class="welcome-overlay__stats">
+        <div class="welcome-stat">
+          <span class="welcome-stat__num" data-count-to="16">0</span>
+          <span class="welcome-stat__label">Platillos</span>
+        </div>
+        <div class="welcome-stat">
+          <span class="welcome-stat__num" data-count-to="1">0</span>
+          <span class="welcome-stat__label">Patrimonio UNESCO</span>
+        </div>
+        <div class="welcome-stat">
+          <span class="welcome-stat__num" data-count-to="500">0</span>
+          <span class="welcome-stat__label">Años de tradición</span>
+        </div>
+      </div>
+
+      <p class="welcome-overlay__fact">
+        <span class="welcome-fact__label">¿Sabías qué?</span>
+        <span class="welcome-fact__text" id="welcomeFactText">La palabra "pupusa" viene del náhuatl <em>pupushawa</em>, que significa "cosa inflada".</span>
+      </p>
+
+      <button class="welcome-overlay__cta" id="welcomeCta">Descubrir platillos →</button>
+      <p class="welcome-overlay__hint">o presiona <kbd>Esc</kbd> para saltar</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const overlay = document.getElementById('welcomeOverlay');
+      if (!overlay) return;
+
+      document.body.classList.add('welcome-lock');
+
+        const facts = [
+          'La palabra "pupusa" viene del náhuatl <em>pupushawa</em>, que significa "cosa inflada".',
+          'Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.',
+          'Los tamales salvadoreños se envuelven en hoja de plátano, no de maíz.',
+          'El chilate conserva técnicas de tueste prehispánicas que aún se usan hoy.',
+          'La pupusa fue declarada Patrimonio Cultural Inmaterial por la UNESCO.'
+        ];
+        const factEl = document.getElementById('welcomeFactText');
+        let factIndex = 0;
+
+        function rotateFact() {
+          if (!factEl || typeof gsap === 'undefined') return;
+          gsap.to(factEl, {
+            opacity: 0, y: -6, duration: .3, ease: 'power1.in',
+            onComplete: () => {
+              factIndex = (factIndex + 1) % facts.length;
+              factEl.innerHTML = facts[factIndex];
+              gsap.fromTo(factEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' });
+            }
+          });
+        }
+        const factTimer = setInterval(rotateFact, 3800);
+
+        const cta = document.getElementById('welcomeCta');
+        const emoji = document.getElementById('welcomeEmoji');
+        const stats = overlay.querySelectorAll('.welcome-stat__num');
+        const orbitItems = overlay.querySelectorAll('.welcome-orbit-item');
+
+        function closeWelcome() {
+          clearInterval(factTimer);
+          if (typeof gsap === 'undefined') { overlay.remove(); document.body.classList.remove('welcome-lock'); return; }
+          gsap.to(overlay, {
+            opacity: 0, duration: .5, ease: 'power2.inOut',
+            onComplete: () => { overlay.remove(); document.body.classList.remove('welcome-lock'); }
+          });
+        }
+
+        if (typeof gsap !== 'undefined') {
+          gsap.set(orbitItems, { opacity: 0 });
+          const tl = gsap.timeline();
+          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)' })
+            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4 }, '-=.3')
+            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out' }, '-=.2')
+            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out' }, '-=.3')
+            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out' }, '-=.25')
+            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4 }, '-=.4')
+            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out' }, '-=.2')
+            .from('.welcome-overlay__hint', { opacity: 0, duration: .4 }, '-=.2')
+            .to(orbitItems, { opacity: .55, duration: .6, stagger: .06 }, '-=.6');
+
+          stats.forEach((el, i) => {
+            const target = +el.dataset.countTo;
+            const counter = { val: 0 };
+            gsap.to(counter, {
+              val: target,
+              duration: 1.3,
+              ease: 'power1.out',
+              delay: 1.05 + i * 0.08,
+              onUpdate: () => { el.textContent = Math.floor(counter.val); },
+              onComplete: () => { el.textContent = target; }
+            });
+          });
+
+          gsap.to(emoji, { y: -8, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1 });
+          gsap.to('.welcome-overlay__orbit', { rotate: 360, duration: 40, repeat: -1, ease: 'none' });
+          orbitItems.forEach(el => gsap.to(el, { rotate: -360, duration: 40, repeat: -1, ease: 'none' }));
+
+          emoji.addEventListener('mouseenter', () => gsap.to(emoji, { scale: 1.15, rotate: 8, duration: .3, ease: 'back.out(3)' }));
+          emoji.addEventListener('mouseleave', () => gsap.to(emoji, { scale: 1, rotate: 0, duration: .3, ease: 'power2.out' }));
+        }
+
+        cta.addEventListener('click', closeWelcome);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeWelcome(); });
+        document.addEventListener('keydown', function esc(e) {
+          if (e.key === 'Escape') { closeWelcome(); document.removeEventListener('keydown', esc); }
+        });
+    })();
+  </script>
 
   <nav class="navbar" id="navbar">
   <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Raíces SV (Sin Fondo).png" alt="Logo" /></a></div>
@@ -495,6 +624,7 @@
   </footer>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/tabs.js"></script>
+  <script src="../assets/js/animations.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>
 </html>
