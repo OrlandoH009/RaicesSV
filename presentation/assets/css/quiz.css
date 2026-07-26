@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — quiz-moderno.css (v2.0)
+   RAÍCES SV — quiz-moderno.css (v2.0 - Modificado 90% Ancho)
    Diseño minimalista elegante + Animaciones GSAP
    Colores oscuros suaves + Animaciones MÁS NOTABLES
    ============================================================ */
@@ -44,11 +44,12 @@ body.quiz-modal-open {
 }
 
 .quiz-welcome {
-  animation: fadeInUp 0.8s ease-out;
+  /* Se elimina 'animation: fadeInUp 0.8s...' para que GSAP controle la entrada limpia */
   text-align: center;
   padding: 1.5rem 2rem 2rem;
   background: transparent;
-  max-width: 900px;
+  width: 90%; 
+  max-width: 950px; 
   margin: 0 auto;
   margin-top: 10px;
   margin-bottom: 1.5rem;
@@ -81,7 +82,7 @@ body.quiz-modal-open {
 }
 
 .quiz-welcome__subtitle {
-  font-size: 1.3rem; /* Más grande */
+  font-size: 1.3rem;
   color: rgba(255, 255, 255, 0.95);
   margin-bottom: 2.2rem;
   line-height: 1.8;
@@ -157,14 +158,14 @@ body.quiz-modal-open {
 }
 
 .quiz-stat__number {
-  font-size: 2.2rem; /* Más grande */
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--gold);
   font-family: 'Playfair Display', serif;
 }
 
 .quiz-stat__label {
-  font-size: 1.05rem; /* Más grande */
+  font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -192,10 +193,11 @@ body.quiz-modal-open {
 }
 
 .quiz-setup {
-  animation: fadeInUp 0.8s ease-out;
+  /* Se elimina 'animation: fadeInUp 0.8s...' */
   padding: 1rem 2rem 2rem;
   background: transparent;
-  max-width: 1200px;
+  width: 90%; 
+  max-width: 1250px; 
   margin: 0 auto;
   margin-top: 10px;
 }
@@ -206,7 +208,7 @@ body.quiz-modal-open {
 }
 
 .quiz-setup__label {
-  font-size: 1.35rem; /* Más grande */
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--gold);
   margin-bottom: 2rem;
@@ -291,13 +293,13 @@ body.quiz-modal-open {
 }
 
 .level-card__name {
-  font-size: 1.3rem; /* Más grande */
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--gold);
 }
 
 .level-card__sub {
-  font-size: 1.05rem; /* Más grande */
+  font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
 } 
@@ -320,8 +322,8 @@ body.quiz-modal-open {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
-  padding: 0.9rem 2rem; /* Más espaciado */
-  font-size: 1.1rem; /* Más grande */
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -400,7 +402,7 @@ body.quiz-modal-open {
    ══════════════════════════════════════════════════════════ */
 
 .quiz-backdrop {
-  display: none; /* Evita que bloquee interacciones al inicio */
+  display: none;
   position: fixed;
   inset: 0;
   background: rgba(8, 12, 22, 0.75);
@@ -421,7 +423,6 @@ body.quiz-modal-open {
    ZONA DE JUEGO — VENTANA MODAL FLOTANTE
    ══════════════════════════════════════════════════════════ */
 
-/* ── Botón para regresar al inicio ── */
 .quiz-back-to-welcome-btn {
   background: transparent;
   color: var(--gold);
@@ -448,30 +449,35 @@ body.quiz-modal-open {
   font-size: 1.1rem;
   transition: transform 0.3s ease;
 }
+
 .quiz-zone.active {
-  display: block; /* O flex, según manejes tu estructura */
+  display: block;
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, -50%) scale(1);
 }
+
 .quiz-zone {
-  display: none; /* Agrega esto para asegurarte de que ni pinte el bloque vacío */
+  display: none;
   opacity: 0;
   pointer-events: none;
-  position: fixed;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
-  width: min(700px, calc(100vw - 2.5rem)); /* Modal más ancho para textos grandes */
+  width: min(700px, calc(100vw - 2.5rem));
   max-height: min(750px, 90vh);
   overflow-y: auto;
   background: var(--card-bg);
   padding: 2.2rem;
   z-index: 100;
+  
+  /* NUEVO: Suavizado aplicado con coherencia visual */
+  border-radius: var(--r-md); 
+  border: 1px solid rgba(190, 142, 86, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 }
 
-/* Scrollbar discreto dentro del modal */
 .quiz-zone::-webkit-scrollbar {
   width: 6px;
 }
@@ -480,7 +486,6 @@ body.quiz-modal-open {
   border-radius: 10px;
 }
 
-/* Botón de cerrar (X) */
 .quiz-close-btn {
   position: absolute;
   top: 0.9rem;
@@ -570,7 +575,7 @@ body.quiz-modal-open {
   margin-bottom: 1.2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(190, 142, 86, 0.15);
-  animation: slideInUp 0.6s ease-out;
+  /* Se elimina 'animation: slideInUp 0.6s...' ya que GSAP renderizará el paso de preguntas */
 }
 
 @keyframes slideInUp {
@@ -588,7 +593,7 @@ body.quiz-modal-open {
 }
 
 .quiz-card__question {
-  font-size: 1.6rem; /* Pregunta más grande */
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--white);
   line-height: 1.6;
@@ -616,9 +621,8 @@ body.quiz-modal-open {
   display: flex;
   align-items: center;
   padding: 1.2rem 1.4rem;
-  font-size: 1.15rem; /* Opciones más grandes */
+  font-size: 1.15rem;
 }
-
 
 @media (max-width: 600px) {
   .quiz-options {
@@ -766,8 +770,8 @@ body.quiz-modal-open {
   background: rgba(26, 40, 69, 0.85);
   border-radius: var(--r-md);
   border: 1px solid rgba(190, 142, 86, 0.15);
-  animation: slideInUp 0.8s ease-out;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  /* Se elimina 'animation: slideInUp 0.8s...' para sincronizarse con el confeti por código */
 }
 
 .quiz-results.show {
@@ -872,7 +876,6 @@ body.quiz-modal-open {
   color: var(--gold);
 }
 
-/* ── Divisor ── */
 .quiz-setup__divider {
   height: 1px;
   background: rgba(190, 142, 86, 0.15);
@@ -993,13 +996,18 @@ body.quiz-modal-open {
 }
 
 /* ══════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE (Ajustado al 94% para móviles)
    ══════════════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
   .quiz-setup {
     padding: 2rem 1rem 3rem;
     margin-top: 20px;
+    width: 94%; 
+  }
+
+  .quiz-welcome {
+    width: 94%; 
   }
 
   .quiz-levels {
@@ -1035,13 +1043,14 @@ body.quiz-modal-open {
     width: 100%;
   }
 }
+
 /* ============================================================
-   ESTILOS LEADERBOARD OPTIMIZADOS (85% ANCHO & TEXTO CÓMODO)
+   ESTILOS LEADERBOARD OPTIMIZADOS (90% ANCHO & TEXTO CÓMODO)
    ============================================================ */
 
 .leaderboard-container {
-  width: 85%; /* Ocupa exactamente el 85% de la pantalla */
-  max-width: 1000px; /* Límite máximo para pantallas ultra anchas */
+  width: 90%; /* Ajustado exactamente al 90% */
+  max-width: 1250px; /* Límite ampliado consecuentemente */
   margin: 2.5rem auto;
   padding: 1.25rem;
   background-color: #121212; 
@@ -1059,19 +1068,18 @@ body.quiz-modal-open {
 }
 
 .leaderboard-title {
-  font-size: 1.35rem; /* Texto más pequeño y cómodo */
+  font-size: 1.35rem; 
   font-weight: 800;
   color: #ffffff;
   margin: 0;
 }
 
 .leaderboard-subtitle {
-  font-size: 0.8rem; /* Reducido para mejor legibilidad */
+  font-size: 0.8rem;
   color: #a0a0a0;
   margin-top: 0.2rem;
 }
 
-/* Envoltura y Estructura de Tabla */
 .leaderboard-wrapper {
   overflow-x: auto;
   border: 1px solid #333333;
@@ -1085,30 +1093,27 @@ body.quiz-modal-open {
   min-width: 500px;
 }
 
-/* Encabezados más estilizados y compactos */
 .leaderboard-table th {
   background-color: #242424;
   color: #a3a3a3;
   font-weight: 700;
-  font-size: 0.75rem; /* Reducido */
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding: 10px 14px; /* Padding más ajustado */
+  padding: 10px 14px;
   border-bottom: 2px solid #333333;
   border-right: 1px solid #2d2d2d;
 }
 
-/* Filas con textos suavizados */
 .leaderboard-table td {
-  padding: 10px 14px; /* Más compacto, menos tosco */
+  padding: 10px 14px;
   border-bottom: 1px solid #2d2d2d;
   border-right: 1px solid #2d2d2d;
   color: #d4d4d4;
-  font-size: 0.825rem; /* Reducción general de los registros */
+  font-size: 0.825rem;
   vertical-align: middle;
 }
 
-/* Quitar bordes sobrantes terminales */
 .leaderboard-table th:last-child,
 .leaderboard-table td:last-child {
   border-right: none;
@@ -1118,12 +1123,10 @@ body.quiz-modal-open {
   border-bottom: none;
 }
 
-/* Efecto Hover */
 .leaderboard-table tr:hover:not(.no-records-row) {
   background-color: #202020;
 }
 
-/* Modificadores de celdas */
 .col-center { text-align: center; }
 .col-right { text-align: right; }
 .text-gold { color: #fbbf24; font-weight: bold; }
@@ -1131,7 +1134,6 @@ body.quiz-modal-open {
 .text-score { font-family: monospace; font-size: 0.875rem; color: #34d399; }
 .text-percent { color: #888888; font-size: 0.75rem; font-weight: normal; }
 
-/* Estado vacío */
 .text-empty {
   padding: 2.5rem !important;
   color: #737373;
@@ -1143,7 +1145,7 @@ body.quiz-modal-open {
   gap: 0.4rem;
 }
 .empty-state span {
-  font-size: 2rem; /* Emoji levemente más pequeño */
+  font-size: 2rem;
 }
 .empty-state p {
   margin: 0;
@@ -1151,10 +1153,9 @@ body.quiz-modal-open {
   font-size: 0.85rem;
 }
 
-/* Ajuste responsivo extra para pantallas pequeñas */
 @media (max-width: 600px) {
   .leaderboard-container {
-    width: 95%; /* En móviles dejamos que aproveche más espacio */
+    width: 94%; 
     padding: 1rem;
   }
 }

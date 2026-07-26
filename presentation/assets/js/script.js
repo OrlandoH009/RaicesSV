@@ -50,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="../views/calendario.html" class="drawer-link">Calendario</a>
         <div class="drawer-divider"></div>
       </div>
-      <div class="drawer-section-label drawer-label--extras">Extras</div>
+      <div class="drawer-section-label drawer-label--extras">Explorar</div>
       <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
-      <a href="../views/juegos.html" class="drawer-link">Juegos interactivo</a>
-      <a href="../views/recetas.html" class="drawer-link">Recetario</a>
       <a href="../views/publicaciones.html" class="drawer-link">Publicaciones</a>
+      <a href="../views/juegos.html" class="drawer-link">Juegos Interactivos</a>
+      <a href="../views/recetas.html" class="drawer-link">Recetario</a>
       <div class="drawer-divider"></div>
       <div class="drawer-auth"></div>
     `;

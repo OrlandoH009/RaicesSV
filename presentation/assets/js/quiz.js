@@ -522,21 +522,51 @@ function pulso(el) {
   });
 }
 
-document.querySelectorAll('.btn-regresar, .btn-back, [data-action="regresar"]').forEach(boton => {
+document.querySelectorAll('.quiz-back-to-welcome-btn').forEach(boton => {
   boton.addEventListener('click', () => {
-    // 1. Oculta la sección actual donde está el usuario
-    const seccionActual = boton.closest('section') || boton.parentElement;
-    if (seccionActual) seccionActual.classList.add('hidden');
+    // 1. Identificar ambas pantallas
+    const seccionActual = boton.closest('.quiz-setup'); // El contenedor de niveles/categorías[cite: 8]
+    const pantallaWelcome = document.getElementById('quizWelcome'); // La pantalla principal[cite: 8]
     
-    // 2. Muestra la pantalla de bienvenida
-    const pantallaWelcome = document.getElementById('welcome');
-    if (pantallaWelcome) {
-      pantallaWelcome.classList.remove('hidden');
+    if (!seccionActual || !pantallaWelcome) return;
+
+    // Verificar si GSAP está disponible para ejecutar la animación fluida
+    if (typeof gsap !== 'undefined') {
       
-      // 3. Le hace el efecto visual de entrada a la bienvenida si usas GSAP
-      if (typeof gsap !== 'undefined') {
-        gsap.fromTo(pantallaWelcome, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 });
-      }
+      // A. Animación de SALIDA para la sección actual
+      gsap.to(seccionActual, {
+        opacity: 0,
+        y: 20, // Se desliza ligeramente hacia abajo
+        duration: 0.25,
+        onComplete: () => {
+          // Cuando termina de salir, la ocultamos por completo del layout
+          seccionActual.classList.remove('active');
+          seccionActual.style.display = 'none';
+          
+          // B. Configuración y preparación de la pantalla de BIENVENIDA
+          pantallaWelcome.style.display = 'block';
+          pantallaWelcome.classList.add('active'); // Mantiene consistencia con tus clases de CSS[cite: 8]
+          
+          // C. Animación de ENTRADA limpia para la bienvenida
+          gsap.fromTo(pantallaWelcome, 
+            { opacity: 0, y: -20 }, // Viene sutilmente desde arriba
+            { 
+              opacity: 1, 
+              y: 0, 
+              duration: 0.35, 
+              ease: "power2.out", // Suavizado de desaceleración natural
+              clearProps: "all"   // Limpia los estilos en línea al terminar
+            }
+          );
+        }
+      });
+
+    } else {
+      // Alternativa (Fallback) en caso de que falle GSAP: Cambio inmediato sin romper el flujo
+      seccionActual.classList.remove('active');
+      seccionActual.style.display = 'none';
+      pantallaWelcome.classList.add('active');
+      pantallaWelcome.style.display = 'block';
     }
   });
 });
@@ -1026,3 +1056,40 @@ function renderizarLeaderboardOpciones() {
 }
 
 document.addEventListener('DOMContentLoaded', renderizarLeaderboardOpciones);
+/* ══════════════════════════════════════════════════════════
+   BOTÓN REGRESAR AL MENÚ DE BIENVENIDA (POR CLASE)
+   ══════════════════════════════════════════════════════════ */
+
+// REEMPLAZA '.tu-clase-aqui' por la clase real de tu botón (ej. '.btn-back', '.btn-menu')
+const backToMenuBtn = document.querySelector('.quiz-back-to-welcome-btn'); 
+
+if (backToMenuBtn) {
+  backToMenuBtn.addEventListener('click', () => {
+    // Determinamos qué pantalla está visible actualmente para animarla hacia afuera
+    const pantallaActual = quizSetup.style.display !== 'none' ? quizSetup : results;
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to(pantallaActual, {
+        opacity: 0, y: 20, duration: 0.4, ease: 'power2.in',
+        onComplete: () => {
+          // Ocultamos la pantalla actual y limpiamos estados de resultados
+          quizSetup.style.display = 'none';
+          results.classList.remove('show');
+          results.style.display = 'none'; 
+          
+          // Mostramos el menú de bienvenida con animación GSAP
+          quizWelcome.style.display = 'block';
+          gsap.fromTo(quizWelcome,
+            { opacity: 0, y: -20, scale: 0.97 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' }
+          );
+        }
+      });
+    } else {
+      // Alternativa en caso de que GSAP no esté cargado
+      quizSetup.style.display = 'none';
+      results.classList.remove('show');
+      quizWelcome.style.display = 'block';
+    }
+  });
+}
