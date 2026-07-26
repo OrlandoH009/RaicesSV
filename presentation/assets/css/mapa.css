@@ -799,3 +799,145 @@
     width: 46px; height: 46px;
   }
 }
+/* ═══════════════════════════════════════════════════
+   OPTIMIZACIÓN ULTRA-RESPONSIVE PARA MÓVILES (≤ 600px)
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* 1. Reestructurar la Sidebar estilo "Ficha Desplazable Inferior" */
+  .mapa-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 50vh; /* Ocupa solo la mitad inferior de la pantalla */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    border-right: none;
+    border-top: 2px solid rgba(190, 142, 86, 0.4); /* Línea dorada superior */
+    border-radius: 20px 20px 0 0; /* Bordes redondeados tipo app */
+    transform: translateY(100%); /* Escondida abajo */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mapa-sidebar.open {
+    transform: translateY(0); /* Desliza hacia arriba */
+  }
+
+  /* 2. Compactar la cabecera e imagen en móvil */
+  .mapa-sidebar__hero {
+    padding: 1rem 1rem 0.5rem;
+  }
+
+  .mapa-sidebar__image {
+    aspect-ratio: 21 / 9; /* Imagen tipo banner estirado para no robar espacio */
+    margin-bottom: 0.5rem;
+  }
+
+  .mapa-sidebar__title {
+    font-size: 1.15rem;
+  }
+
+  .mapa-sidebar__body {
+    padding: 0 1rem 1rem;
+  }
+
+  /* Ajustar botón de cierre para que sea fácil de presionar con el pulgar */
+  .mapa-sidebar__close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+  }
+
+  /* 3. Reacomodo de Elementos Flotantes para evitar colisiones */
+  
+  /* Filtros superiores: Más compactos y con scroll suave con el dedo */
+  .mapa-filters-float {
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .filter-btn {
+    font-size: 0.72rem !important;
+    padding: 0.35rem 0.75rem !important;
+  }
+
+  /* El botón "Volver" se encoge para no tapar los filtros */
+  .mapa-back-btn {
+    top: 3.8rem; /* Se baja un nivel para no solaparse con los filtros */
+    right: 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.7rem;
+  }
+
+  /* Mover el contador a la parte superior izquierda (debajo de los filtros) */
+  .mapa-count-float {
+    left: 0.5rem;
+    top: 3.8rem;
+    bottom: auto; /* Quitamos del bottom para que no choque con la sidebar */
+    font-size: 0.72rem !important;
+    padding: 0.4rem 0.8rem !important;
+  }
+
+  /* El botón de geolocalización sube para no quedar debajo de la sidebar móvil */
+  .btn-geo-float {
+    bottom: calc(50vh + 15px); /* Si la sidebar está abierta, queda justo arriba */
+    right: 0.5rem;
+    width: 44px;
+    height: 44px;
+  }
+  
+  /* Si la sidebar está cerrada, bajamos el botón de geo para que sea ergonómico */
+  .mapa-section:not(.sidebar-open) .btn-geo-float {
+    bottom: 20px;
+  }
+
+  /* 4. Popups de Leaflet optimizados para pantallas diminutas */
+  .leaflet-popup-content-wrapper {
+    min-width: 220px !important;
+    max-width: 260px;
+  }
+
+  .popup-title {
+    font-size: 1rem !important;
+  }
+
+  .popup-desc {
+    font-size: 0.78rem !important;
+    line-height: 1.4;
+  }
+  
+  /* 1. Achicar el contenedor principal del tooltip */
+  .leaflet-tooltip.marker-tooltip-wrap {
+    /* Permitimos que Leaflet calcule la opacidad nativa del toque */
+    max-width: 180px !important; 
+  }
+
+  .marker-tooltip {
+    width: 100% !important;
+    border: 1px solid rgba(190, 142, 86, 0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,.5);
+  }
+
+  /* 2. Reducir drásticamente la imagen para ganar espacio vertical */
+  .marker-tooltip img {
+    height: 65px !important; /* Reducido a la mitad para que no sature */
+  }
+
+  /* 3. Compactar los textos internos */
+  .marker-tooltip__info {
+    padding: .4rem .6rem .5rem !important; /* Padding mínimo */
+  }
+
+  .marker-tooltip__cat {
+    font-size: .6rem !important;
+    margin-bottom: .15rem !important;
+  }
+
+  .marker-tooltip__name {
+    font-size: .85rem !important; /* Texto más pequeño y legible */
+    line-height: 1.2 !important;
+  }
+}

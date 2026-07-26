@@ -519,16 +519,16 @@ const mapa = L.map('mapa-leaflet', {
 
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
-/* Tile layer gris oscuro mate (Stadia Alidade Smooth Dark — gratuito) */
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+/* Tu mapa original de Stadia Maps funcionando con tu API Key */
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
   maxZoom: 16.5,
-  attribution: '...',
+  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   
-  // ════════ PROPIEDADES DE RENDIMIENTO ════════
-  updateWhenIdle: true,    // No carga mapas nuevos mientras la cámara se está moviendo (espera a que frene)
-  updateWhenZooming: false, // Evita parpadeos agresivos al hacer zoom
-  keepBuffer: 8,           // Mantiene en memoria los fragmentos de mapa cercanos para que no se vuelvan a descargar si te mueves un poco
+  updateWhenIdle: true,    
+  updateWhenZooming: false, 
+  keepBuffer: 8,           
 }).addTo(mapa);
+  
 
 /* ══════════════════════════════════════════════════════════
    GEOLOCALIZACIÓN AUTOMÁTICA DEL USUARIO

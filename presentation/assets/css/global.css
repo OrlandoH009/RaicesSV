@@ -36,6 +36,11 @@ a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
 
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden; /* Corta sin piedad cualquier elemento que intente salirse hacia los lados */
+}
+
 /* Evita que palabras largas o títulos se corten/desborden en pantallas angostas */
 h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   overflow-wrap: break-word;
@@ -464,24 +469,33 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 
   /* ── Navbar: en móvil solo logo + hamburguesa; todo lo demás vive en el drawer ── */
   .navbar {
-    padding: 0 .9rem;
+    /* global.css - en tu clase principal de navbar */
+    max-width: 100vw; /* Obliga a la barra a no pasar del ancho del celular */
+    box-sizing: border-box; 
+
   }
-  .navbar__links { display: none; }
+  .navbar__links { 
+    display: none !important; /* Nos aseguramos de ocultar los links */
+  }
   .navbar__logo img {
-    width: 46px;
-    height: 46px;
+    width: 70px !important;
+    height: 70px !important;
   }
   .navbar__burger {
-    width: 42px;
-    height: 38px;
-    /* área táctil cómoda (~44px) */
+    display: flex !important; /* Fuerza al botón a mostrarse */
+    visibility: visible !important;
+    margin-left: auto !important; /* Lo empuja al extremo derecho */
+    z-index: 6000 !important; /* Debe ser mayor al z-index de la navbar (5000) */
   }
-  .navbar__burger span { width: 20px; }
+  .navbar__burger span {
+    background: var(--white) !important; /* Evita que las líneas se vuelvan transparentes */
+    display: block !important;
+  }
 
   /* ── Drawer lateral ── */
   .nav-drawer {
-    width: min(82vw, 300px);
-    right: calc(-1 * min(82vw, 300px) - 20px);
+    width: min(75vw, 240px);
+    right: calc(-1 * min(75vw, 240px) - 20px);
     padding: 1.25rem 1.1rem;
     overflow-x: hidden;
   }
