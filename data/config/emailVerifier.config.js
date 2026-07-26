@@ -1,4 +1,14 @@
 const dns = require('dns').promises;
+const DNS_TIMEOUT_MS = 4000;
+
+const withTimeout = (promise, ms) => {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('DNS_TIMEOUT')), ms)
+        )
+    ]);
+};
 
 const domainHasMailServer = async (email) => {
     const atIndex = email.lastIndexOf('@');
@@ -8,21 +18,21 @@ const domainHasMailServer = async (email) => {
     if (!domain) return false;
 
     try {
-        const mxRecords = await dns.resolveMx(domain);
+        const mxRecords = await withTimeout(dns.resolveMx(domain), DNS_TIMEOUT_MS);
         if (mxRecords && mxRecords.length > 0) {
             return true;
         }
     } catch (error) {}
 
     try {
-        const addresses = await dns.resolve4(domain);
+        const addresses = await withTimeout(dns.resolve4(domain), DNS_TIMEOUT_MS);
         if (addresses && addresses.length > 0) {
             return true;
         }
     } catch (error) {}
 
     try {
-        const addresses = await dns.resolve6(domain);
+        const addresses = await withTimeout(dns.resolve6(domain), DNS_TIMEOUT_MS);
         if (addresses && addresses.length > 0) {
             return true;
         }
