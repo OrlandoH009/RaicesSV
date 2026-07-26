@@ -60,6 +60,23 @@
         </button>
         <div class="recipe-modal__scroll" id="printable-recipe-area">
           <div class="recipe-container" id="recipe-dynamic-content"></div>
+
+          <!-- Video tutorial: se actualiza dinámicamente según la receta elegida (ver recetas-videos.js) -->
+          <section class="recipe-video" id="recipe-video-block">
+            <p class="recipe-video__label" id="recipe-video-label">🎥 Video Tutorial</p>
+            <div class="recipe-video__frame">
+              <iframe
+                id="recipe-video-iframe"
+                src=""
+                title="Video tutorial de la receta"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen loading="lazy">
+              </iframe>
+            </div>
+            <p class="recipe-video__caption" id="recipe-video-caption"></p>
+          </section>
+
           <div class="download-area">
             <button class="btn-download" id="download-pdf-btn">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -69,20 +86,6 @@
         </div>
       </div>
     </div>
-
-    <section class="video-tutorial reveal visible">
-      <h2 class="video-tutorial__title">🎥 Video Tutorial: Cómo hacer Pupusas</h2>
-      <div class="video-tutorial__frame">
-        <iframe
-          src="https://www.youtube.com/embed/Bm9pcy9BF-g"
-          title="Cómo hacer pupusas salvadoreñas"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen loading="lazy">
-        </iframe>
-      </div>
-      <p class="video-tutorial__caption">Aprende la técnica tradicional para palmear y rellenar pupusas como en El Salvador.</p>
-    </section>
   </main>
 
   <footer class="footer">
@@ -94,6 +97,7 @@
   </footer>
 
   <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/recetas-videos.js"></script>
   <script src="../assets/js/recetas-manager.js"></script>
 </body>
-</html>
+</html> 

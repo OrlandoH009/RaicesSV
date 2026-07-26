@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ---------- 6. Micro-interacción en botones de acción (mapa / publicaciones) ---------- */
-  document.querySelectorAll('.sitio-map-link, .sitio-pub-link').forEach(btn => {
+  document.querySelectorAll('.sitio-map-link, .sitio-pub-link, .evento-actions__btn').forEach(btn => {
     btn.addEventListener('mouseenter', () => {
       gsap.to(btn, { y: -3, duration: .25, ease: 'power2.out' });
     });

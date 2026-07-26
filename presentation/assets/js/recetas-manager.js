@@ -526,6 +526,11 @@ function renderRecipe(key) {
   document.querySelectorAll(".recipe-mini-card").forEach(c => {
     c.classList.toggle("is-active", c.getAttribute("data-key") === key);
   });
+
+  // Actualizar el video tutorial según la receta activa (ver recetas-videos.js)
+  if (typeof actualizarVideoReceta === "function") {
+    actualizarVideoReceta(key, document.getElementById("recipe-video-block"));
+  }
 }
 
 // Función para generar y descargar PDF con previsualización de Chrome
@@ -815,4 +820,13 @@ document.addEventListener("DOMContentLoaded", () => {
       closeRecipeModal();
     }
   });
+
+  // Abrir automáticamente una receta si se llega desde gastronomia.html
+  // con el enlace "Ver la receta" (?receta=slug)
+  const params = new URLSearchParams(window.location.search);
+  const slugDesdeURL = params.get("receta");
+  if (slugDesdeURL && recetasData[slugDesdeURL]) {
+    renderRecipe(slugDesdeURL);
+    openRecipeModal();
+  }
 });
