@@ -106,7 +106,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 }
 
 .navbar__logo img {
-  width: 100px; height: 100px;padding: 0%;
+  width: 67px; height: 67px;padding: 0%;
   object-fit: contain;
 }
 
