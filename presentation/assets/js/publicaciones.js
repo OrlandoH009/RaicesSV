@@ -321,7 +321,7 @@ function showGuestModal() {
     const modalTitle = modal.querySelector('.guest-modal__title');
     const modalText = modal.querySelector('.guest-modal__text');
 
-    if (modalTitle) modalTitle.textContent = "¡Únete a Raíces SV! 🗺️";
+    if (modalTitle) modalTitle.textContent = "¡Únete a Salvadorean Roots! 🗺️";
     if (modalText) modalText.textContent = "Necesitas una cuenta registrada para poder explorar nuestro mapa interactivo y descubrir la ubicación exacta de estos lugares increíbles.";
 
     // 2. Hacer visible el overlay

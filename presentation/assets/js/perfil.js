@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — perfil.js
+  Salvadorean Roots — perfil.js
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {

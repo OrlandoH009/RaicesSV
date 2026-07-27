@@ -287,7 +287,7 @@ const requestPasswordReset = async (email, appBaseUrl) => {
 
     const html = `
         <p>Hola ${user.name || ''},</p>
-        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Raíces SV.</p>
+        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Salvadorean Roots.</p>
         <p>Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos:</p>
         <p><a href="${resetLink}">${resetLink}</a></p>
         <p>Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.</p>
@@ -295,9 +295,9 @@ const requestPasswordReset = async (email, appBaseUrl) => {
 
     await sendMail({
         to: user.email,
-        subject: 'Recupera tu contraseña — Raíces SV',
+        subject: 'Recupera tu contraseña — Salvadorean Roots',
         html,
-        text: `Recupera tu contraseña en Raíces SV: ${resetLink} (válido por ${RESET_TOKEN_TTL_MINUTES} minutos)`
+        text: `Recupera tu contraseña en Salvadorean Roots: ${resetLink} (válido por ${RESET_TOKEN_TTL_MINUTES} minutos)`
     });
 };
 
