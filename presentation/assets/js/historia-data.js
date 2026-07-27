@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — historia-data.js
+  Salvadorean Roots — historia-data.js
    Datos de la línea de tiempo histórica de El Salvador
    ============================================================ */
 

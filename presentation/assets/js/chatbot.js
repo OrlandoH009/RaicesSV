@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — chatbot.js
+  Salvadorean Roots — chatbot.js
    Chatbot flotante de asistencia cultural
    ============================================================ */
 (function () {
@@ -13,7 +13,7 @@ HISTORIA: Casa de la Cultura de Izalco (Sonsonate), Casa de la Independencia (Sa
 LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco).
   `.trim();
 
-  const SYSTEM_PROMPT = `Eres "Pupusita", asistente de Raíces SV. Responde SIEMPRE en español, incluso si te preguntan en otro idioma. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
+  const SYSTEM_PROMPT = `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español, incluso si te preguntan en otro idioma. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
 
 REGLAS CRÍTICAS DE RESPUESTA:
 1. Idioma obligatorio: Habla única y exclusivamente en español salvadoreño/estándar.
@@ -420,7 +420,7 @@ ${RAICES_LANDMARKS_INFO}
 
     const btn = document.createElement('button');
     btn.id = 'rs-chat-btn';
-    btn.setAttribute('aria-label', 'Abrir asistente de Raíces SV');
+    btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
     btn.innerHTML = `
       <svg class="rs-chat-icon" viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-8 10H8V10h4v2zm4-4H8V6h8v2z"/></svg>
       <svg class="rs-close-icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
@@ -470,7 +470,7 @@ ${RAICES_LANDMARKS_INFO}
       }
     }, 6000);
 
-    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Raíces SV. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.", true);
+    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Salvadorean Roots. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.", true);
   }
 
   function toggleChat() {
@@ -488,7 +488,7 @@ ${RAICES_LANDMARKS_INFO}
     } else {
       win.style.display = 'none';
       btn.classList.remove('open');
-      btn.setAttribute('aria-label', 'Abrir asistente de Raíces SV');
+      btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
     }
   }
 

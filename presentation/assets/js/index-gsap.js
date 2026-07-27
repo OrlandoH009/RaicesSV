@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — index-gsap.js
+  Salvadorean Roots — index-gsap.js
    Animaciones GSAP exclusivas del Inicio:
    - Hero con título partido en letras + partículas + parallax
    - Marquee cultural infinito

@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — recetas-videos.js
+  Salvadorean Roots — recetas-videos.js
    Mapa de video-tutoriales de YouTube por platillo.
    Se usa en recetas.html para actualizar el video del tutorial
    según la receta que el usuario seleccione en el modal.

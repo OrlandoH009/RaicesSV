@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — historia-timeline.js
+  Salvadorean Roots — historia-timeline.js
    Construye la línea de tiempo y maneja el modal de eventos
    ============================================================ */
 

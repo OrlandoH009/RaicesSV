@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — historia-rails.js
+  Salvadorean Roots — historia-rails.js
    Entrada suave de los rieles laterales decorativos (GSAP)
    ============================================================ */
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — tabs.js
+  Salvadorean Roots — tabs.js
    Lógica de cambio de tabs + carrusel deslizable
    ============================================================ */
 
