@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — categorias-gsap.js
+  Salvadorean Roots — categorias-gsap.js
    Animaciones GSAP exclusivas de Categorías:
    - Hero con título partido en letras + partículas + parallax
    - Buscador con anillo de brillo animado
