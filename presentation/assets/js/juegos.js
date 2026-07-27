@@ -135,10 +135,13 @@
 
   // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
 // Reemplaza esta función dentro de initGamePupusa()
-  function resizeCanvas() {
+function resizeCanvas() {
+    const wrap = canvas.closest('.canvas-wrap');
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
-    canvas.height = rect.height; // Lee dinámicamente el tamaño calculado por el CSS (60vh)
+    // Si está en pantalla completa, toma el alto total del contenedor, si no, usa el CSS estándar
+    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -580,10 +583,13 @@
   const canvas = document.getElementById('canvas-trompos');
   if(!canvas || typeof Matter === 'undefined') return;
 
-  function resizeCanvas() {
+function resizeCanvas() {
+    const wrap = canvas.closest('.canvas-wrap');
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     const rect = canvas.getBoundingClientRect();
+    
     canvas.width = rect.width;
-    canvas.height = rect.height;
+    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -1334,7 +1340,8 @@
   const hud = document.getElementById('hud-coasters');
   const overlay = document.getElementById('overlay-coasters');
   const overlayCard = document.getElementById('overlay-card-coasters');
-  const gameContent = document.getElementById('modal-coasters'); // Vinculado a tu contenedor modal
+  const gameContent = document.getElementById('modal-coasters'); 
+  const canvasWrap = document.getElementById('coasters-canvas-wrap');
   
   let isGameVisible = false;
   let running = false;
@@ -1343,7 +1350,7 @@
 
   // Parámetros de Juego
   let botDifficulty = 'easy';
-  let targetDistance = 2000; // Metros de carrera
+  let targetDistance = 2000; 
   
   // Jugador y Bot
   let player = { x: 0, y: 0, speed: 0, maxSpeed: 8, lane: 1, targetX: 0, distance: 0, passengers: 0 };
@@ -1352,7 +1359,7 @@
   // Configuración de la carretera
   const lanesCount = 4;
   let laneWidth = 0;
-  let roadY = 0; // Desplazamiento del mapa
+  let roadY = 0; 
 
   // Obstáculos, Pasajeros y Tráfico
   let obstacles = [];
@@ -1360,17 +1367,55 @@
   let trafficCars = [];
   const lanePositions = [];
 
+  // Redimensionamiento dinámico compatible con Pantalla Completa
   function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    laneWidth = canvas.width / lanesCount;
-    for(let i=0; i<lanesCount; i++){
-      lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
-    }
+  const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+  // Detecta si el navegador está en modo pantalla completa
+  const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+  
+  canvas.width = rect.width;
+  // Si está en pantalla completa, toma el alto total real del contenedor, si no, usa el alto del rect
+  canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+  
+  // Recalcular el ancho de los carriles con el nuevo tamaño del canvas
+  laneWidth = canvas.width / lanesCount;
+  for(let i = 0; i < lanesCount; i++){
+    lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
   }
+  
+  // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
+  player.y = canvas.height - 120;
+  bot.y = canvas.height - 120;
+  player.targetX = lanePositions[player.lane];
+  bot.targetX = lanePositions[bot.lane];
+}
+  
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+
+  // Escuchar cambios de pantalla completa del contenedor
+  document.addEventListener('fullscreenchange', () => {
+    setTimeout(resizeCanvas, 100); // Pequeño delay para esperar al layout del navegador
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    setTimeout(resizeCanvas, 100);
+  });
+
+  // Vincular botón de pantalla completa si existe en el envoltorio del juego
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
 
   // Controles
   let keys = {};
@@ -1456,13 +1501,11 @@
   }
   function hideOverlay(){ overlay.classList.add('hidden'); }
 
-  // REINICIO DE ESTADOS (Corregido el orden de asignación de botDifficulty)
   function resetGame() {
     resizeCanvas();
     player.lane = 1;
     player.x = lanePositions[1];
     player.targetX = lanePositions[1];
-    player.y = canvas.height - 120;
     player.speed = 0;
     player.distance = 0;
     player.passengers = 0;
@@ -1470,17 +1513,15 @@
     bot.lane = 2;
     bot.x = lanePositions[2];
     bot.targetX = lanePositions[2];
-    bot.y = canvas.height - 120;
     bot.speed = 0;
     bot.distance = 0;
 
-    // Se asigna la velocidad adecuada según la dificultad seleccionada
     if (botDifficulty === 'easy') {
       bot.maxSpeed = 5.5;
     } else if (botDifficulty === 'medium') {
       bot.maxSpeed = 7.2;
     } else {
-      bot.maxSpeed = 8.8; // Hard
+      bot.maxSpeed = 8.8; 
     }
 
     obstacles = [];
@@ -1668,7 +1709,6 @@
     ctx.font = 'bold 5px Courier New';
     ctx.textAlign = 'center';
     ctx.fillText(label, 0, -17);
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(-14, -6, 4, 35);
     ctx.fillRect(10, -6, 4, 35);
     ctx.restore();
@@ -1784,8 +1824,8 @@
   }
 
   function startGame(difficulty) {
-    botDifficulty = difficulty; // 1. Asignamos primero la dificultad seleccionada
-    resetGame();                // 2. Reiniciamos parámetros (ahora leerá bien 'medium')
+    botDifficulty = difficulty; 
+    resetGame();                
     hideOverlay();
     
     running = true;
@@ -1809,7 +1849,6 @@
   }
 
   // Eventos y Pausa
-  const canvasWrap = document.getElementById('coasters-canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn-coasters');
   const pauseIcon = document.getElementById('pauseIcon-coasters');
   const pauseOverlay = document.getElementById('pauseOverlay-coasters');
@@ -1856,10 +1895,8 @@
   resumeBtn?.addEventListener('click', resumeGame);
   menuBtn?.addEventListener('click', returnToMenu);
 
-  // Inicializar menú básico
   showModeSelector();
 
-  // Integración perfecta con el selector global de visibilidad de Salvadorean Roots
   gameContent?.addEventListener('gameVisible', (e) => {
     if(e.detail.gameId === 'coasters') {
       isGameVisible = true;
@@ -1878,10 +1915,7 @@
   });
 })();
 /* ============================================================
-  Salvadorean Roots — ANIMACIONES GSAP CORREGIDAS
-   ============================================================ */
-/* ============================================================
-  Salvadorean Roots — ENTRADA CON GSAP (HOVER EN CSS)
+  Salvadorean Roots — ANIMACIONES GSAP
    ============================================================ */
 (function initStartAnimations(){
   window.addEventListener('DOMContentLoaded', () => {

@@ -292,6 +292,12 @@
   overflow: hidden;
   border-radius: var(--r-sm);
 }
+/* Cuando el contenedor entra en pantalla completa, el canvas debe estirarse por completo */
+.canvas-wrap:fullscreen canvas,
+.canvas-wrap:-webkit-full-screen canvas {
+  height: 100% !important;
+  max-height: 100vh !important;
+}
 
 canvas {
   display: block;
