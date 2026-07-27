@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — script.js   (compartido en todas las páginas)
+  Salvadorean Roots — script.js   (compartido en todas las páginas)
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {

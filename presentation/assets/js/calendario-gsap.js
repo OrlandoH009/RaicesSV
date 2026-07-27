@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — calendario-gsap.js
+  Salvadorean Roots — calendario-gsap.js
    Animaciones GSAP del Calendario de Festividades:
    - Entrada escalonada del hero
    - Revelado de secciones al hacer scroll

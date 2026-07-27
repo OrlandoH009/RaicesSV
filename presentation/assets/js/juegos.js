@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — juegos.js (SÚPER NÍTIDO, 85% ANCHO, DIFICULTAD EXTRA)
+  Salvadorean Roots — juegos.js (SÚPER NÍTIDO, 85% ANCHO, DIFICULTAD EXTRA)
    Gestor de tabs, lógica de overlays y juego de alta respuesta
    ============================================================ */
 
@@ -1859,7 +1859,7 @@
   // Inicializar menú básico
   showModeSelector();
 
-  // Integración perfecta con el selector global de visibilidad de Raíces SV
+  // Integración perfecta con el selector global de visibilidad de Salvadorean Roots
   gameContent?.addEventListener('gameVisible', (e) => {
     if(e.detail.gameId === 'coasters') {
       isGameVisible = true;
@@ -1878,10 +1878,10 @@
   });
 })();
 /* ============================================================
-   RAÍCES SV — ANIMACIONES GSAP CORREGIDAS
+  Salvadorean Roots — ANIMACIONES GSAP CORREGIDAS
    ============================================================ */
 /* ============================================================
-   RAÍCES SV — ENTRADA CON GSAP (HOVER EN CSS)
+  Salvadorean Roots — ENTRADA CON GSAP (HOVER EN CSS)
    ============================================================ */
 (function initStartAnimations(){
   window.addEventListener('DOMContentLoaded', () => {

@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — interactive.js
+  Salvadorean Roots — interactive.js
    Mejoras dinámicas para Inicio y Categorías:
    - Barra de progreso de scroll
    - Tarjetas con spotlight (mismo scale del CSS en :hover)

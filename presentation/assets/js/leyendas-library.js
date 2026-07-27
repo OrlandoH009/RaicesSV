@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — leyendas-library.js
+  Salvadorean Roots — leyendas-library.js
    Biblioteca de 16 leyendas y mitos de El Salvador
    Portadas -> modal con la leyenda narrada como un relato completo,
    lectura de imagen y narración de voz

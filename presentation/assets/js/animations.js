@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — animations.js
+  Salvadorean Roots — animations.js
    Animaciones GSAP para sitios-culturales, gastronomia y eventos.
    Requiere gsap (CDN) cargado ANTES de este script:
    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

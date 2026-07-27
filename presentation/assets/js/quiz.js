@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — quiz-mejorado.js (v2.0)
+  Salvadorean Roots — quiz-mejorado.js (v2.0)
    Quiz por niveles con ANIMACIONES GSAP + 28 PREGUNTAS POR NIVEL
    ============================================================ */
 
@@ -740,9 +740,9 @@ function mostrarResultados() {
   guardarPuntaje(nivelSeleccionado, categoriaSeleccionada, puntaje, maximo);
 
   const MENSAJES = [
-    { min: 100, titulo: 'Perfecto', msg: 'Dominio absoluto de las Raíces SV. Eres un referente de la cultura salvadoreña.' },
+    { min: 100, titulo: 'Perfecto', msg: 'Dominio absoluto de Salvadorean Roots. Eres un referente de la cultura salvadoreña.' },
     { min: 80, titulo: 'Excelente', msg: 'Conoces muy bien la cultura de El Salvador. Estás al nivel de un guanaco de corazón.' },
-    { min: 60, titulo: 'Buen trabajo', msg: 'Buen conocimiento de las Raíces SV. Repasa para mejorar tu desempeño.' },
+    { min: 60, titulo: 'Buen trabajo', msg: 'Buen conocimiento de Salvadorean Roots. Repasa para mejorar tu desempeño.' },
     { min: 40, titulo: 'Sigue aprendiendo', msg: 'Hay mucho por descubrir. Explora las secciones informativas y vuelve a intentarlo.' },
     { min: 0, titulo: 'Comenzando', msg: 'El Salvador tiene una cultura riquísima. Explora y vuelve a intentarlo.' }
   ];
@@ -924,12 +924,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 /* ============================================================
-   RAÍCES SV — quiz-mejorado.js (v2.0)
+  Salvadorean Roots — quiz-mejorado.js (v2.0)
    SECCIÓN DE LEADERBOARD OSCURO & RÉCORDS LOCALES
    ============================================================ */
 
 /* ============================================================
-   RAÍCES SV — quiz-mejorado.js (v3.0 - GSAP & Clean Board)
+  Salvadorean Roots — quiz-mejorado.js (v3.0 - GSAP & Clean Board)
    ============================================================ */
 
 // Inicializar el almacenamiento vacío (sin registros quemados)

@@ -1,5 +1,5 @@
 /* ============================================================
-   RAÍCES SV — perfil-anim.js
+  Salvadorean Roots — perfil-anim.js
    Animaciones GSAP puramente visuales. No contiene lógica de
    negocio: si GSAP no carga, la página sigue funcionando
    gracias a los estilos base de .reveal en global.css.
