@@ -386,12 +386,14 @@
 
 .home-card {
   position: relative;
+  display: block;
   border-radius: var(--r-sm);
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
   transition: transform .3s, box-shadow .3s;
   background: var(--black);
+  text-decoration: none;
 }
 .home-card:hover {
   transform: translateY(-4px);
@@ -455,10 +457,9 @@
   font-weight: 700;
   font-size: .88rem;
   letter-spacing: .03em;
-  cursor: pointer;
   z-index: 3;
   opacity: 1;
-  pointer-events: auto;
+  pointer-events: none;
   box-shadow: none;
   transition: transform .2s ease;
 }
