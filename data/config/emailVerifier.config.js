@@ -1,6 +1,5 @@
 const dns = require('dns').promises;
 const DNS_TIMEOUT_MS = 4000;
-
 const withTimeout = (promise, ms) => {
     return Promise.race([
         promise,
@@ -9,6 +8,18 @@ const withTimeout = (promise, ms) => {
         )
     ]);
 };
+const KNOWN_EMAIL_DOMAINS = new Set([
+        'gmail.com',
+        'hotmail.com',
+        'outlook.com',
+        'yahoo.com',
+        'yahoo.es',
+        'icloud.com',
+        'live.com',
+        'aol.com',
+        'cdb.edu.sv',
+        'clases.edu.sv'
+]);
 
 const domainHasMailServer = async (email) => {
     const atIndex = email.lastIndexOf('@');
@@ -16,6 +27,10 @@ const domainHasMailServer = async (email) => {
 
     const domain = email.slice(atIndex + 1).trim().toLowerCase();
     if (!domain) return false;
+
+    if (KNOWN_EMAIL_DOMAINS.has(domain)) {
+        return true;
+    }
 
     try {
         const mxRecords = await withTimeout(dns.resolveMx(domain), DNS_TIMEOUT_MS);
