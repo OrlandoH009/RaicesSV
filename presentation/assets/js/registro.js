@@ -155,6 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBox.style.display = 'block';
   };
 
+  const submitButton = form.querySelector('.auth-submit');
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -187,6 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
       redirect: targetRedirect
     };
 
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.dataset.originalText = submitButton.textContent;
+      submitButton.textContent = 'Creando cuenta...'
+    }
+
     try {
       const response = await fetch('/register', {
         method: 'POST',
@@ -204,6 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
       showMessage(text || 'No se pudo crear la cuenta.');
     } catch (error) {
       showMessage('No se pudo conectar con el servidor.');
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = submitButton.dataset.originalText || 'Crear cuenta';
+      }
     }
   });
 });
