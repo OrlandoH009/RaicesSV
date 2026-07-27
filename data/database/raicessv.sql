@@ -45,6 +45,17 @@ CREATE TABLE IF NOT EXISTS scores(
     FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 
+CREATE TABLE IF NOT EXISTS publications(
+    id_publication INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    title VARCHAR(125) NOT NULL,
+    description TEXT NOT NULL,
+    location VARCHAR(125) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS password_resets (
     id_reset INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,
