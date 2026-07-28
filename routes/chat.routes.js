@@ -1,16 +1,10 @@
-/* ============================================================
-   RAÍCES SV — routes/chat.routes.js
-   Router de Express para el proxy de chat hacia OpenRouter
-   ============================================================ */
-
 const express = require('express');
 const router = express.Router();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-// Configuración optimizada para Gemini Flash Lite de pago
-const MODEL = 'google/gemini-2.5  -flash-lite'; 
-const MAX_TOKENS = 500;   // Protege tu presupuesto manteniendo las respuestas al grano
-const TIMEOUT_MS = 10000; // Reducido a 10s porque este modelo responde en milisegundos
+const MODEL = 'meta-llama/llama-3.1-8b-instruct'; // O el ID exacto de Llama que uses
+const MAX_TOKENS = 800;   // Protege tu presupuesto manteniendo las respuestas al grano
+const TIMEOUT_MS = 25000;
 
 router.post('/chat-proxy', async (req, res) => {
   if (!OPENROUTER_API_KEY) {
@@ -39,7 +33,9 @@ router.post('/chat-proxy', async (req, res) => {
   const payload = {
     model: MODEL,
     messages: formattedMessages,
-    max_tokens: MAX_TOKENS,
+    max_tokens: MAX_TOKENS, // Súper directo
+    temperature: 0.3, // Rápido y preciso
+    stream: true // <--- HABILITA EL STREAMING EN OPENROUTER
   };
 
   const controller = new AbortController();
@@ -60,32 +56,42 @@ router.post('/chat-proxy', async (req, res) => {
 
     clearTimeout(timeout);
 
-    const httpCode = response.status;
-    const raw = await response.text();
-
-    // Log para debug — revisa la consola donde corre "node server.js"
-    console.log('OpenRouter response:', raw);
-
-    let responseData;
-    try {
-      responseData = JSON.parse(raw);
-    } catch (parseErr) {
-      return res.status(502).json({ error: 'Respuesta inválida de OpenRouter', raw });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Error en OpenRouter' });
     }
 
-    if (responseData.error) {
-      return res.status(httpCode >= 400 ? httpCode : 500).json({ error: responseData.error });
+    // Cabeceras HTTP para indicarle al navegador que enviaremos texto en partes
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); 
+
+      for (const line of lines) {
+        const cleanedLine = line.trim();
+        if (!cleanedLine || cleanedLine === 'data: [DONE]') continue;
+
+        if (cleanedLine.startsWith('data: ')) {
+          try {
+            const parsed = JSON.parse(cleanedLine.replace(/^data:\s*/, ''));
+            const textChunk = parsed?.choices?.[0]?.delta?.content || '';
+            if (textChunk) {
+              res.write(textChunk); // Envía la palabra al frontend inmediatamente
+            }
+          } catch (e) {}
+        }
+      }
     }
-
-    const text = responseData?.choices?.[0]?.message?.content;
-
-    if (!text) {
-      return res.status(500).json({ error: 'Respuesta vacía del modelo', debug: responseData });
-    }
-
-    return res.status(200).json({
-      content: [{ type: 'text', text }],
-    });
+    res.end();
 
   } catch (err) {
     clearTimeout(timeout);

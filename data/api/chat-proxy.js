@@ -23,10 +23,9 @@ const PORT = process.env.PORT || 3000;
 
 // --- Config ---
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-// Configuración optimizada para Gemini Flash Lite de pago
-const MODEL = 'google/gemini-2.5-flash-lite'; 
-const MAX_TOKENS = 500;   // Protege tu presupuesto manteniendo las respuestas al grano
-const TIMEOUT_MS = 10000; // Reducido a 10s porque este modelo responde en milisegundos
+const MODEL = 'meta-llama/llama-3.1-8b-instruct'; 
+const MAX_TOKENS = 800;   // Protege tu presupuesto manteniendo las respuestas al grano
+const TIMEOUT_MS = 25000; // Reducido a 10s porque este modelo responde en milisegundos
 
 app.use(cors({ origin: '*', methods: ['POST', 'OPTIONS'] }));
 app.use(express.json());
@@ -58,7 +57,12 @@ app.post('/chat-proxy', async (req, res) => {
   const payload = {
     model: MODEL,
     messages: formattedMessages,
-    max_tokens: MAX_TOKENS,
+    max_tokens: MAX_TOKENS, 
+    temperature: 0.3,
+    providers: {
+      order: ["Cloudflare", "DeepInfra"], // Lista ordenada por prioridad
+      allow_fallbacks: false            // false = si tus proveedores elegidos fallan, no usa otros
+    }
   };
 
   const controller = new AbortController();

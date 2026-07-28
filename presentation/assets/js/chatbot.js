@@ -14,10 +14,9 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
   `.trim();
 
   const SYSTEM_PROMPT = `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español, incluso si te preguntan en otro idioma. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
-
 REGLAS CRÍTICAS DE RESPUESTA:
 1. Idioma obligatorio: Habla única y exclusivamente en español salvadoreño/estándar.
-2. Ultra corto: Ve directo al punto en la primera frase. Máximo 2-3 líneas (30-50 palabras). Sin rodeos.
+2. Ultra corto: Ve directo al punto en la primera frase. Máximo 2-3 líneas (30-50 palabras).
 3. Formato: Resalta en **negrita** el tema principal la primera vez que lo nombres.
 4. Preguntas relacionadas con el Salvador tambien son validas , ya sea de su territorio, presidentes y noticias de actualidad. No respondas preguntas de otros paises, ni de politica internacional.
 5. Nombres exactos: Si citas lugares de esta lista, escríbelos EXACTAMENTE igual para activar el mapa interactivo. No inventes sitios.
@@ -514,13 +513,15 @@ ${RAICES_LANDMARKS_INFO}
     const found = [];
     let workingText = text;
     const sorted = [...LANDMARKS_MINI].sort((a, b) => b.nombre.length - a.nombre.length);
+    
     sorted.forEach(lm => {
       const escapedName = lm.nombre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const re = new RegExp(escapedName, 'i');
-      if (re.test(workingText)) {
+      
+      // Añadimos la condición de que el ID no exista previamente en el array 'found'
+      if (re.test(workingText) && !found.some(f => f.id === lm.id)) {
         found.push(lm);
-        // Se quita del texto de trabajo para que un nombre corto (ej. "Suchitoto")
-        // no se detecte doble dentro de uno más largo (ej. "Festival de Suchitoto").
+        // Se quita del texto de trabajo para evitar colisiones semánticas
         workingText = workingText.replace(re, '');
       }
     });
@@ -755,6 +756,9 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
       addBotMessage(reply, false, findMentionedLandmarks(reply));
       plannerStep = 'done';
 
+      // Mantenemos el input deshabilitado indicando que debe usar los botones
+      setInputEnabled(false, 'Selecciona una opción arriba...');
+
       addBotMessageWithButtons('¿Quieres planificar otra salida o volver al chat normal?', [
         { label: '🔁 Planificar otra salida', onClick: startPlannerFlow },
         { label: '✅ Volver al chat normal', onClick: () => { setPlannerToggle(false); cancelPlannerFlow(true); } },
@@ -765,15 +769,15 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
       addBotMessage('Hubo un problema generando tu plan. Por favor intenta de nuevo.');
       console.error('Planner error:', err);
       plannerStep = 'done';
+      // Si falla, sí restauramos el input normal para que pueda reportarlo o reintentar
+      setInputEnabled(true);
     }
-
-    setInputEnabled(true);
   }
 
   function cancelPlannerFlow(silent) {
     plannerStep = null;
     plannerData = {};
-    setInputEnabled(true);
+    setInputEnabled(true, 'Escribe tu pregunta...'); // Forzamos el placeholder por defecto al limpiar
     if (!silent) addBotMessage('Planificador desactivado. Puedes seguir chateando normalmente. 😊');
   }
 
@@ -804,15 +808,19 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
   async function sendUserText(text) {
     if (isLoading) return;
     const sendBtn = document.getElementById('rs-chat-send');
+    const msgs = document.getElementById('rs-chat-messages');
     isLoading = true;
     if (sendBtn) sendBtn.disabled = true;
 
     addUserMessage(text);
     conversationHistory.push({ role: 'user', content: text });
   
-  if (conversationHistory.length > 4) {
-  conversationHistory = conversationHistory.slice(-4);
-}
+    if (conversationHistory.length > 4) {
+      conversationHistory = conversationHistory.slice(-4);
+      if (conversationHistory.length > 0 && conversationHistory[0].role === 'assistant') {
+        conversationHistory.shift();
+      }
+    }
     
     showTyping();
 
@@ -826,12 +834,55 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      
       hideTyping();
 
-      const reply = data?.content?.[0]?.text || 'Lo siento, hubo un problema. Intenta de nuevo.';
-      conversationHistory.push({ role: 'assistant', content: reply });
-      addBotMessage(reply, false, findMentionedLandmarks(reply));
+      // Creamos la burbuja vacía del bot
+      const div = document.createElement('div');
+      div.className = 'rs-msg bot';
+      const bubble = document.createElement('div');
+      bubble.className = 'rs-msg-bubble';
+      div.appendChild(bubble);
+      msgs.appendChild(div);
+
+      // Leemos el stream que manda el servidor palabra por palabra
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let replyText = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        replyText += chunk;
+        
+        // Renderiza el texto acumulado procesando las negritas y saltos de línea
+        bubble.innerHTML = formatMessageText(replyText);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      conversationHistory.push({ role: 'assistant', content: replyText });
+      
+      // Añade los botones del mapa interactivo si se mencionaron landmarks
+      const landmarks = findMentionedLandmarks(replyText);
+      if (landmarks && landmarks.length) {
+        const mapWrap = document.createElement('div');
+        mapWrap.className = 'rs-quick-btns';
+        const mapaUrl = getMapaUrl();
+        landmarks.forEach(lm => {
+          const a = document.createElement('a');
+          a.className = 'rs-quick-btn rs-map-btn';
+          a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+          mapWrap.appendChild(a);
+        });
+        div.appendChild(mapWrap);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
 
     } catch (err) {
       hideTyping();
