@@ -7,9 +7,10 @@ const express = require('express');
 const router = express.Router();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODEL = 'cohere/north-mini-code:free';
-const MAX_TOKENS = 800;   // vuelve a 800, este modelo no necesita el margen extra de reasoning
-const TIMEOUT_MS = 30000; // 30s, más que suficiente para un modelo rápido
+// Configuración optimizada para Gemini Flash Lite de pago
+const MODEL = 'google/gemini-2.5  -flash-lite'; 
+const MAX_TOKENS = 500;   // Protege tu presupuesto manteniendo las respuestas al grano
+const TIMEOUT_MS = 10000; // Reducido a 10s porque este modelo responde en milisegundos
 
 router.post('/chat-proxy', async (req, res) => {
   if (!OPENROUTER_API_KEY) {
