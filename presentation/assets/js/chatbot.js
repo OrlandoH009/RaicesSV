@@ -37,7 +37,7 @@ ${RAICES_LANDMARKS_INFO}
 
   const PROXY_URL = '/chat-proxy';
 
- const STYLES = `
+const STYLES = `
     #rs-chat-widget * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
 
     #rs-chat-btn {
@@ -98,9 +98,11 @@ ${RAICES_LANDMARKS_INFO}
       position: fixed;
       bottom: 100px;
       left: 28px;
-      width: 350px;
-      max-height: 540px;
-      background: #18181b; /* Gris oscuro neutro */
+      /* Escala entre 320px en pantallas pequeñas y 480px en 1080p */
+      width: clamp(320px, 24vw, 480px);
+      /* Escala su altura fluidamente entre 460px y 680px según el monitor */
+      height: clamp(460px, 62vh, 680px);
+      background: #18181b; 
       border: 1.5px solid rgba(190, 142, 86, 0.5);
       border-radius: 20px;
       display: flex;
@@ -117,7 +119,7 @@ ${RAICES_LANDMARKS_INFO}
 
     #rs-chat-header {
       background: #113068;
-      padding: 16px;
+      padding: 14px 18px; 
       display: flex;
       align-items: center;
       gap: 12px;
@@ -125,19 +127,22 @@ ${RAICES_LANDMARKS_INFO}
       flex-shrink: 0;
     }
     #rs-chat-header .rs-avatar {
-      width: 38px; height: 38px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       background: #be8e56;
       display: flex; align-items: center; justify-content: center;
       font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 16px; color: #fff;
+      font-weight: 700; font-size: 15px; color: #fff;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     #rs-chat-header .rs-header-info { flex: 1; }
     #rs-chat-header .rs-name {
       font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 15px; color: #fff;
+      font-weight: 700;
+      /* El título se adapta al monitor reduciéndose elegantemente */
+      font-size: clamp(14px, 0.9vw, 17px); 
+      color: #fff;
       letter-spacing: 0.3px;
     }
     #rs-chat-header .rs-status { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 2px; display: flex; align-items: center; }
@@ -156,15 +161,15 @@ ${RAICES_LANDMARKS_INFO}
       color: rgba(255,255,255,.9);
       font-family: 'Lato', sans-serif;
       font-weight: 600;
-      font-size: 11px;
-      padding: 6px 12px;
+      font-size: clamp(10px, 0.7vw, 12px);
+      padding: 5px 10px;
       border-radius: 20px;
       cursor: pointer;
       flex-shrink: 0;
       transition: all .2s ease;
       white-space: nowrap;
     }
-    #rs-planner-toggle svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    #rs-planner-toggle svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
     #rs-planner-toggle:hover { background: rgba(190,142,86,.15); border-color: #be8e56; }
     #rs-planner-toggle.active {
       background: #be8e56;
@@ -190,7 +195,7 @@ ${RAICES_LANDMARKS_INFO}
     #rs-chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 16px 20px; 
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -203,11 +208,20 @@ ${RAICES_LANDMARKS_INFO}
     #rs-chat-messages::-webkit-scrollbar-thumb { background: rgba(190,142,86,.3); border-radius: 4px; }
 
     .rs-msg { display: flex; flex-direction: column; max-width: 85%; }
-    .rs-msg.bot  { align-self: flex-start; }
-    .rs-msg.user { align-self: flex-end; }
-    .rs-msg-bubble { padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.45; letter-spacing: 0.1px; }
+    .rs-msg.bot  { align-self: flex-start; margin-right: 8px; } 
+    .rs-msg.user { align-self: flex-end; margin-left: 8px; }  
+    
+    /* Letra fluida: baja automáticamente a 12.5px en pantallas chicas y sube a 15.5px en 1080p */
+    .rs-msg-bubble { 
+      padding: 10px 14px; 
+      border-radius: 16px; 
+      font-size: clamp(12.5px, 0.85vw, 15.5px); 
+      line-height: 1.45; 
+      letter-spacing: 0.1px; 
+    }
+    
     .rs-msg.bot  .rs-msg-bubble {
-      background: #27272a; /* Carbón claro para la respuesta del bot */
+      background: #27272a; 
       border: 1px solid rgba(255,255,255,0.05);
       color: #f4f4f5;
       border-radius: 4px 16px 16px 16px;
@@ -223,14 +237,15 @@ ${RAICES_LANDMARKS_INFO}
 
     .rs-typing {
       display: flex; gap: 6px; align-items: center;
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: #27272a;
       border-radius: 4px 16px 16px 16px;
       align-self: flex-start;
-      max-width: 70px;
+      max-width: 65px;
+      margin-left: 8px;
     }
     .rs-typing span {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 5px; height: 5px; border-radius: 50%;
       background: #be8e56;
       animation: rs-bounce .9s infinite;
     }
@@ -238,16 +253,16 @@ ${RAICES_LANDMARKS_INFO}
     .rs-typing span:nth-child(3) { animation-delay: .3s; }
     @keyframes rs-bounce {
       0%,80%,100% { transform: translateY(0); opacity: .3; }
-      40%          { transform: translateY(-5px); opacity: 1; }
+      40%          { transform: translateY(-4px); opacity: 1; }
     }
 
     #rs-chat-footer {
-      padding: 14px;
+      padding: 14px 18px; 
       border-top: 1px solid rgba(255,255,255,0.05);
       display: flex;
       gap: 10px;
       flex-shrink: 0;
-      background: #202023; /* Fondo de pie ligeramente más oscuro que los mensajes */
+      background: #202023;
       align-items: center;
     }
     #rs-chat-input {
@@ -255,19 +270,19 @@ ${RAICES_LANDMARKS_INFO}
       background: #27272a;
       border: 1.5px solid rgba(190,142,86,.25);
       border-radius: 22px;
-      padding: 10px 16px;
+      padding: 8px 16px;
       color: #fff;
-      font-size: 13px;
+      font-size: clamp(12px, 0.8vw, 14.5px);
       outline: none;
       transition: all .2s ease;
-      height: 40px;
+      height: 38px;
     }
     #rs-chat-input:focus { border-color: #be8e56; background: #3f3f46; box-shadow: 0 0 0 3px rgba(190,142,86,0.15); }
     #rs-chat-input::placeholder { color: rgba(255,255,255,.4); }
     #rs-chat-input:disabled { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
     
     #rs-chat-send {
-      width: 40px; height: 40px; flex-shrink: 0;
+      width: 38px; height: 38px; flex-shrink: 0;
       background: #be8e56;
       border: none; border-radius: 50%;
       cursor: pointer;
@@ -277,18 +292,18 @@ ${RAICES_LANDMARKS_INFO}
     }
     #rs-chat-send:hover { background: #a87a42; transform: scale(1.05); }
     #rs-chat-send:disabled { background: #3f3f46; cursor: default; transform: none; box-shadow: none; }
-    #rs-chat-send svg { width: 18px; height: 18px; fill: #fff; margin-left: 2px; }
+    #rs-chat-send svg { width: 16px; height: 16px; fill: #fff; margin-left: 2px; }
 
-    .rs-quick-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; width: 100%; }
+    .rs-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; }
     .rs-quick-btn {
-      font-size: 12px;
+      font-size: clamp(11px, 0.75vw, 13px);
       font-family: 'Lato', sans-serif;
       font-weight: 500;
       color: #be8e56;
       background: rgba(190,142,86,.08);
       border: 1px solid rgba(190,142,86,.3);
       border-radius: 20px;
-      padding: 6px 12px;
+      padding: 5px 12px;
       cursor: pointer;
       transition: all .2s ease;
       white-space: normal;
@@ -307,7 +322,7 @@ ${RAICES_LANDMARKS_INFO}
     .rs-map-btn:hover { background: rgba(82,160,224,.2); border-color: #7fc3f0; transform: translateY(-1px); }
 
     @media (max-width: 420px) {
-      #rs-chat-window { width: calc(100vw - 24px); left: 12px; bottom: 92px; max-height: 80vh; }
+      #rs-chat-window { width: calc(100vw - 24px); left: 12px; bottom: 92px; height: 75vh; max-height: 75vh; }
       #rs-chat-btn    { left: 16px; bottom: 16px; }
     }
   `;

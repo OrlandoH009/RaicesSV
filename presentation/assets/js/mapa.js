@@ -523,7 +523,6 @@ L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
   maxZoom: 16.5,
   attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  
   updateWhenIdle: true,    
   updateWhenZooming: false, 
   keepBuffer: 8,           
