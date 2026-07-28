@@ -809,6 +809,11 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
 
     addUserMessage(text);
     conversationHistory.push({ role: 'user', content: text });
+  
+  if (conversationHistory.length > 4) {
+  conversationHistory = conversationHistory.slice(-4);
+}
+    
     showTyping();
 
     try {
