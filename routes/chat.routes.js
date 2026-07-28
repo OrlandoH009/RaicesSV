@@ -35,7 +35,11 @@ router.post('/chat-proxy', async (req, res) => {
     messages: formattedMessages,
     max_tokens: MAX_TOKENS, // Súper directo
     temperature: 0.3, // Rápido y preciso
-    stream: true // <--- HABILITA EL STREAMING EN OPENROUTER
+    stream: true, // <--- HABILITA EL STREAMING EN OPENROUTER
+    providers: {
+      order: ["Cloudflare", "DeepInfra"], // Lista ordenada por prioridad
+      allow_fallbacks: false            // false = si tus proveedores elegidos fallan, no usa otros
+    }
   };
 
   const controller = new AbortController();

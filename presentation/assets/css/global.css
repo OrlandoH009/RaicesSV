@@ -3,9 +3,9 @@
    Variables, Navbar, Footer, Botones, Animaciones compartidas
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap');
 
-/* ── Variables ── */
+/* ── Variables Adaptables ── */
 :root {
   --navy:        #113068;
   --navy-dark:   #0f2f66;
@@ -21,27 +21,28 @@
   --font-display: 'Playfair Display', serif;
   --font-body:    'Lato', sans-serif;
 
-  --r-sm:  15px;
-  --r-md:  25px;
-  --r-lg:  35px;
+  /* Radios de borde que escalan fluidamente con la pantalla */
+  --r-sm:  clamp(10px, 1.2vw, 15px);
+  --r-md:  clamp(15px, 2vw, 25px);
+  --r-lg:  clamp(20px, 2.8vw, 35px);
 
-  --nav-h: 80px;
+  /* El alto de la navegación escala de forma fluida según el ancho del dispositivo */
+  --nav-h: clamp(60px, 5.5vw, 80px);
 }
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; }
-body  { font-family: var(--font-body); background: var(--black); color: var(--white); overflow-x: hidden; }
+body  { font-family: var(--font-body); background: var(--black); color: var(--white); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); }
 a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
 
 html, body {
   max-width: 100vw;
-  overflow-x: hidden; /* Corta sin piedad cualquier elemento que intente salirse hacia los lados */
+  overflow-x: hidden;
 }
 
-/* Evita que palabras largas o títulos se corten/desborden en pantallas angostas */
 h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   overflow-wrap: break-word;
   word-break: break-word;
@@ -60,7 +61,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   color: var(--white);
   border: 3px solid var(--black);
   border-radius: var(--r-lg);
-  padding: 1.2rem 3rem;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.8rem, 3.5vw, 3rem);
   cursor: pointer;
   transition: background .25s, transform .2s, box-shadow .2s;
 }
@@ -85,7 +86,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 @keyframes gradientTextShift { to { background-position: 300% center; } }
 
 /* ══════════════════════════════════
-   NAVBAR
+   NAVBAR FLUIDO
    ══════════════════════════════════ */
 .navbar {
   position: fixed;
@@ -95,7 +96,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   background: var(--navy);
   display: flex;
   align-items: center;
-  padding: 0 2rem;
+  padding: 0 clamp(1rem, 3vw, 2.5rem);
   z-index: 5000;
   box-shadow: 0 2px 20px rgba(0,0,0,.45);
   transition: background .3s;
@@ -106,21 +107,23 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 }
 
 .navbar__logo img {
-  width: 67px; height: 67px;padding: 0%;
+  width: calc(var(--nav-h) - 13px);
+  height: calc(var(--nav-h) - 13px);
+  padding: 0%;
   object-fit: contain;
 }
 
 .navbar__links {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
-  margin-left: 2rem;
+  gap: clamp(1rem, 2vw, 2.5rem);
+  margin-left: clamp(1rem, 2.5vw, 2rem);
   flex: 1;
 }
 .navbar__links a {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.25rem);
   color: var(--white);
   position: relative;
   transition: color .2s;
@@ -221,7 +224,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   letter-spacing: .08em;
 }
 
-/* Etiqueta de sección dentro del drawer (Principal / Explorar) */
 .drawer-section-label {
   font-family: var(--font-body);
   font-weight: 700;
@@ -232,9 +234,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   padding: .6rem .5rem .3rem;
 }
 
-/* El grupo "Principales" (mismos links del navbar) y la etiqueta
-   "Extras" solo se muestran en móvil: en escritorio esos links ya
-   están visibles arriba en el navbar, así que no hace falta repetirlos. */
 .drawer-group--principales,
 .drawer-label--extras {
   display: none;
@@ -272,7 +271,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   letter-spacing: .1em;
 }
 
-/* Perfil dentro del drawer (avatar + nombre) */
 .drawer-profile {
   display: flex;
   align-items: center;
@@ -363,13 +361,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 }
 .btn-logout:hover { border-color: var(--white); background: rgba(255,255,255,.14); }
 
-/* ══════════════════════════════════
-   FOOTER
-   ══════════════════════════════════ */
+/* ── FOOTER ── */
 .footer {
   background: var(--footer-bg);
   color: var(--black);
-  padding: 1.5rem 2rem;
+  padding: clamp(1.2rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem);
 }
 .footer__inner {
   max-width: 1100px;
@@ -380,31 +376,29 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   gap: 0.6rem;
   text-align: center;
 }
-.footer__logo { width: 56px; height: 56px; object-fit: contain; }
+.footer__logo { width: clamp(44px, 5vw, 56px); height: clamp(44px, 5vw, 56px); object-fit: contain; }
 .footer__name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
   color: var(--navy);
 }
 .footer__links {
   display: flex;
-  gap: 1.5rem;
+  gap: clamp(1rem, 2vw, 1.5rem);
   flex-wrap: wrap;
   justify-content: center;
 }
 .footer__links a {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: clamp(0.78rem, 1vw, 0.88rem);
   color: var(--navy);
   transition: color .2s;
 }
 .footer__links a:hover { color: var(--gold); }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
 
-/* ══════════════════════════════════
-   BARRA DE PROGRESO DE SCROLL
-   ══════════════════════════════════ */
+/* ── Barra de Progreso y Efectos ── */
 .scroll-progress {
   position: fixed;
   top: 0; left: 0;
@@ -416,9 +410,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   box-shadow: 0 0 8px rgba(190,142,86,.6);
 }
 
-/* ══════════════════════════════════
-   SPOTLIGHT EN TARJETAS (tilt 3D)
-   ══════════════════════════════════ */
 .card-spotlight {
   position: absolute;
   inset: 0;
@@ -429,16 +420,12 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   pointer-events: none;
   z-index: 2;
 }
-.home-card:hover .card-spotlight,
-.categoria-card:hover .card-spotlight { opacity: 1; }
+.home-card:hover .card-spotlight { opacity: 1; }
 
 @media (hover: none) {
   .card-spotlight { display: none; }
 }
 
-/* ══════════════════════════════════
-   CURSOR GLOW (efecto compartido, activado por JS en páginas con GSAP)
-   ══════════════════════════════════ */
 .cursor-glow {
   position: fixed;
   top: 0; left: 0;
@@ -454,139 +441,68 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 @media (hover: none), (pointer: coarse) { .cursor-glow { display: none; } }
 
 /* ══════════════════════════════════
-   RESPONSIVE — MÓVIL
-   Punto de referencia: Samsung Galaxy A15
-   (viewport CSS ≈ 393 × 851px, DPR ~2.75)
+   RESPONSIVE MODIFICADO (Móvil y Tablet)
    ══════════════════════════════════ */
-
-/* Tablets pequeñas / móviles grandes */
-@media (max-width: 600px) {
-  :root {
-    --nav-h: 64px;
-  }
-
-  html { -webkit-text-size-adjust: 100%; }
-
-  /* ── Navbar: en móvil solo logo + hamburguesa; todo lo demás vive en el drawer ── */
-  .navbar {
-    /* global.css - en tu clase principal de navbar */
-    max-width: 100vw; /* Obliga a la barra a no pasar del ancho del celular */
-    box-sizing: border-box; 
-
-  }
+@media (max-width: 768px) {
+  /* Oculta los links horizontales completamente */
   .navbar__links { 
-    display: none !important; /* Nos aseguramos de ocultar los links */
+    display: none !important; 
   }
+  
+  /* Ajusta dimensiones estables del logo en móvil */
   .navbar__logo img {
-    width: 70px !important;
-    height: 70px !important;
+    width: 50px !important;
+    height: 50px !important;
   }
+  
+  /* Fuerza la visibilidad del botón hamburguesa */
   .navbar__burger {
-    display: flex !important; /* Fuerza al botón a mostrarse */
+    display: flex !important;
     visibility: visible !important;
-    margin-left: auto !important; /* Lo empuja al extremo derecho */
-    z-index: 6000 !important; /* Debe ser mayor al z-index de la navbar (5000) */
+    margin-left: auto !important;
+    z-index: 6000 !important;
   }
+  
+  /* Asegura que las líneas internas tengan color y sean visibles */
   .navbar__burger span {
-    background: var(--white) !important; /* Evita que las líneas se vuelvan transparentes */
+    background: var(--white) !important;
     display: block !important;
   }
-
-  /* ── Drawer lateral ── */
+  
+  /* Desplazamiento adaptable del menú lateral */
   .nav-drawer {
-    width: min(75vw, 240px);
-    right: calc(-1 * min(75vw, 240px) - 20px);
+    width: min(80vw, 260px);
+    right: calc(-1 * min(80vw, 260px) - 20px);
     padding: 1.25rem 1.1rem;
-    overflow-x: hidden;
   }
-  .nav-drawer a.drawer-link {
-    font-size: 1rem;
-    line-height: 1.3;
-    padding: .95rem .5rem;
-    /* filas más altas = más fáciles de tocar, texto nunca se recorta (wrap natural) */
-  }
-  .drawer-link.active { color: var(--gold); }
-  .drawer-section-label:first-of-type { padding-top: .2rem; }
-  .drawer-avatar { width: 42px; height: 42px; flex-basis: 42px; }
-
-  /* En móvil sí mostramos "Principales" (Inicio/Categorías/Mapa/Calendario)
-     y la etiqueta "Extras", ya que el navbar de arriba los oculta */
+  
+  /* Muestra secciones del drawer exclusivas de pantallas táctiles/móviles */
   .drawer-group--principales,
   .drawer-label--extras {
     display: block;
   }
+}
 
-  .btn-login, .btn-register, .btn-logout {
-    padding: .85rem 1rem;
-    font-size: 1rem;
-  }
-
-  /* ── Botón primario ── */
+@media (max-width: 480px) {
+  .navbar { padding: 0 .7rem; }
   .btn-primary {
     width: 100%;
     max-width: 340px;
-    padding: 1rem 1.75rem;
-    border-radius: var(--r-md);
   }
-
-  /* ── Footer ── */
-  .footer { padding: 1.3rem 1.1rem; }
-  .footer__inner { gap: 0.5rem; }
-  .footer__logo { width: 48px; height: 48px; }
-  .footer__name { font-size: clamp(0.95rem, 4vw, 1rem); }
-  .footer__links {
-    gap: 0.8rem 1.2rem;
-    font-size: 0.8rem;
-  }
-  .footer__links a { padding: 0.25rem 0; display: inline-block; }
-  .footer__copy {
-    font-size: 0.72rem;
-    line-height: 1.4;
-    padding: 0 .3rem;
-  }
-
-  /* ── Barra de progreso más fina en móvil ── */
-  .scroll-progress { height: 2px; }
-}
-
-/* Móviles medianos (Samsung A15 y similares, ~393px) */
-@media (max-width: 430px) {
-  .navbar { padding: 0 .7rem; height: 60px; }
-  :root { --nav-h: 60px; }
-  .navbar__logo img { width: 40px; height: 40px; }
-
-  .nav-drawer { width: min(86vw, 280px); padding: 1.1rem .9rem; }
-  .nav-drawer__head span { font-size: .9rem; }
-  .nav-drawer a.drawer-link { font-size: .96rem; padding: .85rem .4rem; }
-  .drawer-section-label { font-size: .68rem; }
-
-  .btn-primary {
-    font-size: clamp(1rem, 4.5vw, 1.3rem);
-    padding: .9rem 1.4rem;
-  }
-
   .footer__links { flex-direction: column; gap: 0.5rem; }
-  .footer__copy { font-size: 0.7rem; line-height: 1.4; }
 }
 
-/* Móviles muy pequeños (<360px) */
-@media (max-width: 360px) {
-  .navbar__logo img { width: 36px; height: 36px; }
-  .nav-drawer { width: 88vw; }
-}
-
-/* ── Ajustes táctiles y de legibilidad para cualquier pantalla táctil ── */
 @media (hover: none) and (pointer: coarse) {
-  a, button, .drawer-link, .navbar__links a {
+  a, button, .drawer-link {
     -webkit-tap-highlight-color: rgba(190,142,86,.25);
   }
-  .btn-primary, .btn-login, .btn-register, .btn-logout, .lock-modal__btn {
-    min-height: 44px; /* área táctil mínima recomendada */
+  .btn-primary, .btn-login, .btn-register, .btn-logout {
+    min-height: 44px;
   }
 }
+
 /* ============================================================
    MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
-   Se inyecta dinámicamente desde script.js en todas las vistas.
    ============================================================ */
 .lock-modal-overlay {
   position: fixed;
@@ -602,10 +518,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   pointer-events: none;
   transition: opacity .25s ease;
 }
-.lock-modal-overlay.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
+.lock-modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
 
 .lock-modal {
  position: relative;
@@ -620,102 +533,33 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
  opacity: 0;
  transition: transform .3s ease, opacity .3s ease;
 }
-.lock-modal-overlay.is-visible .lock-modal {
- transform: translateY(0) scale(1);
- opacity: 1;
-}
+.lock-modal-overlay.is-visible .lock-modal { transform: translateY(0) scale(1); opacity: 1; }
 
 .lock-modal__close {
  position: absolute;
- top: .8rem;
- right: .9rem;
- background: none;
- border: none;
- font-size: 1.5rem;
- line-height: 1;
- color: rgba(17,48,104,.5);
- cursor: pointer;
- padding: .2rem .5rem;
+ top: .8rem; right: .9rem;
+ background: none; border: none;
+ font-size: 1.5rem; color: rgba(17,48,104,.5);
+ cursor: pointer; padding: .2rem .5rem;
  transition: color .2s ease;
 }
 .lock-modal__close:hover { color: var(--navy); }
-
 .lock-modal__icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1.1rem;
-  border-radius: 50%;
-  background: var(--navy);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--gold);
+  width: 64px; height: 64px; margin: 0 auto 1.1rem;
+  border-radius: 50%; background: var(--navy);
+  display: flex; align-items: center; justify-content: center; color: var(--gold);
 }
 .lock-modal__icon svg { width: 28px; height: 28px; }
-
-.lock-modal__title {
- font-family: var(--font-display);
- font-weight: 700;
- font-size: 1.4rem;
- color: var(--navy);
- margin-bottom: .6rem;
-}
-
-.lock-modal__text {
- font-family: var(--font-body);
-  font-size: .96rem;
-  color: rgba(0,0,0,.65);
-  line-height: 1.5;
-  margin-bottom: 1.6rem;
-}
-
-.lock-modal__actions {
- display: flex;
- flex-direction: column;
- gap: .7rem;
-}
-
-.lock-modal__btn {
- display: block;
- padding: .8rem 1rem;
- border-radius: var(--r-lg);
- font-family: var(--font-display);
- font-weight: 700;
- font-size: 1rem;
- text-decoration: none;
- border: none;
- cursor: pointer;
- transition: transform .2s ease, background-color .2s ease;
-}
-.lock-modal__btn--primary {
-  background: var(--gold);
-  color: var(--white);
-  border: 3px solid var(--black);
-}
+.lock-modal__title { font-family: var(--font-display); font-weight: 700; font-size: 1.4rem; color: var(--navy); margin-bottom: .6rem; }
+.lock-modal__text { font-family: var(--font-body); font-size: .96rem; color: rgba(0,0,0,.65); line-height: 1.5; margin-bottom: 1.6rem; }
+.lock-modal__actions { display: flex; flex-direction: column; gap: .7rem; }
+.lock-modal__btn { display: block; padding: .8rem 1rem; border-radius: var(--r-lg); font-family: var(--font-display); font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform .2s ease, background-color .2s ease; }
+.lock-modal__btn--primary { background: var(--gold); color: var(--white); border: 3px solid var(--black); }
 .lock-modal__btn--primary:hover { background: var(--gold-hover); }
-
-.lock-modal__btn--secondary {
-  background: transparent;
-  color: var(--navy);
-  border: 2px solid rgba(17,48,104,.35);
-}
+.lock-modal__btn--secondary { background: transparent; color: var(--navy); border: 2px solid rgba(17,48,104,.35); }
 .lock-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
 
 @media (max-width: 480px) {
   .lock-modal-overlay { padding: 1rem; align-items: flex-end; }
-  .lock-modal {
-    padding: 1.9rem 1.3rem 1.5rem;
-    max-width: 100%;
-    border-radius: var(--r-md) var(--r-md) 0 0;
-  }
-  .lock-modal-overlay.is-visible .lock-modal { transform: translateY(0) scale(1); }
-  .lock-modal__icon { width: 54px; height: 54px; }
-  .lock-modal__icon svg { width: 24px; height: 24px; }
-  .lock-modal__title { font-size: 1.2rem; }
-  .lock-modal__text { font-size: .9rem; margin-bottom: 1.3rem; }
-  .lock-modal__btn { padding: .85rem 1rem; font-size: .95rem; }
-  .lock-modal__close {
-    top: .5rem; right: .6rem;
-    padding: .5rem .7rem; /* más área táctil */
-  }
+  .lock-modal { padding: 1.9rem 1.3rem 1.5rem; max-width: 100%; border-radius: var(--r-md) var(--r-md) 0 0; }
 }

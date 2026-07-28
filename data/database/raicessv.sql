@@ -71,3 +71,4 @@ CREATE TABLE IF NOT EXISTS password_resets (
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
 INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', 1);
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', 2);
