@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Salvadorean Roots — Eventos Culturales</title>
-  <link rel="stylesheet" href="../assets/css/global.css" />
-  <link rel="stylesheet" href="../assets/css/info-shared.css" />
-  <link rel="stylesheet" href="../assets/css/eventos.css" />
+  <link rel="stylesheet" href="../assets/css/global.css?v=2" />
+  <link rel="stylesheet" href="../assets/css/info-shared.css?v=2" />
+  <link rel="stylesheet" href="../assets/css/eventos.css?v=2" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
-<body>
+<body data-gsap-reveal>
 
   <div class="welcome-overlay" id="welcomeOverlay">
     <div class="welcome-overlay__bg"></div>
@@ -169,10 +169,10 @@
 
   <main>
     <section class="page-badge">
-      <div class="page-badge__inner reveal"><h1>Eventos Culturales</h1></div>
+      <div class="page-badge__inner"><h1>Eventos Culturales</h1></div>
     </section>
 
-<div class="info-tabs reveal">
+<div class="info-tabs">
   <p class="info-tabs__label">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
   <div class="info-tabs__carousel">
     <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
@@ -377,38 +377,39 @@
     </div>
 
     <div class="info-panel" id="tab-fiestas-julias">
-      <div class="info-content reveal">
-        <div class="info-content__hero">
-          <img src="../assets/media/eventos/julias.jpg" alt="Fiestas Julias de Santa Ana" />
-          <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Fiestas Julias de Santa Ana</h2>
-          <p class="info-content__hero-sub">26 de Julio de 2026 — La Ciudad Heroica en fiesta</p>
-        </div>
-        <div class="info-content__body">
-          <div class="info-chips">
-            <span class="info-chip">26 de julio 2026</span>
-            <span class="info-chip">Santa Ana</span>
-            <span class="info-chip">Fiesta patronal</span>
+        <div class="info-content reveal">
+          <div class="info-content__hero">
+            <img src="../assets/media/eventos/julias.jpg" alt="Fiestas Julias de Santa Ana" />
+            <div class="info-content__hero-grad"></div>
+            <h2 class="info-content__hero-title">Fiestas Julias de Santa Ana</h2>
+            <p class="info-content__hero-sub">26 de Julio de 2026 — La Ciudad Heroica en fiesta</p>
           </div>
-          <p>Las Fiestas Julias son la celebración patronal de Santa Ana en honor a Nuestra Señora Santa Ana. Durante varios días la 'Ciudad Heroica' se llena de procesiones, música en vivo y actividades culturales frente a su emblemática catedral neogótica.</p>
-          <p>La feria incluye desfiles de carrozas, elección de reina de las fiestas, ferias artesanales y gastronómicas en el parque central, además de conciertos que atraen visitantes de todo el occidente del país.</p>
-          <p>Es también una oportunidad para admirar el patrimonio arquitectónico de Santa Ana, incluyendo el Teatro de Santa Ana y el Palacio Municipal, iluminados especialmente durante la temporada de fiestas.</p>
-          <div class="evento-actions">
-            <a class="evento-actions__btn" href="../views/mapa.html?evento=23&from=eventos.html" target="_self">
-              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
-            </a>
-            <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=fiestasjulias" target="_self">
-              <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
-            </a>
-            <a class="evento-actions__btn" href="../views/calendario.html?id=3" target="_self">
-              <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
-            </a>
+          <div class="info-content__body">
+            <div class="info-chips">
+              <span class="info-chip">26 de julio 2026</span>
+              <span class="info-chip">Santa Ana</span>
+              <span class="info-chip">Fiesta patronal</span>
+            </div>
+            <p>Las Fiestas Julias son las celebraciones patronales de la ciudad de Santa Ana y se realizan en honor a Nuestra Señora Santa Ana, patrona del municipio. Durante varios días, la Ciudad Heroica se llena de actividades religiosas, culturales y recreativas que reúnen a miles de visitantes provenientes de todo el país.</p>
+            <p>Entre las actividades más destacadas se encuentran las solemnes procesiones, misas, desfiles del correo, carrozas alegóricas, elección y coronación de la reina de las fiestas, conciertos, juegos mecánicos y presentaciones artísticas. Además, el campo de la feria ofrece espacios para el entretenimiento familiar, mientras que los parques y plazas albergan exposiciones artesanales y una variada muestra de gastronomía típica salvadoreña.</p>
+            <p>Las Fiestas Julias también permiten apreciar el importante patrimonio arquitectónico de Santa Ana, como su imponente Catedral de estilo neogótico, el Teatro Nacional de Santa Ana y el Palacio Municipal, edificios que se convierten en el escenario de diversas actividades culturales durante la celebración.</p>
+            <p>Consideradas una de las fiestas patronales más importantes de El Salvador, las Fiestas Julias fortalecen la identidad cultural de los santanecos, impulsan el turismo y contribuyen al desarrollo económico de la ciudad mediante el comercio, la gastronomía y las expresiones artísticas tradicionales.</p>
+            <div class="evento-actions">
+              <a class="evento-actions__btn" href="../views/mapa.html?evento=23&from=eventos.html" target="_self">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                Ver en mapa
+              </a>
+              <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=fiestasjulias" target="_self">
+                <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
+                Ver publicaciones
+              </a>
+              <a class="evento-actions__btn" href="../views/calendario.html?id=3" target="_self">
+                <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
+                Revisar el calendario
+              </a>
+            </div>
           </div>
         </div>
-      </div>
     </div>
 
     <div class="info-panel" id="tab-carnaval-sm">
@@ -417,7 +418,7 @@
           <img src="../assets/media/eventos/carnaval.jpg" alt="Gran Carnaval de San Miguel" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Gran Carnaval de San Miguel</h2>
-          <p class="info-content__hero-sub">28 de Noviembre de 2026 — El carnaval más grande de Centroamérica</p>
+          <p class="info-content__hero-sub">Último sábado de noviembre — El carnaval más grande de Centroamérica</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
@@ -425,9 +426,10 @@
             <span class="info-chip">San Miguel</span>
             <span class="info-chip">Orquestas en vivo</span>
           </div>
-          <p>El Carnaval de San Miguel, celebrado en honor a la Virgen de la Paz, es reconocido como el carnaval más grande de Centroamérica. Decenas de orquestas nacionales e internacionales tocan en vivo mientras miles de personas bailan por las calles del centro migueleño.</p>
-          <p>Comparsas, carrozas alegóricas y disfiles llenos de color recorren la ciudad durante toda la noche, en un ambiente de alegría colectiva que combina música tropical, cumbia y ritmos salvadoreños.</p>
-          <p>El carnaval es también un motor económico importante para la ciudad, atrayendo turismo nacional e internacional y dinamizando el comercio local de comida y bebidas típicas.</p>
+          <p>El Gran Carnaval de San Miguel es la celebración más importante de las fiestas patronales dedicadas a Nuestra Señora de la Paz, patrona de la ciudad. Considerado el carnaval más grande de Centroamérica, reúne cada año a cientos de miles de personas que disfrutan de una noche llena de música, baile y tradición en las principales calles de San Miguel.</p>
+          <p>Durante el carnaval, decenas de orquestas nacionales e internacionales, grupos musicales, DJs y artistas de distintos géneros se presentan en múltiples escenarios distribuidos por toda la ciudad. Además, comparsas, carrozas alegóricas, bandas de paz, espectáculos de luces y desfiles llenan las calles de color y alegría, convirtiendo el evento en una de las mayores expresiones culturales del país.</p>
+          <p>La celebración también destaca por su variada oferta gastronómica, donde los visitantes pueden degustar pupusas, yuca frita con chicharrón, elotes locos, riguas, atol de elote, minutas y muchas otras comidas típicas. Artesanos y emprendedores aprovechan la ocasión para exhibir y comercializar productos elaborados en diferentes regiones de El Salvador.</p>
+          <p>El Gran Carnaval de San Miguel representa un importante impulso para el turismo y la economía local, atrayendo visitantes nacionales y extranjeros. Más allá de la fiesta, simboliza la identidad, hospitalidad y espíritu alegre del pueblo migueleño, consolidándose como uno de los eventos culturales más emblemáticos de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=26&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
@@ -656,7 +658,7 @@
     <div class="info-panel" id="tab-flores-palmas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Festival de las Flores y Palmas" />
+          <img src="../assets/media/eventos/flores-palmas.jpg" alt="Festival de las Flores y Palmas" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Festival de las Flores y Palmas</h2>
           <p class="info-content__hero-sub">10 de Mayo de 2026 — El inicio de la época lluviosa</p>
@@ -667,9 +669,10 @@
             <span class="info-chip">Panchimalco, San Salvador</span>
             <span class="info-chip">Procesión de las Palmas</span>
           </div>
-          <p>El Festival de las Flores y Palmas es una tradición colorida en Panchimalco que marca el inicio de la época lluviosa con procesiones adornadas de palmas y flores silvestres.</p>
-          <p>La Procesión de las Palmas es una de las expresiones indígenas más auténticas del país: los habitantes de este municipio de raíz pipil decoran palmas con flores y las llevan en procesión hasta la iglesia colonial.</p>
-          <p>El evento se acompaña de danzas folclóricas, música tradicional y ferias de artesanía que reflejan la identidad indígena de Panchimalco, uno de los municipios que mejor conserva sus raíces ancestrales.</p>
+          <p>El Festival de las Flores y Palmas es una de las tradiciones más antiguas y representativas de Panchimalco. Cada año reúne a cientos de habitantes y visitantes para celebrar una festividad que combina la fe católica con las costumbres indígenas heredadas del pueblo nahua-pipil, convirtiéndose en una expresión única del patrimonio cultural salvadoreño.</p>
+          <p>La tradicional Procesión de las Palmas recorre las principales calles del municipio hasta llegar a la histórica iglesia colonial de Santa Cruz de Roma. Los participantes portan palmas decoradas con flores silvestres, hojas, frutos y coloridos adornos elaborados artesanalmente, como símbolo de agradecimiento por las cosechas y de esperanza por el inicio de la temporada lluviosa.</p>
+          <p>Durante la celebración también se realizan presentaciones de danza folclórica, música tradicional, ceremonias religiosas, exposiciones de artesanías y una feria gastronómica donde los visitantes pueden degustar platillos típicos salvadoreños preparados por los habitantes del municipio. Estas actividades fortalecen el turismo y permiten conservar las tradiciones que han caracterizado a Panchimalco durante generaciones.</p>
+          <p>Gracias a su riqueza cultural e histórica, este festival es considerado una de las manifestaciones más importantes de la identidad indígena de El Salvador. La combinación de elementos religiosos, costumbres ancestrales y participación comunitaria convierte a esta celebración en una experiencia que refleja la diversidad y el legado cultural del país.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=25&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
@@ -691,7 +694,7 @@
     <div class="info-panel" id="tab-chicharron">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Festival Internacional del Chicharrón" />
+          <img src="../assets/media/eventos/chicharron.jpg" alt="Festival Internacional del Chicharrón" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Festival Internacional del Chicharrón</h2>
           <p class="info-content__hero-sub">12 de Diciembre de 2026 — Sabor y tradición en Santa Tecla</p>
@@ -702,9 +705,10 @@
             <span class="info-chip">Santa Tecla, La Libertad</span>
             <span class="info-chip">Feria gastronómica</span>
           </div>
-          <p>El Festival Internacional del Chicharrón es una feria culinaria de gran afluencia turística celebrada en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo.</p>
-          <p>Cocineros y restaurantes de todo el país compiten y comparten recetas que van desde el chicharrón tradicional hasta creaciones gourmet, acompañadas de música en vivo y espacios familiares.</p>
-          <p>El festival se ha convertido en un referente gastronómico nacional que combina tradición culinaria, emprendimiento local y turismo interno en una de las ciudades más visitadas del área metropolitana.</p>
+          <p>El Festival Internacional del Chicharrón es uno de los eventos gastronómicos más populares de Santa Tecla y reúne cada año a miles de visitantes para celebrar uno de los platillos más representativos de la cocina salvadoreña. El festival busca promover la gastronomía nacional, fortalecer el turismo y apoyar a emprendedores y restaurantes locales.</p>
+          <p>Durante la celebración, cocineros y comerciantes presentan una gran variedad de platillos preparados con chicharrón, desde la receta tradicional hasta innovadoras propuestas acompañadas de yuca frita, pupusas, tacos, hamburguesas, nachos y otros platillos típicos. Los asistentes también pueden degustar bebidas tradicionales y postres elaborados por productores nacionales.</p>
+          <p>Además de la feria gastronómica, el evento ofrece música en vivo, presentaciones artísticas, espectáculos culturales, actividades infantiles, concursos culinarios y espacios dedicados al emprendimiento local. Estas actividades convierten al festival en un ambiente familiar que atrae tanto a turistas nacionales como extranjeros.</p>
+          <p>Con el paso de los años, el Festival Internacional del Chicharrón se ha consolidado como una de las principales celebraciones gastronómicas de El Salvador. Su combinación de tradición, innovación culinaria y entretenimiento fortalece la identidad cultural de Santa Tecla y contribuye al desarrollo económico de la ciudad mediante el turismo y el comercio local.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=50&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
@@ -726,7 +730,7 @@
     <div class="info-panel" id="tab-jocote">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Festival del Jocote Corona" />
+          <img src="../assets/media/eventos/jocote.jpeg" alt="Festival del Jocote Corona" />
           <div class="info-content__hero-grad"></div>
           <h2 class="info-content__hero-title">Festival del Jocote Corona</h2>
           <p class="info-content__hero-sub">18 de Octubre de 2026 — El fruto emblemático del Cerro Verde</p>
@@ -734,12 +738,13 @@
         <div class="info-content__body">
           <div class="info-chips">
             <span class="info-chip">18 de octubre 2026</span>
-            <span class="info-chip">Santa Ana</span>
+            <span class="info-chip">Cerro Verde, Santa Ana</span>
             <span class="info-chip">Feria gastronómica</span>
           </div>
-          <p>El Festival del Jocote Corona es una feria gastronómica celebrada en la zona del Cerro Verde, dedicada a la comercialización y platillos derivados de este icónico fruto salvadoreño.</p>
-          <p>Productores locales ofrecen jocotes en miel, encurtidos, mermeladas y otros derivados, además de platillos típicos que incorporan esta fruta de temporada en preparaciones dulces y saladas.</p>
-          <p>El festival impulsa la economía de los pequeños productores de la zona occidental y es una oportunidad para conocer de cerca la agricultura tradicional salvadoreña.</p>
+          <p>El Festival del Jocote Corona es una de las celebraciones gastronómicas más representativas de la zona del Cerro Verde y rinde homenaje a esta variedad de jocote, reconocida por su gran tamaño, sabor dulce y excelente calidad. Cada año reúne a productores, emprendedores y visitantes para promover uno de los frutos más emblemáticos del occidente de El Salvador.</p>
+          <p>Durante el festival, los asistentes pueden degustar jocotes frescos y una amplia variedad de productos derivados como jocotes en miel, mermeladas, jaleas, encurtidos, refrescos, postres y otras recetas tradicionales elaboradas por productores locales. También se realizan degustaciones, concursos gastronómicos y exhibiciones sobre el cultivo y la cosecha de esta fruta.</p>
+          <p>La celebración se complementa con presentaciones artísticas, música en vivo, danzas folclóricas, ferias de artesanías y actividades recreativas para toda la familia. Además, ofrece a los visitantes la oportunidad de disfrutar de los paisajes naturales del Parque Nacional Cerro Verde y conocer la riqueza agrícola y turística de la región.</p>
+          <p>El Festival del Jocote Corona fortalece la economía de los pequeños productores, impulsa el turismo interno y contribuye a preservar las tradiciones agrícolas salvadoreñas. Gracias a esta celebración, el jocote corona continúa siendo uno de los productos más representativos de la zona occidental y un símbolo de la riqueza natural y gastronómica de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=28&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
@@ -758,8 +763,6 @@
       </div>
     </div>
 
-  </main>
-
   <footer class="footer">
     <div class="footer__inner">
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
@@ -774,9 +777,9 @@
       <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
-  <script src="../assets/js/script.js"></script>
-  <script src="../assets/js/tabs.js"></script>
-  <script src="../assets/js/animations.js"></script>
-  <script src="../assets/js/chatbot.js"></script>
+  <script src="../assets/js/script.js?v=2"></script>
+  <script src="../assets/js/tabs.js?v=2"></script>
+  <script src="../assets/js/animations.js?v=2"></script>
+  <script src="../assets/js/chatbot.js?v=2"></script>
 </body>
 </html>

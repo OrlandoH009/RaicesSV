@@ -46,13 +46,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Flechas de navegación del carrusel
   if (list && prevBtn && nextBtn) {
-    const scrollAmount = () => list.clientWidth * 0.6;
+    // Forzar posición inicial: la barra siempre debe arrancar mostrando el primer tab.
+    list.scrollLeft = 0;
+    requestAnimationFrame(() => { list.scrollLeft = 0; });
+    window.addEventListener('load', () => { list.scrollLeft = 0; });
+
+    const btns = Array.from(list.querySelectorAll('.tab-btn'));
+
+    function currentIndex() {
+      const listRect = list.getBoundingClientRect();
+      const center = listRect.left + listRect.width / 2;
+      let closest = 0;
+      let closestDist = Infinity;
+      btns.forEach((b, i) => {
+        const r = b.getBoundingClientRect();
+        const bCenter = r.left + r.width / 2;
+        const dist = Math.abs(bCenter - center);
+        if (dist < closestDist) { closestDist = dist; closest = i; }
+      });
+      return closest;
+    }
+
+    function scrollToIndex(i) {
+      const clamped = Math.max(0, Math.min(btns.length - 1, i));
+      const btn = btns[clamped];
+      if (!btn) return;
+      const listRect = list.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const offset = (btnRect.left + btnRect.width / 2) - (listRect.left + listRect.width / 2);
+      list.scrollBy({ left: offset, behavior: 'smooth' });
+    }
 
     prevBtn.addEventListener('click', () => {
-      list.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+      scrollToIndex(currentIndex() - 1);
     });
     nextBtn.addEventListener('click', () => {
-      list.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+      scrollToIndex(currentIndex() + 1);
     });
 
     function updateArrows() {
@@ -63,6 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
     list.addEventListener('scroll', updateArrows);
     window.addEventListener('resize', updateArrows);
     updateArrows();
+
+    // Recalcular después de que corran animaciones de entrada (GSAP .reveal, etc.)
+    // que pueden dejar el carrusel con un ancho incorrecto en el primer render
+    // y bloquear las flechas / el scroll hacia las últimas tabs.
+    setTimeout(updateArrows, 300);
+    setTimeout(updateArrows, 1000);
+    window.addEventListener('load', updateArrows);
   }
 
   document.querySelectorAll('.info-panel.active .reveal').forEach(el => {
