@@ -3,12 +3,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'raicessv'
+    database: process.env.DB_NAME || 'raicessv',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000
+});
+
+db.on('error', (err) => {
+    console.error('Error inesperado en el pool de MySQL:', err);
 });
 
 const ensureProfileColumns = () => {
@@ -64,12 +73,13 @@ const ensurePasswordResetsTable = () => new Promise((resolve) => {
     );
 });
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
     if (err) {
-        console.log(err);
+        console.error('No se pudo conectar a MySQL:', err);
         return;
     }
 
+    connection.release();
     console.log('MySQL conectado');
 
     ensureProfileColumns()
@@ -78,7 +88,7 @@ db.connect((err) => {
             return ensurePasswordResetsTable();
         })
         .then(() => {
-            console.log('Tabla password_resets verificada');
+            console.log('Tabla de reseteo de contraseñas verificada');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);
