@@ -11,7 +11,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "Época Prehispánica",
     title: "Cuscatlán: el señorío pipil",
     date: "Siglo XI – 1524",
-    img: "../assets/media/Tazumal.webp",
+    img: "../assets/media/historia/tazumal2.jpg",
     text: [
       "Mucho antes de la llegada española, el territorio ya estaba habitado por civilizaciones agrícolas complejas. Hacia el siglo XI, un pueblo de origen náhuatl —emparentado con los aztecas— se asentó en el centro del territorio y fundó el señorío de Cuscatlán, que significa 'lugar de joyas y riquezas'.",
       "Los pipiles construyeron una sociedad organizada en nobles, sacerdotes, guerreros y agricultores. Cultivaban maíz, cacao y algodón, y mantenían rutas comerciales que llegaban hasta México y Costa Rica. Su capital se ubicaba cerca de lo que hoy es Antiguo Cuscatlán.",
@@ -26,7 +26,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "Colonia",
     title: "La conquista de Cuscatlán",
     date: "1524 – 1528",
-    img: "../assets/media/Centro Historico.jpg",
+    img: "../assets/media/historia/conquista.png",
     text: [
       "En 1524, Pedro de Alvarado —enviado por Hernán Cortés desde México— llegó al territorio pipil buscando someterlo a la Corona española. Se encontró con una resistencia feroz liderada por el cacique Atlacatl, que lo obligó a retirarse herido tras varias batallas.",
       "La conquista definitiva llegó en 1528, cuando Diego de Alvarado, hermano de Pedro, fundó la villa de San Salvador. El proceso fue devastador para los pueblos originarios, que perdieron tierras, autonomía y millones de vidas por la guerra y las enfermedades traídas de Europa.",
@@ -41,7 +41,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "Colonia",
     title: "La economía del añil",
     date: "1560 – 1800",
-    img: "../assets/media/Catedral.jpg",
+    img: "../assets/media/historia/eco-anil.png",
     text: [
       "Durante la Colonia, la economía salvadoreña giró en torno al añil (índigo), un tinte azul extraído de una planta local y muy codiciado en los talleres textiles de Europa. El añil convirtió a la provincia de San Salvador en una de las más prósperas de la región centroamericana.",
       "El cultivo se sostenía sobre haciendas que explotaban mano de obra indígena y, en menor medida, africana esclavizada. La riqueza generada por el añil sentó las bases de las primeras grandes fortunas familiares del territorio, antecesoras de la oligarquía que dominaría siglos después.",
@@ -56,7 +56,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "Independencia",
     title: "Independencia de Centroamérica",
     date: "15 de septiembre de 1821",
-    img: "../assets/media/palacio-nacional.jpg",
+    img: "../assets/media/historia/acta-independe.jpg",
     text: [
       "El 15 de septiembre de 1821, representantes de las provincias centroamericanas firmaron en Guatemala el Acta de Independencia, poniendo fin a tres siglos de dominio español. La noticia llegó a San Salvador días después.",
       "El Salvador vivió un período turbulento: primero fue anexado brevemente al Imperio Mexicano de Iturbide, y luego se integró a la República Federal de Centroamérica, un proyecto de unión regional que terminó fragmentándose por las tensiones entre liberales y conservadores.",
