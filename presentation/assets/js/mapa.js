@@ -6,6 +6,7 @@
    Para añadir nuevos puntos, copia uno de los objetos y
    ajusta: nombre, coords [lat, lng], cat, icono, desc, chips
    ══════════════════════════════════════════════════════════ */
+
 const LANDMARKS = [
   /* ── SITIOS CULTURALES ── */
   {
@@ -57,7 +58,7 @@ const LANDMARKS = [
     coords: [13.7020, -89.2230]
   },
   {
-    id: 7, cat: 'cultural', emoji: '🏔️', color: '#be8e56',
+    id: 7, cat: 'cultural', emoji: '🏛️', color: '#be8e56',
     nombre: 'Ruinas de San Andrés',
     lugar: 'Ciudad Arce, La Libertad',
     desc: 'Segundo sitio arqueológico más grande del país, con estructuras mayas del período Clásico.',
@@ -67,15 +68,15 @@ const LANDMARKS = [
 
   /* ── GASTRONOMÍA ── */
   {
-    id: 8, cat: 'gastronomia', emoji: '🫓', color: '#e05252',// Nose si existe
-    nombre: 'Pupusería El Caserío',
-    lugar: 'Santa Ana (zona típica)',
-    desc: 'Zona emblemática de pupuserías tradicionales de occidente, con las mejores pupusas de chicharrón y queso.',
-    chips: ['Pupusas', 'Curtido', 'Tradición'],
-    coords: [13.9989, -89.5597]
+    id: 8, cat: 'gastronomia', emoji: '🫓', color: '#e05252',
+    nombre: 'Pupusodromo El Triángulo',
+    lugar: 'Olocuilta, La Paz',
+    desc: 'El lugar más emblemático del país para probar las auténticas pupusas de arroz cocinadas en comal de barro y leña.',
+    chips: ['Pupusas de arroz', 'Mundial', 'Tradición'],
+    coords: [13.5682, -89.1195] // Ubicación real en Olocuilta, desfasada de los Llanos (id: 70)
   },
   {
-    id: 9, cat: 'gastronomia', emoji: '🍞', color: '#e05252',//Cambiarlo a lugar para probar y no una comida en especial
+    id: 9, cat: 'gastronomia', emoji: '🍞', color: '#e05252',
     nombre: 'Semitas de Cojutepeque',
     lugar: 'Cojutepeque, Cuscatlán',
     desc: 'Ciudad famosa por la Semita Papalona, pan dulce artesanal elaborado en horno de leña con relleno de piña o mora.',
@@ -88,7 +89,7 @@ const LANDMARKS = [
     lugar: 'Centro Histórico, San Salvador',
     desc: 'El mercado más grande del país, con cocinas tradicionales donde probar sopa de pata, atol, tamales y yuca frita.',
     chips: ['Sopa de pata', 'Atol de elote', 'Comida típica'],
-    coords: [13.6978, -89.1928]
+    coords: [13.6965, -89.1935] // Desfasado del cúmulo central
   },
   {
     id: 11, cat: 'gastronomia', emoji: '🌽', color: '#e05252',
@@ -122,7 +123,7 @@ const LANDMARKS = [
     lugar: 'Suchitoto, Cuscatlán',
     desc: 'Festival Internacional de Arte y Cultura que convoca artistas de toda Latinoamérica anualmente.',
     chips: ['Festival Internacional', 'Arte', 'Música'],
-    coords: [14.0311, -89.0281]
+    coords: [14.0322, -89.0269] // Desfasado de Suchitoto base (id: 4)
   },
   {
     id: 15, cat: 'evento', emoji: '✝️', color: '#52a0e0',
@@ -130,7 +131,7 @@ const LANDMARKS = [
     lugar: 'Santa Ana',
     desc: 'Una de las catedrales más hermosas de Centroamérica y sede de las tradiciones de Semana Santa del occidente del país.',
     chips: ['Semana Santa', 'Neogótica', 'Alfombras'],
-    coords: [13.9944, -89.5597]
+    coords: [13.9958, -89.5582] // Desfasado de Fiestas Julias (id: 23)
   },
 
   /* ── HISTORIA ── */
@@ -143,12 +144,12 @@ const LANDMARKS = [
     coords: [13.7500, -89.6692]
   },
   {
-    id: 17, cat: 'historia', emoji: '🏛️', color: '#7c52e0',//Ver si de verdad existe
-    nombre: 'Casa de la Independencia',
-    lugar: 'San Salvador',
-    desc: 'Lugar simbólico donde se gestaron los primeros gritos de independencia en 1811 liderados por José Matías Delgado.',
-    chips: ['1811', 'Independencia', 'José Matías Delgado'],
-    coords: [13.6990, -89.1920]
+    id: 17, cat: 'historia', emoji: '🏛️', color: '#7c52e0',
+    nombre: 'Ex-Casa Presidencial',
+    lugar: 'San Jacinto, San Salvador',
+    desc: 'Sede del poder ejecutivo entre 1931 y 2001. Una joya neoclásica con salones emblemáticos que narran la historia política del siglo XX.',
+    chips: ['Siglo XX', 'Neoclásico', 'San Jacinto'],
+    coords: [13.6868, -89.1932] // Ubicación real en San Jacinto, desfasada del Museo Militar (id: 64)
   },
   {
     id: 18, cat: 'historia', emoji: '⛪', color: '#7c52e0',
@@ -179,7 +180,7 @@ const LANDMARKS = [
 
   /* ── FESTIVIDADES DEL CALENDARIO ── */
   {
-    id: 21, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 21, cat: 'evento', emoji: '🇸🇻', color: '#52a0e0',
     nombre: 'Fiestas Agostinas',
     lugar: 'San Salvador, El Salvador',
     desc: 'Celebración principal en honor al Divino Salvador del Mundo, con carrozas y el tradicional desfile de Correos.',
@@ -187,7 +188,7 @@ const LANDMARKS = [
     coords: [13.6929, -89.2182]
   },
   {
-    id: 22, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 22, cat: 'evento', emoji: '🏮', color: '#52a0e0',
     nombre: 'Día de los Farolitos',
     lugar: 'Ahuachapán, El Salvador',
     desc: 'Hermosa tradición donde las calles se iluminan por completo con miles de faroles artesanales.',
@@ -195,7 +196,7 @@ const LANDMARKS = [
     coords: [13.9214, -89.845]
   },
   {
-    id: 23, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 23, cat: 'evento', emoji: '👑', color: '#52a0e0',
     nombre: 'Fiestas Julias',
     lugar: 'Santa Ana, El Salvador',
     desc: 'Grandes celebraciones culturales y religiosas en la Ciudad Heroica, realizadas en honor a Nuestra Señora Santa Ana.',
@@ -203,7 +204,7 @@ const LANDMARKS = [
     coords: [13.9942, -89.5597]
   },
   {
-    id: 24, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 24, cat: 'evento', emoji: '🔔', color: '#52a0e0',
     nombre: 'Fiestas Patronales de San Vicente',
     lugar: 'San Vicente, El Salvador',
     desc: 'Celebraciones patronales dedicadas a San Vicente Abad y Mártir, llenas de actividades culturales bajo la histórica torre.',
@@ -211,7 +212,7 @@ const LANDMARKS = [
     coords: [13.6411, -88.7847]
   },
   {
-    id: 25, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 25, cat: 'evento', emoji: '🌴', color: '#52a0e0',
     nombre: 'Festival de las Flores y Palmas',
     lugar: 'La Libertad, El Salvador',
     desc: 'Tradición colorida en Panchimalco que marca el inicio de la época lluviosa con procesiones adornadas de palmas y flores silvestres.',
@@ -219,7 +220,7 @@ const LANDMARKS = [
     coords: [13.6769, -89.2797]
   },
   {
-    id: 26, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 26, cat: 'evento', emoji: '🎷', color: '#52a0e0',
     nombre: 'Gran Carnaval de San Miguel',
     lugar: 'San Miguel, El Salvador',
     desc: 'El carnaval más grande de Centroamérica, celebrado en honor a la Virgen de la Paz con decenas de orquestas en vivo.',
@@ -227,7 +228,7 @@ const LANDMARKS = [
     coords: [13.4833, -88.1833]
   },
   {
-    id: 27, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 27, cat: 'evento', emoji: '⚔️', color: '#52a0e0',
     nombre: 'Fiestas de los Historiantes de Cuisnahuat',
     lugar: 'Sonsonate, El Salvador',
     desc: 'Danza tradicional de Moros y Cristianos en honor a San Carlos Borromeo, preservando las raíces ancestrales indigenas.',
@@ -235,7 +236,7 @@ const LANDMARKS = [
     coords: [13.6667, -89.7333]
   },
   {
-    id: 28, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 28, cat: 'gastronomia', emoji: '🟢', color: '#e05252',
     nombre: 'Festival del Jocote Corona',
     lugar: 'Santa Ana, El Salvador',
     desc: 'Feria gastronómica celebrada en el Cerro Verde dedicada a la comercialización y platillos derivados de este icónico fruto.',
@@ -243,31 +244,31 @@ const LANDMARKS = [
     coords: [13.8494, -89.6309]
   },
   {
-    id: 29, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 29, cat: 'evento', emoji: '💀', color: '#52a0e0',
     nombre: 'Día de la Calabiuza',
     lugar: 'Cuscatlán, El Salvador',
     desc: 'Desfile tradicional nocturno en Tonacatepeque donde cobran vida los personajes de las leyendas salvadoreñas como la Siguanaba.',
     chips: ['Festival Cultural', '1 de Noviembre', 'Cuscatlán'],
-    coords: [13.7167, -88.9333]
+    coords: [13.7825, -89.2614]
   },
   {
-    id: 30, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Festival de los Canastos',//Nose si existe
-    lugar: 'Cabañas, El Salvador',
-    desc: 'Celebrado en Sensuntepeque para honrar la destreza artesanal de la confección de canastos y el patrimonio de la localidad.',
-    chips: ['Festival Cultural', '21 de Diciembre', 'Cabañas'],
-    coords: [13.8667, -88.6333]
+    id: 30, cat: 'evento', emoji: '🔥', color: '#52a0e0',
+    nombre: 'Día de los Canchules',
+    lugar: 'Sensuntepeque, Cabañas',
+    desc: 'Tradición única cada 4 de diciembre donde los habitantes crean altares con frutas y comida típica, repitiendo el dicho popular "¡Canchul, si no me das, te quiebro el candil!".',
+    chips: ['Tradición Oral', '4 de Diciembre', 'Cabañas'],
+    coords: [13.8765, -88.6312] // Coordenadas reales ajustadas en el casco urbano de Sensuntepeque
   },
   {
-    id: 31, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 31, cat: 'evento', emoji: '✝️', color: '#52a0e0',
     nombre: 'Día de la Cruz',
     lugar: 'San Salvador, El Salvador',
     desc: 'Tradición nacional donde se adorna una cruz de árbol de jiote con frutas de la época para bendecir los hogares.',
     chips: ['Celebración Religiosa', '3 de Mayo', 'San Salvador'],
-    coords: [13.6929, -89.2182]
+    coords: [13.6945, -89.2165] // Desfasado de Fiestas Agostinas
   },
   {
-    id: 32, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 32, cat: 'gastronomia', emoji: '🌽', color: '#e05252',
     nombre: 'Festival del Maíz',
     lugar: 'Chalatenango, El Salvador',
     desc: 'Celebración popular en honor a la cosecha del maíz con venta de atol, riguas, tamales y artesanías de la zona.',
@@ -275,23 +276,23 @@ const LANDMARKS = [
     coords: [14.0333, -88.9333]
   },
   {
-    id: 33, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Fiestas del Bálsamo',//Nose si existe
-    lugar: 'La Libertad, El Salvador',
-    desc: 'Celebración en los municipios de la cordillera costera, destacando la extracción ancestral de la resina aromática.',
-    chips: ['Festival Cultural', '15 de Febrero', 'La Libertad'],
-    coords: [13.5167, -89.3167]
+    id: 33, cat: 'evento', emoji: '🪵', color: '#52a0e0',
+    nombre: 'Tradición del Bálsamo en Jayaque',
+    lugar: 'Jayaque, La Libertad',
+    desc: 'Municipio cafetalero y productor de la Cordillera del Bálsamo, donde los artesanos locales preservan el proceso ancestral de extracción y purificación de la resina.',
+    chips: ['Cultura Lenca', 'Tradición Viva', 'La Libertad'],
+    coords: [13.6738, -89.4420] // Ubicado en Jayaque, limpio de Santa Tecla (id: 50) y San Andrés (id: 7)
   },
   {
-    id: 34, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Feria del Membrillo',//Nose si existe
-    lugar: 'Morazán, El Salvador',
-    desc: 'Feria local en Perquín que expone el cultivo y derivados gastronómicos de la fruta del membrillo típica del clima fresco.',
-    chips: ['Feria Municipal', '14 de Junio', 'Morazán'],
-    coords: [13.9667, -88.1667]
+    id: 34, cat: 'evento', emoji: '🎭', color: '#52a0e0',
+    nombre: 'Tradición de los Encuentros',
+    lugar: 'San Antonio del Monte, Sonsonate',
+    desc: 'Centenaria festividad religiosa y cultural donde se encuentran las imágenes de los santos patronos de los pueblos vecinos, acompañada de danzas tradicionales como el Chinchintora.',
+    chips: ['Danza Ancestral', 'Único en CA', 'Sonsonate'],
+    coords: [13.7188, -89.7432] // Ubicación real en San Antonio del Monte, libre de los cúmulos del centro de Sonsonate
   },
   {
-    id: 35, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 35, cat: 'evento', emoji: '⛵', color: '#52a0e0',
     nombre: 'Fiestas Patronales de La Unión',
     lugar: 'La Unión, El Salvador',
     desc: 'Celebradas en honor a la Inmaculada Concepción con desfiles, carrozas y actividades marítimas en el Golfo de Fonseca.',
@@ -299,7 +300,7 @@ const LANDMARKS = [
     coords: [13.3372, -87.8447]
   },
   {
-    id: 36, cat: 'evento', emoji: '📅', color: '#52a0e0',//Nose si existe
+    id: 36, cat: 'gastronomia', emoji: '🏮', color: '#e05252',
     nombre: 'Festival de los Farolitos en Ataco',
     lugar: 'Ahuachapán, El Salvador',
     desc: 'Concepción de Ataco se viste de luces, música folclórica y alta gastronomía para conmemorar el nacimiento de la Virgen María.',
@@ -307,23 +308,23 @@ const LANDMARKS = [
     coords: [13.8722, -89.8494]
   },
   {
-    id: 37, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 37, cat: 'gastronomia', emoji: '🍬', color: '#e05252',
     nombre: 'Festival de la Panela',
     lugar: 'Cuscatlán, El Salvador',
     desc: 'Celebrado en los moliendas de San Lorenzo, destacando la producción artesanal del dulce de panela y sus derivados derivados.',
     chips: ['Feria Municipal', '22 de Marzo', 'Cuscatlán'],
-    coords: [13.7167, -88.9333]
+    coords: [13.7155, -88.9348] // Desfasado de Cojutepeque
   },
   {
-    id: 38, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Fiestas del Rey Guajactial',//Nose si existe
+    id: 38, cat: 'evento', emoji: '🏹', color: '#52a0e0',
+    nombre: 'Fiestas del Rey Guajactial',
     lugar: 'Sonsonate, El Salvador',
     desc: 'Conmemoración histórica y rescate de la identidad pipil en Izalco, recordando el legado de los caciques ancestrales.',
     chips: ['Festival Cultural', '18 de Enero', 'Sonsonate'],
-    coords: [13.75, -89.6692]
+    coords: [13.7512, -89.6678] // Desfasado de Casa de la Cultura de Izalco (id: 16)
   },
   {
-    id: 39, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 39, cat: 'gastronomia', emoji: '🦀', color: '#e05252',
     nombre: 'Festival del Cangrejo',
     lugar: 'La Paz, El Salvador',
     desc: 'Feria gastronómica marina en San Luis La Herradura, exaltando el turismo y el consumo sostenible del recurso costero.',
@@ -331,7 +332,7 @@ const LANDMARKS = [
     coords: [13.3333, -88.9167]
   },
   {
-    id: 40, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 40, cat: 'evento', emoji: '🚶', color: '#52a0e0',
     nombre: 'Romería de Esquipulas',
     lugar: 'Chalateanago, El Salvador',
     desc: 'Peregrinación masiva en honor al Cristo Negro en Dulce Nombre de María, una de las devociones más antiguas del norte.',
@@ -339,7 +340,7 @@ const LANDMARKS = [
     coords: [14.1167, -88.9333]
   },
   {
-    id: 41, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 41, cat: 'evento', emoji: '🏺', color: '#52a0e0',
     nombre: 'Festival del Barro',
     lugar: 'Cabañas, El Salvador',
     desc: 'Exposición artesanal en Ilobasco que rinde homenaje a los maestros alfareros y sus famosas figuras en miniatura.',
@@ -347,7 +348,7 @@ const LANDMARKS = [
     coords: [13.8422, -88.8508]
   },
   {
-    id: 42, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 42, cat: 'gastronomia', emoji: '🍚', color: '#e05252',
     nombre: 'Fiestas del Arroz',
     lugar: 'San Vicente, El Salvador',
     desc: 'Desarrollado en San Esteban Catarina, celebrando el procesamiento y soberanía alimentaria ligada al cultivo de arroz.',
@@ -355,15 +356,15 @@ const LANDMARKS = [
     coords: [13.7333, -88.75]
   },
   {
-    id: 43, cat: 'evento', emoji: '📅', color: '#52a0e0',
-    nombre: 'Festival de la Juventudes Populares',
+    id: 43, cat: 'evento', emoji: '🎭', color: '#52a0e0',
+    nombre: 'Festival de la Juventitudes Populares',
     lugar: 'Morazán, El Salvador',
     desc: 'Encuentro de arte, memoria histórica, música latinoamericana y talleres de teatro social en el municipio de El Mozote.',
     chips: ['Festival Cultural', '12 de Agosto', 'Morazán'],
     coords: [13.7833, -88.15]
   },
   {
-    id: 44, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 44, cat: 'gastronomia', emoji: '🍤', color: '#e05252',
     nombre: 'Feria del Marisco',
     lugar: 'Usulután, El Salvador',
     desc: 'Evento gastronómico masivo en Puerto El Triunfo con degustación de cocteles, curiles y paseos en lancha por la Bahía de Jiquilisco.',
@@ -371,7 +372,7 @@ const LANDMARKS = [
     coords: [13.2833, -88.55]
   },
   {
-    id: 45, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 45, cat: 'evento', emoji: '🌾', color: '#52a0e0',
     nombre: 'Fiesta de la Primicia de la Cosecha',
     lugar: 'La Unión, El Salvador',
     desc: 'Tradición agraria de los pueblos lencas en Conchagua, entregando las primeras mazorcas del año en acción de gracias.',
@@ -379,7 +380,7 @@ const LANDMARKS = [
     coords: [13.3, -87.85]
   },
   {
-    id: 46, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 46, cat: 'gastronomia', emoji: '🚜', color: '#e05252',
     nombre: 'Carnaval de la Panela de Verapaz',
     lugar: 'San Vicente, El Salvador',
     desc: 'Desfile de carretas tradicionales decoradas con caña de azúcar y moliendas portátiles por las principales calles del municipio.',
@@ -387,23 +388,23 @@ const LANDMARKS = [
     coords: [13.65, -88.85]
   },
   {
-    id: 47, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 47, cat: 'gastronomia', emoji: '🌭', color: '#e05252',
     nombre: 'Fiestas Patronales de Cojutepeque',
     lugar: 'Cuscatlán, El Salvador',
     desc: 'Celebración en honor a San Sebastián Mártir, conocida a nivel nacional por sus tradicionales e incomparables embutidos.',
     chips: ['Fiesta Patronal', '15 de Enero', 'Cuscatlán'],
-    coords: [13.7167, -88.9333]
+    coords: [13.7179, -88.9318] // Separado de la Semita tradicional (id: 9)
   },
   {
-    id: 48, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 48, cat: 'evento', emoji: '👕', color: '#52a0e0',
     nombre: 'Festival del Añil',
     lugar: 'Cuscatlán, El Salvador',
     desc: 'Celebración en Suchitoto dedicada al \'oro azul\', exponiendo técnicas prehispánicas de teñido artesanal e historia colonial.',
     chips: ['Festival Cultural', '4 de Octubre', 'Cuscatlán'],
-    coords: [14.0311, -89.0281]
+    coords: [14.0298, -89.0295] // Separado de los demás de Suchitoto
   },
   {
-    id: 49, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 49, cat: 'evento', emoji: '🐎', color: '#52a0e0',
     nombre: 'Fiestas Patronales de Gotera',
     lugar: 'Morazán, El Salvador',
     desc: 'Eventos dedicados a San Francisco de Asís en San Francisco Gotera, combinando fe, jaripeos populares y danzas de la región.',
@@ -411,12 +412,12 @@ const LANDMARKS = [
     coords: [13.7, -88.1]
   },
   {
-    id: 50, cat: 'evento', emoji: '📅', color: '#52a0e0',
+    id: 50, cat: 'gastronomia', emoji: '🐷', color: '#e05252',
     nombre: 'Festival Internacional del Chicharrón',
     lugar: 'La Libertad, El Salvador',
     desc: 'Feria culinaria de gran afluencia turística en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo.',
     chips: ['Feria Municipal', '12 de Diciembre', 'La Libertad'],
-    coords: [13.6769, -89.2797]
+    coords: [13.6785, -89.2775]
   },
 
   /* ── NUEVOS LUGARES ── */
@@ -437,7 +438,7 @@ const LANDMARKS = [
     coords: [13.6183, -89.1619]
   },
 
-  /* ── SITIOS CULTURALES (añadidos desde la ficha de "Sitios Culturales") ── */
+  /* ── SITIOS CULTURALES ADICIONALES ── */
   {
     id: 53, cat: 'cultural', emoji: '🏺', color: '#be8e56',
     nombre: 'Casa Blanca',
@@ -460,7 +461,7 @@ const LANDMARKS = [
     lugar: 'Centro Histórico, San Salvador',
     desc: 'El teatro más antiguo que sigue en funciones en Centroamérica, inaugurado en 1917 con estilo neoclásico francés.',
     chips: ['Inaugurado 1917', 'Neoclásico francés', 'Sede cultural'],
-    coords: [13.6980, -89.1918]
+    coords: [13.6976, -89.1923] // Separado del Palacio
   },
   {
     id: 56, cat: 'cultural', emoji: '⛪', color: '#be8e56',
@@ -468,28 +469,28 @@ const LANDMARKS = [
     lugar: 'Centro Histórico, San Salvador',
     desc: 'Templo de arquitectura moderna en concreto expuesto, célebre por sus vitrales de colores que iluminan todo el interior.',
     chips: ['Construida en los 70s', 'Arquitectura moderna', 'Acceso libre'],
-    coords: [13.6972, -89.1905]
+    coords: [13.6968, -89.1895] // Separado del id:18 duplicado
   },
 
-  /* ── EVENTOS CULTURALES NACIONALES (página Eventos Culturales) ── */
+  /* ── EVENTOS CULTURALES NACIONALES ── */
   {
-    id: 57, cat: 'evento', emoji: '✝️', color: '#52a0e0',
+    id: 57, cat: 'evento', emoji: '🎚️', color: '#52a0e0',
     nombre: 'Semana Santa Nacional',
     lugar: 'Catedral Metropolitana, San Salvador',
     desc: 'Procesiones, vía crucis y alfombras de aserrín se viven en todo el país durante la Semana Santa, del 29 de marzo al 5 de abril de 2026.',
     chips: ['29 marzo–5 abril 2026', 'Procesiones', 'Alfombras de aserrín'],
-    coords: [13.6989, -89.1914]
+    coords: [13.6980, -89.1901] // Separado del centro exacto de la Catedral
   },
   {
-    id: 58, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    id: 58, cat: 'evento', emoji: '🔥', color: '#52a0e0',
     nombre: 'Día de la Independencia',
     lugar: 'Plaza Cívica, San Salvador',
     desc: 'El 15 de septiembre de 2026 se conmemora la Independencia de Centroamérica con desfiles escolares y la Carrera de la Antorcha.',
     chips: ['15 de septiembre 2026', 'Desfiles', 'Antorcha de la Libertad'],
-    coords: [13.6994, -89.1912]
+    coords: [13.7005, -89.1898] // Separado del Palacio e Independencia histórica
   },
   {
-    id: 59, cat: 'evento', emoji: '🕯️', color: '#52a0e0',
+    id: 59, cat: 'evento', emoji: '🌼', color: '#52a0e0',
     nombre: 'Día de los Difuntos',
     lugar: 'Cementerio General, San Salvador',
     desc: 'El 1 y 2 de noviembre de 2026 las familias visitan los cementerios del país para honrar a sus seres queridos con flores y el tradicional fiambre.',
@@ -502,7 +503,89 @@ const LANDMARKS = [
     lugar: 'San Salvador',
     desc: 'Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche.',
     chips: ['16–24 diciembre 2026', 'Posadas', 'Nochebuena'],
-    coords: [13.6929, -89.2182]
+    coords: [13.6910, -89.2200] // Separado de Fiestas Agostinas
+  },
+  {
+    id: 61, cat: 'historia', emoji: '📜', color: '#7c52e0',
+    nombre: 'Monumento a los Próceres',
+    lugar: 'Plaza Libertad, San Salvador',
+    desc: 'Lugar exacto donde comenzó el Primer Grito de Independencia de Centroamérica en 1811. Estatua del Ángel de la Libertad.',
+    chips: ['1811', 'Plaza Libertad', 'Centro Histórico'],
+    coords: [13.6960, -89.1885] // Desfasado al sur-este del Rosario y Catedral
+  },
+  {
+    id: 62, cat: 'historia', emoji: '🏛️', color: '#7c52e0',
+    nombre: 'Cine Metro',
+    lugar: 'Centro Histórico, San Salvador',
+    desc: 'Icónico edificio de la época de oro del cine salvadoreño del siglo XX, joya arquitectónica del modernismo capitalino.',
+    chips: ['Siglo XX', 'Arquitectura', 'Patrimonio'],
+    coords: [13.6998, -89.1945] // Desfasado al oeste del Palacio Nacional
+  },
+  {
+    id: 63, cat: 'historia', emoji: '🚂', color: '#7c52e0',
+    nombre: 'Plaza Ferroviaria',
+    lugar: 'Sonsonate',
+    desc: 'Antigua estación del ferrocarril nacional, testigo del auge cafetalero y el desarrollo comercial de El Salvador.',
+    chips: ['Ferrocarril', 'Sonsonate', 'Museo Vivo'],
+    coords: [13.7215, -89.7210] // Cerca de Sonsonate pero sin chocar con Nahuizalco
+  },
+  {
+    id: 64, cat: 'historia', emoji: '🎖️', color: '#7c52e0',
+    nombre: 'Museo Militar de la Fuerza Armada',
+    lugar: 'San Jacinto, San Salvador',
+    desc: 'Ubicado en el antiguo Cuartel El Zapote, resguarda la historia militar del país y el Papa Móvil usado en 1983 y 1996.',
+    chips: ['San Jacinto', 'Cuartel El Zapote', 'Museo'],
+    coords: [13.6885, -89.1902] // Al sur del Centro Histórico
+  },
+  {
+    id: 65, cat: 'historia', emoji: '🛡️', color: '#7c52e0',
+    nombre: 'Sitio Arqueológico Cihuatán',
+    lugar: 'Aguilares, San Salvador',
+    desc: 'Una de las mayores ciudades prehispánicas del país, habitada tras el colapso maya y fuertemente influenciada por los toltecas.',
+    chips: ['Postclásico', 'Tolteca', 'Centro Ceremonial'],
+    coords: [13.9612, -89.1685] // Al norte, libre de congestión
+  },
+
+  /* ── 5 NUEVOS LUGARES EN LEYENDAS (Añadir al final del bloque de leyendas) ── */
+  {
+    id: 66, cat: 'leyenda', emoji: '💧', color: '#52c07c',
+    nombre: 'Laguna de Alegría',
+    lugar: 'Usulután',
+    desc: 'El "Esmeralda de América". Laguna sulfúrica en el cráter de un volcán donde habita la mítica sirena que encanta a los viajeros.',
+    chips: ['La Sirena', 'Volcán Tecapa', 'Turismo Verde'],
+    coords: [13.4930, -88.4945] // En el oriente del país
+  },
+  {
+    id: 67, cat: 'leyenda', emoji: '👩', color: '#52c07c',
+    nombre: 'Cuyancúa de Izalco',
+    lugar: 'Izalco, Sonsonate',
+    desc: 'Manantial mítico donde los abuelos aseguran que se manifestaba la Cuyancúa, criatura mitad serpiente y mitad cerdo que anunciaba lluvias.',
+    chips: ['Cuyancúa', 'Mitología Pipil', 'Tradición Oral'],
+    coords: [13.7485, -89.6720] // Disperso respecto a las Fiestas del Rey Guajactial
+  },
+  {
+    id: 68, cat: 'leyenda', emoji: '🐾', color: '#52c07c',
+    nombre: 'Cerro de las Pavas',
+    lugar: 'Cojutepeque, Cuscatlán',
+    desc: 'Cerro cubierto de niebla donde las leyendas locales cuentan que el Cadejo Blanco protegía a los fieles que subían en las noches.',
+    chips: ['El Cadejo', 'Mirador', 'Coatepeque'],
+    coords: [13.7198, -88.9372] // Disperso en la zona alta de Cojutepeque
+  },
+  {
+    id: 69, cat: 'leyenda', emoji: '🏞️', color: '#52c07c',
+    nombre: 'Río Sumpul',
+    lugar: 'Chalatenango',
+    desc: 'Río montañoso cuyas corrientes frías guardan la historia de los duendes guardianes del bosque que esconden las pertenencias de los acampantes.',
+    chips: ['Los Duendes', 'Naturaleza', 'Chalatenango'],
+    coords: [14.0720, -88.9510] // Al norte, cerca de Chalatenango centro
+  },
+  {
+    id: 70, cat: 'leyenda', emoji: '👺', color: '#52c07c',
+    nombre: 'Llanos de Olocuilta',
+    lugar: 'La Paz',
+    desc: 'Zona de planicies históricas vinculada a los relatos nocturnos de la carreta chillona, que avanza sin bueyes cobrando almas.',
+    chips: ['Carreta Chillona', 'La Paz', 'Folclore'],
+    coords: [13.5650, -89.1180] // Hacia el sur, camino a la costa
   },
 ];
 
@@ -522,8 +605,6 @@ L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 /* Tu mapa original de Stadia Maps funcionando con tu API Key */
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
   maxZoom: 16.5,
-  attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  updateWhenIdle: true,    
   updateWhenZooming: false, 
   keepBuffer: 8,           
 }).addTo(mapa);
