@@ -1,6 +1,6 @@
 /* ============================================================
   Salvadorean Roots — chatbot.js
-   Chatbot flotante de asistencia cultural
+   Chatbot flotante de asistencia cultural (Bilingüe ES/EN con GSAP)
    ============================================================ */
 (function () {
 
@@ -13,18 +13,41 @@ HISTORIA: Casa de la Cultura de Izalco (Sonsonate), Casa de la Independencia (Sa
 LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco).
   `.trim();
 
-const SYSTEM_PROMPT = `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
-
+  function getSystemPrompt(lang) {
+    if (lang === 'en') {
+      return `You are "Pupusita", assistant for Salvadorean Roots. ALWAYS respond in English. Only talk about culture, history, gastronomy, tourism, and legends of El Salvador (Current year: 2026).
+CRITICAL RESPONSE RULES:
+1. Ultra direct and minimalist: Respond in telegraphic style. Forbidden to use introductions ("Hello!", "Sure thing", "Gladly"). Go straight to the data in the very first word.
+2. Maximum length: Strict limit of 1 to 2 short sentences (max 25 words total).
+3. Formatting: Bold **the main topic** the first time you mention it.
+4. Coverage: Valid questions about Salvadorean territory, presidents, and current local news. Do not respond about other countries or international politics.
+5. Exact names: If you cite places from the verified list, write them EXACTLY the same way to trigger the interactive map.
+${RAICES_LANDMARKS_INFO}
+6. Filter: If greeted, say only: "Hello, I am Pupusita. What info are you looking for?". If insulted, moderate with a phrase. If unrelated to El Salvador, respond ONLY: "I don't have answers for topics unrelated to the site."`;
+    }
+    return `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
 REGLAS CRÍTICAS DE RESPUESTA:
 1. Ultra directo y minimalista: Responde con estilo telegráfico. Prohibido usar introducciones ("¡Hola!", "Claro que sí", "Con gusto te explico"). Ve directo al dato en la primera palabra.
-2. Extensión máxima: Límite estricto de 1 a 2 frases cortas (máximo 25 palabras en total). Si requiere más detalle, no lo pongas.
+2. Extensión máxima: Límite estricto de 1 a 2 frases cortas (máximo 25 palabras en total).
 3. Formato: Resalta en **negrita** el tema principal la primera vez que lo nombres.
 4. Cobertura: Válidas preguntas sobre territorio salvadoreño, presidentes y noticias locales actuales. No respondas sobre otros países ni política internacional.
-5. Nombres exactos: Si citas lugares de la lista verificada, escríbelos EXACTAMENTE igual para activar el mapa interactivo. No inventes sitios.
+5. Nombres exactos: Si citas lugares de la lista verificada, escríbelos EXACTAMENTE igual para activar el mapa interactivo.
 ${RAICES_LANDMARKS_INFO}
 6. Filtro: Si te saludan, di solo: "Hola, soy Pupusita. ¿Qué dato buscas?". Si insultan, modera con una frase. Si es ajeno a El Salvador, responde ÚNICAMENTE: "No tengo respuesta a temas no relacionados al sitio."`;
+  }
 
-const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios rápidos y reales en El Salvador usando dólares ($ USD).x
+  function getPlannerSystemPrompt(lang) {
+    if (lang === 'en') {
+      return `You are "Pupusita" in "Trip Planner" mode. ALWAYS respond in English. Create quick and real itineraries in El Salvador using dollars ($ USD).
+CRITICAL PLAN RULES:
+1. Strict format: Zero paragraphs, zero introductory texts. Respond DIRECTLY with the numbered list.
+2. Radical brevity: Max 3 activities per plan plus the transport section. Each line must be short.
+3. Costs: Write the price next to each activity and detail a specific line for estimated **Transport** cost. Put the general total at the end.
+4. Exact names: Use EXACTLY the names from this list if included:
+${RAICES_LANDMARKS_INFO}
+5. Closure: No farewells or recommendations. End immediately right after the total.`;
+    }
+    return `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios rápidos y reales en El Salvador usando dólares ($ USD).
 REGLAS CRÍTICAS DEL PLAN:
 1. Formato estricto: Cero párrafos, cero textos introductorios. Responde DIRECTAMENTE con la lista numerada.
 2. Brevedad radical: Máximo 3 actividades por plan más el apartado de transporte. Cada línea debe ser corta.
@@ -32,11 +55,66 @@ REGLAS CRÍTICAS DEL PLAN:
 4. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
 ${RAICES_LANDMARKS_INFO}
 5. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total.`;
-
+  }
 
   const PROXY_URL = '/chat-proxy';
 
-const STYLES = `
+  const TRANSLATABLE_TEXTS = {
+    es: {
+      welcomeBubble: '¡Hola! ¿Tienes dudas sobre El Salvador?',
+      headerTitle: 'Pupusita — Asistente',
+      headerStatus: 'En línea',
+      btnPlanner: 'Planificar',
+      btnPlannerCancel: '✖ Cancelar planificador',
+      inputPlaceholder: 'Escribe tu pregunta...',
+      inputPlaceholderPlanner: 'Ej. Gastronomía, historia, museos...',
+      inputPlaceholderLocation: 'Ej. San Salvador, Santa Ana...',
+      inputPlaceholderBudget: 'Ej. $20, económico...',
+      inputPlaceholderDuration: 'Ej. 4 horas, medio día...',
+      inputPlaceholderDetails: 'Escribe detalles o escribe "omitir"...',
+      inputPlaceholderGenerating: 'Generando tu plan...',
+      mapLinkText: '📍 Ver {name} en el mapa',
+      welcomeMessage: "¡Hola! Soy **Pupusita**, tu guía cultural de Salvadorean Roots. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.",
+      plannerStart: "¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, **¿qué tipo de actividad te gustaría hacer?** (Puedes escribir: *gastronomía, historia, leyendas, playas o un poco de todo*).",
+      errValidation: "❌ **Esa no es la información que he solicitado.** Por favor, sigue las indicaciones descritas.",
+      plannerLocationPrompt: "Entendido. Ahora, **¿desde qué ciudad o municipio vas a iniciar tu salida?** (Esto me servirá para calcular las rutas y el costo aproximado del transporte).",
+      plannerBudgetPrompt: "Anotado tu punto de partida. **¿Cuál es tu presupuesto aproximado en dólares ($ USD) para esta salida?**",
+      plannerDurationPrompt: "Perfecto. **¿Cuánto tiempo tienes disponible para tu salida?** (ej. *medio día, un día completo o todo el fin de semana*).",
+      plannerDetailsPrompt: "Una última cosa 🙂: **¿Hay algún platillo, lugar específico o preferencia que quieras incluir sí o sí?** Si no, escribe *\"omitir\"*.",
+      plannerSuccess: "¡Tu plan ha sido generado con éxito! El planificador se ha desactivado automáticamente. Puedes seguir haciéndome preguntas normales sobre El Salvador o volver a presionar **Planificar** si deseas armar otra ruta.",
+      errGeneric: "Hubo un problema. Por favor intenta de nuevo.",
+      quickQuestions: ['¿Qué son las pupusas?', '¿Qué es Joya de Cerén?', '¿Quién es la Siguanaba?', '¿Cuándo son las Fiestas Agostinas?']
+    },
+    en: {
+      welcomeBubble: 'Hello! Questions about El Salvador?',
+      headerTitle: 'Pupusita — Assistant',
+      headerStatus: 'Online',
+      btnPlanner: 'Plan Trip',
+      btnPlannerCancel: '✖ Cancel planner',
+      inputPlaceholder: 'Type your question...',
+      inputPlaceholderPlanner: 'E.g., Food, history, museums...',
+      inputPlaceholderLocation: 'E.g., San Salvador, Santa Ana...',
+      inputPlaceholderBudget: 'E.g., $20, budget...',
+      inputPlaceholderDuration: 'E.g., 4 hours, half day...',
+      inputPlaceholderDetails: 'Type details or write "skip"...',
+      inputPlaceholderGenerating: 'Generating your plan...',
+      mapLinkText: '📍 See {name} on the map',
+      welcomeMessage: "Hello! I am **Pupusita**, your cultural guide from Salvadorean Roots. 🌿\n\nI can help you with information about history, gastronomy, legends, cultural sites, and events in El Salvador. What do you want to know?\n\n💡 Tip: activate the **Plan Trip** button above and I will help you build an itinerary based on your preferences and budget.",
+      plannerStart: "Perfect! You activated the **Trip Planner**. 🧭\n\nLet's plan your ideal trip around El Salvador. First, **what kind of activity would you like to do?** (You can type: *gastronomy, history, legends, beaches, or a bit of everything*).",
+      errValidation: "❌ **That is not the information I requested.** Please follow the instructions provided.",
+      plannerLocationPrompt: "Understood. Now, **from which city or town will you start your trip?** (This will help me calculate routes and approximate transport costs).",
+      plannerBudgetPrompt: "Starting point noted. **What is your approximate budget in dollars ($ USD) for this trip?**",
+      plannerDurationPrompt: "Perfect. **How much time do you have available for your trip?** (e.g., *half day, a full day, or the whole weekend*).",
+      plannerDetailsPrompt: "One last thing 🙂: **Is there any specific dish, place, or preference you want to include no matter what?** If not, write *\"skip\"*.",
+      plannerSuccess: "Your plan has been generated successfully! The planner has turned off automatically. You can keep asking me regular questions about El Salvador or press **Plan Trip** again to create another route.",
+      errGeneric: "There was a problem. Please try again.",
+      quickQuestions: ['What are pupusas?', 'What is Joya de Cerén?', 'Who is the Siguanaba?', 'When are the August Festivals?']
+    }
+  };
+
+  let currentLang = 'es'; 
+
+  const STYLES = `
     #rs-chat-widget * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
 
     #rs-chat-btn {
@@ -54,13 +132,13 @@ const STYLES = `
       justify-content: center;
       z-index: 9999;
       box-shadow: 0 8px 24px rgba(17, 48, 104, 0.35);
-      transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
+      opacity: 0;
+      transform: scale(0.5);
     }
-    #rs-chat-btn:hover { transform: scale(1.08) translateY(-2px); box-shadow: 0 12px 28px rgba(17, 48, 104, 0.45); }
     #rs-chat-btn svg { width: 26px; height: 26px; fill: #fff; }
     #rs-chat-btn .rs-close-icon { display: none; }
     #rs-chat-btn.open .rs-chat-icon { display: none; }
-    #rs-chat-btn.open .rs-close-icon { display: block; }
+    #rs-chat-btn.open .rs-close-icon { block: block; }
 
     #rs-chat-bubble {
       position: fixed;
@@ -77,8 +155,8 @@ const STYLES = `
       z-index: 9998;
       white-space: nowrap;
       box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      animation: rs-bubble-in .4s cubic-bezier(.4,0,.2,1) both;
       cursor: pointer;
+      opacity: 0;
     }
     #rs-chat-bubble::after {
       content: '';
@@ -88,18 +166,12 @@ const STYLES = `
       border: 5px solid transparent;
       border-top-color: #be8e56;
     }
-    @keyframes rs-bubble-in {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
 
     #rs-chat-window {
       position: fixed;
       bottom: 100px;
       left: 28px;
-      /* Escala entre 320px en pantallas pequeñas y 480px en 1080p */
       width: clamp(320px, 24vw, 480px);
-      /* Escala su altura fluidamente entre 460px y 680px según el monitor */
       height: clamp(460px, 62vh, 680px);
       background: #18181b; 
       border: 1.5px solid rgba(190, 142, 86, 0.5);
@@ -109,11 +181,9 @@ const STYLES = `
       z-index: 9998;
       overflow: hidden;
       box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-      animation: rs-window-in .3s cubic-bezier(.4,0,.2,1) both;
-    }
-    @keyframes rs-window-in {
-      from { opacity: 0; transform: translateY(24px) scale(.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+      transform-origin: bottom left;
     }
 
     #rs-chat-header {
@@ -139,7 +209,6 @@ const STYLES = `
     #rs-chat-header .rs-name {
       font-family: 'Playfair Display', serif;
       font-weight: 700;
-      /* El título se adapta al monitor reduciéndose elegantemente */
       font-size: clamp(14px, 0.9vw, 17px); 
       color: #fff;
       letter-spacing: 0.3px;
@@ -150,6 +219,21 @@ const STYLES = `
       background: #22c55e; display: inline-block; margin-right: 5px;
       box-shadow: 0 0 8px #22c55e;
     }
+
+    #rs-lang-selector {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(190,142,86,.4);
+      color: #fff;
+      padding: 4px 6px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+    }
+    #rs-lang-selector:hover { background: rgba(255,255,255,.2); }
 
     #rs-planner-toggle {
       display: flex;
@@ -183,13 +267,11 @@ const STYLES = `
       border-color: #be8e56 !important;
       font-weight: 600;
     }
-    .rs-planner-btn:hover { background: #a87a42 !important; transform: translateY(-1px); }
     .rs-cancel-btn {
       color: rgba(255,255,255,.6) !important;
       border-color: rgba(255,255,255,.15) !important;
       background: transparent !important;
     }
-    .rs-cancel-btn:hover { background: rgba(255,255,255,.05) !important; color: #fff !important; }
 
     #rs-chat-messages {
       flex: 1;
@@ -203,14 +285,12 @@ const STYLES = `
       scrollbar-color: rgba(190,142,86,.3) transparent;
     }
     #rs-chat-messages::-webkit-scrollbar { width: 4px; }
-    #rs-chat-messages::-webkit-scrollbar-track { background: transparent; }
     #rs-chat-messages::-webkit-scrollbar-thumb { background: rgba(190,142,86,.3); border-radius: 4px; }
 
-    .rs-msg { display: flex; flex-direction: column; max-width: 85%; }
+    .rs-msg { display: flex; flex-direction: column; max-width: 85%; opacity: 0; transform: translateY(12px); }
     .rs-msg.bot  { align-self: flex-start; margin-right: 8px; } 
     .rs-msg.user { align-self: flex-end; margin-left: 8px; }  
     
-    /* Letra fluida: baja automáticamente a 12.5px en pantallas chicas y sube a 15.5px en 1080p */
     .rs-msg-bubble { 
       padding: 10px 14px; 
       border-radius: 16px; 
@@ -278,7 +358,6 @@ const STYLES = `
     }
     #rs-chat-input:focus { border-color: #be8e56; background: #3f3f46; box-shadow: 0 0 0 3px rgba(190,142,86,0.15); }
     #rs-chat-input::placeholder { color: rgba(255,255,255,.4); }
-    #rs-chat-input:disabled { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
     
     #rs-chat-send {
       width: 38px; height: 38px; flex-shrink: 0;
@@ -286,14 +365,11 @@ const STYLES = `
       border: none; border-radius: 50%;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: all .2s cubic-bezier(.4,0,.2,1);
       box-shadow: 0 2px 6px rgba(190,142,86,0.2);
     }
-    #rs-chat-send:hover { background: #a87a42; transform: scale(1.05); }
-    #rs-chat-send:disabled { background: #3f3f46; cursor: default; transform: none; box-shadow: none; }
     #rs-chat-send svg { width: 16px; height: 16px; fill: #fff; margin-left: 2px; }
 
-    .rs-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; }
+    .rs-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; opacity: 0; }
     .rs-quick-btn {
       font-size: clamp(11px, 0.75vw, 13px);
       font-family: 'Lato', sans-serif;
@@ -304,11 +380,9 @@ const STYLES = `
       border-radius: 20px;
       padding: 5px 12px;
       cursor: pointer;
-      transition: all .2s ease;
       white-space: normal;
       text-align: left;
     }
-    .rs-quick-btn:hover { background: rgba(190,142,86,.18); border-color: #be8e56; }
 
     .rs-map-btn {
       color: #7fc3f0;
@@ -318,7 +392,6 @@ const STYLES = `
       display: inline-flex;
       align-items: center;
     }
-    .rs-map-btn:hover { background: rgba(82,160,224,.2); border-color: #7fc3f0; transform: translateY(-1px); }
 
     @media (max-width: 420px) {
       #rs-chat-window { width: calc(100vw - 24px); left: 12px; bottom: 92px; height: 75vh; max-height: 75vh; }
@@ -326,111 +399,50 @@ const STYLES = `
     }
   `;
 
-  const QUICK_QUESTIONS = [
-    '¿Qué son las pupusas?',
-    '¿Qué es Joya de Cerén?',
-    '¿Quién es la Siguanaba?',
-    '¿Cuándo son las Fiestas Agostinas?',
-  ];
-
-  // Mismos id + nombre que el array LANDMARKS de mapa.html.
-  // Si agregas/editas landmarks allá, actualiza esta lista también para que los botones de mapa sigan funcionando.
   const LANDMARKS_MINI = [
-    { id: 1,  nombre: 'Tazumal' },
-    { id: 2,  nombre: 'Joya de Cerén' },
-    { id: 3,  nombre: 'Salvador del Mundo' },
-    { id: 4,  nombre: 'Suchitoto' },
-    { id: 5,  nombre: 'Catedral Metropolitana' },
-    { id: 6,  nombre: 'MUNA' },
-    { id: 7,  nombre: 'Ruinas de San Andrés' },
-    { id: 8,  nombre: 'Pupusería El Caserío' },
-    { id: 9,  nombre: 'Semitas de Cojutepeque' },
-    { id: 10, nombre: 'Mercado Central de San Salvador' },
-    { id: 11, nombre: 'Nahuizalco — Mercado Nocturno' },
-    { id: 12, nombre: 'Plaza las Américas' },
-    { id: 13, nombre: 'Panchimalco' },
-    { id: 14, nombre: 'Festival de Suchitoto' },
-    { id: 15, nombre: 'Catedral de Santa Ana' },
-    { id: 16, nombre: 'Casa de la Cultura de Izalco' },
-    { id: 17, nombre: 'Casa de la Independencia' },
-    { id: 18, nombre: 'Iglesia El Rosario' },
-    { id: 19, nombre: 'Lago de Coatepeque' },
-    { id: 20, nombre: 'Bosque El Imposible' },
-    { id: 21, nombre: 'Fiestas Agostinas' },
-    { id: 22, nombre: 'Día de los Farolitos' },
-    { id: 23, nombre: 'Fiestas Julias' },
-    { id: 24, nombre: 'Fiestas Patronales de San Vicente' },
-    { id: 25, nombre: 'Festival de las Flores y Palmas' },
-    { id: 26, nombre: 'Gran Carnaval de San Miguel' },
-    { id: 27, nombre: 'Fiestas de los Historiantes de Cuisnahuat' },
-    { id: 28, nombre: 'Festival del Jocote Corona' },
-    { id: 29, nombre: 'Día de la Calabiuza' },
-    { id: 30, nombre: 'Festival de los Canastos' },
-    { id: 31, nombre: 'Día de la Cruz' },
-    { id: 32, nombre: 'Festival del Maíz' },
-    { id: 33, nombre: 'Fiestas del Bálsamo' },
-    { id: 34, nombre: 'Feria del Membrillo' },
-    { id: 35, nombre: 'Fiestas Patronales de La Unión' },
-    { id: 36, nombre: 'Festival de los Farolitos en Ataco' },
-    { id: 37, nombre: 'Festival de la Panela' },
-    { id: 38, nombre: 'Fiestas del Rey Guajactial' },
-    { id: 39, nombre: 'Festival del Cangrejo' },
-    { id: 40, nombre: 'Romería de Esquipulas' },
-    { id: 41, nombre: 'Festival del Barro' },
-    { id: 42, nombre: 'Fiestas del Arroz' },
-    { id: 43, nombre: 'Festival de la Juventudes Populares' },
-    { id: 44, nombre: 'Feria del Marisco' },
-    { id: 45, nombre: 'Fiesta de la Primicia de la Cosecha' },
-    { id: 46, nombre: 'Carnaval de la Panela de Verapaz' },
-    { id: 47, nombre: 'Fiestas Patronales de Cojutepeque' },
-    { id: 48, nombre: 'Festival del Añil' },
-    { id: 49, nombre: 'Fiestas Patronales de Gotera' },
-    { id: 50, nombre: 'Festival Internacional del Chicharrón' },
-    { id: 51, nombre: 'El Boquerón' },
-    { id: 52, nombre: 'Puerta del Diablo' },
+    { id: 1,  nombre: 'Tazumal' }, { id: 2,  nombre: 'Joya de Cerén' }, { id: 3,  nombre: 'Salvador del Mundo' },
+    { id: 4,  nombre: 'Suchitoto' }, { id: 5,  nombre: 'Catedral Metropolitana' }, { id: 6,  nombre: 'MUNA' },
+    { id: 7,  nombre: 'Ruinas de San Andrés' }, { id: 8,  nombre: 'Pupusería El Caserío' }, { id: 9,  nombre: 'Semitas de Cojutepeque' },
+    { id: 10, nombre: 'Mercado Central de San Salvador' }, { id: 11, nombre: 'Nahuizalco — Mercado Nocturno' },
+    { id: 12, nombre: 'Plaza las Américas' }, { id: 13, nombre: 'Panchimalco' }, { id: 14, nombre: 'Festival de Suchitoto' },
+    { id: 15, nombre: 'Catedral de Santa Ana' }, { id: 16, nombre: 'Casa de la Cultura de Izalco' },
+    { id: 17, nombre: 'Casa de la Independencia' }, { id: 18, nombre: 'Iglesia El Rosario' }, { id: 19, nombre: 'Lago de Coatepeque' },
+    { id: 20, nombre: 'Bosque El Imposible' }, { id: 21, nombre: 'Fiestas Agostinas' }, { id: 22, nombre: 'Día de los Farolitos' },
+    { id: 23, nombre: 'Fiestas Julias' }, { id: 24, nombre: 'Fiestas Patronales de San Vicente' },
+    { id: 25, nombre: 'Festival de las Flores y Palmas' }, { id: 26, nombre: 'Gran Carnaval de San Miguel' },
+    { id: 27, nombre: 'Fiestas de los Historiantes de Cuisnahuat' }, { id: 28, nombre: 'Festival del Jocote Corona' },
+    { id: 29, nombre: 'Día de la Calabiuza' }, { id: 30, nombre: 'Festival de los Canastos' }, { id: 31, nombre: 'Día de la Cruz' },
+    { id: 32, nombre: 'Festival del Maíz' }, { id: 33, nombre: 'Fiestas del Bálsamo' }, { id: 34, nombre: 'Feria del Membrillo' },
+    { id: 35, nombre: 'Fiestas Patronales de La Unión' }, { id: 36, nombre: 'Festival de los Farolitos en Ataco' },
+    { id: 37, nombre: 'Festival de la Panela' }, { id: 38, nombre: 'Fiestas del Rey Guajactial' }, { id: 39, nombre: 'Festival del Cangrejo' },
+    { id: 40, nombre: 'Romería de Esquipulas' }, { id: 41, nombre: 'Festival del Barro' }, { id: 42, nombre: 'Fiestas del Arroz' },
+    { id: 43, nombre: 'Festival de la Juventudes Populares' }, { id: 44, nombre: 'Feria del Marisco' },
+    { id: 45, nombre: 'Fiesta de la Primicia de la Cosecha' }, { id: 46, nombre: 'Carnaval de la Panela de Verapaz' },
+    { id: 47, nombre: 'Fiestas Patronales de Cojutepeque' }, { id: 48, nombre: 'Festival del Añil' },
+    { id: 49, nombre: 'Fiestas Patronales de Gotera' }, { id: 50, nombre: 'Festival Internacional del Chicharrón' },
+    { id: 51, nombre: 'El Boquerón' }, { id: 52, nombre: 'Puerta del Diablo' },
   ];
 
   let conversationHistory = [];
   let isOpen      = false;
   let isLoading   = false;
   let bubbleHidden = false;
-  let isInitialized = false; 
 
-  // --- Estado del planificador de salidas ---
   let plannerMode = false;   
-  let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'details' | 'generating' | 'done' | null
+  let plannerStep = null;    
   let plannerData = {};
-  let pendingButtonsWrap = null; // referencia a botones de opción pendientes en el chat
 
-  const PLANNER_ACTIVITY_OPTIONS = [
-    { id: 'food',    label: '🍲 Gastronomía',        value: 'gastronomía típica salvadoreña (pupusas, mercados, comida local)' },
-    { id: 'history', label: '🏛️ Historia y sitios',  value: 'sitios históricos y arqueológicos (ruinas, museos, iglesias coloniales)' },
-    { id: 'events',  label: '🎉 Eventos y fiestas',  value: 'eventos y fiestas patronales o culturales' },
-    { id: 'legends', label: '👻 Leyendas',           value: 'lugares y rutas relacionadas con leyendas salvadoreñas' },
-    { id: 'mixed',   label: '🌄 Un poco de todo',    value: 'una mezcla de gastronomía, historia y cultura general' },
-  ];
-
-  const PLANNER_BUDGET_OPTIONS = [
-    { label: '💵 Económico ($5–$15)', value: 'un presupuesto económico, entre $5 y $15 dólares' },
-    { label: '💰 Moderado ($15–$40)', value: 'un presupuesto moderado, entre $15 y $40 dólares' },
-    { label: '💎 Alto ($40+)',        value: 'un presupuesto alto, de más de $40 dólares' },
-  ];
-
-  const PLANNER_TIME_OPTIONS = [
-    { label: '⏱️ Medio día',   value: 'medio día (aproximadamente 3-4 horas)' },
-    { label: '🌞 Día completo', value: 'un día completo' },
-    { label: '📅 Fin de semana', value: 'un fin de semana completo' },
-  ];
-
-  // Pregunta de seguimiento según la actividad elegida, para afinar el plan
-  const PLANNER_DETAIL_QUESTIONS = {
-    food:    '¿Hay algún platillo o tipo de comida que te encante o quieras probar sí o sí? (ej. pupusas revueltas, mariscos, algo dulce, comida típica de algún departamento en especial...)',
-    history: '¿Te interesa más algún periodo en particular (prehispánico, colonial, siglo XX) o algún sitio específico que ya tengas en mente?',
-    events:  '¿Tienes una fecha aproximada en mente, o algún tipo de evento que prefieras (fiestas patronales, religiosas, más folclóricas)?',
-    legends: '¿Hay alguna leyenda que te llame especialmente la atención (Siguanaba, Cipitío, Cadejo, etc.) o prefieres que te sorprenda?',
-    mixed:   '¿Hay algo específico que no te quiera perder —comida, un lugar, una leyenda— para incluirlo en el plan?',
-  };
-  const PLANNER_DETAIL_FALLBACK = '¿Hay algo específico que te gustaría incluir en tu plan (comida favorita, tipo de lugar, algo que no te quieras perder)?';
+  // Carga e inyección dinámica de GSAP si no se encuentra en el entorno global
+  function loadGSAP(callback) {
+    if (window.gsap) {
+      callback();
+    } else {
+      const script = document.createElement('script');
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js";
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+  }
 
   function init() {
     const styleEl = document.createElement('style');
@@ -442,7 +454,7 @@ const STYLES = `
 
     const bubble = document.createElement('div');
     bubble.id = 'rs-chat-bubble';
-    bubble.textContent = '¡Hola! ¿Tienes dudas sobre El Salvador?';
+    bubble.textContent = TRANSLATABLE_TEXTS[currentLang].welcomeBubble;
     bubble.addEventListener('click', toggleChat);
 
     const btn = document.createElement('button');
@@ -461,17 +473,18 @@ const STYLES = `
       <div id="rs-chat-header">
         <div class="rs-avatar">R</div>
         <div class="rs-header-info">
-          <div class="rs-name">Pupusita — Asistente</div>
-          <div class="rs-status"><span class="rs-dot"></span>En línea</div>
+          <div class="rs-name" id="rs-header-name">${TRANSLATABLE_TEXTS[currentLang].headerTitle}</div>
+          <div class="rs-status"><span class="rs-dot"></span><span id="rs-header-status">${TRANSLATABLE_TEXTS[currentLang].headerStatus}</span></div>
         </div>
-        <button id="rs-planner-toggle" aria-pressed="false" title="Activar planificador de salidas">
+        <button id="rs-lang-selector" title="Change Language / Cambiar Idioma">🇪🇸</button>
+        <button id="rs-planner-toggle" aria-pressed="false">
           <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>
-          <span>Planificar</span>
+          <span id="rs-planner-text">${TRANSLATABLE_TEXTS[currentLang].btnPlanner}</span>
         </button>
       </div>
       <div id="rs-chat-messages"></div>
       <div id="rs-chat-footer">
-        <input type="text" id="rs-chat-input" placeholder="Escribe tu pregunta..." maxlength="400" />
+        <input type="text" id="rs-chat-input" placeholder="${TRANSLATABLE_TEXTS[currentLang].inputPlaceholder}" maxlength="400" />
         <button id="rs-chat-send" aria-label="Enviar">
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
@@ -488,54 +501,268 @@ const STYLES = `
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
     document.getElementById('rs-planner-toggle').addEventListener('click', togglePlannerMode);
+    document.getElementById('rs-lang-selector').addEventListener('click', toggleLanguage);
+
+    setupGSAPHoverEffects();
+
+    // Animación de entrada inicial del Widget
+    gsap.to(btn, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)", delay: 0.5 });
+    gsap.to(bubble, { opacity: 1, duration: 0.4, delay: 1.2 });
 
     setTimeout(() => {
       if (!isOpen && !bubbleHidden) {
-        const b = document.getElementById('rs-chat-bubble');
-        if (b) { b.style.opacity = '0'; setTimeout(() => b.remove(), 300); }
-        bubbleHidden = true;
+        hideBubble();
       }
-    }, 6000);
+    }, 7000);
 
-    addBotMessage("¡Hola! Soy **Pupusita**, tu guía cultural de Salvadorean Roots. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.", true);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].welcomeMessage, true);
+  }
+
+  function setupGSAPHoverEffects() {
+    const triggerHover = (selector, scaleFactor = 1.05) => {
+      document.addEventListener('mouseenter', (e) => {
+        if (e.target.closest && e.target.closest(selector)) {
+          gsap.to(e.target.closest(selector), { scale: scaleFactor, duration: 0.2, ease: "power1.out" });
+        }
+      }, true);
+      document.addEventListener('mouseleave', (e) => {
+        if (e.target.closest && e.target.closest(selector)) {
+          gsap.to(e.target.closest(selector), { scale: 1, duration: 0.2, ease: "power1.inOut" });
+        }
+      }, true);
+    };
+
+    triggerHover('#rs-chat-btn', 1.08);
+    triggerHover('#rs-chat-send', 1.08);
+    triggerHover('.rs-quick-btn', 1.03);
+    triggerHover('#rs-lang-selector', 1.1);
+  }
+
+  function hideBubble() {
+    const bubble = document.getElementById('rs-chat-bubble');
+    if (bubble) {
+      gsap.to(bubble, { opacity: 0, y: -10, duration: 0.3, onComplete: () => { bubble.remove(); } });
+      bubbleHidden = true;
+    }
+  }
+
+  async function toggleLanguage() {
+    if (isLoading) return;
+    
+    const msgsContainer = document.getElementById('rs-chat-messages');
+    const langBtn = document.getElementById('rs-lang-selector');
+    
+    // 1. Cambiar estado del idioma
+    currentLang = currentLang === 'es' ? 'en' : 'es';
+    
+    // Animación del botón de idioma
+    gsap.to(langBtn, { scale: 0.4, rotation: 90, duration: 0.15, onComplete: () => {
+      langBtn.textContent = currentLang === 'es' ? '🇪🇸' : '🇬🇧';
+      gsap.to(langBtn, { scale: 1, rotation: 0, duration: 0.2, ease: "back.out(2)" });
+    }});
+    
+    // 2. Traducir textos estáticos de la interfaz
+    document.getElementById('rs-header-name').textContent = TRANSLATABLE_TEXTS[currentLang].headerTitle;
+    document.getElementById('rs-header-status').textContent = TRANSLATABLE_TEXTS[currentLang].headerStatus;
+    document.getElementById('rs-planner-text').textContent = TRANSLATABLE_TEXTS[currentLang].btnPlanner;
+    
+    const input = document.getElementById('rs-chat-input');
+    if (input && !plannerMode) {
+      input.placeholder = TRANSLATABLE_TEXTS[currentLang].inputPlaceholder;
+    }
+
+    if (plannerMode) {
+      setPlannerToggle(false);
+      plannerStep = null;
+      plannerData = {};
+    }
+
+    // 3. Traducir el historial activo si existen mensajes del usuario
+    const hasUserMessages = conversationHistory.some(m => m.role === 'user');
+    
+    if (!hasUserMessages) {
+      // Si solo estaba el saludo inicial, lo reiniciamos al nuevo idioma de forma limpia
+      if (msgsContainer) msgsContainer.innerHTML = '';
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].welcomeMessage, true);
+    } else {
+      // Si ya hay una conversación real, traducimos todo el bloque con GSAP
+      isLoading = true;
+      setInputEnabled(false, currentLang === 'es' ? 'Traduciendo chat...' : 'Translating chat...');
+      showTyping();
+
+      // Animación de salida (fade out) de los mensajes actuales
+      const currentBubbles = msgsContainer.querySelectorAll('.rs-msg');
+      await gsap.to(currentBubbles, { opacity: 0, y: -10, duration: 0.2, stagger: 0.05 });
+
+      await translateExistingMessages();
+
+      hideTyping();
+      isLoading = false;
+      setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
+    }
+  }
+
+  async function translateExistingMessages() {
+    const msgsContainer = document.getElementById('rs-chat-messages');
+    if (!msgsContainer) return;
+
+    const targetLangName = currentLang === 'es' ? 'Spanish' : 'English';
+    
+    // Le explicamos detalladamente el formato exacto que necesitamos
+    const translationPrompt = `Translate the following JSON array of chat messages into ${targetLangName}.
+Return ONLY the final translated JSON array. Do not wrap it in markdown code blocks, do not add explanations.
+Format example: [{"role": "user", "content": "..."}]
+
+Array to translate:
+${JSON.stringify(conversationHistory)}`;
+
+    try {
+      const response = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: `You are a translation assistant. You ONLY output a valid JSON array containing the translated chat messages. Never include markdown blocks like \`\`\`json, never add introductory text, and never write JavaScript code.`,
+          messages: [{ role: 'user', content: translationPrompt }]
+        })
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let rawReply = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        rawReply += decoder.decode(value, { stream: true });
+      }
+
+      // --- LIMPIEZA A PRUEBA DE BALAS ---
+      let cleanJson = rawReply.trim();
+      
+      // Si el modelo metió el JSON dentro de bloques de código markdown, los extraemos
+      if (cleanJson.includes('[')) {
+        const firstBracket = cleanJson.indexOf('[');
+        const lastBracket = cleanJson.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+          cleanJson = cleanJson.substring(firstBracket, lastBracket + 1);
+        }
+      }
+
+      let translatedHistory;
+      try {
+        translatedHistory = JSON.parse(cleanJson);
+      } catch (e) {
+        console.error("Respuesta cruda del servidor que falló al parsear:", rawReply);
+        throw new Error("El modelo no devolvió una estructura JSON válida.");
+      }
+
+      if (Array.isArray(translatedHistory) && translatedHistory.length > 0) {
+        // Guardamos el nuevo historial traducido
+        conversationHistory = translatedHistory;
+        msgsContainer.innerHTML = '';
+        
+        conversationHistory.forEach((msg) => {
+          const div = document.createElement('div');
+          div.className = `rs-msg ${msg.role === 'user' ? 'user' : 'bot'}`;
+          
+          if (msg.role === 'user') {
+            div.innerHTML = `<div class="rs-msg-bubble">${escapeHtml(msg.content)}</div>`;
+          } else {
+            const formatted = formatMessageText(msg.content);
+            div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
+          }
+          
+          if (msg.role === 'assistant') {
+            const landmarks = findMentionedLandmarks(msg.content);
+            if (landmarks && landmarks.length) {
+              const mapWrap = document.createElement('div');
+              mapWrap.className = 'rs-quick-btns';
+              mapWrap.style.opacity = '0';
+              const mapaUrl = getMapaUrl();
+              landmarks.forEach(lm => {
+                const a = document.createElement('a');
+                a.className = 'rs-quick-btn rs-map-btn';
+                a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.textContent = TRANSLATABLE_TEXTS[currentLang].mapLinkText.replace('{name}', lm.nombre);
+                mapWrap.appendChild(a);
+              });
+              div.appendChild(mapWrap);
+            }
+          }
+
+          msgsContainer.appendChild(div);
+        });
+
+        // Animación de entrada
+        const newBubbles = msgsContainer.querySelectorAll('.rs-msg');
+        const mapButtons = msgsContainer.querySelectorAll('.rs-quick-btns');
+        
+        gsap.fromTo(newBubbles, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.05 });
+        if (mapButtons.length) {
+          gsap.to(mapButtons, { opacity: 1, y: 0, duration: 0.2, delay: 0.2 });
+        }
+        
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+      }
+    } catch (err) {
+      console.error("Error detallado en translateExistingMessages:", err);
+      // Si falla, devolvemos la opacidad a los mensajes originales para que el chat siga operativo
+      const currentBubbles = msgsContainer.querySelectorAll('.rs-msg');
+      gsap.to(currentBubbles, { opacity: 1, y: 0, duration: 0.2 });
+    }
   }
 
   function toggleChat() {
     isOpen = !isOpen;
     const win    = document.getElementById('rs-chat-window');
     const btn    = document.getElementById('rs-chat-btn');
-    const bubble = document.getElementById('rs-chat-bubble');
+    const chatIcon  = btn.querySelector('.rs-chat-icon');
+    const closeIcon = btn.querySelector('.rs-close-icon');
+    
+    // Animación de rotación del botón al hacer click
+    gsap.to(btn, { rotation: isOpen ? 90 : 0, duration: 0.3, ease: "power2.inOut" });
 
     if (isOpen) {
+      hideBubble();
       win.style.display = 'flex';
-      btn.classList.add('open');
+      
+      // Intercambio de iconos: oculta chat, muestra X
+      chatIcon.style.display = 'none';
+      closeIcon.style.display = 'block';
       btn.setAttribute('aria-label', 'Cerrar asistente');
-      if (bubble) { bubble.style.opacity = '0'; setTimeout(() => bubble.remove(), 200); bubbleHidden = true; }
+      
+      gsap.fromTo(win, 
+        { opacity: 0, y: 35, scale: 0.92 }, 
+        { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "power4.out" }
+      );
       setTimeout(() => document.getElementById('rs-chat-input')?.focus(), 100);
     } else {
-      win.style.display = 'none';
-      btn.classList.remove('open');
+      // Intercambio de iconos: muestra chat, oculta X
+      chatIcon.style.display = 'block';
+      closeIcon.style.display = 'none';
       btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
+      
+      gsap.to(win, { opacity: 0, y: 25, scale: 0.95, duration: 0.25, ease: "power2.in", onComplete: () => {
+        win.style.display = 'none';
+      }});
     }
   }
 
-  // Convierte Markdown simple (negrita, saltos de línea) a HTML seguro para las burbujas del chat.
   function formatMessageText(text) {
     return escapeHtml(text)
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n/g, '<br>');
   }
 
-  // Reutiliza el link "Mapa" que ya existe en el navbar de la página actual,
-  // así el botón siempre apunta a la ruta relativa correcta sin importar en qué página esté el chatbot.
   function getMapaUrl() {
     const navLink = document.querySelector('a[href$="mapa.html"], a[href*="mapa.html"]');
     if (navLink) return navLink.getAttribute('href');
-    return 'mapa.html'; // fallback si no se encuentra el link en la página
+    return 'mapa.html'; 
   }
 
-  // Busca en el texto de la respuesta del bot nombres de landmarks reales del mapa,
-  // para poder ofrecer un botón "Ver en el mapa" por cada uno (máximo 4 para no saturar el chat).
   function findMentionedLandmarks(text) {
     if (!text) return [];
     const found = [];
@@ -545,15 +772,16 @@ const STYLES = `
     sorted.forEach(lm => {
       const escapedName = lm.nombre.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const re = new RegExp(escapedName, 'i');
-      
-      // Añadimos la condición de que el ID no exista previamente en el array 'found'
       if (re.test(workingText) && !found.some(f => f.id === lm.id)) {
         found.push(lm);
-        // Se quita del texto de trabajo para evitar colisiones semánticas
         workingText = workingText.replace(re, '');
       }
     });
     return found.slice(0, 4);
+  }
+
+  function animateMessageNode(node) {
+    gsap.to(node, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" });
   }
 
   function addBotMessage(text, withQuick = false, mapLandmarks = []) {
@@ -563,10 +791,13 @@ const STYLES = `
     div.className = 'rs-msg bot';
     const formatted = formatMessageText(text);
     div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
+    
+    let elementsToFade = [];
+
     if (withQuick) {
       const qWrap = document.createElement('div');
       qWrap.className = 'rs-quick-btns';
-      QUICK_QUESTIONS.forEach(q => {
+      TRANSLATABLE_TEXTS[currentLang].quickQuestions.forEach(q => {
         const b = document.createElement('button');
         b.className = 'rs-quick-btn';
         b.textContent = q;
@@ -574,7 +805,9 @@ const STYLES = `
         qWrap.appendChild(b);
       });
       div.appendChild(qWrap);
+      elementsToFade.push(qWrap);
     }
+    
     if (mapLandmarks && mapLandmarks.length) {
       const mapWrap = document.createElement('div');
       mapWrap.className = 'rs-quick-btns';
@@ -585,52 +818,20 @@ const STYLES = `
         a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
-        a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+        a.textContent = TRANSLATABLE_TEXTS[currentLang].mapLinkText.replace('{name}', lm.nombre);
         mapWrap.appendChild(a);
       });
       div.appendChild(mapWrap);
+      elementsToFade.push(mapWrap);
     }
     msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-
-  function addBotMessageWithButtons(text, buttons, includeCancel) {
-    const msgs = document.getElementById('rs-chat-messages');
-    if (!msgs) return;
-    const div = document.createElement('div');
-    div.className = 'rs-msg bot';
-    const formatted = formatMessageText(text);
-    div.innerHTML = `<div class="rs-msg-bubble">${formatted}</div>`;
-
-    const qWrap = document.createElement('div');
-    qWrap.className = 'rs-quick-btns';
-    buttons.forEach(opt => {
-      const b = document.createElement('button');
-      b.className = 'rs-quick-btn rs-planner-btn';
-      b.textContent = opt.label;
-      b.addEventListener('click', () => {
-        qWrap.remove();
-        if (pendingButtonsWrap === qWrap) pendingButtonsWrap = null;
-        opt.onClick();
-      });
-      qWrap.appendChild(b);
-    });
-    if (includeCancel) {
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'rs-quick-btn rs-cancel-btn';
-      cancelBtn.textContent = '✖ Cancelar planificador';
-      cancelBtn.addEventListener('click', () => {
-        qWrap.remove();
-        if (pendingButtonsWrap === qWrap) pendingButtonsWrap = null;
-        setPlannerToggle(false);
-        cancelPlannerFlow();
-      });
-      qWrap.appendChild(cancelBtn);
+    animateMessageNode(div);
+    
+    if(elementsToFade.length > 0) {
+      gsap.to(elementsToFade, { opacity: 1, y: 0, stagger: 0.1, duration: 0.3, delay: 0.2 });
     }
-    div.appendChild(qWrap);
-    msgs.appendChild(div);
+    
     msgs.scrollTop = msgs.scrollHeight;
-    pendingButtonsWrap = qWrap;
   }
 
   function setInputEnabled(enabled, placeholder) {
@@ -639,7 +840,7 @@ const STYLES = `
     if (!input) return;
     input.disabled = !enabled;
     if (sendBtn) sendBtn.disabled = !enabled || isLoading;
-    input.placeholder = placeholder || 'Escribe tu pregunta...';
+    input.placeholder = placeholder || TRANSLATABLE_TEXTS[currentLang].inputPlaceholder;
   }
 
   function addUserMessage(text) {
@@ -649,6 +850,7 @@ const STYLES = `
     div.className = 'rs-msg user';
     div.innerHTML = `<div class="rs-msg-bubble">${escapeHtml(text)}</div>`;
     msgs.appendChild(div);
+    animateMessageNode(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
 
@@ -658,26 +860,33 @@ const STYLES = `
     const div = document.createElement('div');
     div.id = 'rs-typing-indicator';
     div.className = 'rs-typing';
+    div.style.opacity = 0;
     div.innerHTML = '<span></span><span></span><span></span>';
     msgs.appendChild(div);
+    gsap.to(div, { opacity: 1, duration: 0.2 });
     msgs.scrollTop = msgs.scrollHeight;
   }
 
   function hideTyping() {
-    document.getElementById('rs-typing-indicator')?.remove();
+    const indicator = document.getElementById('rs-typing-indicator');
+    if (indicator) {
+      gsap.to(indicator, { opacity: 0, duration: 0.15, onComplete: () => indicator.remove() });
+    }
   }
 
   function escapeHtml(t) {
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-// --- Lógica del planificador de salidas interactivo con transporte ---
 
+  // --- Planificador ---
   function setPlannerToggle(active) {
     plannerMode = active;
     const toggleBtn = document.getElementById('rs-planner-toggle');
     if (!toggleBtn) return;
     toggleBtn.classList.toggle('active', active);
     toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    
+    gsap.fromTo(toggleBtn, { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "back.out(3)" });
   }
 
   function togglePlannerMode() {
@@ -687,91 +896,71 @@ const STYLES = `
       startPlannerFlow();
     } else {
       setPlannerToggle(false);
-      cancelPlannerFlow();
+      plannerStep = null;
+      setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
     }
   }
 
   function startPlannerFlow() {
     plannerStep = 'activity';
     plannerData = {};
-    
-    setInputEnabled(true, 'Ej. Gastronomía, historia, museos...');
-    addBotMessage("¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, **¿qué tipo de actividad te gustaría hacer?** (Puedes escribir: *gastronomía, historia, leyendas, playas o un poco de todo*).");
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderPlanner);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerStart);
     document.getElementById('rs-chat-input')?.focus();
   }
 
   function procesarPasoActividad(text) {
-    const t = text.toLowerCase();
-    const validKeywords = ['comida', 'gastronomia', 'pupusa', 'historia', 'sitio', 'museo', 'ruina', 'iglesia', 'evento', 'fiesta', 'leyenda', 'todo', 'playa', 'cultura', 'salir'];
-    const isValid = validKeywords.some(keyword => t.includes(keyword)) || t.length > 3;
-
-    if (!isValid) {
-      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, dime qué tipo de actividad buscas para tu salida (ej. *comer pupusas o visitar sitios históricos*).");
+    if (text.toLowerCase().length < 3) {
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
       return;
     }
-
     plannerData.activity = text;
-    plannerStep = 'startLocation'; // Saltamos al nuevo paso de ubicación
-    setInputEnabled(true, 'Ej. San Salvador, Santa Ana, San Miguel...');
-    addBotMessage("Entendido. Ahora, **¿desde qué ciudad o municipio vas a iniciar tu salida?** (Esto me servirá para calcular las rutas y el costo aproximado del transporte).");
+    plannerStep = 'startLocation'; 
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderLocation);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerLocationPrompt);
   }
 
   function procesarPasoUbicacion(text) {
     const t = text.toLowerCase().trim();
-    // Validación: comprobar que no sea un texto absurdamente corto o un número vacío
     if (t.length < 3 || /^\d+$/.test(t)) {
-      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, indícame un nombre de ciudad o punto de partida válido en El Salvador (ej. *Santa Tecla, Antiguo Cuscatlán, Ahuachapán*).");
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
       return;
     }
-
     plannerData.startLocation = text;
     plannerStep = 'budget';
-    setInputEnabled(true, 'Ej. $20, económico, 40 dólares...');
-    addBotMessage("Anotado tu punto de partida. **¿Cuál es tu presupuesto aproximado en dólares ($ USD) para esta salida?**");
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderBudget);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerBudgetPrompt);
   }
 
   function procesarPasoPresupuesto(text) {
-    const t = text.toLowerCase();
-    const tieneNumeros = /\d+/.test(t);
-    const palabrasDinero = ['barato', 'economico', 'moderado', 'caro', 'alto', 'presupuesto', 'dolar', 'dolares', 'nada', 'poco', 'bastante'];
-    const isValid = tieneNumeros || palabrasDinero.some(kw => t.includes(kw));
-
-    if (!isValid) {
-      addBotMessage("❌ **Esa no es la información que he solicitado.** Necesito saber un estimado de tu presupuesto. Introduce un monto en dólares o indícame si es *económico, moderado o alto*.");
+    if (text.trim().length < 2) {
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
       return;
     }
-
     plannerData.budget = text;
     plannerStep = 'duration';
-    setInputEnabled(true, 'Ej. 4 horas, medio día, fin de semana...');
-    addBotMessage("Perfecto. **¿Cuánto tiempo tienes disponible para tu salida?** (ej. *medio día, un día completo o todo el fin de semana*).");
+    setInputEnabled(true, TRANTLATABLE_TEXTS[currentLang].inputPlaceholderDuration);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerDurationPrompt);
   }
 
   function procesarPasoDuracion(text) {
-    const t = text.toLowerCase();
-    const palabrasTiempo = ['hora', 'dia', 'semana', 'tarde', 'mañana', 'tiempo', 'completo', 'medio'];
-    const tieneNumeros = /\d+/.test(t);
-    const isValid = tieneNumeros || palabrasTiempo.some(kw => t.includes(kw)) || t.length > 3;
-
-    if (!isValid) {
-      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, indícame la duración o el tiempo que tienes disponible.");
+    if (text.trim().length < 2) {
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
       return;
     }
-
     plannerData.duration = text;
     plannerStep = 'details';
-    setInputEnabled(true, 'Escribe detalles o escribe "omitir"...');
-    addBotMessage("Una última cosa 🙂: **¿Hay algún platillo, lugar específico o preferencia que quieras incluir sí o sí?** Si no, escribe *\"omitir\"*.");
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderDetails);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerDetailsPrompt);
   }
 
   function procesarPasoDetalles(text) {
     const t = text.toLowerCase().trim();
-    if (t === 'omitir' || t === 'no' || t === 'ninguno' || t === 'nada') {
+    if (t === 'omitir' || t === 'no' || t === 'skip') {
       plannerData.details = '';
     } else {
       plannerData.details = text;
     }
-
     plannerStep = 'generating';
     generatePlan();
   }
@@ -779,29 +968,36 @@ const STYLES = `
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   
   async function generatePlan() {
-    setInputEnabled(false, 'Generando tu plan...');
+    setInputEnabled(false, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderGenerating);
     showTyping();
 
-    const userPrompt = `Planifícame una salida con estas preferencias:
+    const isEn = currentLang === 'en';
+    const userPrompt = isEn ? 
+`Plan a trip with these preferences:
+- Starting Location: ${plannerData.startLocation}
+- Desired Activity: ${plannerData.activity}
+- Total Budget: ${plannerData.budget}
+- Time Available: ${plannerData.duration}${plannerData.details ? `\n- Specific Preferences: ${plannerData.details}` : ''}
+Provide a concrete and realistic plan inside El Salvador. It is MANDATORY to include an estimated transportation cost starting from ${plannerData.startLocation} to the places to visit. Show a short numbered itinerary (max 3 activities), the breakdown of costs, and the estimated general total.` 
+: 
+`Planifícame una salida con estas preferencias:
 - Punto de inicio/Ciudad origen: ${plannerData.startLocation}
 - Actividad deseada: ${plannerData.activity}
 - Presupuesto total: ${plannerData.budget}
 - Tiempo disponible: ${plannerData.duration}${plannerData.details ? `\n- Preferencias específicas: ${plannerData.details}` : ''}
-
-Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que incluyas una estimación de costo de transporte (ya sea en bus público o combustible/Uber) partiendo desde ${plannerData.startLocation} hacia los lugares a visitar. Muestra el itinerario numerado corto (máximo 3 actividades), el desglose del costo de transporte y actividades, y el gasto total estimado.`;
+Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que incluyas una estimación de costo de transporte partiendo desde ${plannerData.startLocation} hacia los lugares a visitar. Muestra el itinerario numerado corto (máximo 3 actividades), el desglose del costo de transporte y actividades, y el gasto total estimado.`;
 
     try {
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system:   PLANNER_SYSTEM_PROMPT,
+          system:   getPlannerSystemPrompt(currentLang),
           messages: [{ role: 'user', content: userPrompt }]
         })
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
       hideTyping();
 
       const msgs = document.getElementById('rs-chat-messages');
@@ -811,6 +1007,7 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       bubble.className = 'rs-msg-bubble';
       div.appendChild(bubble);
       msgs.appendChild(div);
+      animateMessageNode(div);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -838,25 +1035,26 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
           a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
-          a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+          a.textContent = TRANSLATABLE_TEXTS[currentLang].mapLinkText.replace('{name}', lm.nombre);
           mapWrap.appendChild(a);
         });
         div.appendChild(mapWrap);
+        gsap.to(mapWrap, { opacity: 1, y: 0, duration: 0.3 });
         msgs.scrollTop = msgs.scrollHeight;
       }
 
       plannerStep = null;
       setPlannerToggle(false);
-      setInputEnabled(true, 'Escribe tu pregunta...');
-      addBotMessage("¡Tu plan ha sido generado con éxito! El planificador se ha desactivado automáticamente. Puedes seguir haciéndome preguntas normales sobre El Salvador o volver a presionar **Planificar** si deseas armar otra ruta.");
+      setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerSuccess);
 
     } catch (err) {
       hideTyping();
-      addBotMessage('Hubo un problema generando tu plan. Por favor intenta de nuevo.');
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errGeneric);
       console.error('Planner error:', err);
       plannerStep = null;
       setPlannerToggle(false);
-      setInputEnabled(true, 'Escribe tu pregunta...');
+      setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
     }
   }
 
@@ -866,26 +1064,20 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
     const text = input.value.trim();
     if (!text || isLoading) return;
 
-    // Si el planificador está activo, procesamos secuencialmente los textos libres
+    // Animación de click en el botón enviar
+    gsap.fromTo("#rs-chat-send", { scale: 0.8 }, { scale: 1, duration: 0.2, ease: "back.out(3)" });
+
     if (plannerMode && plannerStep) {
       input.value = '';
       addUserMessage(text);
-
-      if (plannerStep === 'activity') {
-        procesarPasoActividad(text);
-      } else if (plannerStep === 'startLocation') {
-        procesarPasoUbicacion(text);
-      } else if (plannerStep === 'budget') {
-        procesarPasoPresupuesto(text);
-      } else if (plannerStep === 'duration') {
-        procesarPasoDuracion(text);
-      } else if (plannerStep === 'details') {
-        procesarPasoDetalles(text);
-      }
+      if (plannerStep === 'activity') procesarPasoActividad(text);
+      else if (plannerStep === 'startLocation') procesarPasoUbicacion(text);
+      else if (plannerStep === 'budget') procesarPasoPresupuesto(text);
+      else if (plannerStep === 'duration') procesarPasoDuracion(text);
+      else if (plannerStep === 'details') procesarPasoDetalles(text);
       return;
     }
 
-    // Comportamiento normal del chatbot fuera del planificador
     input.value = '';
     sendUserText(text);
   }
@@ -914,24 +1106,22 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system:   SYSTEM_PROMPT,
+          system:   getSystemPrompt(currentLang),
           messages: conversationHistory
         })
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
       hideTyping();
 
-      // Creamos la burbuja vacía del bot
       const div = document.createElement('div');
       div.className = 'rs-msg bot';
       const bubble = document.createElement('div');
       bubble.className = 'rs-msg-bubble';
       div.appendChild(bubble);
       msgs.appendChild(div);
+      animateMessageNode(div);
 
-      // Leemos el stream que manda el servidor palabra por palabra
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let replyText = "";
@@ -941,22 +1131,16 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
         if (done) break;
         
         const chunk = decoder.decode(value, { stream: true });
-        
-        // Desglosamos el fragmento letra por letra para controlar el ritmo de lectura
         for (let i = 0; i < chunk.length; i++) {
           replyText += chunk[i];
-          // Renderiza el texto acumulado procesando las negritas y saltos de línea
           bubble.innerHTML = formatMessageText(replyText);
           msgs.scrollTop = msgs.scrollHeight;
-          
-          // Pausa controlada de 18ms por carácter para que sea legible y fluido
           await sleep(18); 
         }
       }
 
       conversationHistory.push({ role: 'assistant', content: replyText });
       
-      // Añade los botones del mapa interactivo si se mencionaron landmarks
       const landmarks = findMentionedLandmarks(replyText);
       if (landmarks && landmarks.length) {
         const mapWrap = document.createElement('div');
@@ -968,16 +1152,17 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
           a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
-          a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+          a.textContent = TRANSLATABLE_TEXTS[currentLang].mapLinkText.replace('{name}', lm.nombre);
           mapWrap.appendChild(a);
         });
         div.appendChild(mapWrap);
+        gsap.to(mapWrap, { opacity: 1, y: 0, duration: 0.3 });
         msgs.scrollTop = msgs.scrollHeight;
       }
 
     } catch (err) {
       hideTyping();
-      addBotMessage('Hubo un problema de conexión. Por favor intenta de nuevo.');
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errGeneric);
       console.error('Chatbot error:', err);
     }
 
@@ -986,10 +1171,13 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
     document.getElementById('rs-chat-input')?.focus();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // Carga asíncrona segura de GSAP antes de inicializar la interfaz
+  loadGSAP(() => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  });
 
 })();
