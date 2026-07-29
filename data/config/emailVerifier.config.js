@@ -21,6 +21,13 @@ const KNOWN_EMAIL_DOMAINS = new Set([
         'clases.edu.sv'
 ]);
 
+const isInconclusiveDnsError = (error) => {
+    if (!error) return false;
+    if (error.message === 'DNS_TIMEOUT') return true;
+    const inconclusiveCodes = new Set(['ESERVFAIL', 'ETIMEOUT', 'ECONNREFUSED', 'EREFUSED', 'ECANCELLED']);
+    return inconclusiveCodes.has(error.code);
+};
+
 const domainHasMailServer = async (email) => {
     const atIndex = email.lastIndexOf('@');
     if (atIndex === -1) return false;
@@ -32,26 +39,39 @@ const domainHasMailServer = async (email) => {
         return true;
     }
 
+    let inconclusive = false;
+
     try {
         const mxRecords = await withTimeout(dns.resolveMx(domain), DNS_TIMEOUT_MS);
         if (mxRecords && mxRecords.length > 0) {
             return true;
         }
-    } catch (error) {}
+    } catch (error) {
+        if (isInconclusiveDnsError(error)) inconclusive = true;
+    }
 
     try {
         const addresses = await withTimeout(dns.resolve4(domain), DNS_TIMEOUT_MS);
         if (addresses && addresses.length > 0) {
             return true;
         }
-    } catch (error) {}
+    } catch (error) {
+        if (isInconclusiveDnsError(error)) inconclusive = true;
+    }
 
     try {
         const addresses = await withTimeout(dns.resolve6(domain), DNS_TIMEOUT_MS);
         if (addresses && addresses.length > 0) {
             return true;
         }
-    } catch (error) {}
+    } catch (error) {
+        if (isInconclusiveDnsError(error)) inconclusive = true;
+    }
+
+    if (inconclusive) {
+        console.warn(`No se pudo verificar el dominio "${domain}" por un problema de red/DNS; se permite el registro, pero con precaución`);
+        return true;
+    }
 
     return false;
 }
