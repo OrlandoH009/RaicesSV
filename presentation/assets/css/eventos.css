@@ -389,6 +389,7 @@ body.welcome-lock { overflow: hidden; }
   display: flex;
   align-items: center;
   gap: .5rem;
+  min-width: 0; /* permite que los hijos flex se encojan en vez de desbordar el layout */
 }
 
 .info-tabs__arrow {
@@ -417,12 +418,17 @@ body.welcome-lock { overflow: hidden; }
 
 .info-tabs__list {
   position: relative;
+  flex: 1 1 0;
+  min-width: 0; /* CLAVE: sin esto, un flex item con contenido nowrap se expande
+                   en vez de recortarse, y overflow-x:auto nunca activa el scroll */
   display: flex;
   flex-wrap: nowrap;
+  justify-content: flex-start; /* anula justify-content:center heredado de info-shared.css,
+                                   que centraba TODO el conjunto de botones y dejaba el
+                                   inicio del carrusel fuera del área visible */
   gap: .3rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
   padding: .3rem .2rem .7rem;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -432,7 +438,6 @@ body.welcome-lock { overflow: hidden; }
 .tab-btn {
   position: relative;
   flex-shrink: 0;
-  scroll-snap-align: center;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: .9rem;

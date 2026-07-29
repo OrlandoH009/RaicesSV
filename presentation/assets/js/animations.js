@@ -15,23 +15,35 @@ document.addEventListener('DOMContentLoaded', () => {
   if (prefersReduced) return; // respeta accesibilidad, no anima
 
   /* ---------- 1. Entrada del badge del título ---------- */
-  gsap.from('.page-badge__inner', {
-    y: -18,
-    opacity: 0,
-    scale: .96,
-    duration: .7,
-    ease: 'back.out(1.6)'
-  });
+  gsap.fromTo('.page-badge__inner',
+    { y: -18, opacity: 0, scale: .96 },
+    {
+      y: 0, opacity: 1, scale: 1,
+      duration: .7,
+      ease: 'back.out(1.6)',
+      clearProps: 'opacity,transform'
+    }
+  );
 
   /* ---------- 2. Tabs: aparición escalonada ---------- */
-  gsap.from('.tab-btn', {
-    y: 10,
-    opacity: 0,
-    duration: .45,
-    stagger: .035,
-    delay: .25,
-    ease: 'power2.out'
-  });
+  gsap.fromTo('.tab-btn',
+    { y: 10, opacity: 0 },
+    {
+      y: 0,
+      opacity: 1,
+      duration: .45,
+      stagger: .035,
+      delay: .25,
+      ease: 'power2.out',
+      clearProps: 'opacity,transform',
+      onComplete: function () {
+        document.querySelectorAll('.tab-btn').forEach(el => {
+          el.style.opacity = '';
+          el.style.transform = '';
+        });
+      }
+    }
+  );
 
   /* ---------- 3. Tarjetas de grid (sitios / gastro): entrada en cascada ---------- */
   const cards = document.querySelectorAll('.sitio-card, .gastro-card');
