@@ -24,12 +24,11 @@ REGLAS CRÍTICAS DE RESPUESTA:
 ${RAICES_LANDMARKS_INFO}
 6. Filtro: Si te saludan, di solo: "Hola, soy Pupusita. ¿Qué dato buscas?". Si insultan, modera con una frase. Si es ajeno a El Salvador, responde ÚNICAMENTE: "No tengo respuesta a temas no relacionados al sitio."`;
 
-const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios rápidos y reales en El Salvador usando dólares ($ USD).
-
+const PLANNER_SYSTEM_PROMPT = `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios rápidos y reales en El Salvador usando dólares ($ USD).x
 REGLAS CRÍTICAS DEL PLAN:
 1. Formato estricto: Cero párrafos, cero textos introductorios. Responde DIRECTAMENTE con la lista numerada.
-2. Brevedad radical: Máximo 3 actividades por plan. Cada actividad debe ocupar máximo 5 palabras en una sola línea.
-3. Costos: Escribe el precio al lado de la actividad y el total abajo.
+2. Brevedad radical: Máximo 3 actividades por plan más el apartado de transporte. Cada línea debe ser corta.
+3. Costos: Escribe el precio al lado de cada actividad y detalla una línea específica para el costo estimado de **Transporte**. Pon el total general al final.
 4. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
 ${RAICES_LANDMARKS_INFO}
 5. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total.`;
@@ -395,9 +394,10 @@ const STYLES = `
   let isOpen      = false;
   let isLoading   = false;
   let bubbleHidden = false;
+  let isInitialized = false; 
 
   // --- Estado del planificador de salidas ---
-  let plannerMode = false;   // true = interruptor activado
+  let plannerMode = false;   
   let plannerStep = null;    // 'activity' | 'budget' | 'duration' | 'details' | 'generating' | 'done' | null
   let plannerData = {};
   let pendingButtonsWrap = null; // referencia a botones de opción pendientes en el chat
@@ -670,8 +670,7 @@ const STYLES = `
   function escapeHtml(t) {
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-
-  // --- Lógica del planificador de salidas ---
+// --- Lógica del planificador de salidas interactivo con transporte ---
 
   function setPlannerToggle(active) {
     plannerMode = active;
@@ -695,77 +694,101 @@ const STYLES = `
   function startPlannerFlow() {
     plannerStep = 'activity';
     plannerData = {};
-    setInputEnabled(false, 'Selecciona una opción arriba...');
-    addBotMessageWithButtons(
-      '¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, ¿qué te gustaría hacer?',
-      PLANNER_ACTIVITY_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerActivity(opt) })),
-      true
-    );
-  }
-
-  function handlePlannerActivity(opt) {
-    plannerData.activity   = opt.value;
-    plannerData.activityId = opt.id;
-    addUserMessage(opt.label);
-    plannerStep = 'budget';
-    addBotMessageWithButtons(
-      'Genial. ¿Cuál es tu presupuesto aproximado para esta salida?',
-      PLANNER_BUDGET_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerBudget(opt) })),
-      true
-    );
-  }
-
-  function handlePlannerBudget(opt) {
-    plannerData.budget = opt.value;
-    addUserMessage(opt.label);
-    plannerStep = 'duration';
-    addBotMessageWithButtons(
-      'Perfecto. ¿Cuánto tiempo tienes disponible para tu salida?',
-      PLANNER_TIME_OPTIONS.map(opt => ({ label: opt.label, onClick: () => handlePlannerDuration(opt) })),
-      true
-    );
-  }
-
-  function handlePlannerDuration(opt) {
-    plannerData.duration = opt.value;
-    addUserMessage(opt.label);
-    askPlannerDetails();
-  }
-
-  // Pregunta de seguimiento libre, según la actividad elegida, antes de generar el plan
-  function askPlannerDetails() {
-    plannerStep = 'details';
-    const question = PLANNER_DETAIL_QUESTIONS[plannerData.activityId] || PLANNER_DETAIL_FALLBACK;
-
-    addBotMessageWithButtons(
-      `Una última cosa para personalizar tu plan 🙂\n\n${question}\n\nPuedes escribir tu respuesta abajo, o si prefieres, omite este paso.`,
-      [
-        {
-          label: '⏭️ Omitir, ya tengo suficiente',
-          onClick: () => {
-            plannerData.details = '';
-            plannerStep = 'generating';
-            generatePlan();
-          }
-        }
-      ],
-      true
-    );
-
-    setInputEnabled(true, 'Escribe tu respuesta aquí...');
+    
+    setInputEnabled(true, 'Ej. Gastronomía, historia, museos...');
+    addBotMessage("¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, **¿qué tipo de actividad te gustaría hacer?** (Puedes escribir: *gastronomía, historia, leyendas, playas o un poco de todo*).");
     document.getElementById('rs-chat-input')?.focus();
   }
 
+  function procesarPasoActividad(text) {
+    const t = text.toLowerCase();
+    const validKeywords = ['comida', 'gastronomia', 'pupusa', 'historia', 'sitio', 'museo', 'ruina', 'iglesia', 'evento', 'fiesta', 'leyenda', 'todo', 'playa', 'cultura', 'salir'];
+    const isValid = validKeywords.some(keyword => t.includes(keyword)) || t.length > 3;
+
+    if (!isValid) {
+      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, dime qué tipo de actividad buscas para tu salida (ej. *comer pupusas o visitar sitios históricos*).");
+      return;
+    }
+
+    plannerData.activity = text;
+    plannerStep = 'startLocation'; // Saltamos al nuevo paso de ubicación
+    setInputEnabled(true, 'Ej. San Salvador, Santa Ana, San Miguel...');
+    addBotMessage("Entendido. Ahora, **¿desde qué ciudad o municipio vas a iniciar tu salida?** (Esto me servirá para calcular las rutas y el costo aproximado del transporte).");
+  }
+
+  function procesarPasoUbicacion(text) {
+    const t = text.toLowerCase().trim();
+    // Validación: comprobar que no sea un texto absurdamente corto o un número vacío
+    if (t.length < 3 || /^\d+$/.test(t)) {
+      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, indícame un nombre de ciudad o punto de partida válido en El Salvador (ej. *Santa Tecla, Antiguo Cuscatlán, Ahuachapán*).");
+      return;
+    }
+
+    plannerData.startLocation = text;
+    plannerStep = 'budget';
+    setInputEnabled(true, 'Ej. $20, económico, 40 dólares...');
+    addBotMessage("Anotado tu punto de partida. **¿Cuál es tu presupuesto aproximado en dólares ($ USD) para esta salida?**");
+  }
+
+  function procesarPasoPresupuesto(text) {
+    const t = text.toLowerCase();
+    const tieneNumeros = /\d+/.test(t);
+    const palabrasDinero = ['barato', 'economico', 'moderado', 'caro', 'alto', 'presupuesto', 'dolar', 'dolares', 'nada', 'poco', 'bastante'];
+    const isValid = tieneNumeros || palabrasDinero.some(kw => t.includes(kw));
+
+    if (!isValid) {
+      addBotMessage("❌ **Esa no es la información que he solicitado.** Necesito saber un estimado de tu presupuesto. Introduce un monto en dólares o indícame si es *económico, moderado o alto*.");
+      return;
+    }
+
+    plannerData.budget = text;
+    plannerStep = 'duration';
+    setInputEnabled(true, 'Ej. 4 horas, medio día, fin de semana...');
+    addBotMessage("Perfecto. **¿Cuánto tiempo tienes disponible para tu salida?** (ej. *medio día, un día completo o todo el fin de semana*).");
+  }
+
+  function procesarPasoDuracion(text) {
+    const t = text.toLowerCase();
+    const palabrasTiempo = ['hora', 'dia', 'semana', 'tarde', 'mañana', 'tiempo', 'completo', 'medio'];
+    const tieneNumeros = /\d+/.test(t);
+    const isValid = tieneNumeros || palabrasTiempo.some(kw => t.includes(kw)) || t.length > 3;
+
+    if (!isValid) {
+      addBotMessage("❌ **Esa no es la información que he solicitado.** Por favor, indícame la duración o el tiempo que tienes disponible.");
+      return;
+    }
+
+    plannerData.duration = text;
+    plannerStep = 'details';
+    setInputEnabled(true, 'Escribe detalles o escribe "omitir"...');
+    addBotMessage("Una última cosa 🙂: **¿Hay algún platillo, lugar específico o preferencia que quieras incluir sí o sí?** Si no, escribe *\"omitir\"*.");
+  }
+
+  function procesarPasoDetalles(text) {
+    const t = text.toLowerCase().trim();
+    if (t === 'omitir' || t === 'no' || t === 'ninguno' || t === 'nada') {
+      plannerData.details = '';
+    } else {
+      plannerData.details = text;
+    }
+
+    plannerStep = 'generating';
+    generatePlan();
+  }
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
   async function generatePlan() {
     setInputEnabled(false, 'Generando tu plan...');
     showTyping();
 
     const userPrompt = `Planifícame una salida con estas preferencias:
+- Punto de inicio/Ciudad origen: ${plannerData.startLocation}
 - Actividad deseada: ${plannerData.activity}
-- Presupuesto: ${plannerData.budget}
-- Tiempo disponible: ${plannerData.duration}${plannerData.details ? `\n- Preferencias específicas del usuario: ${plannerData.details}` : ''}
+- Presupuesto total: ${plannerData.budget}
+- Tiempo disponible: ${plannerData.duration}${plannerData.details ? `\n- Preferencias específicas: ${plannerData.details}` : ''}
 
-Dame un plan concreto y realista dentro de El Salvador, con lugares específicos a visitar, un orden sugerido y un estimado de gasto total dentro del presupuesto indicado.${plannerData.details ? ' Toma en cuenta especialmente la preferencia específica que indicó el usuario.' : ''}`;
+Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que incluyas una estimación de costo de transporte (ya sea en bus público o combustible/Uber) partiendo desde ${plannerData.startLocation} hacia los lugares a visitar. Muestra el itinerario numerado corto (máximo 3 actividades), el desglose del costo de transporte y actividades, y el gasto total estimado.`;
 
     try {
       const response = await fetch(PROXY_URL, {
@@ -777,36 +800,64 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      
       hideTyping();
 
-      const reply = data?.content?.[0]?.text || 'No pude generar tu plan en este momento. Intenta de nuevo.';
-      addBotMessage(reply, false, findMentionedLandmarks(reply));
-      plannerStep = 'done';
+      const msgs = document.getElementById('rs-chat-messages');
+      const div = document.createElement('div');
+      div.className = 'rs-msg bot';
+      const bubble = document.createElement('div');
+      bubble.className = 'rs-msg-bubble';
+      div.appendChild(bubble);
+      msgs.appendChild(div);
 
-      // Mantenemos el input deshabilitado indicando que debe usar los botones
-      setInputEnabled(false, 'Selecciona una opción arriba...');
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let replyText = "";
 
-      addBotMessageWithButtons('¿Quieres planificar otra salida o volver al chat normal?', [
-        { label: '🔁 Planificar otra salida', onClick: startPlannerFlow },
-        { label: '✅ Volver al chat normal', onClick: () => { setPlannerToggle(false); cancelPlannerFlow(true); } },
-      ], false);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        replyText += chunk;
+        
+        bubble.innerHTML = formatMessageText(replyText);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      const landmarks = findMentionedLandmarks(replyText);
+      if (landmarks && landmarks.length) {
+        const mapWrap = document.createElement('div');
+        mapWrap.className = 'rs-quick-btns';
+        const mapaUrl = getMapaUrl();
+        landmarks.forEach(lm => {
+          const a = document.createElement('a');
+          a.className = 'rs-quick-btn rs-map-btn';
+          a.href = `${mapaUrl}${mapaUrl.includes('?') ? '&' : '?'}evento=${lm.id}`;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.textContent = `📍 Ver ${lm.nombre} en el mapa`;
+          mapWrap.appendChild(a);
+        });
+        div.appendChild(mapWrap);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      plannerStep = null;
+      setPlannerToggle(false);
+      setInputEnabled(true, 'Escribe tu pregunta...');
+      addBotMessage("¡Tu plan ha sido generado con éxito! El planificador se ha desactivado automáticamente. Puedes seguir haciéndome preguntas normales sobre El Salvador o volver a presionar **Planificar** si deseas armar otra ruta.");
 
     } catch (err) {
       hideTyping();
       addBotMessage('Hubo un problema generando tu plan. Por favor intenta de nuevo.');
       console.error('Planner error:', err);
-      plannerStep = 'done';
-      // Si falla, sí restauramos el input normal para que pueda reportarlo o reintentar
-      setInputEnabled(true);
+      plannerStep = null;
+      setPlannerToggle(false);
+      setInputEnabled(true, 'Escribe tu pregunta...');
     }
-  }
-
-  function cancelPlannerFlow(silent) {
-    plannerStep = null;
-    plannerData = {};
-    setInputEnabled(true, 'Escribe tu pregunta...'); // Forzamos el placeholder por defecto al limpiar
-    if (!silent) addBotMessage('Planificador desactivado. Puedes seguir chateando normalmente. 😊');
   }
 
   function sendMessage() {
@@ -815,20 +866,26 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
     const text = input.value.trim();
     if (!text || isLoading) return;
 
-    // Si estamos esperando la respuesta libre de detalles del planificador,
-    // la capturamos aquí en vez de mandarla al chat normal.
-    if (plannerStep === 'details') {
-      pendingButtonsWrap?.remove();
-      pendingButtonsWrap = null;
+    // Si el planificador está activo, procesamos secuencialmente los textos libres
+    if (plannerMode && plannerStep) {
       input.value = '';
       addUserMessage(text);
-      plannerData.details = text;
-      plannerStep = 'generating';
-      generatePlan();
+
+      if (plannerStep === 'activity') {
+        procesarPasoActividad(text);
+      } else if (plannerStep === 'startLocation') {
+        procesarPasoUbicacion(text);
+      } else if (plannerStep === 'budget') {
+        procesarPasoPresupuesto(text);
+      } else if (plannerStep === 'duration') {
+        procesarPasoDuracion(text);
+      } else if (plannerStep === 'details') {
+        procesarPasoDetalles(text);
+      }
       return;
     }
 
-    if (plannerStep && plannerStep !== 'done') return;
+    // Comportamiento normal del chatbot fuera del planificador
     input.value = '';
     sendUserText(text);
   }
@@ -884,11 +941,17 @@ Dame un plan concreto y realista dentro de El Salvador, con lugares específicos
         if (done) break;
         
         const chunk = decoder.decode(value, { stream: true });
-        replyText += chunk;
         
-        // Renderiza el texto acumulado procesando las negritas y saltos de línea
-        bubble.innerHTML = formatMessageText(replyText);
-        msgs.scrollTop = msgs.scrollHeight;
+        // Desglosamos el fragmento letra por letra para controlar el ritmo de lectura
+        for (let i = 0; i < chunk.length; i++) {
+          replyText += chunk[i];
+          // Renderiza el texto acumulado procesando las negritas y saltos de línea
+          bubble.innerHTML = formatMessageText(replyText);
+          msgs.scrollTop = msgs.scrollHeight;
+          
+          // Pausa controlada de 18ms por carácter para que sea legible y fluido
+          await sleep(18); 
+        }
       }
 
       conversationHistory.push({ role: 'assistant', content: replyText });
