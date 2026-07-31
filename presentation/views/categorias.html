@@ -17,7 +17,7 @@
   <script src="../assets/js/chatbot.js" defer></script>
   <script src="../assets/js/categorias-gsap.js" defer></script>
 </head>
-<body>
+<body data-i18n-title="cat.meta.title" data-i18n-desc="cat.meta.description">
 
   <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
@@ -27,37 +27,43 @@
       </a>
     </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html" class="active">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" class="active" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+
+    <!-- Botón de traducción: solo bandera, separado del burger -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link active">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link active" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
-    <div class="drawer-section-label">Explorar</div>
-    <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
-    <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
-    <a href="../views/recetas.html" class="drawer-link">Recetario</a>
-    <a href="../views/eventos.html" class="drawer-link">Eventos Culturales</a>
-    <a href="../views/historia.html" class="drawer-link">Historia</a>
-    <a href="../views/leyendas.html" class="drawer-link">Leyendas</a>
-    <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <a href="../views/sitios-culturales.html" class="drawer-link" data-i18n="cards.sitios">Sitios Culturales</a>
+    <a href="../views/gastronomia.html" class="drawer-link" data-i18n="cards.gastronomia">Gastronomía</a>
+    <a href="../views/recetas.html" class="drawer-link" data-i18n="nav.recetario">Recetario</a>
+    <a href="../views/eventos.html" class="drawer-link" data-i18n="cards.eventos">Eventos Culturales</a>
+    <a href="../views/historia.html" class="drawer-link" data-i18n="cards.historia">Historia</a>
+    <a href="../views/leyendas.html" class="drawer-link" data-i18n="cards.leyendas">Leyendas</a>
+    <a href="../views/quiz.html" class="drawer-link" data-i18n="nav.quiz">Quiz Cultural</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -71,9 +77,9 @@
       <div class="hero__overlay"></div>
       <div class="hero__content">
         <div class="hero__title-wrap">
-          <h1 class="hero__title">Explora Nuestras Categorías</h1>
+          <h1 class="hero__title" data-i18n="cat.hero.title">Explora Nuestras Categorías</h1>
         </div>
-        <p class="hero__subtitle">Descubre la riqueza cultural de El Salvador a través de nuestras secciones especializadas.</p>
+        <p class="hero__subtitle" data-i18n="cat.hero.subtitle">Descubre la riqueza cultural de El Salvador a través de nuestras secciones especializadas.</p>
       </div>
     </section>
 
@@ -81,15 +87,15 @@
     <section class="categorias-tools">
       <div class="categoria-search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="categoriaSearch" placeholder="Buscar una categoría... (ej. comida, mitos, sitios)" autocomplete="off" />
+        <input type="text" id="categoriaSearch" placeholder="Buscar una categoría... (ej. comida, mitos, sitios)" data-i18n-attr="placeholder:cat.search.placeholder" autocomplete="off" />
       </div>
       <div class="filter-chips">
-        <button class="filter-chip active" data-tag="todos">Todas</button>
-        <button class="filter-chip" data-tag="patrimonio">Patrimonio</button>
-        <button class="filter-chip" data-tag="comida">Gastronomía</button>
-        <button class="filter-chip" data-tag="festividad">Festividades</button>
-        <button class="filter-chip" data-tag="pasado">Pasado</button>
-        <button class="filter-chip" data-tag="mitologia">Mitología</button>
+        <button class="filter-chip active" data-tag="todos" data-i18n="cat.filter.todas">Todas</button>
+        <button class="filter-chip" data-tag="patrimonio" data-i18n="cat.filter.patrimonio">Patrimonio</button>
+        <button class="filter-chip" data-tag="comida" data-i18n="cat.filter.gastronomia">Gastronomía</button>
+        <button class="filter-chip" data-tag="festividad" data-i18n="cat.filter.festividades">Festividades</button>
+        <button class="filter-chip" data-tag="pasado" data-i18n="cat.filter.pasado">Pasado</button>
+        <button class="filter-chip" data-tag="mitologia" data-i18n="cat.filter.mitologia">Mitología</button>
       </div>
       <p class="results-count" id="resultsCount"></p>
     </section>
@@ -99,35 +105,35 @@
       <a href="../views/sitios-culturales.html" class="categoria-card reveal" style="transition-delay:.05s" data-tags="patrimonio sitios arqueologia lugares">
         <img src="../assets/media/Sitios Culturales.png" alt="Sitios Culturales" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__label">Sitios Culturales</span>
-        <p class="categoria-card__desc">Explora los lugares históricos y arqueológicos que definen nuestra identidad.</p>
+        <span class="categoria-card__label" data-i18n="cards.sitios">Sitios Culturales</span>
+        <p class="categoria-card__desc" data-i18n="cat.card.sitios.desc">Explora los lugares históricos y arqueológicos que definen nuestra identidad.</p>
       </a>
       <a href="../views/gastronomia.html" class="categoria-card reveal" style="transition-delay:.15s" data-tags="comida gastronomia sabores recetas">
         <img src="../assets/media/Gastronomia.png" alt="Gastronomía" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__label">Gastronomía</span>
-        <p class="categoria-card__desc">Saborea los sabores tradicionales que cuentan historias de nuestro pueblo.</p>
+        <span class="categoria-card__label" data-i18n="cards.gastronomia">Gastronomía</span>
+        <p class="categoria-card__desc" data-i18n="cat.card.gastronomia.desc">Saborea los sabores tradicionales que cuentan historias de nuestro pueblo.</p>
       </a>
       <a href="../views/eventos.html" class="categoria-card reveal" style="transition-delay:.25s" data-tags="festividad eventos celebraciones tradiciones">
         <img src="../assets/media/Eventos culturales.png" alt="Eventos Culturales" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__label">Eventos Culturales</span>
-        <p class="categoria-card__desc">Vive las celebraciones y tradiciones que unen a nuestra comunidad.</p>
+        <span class="categoria-card__label" data-i18n="cards.eventos">Eventos Culturales</span>
+        <p class="categoria-card__desc" data-i18n="cat.card.eventos.desc">Vive las celebraciones y tradiciones que unen a nuestra comunidad.</p>
       </a>
       <a href="../views/historia.html" class="categoria-card reveal" style="transition-delay:.35s" data-tags="pasado historia patrimonio">
         <img src="../assets/media/Historia.png" alt="Historia" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__label">Historia</span>
-        <p class="categoria-card__desc">Conoce el pasado que ha forjado el presente de El Salvador.</p>
+        <span class="categoria-card__label" data-i18n="cards.historia">Historia</span>
+        <p class="categoria-card__desc" data-i18n="cat.card.historia.desc">Conoce el pasado que ha forjado el presente de El Salvador.</p>
       </a>
       <a href="../views/leyendas.html" class="categoria-card reveal" style="transition-delay:.45s" data-tags="mitologia leyendas mitos historias">
         <img src="../assets/media/Leyendas.jpg" alt="Leyendas" />
         <div class="categoria-card__grad"></div>
-        <span class="categoria-card__label">Leyendas</span>
-        <p class="categoria-card__desc">Sumérgete en las historias míticas que han sido transmitidas de generación en generación.</p>
+        <span class="categoria-card__label" data-i18n="cards.leyendas">Leyendas</span>
+        <p class="categoria-card__desc" data-i18n="cat.card.leyendas.desc">Sumérgete en las historias míticas que han sido transmitidas de generación en generación.</p>
       </a>
       <div class="empty-state" id="emptyState">
-        <span>No encontramos categorías que coincidan con tu búsqueda.</span>
+        <span data-i18n="cat.emptyState">No encontramos categorías que coincidan con tu búsqueda.</span>
       </div>
     </section>
 
@@ -139,39 +145,39 @@
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li>
-        <li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="cards.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="cards.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="cards.leyendas">Leyendas</a></li>
+        <li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
 
   <!-- Modal de invitación para visitantes sin cuenta -->
   <div class="guest-modal-overlay" id="guestModalOverlay">
     <div class="guest-modal" id="guestModal">
-      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar">&times;</button>
+      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar" data-i18n-attr="aria-label:nav.cerrar">&times;</button>
       <div class="guest-modal__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       </div>
-      <h3 class="guest-modal__title">¡Qué bueno tenerte por aquí! 👋</h3>
-      <p class="guest-modal__text">
+      <h3 class="guest-modal__title" data-i18n="cat.modal.title">¡Qué bueno tenerte por aquí! 👋</h3>
+      <p class="guest-modal__text" data-i18n="cat.modal.text">
         Puedes seguir explorando las categorías con toda libertad, pero si te registras vas a
         disfrutar mucho más de todo lo que Salvadorean Roots tiene para ti.
       </p>
       <div class="guest-modal__actions">
-        <a href="../views/registro.html" class="guest-modal__btn guest-modal__btn--primary">Crear mi cuenta</a>
-        <a href="../views/login.html" class="guest-modal__btn guest-modal__btn--secondary">Ya tengo cuenta</a>
+        <a href="../views/registro.html" class="guest-modal__btn guest-modal__btn--primary" data-i18n="cat.modal.crearCuenta">Crear mi cuenta</a>
+        <a href="../views/login.html" class="guest-modal__btn guest-modal__btn--secondary" data-i18n="cat.modal.yaTengoCuenta">Ya tengo cuenta</a>
       </div>
-      <button class="guest-modal__skip" id="guestModalSkip">Seguir explorando sin cuenta</button>
+      <button class="guest-modal__skip" id="guestModalSkip" data-i18n="cat.modal.seguirSinCuenta">Seguir explorando sin cuenta</button>
     </div>
   </div>
 
@@ -251,6 +257,7 @@
         });
     })();
   </script>
+
+  <script src="../assets/js/i18n.js"></script>
 </body>
-</html></content>
-<parameter name="filePath"></parameter>
+</html>

@@ -17,26 +17,29 @@
   <nav class="navbar" id="navbar">
     <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" /></a></div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -131,17 +134,18 @@
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li><li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li><li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li><li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li><li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="cards.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="cards.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li><li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="cards.leyendas">Leyendas</a></li><li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/chatbot.js"></script>
   <script src="../assets/js/leyendas-library.js"></script>
+  <script src="../assets/js/i18n.js"></script>
 </body>
 </html>
