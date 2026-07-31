@@ -658,7 +658,7 @@ if (navigator.geolocation) {
       // CORRECCIÓN: Solo hacemos flyTo (paneo fluido) si NO venimos buscando un evento en la URL
       // CORRECCIÓN COMPLETA: Solo hacemos flyTo si NO venimos buscando un evento ni un sitio en la URL
       const params = new URLSearchParams(window.location.search);
-      const tieneDestino = params.has('evento') || params.has('sitio');
+      const tieneDestino = params.has('evento') || params.has('sitio') || params.has('nombre');
       
       if (!tieneDestino) {
         mapa.flyTo(userCoords, 13.9, {
@@ -686,7 +686,7 @@ if (navigator.geolocation) {
       }
       // Solo mostramos el toast de error si no venimos buscando un evento específico
       const params = new URLSearchParams(window.location.search);
-      if (!params.has('evento')) {
+      if (!params.has('evento') && !params.has('sitio') && !params.has('nombre')) {
         mostrarToastGeo(mensaje, 'error');
       }
     },
@@ -699,7 +699,7 @@ if (navigator.geolocation) {
 } else {
   console.log("El navegador no soporta la geolocalización nativa.");
   const params = new URLSearchParams(window.location.search);
-  if (!params.has('evento')) {
+  if (!params.has('evento') && !params.has('sitio') && !params.has('nombre')) {
     mostrarToastGeo('Tu navegador no soporta geolocalización. Mostrando vista general de El Salvador.', 'error');
   }
 }
@@ -898,61 +898,182 @@ marker.on('click', () => {
    (usado por el botón "Ver en mapa" de sitios-culturales.html,
    que enlaza con ?sitio=slug en vez de ?evento=id)
    ══════════════════════════════════════════════════════════ */
-const SLUG_TO_LANDMARK_ID = {
-  salvador: 3,
-  tazumal: 1,
-  joya: 2,
-  suchitoto: 4,
-  catedral: 5,
-  muna: 6,
-  sanandres: 7,
-  casablanca: 53,
-  palacionacional: 54,
-  teatronacional: 55,
-  elrosario: 56
+/* ══════════════════════════════════════════════════════════
+   TABLA DE TRADUCCIÓN: EVENTO DEL CALENDARIO → LANDMARK REAL
+   Cuando el evento del calendario tiene un landmark propio en
+   LANDMARKS, usamos SU foto, descripción y chips reales.
+   ══════════════════════════════════════════════════════════ */
+const TRADUCTOR_A_LANDMARK = {
+  3: 46,   // Feria de la Panela            -> Carnaval de la Panela de Verapaz
+  5: 31,   // Día de la Cruz                -> Día de la Cruz
+  8: 23,   // Fiestas Julias                -> Fiestas Julias
+  9: 32,   // Festival del Maíz             -> Festival del Maíz
+  10: 21,  // Fiestas Agostinas             -> Fiestas Agostinas
+  12: 28,  // Festival del Jocote Corona    -> Festival del Jocote Corona
+  13: 47,  // Fiestas de la Calabaza        -> Fiestas Patronales de Cojutepeque
+  14: 30,  // Día de los Canchules          -> Día de los Canchules
+  16: 59,  // Día de los Difuntos           -> Día de los Difuntos
+  17: 48,  // Festival del Añil             -> Festival del Añil
+  18: 26,  // Carnaval de San Miguel        -> Gran Carnaval de San Miguel
+  20: 60,  // Día de la Virgen de Guadalupe -> Navidad y Posadas (referencia diciembre)
+  21: 30,  // Los Canchules de Nahuizalco   -> Día de los Canchules
+  22: 22,  // Día de los Farolitos          -> Día de los Farolitos
+  23: 29,  // La Calabiuza                  -> Día de la Calabiuza
+  24: 48,  // Festival del Añil             -> Festival del Añil
+  25: 28,  // Festival del Jocote Corona    -> Festival del Jocote Corona
+  26: 34,  // Tradición de los Encuentros   -> Tradición de los Encuentros
+  27: 29,  // Día de la Calabiuza           -> Día de la Calabiuza
+  28: 59,  // Día de los Difuntos           -> Día de los Difuntos
+  29: 41,  // Festival del Barro            -> Festival del Barro
+  30: 49,  // Fiestas Patronales de Gotera  -> Fiestas Patronales de Gotera
+  31: 27,  // Historiantes de Cuisnahuat    -> Fiestas de los Historiantes de Cuisnahuat
+  32: 26,  // Gran Carnaval de San Miguel   -> Gran Carnaval de San Miguel
+  33: 30,  // Día de los Canchules          -> Día de los Canchules
+  34: 50,  // Festival Internacional Chich. -> Festival Internacional del Chicharrón
+  35: 35,  // Fiestas Patronales La Unión   -> Fiestas Patronales de La Unión
+  36: 60,  // Navidad y Posadas             -> Navidad y Posadas
+  37: 42,  // Fiestas del Arroz             -> Fiestas del Arroz
+  38: 24   // Fiestas Patronales San Vte.   -> Fiestas Patronales de San Vicente
+  // Los eventos no listados aquí (1,2,4,6,7,11,15,19) no tienen
+  // landmark propio todavía: usan sus coords + datos del calendario.
 };
 
-/* ══════════════════════════════════════════════════════════
-   DESTACAR LANDMARK BUSCADO
-   ══════════════════════════════════════════════════════════ */
 (function resaltarLandmarkDesdeURL() {
+window.addEventListener('load', () => {
   const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('evento');
+  const latParam = params.get('lat');
+  const lngParam = params.get('lng');
+  const nombreEventoParam = params.get('nombreEvento');
+  const eventoIdParam = params.get('eventoId');
+  const descParam = params.get('desc');
+  const deptoParam = params.get('depto');
   const sitioParam = params.get('sitio');
 
-  let targetId = null;
-  if (idParam) {
-    targetId = parseInt(idParam, 10);
-  } else if (sitioParam && SLUG_TO_LANDMARK_ID[sitioParam] !== undefined) {
-    targetId = SLUG_TO_LANDMARK_ID[sitioParam];
+  // CASO 1: El calendario mandó coordenadas + eventoId
+  if (latParam && lngParam) {
+    const lat = parseFloat(latParam);
+    const lng = parseFloat(lngParam);
+    const idEvento = eventoIdParam ? parseInt(eventoIdParam, 10) : null;
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      const idLandmarkReal = idEvento ? TRADUCTOR_A_LANDMARK[idEvento] : null;
+      const landmarkReal = idLandmarkReal ? LANDMARKS.find(l => l.id === idLandmarkReal) : null;
+
+      let lmEvento;
+
+      if (landmarkReal) {
+        // ✅ Existe landmark real: usamos SU foto, desc y chips tal cual
+        lmEvento = landmarkReal;
+      } else {
+        // Respaldo: no hay landmark propio, usamos los datos del calendario
+        const nombreMostrar = nombreEventoParam ? decodeURIComponent(nombreEventoParam) : 'Evento del calendario';
+        const descMostrar = descParam ? decodeURIComponent(descParam) : 'Festividad cultural del calendario de RaicesSV.';
+        const deptoMostrar = deptoParam ? decodeURIComponent(deptoParam) : 'El Salvador';
+
+        lmEvento = {
+          id: idEvento,
+          cat: 'evento',
+          emoji: '🎉',
+          color: CAT_COLORS.evento,
+          nombre: nombreMostrar,
+          lugar: deptoMostrar,
+          desc: descMostrar,
+          chips: ['Evento del calendario'],
+          coords: [lat, lng]
+        };
+      }
+
+      // Si ya existe un marker de LANDMARKS para este lugar, lo reutilizamos
+      let targetMarker = markers.find(m => m._landmarkId === lmEvento.id);
+
+      if (!targetMarker) {
+        // No existe marker todavía (evento sin landmark previo): lo creamos
+        const iconoNuevo = L.divIcon({
+          className: '',
+          html: `
+            <div class="custom-marker custom-marker--highlight" style="background:${lmEvento.color};">
+              ${lmEvento.emoji}
+              <span class="marker-pulse-ring"></span>
+            </div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+          popupAnchor: [0, -20]
+        });
+
+        targetMarker = L.marker(lmEvento.coords, { icon: iconoNuevo }).addTo(mapa);
+        targetMarker._landmarkCat = lmEvento.cat;
+        targetMarker._landmarkId  = lmEvento.id;
+
+        targetMarker.bindTooltip(
+          `<div class="marker-tooltip">
+             <img src="${getImgUrl(lmEvento)}" alt="${lmEvento.nombre}" loading="lazy" />
+             <div class="marker-tooltip__info">
+               <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lmEvento.cat]}">${lmEvento.emoji} ${CAT_LABELS[lmEvento.cat]}</span>
+               <span class="marker-tooltip__name">${lmEvento.nombre}</span>
+             </div>
+           </div>`,
+          { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
+        );
+
+        targetMarker.on('click', () => {
+          abrirSidebar(lmEvento, targetMarker);
+          mapa.panTo(targetMarker.getLatLng(), { animate: true, duration: 0.8 });
+        });
+
+        markers.push(targetMarker);
+      } else {
+        // Ya existe: solo lo resaltamos con el ícono de highlight
+        const iconoDestacado = L.divIcon({
+          className: '',
+          html: `
+            <div class="custom-marker custom-marker--highlight" style="background:${lmEvento.color};">
+              ${lmEvento.emoji}
+              <span class="marker-pulse-ring"></span>
+            </div>`,
+          iconSize: [34, 34],
+          iconAnchor: [17, 17],
+          popupAnchor: [0, -20]
+        });
+        targetMarker.setIcon(iconoDestacado);
+      }
+
+      targetMarker.setZIndexOffset(1000);
+      mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+      abrirSidebar(lmEvento, targetMarker);
+    }
+    return;
   }
-  if (targetId === null) return;
 
-  const lm = LANDMARKS.find(l => l.id === targetId);
-  const targetMarker = markers.find(m => m._landmarkId === targetId);
-  if (!lm || !targetMarker) return;
+  // CASO 2: Respaldo — búsqueda por slug (sitios culturales fijos del mapa)
+  if (sitioParam && typeof SLUG_TO_LANDMARK_ID !== 'undefined') {
+    const idDestinoMapa = SLUG_TO_LANDMARK_ID[sitioParam];
+    if (!idDestinoMapa) return;
 
-  const iconoDestacado = L.divIcon({
-    className: '',
-    html: `
-      <div class="custom-marker custom-marker--highlight" style="background:${lm.color};">
-        ${lm.emoji}
-        <span class="marker-pulse-ring"></span>
-      </div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -14]
-  });
+    const lm = LANDMARKS.find(l => l.id === idDestinoMapa);
+    if (!lm) return;
 
-  targetMarker.setIcon(iconoDestacado);
-  targetMarker.setZIndexOffset(1000);
+    const targetMarker = markers.find(m => m._landmarkId === lm.id);
+    if (!targetMarker) return;
 
-  // SOLUCIÓN: Esperamos 300ms a que el mapa termine de renderizar en el inicio antes de mover la cámara y abrir el sidebar
-  setTimeout(() => {
-    // Usamos zoom 16 para que se acerque bien al monumento
-    mapa.setView(targetMarker.getLatLng(), 13, { animate: true });
+    const iconoDestacado = L.divIcon({
+      className: '',
+      html: `
+        <div class="custom-marker custom-marker--highlight" style="background:${lm.color};">
+          ${lm.emoji}
+          <span class="marker-pulse-ring"></span>
+        </div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -20]
+    });
+
+    targetMarker.setIcon(iconoDestacado);
+    targetMarker.setZIndexOffset(1000);
+
+    mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
     abrirSidebar(lm, targetMarker);
-  }, 300);
+  }
+});
 })();
 
 /* ══════════════════════════════════════════════════════════
@@ -1028,14 +1149,22 @@ function mostrarToastGeo(mensaje, tipo = 'info') {
 
 // Función encargada de obtener la posición actual
 function obtenerYCentrarUbicacion(debeCentrar = false) {
+  // NUEVA VALIDACIÓN: Si venimos buscando un destino específico y NO se ha pulsado el botón de centrar manualmente, cancelamos el movimiento a la ubicación del usuario.
+  const params = new URLSearchParams(window.location.search);
+  const tieneDestino = params.has('evento') || params.has('sitio') || params.has('nombre');
+  
+  if (tieneDestino && !debeCentrar) {
+    console.log("Geolocalización en segundo plano: Se omite el centrado automático para no perder el destino de la URL.");
+    // Opcional: puedes dejar que obtenga la posición para pintar el punto azul, pero sin mover la cámara.
+  }
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
-        miUbicacionActual = [userLat, userLng]; // Guardamos globalmente
+        miUbicacionActual = [userLat, userLng];
 
-        // Creamos el icono del punto azul con pulso si no existe uno ya en el mapa
         const userMarkerIcon = L.divIcon({
           className: 'user-location-marker',
           html: '<div class="user-pulse"></div>',
@@ -1043,15 +1172,9 @@ function obtenerYCentrarUbicacion(debeCentrar = false) {
           iconAnchor: [10, 10]
         });
 
-        // Añadimos el marcador de "Estás aquí" al mapa
-        L.marker(miUbicacionActual, { icon: userMarkerIcon })
-          .addTo(mapa)
-          .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b><br><span style="color:#ccc; font-size:12px;">Descubre lo que tienes cerca.</span>');
+        L.marker(miUbicacionActual, { icon: userMarkerIcon }).addTo(mapa);
 
-        // Si se presionó el botón o no hay destino en la URL, centramos
-        const params = new URLSearchParams(window.location.search);
-        const tieneDestino = params.has('evento') || params.has('sitio');
-        
+        // SOLO movemos la cámara si explícitamente se apretó el botón O si la URL está limpia de destinos
         if (debeCentrar || !tieneDestino) {
           mapa.flyTo(miUbicacionActual, 13.9, {
             animate: true,
