@@ -16,6 +16,12 @@
   <script src="../assets/js/interactive.js" defer></script>
   <script src="../assets/js/chatbot.js" defer></script>
   <script src="../assets/js/categorias-gsap.js" defer></script>
+  <script>
+    (function() {
+      var t = localStorage.getItem('raices-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
 </head>
 <body>
 

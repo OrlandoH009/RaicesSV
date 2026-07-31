@@ -28,12 +28,52 @@
 
   /* El alto de la navegación escala de forma fluida según el ancho del dispositivo */
   --nav-h: clamp(60px, 5.5vw, 80px);
-}
+
+  /* ── Colores "semánticos" del tema (modo oscuro = valores por defecto) ── */
+  --bg-body:        var(--black);
+  --bg-surface:     var(--cream);
+  --text-main:      var(--white);
+  --text-on-surface: var(--black);
+  --navbar-bg:      var(--navy);
+  --drawer-bg:      var(--navy);
+ --footer-bg-cur:  var(--footer-bg);
+  --gold-light:     #e0bd8a;
+  --stat-bg:        linear-gradient(160deg, rgba(190,142,86,.12), rgba(255,255,255,.03));
+  --search-bg:          rgba(255,255,255,.06);
+  --search-bg-focus:    rgba(255,255,255,.1);
+  --search-placeholder: rgba(255,255,255,.5);
+  --chip-border:        rgba(255,255,255,.3);
+  --stat-border:    rgba(190,142,86,.35);
+  --fact-box-bg:    var(--cream);
+  --card-alt-bg:    var(--cream);
+} 
+
+/* ── MODO CLARO ── */
+/* ── MODO CLARO ── */
+[data-theme="light"] {
+  --bg-body:        #f6f0e4;
+  --bg-surface:     #fffdf8;
+  --text-main:      #2c2620;
+  --text-on-surface: #2c2620;
+  --navbar-bg:      var(--navy);
+  --drawer-bg:      var(--navy);
+  --footer-bg-cur:  #e8dcc4;
+  --overlay:        rgba(15, 47, 102, 0.4);
+  --card-dim:       rgba(17, 48, 104, 0.55);
+  --stat-bg:        linear-gradient(160deg, #fffaf0, #f3e6d1);
+  --stat-border:    rgba(190,142,86,.5);
+  --search-bg:          #fffdf8;
+  --search-bg-focus:    #ffffff;
+  --search-placeholder: rgba(44,38,32,.45);
+  --chip-border:        rgba(17,48,104,.28);
+  --fact-box-bg:    linear-gradient(160deg, #fffaf0, #f2e6d3);
+  --card-alt-bg:    #fffdf8;
+} 
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; }
-body  { font-family: var(--font-body); background: var(--black); color: var(--white); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); }
+body  { font-family: var(--font-body); background: var(--bg-body); color: var(--text-main); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); transition: background .35s ease, color .35s ease; }
 a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
@@ -224,6 +264,60 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   letter-spacing: .08em;
 }
 
+/* ── Interruptor de tema (claro / oscuro) ── */
+.theme-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+  padding: .7rem .5rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.theme-switch-label {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--white);
+}
+.theme-switch-label svg { width: 16px; height: 16px; flex: 0 0 16px; }
+
+.theme-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex: 0 0 48px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  cursor: pointer;
+  padding: 0;
+  transition: background .25s ease, border-color .25s ease;
+}
+.theme-switch:hover { border-color: rgba(190,142,86,.6); }
+.theme-switch__thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  transition: transform .28s cubic-bezier(.4,0,.2,1), background .25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-switch__thumb svg { width: 12px; height: 12px; }
+
+[data-theme="light"] .theme-switch { background: var(--gold); border-color: var(--gold-hover); }
+[data-theme="light"] .theme-switch__thumb { transform: translateX(22px); background: var(--navy); }
+[data-theme="light"] .theme-switch__thumb svg { color: var(--gold-light); }
+
 .drawer-section-label {
   font-family: var(--font-body);
   font-weight: 700;
@@ -363,9 +457,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 
 /* ── FOOTER ── */
 .footer {
-  background: var(--footer-bg);
-  color: var(--black);
+  background: var(--footer-bg-cur);
+  color: var(--text-on-surface);
   padding: clamp(1.2rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem);
+  border-top: 3px solid var(--gold);
+  transition: background .35s ease, color .35s ease;
 }
 .footer__inner {
   max-width: 1100px;

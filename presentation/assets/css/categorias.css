@@ -29,7 +29,7 @@
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: var(--overlay);
+  background: rgba(15, 47, 102, 0.5);
 }
 
 .hero__content {
@@ -44,7 +44,9 @@
 }
 
 .hero__title-wrap {
-  background: var(--card-dim);
+  background: rgba(17, 48, 104, 0.4);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(190, 142, 86, 0.35);
   border-radius: var(--r-sm);
   padding: .9rem 2.5rem;
   animation: fadeDown .8s ease both;
@@ -71,7 +73,7 @@
 /* ── Grid de categorías — Flex centrado para 5 elementos ── */
 .categorias-grid {
   padding: 2rem 2rem 5rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -171,22 +173,21 @@
 }
 #categoriaSearch {
   width: 100%;
-  background: rgba(255,255,255,.06);
+  background: var(--search-bg);
   border: 1.5px solid rgba(190,142,86,.4);
   border-radius: var(--r-lg);
   padding: .85rem 1.2rem .85rem 2.7rem;
   font-family: var(--font-body);
   font-size: 1rem;
-  color: var(--white);
-  transition: border-color .25s, background .25s;
+  color: var(--text-main);
+  transition: border-color .25s, background .25s, color .25s;
 }
-#categoriaSearch::placeholder { color: rgba(255,255,255,.5); }
+#categoriaSearch::placeholder { color: var(--search-placeholder); }
 #categoriaSearch:focus {
   outline: none;
   border-color: var(--gold);
-  background: rgba(255,255,255,.1);
+  background: var(--search-bg-focus);
 }
-
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
@@ -197,9 +198,9 @@
   font-family: var(--font-body);
   font-size: .88rem;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-main);
   background: transparent;
-  border: 1.5px solid rgba(255,255,255,.3);
+  border: 1.5px solid var(--chip-border);
   border-radius: var(--r-lg);
   padding: .5rem 1.1rem;
   cursor: pointer;
@@ -210,12 +211,14 @@
   background: var(--gold);
   border-color: var(--gold);
   color: var(--white);
+  box-shadow: 0 4px 14px rgba(190,142,86,.35);
 }
 
 .results-count {
   font-family: var(--font-body);
   font-size: .85rem;
-  color: rgba(255,255,255,.6);
+  color: var(--text-main);
+  opacity: .7;
   min-height: 1em;
 }
 

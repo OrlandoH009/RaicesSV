@@ -71,7 +71,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "República Cafetalera",
     title: "El auge del café",
     date: "1846 – 1900",
-    img: "../assets/media/Santa Ana Volcan.jpg",
+    img: "../assets/media/historia/auge-cafe.png",
     text: [
       "El café se introdujo en El Salvador en 1846, durante el gobierno de Eugenio Aguilar, pero fue con la presidencia de Gerardo Barrios (1859-1863) que su cultivo se impulsó como política de Estado, en sustitución del añil, cuyo precio caía por la aparición de tintes sintéticos.",
       "Las leyes de extinción de ejidos y tierras comunales, aprobadas entre 1881 y 1882, despojaron a comunidades indígenas y campesinas de sus tierras colectivas para concentrarlas en manos de un reducido grupo de familias cafetaleras.",
@@ -86,7 +86,7 @@ const HISTORIA_EVENTOS = [
     eraLabel: "República Cafetalera",
     title: "Las oligarquías cafetaleras",
     date: "1900 – 1930",
-    img: "../assets/media/Centro Historico.jpg",
+    img: "../assets/media/historia/oligarquia.png",
     text: [
       "A este puñado de familias que concentró la tierra, la exportación de café y el poder político se le conoció popularmente como 'las 14 familias' —un número más simbólico que exacto, evocando los catorce departamentos del país—. Apellidos como Dueñas, Regalado, Meléndez, Quiñónez, De Sola, Guirola, Álvarez y Hill dominaron la vida económica nacional.",
       "La familia Dueñas, cuyo patriarca Francisco Dueñas ocupó la presidencia varias veces en el siglo XIX, impulsó la privatización de tierras comunales y acumuló extensiones enormes de cafetales, como la histórica finca El Espino, hoy parte de Antiguo Cuscatlán y Santa Tecla.",

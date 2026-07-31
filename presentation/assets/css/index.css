@@ -178,7 +178,7 @@
 .stats {
   position: relative;
   padding: 1rem 2rem 4rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -197,8 +197,8 @@
 .stat {
   flex: 1 1 200px;
   max-width: 230px;
-  background: linear-gradient(160deg, rgba(190,142,86,.12), rgba(255,255,255,.03));
-  border: 1px solid rgba(190,142,86,.35);
+  background: var(--stat-bg);
+  border: 1px solid var(--stat-border);
   border-radius: var(--r-sm);
   padding: 1.6rem 1rem;
   text-align: center;
@@ -224,20 +224,21 @@
 .stat__label {
   font-family: var(--font-body);
   font-size: .92rem;
-  color: var(--white);
+  color: var(--text-main);    
   opacity: .85;
   margin-top: .3rem;
 }
 
 .fact-wrap {
   padding: 0 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
 
 /* ── Dato curioso rotativo ── */
 .fact-box {
+  background: var(--fact-box-bg);
   margin: 0 auto 4rem;
   max-width: 760px;
   background: var(--cream);
@@ -289,7 +290,7 @@
 .about {
   position: relative;
   padding: 5rem 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -299,7 +300,7 @@
   z-index: 1;
   max-width: 900px;
   width: 100%;
-  background: var(--cream);
+  background: var(--card-alt-bg);
   border-radius: var(--r-md);
   padding: 3rem 3.5rem;
   box-shadow: 0 8px 4px rgba(0,0,0,.5);
@@ -316,11 +317,15 @@
   pointer-events: none;
   z-index: 0;
   will-change: transform;
+  transition: opacity .35s ease;
 }
+[data-theme="light"] .ambient-blob { opacity: .45; }
 .about .ambient-blob--a { width: 380px; height: 380px; background: var(--gold); top: -120px; left: -100px; }
 .about .ambient-blob--b { width: 320px; height: 320px; background: var(--navy-dark); bottom: -140px; right: -80px; }
 .stats .ambient-blob--a { width: 340px; height: 340px; background: var(--gold-hover); top: -100px; right: -60px; }
 .home-grid .ambient-blob--a { width: 420px; height: 420px; background: var(--navy); top: -160px; left: 50%; opacity: .35; }
+[data-theme="light"] .home-grid .ambient-blob--a { opacity: .22; }
+
 .about__card h2 {
   font-family: var(--font-display);
   font-weight: 700;
@@ -341,12 +346,12 @@
 /* ── Badge "Información para ti" ── */
 .info-badge {
   padding: 1.5rem 2rem 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
 .info-badge__inner {
-  background: var(--cream);
+  background: var(--card-alt-bg);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
@@ -374,7 +379,7 @@
 .home-grid {
   position: relative;
   padding: 2rem 2rem 3rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr;
   grid-template-rows: repeat(2, 220px);
@@ -392,7 +397,7 @@
   cursor: pointer;
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
   transition: transform .3s, box-shadow .3s;
-  background: var(--black);
+  background: var(--bg-body);
   text-decoration: none;
 }
 .home-card:hover {
@@ -473,7 +478,7 @@
 /* Sección CTA final */
 .home-cta-final {
   padding: 2rem 2rem 3rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
@@ -486,7 +491,7 @@
 /* ── CTA final ── */
 .home-cta {
   padding: 3rem 2rem 5rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }

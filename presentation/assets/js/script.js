@@ -33,8 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (drawer) {
     drawer.innerHTML = `
       <div class="nav-drawer__head"><span>Menú</span></div>
+      <div class="theme-switch-row">
+        <span class="theme-switch-label" id="themeSwitchLabel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <span id="themeSwitchText">Modo oscuro</span>
+        </span>
+        <button type="button" class="theme-switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Cambiar entre modo claro y oscuro">
+          <span class="theme-switch__thumb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeSwitchIcon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </span>
+        </button>
+      </div>
       <a href="../views/perfil.html" class="drawer-profile" id="drawerProfile">
-        <div class="drawer-avatar" id="drawerAvatar" aria-hidden="true">
           ${defaultAvatarSVG}
         </div>
         <div>
@@ -59,6 +69,15 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="drawer-auth"></div>
     `;
   }
+  // Sincroniza el interruptor visual con el tema guardado, ya que el drawer se reconstruye por JS en cada carga de página.
+  const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(currentTheme);
+
+  const themeSwitch = document.getElementById('themeSwitch');
+  themeSwitch?.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    applyTheme(isLight ? 'dark' : 'light');
+  });
 
   function openDrawer() {
     drawer?.classList.add('open');
@@ -80,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   overlay?.addEventListener('click', closeDrawer);
   drawer?.addEventListener('click', (event) => {
+    if (event.target.closest('#themeSwitch')) return;
     const target = event.target.closest('a, button');
     if (target && drawer.contains(target)) {
       closeDrawer();
@@ -97,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     toast.textContent = message;
     toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
+    toast.style.transform = 'translateY(0)';  
     clearTimeout(showNotice.timeout);
     showNotice.timeout = setTimeout(() => {
       toast.style.opacity = '0';
@@ -262,7 +282,33 @@ document.addEventListener('DOMContentLoaded', () => {
    MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
    (Bloque agregado, no modifica nada existente)
    ============================================================ */
+/* ── Tema claro / oscuro ── */
+(function initTheme() {
+  const THEME_KEY = 'raices-theme';
+  const saved = localStorage.getItem(THEME_KEY);
+  const theme = saved === 'light' ? 'light' : 'dark';
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+
+function applyTheme(theme) {
+  const THEME_KEY = 'raices-theme';
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  localStorage.setItem(THEME_KEY, theme);
+
+  const themeSwitch = document.getElementById('themeSwitch');
+  const themeText = document.getElementById('themeSwitchText');
+  if (themeSwitch) themeSwitch.setAttribute('aria-checked', theme === 'light' ? 'true' : 'false');
+  if (themeText) themeText.textContent = theme === 'light' ? 'Modo claro' : 'Modo oscuro';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  /* ── Navbar scroll effect ── */
   const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html', 'juegos.html'];
 
   const lockModalHTML = `
