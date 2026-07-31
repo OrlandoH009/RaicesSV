@@ -43,7 +43,7 @@ const EVENTOS_CALENDARIO = [
   { id: 36, nombre: "Navidad y Posadas", dia: 16, mes: 12, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", desc: "Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche.", lat: 13.6929, lng: -89.2182 },
   { id: 37, nombre: "Fiestas del Arroz", dia: 19, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Feria Municipal", desc: "Desarrollado en San Esteban Catarina, celebrando el procesamiento y soberanía alimentaria ligada al cultivo de arroz.", lat: 13.6167, lng: -88.85 },
   { id: 38, nombre: "Fiestas Patronales de San Vicente", dia: 25, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Fiesta Patronal", desc: "Celebraciones patronales dedicadas a San Vicente Abad y Mártir, llenas de actividades culturales bajo la histórica torre.", lat: 13.6411, lng: -88.7856 }
-];
+];ñ
 
 document.addEventListener("DOMContentLoaded", () => {
   // POBLAR Y NORMALIZAR LOS EVENTOS ANTES DE INICIALIZAR EL CALENDARIO
