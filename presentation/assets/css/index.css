@@ -319,7 +319,7 @@
   will-change: transform;
   transition: opacity .35s ease;
 }
-[data-theme="light"] .ambient-blob { opacity: .45; }
+[data-theme="light"] .ambient-blob { opacity: .6; }
 .about .ambient-blob--a { width: 380px; height: 380px; background: var(--gold); top: -120px; left: -100px; }
 .about .ambient-blob--b { width: 320px; height: 320px; background: var(--navy-dark); bottom: -140px; right: -80px; }
 .stats .ambient-blob--a { width: 340px; height: 340px; background: var(--gold-hover); top: -100px; right: -60px; }
