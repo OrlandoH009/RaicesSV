@@ -808,7 +808,8 @@
   .mapa-sidebar {
     width: 100% !important;
     max-width: 100% !important;
-    height: 50vh; /* Ocupa solo la mitad inferior de la pantalla */
+    height: auto; /* Se ajusta al contenido en vez de un 50vh fijo */
+    max-height: 72vh; /* Techo para no tapar todo el mapa */
     top: auto;
     bottom: 0;
     left: 0;
@@ -825,20 +826,54 @@
 
   /* 2. Compactar la cabecera e imagen en móvil */
   .mapa-sidebar__hero {
-    padding: 1rem 1rem 0.5rem;
+    padding: 0.75rem 1rem 0.4rem;
   }
 
   .mapa-sidebar__image {
-    aspect-ratio: 21 / 9; /* Imagen tipo banner estirado para no robar espacio */
-    margin-bottom: 0.5rem;
+    aspect-ratio: 21 / 7; /* Banner más bajo: deja más espacio a la descripción */
+    max-height: 110px; /* Tope duro para que la imagen no crezca en pantallas altas */
+    margin-bottom: 0.4rem;
   }
 
   .mapa-sidebar__title {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .mapa-sidebar__place {
+    font-size: 0.75rem;
   }
 
   .mapa-sidebar__body {
-    padding: 0 1rem 1rem;
+    padding: 0 1rem 0.85rem;
+  }
+
+  .mapa-sidebar__divider {
+    margin: 0 0 0.6rem;
+  }
+
+  .mapa-sidebar__desc {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    margin-bottom: 0.6rem;
+  }
+
+  .mapa-sidebar__section-label {
+    margin-bottom: 0.35rem;
+  }
+
+  .mapa-sidebar__chips {
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mapa-sidebar__actions {
+    margin-top: 0;
+  }
+
+  .mapa-sidebar__btn {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.75rem;
   }
 
   /* Ajustar botón de cierre para que sea fácil de presionar con el pulgar */
@@ -883,7 +918,7 @@
 
   /* El botón de geolocalización sube para no quedar debajo de la sidebar móvil */
   .btn-geo-float {
-    bottom: calc(50vh + 15px); /* Si la sidebar está abierta, queda justo arriba */
+    bottom: calc(72vh + 15px); /* Si la sidebar está abierta, queda justo arriba (usa el mismo tope que max-height de la sidebar) */
     right: 0.5rem;
     width: 44px;
     height: 44px;

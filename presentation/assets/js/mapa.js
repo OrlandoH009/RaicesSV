@@ -801,7 +801,7 @@ sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
   if (activeMarker) {
-    mapa.panTo(activeMarker.getLatLng(), { animate: true, duration: 0.8 });
+    mapa.setView(activeMarker.getLatLng(), 13.4, { animate: true });
   }
 });
 
@@ -837,8 +837,8 @@ LANDMARKS.forEach(lm => {
   );
 marker.on('click', () => {
     abrirSidebar(lm, marker);
-    // Centrado suave manteniendo el zoom actual
-    mapa.panTo(marker.getLatLng(), { animate: true, duration: 0.8 });
+    // Centrado con zoom, igual que el botón "Centrar" del sidebar
+    mapa.setView(marker.getLatLng(), 13.4, { animate: true });
   });
   markers.push(marker);
 });
@@ -1151,8 +1151,9 @@ function mostrarToastGeo(mensaje, tipo = 'info') {
 function obtenerYCentrarUbicacion(debeCentrar = false) {
   // NUEVA VALIDACIÓN: Si venimos buscando un destino específico y NO se ha pulsado el botón de centrar manualmente, cancelamos el movimiento a la ubicación del usuario.
   const params = new URLSearchParams(window.location.search);
-  const tieneDestino = params.has('evento') || params.has('sitio') || params.has('nombre');
-  
+  const tieneDestino = params.has('evento') || params.has('sitio') || params.has('nombre')
+    || params.has('eventoId') || (params.has('lat') && params.has('lng'));
+
   if (tieneDestino && !debeCentrar) {
     console.log("Geolocalización en segundo plano: Se omite el centrado automático para no perder el destino de la URL.");
     // Opcional: puedes dejar que obtenga la posición para pintar el punto azul, pero sin mover la cámara.
