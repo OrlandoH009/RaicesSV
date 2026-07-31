@@ -32,46 +32,54 @@ document.addEventListener('DOMContentLoaded', () => {
   // El bloque de perfil/autoridad lo rellena renderAuthMenu().
   if (drawer) {
     drawer.innerHTML = `
-      <div class="nav-drawer__head"><span>Menú</span></div>
+      <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
       <a href="../views/perfil.html" class="drawer-profile" id="drawerProfile">
         <div class="drawer-avatar" id="drawerAvatar" aria-hidden="true">
           ${defaultAvatarSVG}
         </div>
         <div>
-          <div class="drawer-username" id="drawerUsername">Invitado</div>
-          <span class="drawer-profile-caption" id="drawerProfileCaption">Iniciar sesión</span>
+          <div class="drawer-username" id="drawerUsername" data-i18n="nav.invitado">Invitado</div>
+          <span class="drawer-profile-caption" id="drawerProfileCaption" data-i18n="nav.iniciarSesionCaption">Iniciar sesión</span>
         </div>
       </a>
       <div class="drawer-group--principales">
-        <div class="drawer-section-label">Principales</div>
-        <a href="../views/index.html" class="drawer-link">Inicio</a>
-        <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-        <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-        <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+        <div class="drawer-section-label" data-i18n="nav.principales">Principales</div>
+        <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+        <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+        <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+        <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
         <div class="drawer-divider"></div>
       </div>
-      <div class="drawer-section-label drawer-label--extras">Explorar</div>
-      <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
-      <a href="../views/publicaciones.html" class="drawer-link">Publicaciones</a>
-      <a href="../views/juegos.html" class="drawer-link">Juegos Interactivos</a>
-      <a href="../views/recetas.html" class="drawer-link">Recetario</a>
+      <div class="drawer-section-label drawer-label--extras" data-i18n="nav.explorar">Explorar</div>
+      <a href="../views/quiz.html" class="drawer-link" data-i18n="nav.quiz">Quiz Cultural</a>
+      <a href="../views/publicaciones.html" class="drawer-link" data-i18n="nav.publicaciones">Publicaciones</a>
+      <a href="../views/juegos.html" class="drawer-link" data-i18n="nav.juegos">Juegos Interactivos</a>
+      <a href="../views/recetas.html" class="drawer-link" data-i18n="nav.recetario">Recetario</a>
       <div class="drawer-divider"></div>
       <div class="drawer-auth"></div>
     `;
+
+    // El drawer se acaba de reconstruir por completo, así que hay que
+    // volver a aplicarle la traducción activa (si i18n.js ya cargó).
+    if (window.SRi18n) {
+      window.SRi18n.applyTranslations(window.SRi18n.getLang());
+    }
   }
 
   function openDrawer() {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
     burger?.classList.add('open');
-    burger?.setAttribute('aria-label', 'Cerrar menú');
+    const closeLabel = window.SRi18n ? window.SRi18n.t('nav.cerrarMenu', window.SRi18n.getLang()) : 'Cerrar menú';
+    burger?.setAttribute('aria-label', closeLabel);
     document.body.style.overflow = 'hidden';
   }
   function closeDrawer() {
     drawer?.classList.remove('open');
     overlay?.classList.remove('open');
     burger?.classList.remove('open');
-    burger?.setAttribute('aria-label', 'Abrir menú');
+    const openLabel = window.SRi18n ? window.SRi18n.t('nav.abrirMenu', window.SRi18n.getLang()) : 'Abrir menú';
+    burger?.setAttribute('aria-label', openLabel);
     document.body.style.overflow = '';
   }
 
@@ -129,7 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (loggedIn) {
         // Mostrar nombre en el área de perfil
         if (drawerUsername) drawerUsername.textContent = user?.name || user?.email || 'Usuario';
-        if (drawerProfileCaption) drawerProfileCaption.textContent = 'Ver mi perfil';
+        if (drawerProfileCaption) drawerProfileCaption.setAttribute('data-i18n', 'nav.verPerfil');
+        if (drawerProfileCaption) drawerProfileCaption.textContent = window.SRi18n
+          ? window.SRi18n.t('nav.verPerfil', window.SRi18n.getLang())
+          : 'Ver mi perfil';
         if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/perfil.html');
 
         if (drawerAvatar) {
@@ -139,24 +150,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         authContainer.innerHTML = `
-          <p class="drawer-auth-label">Conectado</p>
-          <a href="../views/perfil.html" class="btn-login">Mi perfil</a>
-          <button type="button" class="btn-logout" id="logout-link">Cerrar sesión</button>
+          <p class="drawer-auth-label" data-i18n="nav.conectado">Conectado</p>
+          <a href="../views/perfil.html" class="btn-login" data-i18n="nav.miPerfil">Mi perfil</a>
+          <button type="button" class="btn-logout" id="logout-link" data-i18n="nav.cerrarSesion">Cerrar sesión</button>
         `;
       } else {
-        if (drawerUsername) drawerUsername.textContent = 'Invitado';
-        if (drawerProfileCaption) drawerProfileCaption.textContent = 'Iniciar sesión';
+        if (drawerUsername) drawerUsername.setAttribute('data-i18n', 'nav.invitado');
+        if (drawerUsername) drawerUsername.textContent = window.SRi18n
+          ? window.SRi18n.t('nav.invitado', window.SRi18n.getLang())
+          : 'Invitado';
+        if (drawerProfileCaption) drawerProfileCaption.setAttribute('data-i18n', 'nav.iniciarSesionCaption');
+        if (drawerProfileCaption) drawerProfileCaption.textContent = window.SRi18n
+          ? window.SRi18n.t('nav.iniciarSesionCaption', window.SRi18n.getLang())
+          : 'Iniciar sesión';
         if (drawerProfileLink) drawerProfileLink.setAttribute('href', '../views/login.html');
         if (drawerAvatar) drawerAvatar.innerHTML = defaultAvatarSVG;
 
         authContainer.innerHTML = `
-          <p class="drawer-auth-label">Mi cuenta</p>
-          <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-          <a href="../views/registro.html" class="btn-register">Registrarse</a>
+          <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+          <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+          <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
         `;
       }
     } catch (error) {
       console.error(error);
+    }
+
+    // Este bloque también se reconstruyó; reaplicar traducción activa.
+    if (window.SRi18n) {
+      window.SRi18n.applyTranslations(window.SRi18n.getLang());
     }
   };
 

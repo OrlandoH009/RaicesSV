@@ -11,7 +11,7 @@
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
 </head>
-<body data-gsap-reveal data-gsap-counters>
+<body data-gsap-reveal data-gsap-counters data-i18n-title="meta.title" data-i18n-desc="meta.description">
 
   <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
@@ -21,30 +21,45 @@
       </a>
     </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html" class="active">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" class="active" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+
+    <!-- Botón de traducción (escritorio) -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label></span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link active">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link active" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
-    <div class="drawer-section-label">Explorar</div>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <div class="drawer-divider"></div>
+
+    <!-- Botón de traducción (móvil / drawer) -->
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
+    </button>
+
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -57,13 +72,13 @@
       <div class="hero__particles" id="heroParticles"></div>
       <div class="hero__content">
         <div class="hero__title-wrap">
-          <h1 class="hero__title" id="heroTitle">Bienvenid@ a Salvadorean Roots</h1>
+          <h1 class="hero__title" id="heroTitle" data-i18n="hero.title">Bienvenid@ a Salvadorean Roots</h1>
         </div>
-        <p class="hero__subtitle">Nuestra herencia, nuestro orgullo.</p>
-        <a href="../views/categorias.html" class="btn-primary hero__cta">Explorar Culturas</a>
+        <p class="hero__subtitle" data-i18n="hero.subtitle">Nuestra herencia, nuestro orgullo.</p>
+        <a href="../views/categorias.html" class="btn-primary hero__cta" data-i18n="hero.cta">Explorar Culturas</a>
       </div>
       <div class="hero__scroll-cue">
-        <span>Desliza</span>
+        <span data-i18n="hero.scroll">Desliza</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
       </div>
     </section>
@@ -90,8 +105,8 @@
       <span class="ambient-blob ambient-blob--a"></span>
       <span class="ambient-blob ambient-blob--b"></span>
       <div class="about__card reveal">
-        <h2>¿Qué es Salvadorean Roots?</h2>
-        <p>Salvadorean Roots es un espacio digital que conecta a las personas con la escencia de El Salvador, permitiéndoles descubrir, aprender y compartir su cultura a través de una experiencia interactiva.</p>
+        <h2 data-i18n="about.title">¿Qué es Salvadorean Roots?</h2>
+        <p data-i18n="about.text">Salvadorean Roots es un espacio digital que conecta a las personas con la escencia de El Salvador, permitiéndoles descubrir, aprender y compartir su cultura a través de una experiencia interactiva.</p>
       </div>
     </section>
 
@@ -101,19 +116,19 @@
       <div class="stats__grid">
         <div class="stat reveal" style="transition-delay:.05s">
           <span class="stat__num" data-count="5">0</span>
-          <span class="stat__label">Categorías culturales</span>
+          <span class="stat__label" data-i18n="stats.categorias">Categorías culturales</span>
         </div>
         <div class="stat reveal" style="transition-delay:.12s">
           <span class="stat__num" data-count="14">0</span>
-          <span class="stat__label">Departamentos representados</span>
+          <span class="stat__label" data-i18n="stats.departamentos">Departamentos representados</span>
         </div>
         <div class="stat reveal" style="transition-delay:.19s">
           <span class="stat__num" data-count="500" data-suffix="+">0</span>
-          <span class="stat__label">Años de historia</span>
+          <span class="stat__label" data-i18n="stats.anios">Años de historia</span>
         </div>
         <div class="stat reveal" style="transition-delay:.26s">
           <span class="stat__num" data-count="20" data-suffix="+">0</span>
-          <span class="stat__label">Leyendas y tradiciones</span>
+          <span class="stat__label" data-i18n="stats.leyendas">Leyendas y tradiciones</span>
         </div>
       </div>
     </section>
@@ -121,8 +136,8 @@
     <!-- DATO CURIOSO ROTATIVO -->
     <section class="fact-wrap">
       <div class="fact-box reveal">
-        <p class="fact-box__eyebrow">¿Sabías que...?</p>
-        <p class="fact-box__text" id="factText">El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.</p>
+        <p class="fact-box__eyebrow" data-i18n="fact.eyebrow">¿Sabías que...?</p>
+        <p class="fact-box__text" id="factText" data-i18n="fact.text1">El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.</p>
         <div class="fact-dots" id="factDots"></div>
       </div>
     </section>
@@ -130,7 +145,7 @@
     <!-- BADGE -->
     <section class="info-badge">
       <div class="info-badge__inner reveal">
-        <h2>Información para ti</h2>
+        <h2 data-i18n="badge.title">Información para ti</h2>
       </div>
     </section>
 
@@ -140,32 +155,32 @@
       <a href="../views/sitios-culturales.html" class="home-card reveal" style="transition-delay:.05s">
         <img src="../assets/media/Sitios Culturales.png" alt="Sitios Culturales" />
         <div class="home-card__grad"></div>
-        <span class="home-card__label">Sitios Culturales</span>
-        <span class="home-card__btn">Explorar</span>
+        <span class="home-card__label" data-i18n="cards.sitios">Sitios Culturales</span>
+        <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/gastronomia.html" class="home-card reveal" style="transition-delay:.15s">
         <img src="../assets/media/Gastronomia.png" alt="Gastronomía" />
         <div class="home-card__grad"></div>
-        <span class="home-card__label">Gastronomía</span>
-        <span class="home-card__btn">Explorar</span>
+        <span class="home-card__label" data-i18n="cards.gastronomia">Gastronomía</span>
+        <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/eventos.html" class="home-card reveal" style="transition-delay:.25s">
         <img src="../assets/media/Eventos culturales.png" alt="Eventos Culturales" />
         <div class="home-card__grad"></div>
-        <span class="home-card__label">Eventos Culturales</span>
-        <span class="home-card__btn">Explorar</span>
+        <span class="home-card__label" data-i18n="cards.eventos">Eventos Culturales</span>
+        <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/historia.html" class="home-card reveal" style="transition-delay:.35s">
         <img src="../assets/media/Historia.png" alt="Historia" />
         <div class="home-card__grad"></div>
-        <span class="home-card__label">Historia</span>
-        <span class="home-card__btn">Explorar</span>
+        <span class="home-card__label" data-i18n="cards.historia">Historia</span>
+        <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/leyendas.html" class="home-card reveal" style="transition-delay:.45s">
         <img src="../assets/media/Leyendas.jpg" alt="Leyendas" />
         <div class="home-card__grad"></div>
-        <span class="home-card__label">Leyendas</span>
-        <span class="home-card__btn">Explorar</span>
+        <span class="home-card__label" data-i18n="cards.leyendas">Leyendas</span>
+        <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
     </section>
 
@@ -177,14 +192,14 @@
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="cards.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="cards.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
 
@@ -194,5 +209,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="../assets/js/index-gsap.js"></script>
+  <script src="../assets/js/i18n.js"></script>
 </body>
 </html>
