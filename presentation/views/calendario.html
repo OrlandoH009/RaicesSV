@@ -3,46 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendario de Festividades – Salvadorean Roots</title>
+  <title data-i18n="cal.meta.title">Calendario de Festividades – Salvadorean Roots</title>
   <link rel="stylesheet" href="../assets/css/calendario.css" />
   <link rel="stylesheet" href="../assets/css/global.css" />
   <script src="../assets/js/calender.js" defer></script>
   <script src="../assets/js/funcalen.js" defer></script>
 </head>
-<body>
+<body data-i18n-title="cal.meta.title">
 
   <nav class="navbar" id="navbar">
-  <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" /></a></div>
+    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" /></a></div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+
+    <!-- Botón de traducción (escritorio) -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label></span>
+    </button>
+
+    <button class="navbar__burger" id="burger" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
 <!-- ════ HERO ════ -->
 <div class="page-hero">
     <br><br><br>
-  <p class="page-hero-eyebrow">Descubre El Salvador</p>
-  <h1>Calendario de <em>Festividades</em></h1>
-  <p>
+  <p class="page-hero-eyebrow" data-i18n="cal.hero.eyebrow">Descubre El Salvador</p>
+  <h1 data-i18n="cal.hero.title">Calendario de Festividades</h1>
+  <p data-i18n="cal.hero.desc">
     Fiestas patronales, ferias y celebraciones emblemáticas de los 14 departamentos —
     organizadas mes a mes para que no pierdas ninguna.
   </p>
@@ -55,8 +62,8 @@
   <section>
     <div class="container">
 
-      <p class="section-label">Explorar por fecha</p>
-      <h2 class="section-title">Calendario</h2>
+      <p class="section-label" data-i18n="cal.exploreDate">Explorar por fecha</p>
+      <h2 class="section-title" data-i18n="cal.title">Calendario</h2>
 
       <!-- Navegación por año -->
       <div class="cal-controls">
@@ -64,13 +71,13 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Año anterior
+          <span data-i18n="cal.prevYear">Año anterior</span>
         </button>
 
-        <span class="cal-month-title" id="calYearTitle">Cargando…</span>
+        <span class="cal-month-title" id="calYearTitle" >Cargando…</span>
 
         <button class="cal-nav-btn" id="nextYear">
-          Año siguiente
+          <span data-i18n="cal.nextYear">Año siguiente</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
@@ -83,28 +90,28 @@
       <!-- Grid del mes -->
       <div class="calendar-wrap">
         <div class="cal-grid-header">
-          <span>Lun</span>
-          <span>Mar</span>
-          <span>Mié</span>
-          <span>Jue</span>
-          <span>Vie</span>
-          <span>Sáb</span>
-          <span>Dom</span>
+          <span data-i18n="cal.days.lun">Lun</span>
+          <span data-i18n="cal.days.mar">Mar</span>
+          <span data-i18n="cal.days.mie">Mié</span>
+          <span data-i18n="cal.days.jue">Jue</span>
+          <span data-i18n="cal.days.vie">Vie</span>
+          <span data-i18n="cal.days.sab">Sáb</span>
+          <span data-i18n="cal.days.dom">Dom</span>
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
 
       <!-- Formulario de filtros -->
       <div class="filter-section">
-        <p class="section-label">Buscar festividades</p>
-        <h2 class="section-title">Filtrar eventos</h2>
+        <p class="section-label" data-i18n="cal.filter.searchTitle">Buscar festividades</p>
+        <h2 class="section-title" data-i18n="cal.filter.title">Filtrar eventos</h2>
 
         <div class="filter-grid">
 
           <div class="filter-field">
-            <label for="f-dept">Departamento</label>
+            <label for="f-dept" data-i18n="cal.filter.dept">Departamento</label>
             <select id="f-dept">
-              <option value="">Todos los departamentos</option>
+              <option value="" data-i18n="cal.filter.allDepts">Todos los departamentos</option>
               <option>Ahuachapán</option>
               <option>Santa Ana</option>
               <option>Sonsonate</option>
@@ -123,41 +130,42 @@
           </div>
 
           <div class="filter-field">
-            <label for="f-month">Mes</label>
+            <label for="f-month" data-i18n="cal.filter.month">Mes</label>
             <select id="f-month">
-              <option value="">Todos los meses</option>
-              <option value="0">Enero</option>
-              <option value="1">Febrero</option>
-              <option value="2">Marzo</option>
-              <option value="3">Abril</option>
-              <option value="4">Mayo</option>
-              <option value="5">Junio</option>
-              <option value="6">Julio</option>
-              <option value="7">Agosto</option>
-              <option value="8">Septiembre</option>
-              <option value="9">Octubre</option>
-              <option value="10">Noviembre</option>
-              <option value="11">Diciembre</option>
+              <option value="" data-i18n="cal.filter.allMonths">Todos los meses</option>
+              <option value="0" data-i18n="cal.months.ene">Enero</option>
+              <option value="1" data-i18n="cal.months.feb">Febrero</option>
+              <option value="2" data-i18n="cal.months.mar">Marzo</option>
+              <option value="3" data-i18n="cal.months.abr">Abril</option>
+              <option value="4" data-i18n="cal.months.may">Mayo</option>
+              <option value="5" data-i18n="cal.months.jun">Junio</option>
+              <option value="6" data-i18n="cal.months.jul">Julio</option>
+              <option value="7" data-i18n="cal.months.ago">Agosto</option>
+              <option value="8" data-i18n="cal.months.sep">Septiembre</option>
+              <option value="9" data-i18n="cal.months.oct">Octubre</option>
+              <option value="10" data-i18n="cal.months.nov">Noviembre</option>
+              <option value="11" data-i18n="cal.months.dic">Diciembre</option>
             </select>
           </div>
 
           <div class="filter-field">
-            <label for="f-type">Tipo de evento</label>
+            <label for="f-type" data-i18n="cal.filter.type">Tipo de evento</label>
             <select id="f-type">
-              <option value="">Todos los tipos</option>
-              <option>Fiesta Patronal</option>
-              <option>Feria Municipal</option>
-              <option>Festival Cultural</option>
-              <option>Celebración Religiosa</option>
-              <option>Festividad Nacional</option>
+              <option value="" data-i18n="cal.filter.allTypes">Todos los tipos</option>
+              <option data-i18n="cal.types.patronal">Fiesta Patronal</option>
+              <option data-i18n="cal.types.municipal">Feria Municipal</option>
+              <option data-i18n="cal.types.cultural">Festival Cultural</option>
+              <option data-i18n="cal.types.religiosa">Celebración Religiosa</option>
+              <option data-i18n="cal.types.nacional">Festividad Nacional</option>
             </select>
           </div>
 
           <div class="filter-field">
-            <label for="f-search">Buscar por nombre</label>
+            <label for="f-search" data-i18n="cal.filter.searchName">Buscar por nombre</label>
             <input
               type="text"
               id="f-search"
+              data-i18n-attr="placeholder:cal.filter.placeholder"
               placeholder="Ej. Semana Santa, San Juan…"
             />
           </div>
@@ -165,8 +173,8 @@
           <div class="filter-field">
             <label style="opacity:0">Acción</label>
             <div class="filter-actions">
-              <button class="btn-filter" id="applyFilter">Aplicar filtros</button>
-              <button class="btn-ghost"   id="clearFilter">Limpiar</button>
+              <button class="btn-filter" id="applyFilter" data-i18n="cal.filter.apply">Aplicar filtros</button>
+              <button class="btn-ghost"   id="clearFilter" data-i18n="cal.filter.clear">Limpiar</button>
             </div>
           </div>
 
@@ -180,16 +188,17 @@
   <section style="padding-top:1rem;">
     <div class="container">
 
-      <p class="section-label">Festividades de El Salvador</p>
-      <h2 class="section-title">Catálogo de celebraciones</h2>
+      <p class="section-label" data-i18n="cal.catalog.label">Festividades de El Salvador</p>
+      <h2 class="section-title" data-i18n="cal.catalog.title">Catálogo de celebraciones</h2>
       <div class="divider"></div>
 
       <div class="results-bar">
         <p class="results-count" id="resultsCount">
-          <strong>0</strong> festividades encontradas
+          <!-- El JS inyecta dinámicamente el número, se puede traducir la base desde JS o mantener estructurado -->
+          <strong>0</strong> <span data-i18n="cal.catalog.foundText">festividades encontradas</span>
         </p>
         <div class="view-toggle">
-          <button class="view-btn active" id="gridViewBtn" title="Vista grilla">
+          <button class="view-btn active" id="gridViewBtn" data-i18n-attr="title:cal.view.grid">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <rect x="3"  y="3"  width="7" height="7" rx="1"/>
               <rect x="14" y="3"  width="7" height="7" rx="1"/>
@@ -197,7 +206,7 @@
               <rect x="14" y="14" width="7" height="7" rx="1"/>
             </svg>
           </button>
-          <button class="view-btn" id="listViewBtn" title="Vista lista">
+          <button class="view-btn" id="listViewBtn" data-i18n-attr="title:cal.view.list">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="4" y1="6"  x2="20" y2="6"/>
               <line x1="4" y1="12" x2="20" y2="12"/>
@@ -210,7 +219,7 @@
       <div class="catalog-grid" id="catalogGrid"></div>
 
       <div id="loadMoreContainer" class="load-more-container">
-        <button class="btn-filter" id="loadMoreBtn">
+        <button class="btn-filter" id="loadMoreBtn" data-i18n="cal.catalog.loadMore">
           Mostrar más celebraciones
         </button>
       </div>
@@ -224,7 +233,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modal">
     <div class="modal-top">
-      <h2 id="modalTitle">Nombre del evento</h2>
+      <h2 id="modalTitle" data-i18n="cal.modal.defaultTitle">Nombre del evento</h2>
       <button class="modal-close" id="modalClose">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -237,24 +246,24 @@
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li>
-        <li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="nav.leyendas">Leyendas</a></li>
+        <li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
-  <!-- Agregar los CDNs de GSAP y ScrollTrigger antes de tus scripts -->
+
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/chatbot.js"></script>
-  <script src="../assets/js/calendario-gsap.js" defer></script> 
-</body>
+  <script src="../assets/js/calendario-gsap.js" defer></script>
+  <script src="../assets/js/i18n.js" defer></script> 
 </body>
 </html>
