@@ -29,7 +29,7 @@ ${RAICES_LANDMARKS_INFO}
 REGLAS CRÍTICAS DE RESPUESTA:
 1. Ultra directo y minimalist: Responde con estilo telegráfico. Prohibido usar introducciones ("¡Hola!", "Claro que sí", "Con gusto te explico"). Ve directo al dato en la primera palabra.
 2. Extensión máxima: Límite estricto de 1 a 2 frases cortas (máximo 25 palabras en total).
-3. Formato: Resalta en **negrita** el tema principal la primera vez que lo nombres.
+3. Formato: Resalta en **negrita** el tema principal la primera vez que lo normales.
 4. Cobertura: Válidas preguntas sobre territorio salvadoreño, presidentes y noticias locales actuales. No respondas sobre otros países ni política internacional.
 5. Nombres exactos: Si citas lugares de la lista verificada, escríbelos EXACTAMENTE igual para activar el mapa interactivo.
 ${RAICES_LANDMARKS_INFO}
@@ -112,7 +112,7 @@ ${RAICES_LANDMARKS_INFO}
     }
   };
 
-  let currentLang = 'es'; 
+  let currentLang = document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en' : 'es'; 
 
   const STYLES = `
     #rs-chat-widget * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
@@ -138,7 +138,7 @@ ${RAICES_LANDMARKS_INFO}
     #rs-chat-btn svg { width: 26px; height: 26px; fill: #fff; }
     #rs-chat-btn .rs-close-icon { display: none; }
     #rs-chat-btn.open .rs-chat-icon { display: none; }
-    #rs-chat-btn.open .rs-close-icon { block: block; }
+    #rs-chat-btn.open .rs-close-icon { display: block; } /* Corregido 'block: block' */
 
     #rs-chat-bubble {
       position: fixed;
@@ -196,7 +196,6 @@ ${RAICES_LANDMARKS_INFO}
       flex-shrink: 0;
     }
 
-    /* Contenedor del Avatar SVG */
     #rs-chat-header .rs-avatar {
       width: 42px; height: 42px;
       border-radius: 50%;
@@ -204,20 +203,18 @@ ${RAICES_LANDMARKS_INFO}
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      overflow: visible; /* Importante para que la animación no se corte */
+      overflow: visible; 
       position: relative;
       border: 2px solid transparent;
       transition: all 0.3s ease;
     }
 
-    /* Estilos base del SVG de la Pupusa */
     #rs-chat-header .rs-avatar svg {
-      width: 110%; height: 110%; /* Ligeramente más grande que el contenedor */
+      width: 110%; height: 110%; 
       transform-origin: center bottom;
       transition: transform 0.2s ease-in-out;
     }
 
-    /* Animación de Pestañeo Constante */
     @keyframes rs-blink {
       0%, 90%, 100% { transform: scaleY(1); }
       95% { transform: scaleY(0.1); }
@@ -226,25 +223,18 @@ ${RAICES_LANDMARKS_INFO}
       animation: rs-blink 5s infinite;
       transform-origin: center;
     }
-
-    /* ===================================================
-       ESTADOS DE ANIMACIÓN DE HABLA (Se activan vía JS)
-       =================================================== */
     
-    /* 1. La boca se abre y cierra rápido */
     @keyframes rs-mouth-speak {
       0%, 100% { transform: scaleY(1); }
-      50% { transform: scaleY(0.3); } /* Se encoge verticalmente simulando apertura */
+      50% { transform: scaleY(0.3); } 
     }
 
-    /* 2. El cuerpo se balancea sutilmente */
     @keyframes rs-body-speak {
       0%, 100% { transform: rotate(0deg) scale(1); }
       25% { transform: rotate(-3deg) scale(1.02); }
       75% { transform: rotate(3deg) scale(1.02); }
     }
 
-    /* Clase que aplica JS cuando el bot responde */
     #rs-chat-header .rs-avatar.talking {
       border-color: #be8e56;
       box-shadow: 0 0 15px rgba(190, 142, 86, 0.7);
@@ -256,7 +246,7 @@ ${RAICES_LANDMARKS_INFO}
 
     #rs-chat-header .rs-avatar.talking #rs-pupusa-mouth {
       animation: rs-mouth-speak 0.2s infinite ease-in-out;
-      transform-origin: center; /* La boca se abre desde su centro */
+      transform-origin: center; 
     }
 
     #rs-chat-header .rs-header-info { flex: 1; }
@@ -273,21 +263,6 @@ ${RAICES_LANDMARKS_INFO}
       background: #22c55e; display: inline-block; margin-right: 5px;
       box-shadow: 0 0 8px #22c55e;
     }
-
-    #rs-lang-selector {
-      background: rgba(255,255,255,.1);
-      border: 1px solid rgba(190,142,86,.4);
-      color: #fff;
-      padding: 4px 6px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background .2s;
-    }
-    #rs-lang-selector:hover { background: rgba(255,255,255,.2); }
 
     #rs-planner-toggle {
       display: flex;
@@ -362,7 +337,7 @@ ${RAICES_LANDMARKS_INFO}
     }
     .rs-msg.user .rs-msg-bubble {
       background: #113068;
-      border: 1px solid rgba(190,142,86,.2);
+      border: 1px solid rgba(190, 142, 86, .2);
       color: #fff;
       border-radius: 16px 16px 4px 16px;
       box-shadow: 0 2px 8px rgba(17,48,104,0.2);
@@ -401,7 +376,7 @@ ${RAICES_LANDMARKS_INFO}
     #rs-chat-input {
       flex: 1;
       background: #27272a;
-      border: 1.5px solid rgba(190,142,86,.25);
+      border: 1.5px solid rgba(190, 142, 86, 0.25);
       border-radius: 22px;
       padding: 8px 16px;
       color: #fff;
@@ -486,7 +461,6 @@ ${RAICES_LANDMARKS_INFO}
   let plannerStep = null;    
   let plannerData = {};
 
-  // Carga e inyección dinámica de GSAP si no se encuentra en el entorno global
   function loadGSAP(callback) {
     if (window.gsap) {
       callback();
@@ -520,34 +494,20 @@ ${RAICES_LANDMARKS_INFO}
     `;
     btn.addEventListener('click', toggleChat);
 
-    // ============================================================
-    // DISEÑO DEL PERSONAJE SVG (PUPUSA ANIMADA)
-    // Se inserta directamente en el HTML del header
-    // ============================================================
     const svgPupusaAvatar = `
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- Cuerpo de la Pupusa (Círculo base tostado) -->
         <circle cx="50" cy="50" r="48" fill="#F3D598" stroke="#be8e56" stroke-width="2"/>
-        <!-- Manchas de tostado sutiles -->
         <circle cx="30" cy="30" r="5" fill="#E4C17D" opacity="0.6"/>
         <circle cx="70" cy="40" r="7" fill="#E4C17D" opacity="0.5"/>
         <circle cx="45" cy="75" r="6" fill="#E4C17D" opacity="0.7"/>
-
-        <!-- Cara del personaje -->
         <g id="rs-pupusa-face">
-          <!-- Ojos (Negros con brillo) -->
           <g id="rs-pupusa-eyes">
             <ellipse cx="35" cy="45" rx="5" ry="7" fill="#18181b"/>
             <ellipse cx="65" cy="45" rx="5" ry="7" fill="#18181b"/>
-            <!-- Brillos de ojos -->
             <circle cx="33" cy="42" r="2" fill="white"/>
             <circle cx="63" cy="42" r="2" fill="white"/>
           </g>
-          
-          <!-- Boca (Curva sonriente base) -->
           <path id="rs-pupusa-mouth" d="M 35 65 Q 50 75, 65 65" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round"/>
-          
-          <!-- Mejillas sonrosadas -->
           <circle cx="25" cy="60" r="5" fill="#EEA0A0" opacity="0.7"/>
           <circle cx="75" cy="60" r="5" fill="#EEA0A0" opacity="0.7"/>
         </g>
@@ -559,7 +519,6 @@ ${RAICES_LANDMARKS_INFO}
     win.style.display = 'none';
     win.innerHTML = `
       <div id="rs-chat-header">
-        <!-- Contenedor del Avatar modificado -->
         <div class="rs-avatar" id="rs-bot-avatar">
           ${svgPupusaAvatar}
         </div>
@@ -567,7 +526,6 @@ ${RAICES_LANDMARKS_INFO}
           <div class="rs-name" id="rs-header-name">${TRANSLATABLE_TEXTS[currentLang].headerTitle}</div>
           <div class="rs-status"><span class="rs-dot"></span><span id="rs-header-status">${TRANSLATABLE_TEXTS[currentLang].headerStatus}</span></div>
         </div>
-        <button id="rs-lang-selector" title="Change Language / Cambiar Idioma">🇪🇸</button>
         <button id="rs-planner-toggle" aria-pressed="false">
           <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>
           <span id="rs-planner-text">${TRANSLATABLE_TEXTS[currentLang].btnPlanner}</span>
@@ -592,11 +550,9 @@ ${RAICES_LANDMARKS_INFO}
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
     document.getElementById('rs-planner-toggle').addEventListener('click', togglePlannerMode);
-    document.getElementById('rs-lang-selector').addEventListener('click', toggleLanguage);
 
     setupGSAPHoverEffects();
 
-    // Animación de entrada inicial del Widget
     gsap.to(btn, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.7)", delay: 0.5 });
     gsap.to(bubble, { opacity: 1, duration: 0.4, delay: 1.2 });
 
@@ -607,6 +563,22 @@ ${RAICES_LANDMARKS_INFO}
     }, 7000);
 
     addBotMessage(TRANSLATABLE_TEXTS[currentLang].welcomeMessage, true);
+    startPageLanguageObserver();
+  }
+
+  function startPageLanguageObserver() {
+    const observer = new MutationObserver(() => {
+      const pageLang = document.documentElement.lang?.toLowerCase();
+      const targetLang = pageLang.startsWith('en') ? 'en' : 'es';
+      if (targetLang !== currentLang) {
+        syncLanguage(targetLang);
+      }
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['lang']
+    });
   }
 
   function setupGSAPHoverEffects() {
@@ -626,33 +598,22 @@ ${RAICES_LANDMARKS_INFO}
     triggerHover('#rs-chat-btn', 1.08);
     triggerHover('#rs-chat-send', 1.08);
     triggerHover('.rs-quick-btn', 1.03);
-    triggerHover('#rs-lang-selector', 1.1);
   }
 
   function hideBubble() {
     const bubble = document.getElementById('rs-chat-bubble');
-    if (bubble) {
-      gsap.to(bubble, { opacity: 0, y: -10, duration: 0.3, onComplete: () => { bubble.remove(); } });
+    if (bubble && !bubbleHidden) {
       bubbleHidden = true;
+      gsap.to(bubble, { opacity: 0, y: -10, duration: 0.3, onComplete: () => { bubble.remove(); } });
     }
   }
 
-  async function toggleLanguage() {
+  async function syncLanguage(newLang) {
     if (isLoading) return;
     
     const msgsContainer = document.getElementById('rs-chat-messages');
-    const langBtn = document.getElementById('rs-lang-selector');
+    currentLang = newLang;
     
-    // 1. Cambiar estado del idioma
-    currentLang = currentLang === 'es' ? 'en' : 'es';
-    
-    // Animación del botón de idioma
-    gsap.to(langBtn, { scale: 0.4, rotation: 90, duration: 0.15, onComplete: () => {
-      langBtn.textContent = currentLang === 'es' ? '🇪🇸' : '🇬🇧';
-      gsap.to(langBtn, { scale: 1, rotation: 0, duration: 0.2, ease: "back.out(2)" });
-    }});
-    
-    // 2. Traducir textos estáticos de la interfaz
     document.getElementById('rs-header-name').textContent = TRANSLATABLE_TEXTS[currentLang].headerTitle;
     document.getElementById('rs-header-status').textContent = TRANSLATABLE_TEXTS[currentLang].headerStatus;
     document.getElementById('rs-planner-text').textContent = TRANSLATABLE_TEXTS[currentLang].btnPlanner;
@@ -668,20 +629,16 @@ ${RAICES_LANDMARKS_INFO}
       plannerData = {};
     }
 
-    // 3. Traducir el historial activo si existen mensajes del usuario
     const hasUserMessages = conversationHistory.some(m => m.role === 'user');
     
     if (!hasUserMessages) {
-      // Si solo estaba el saludo inicial, lo reiniciamos al nuevo idioma de forma limpia
       if (msgsContainer) msgsContainer.innerHTML = '';
       addBotMessage(TRANSLATABLE_TEXTS[currentLang].welcomeMessage, true);
     } else {
-      // Si ya hay una conversación real, traducimos todo el bloque con GSAP
       isLoading = true;
       setInputEnabled(false, currentLang === 'es' ? 'Traduciendo chat...' : 'Translating chat...');
       showTyping();
 
-      // Animación de salida (fade out) de los mensajes actuales
       const currentBubbles = msgsContainer.querySelectorAll('.rs-msg');
       await gsap.to(currentBubbles, { opacity: 0, y: -10, duration: 0.2, stagger: 0.05 });
 
@@ -698,8 +655,6 @@ ${RAICES_LANDMARKS_INFO}
     if (!msgsContainer) return;
 
     const targetLangName = currentLang === 'es' ? 'Spanish' : 'English';
-    
-    // Le explicamos detalladamente el formato exacto que necesitamos
     const translationPrompt = `Translate the following JSON array of chat messages into ${targetLangName}.
 Return ONLY the final translated JSON array. Do not wrap it in markdown code blocks, do not add explanations.
 Format example: [{"role": "user", "content": "..."}]
@@ -728,10 +683,7 @@ ${JSON.stringify(conversationHistory)}`;
         rawReply += decoder.decode(value, { stream: true });
       }
 
-      // --- LIMPIEZA A PRUEBA DE BALAS ---
       let cleanJson = rawReply.trim();
-      
-      // Si el modelo metió el JSON dentro de bloques de código markdown, los extraemos
       if (cleanJson.includes('[')) {
         const firstBracket = cleanJson.indexOf('[');
         const lastBracket = cleanJson.lastIndexOf(']');
@@ -749,7 +701,6 @@ ${JSON.stringify(conversationHistory)}`;
       }
 
       if (Array.isArray(translatedHistory) && translatedHistory.length > 0) {
-        // Guardamos el nuevo historial traducido
         conversationHistory = translatedHistory;
         msgsContainer.innerHTML = '';
         
@@ -783,11 +734,9 @@ ${JSON.stringify(conversationHistory)}`;
               div.appendChild(mapWrap);
             }
           }
-
           msgsContainer.appendChild(div);
         });
 
-        // Animación de entrada
         const newBubbles = msgsContainer.querySelectorAll('.rs-msg');
         const mapButtons = msgsContainer.querySelectorAll('.rs-quick-btns');
         
@@ -795,12 +744,10 @@ ${JSON.stringify(conversationHistory)}`;
         if (mapButtons.length) {
           gsap.to(mapButtons, { opacity: 1, y: 0, duration: 0.2, delay: 0.2 });
         }
-        
         msgsContainer.scrollTop = msgsContainer.scrollHeight;
       }
     } catch (err) {
-      console.error("Error detallado en translateExistingMessages:", err);
-      // Si falla, devolvemos la opacidad a los mensajes originales para que el chat siga operativo
+      console.error("Error en translateExistingMessages:", err);
       const currentBubbles = msgsContainer.querySelectorAll('.rs-msg');
       gsap.to(currentBubbles, { opacity: 1, y: 0, duration: 0.2 });
     }
@@ -813,14 +760,11 @@ ${JSON.stringify(conversationHistory)}`;
     const chatIcon  = btn.querySelector('.rs-chat-icon');
     const closeIcon = btn.querySelector('.rs-close-icon');
     
-    // Animación de rotación del botón al hacer click
     gsap.to(btn, { rotation: isOpen ? 90 : 0, duration: 0.3, ease: "power2.inOut" });
 
     if (isOpen) {
       hideBubble();
       win.style.display = 'flex';
-      
-      // Intercambio de iconos: oculta chat, muestra X
       chatIcon.style.display = 'none';
       closeIcon.style.display = 'block';
       btn.setAttribute('aria-label', 'Cerrar asistente');
@@ -831,7 +775,6 @@ ${JSON.stringify(conversationHistory)}`;
       );
       setTimeout(() => document.getElementById('rs-chat-input')?.focus(), 100);
     } else {
-      // Intercambio de iconos: muestra chat, oculta X
       chatIcon.style.display = 'block';
       closeIcon.style.display = 'none';
       btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
@@ -921,7 +864,6 @@ ${JSON.stringify(conversationHistory)}`;
     if(elementsToFade.length > 0) {
       gsap.to(elementsToFade, { opacity: 1, y: 0, stagger: 0.1, duration: 0.3, delay: 0.2 });
     }
-    
     msgs.scrollTop = msgs.scrollHeight;
   }
 
@@ -945,12 +887,7 @@ ${JSON.stringify(conversationHistory)}`;
     msgs.scrollTop = msgs.scrollHeight;
   }
 
-  // ============================================================
-  // CONTROL DE ANIMACIÓN DE HABLA DEL BOT
-  // Se integra en showTyping y hideTyping
-  // ============================================================
   function showTyping() {
-    // Activar animación en el avatar del header
     const avatar = document.getElementById('rs-bot-avatar');
     if (avatar) avatar.classList.add('talking');
 
@@ -967,7 +904,6 @@ ${JSON.stringify(conversationHistory)}`;
   }
 
   function hideTyping() {
-    // Desactivar animación en el avatar del header
     const avatar = document.getElementById('rs-bot-avatar');
     if (avatar) avatar.classList.remove('talking');
 
@@ -981,14 +917,12 @@ ${JSON.stringify(conversationHistory)}`;
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // --- Planificador ---
   function setPlannerToggle(active) {
     plannerMode = active;
     const toggleBtn = document.getElementById('rs-planner-toggle');
     if (!toggleBtn) return;
     toggleBtn.classList.toggle('active', active);
     toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    
     gsap.fromTo(toggleBtn, { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "back.out(3)" });
   }
 
@@ -1112,8 +1046,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       msgs.appendChild(div);
       animateMessageNode(div);
 
-      // Al iniciar el tipado progresivo de la respuesta del planificador
-      // También activamos la animación de habla de la pupusa
       const avatar = document.getElementById('rs-bot-avatar');
       if (avatar) avatar.classList.add('talking');
 
@@ -1132,7 +1064,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
         msgs.scrollTop = msgs.scrollHeight;
       }
 
-      // Detener animación al terminar
       if (avatar) avatar.classList.remove('talking');
 
       const landmarks = findMentionedLandmarks(replyText);
@@ -1175,7 +1106,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
     const text = input.value.trim();
     if (!text || isLoading) return;
 
-    // Animación de click en el botón enviar
     gsap.fromTo("#rs-chat-send", { scale: 0.8 }, { scale: 1, duration: 0.2, ease: "back.out(3)" });
 
     if (plannerMode && plannerStep) {
@@ -1210,7 +1140,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       }
     }
     
-    // Muestra indicador "escribiendo..." y ACTIVA animación de pupusa
     showTyping();
 
     try {
@@ -1224,10 +1153,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
-      // Oculta indicador "escribiendo..."
-      // Nota: hideTyping() DESACTIVA la animación de la pupusa,
-      // pero la volveremos a activar manualmente para el tipeado progresivo a continuación.
       hideTyping();
 
       const div = document.createElement('div');
@@ -1242,7 +1167,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       const decoder = new TextDecoder();
       let replyText = "";
 
-      // ACTIVA animación de pupusa mientras se tipea el texto progresivamente
       const avatar = document.getElementById('rs-bot-avatar');
       if (avatar) avatar.classList.add('talking');
 
@@ -1255,11 +1179,10 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
           replyText += chunk[i];
           bubble.innerHTML = formatMessageText(replyText);
           msgs.scrollTop = msgs.scrollHeight;
-          await sleep(18); // Simulación de tipeado
+          await sleep(18); 
         }
       }
 
-      // DESACTIVA animación al terminar de tipear el mensaje
       if (avatar) avatar.classList.remove('talking');
 
       conversationHistory.push({ role: 'assistant', content: replyText });
@@ -1284,7 +1207,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       }
 
     } catch (err) {
-      // En caso de error, asegurarnos de apagar la animación
       const avatar = document.getElementById('rs-bot-avatar');
       if (avatar) avatar.classList.remove('talking');
       hideTyping();
@@ -1297,7 +1219,6 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
     document.getElementById('rs-chat-input')?.focus();
   }
 
-  // Carga asíncrona segura de GSAP antes de inicializar la interfaz
   loadGSAP(() => {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
