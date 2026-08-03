@@ -12,48 +12,47 @@ const nombresMeses = [
 ];
 
 // Base de datos expandida de festividades (30 Eventos de los 14 departamentos)
-calendarState.festividades = [
-  { id: 1, nombre: "Fiestas del Rey Guajactial", dia: 18, mes: 1, anio: 2026, depto: "Sonsonate", tipo: "Festival Cultural", desc: "Conmemoración histórica y rescate de la identidad pipil en Izalco, recordando el legado de los caciques ancestrales." },
-  { id: 2, nombre: "Romería de Esquipulas", dia: 15, mes: 1, anio: 2026, depto: "Chalatenango", tipo: "Celebración Religiosa", desc: "Peregrinación masiva en honor al Cristo Negro en Dulce Nombre de María, una de las devociones más antiguas del norte." },
-  { id: 3, nombre: "Fiestas Patronales de Cojutepeque", dia: 15, mes: 1, anio: 2026, depto: "Cuscatlán", tipo: "Fiesta Patronal", desc: "Celebración en honor a San Sebastián Mártir, conocida a nivel nacional por sus tradicionales e incomparables embutidos." },
-  { id: 4, nombre: "Tradición del Bálsamo en Jayaque", dia: 18, mes: 1, anio: 2026, depto: "La Libertad", tipo: "Tradición Viva", desc: "Municipio cafetalero y productor de la Cordillera del Bálsamo, donde los artesanos locales preservan el proceso ancestral de extracción y purificación de la resina." },
-  { id: 5, nombre: "Carnaval de la Panela de Verapaz", dia: 4, mes: 3, anio: 2026, depto: "San Vicente", tipo: "Festival Cultural", desc: "Desfile de carretas tradicionales decoradas con caña de azúcar y moliendas portátiles por las principales calles del municipio." },
-  { id: 6, nombre: "Festival de la Panela", dia: 22, mes: 3, anio: 2026, depto: "Cuscatlán", tipo: "Feria Municipal", desc: "Celebrado en los moliendas de San Lorenzo, destacando la producción artesanal del dulce de panela y sus derivados derivados." },
-  { id: 7, nombre: "Semana Santa Nacional", dia: 29, mes: 3, anio: 2026, depto: "San Salvador", tipo: "Celebración Religiosa", desc: "Procesiones, vía crucis y alfombras de aserrín se viven en todo el país durante la Semana Santa, del 29 de marzo al 5 de abril de 2026." },
-  { id: 8, nombre: "Catedral de Santa Ana", dia: 5, mes: 4, anio: 2026, depto: "Santa Ana", tipo: "Evento Cultural", desc: "Una de las catedrales más hermosas de Centroamérica y sede de las tradiciones de Semana Santa del occidente del país." },
-  { id: 9, nombre: "Feria del Marisco", dia: 5, mes: 4, anio: 2026, depto: "Usulután", tipo: "Feria Municipal", desc: "Evento gastronómico masivo en Puerto El Triunfo con degustación de cocteles, curiles y paseos en lancha por la Bahía de Jiquilisco." },
-  { id: 10, nombre: "Día de la Cruz", dia: 3, mes: 5, anio: 2026, depto: "San Salvador", tipo: "Celebración Religiosa", desc: "Tradición nacional donde se adorna una cruz de árbol de jiote con frutas de la época para bendecir los hogares." },
-  { id: 11, nombre: "Festival de las Flores y Palmas", dia: 10, mes: 5, anio: 2026, depto: "La Libertad", tipo: "Festival Cultural", desc: "Tradición colorida en Panchimalco que marca el inicio de la época lluviosa con procesiones adornadas de palmas y flores silvestres." },
-  { id: 12, nombre: "Festival del Cangrejo", dia: 15, mes: 6, anio: 2026, depto: "La Paz", tipo: "Feria Municipal", desc: "Feria gastronómica marina en San Luis La Herradura, exaltando el turismo y el consumo sostenible del recurso costero." },
-  { id: 13, nombre: "Fiestas Julias", dia: 26, mes: 7, anio: 2026, depto: "Santa Ana", tipo: "Fiesta Patronal", desc: "Grandes celebraciones culturales y religiosas en la Ciudad Heroica, realizadas en honor a Nuestra Señora Santa Ana." },
-  { id: 14, nombre: "Fiestas Agostinas", dia: 5, mes: 8, anio: 2026, depto: "San Salvador", tipo: "Fiesta Patronal", desc: "Celebración principal en honor al Divino Salvador del Mundo, con carrozas y el tradicional desfile de Correos." },
-  { id: 15, nombre: "Plaza las Américas", dia: 5, mes: 8, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", desc: "Sede principal de las Fiestas Agostinas cada agosto. Miles de salvadoreños se reúnen para la Bajada del Salvador." },
-  { id: 16, nombre: "Panchimalco", dia: 10, mes: 8, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", desc: "Municipio indígena famoso por la Procesión de las Palmas en agosto y sus danzas folclóricas tradicionales." },
-  { id: 17, nombre: "Festival de la Juventitudes Populares", dia: 12, mes: 8, anio: 2026, depto: "Morazán", tipo: "Festival Cultural", desc: "Encuentro de arte, memoria histórica, música latinoamericana y talleres de teatro social en el municipio de El Mozote." },
-  { id: 18, nombre: "Festival del Maíz", dia: 28, mes: 8, anio: 2026, depto: "Chalatenango", tipo: "Feria Municipal", desc: "Celebración popular en honor a la cosecha del maíz con venta de atol, riguas, tamales y artesanías de la zona." },
-  { id: 19, nombre: "Día de los Farolitos", dia: 7, mes: 9, anio: 2026, depto: "Ahuachapán", tipo: "Festival Cultural", desc: "Hermosa tradición donde las calles se iluminan por completo con miles de faroles artesanales." },
-  { id: 20, nombre: "Festival de los Farolitos en Ataco", dia: 7, mes: 9, anio: 2026, depto: "Ahuachapán", tipo: "Festival Cultural", desc: "Concepción de Ataco se viste de luces, música folclórica y alta gastronomía para conmemorar el nacimiento de la Virgen María." },
-  { id: 21, nombre: "Festival de Suchitoto", dia: 4, mes: 9, anio: 2026, depto: "Cuscatlán", tipo: "Evento Cultural", desc: "Festival Internacional de Arte y Cultura que convoca artistas de toda Latinoamérica anualmente." },
-  { id: 22, nombre: "Día de la Independencia", dia: 15, mes: 9, anio: 2026, depto: "San Salvador", tipo: "Festividad Nacional", desc: "El 15 de septiembre de 2026 se conmemora la Independencia de Centroamérica con desfiles escolares y la Carrera de la Antorcha." },
-  { id: 23, nombre: "Fiesta de la Primicia de la Cosecha", dia: 29, mes: 9, anio: 2026, depto: "La Unión", tipo: "Celebración Religiosa", desc: "Tradición agraria de los pueblos lencas en Conchagua, entregando las primeras mazorcas del año en acción de gracias." },
-  { id: 24, month: "Festival del Añil", dia: 4, mes: 10, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Celebración en Suchitoto dedicada al 'oro azul', exponiendo técnicas prehispánicas de teñido artesanal e historia colonial." },
-  { id: 25, nombre: "Festival del Jocote Corona", dia: 18, mes: 10, anio: 2026, depto: "Santa Ana", tipo: "Feria Municipal", desc: "Feria gastronómica celebrada en el Cerro Verde dedicada a la comercialización y platillos derivados de este icónico fruto." },
-  { id: 26, nombre: "Tradición de los Encuentros", dia: 24, mes: 10, anio: 2026, depto: "Sonsonate", tipo: "Danza Ancestral", desc: "Centenaria festividad religiosa y cultural donde se encuentran las imágenes de los santos patronos de los pueblos vecinos, acompañada de danzas tradicionales como el Chinchintora." },
-  { id: 27, nombre: "Día de la Calabiuza", dia: 1, mes: 11, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Desfile tradicional nocturno en Tonacatepeque donde cobran vida los personajes de las leyendas salvadoreñas como la Siguanaba." },
-  { id: 28, nombre: "Día de los Difuntos", dia: 1, mes: 11, anio: 2026, depto: "San Salvador", tipo: "Festival Cultural", desc: "El 1 y 2 de noviembre de 2026 las familias visitan los cementerios del país para honrar a sus seres queridos con flores y el tradicional fiambre." },
-  { id: 29, nombre: "Festival del Barro", dia: 8, mes: 11, anio: 2026, depto: "Cabañas", tipo: "Festival Cultural", desc: "Exposición artesanal en Ilobasco que rinde homenaje a los maestros alfareros y sus famosas figuras en miniatura." },
-  { id: 30, nombre: "Fiestas Patronales de Gotera", dia: 15, mes: 11, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", desc: "Eventos dedicados a San Francisco de Asís en San Francisco Gotera, combinando fe, jaripeos populares y danzas de la región." },
-  { id: 31, nombre: "Fiestas de los Historiantes de Cuisnahuat", dia: 24, mes: 11, anio: 2026, depto: "Sonsonate", tipo: "Celebración Religiosa", desc: "Danza tradicional de Moros y Cristianos en honor a San Carlos Borromeo, preservando las raíces ancestrales indigenas." },
-  { id: 32, nombre: "Gran Carnaval de San Miguel", dia: 28, mes: 11, anio: 2026, depto: "San Miguel", tipo: "Festividad Nacional", desc: "El carnaval más grande de Centroamérica, celebrado en honor a la Virgen de la Paz con decenas de orquestas en vivo." },
-  { id: 33, nombre: "Día de los Canchules", dia: 4, mes: 12, anio: 2026, depto: "Cabañas", tipo: "Tradición Oral", desc: "Tradición única cada 4 de diciembre donde los habitantes crean altares con frutas y comida típica, repitiendo el dicho popular \"¡Canchul, si no me das, te quiebro el candil!\"." },
-  { id: 34, nombre: "Festival Internacional del Chicharrón", dia: 12, mes: 12, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", desc: "Feria culinaria de gran afluencia turística en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo." },
-  { id: 35, nombre: "Fiestas Patronales de La Unión", dia: 12, mes: 12, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", desc: "Celebradas en honor a la Inmaculada Concepción con desfiles, carrozas y actividades marítimas en el Golfo de Fonseca." },
-  { id: 36, nombre: "Navidad y Posadas", dia: 16, mes: 12, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", desc: "Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche." },
-  { id: 37, nombre: "Fiestas del Arroz", dia: 19, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Feria Municipal", desc: "Desarrollado en San Esteban Catarina, celebrando el procesamiento y soberanía alimentaria ligada al cultivo de arroz." },
-  { id: 38, nombre: "Fiestas Patronales de San Vicente", dia: 25, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Fiesta Patronal", desc: "Celebraciones patronales dedicadas a San Vicente Abad y Mártir, llenas de actividades culturales bajo la histórica torre." }
+const EVENTOS_CALENDARIO = [
+  { id: 3, nombre: "Feria de la Panela", dia: 15, mes: 2, depto: "San Vicente", tipo: "Feria Gastronómica", desc: "Molienda tradicional en Verapaz, donde se elabora dulce de atado, alfeñiques y variedad de derivados de la caña de azúcar.", lat: 13.6167, lng: -88.85 },
+  { id: 5, nombre: "Día de la Cruz", dia: 3, mes: 5, depto: "Todos", tipo: "Celebración Religiosa", desc: "Tradición nacional donde se coloca una cruz de árbol de jiote en los patios, adornada con frutas de estación y cortinas de papel picado.", lat: 13.6929, lng: -89.2182 },
+  { id: 8, nombre: "Fiestas Julias", dia: 26, mes: 7, depto: "Santa Ana", tipo: "Fiesta Patronal", desc: "La celebración más grande de Occidente en honor a Señora Santa Ana, destacando el desfile del correo, juegos mecánicos y misas solemnes.", lat: 13.9942, lng: -89.5597 },
+  { id: 9, nombre: "Festival del Maíz", dia: 1, mes: 8, depto: "La Libertad", tipo: "Feria Gastronómica", desc: "Celebración en San Juan Opico dedicada a los derivados del maíz: riguas, tamales, atol, chicha y elotes locos.", lat: 13.8167, lng: -89.55 },
+  { id: 10, nombre: "Fiestas Agostinas", dia: 5, mes: 8, depto: "San Salvador", tipo: "Fiesta Patronal", desc: "Celebración capitalina en honor al Divino Salvador del Mundo, famosa por la Bajada (transfiguración) frente a la Catedral Metropolitana.", lat: 13.6984, lng: -89.1915 },
+  { id: 12, nombre: "Festival del Jocote Corona", dia: 15, mes: 10, depto: "Santa Ana", tipo: "Feria Gastronómica", desc: "Celebración en el Parque Nacional Cerro Verde, promoviendo el consumo y emprendimientos basados en esta fruta exótica de altura.", lat: 13.8494, lng: -89.6314 },
+  { id: 13, nombre: "Fiestas de la Calabaza", dia: 1, mes: 11, depto: "Cuscatlán", tipo: "Tradición Popular", desc: "En Cojutepeque se preparan ayotes en miel y se realizan desfiles infantiles rescatando personajes de la mitología cuzcatleca.", lat: 13.7167, lng: -88.9333 },
+  { id: 14, nombre: "Día de los Canchules", dia: 1, mes: 11, depto: "Ahuachapán", tipo: "Tradición Popular", desc: "Tradición única en Nahuizalco donde los niños van de casa en casa pidiendo comida preparada para los altares de los difuntos al grito de 'ángeles somos'.", lat: 13.7739, lng: -89.7256 },
+  { id: 16, nombre: "Día de los Difuntos", dia: 2, mes: 11, depto: "Todos", tipo: "Conmemoración", desc: "Fecha de respeto nacional donde las familias visitan los cementerios para enforlar, pintar tumbas y recordar a sus seres queridos.", lat: 13.6929, lng: -89.2182 },
+  { id: 17, nombre: "Festival del Añil", dia: 4, mes: 11, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Celebración en Suchitoto dedicada al 'oro azul', exponiendo técnicas prehispánicas de teñido artesanal e historia colonial.", lat: 14.0311, lng: -89.0281 },
+  { id: 18, nombre: "Carnaval de San Miguel", dia: 28, mes: 11, depto: "San Miguel", tipo: "Fiesta Patronal", desc: "La fiesta popular más grande de Centroamérica en honor a la Virgen de la Paz, con decenas de orquestas en las calles principales.", lat: 13.4833, lng: -88.1833 },
+  { id: 20, nombre: "Día de la Virgen de Guadalupe", dia: 12, mes: 12, depto: "San Salvador", tipo: "Celebración Religiosa", desc: "Peregrinación hacia la Basílica de Guadalupe (La Ceiba) donde los niños son vestidos con trajes tradicionales indígenas en agradecimiento por milagros.", lat: 13.7008, lng: -89.2100 },
+  { id: 21, nombre: "Los Canchules de Nahuizalco", dia: 1, mes: 11, depto: "Sonsonate", tipo: "Tradición Popular", desc: "Versión focalizada del altar de muertos en Nahuizalco, donde se exhiben altares en las calles y se comparte comida típica.", lat: 13.7739, lng: -89.7256 },
+  { id: 22, nombre: "Día de los Farolitos", dia: 7, mes: 9, depto: "Ahuachapán", tipo: "Celebración Tradicional", desc: "Conmemoración del nacimiento de la Virgen María en Ahuachapán y Concepción de Ataco, iluminando calles y estructuras con miles de faroles artesanales de papel.", lat: 13.9214, lng: -89.845 },
+  { id: 23, nombre: "La Calabiuza", dia: 1, mes: 11, depto: "Cuscatlán", tipo: "Desfile Tradicional", desc: "Desfile nocturno en Tonacatepeque donde los jóvenes se disfrazan de personajes de la mitología salvadoreña (Ciguanaba, Cipitío) acompañados de carretas chillonas.", lat: 13.7089, lng: -89.0958 },
+  { id: 24, nombre: "Festival del Añil", dia: 4, mes: 10, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Celebración en Suchitoto dedicada al 'oro azul', exponiendo técnicas prehispánicas de teñido artesanal e historia colonial.", lat: 14.0311, lng: -89.0281 },
+  { id: 25, nombre: "Festival del Jocote Corona", dia: 18, mes: 10, anio: 2026, depto: "Santa Ana", tipo: "Feria Municipal", desc: "Feria gastronómica celebrada en el Cerro Verde dedicada a la comercialización y platillos derivados de este icónico fruto.", lat: 13.8494, lng: -89.6314 },
+  { id: 26, nombre: "Tradición de los Encuentros", dia: 24, mes: 10, anio: 2026, depto: "Sonsonate", tipo: "Danza Ancestral", desc: "Centenaria festividad religiosa y cultural donde se encuentran las imágenes de los santos patronos de los pueblos vecinos, acompañada de danzas tradicionales como el Chinchintora.", lat: 13.7186, lng: -89.7244 },
+  { id: 27, nombre: "Día de la Calabiuza", dia: 1, mes: 11, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", desc: "Desfile tradicional nocturno en Tonacatepeque donde cobran vida los personajes de las leyendas salvadoreñas como la Siguanaba.", lat: 13.7089, lng: -89.0958 },
+  { id: 28, nombre: "Día de los Difuntos", dia: 1, mes: 11, anio: 2026, depto: "San Salvador", tipo: "Festival Cultural", desc: "El 1 y 2 de noviembre de 2026 las familias visitan los cementerios del país para honrar a sus seres queridos con flores y el tradicional fiambre.", lat: 13.6929, lng: -89.2182 },
+  { id: 29, nombre: "Festival del Barro", dia: 8, mes: 11, anio: 2026, depto: "Cabañas", tipo: "Festival Cultural", desc: "Exposición artesanal en Ilobasco que rinde homenaje a los maestros alfareros y sus famosas figuras en miniatura.", lat: 13.8422, lng: -88.8508 },
+  { id: 30, nombre: "Fiestas Patronales de Gotera", dia: 15, mes: 11, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", desc: "Eventos dedicados a San Francisco de Asís en San Francisco Gotera, combinando fe, jaripeos populares y danzas de la región.", lat: 13.7, lng: -88.1 },
+  { id: 31, nombre: "Fiestas de los Historiantes de Cuisnahuat", dia: 24, mes: 11, anio: 2026, depto: "Sonsonate", tipo: "Celebración Religiosa", desc: "Danza tradicional de Moros y Cristianos en honor a San Carlos Borromeo, preservando las raíces ancestrales indigenas.", lat: 13.6167, lng: -89.6667 },
+  { id: 32, nombre: "Gran Carnaval de San Miguel", dia: 28, mes: 11, anio: 2026, depto: "San Miguel", tipo: "Festividad Nacional", desc: "El carnaval más grande de Centroamérica, celebrado en honor a la Virgen de la Paz con decenas de orquestas en vivo.", lat: 13.4833, lng: -88.1833 },
+  { id: 33, nombre: "Día de los Canchules", dia: 4, mes: 12, anio: 2026, depto: "Cabañas", tipo: "Tradición Oral", desc: "Tradición única cada 4 de diciembre donde los habitantes crean altares con frutas y comida típica, repitiendo el dicho popular \"¡Canchul, si no me das, te quiebro el candil!\".", lat: 13.8422, lng: -88.8508 },
+  { id: 34, nombre: "Festival Internacional del Chicharrón", dia: 12, mes: 12, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", desc: "Feria culinaria de gran afluencia turística en Santa Tecla, centrada en la preparación creativa de platillos a base de cerdo.", lat: 13.6769, lng: -89.2797 },
+  { id: 35, nombre: "Fiestas Patronales de La Unión", dia: 12, mes: 12, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", desc: "Celebradas en honor a la Inmaculada Concepción con desfiles, carrozas y actividades marítimas en el Golfo de Fonseca.", lat: 13.3369, lng: -87.8442 },
+  { id: 36, nombre: "Navidad y Posadas", dia: 16, mes: 12, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", desc: "Del 16 al 24 de diciembre de 2026 se celebran las posadas en todo el país, culminando en la Nochebuena con cohetes, tamales y ponche.", lat: 13.6929, lng: -89.2182 },
+  { id: 37, nombre: "Fiestas del Arroz", dia: 19, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Feria Municipal", desc: "Desarrollado en San Esteban Catarina, celebrando el procesamiento y soberanía alimentaria ligada al cultivo de arroz.", lat: 13.6167, lng: -88.85 },
+  { id: 38, nombre: "Fiestas Patronales de San Vicente", dia: 25, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Fiesta Patronal", desc: "Celebraciones patronales dedicadas a San Vicente Abad y Mártir, llenas de actividades culturales bajo la histórica torre.", lat: 13.6411, lng: -88.7856 }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  // POBLAR Y NORMALIZAR LOS EVENTOS ANTES DE INICIALIZAR EL CALENDARIO
+  calendarState.festividades = EVENTOS_CALENDARIO.map(evento => ({
+    ...evento,
+    // Si el evento no trae año, le asignamos el año actual por defecto
+    anio: evento.anio || calendarState.currentYear 
+  }));
+
   initCalendar();
   setupCalendarEvents();
 });
@@ -107,7 +106,7 @@ function renderMonthPills() {
     pill.textContent = mes;
 
     // Verificar si el mes tiene eventos para agregar indicador visual
-    const tieneEventos = calendarState.festividades.some(f => f.mes === index && f.anio === calendarState.currentYear);
+    const tieneEventos = calendarState.festividades.some(f => f.mes === (index + 1) && f.anio === calendarState.currentYear);
     if (tieneEventos) {
       pill.classList.add("has-events");
     }
@@ -168,7 +167,7 @@ function renderCalendarGrid() {
     let htmlContent = `<span class="day-num">${dia}</span>`;
 
     // Buscar eventos para este día específico
-    const eventosDia = calendarState.festividades.filter(f => f.dia === dia && f.mes === mes && f.anio === año);
+    const eventosDia = calendarState.festividades.filter(f => f.dia === dia && f.mes === (mes + 1) && f.anio === año);
 
     if (eventosDia.length > 0) {
       dayDiv.classList.add("has-event");
@@ -227,7 +226,7 @@ function renderTodayEvent() {
 
   const hoy = new Date();
   const eventosHoy = calendarState.festividades.filter(
-    f => f.dia === hoy.getDate() && f.mes === hoy.getMonth() && f.anio === hoy.getFullYear()
+    f => f.dia === hoy.getDate() && f.mes === (hoy.getMonth() + 1) && f.anio === hoy.getFullYear()
   );
 
   panel.classList.remove("has-event", "no-event");
@@ -251,3 +250,50 @@ function renderTodayEvent() {
     panel.onclick = null;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   FUNCIÓN: ABRIR DETALLES DEL EVENTO (MODAL Y REDIRECCIÓN)
+   ══════════════════════════════════════════════════════════ */
+window.abrirDetallesEvento = function(evento) {
+  // 1. Intentar obtener el contenedor del modal existente o crear uno dinámicamente
+  let modal = document.getElementById("calEventModal");
+  
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "calEventModal";
+    modal.className = "cal-modal-overlay"; // Asegúrate de darle estilos CSS a esta clase
+    document.body.appendChild(modal);
+  }
+
+  // 2. Construir la URL codificada correctamente para el mapa interactivo
+  const urlMapa = `mapa.html?lat=${evento.lat}&lng=${evento.lng}&nombreEvento=${encodeURIComponent(evento.nombre)}&from=calendario.html`;
+
+  // 3. Insertar la estructura interna del modal con la información del evento
+  modal.innerHTML = `
+    <div class="cal-modal-content">
+      <button class="cal-modal-close" onclick="document.getElementById('calEventModal').remove()">&times;</button>
+      
+      <span class="cal-modal-badge">${evento.tipo}</span>
+      <h2 class="cal-modal-title">${evento.nombre}</h2>
+      
+      <div class="cal-modal-meta">
+        <p><strong>📍 Departamento:</strong> ${evento.depto}</p>
+        <p><strong>📅 Fecha:</strong> ${evento.dia} de ${nombresMeses[evento.mes - 1]} de ${evento.anio}</p>
+      </div>
+      
+      <p class="cal-modal-desc">${evento.desc}</p>
+      
+      <div class="cal-modal-actions">
+        <a href="${urlMapa}" class="btn-ver-mapa">🗺️ Ver en mapa interactivo</a>
+      </div>
+    </div>
+  `;
+
+  // 4. Mostrar el modal (puedes manejar la visibilidad agregando una clase activa)
+  modal.classList.add("is-active");
+
+  // Opcional: Cerrar el modal haciendo clic fuera de la caja de contenido
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.remove();
+  });
+};
