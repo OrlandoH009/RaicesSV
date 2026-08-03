@@ -18,7 +18,7 @@
   --overlay:     rgba(15, 47, 102, 0.45);
   --card-dim:    rgba(85, 84, 84, 0.45);
 
-  --font-display: 'Playfair Display', serif;
+  --font-display: '', serif;
   --font-body:    'Lato', sans-serif;
 
   /* Radios de borde que escalan fluidamente con la pantalla */
@@ -659,3 +659,73 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   .lock-modal-overlay { padding: 1rem; align-items: flex-end; }
   .lock-modal { padding: 1.9rem 1.3rem 1.5rem; max-width: 100%; border-radius: var(--r-md) var(--r-md) 0 0; }
 }
+/* ══════════════════════════════════
+   SELECTOR DE IDIOMA (i18n)
+   ══════════════════════════════════ */
+
+/* Contenedor: lo separa visualmente del navbar, flotando por encima */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.4rem, 3.2vw, 2.7rem);
+  height: clamp(2.4rem, 3.2vw, 2.7rem);
+  color: var(--white);
+  background: rgba(17, 48, 104, .92); /* var(--navy) con transparencia, para que resalte del navbar sólido */
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 999px;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,.28);
+  backdrop-filter: blur(6px);
+  transition: background .25s, border-color .25s, transform .2s, box-shadow .25s;
+  /* Separación real del menú hamburguesa (no pegado al navbar) */
+  margin-right: clamp(1rem, 2.5vw, 1.6rem);
+  transform: translateY(-1px); /* leve elevación para separarlo de la barra */
+}
+.lang-toggle:hover {
+  background: rgba(190, 142, 86, .22);
+  border-color: rgba(190, 142, 86, .55);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
+.lang-toggle:active { transform: translateY(-1px) scale(.94); }
+
+/* Emoji de bandera */
+.lang-toggle__flag {
+  font-size: clamp(1.15rem, 1.5vw, 1.3rem);
+  line-height: 1;
+  display: inline-block;
+  transform-origin: center;
+}
+
+/* ── Animación de cambio (no brusca) ──
+   Se activa agregando/quitando la clase .is-switching
+   vía JS al momento de alternar idioma. */
+.lang-toggle.is-switching .lang-toggle__flag {
+  animation: langFlip .38s ease;
+}
+
+@keyframes langFlip {
+  0%   { opacity: 1;  transform: rotateX(0deg)   translateY(0); }
+  45%  { opacity: 0;  transform: rotateX(90deg)  translateY(-4px); }
+  55%  { opacity: 0;  transform: rotateX(-90deg) translateY(4px); }
+  100% { opacity: 1;  transform: rotateX(0deg)   translateY(0); }
+}
+
+/* Suaviza también el resto del contenido de la página al traducir,
+   para que el cambio de textos no se sienta como un "salto" */
+[data-i18n],
+[data-i18n-attr] {
+  transition: opacity .18s ease;
+}
+body.i18n-fading [data-i18n] {
+  opacity: 0;
+}
+
+/* Variante dentro del drawer móvil: círculo centrado, separado de los links */
+.nav-drawer .lang-toggle {
+  margin: .3rem auto .5rem;
+  transform: none;
+}
+.nav-drawer .lang-toggle:hover { transform: translateY(-2px); }

@@ -27,7 +27,7 @@ ${RAICES_LANDMARKS_INFO}
     }
     return `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
 REGLAS CRÍTICAS DE RESPUESTA:
-1. Ultra directo y minimalista: Responde con estilo telegráfico. Prohibido usar introducciones ("¡Hola!", "Claro que sí", "Con gusto te explico"). Ve directo al dato en la primera palabra.
+1. Ultra directo y minimalist: Responde con estilo telegráfico. Prohibido usar introducciones ("¡Hola!", "Claro que sí", "Con gusto te explico"). Ve directo al dato en la primera palabra.
 2. Extensión máxima: Límite estricto de 1 a 2 frases cortas (máximo 25 palabras en total).
 3. Formato: Resalta en **negrita** el tema principal la primera vez que lo nombres.
 4. Cobertura: Válidas preguntas sobre territorio salvadoreño, presidentes y noticias locales actuales. No respondas sobre otros países ni política internacional.
@@ -195,16 +195,70 @@ ${RAICES_LANDMARKS_INFO}
       border-bottom: 1.5px solid rgba(190, 142, 86, 0.4);
       flex-shrink: 0;
     }
+
+    /* Contenedor del Avatar SVG */
     #rs-chat-header .rs-avatar {
-      width: 36px; height: 36px;
+      width: 42px; height: 42px;
       border-radius: 50%;
       background: #be8e56;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 700; font-size: 15px; color: #fff;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      overflow: visible; /* Importante para que la animación no se corte */
+      position: relative;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
     }
+
+    /* Estilos base del SVG de la Pupusa */
+    #rs-chat-header .rs-avatar svg {
+      width: 110%; height: 110%; /* Ligeramente más grande que el contenedor */
+      transform-origin: center bottom;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    /* Animación de Pestañeo Constante */
+    @keyframes rs-blink {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    #rs-pupusa-clip-eye-l, #rs-pupusa-clip-eye-r {
+      animation: rs-blink 5s infinite;
+      transform-origin: center;
+    }
+
+    /* ===================================================
+       ESTADOS DE ANIMACIÓN DE HABLA (Se activan vía JS)
+       =================================================== */
+    
+    /* 1. La boca se abre y cierra rápido */
+    @keyframes rs-mouth-speak {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.3); } /* Se encoge verticalmente simulando apertura */
+    }
+
+    /* 2. El cuerpo se balancea sutilmente */
+    @keyframes rs-body-speak {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-3deg) scale(1.02); }
+      75% { transform: rotate(3deg) scale(1.02); }
+    }
+
+    /* Clase que aplica JS cuando el bot responde */
+    #rs-chat-header .rs-avatar.talking {
+      border-color: #be8e56;
+      box-shadow: 0 0 15px rgba(190, 142, 86, 0.7);
+    }
+
+    #rs-chat-header .rs-avatar.talking svg {
+      animation: rs-body-speak 0.4s infinite ease-in-out;
+    }
+
+    #rs-chat-header .rs-avatar.talking #rs-pupusa-mouth {
+      animation: rs-mouth-speak 0.2s infinite ease-in-out;
+      transform-origin: center; /* La boca se abre desde su centro */
+    }
+
     #rs-chat-header .rs-header-info { flex: 1; }
     #rs-chat-header .rs-name {
       font-family: 'Playfair Display', serif;
@@ -466,12 +520,49 @@ ${RAICES_LANDMARKS_INFO}
     `;
     btn.addEventListener('click', toggleChat);
 
+    // ============================================================
+    // DISEÑO DEL PERSONAJE SVG (PUPUSA ANIMADA)
+    // Se inserta directamente en el HTML del header
+    // ============================================================
+    const svgPupusaAvatar = `
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cuerpo de la Pupusa (Círculo base tostado) -->
+        <circle cx="50" cy="50" r="48" fill="#F3D598" stroke="#be8e56" stroke-width="2"/>
+        <!-- Manchas de tostado sutiles -->
+        <circle cx="30" cy="30" r="5" fill="#E4C17D" opacity="0.6"/>
+        <circle cx="70" cy="40" r="7" fill="#E4C17D" opacity="0.5"/>
+        <circle cx="45" cy="75" r="6" fill="#E4C17D" opacity="0.7"/>
+
+        <!-- Cara del personaje -->
+        <g id="rs-pupusa-face">
+          <!-- Ojos (Negros con brillo) -->
+          <g id="rs-pupusa-eyes">
+            <ellipse cx="35" cy="45" rx="5" ry="7" fill="#18181b"/>
+            <ellipse cx="65" cy="45" rx="5" ry="7" fill="#18181b"/>
+            <!-- Brillos de ojos -->
+            <circle cx="33" cy="42" r="2" fill="white"/>
+            <circle cx="63" cy="42" r="2" fill="white"/>
+          </g>
+          
+          <!-- Boca (Curva sonriente base) -->
+          <path id="rs-pupusa-mouth" d="M 35 65 Q 50 75, 65 65" stroke="#18181b" stroke-width="3" fill="none" stroke-linecap="round"/>
+          
+          <!-- Mejillas sonrosadas -->
+          <circle cx="25" cy="60" r="5" fill="#EEA0A0" opacity="0.7"/>
+          <circle cx="75" cy="60" r="5" fill="#EEA0A0" opacity="0.7"/>
+        </g>
+      </svg>
+    `;
+
     const win = document.createElement('div');
     win.id = 'rs-chat-window';
     win.style.display = 'none';
     win.innerHTML = `
       <div id="rs-chat-header">
-        <div class="rs-avatar">R</div>
+        <!-- Contenedor del Avatar modificado -->
+        <div class="rs-avatar" id="rs-bot-avatar">
+          ${svgPupusaAvatar}
+        </div>
         <div class="rs-header-info">
           <div class="rs-name" id="rs-header-name">${TRANSLATABLE_TEXTS[currentLang].headerTitle}</div>
           <div class="rs-status"><span class="rs-dot"></span><span id="rs-header-status">${TRANSLATABLE_TEXTS[currentLang].headerStatus}</span></div>
@@ -854,7 +945,15 @@ ${JSON.stringify(conversationHistory)}`;
     msgs.scrollTop = msgs.scrollHeight;
   }
 
+  // ============================================================
+  // CONTROL DE ANIMACIÓN DE HABLA DEL BOT
+  // Se integra en showTyping y hideTyping
+  // ============================================================
   function showTyping() {
+    // Activar animación en el avatar del header
+    const avatar = document.getElementById('rs-bot-avatar');
+    if (avatar) avatar.classList.add('talking');
+
     const msgs = document.getElementById('rs-chat-messages');
     if (!msgs) return;
     const div = document.createElement('div');
@@ -868,6 +967,10 @@ ${JSON.stringify(conversationHistory)}`;
   }
 
   function hideTyping() {
+    // Desactivar animación en el avatar del header
+    const avatar = document.getElementById('rs-bot-avatar');
+    if (avatar) avatar.classList.remove('talking');
+
     const indicator = document.getElementById('rs-typing-indicator');
     if (indicator) {
       gsap.to(indicator, { opacity: 0, duration: 0.15, onComplete: () => indicator.remove() });
@@ -939,7 +1042,7 @@ ${JSON.stringify(conversationHistory)}`;
     }
     plannerData.budget = text;
     plannerStep = 'duration';
-    setInputEnabled(true, TRANTLATABLE_TEXTS[currentLang].inputPlaceholderDuration);
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderDuration);
     addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerDurationPrompt);
   }
 
@@ -980,7 +1083,7 @@ ${JSON.stringify(conversationHistory)}`;
 - Time Available: ${plannerData.duration}${plannerData.details ? `\n- Specific Preferences: ${plannerData.details}` : ''}
 Provide a concrete and realistic plan inside El Salvador. It is MANDATORY to include an estimated transportation cost starting from ${plannerData.startLocation} to the places to visit. Show a short numbered itinerary (max 3 activities), the breakdown of costs, and the estimated general total.` 
 : 
-`Planifícame una salida con estas preferencias:
+`Planifícame una salida con estas preferences:
 - Punto de inicio/Ciudad origen: ${plannerData.startLocation}
 - Actividad deseada: ${plannerData.activity}
 - Presupuesto total: ${plannerData.budget}
@@ -1009,6 +1112,11 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       msgs.appendChild(div);
       animateMessageNode(div);
 
+      // Al iniciar el tipado progresivo de la respuesta del planificador
+      // También activamos la animación de habla de la pupusa
+      const avatar = document.getElementById('rs-bot-avatar');
+      if (avatar) avatar.classList.add('talking');
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let replyText = "";
@@ -1023,6 +1131,9 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
         bubble.innerHTML = formatMessageText(replyText);
         msgs.scrollTop = msgs.scrollHeight;
       }
+
+      // Detener animación al terminar
+      if (avatar) avatar.classList.remove('talking');
 
       const landmarks = findMentionedLandmarks(replyText);
       if (landmarks && landmarks.length) {
@@ -1099,6 +1210,7 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       }
     }
     
+    // Muestra indicador "escribiendo..." y ACTIVA animación de pupusa
     showTyping();
 
     try {
@@ -1112,6 +1224,10 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
+      
+      // Oculta indicador "escribiendo..."
+      // Nota: hideTyping() DESACTIVA la animación de la pupusa,
+      // pero la volveremos a activar manualmente para el tipeado progresivo a continuación.
       hideTyping();
 
       const div = document.createElement('div');
@@ -1126,6 +1242,10 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       const decoder = new TextDecoder();
       let replyText = "";
 
+      // ACTIVA animación de pupusa mientras se tipea el texto progresivamente
+      const avatar = document.getElementById('rs-bot-avatar');
+      if (avatar) avatar.classList.add('talking');
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -1135,9 +1255,12 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
           replyText += chunk[i];
           bubble.innerHTML = formatMessageText(replyText);
           msgs.scrollTop = msgs.scrollHeight;
-          await sleep(18); 
+          await sleep(18); // Simulación de tipeado
         }
       }
+
+      // DESACTIVA animación al terminar de tipear el mensaje
+      if (avatar) avatar.classList.remove('talking');
 
       conversationHistory.push({ role: 'assistant', content: replyText });
       
@@ -1161,6 +1284,9 @@ Dame un plan concreto y realista dentro de El Salvador. Es OBLIGATORIO que inclu
       }
 
     } catch (err) {
+      // En caso de error, asegurarnos de apagar la animación
+      const avatar = document.getElementById('rs-bot-avatar');
+      if (avatar) avatar.classList.remove('talking');
       hideTyping();
       addBotMessage(TRANSLATABLE_TEXTS[currentLang].errGeneric);
       console.error('Chatbot error:', err);

@@ -161,7 +161,7 @@ function renderCatalogo(eventos) {
       </div>
       <div class="fest-card-footer">
         <span class="fest-location">${evento.depto}, El Salvador</span>
-        <a href="mapa.html?evento=${20 + evento.id}&from=calendario.html" class="map-link">Ver en mapa</a>
+        <a href="mapa.html?lat=${evento.lat}&lng=${evento.lng}&nombreEvento=${encodeURIComponent(evento.nombre)}&eventoId=${evento.id}&desc=${encodeURIComponent(evento.desc)}&depto=${encodeURIComponent(evento.depto)}&from=calendario.html" class="map-link">Ver en mapa</a>
       </div>
     `;
 
@@ -249,7 +249,7 @@ function setupModalEvents() {
           <p class="val">${evento.desc}</p>
         </div>
       </div>
-      <a href="mapa.html?evento=${20 + evento.id}&from=calendario.html" class="modal-map-btn">Explorar en Mapa Interactivo</a>
+      <a href="mapa.html?lat=${evento.lat}&lng=${evento.lng}&nombreEvento=${encodeURIComponent(evento.nombre)}&eventoId=${evento.id}&desc=${encodeURIComponent(evento.desc)}&depto=${encodeURIComponent(evento.depto)}&from=calendario.html" class="modal-map-btn">Explorar en Mapa Interactivo</a>
     `;
 
     eventoActivoModalId = evento.id;
