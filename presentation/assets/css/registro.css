@@ -12,7 +12,9 @@
   background: var(--black);
   position: relative;
   overflow: hidden;
+  transition: background .4s ease;
 }
+[data-theme="light"] .auth-page { background: var(--bg-body, #faf6ee); }
 .auth-page__bg {
   position: fixed;
   inset: 0;
@@ -25,6 +27,7 @@
   transform: scale(1.08);
   will-change: transform;
 }
+[data-theme="light"] .auth-page__bg { opacity: .1; }
 .auth-card {
   position: relative;
   z-index: 1;

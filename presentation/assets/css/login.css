@@ -12,7 +12,9 @@
   background: var(--black);
   position: relative;
   overflow: hidden;
+  transition: background .4s ease;
 }
+[data-theme="light"] .auth-page { background: var(--bg-body, #faf6ee); }
 /* Fondo con imagen del hero con overlay navy */
 .auth-page__bg {
   position: fixed;
@@ -26,6 +28,7 @@
   transform: scale(1.08);
   will-change: transform;
 }
+[data-theme="light"] .auth-page__bg { opacity: .1; }
 /* Card de formulario — estilo crema del Figma */
 .auth-card {
   position: relative;

@@ -10,12 +10,18 @@
   background: var(--black);
   display: flex;
   justify-content: center;
+  transition: background .4s ease;
 }
+[data-theme="light"] .page-badge { background: var(--bg-body); }
 .page-badge__inner {
   background: var(--cream);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
+}
+[data-theme="light"] .page-badge__inner {
+  background: var(--card-alt-bg);
+  box-shadow: 0 8px 24px rgba(17,48,104,.1);
 }
 .page-badge__inner h1 {
   font-family: var(--font-display);
@@ -25,6 +31,7 @@
   text-shadow: 0 4px 4px rgba(0,0,0,.25);
   white-space: nowrap;
 }
+[data-theme="light"] .page-badge__inner h1 { text-shadow: none; }
 
 /* ── Selector de apartados (tabs) ── */
 .info-tabs {
@@ -32,7 +39,9 @@
   background: var(--black);
   max-width: 1200px;
   margin: 0 auto;
+  transition: background .4s ease;
 }
+[data-theme="light"] .info-tabs { background: var(--bg-body); }
 .info-tabs__label {
   font-family: var(--font-display);
   font-weight: 700;
@@ -43,6 +52,7 @@
   margin-bottom: 1rem;
   text-align: center;
 }
+[data-theme="light"] .info-tabs__label { color: rgba(36,33,29,.5); }
 .info-tabs__list {
   display: flex;
   flex-wrap: wrap;
@@ -61,11 +71,21 @@
   cursor: pointer;
   transition: background .2s, color .2s, border-color .2s, transform .15s;
 }
+[data-theme="light"] .tab-btn {
+  color: var(--navy);
+  background: rgba(17,48,104,.05);
+  border-color: rgba(17,48,104,.15);
+}
 .tab-btn:hover {
   background: rgba(190,142,86,.2);
   border-color: var(--gold);
   color: var(--white);
   transform: translateY(-2px);
+}
+[data-theme="light"] .tab-btn:hover {
+  background: rgba(242,121,79,.14);
+  border-color: var(--accent-sunset);
+  color: var(--accent-sunset);
 }
 .tab-btn.active {
   background: var(--gold);
@@ -90,6 +110,12 @@
   border: 1px solid rgba(190,142,86,.2);
   border-radius: var(--r-md);
   overflow: hidden;
+  transition: background .4s ease, border-color .4s ease;
+}
+[data-theme="light"] .info-content {
+  background: var(--card-alt-bg);
+  border-color: rgba(17,48,104,.12);
+  box-shadow: 0 8px 28px rgba(17,48,104,.08);
 }
 
 /* Hero de la tarjeta con imagen */
@@ -108,6 +134,9 @@
 .info-content__hero-grad {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(13,13,13,1) 0%, transparent 60%);
+}
+[data-theme="light"] .info-content__hero-grad {
+  background: linear-gradient(to top, rgba(17,48,104,.92) 0%, rgba(17,48,104,.15) 55%, transparent 75%);
 }
 .info-content__hero-title {
   position: absolute;
@@ -149,6 +178,7 @@
   line-height: 1.85;
   margin-bottom: 1.2rem;
 }
+[data-theme="light"] .info-content__body p { color: rgba(36,33,29,.85); }
 .info-content__body p:last-child { margin-bottom: 0; }
 
 /* Datos destacados (chips) */
@@ -210,7 +240,9 @@
   background: var(--black);
   display: flex;
   justify-content: center;
+  transition: background .4s ease;
 }
+[data-theme="light"] .page-cta { background: var(--bg-body); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
