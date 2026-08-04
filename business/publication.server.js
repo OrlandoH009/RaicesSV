@@ -76,3 +76,48 @@ const createPublication = async (id_user, { title, description, location, image 
 
     return getPublication(result.insertId, { id: id_user});
 };
+
+const updatePublication = async (id_publication, requestingUser, { title, description, location, image }) => {
+    const row = await publicationRepository.findById(id_publication);
+
+     if (!row) {
+        const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
+    }
+
+    const isOwner = Boolean(requestingUser) && requestingUser.id === row.id_user;
+
+    if (!isOwner) {
+        const err = new Error('No puedes editar publicaciones de otros usuarios.'); err.expose = true; err.status = 403; throw err;
+    }
+
+    if (typeof title !== 'string' || !title.trim()) {
+        const err = new Error('El título es obligatorio.'); err.expose = true; throw err;
+    }
+
+    if (title.trim().length > MAX_TITLE_LENGTH) {
+        const err = new Error(`El título no puede superar los ${MAX_TITLE_LENGTH} caracteres.`); err.expose = true; throw err;
+    }
+
+    if (typeof description !== 'string' || !description.trim()) {
+        const err = new Error('La descripción es obligatoria.'); err.expose = true; throw err;
+    }
+
+    if (typeof location !== 'string' || !location.trim()) {
+        const err = new Error('La ubicación es obligatoria.'); err.expose = true; throw err;
+    }
+
+    if (location.trim().length > MAX_LOCATION_LENGTH) {
+        const err = new Error(`La ubicación no puede superar los ${MAX_LOCATION_LENGTH} caracteres.`); err.expose = true; throw err;
+    }
+
+    const finalImage = (typeof image === 'string' && image.trim()) ? image.trim() : row.image;
+
+    await publicationRepository.updateById(id_publication, {
+        title: title.trim(),
+        description: description.trim(),
+        location: location.trim(),
+        image: finalImage
+    });
+
+    return getPublication(id_publication, requestingUser);
+};
