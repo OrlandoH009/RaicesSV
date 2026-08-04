@@ -95,7 +95,10 @@ const linkGoogleId = (id_user, googleId) => {
 const findById = (id_user) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'SELECT * FROM users WHERE id_user = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE u.id_user = ?`,
             [id_user],
             (err, results) => {
                 if (err) return reject(err);
