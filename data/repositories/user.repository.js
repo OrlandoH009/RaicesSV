@@ -4,16 +4,16 @@ const findByEmail = (email) => {
     return new Promise((resolve, reject) => {
 
         db.query(
-            'SELECT * FROM users WHERE email = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE u.email = ?`,
             [email],
             (err, results) => {
-
                 if (err) return reject(err);
-
                 resolve(results[0]);
             }
         );
-
     });
 };
 
