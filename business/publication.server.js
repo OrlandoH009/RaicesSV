@@ -21,5 +21,23 @@ const sanitizePublication = (row, currentUser) => {
         },
         canEdit: isOwner,
         canDelete: isOwner || isAdmin
+    };
+};
+
+const listPublications = async (currentUser, { location } = {}) => {
+    const rows = location
+        ? await publicationRepository.findByLocation(location)
+        : await publicationRepository.findAll();
+
+    return rows.map((row) => sanitizePublication(row, currentUser));
+};
+
+const getPublication = async (id_publication, currentUser) => {
+    const row = await publicationRepository.findById(id_publication);
+
+    if (!row) {
+        const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
     }
-}
+
+    return sanitizePublication(row, currentUser);
+};
