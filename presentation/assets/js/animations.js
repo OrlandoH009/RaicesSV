@@ -95,11 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const blocks = panel.querySelectorAll('.info-content__body h3, .info-content__body p, .sitio-actions, .info-gallery__item');
 
     const tl = gsap.timeline();
-    if (dateTag) tl.from(dateTag, { opacity: 0, y: -8, duration: .4, ease: 'power2.out' }, 0);
-    if (hero)    tl.from(hero,   { opacity: 0, y: 18, duration: .55, ease: 'power3.out' }, .05);
-    if (sub)     tl.from(sub,    { opacity: 0, y: 14, duration: .5, ease: 'power3.out' }, .16);
-    if (chips.length) tl.from(chips, { opacity: 0, x: -8, duration: .35, stagger: .05, ease: 'power2.out' }, .3);
-    if (blocks.length) tl.from(blocks, { opacity: 0, y: 16, duration: .5, stagger: .06, ease: 'power2.out' }, .35);
+    if (dateTag) tl.from(dateTag, { opacity: 0, y: -8, duration: .4, ease: 'power2.out', clearProps: 'opacity,transform' }, 0);
+    if (hero)    tl.from(hero,   { opacity: 0, y: 18, duration: .55, ease: 'power3.out', clearProps: 'opacity,transform' }, .05);
+    if (sub)     tl.from(sub,    { opacity: 0, y: 14, duration: .5, ease: 'power3.out', clearProps: 'opacity,transform' }, .16);
+    if (chips.length) tl.from(chips, { opacity: 0, x: -8, duration: .35, stagger: .05, ease: 'power2.out', clearProps: 'opacity,transform' }, .3);
+    if (blocks.length) tl.from(blocks, { opacity: 0, y: 16, duration: .5, stagger: .06, ease: 'power2.out', clearProps: 'opacity,transform' }, .35);
+
+    // Failsafe: si por cualquier motivo el timeline no llega a completar
+    // (pestaña en segundo plano, cambio de tab a mitad de animación, etc.),
+    // nos aseguramos de que el contenido quede visible igual.
+    tl.eventCallback('onComplete', () => {
+      [dateTag, hero, sub, ...chips, ...blocks].forEach(el => {
+        if (el) { el.style.opacity = ''; el.style.transform = ''; }
+      });
+    });
   }
 
   // Panel activo al cargar
@@ -126,4 +135,20 @@ document.addEventListener('DOMContentLoaded', () => {
       gsap.to(btn, { y: 0, duration: .25, ease: 'power2.out' });
     });
   });
-});
+
+  /* ---------- 7. Failsafe global ----------
+     Si el navegador pausa las animaciones (pestaña en segundo plano,
+     cambio de tab a mitad de un tween, etc.) algunos elementos animados
+     con gsap.from(...) pueden quedar con opacity:0 inline de forma
+     permanente. Este chequeo, tras un breve margen, limpia cualquier
+     opacity/transform inline que haya quedado atascado en 0. */
+  setTimeout(() => {
+    document.querySelectorAll('.info-content__body p, .info-content__body h3, .info-chip, .info-content__hero-title, .info-content__hero-sub').forEach(el => {
+      const opacity = window.getComputedStyle(el).opacity;
+      if (parseFloat(opacity) < 0.05) {
+        el.style.opacity = '';
+        el.style.transform = '';
+      }
+    });
+  }, 1500);
+}); 
