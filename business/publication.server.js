@@ -1,4 +1,3 @@
-javascript
 const publicationRepository = require('../data/repositories/publication.repository');
 
 const MAX_TITLE_LENGTH = 125;
