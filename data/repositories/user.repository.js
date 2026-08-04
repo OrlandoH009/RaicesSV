@@ -23,7 +23,7 @@ const findByGoogleId = (googleId) => {
             `SELECT u.*, r.rol AS role_name
             FROM users u
             INNER JOIN rols r ON r.id_rol = u.id_rol
-            Where u.google_id = ?`,
+            WHERE u.google_id = ?`,
             [googleId],
             (e, results) => {
                 if (e) return reject(e);
