@@ -83,11 +83,13 @@
   <section class="create-publication-section">
     <div class="create-publication-container">
       <div class="create-publication-header">
-        <h2>Comparte tu Experiencia</h2>
+        <h2 id="publicationFormTitle">Comparte tu Experiencia</h2>
         <p>Sube una foto y cuéntanos dónde capturaste la magia</p>
       </div>
 
       <form class="publication-form" id="publicationForm">
+        <input type="hidden" id="pubEditId" value="">
+
         <div class="form-group">
           <label for="pubTitle">Título del Lugar</label>
           <input type="text" id="pubTitle" placeholder="Ej: Cascada de Siete Pozos" required>
@@ -117,7 +119,9 @@
             <option value="Lago de Coatepeque">Lago de Coatepeque (Santa Ana)</option>
             <option value="Bosque El Imposible">Bosque El Imposible (Ahuachapán)</option>
             <option value="Puerta del Diablo">Puerta del Diablo (Los Planes de Renderos, Panchimalco)</option>
+            <option value="__otro__">Otro (especificar)</option>
           </select>
+          <input type="text" id="pubLocationOther" placeholder="Escribe el nombre del lugar" style="display: none; margin-top: 0.6rem;">
         </div>
 
         <div class="form-group form-file-input">
@@ -126,7 +130,7 @@
             <div class="form-file-text">Sube una foto</div>
             <div class="form-file-subtext">Arrastra o haz clic para seleccionar</div>
           </label>
-          <input type="file" id="pubImage" accept="image/*" required>
+          <input type="file" id="pubImage" accept="image/*">
           <div class="form-file-preview" id="imagePreview">
             <img id="previewImg" src="" alt="Preview">
             <button type="button" class="form-file-remove" id="removeImage">Eliminar imagen</button>
@@ -134,7 +138,8 @@
         </div>
 
         <div class="form-submit-group">
-          <button type="submit" class="form-submit-btn">Publicar</button>
+          <button type="submit" class="form-submit-btn" id="publicationSubmitBtn">Publicar</button>
+          <button type="button" class="form-cancel-btn" id="publicationCancelEditBtn" style="display: none;">Cancelar edición</button>
           <button type="reset" class="form-cancel-btn">Limpiar</button>
         </div>
       </form>
