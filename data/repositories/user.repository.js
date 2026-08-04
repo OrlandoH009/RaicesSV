@@ -20,7 +20,10 @@ const findByEmail = (email) => {
 const findByGoogleId = (googleId) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'SELECT * FROM users WHERE google_id = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            Where u.google_id = ?`,
             [googleId],
             (e, results) => {
                 if (e) return reject(e);
