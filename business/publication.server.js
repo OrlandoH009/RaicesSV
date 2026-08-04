@@ -41,3 +41,38 @@ const getPublication = async (id_publication, currentUser) => {
 
     return sanitizePublication(row, currentUser);
 };
+
+const createPublication = async (id_user, { title, description, location, image }) => {
+    if (typeof title !== 'string' || !title.trim()) {
+        const err = new Error('El título es obligatorio.'); err.expose = true; throw err;
+    }
+
+    if (title.trim().length > MAX_TITLE_LENGTH) {
+        const err = new Error('El título no puede superar los ${MAX_TITLE_LENGTH} caracteres.'); err.expose = true; throw err;
+    }
+
+    if (typeof description !== 'string' || !description.trim()) {
+        const err = new Error('La descripción es obligatoria.'); err.expose = true; throw err;
+    }
+
+    if (typeof location !== 'string' || !location.trim()) {
+        const err = new Error('La ubicación es obligatoria.'); err.expose = true; throw err;
+    }
+
+    if (location.trim().length > MAX_LOCATION_LENGTH) {
+        const err = new Error('La ubicación no puede superar los ${MAX_LOCATION_LENGTH} caracteres.'); err.expose = true; throw err;
+    }
+
+    if (typeof image !== 'string' || !image.trim()) {
+        const err = new Error('La imagen es obligatoria para mejor visualización.'); err.expose = true; throw err;
+    }
+
+    const result = await publicationRepository.create(id_user, {
+        title: title.trim(),
+        description: description.trim(),
+        location: location.trim(),
+        image: image.trim()
+    });
+
+    return getPublication(result.insertId, { id: id_user});
+};
