@@ -20,6 +20,12 @@ body.welcome-lock { overflow: hidden; }
   background: radial-gradient(ellipse at 25% 20%, rgba(190,142,86,.16) 0%, transparent 55%),
               radial-gradient(ellipse at 80% 85%, rgba(17,48,104,.32) 0%, transparent 55%);
   pointer-events: none;
+  transition: background .4s ease;
+}
+[data-theme="light"] .welcome-overlay__bg {
+  background: radial-gradient(ellipse at 25% 20%, rgba(242,121,79,.22) 0%, transparent 55%),
+              radial-gradient(ellipse at 80% 85%, rgba(74,94,194,.24) 0%, transparent 55%),
+              radial-gradient(ellipse at 50% 50%, rgba(34,160,111,.14) 0%, transparent 60%);
 }
 
 /* Anillo orbital de emojis decorativos detrás del contenido */
@@ -235,7 +241,9 @@ body.welcome-lock { overflow: hidden; }
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  transition: background .4s ease;
 }
+[data-theme="light"] .sitios-grid { background: var(--bg-body); }
 
 .sitio-card {
   position: relative;
@@ -247,6 +255,12 @@ body.welcome-lock { overflow: hidden; }
   background: var(--black);
   border: 1px solid rgba(190,142,86,.15);
   will-change: transform;
+  transition: background .4s ease, border-color .4s ease, box-shadow .3s, transform .3s;
+}
+[data-theme="light"] .sitio-card {
+  background: var(--card-alt-bg);
+  border-color: rgba(17,48,104,.15);
+  box-shadow: 0 8px 20px rgba(17,48,104,.12);
 }
 .sitio-card img {
   position: absolute;
@@ -433,7 +447,9 @@ body.welcome-lock { overflow: hidden; }
   background: var(--black);
   display: flex;
   justify-content: center;
+  transition: background .4s ease;
 }
+[data-theme="light"] .page-cta { background: var(--bg-body); }
 
 @media (max-width: 768px) {
   .sitios-grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, 260px); }
@@ -465,6 +481,7 @@ body.welcome-lock { overflow: hidden; }
   margin-bottom: 1.2rem;
   text-align: center;
 }
+[data-theme="light"] .info-tabs__label { color: rgba(36,33,29,.5); }
 
 .info-tabs__carousel {
   position: relative;
@@ -485,7 +502,12 @@ body.welcome-lock { overflow: hidden; }
   justify-content: center;
   cursor: pointer;
   z-index: 3;
-  transition: background .25s, border-color .25s, transform .2s, opacity .25s;
+  transition: background .25s, border-color .25s, transform .2s, opacity .25s, color .25s;
+}
+[data-theme="light"] .info-tabs__arrow {
+  border-color: rgba(17,48,104,.18);
+  background: rgba(17,48,104,.05);
+  color: var(--navy);
 }
 .info-tabs__arrow svg { width: 16px; height: 16px; fill: currentColor; }
 .info-tabs__arrow:hover {
@@ -529,6 +551,7 @@ body.welcome-lock { overflow: hidden; }
   white-space: nowrap;
   transition: color .3s;
 }
+[data-theme="light"] .tab-btn { color: rgba(36,33,29,.55); }
 .tab-btn::before { content: none; }
 .tab-btn::after {
   content: '';
@@ -546,6 +569,7 @@ body.welcome-lock { overflow: hidden; }
   color: rgba(255,255,255,.9);
   transform: none;
 }
+[data-theme="light"] .tab-btn:hover { color: var(--accent-sunset); }
 .tab-btn:hover::after { width: 40%; }
 .tab-btn.active {
   background: none;

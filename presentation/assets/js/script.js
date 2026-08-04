@@ -32,12 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // El bloque de perfil/autoridad lo rellena renderAuthMenu().
   if (drawer) {
     drawer.innerHTML = `
-<<<<<<< HEAD
-      <div class="nav-drawer__head"><span>Menú</span></div>
+      <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
       <div class="theme-switch-row">
         <span class="theme-switch-label" id="themeSwitchLabel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <span id="themeSwitchText">Modo oscuro</span>
+          <span id="themeSwitchText" data-i18n="nav.modoOscuro">Modo oscuro</span>
         </span>
         <button type="button" class="theme-switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Cambiar entre modo claro y oscuro">
           <span class="theme-switch__thumb">
@@ -45,10 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </span>
         </button>
       </div>
-=======
-      <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
->>>>>>> 6142cdcfb6ef1456d7459a8b41a6d35754e8ef23
       <a href="../views/perfil.html" class="drawer-profile" id="drawerProfile">
+        <div class="drawer-avatar" id="drawerAvatar">
           ${defaultAvatarSVG}
         </div>
         <div>

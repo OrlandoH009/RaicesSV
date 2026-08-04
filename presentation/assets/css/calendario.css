@@ -37,6 +37,12 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  transition: background .4s ease, color .4s ease;
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #faf6ee 0%, #f3ecdd 50%, #fbf1e0 100%);
+  color: var(--carbon);
 }
 
 /* ── Fondo animado sutil: aurora navy/dorada que se desplaza detrás de todo el contenido ── */
@@ -714,10 +720,22 @@ section {
   border: 1px solid rgba(255,255,255,0.08);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
   display: flex;
   flex-direction: column;
 }
+
+[data-theme="light"] .fest-card {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.1);
+  box-shadow: 0 4px 18px rgba(17,48,104,.08);
+}
+[data-theme="light"] .fest-card h3,
+[data-theme="light"] .filter-section .section-title,
+[data-theme="light"] .today-event-panel__title { color: var(--añil); }
+[data-theme="light"] .fest-card p,
+[data-theme="light"] .results-count,
+[data-theme="light"] .empty-state { color: var(--carbon); }
 
 .catalog-grid.list-view .fest-card {
   flex-direction: row;
