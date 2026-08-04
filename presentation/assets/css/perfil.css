@@ -54,9 +54,9 @@
 }
 [data-theme="light"] .perfil-page__bg::after {
   background:
-    radial-gradient(circle at 18% 15%, rgba(242, 121, 79, .14), transparent 42%),
-    radial-gradient(circle at 85% 75%, rgba(74, 94, 194, .16), transparent 50%),
-    radial-gradient(circle at 40% 90%, rgba(34,160,111,.1), transparent 55%),
+    radial-gradient(circle at 18% 15%, rgba(190, 142, 86, .16), transparent 42%),
+    radial-gradient(circle at 85% 75%, rgba(74, 94, 194, .18), transparent 50%),
+    radial-gradient(circle at 40% 90%, rgba(47,182,221,.13), transparent 55%),
     linear-gradient(180deg, transparent 0%, var(--bg-body) 92%);
 }
 
@@ -408,12 +408,7 @@
   color: var(--white);
   transform: translateY(16px) scale(.96);
   opacity: 0;
-  transition: transform .3s ease, opacity .3s ease, background .4s ease, color .4s ease;
-}
-[data-theme="light"] .perfil-modal {
-  background: #fffdf8;
-  border-color: rgba(224,133,121,.4);
-  color: var(--carbon, #2c2620);
+  transition: transform .3s ease, opacity .3s ease;
 }
 .perfil-modal-overlay.is-visible .perfil-modal { transform: translateY(0) scale(1); opacity: 1; }
 
@@ -430,7 +425,6 @@
   margin-bottom: 1.3rem;
   line-height: 1.55;
 }
-[data-theme="light"] .perfil-modal p { color: rgba(36,33,29,.65); }
 .perfil-modal .form-group { text-align: left; margin-bottom: 1.2rem; }
 .perfil-modal .form-group label {
   display: block;
@@ -439,7 +433,6 @@
   color: rgba(255,255,255,.55);
   margin-bottom: .4rem;
 }
-[data-theme="light"] .perfil-modal .form-group label { color: rgba(36,33,29,.6); }
 .perfil-modal input {
   width: 100%;
   padding: .7rem 1rem;
@@ -450,10 +443,6 @@
   color: var(--white);
   outline: none;
   box-sizing: border-box;
-}
-[data-theme="light"] .perfil-modal input {
-  background: rgba(224,133,121,.06);
-  color: var(--carbon, #2c2620);
 }
 .perfil-modal-actions { display: flex; gap: .7rem; }
 .perfil-modal-actions button { flex: 1; }
@@ -469,7 +458,6 @@
   cursor: pointer;
   transition: background .2s;
 }
-[data-theme="light"] .perfil-modal-actions .btn-cancel { color: var(--navy); }
 .perfil-modal-actions .btn-cancel:hover { background: var(--surface-hover); }
 
 /* ── Toast ── */

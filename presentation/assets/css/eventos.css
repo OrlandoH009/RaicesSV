@@ -16,10 +16,7 @@ body.welcome-lock { overflow: hidden; }
   overflow: hidden;
   transition: background .4s ease;
 }
-[data-theme="light"] .welcome-overlay { background: var(--bg-body, #faf6ee); }
-[data-theme="light"] .welcome-overlay__title,
-[data-theme="light"] .welcome-overlay__eyebrow-title { color: var(--navy); }
-[data-theme="light"] .welcome-overlay__sub { color: rgba(36,33,29,.75); }
+[data-theme="light"] .welcome-overlay { background: var(--bg-body); }
 .welcome-overlay__bg {
   position: absolute; inset: 0;
   background: radial-gradient(ellipse at 25% 20%, rgba(190,142,86,.16) 0%, transparent 55%),
@@ -28,9 +25,56 @@ body.welcome-lock { overflow: hidden; }
   transition: background .4s ease;
 }
 [data-theme="light"] .welcome-overlay__bg {
-  background: radial-gradient(ellipse at 25% 20%, rgba(242,121,79,.22) 0%, transparent 55%),
-              radial-gradient(ellipse at 80% 85%, rgba(74,94,194,.24) 0%, transparent 55%),
-              radial-gradient(ellipse at 50% 50%, rgba(34,160,111,.14) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 25% 20%, rgba(74,94,194,.22) 0%, transparent 55%),
+              radial-gradient(ellipse at 80% 85%, rgba(47,182,221,.2) 0%, transparent 55%),
+              radial-gradient(ellipse at 50% 50%, rgba(190,142,86,.14) 0%, transparent 60%);
+}
+
+/* Ecos concéntricos que refuerzan visualmente la bienvenida sin
+   competir con el contenido central */
+.welcome-overlay__bg::before,
+.welcome-overlay__bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.welcome-overlay__bg::before {
+  width: clamp(500px, 55vw, 900px);
+  height: clamp(500px, 55vw, 900px);
+  top: -12%;
+  left: -10%;
+  background:
+    radial-gradient(circle at center, transparent 60%, rgba(190,142,86,.08) 61%, rgba(190,142,86,.08) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 75%, rgba(17,48,104,.14) 76%, rgba(17,48,104,.14) 77%, transparent 78%);
+}
+.welcome-overlay__bg::after {
+  width: clamp(420px, 46vw, 720px);
+  height: clamp(420px, 46vw, 720px);
+  bottom: -14%;
+  right: -8%;
+  background:
+    radial-gradient(circle at center, transparent 60%, rgba(17,48,104,.12) 61%, rgba(17,48,104,.12) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 76%, rgba(190,142,86,.07) 77%, rgba(190,142,86,.07) 78%, transparent 79%);
+}
+[data-theme="light"] .welcome-overlay__bg::before {
+  background:
+    radial-gradient(circle at center, transparent 60%, rgba(190,142,86,.14) 61%, rgba(190,142,86,.14) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 75%, rgba(74,94,194,.16) 76%, rgba(74,94,194,.16) 77%, transparent 78%);
+}
+[data-theme="light"] .welcome-overlay__bg::after {
+  background:
+    radial-gradient(circle at center, transparent 60%, rgba(74,94,194,.14) 61%, rgba(74,94,194,.14) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 76%, rgba(47,182,221,.12) 77%, rgba(47,182,221,.12) 78%, transparent 79%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .welcome-overlay__bg::before { animation: echoPulseWelcome 11s ease-in-out infinite; }
+  .welcome-overlay__bg::after  { animation: echoPulseWelcome 13s ease-in-out infinite 1s; }
+}
+@keyframes echoPulseWelcome {
+  0%   { transform: scale(1);    opacity: 1; }
+  50%  { transform: scale(1.05); opacity: .82; }
+  100% { transform: scale(1);    opacity: 1; }
 }
 
 /* Anillo orbital de emojis decorativos detrás del contenido */
@@ -78,6 +122,7 @@ body.welcome-lock { overflow: hidden; }
   color: var(--gold);
   margin-bottom: .6rem;
 }
+[data-theme="light"] .welcome-overlay__eyebrow { color: var(--gold-hover); }
 .welcome-overlay__title {
   font-family: var(--font-display);
   font-weight: 700;
@@ -85,6 +130,7 @@ body.welcome-lock { overflow: hidden; }
   color: var(--white);
   margin-bottom: .7rem;
 }
+[data-theme="light"] .welcome-overlay__title { color: var(--navy); }
 .welcome-overlay__sub {
   font-family: var(--font-body);
   font-size: clamp(.9rem, 1.5vw, 1.05rem);
@@ -93,6 +139,7 @@ body.welcome-lock { overflow: hidden; }
   max-width: 460px;
   margin: 0 auto 1.6rem;
 }
+[data-theme="light"] .welcome-overlay__sub { color: rgba(36,33,29,.72); }
 
 /* Estadísticas con contador animado */
 .welcome-overlay__stats {
@@ -103,6 +150,10 @@ body.welcome-lock { overflow: hidden; }
   padding: 1rem 0;
   border-top: 1px solid rgba(190,142,86,.2);
   border-bottom: 1px solid rgba(190,142,86,.2);
+}
+[data-theme="light"] .welcome-overlay__stats {
+  border-top-color: rgba(17,48,104,.15);
+  border-bottom-color: rgba(17,48,104,.15);
 }
 .welcome-stat {
   display: flex;
@@ -116,6 +167,7 @@ body.welcome-lock { overflow: hidden; }
   color: var(--gold);
   line-height: 1;
 }
+[data-theme="light"] .welcome-stat__num { color: var(--gold-hover); }
 .welcome-stat__label {
   font-family: var(--font-body);
   font-size: .68rem;
@@ -125,6 +177,7 @@ body.welcome-lock { overflow: hidden; }
   margin-top: .35rem;
   text-align: center;
 }
+[data-theme="light"] .welcome-stat__label { color: rgba(36,33,29,.6); }
 
 /* Dato curioso rotativo */
 .welcome-overlay__fact {
@@ -144,11 +197,18 @@ body.welcome-lock { overflow: hidden; }
   flex-wrap: wrap;
   justify-content: center;
 }
+[data-theme="light"] .welcome-overlay__fact {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.14);
+  color: #3a352f;
+  box-shadow: 0 4px 16px rgba(17,48,104,.06);
+}
 .welcome-fact__label {
   font-weight: 700;
   color: var(--navy-light, #5b83d6);
   flex-shrink: 0;
 }
+[data-theme="light"] .welcome-fact__label { color: var(--navy); }
 
 .welcome-overlay__cta {
   font-family: var(--font-display);
@@ -173,6 +233,7 @@ body.welcome-lock { overflow: hidden; }
   font-size: .75rem;
   color: rgba(255,255,255,.4);
 }
+[data-theme="light"] .welcome-overlay__hint { color: rgba(36,33,29,.45); }
 .welcome-overlay__hint kbd {
   font-family: var(--font-body);
   border: 1px solid rgba(255,255,255,.25);
@@ -180,6 +241,7 @@ body.welcome-lock { overflow: hidden; }
   padding: .05rem .4rem;
   font-size: .7rem;
 }
+[data-theme="light"] .welcome-overlay__hint kbd { border-color: rgba(17,48,104,.25); }
 
 @media (max-width: 640px) {
   .welcome-overlay__content { padding: 1.5rem; }
@@ -345,9 +407,9 @@ body.welcome-lock { overflow: hidden; }
   gap: .55rem;
   padding: .7rem 1.4rem;
   border-radius: var(--r-sm);
-  border: 1px solid rgba(190,142,86,.35);
-  background: rgba(255,255,255,.03);
-  color: var(--cream);
+  border: 1.5px solid rgba(190,142,86,.4);
+  background: rgba(255,255,255,.04);
+  color: var(--text-main);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: .9rem;
@@ -355,6 +417,12 @@ body.welcome-lock { overflow: hidden; }
   line-height: 1;
   cursor: pointer;
   transition: background .3s, border-color .3s, color .3s, transform .25s cubic-bezier(.2,.8,.25,1), box-shadow .3s;
+}
+[data-theme="light"] .evento-actions__btn {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.22);
+  color: var(--navy);
+  box-shadow: 0 2px 10px rgba(17,48,104,.06);
 }
 .evento-actions__btn svg {
   width: 18px;
@@ -373,6 +441,9 @@ body.welcome-lock { overflow: hidden; }
 /* Variante: segundo botón (publicaciones) con acento navy */
 .evento-actions__btn:nth-child(2) {
   border-color: rgba(46,98,196,.35);
+}
+[data-theme="light"] .evento-actions__btn:nth-child(2) {
+  border-color: rgba(74,94,194,.3);
 }
 .evento-actions__btn:nth-child(2):hover {
   background: var(--navy);
