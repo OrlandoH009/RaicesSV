@@ -1,3 +1,4 @@
+javascript
 const publicationRepository = require('../data/repositories/publication.repository');
 
 const MAX_TITLE_LENGTH = 125;
@@ -48,7 +49,7 @@ const createPublication = async (id_user, { title, description, location, image 
     }
 
     if (title.trim().length > MAX_TITLE_LENGTH) {
-        const err = new Error('El título no puede superar los ${MAX_TITLE_LENGTH} caracteres.'); err.expose = true; throw err;
+        const err = new Error(`El título no puede superar los ${MAX_TITLE_LENGTH} caracteres.`); err.expose = true; throw err;
     }
 
     if (typeof description !== 'string' || !description.trim()) {
@@ -60,7 +61,7 @@ const createPublication = async (id_user, { title, description, location, image 
     }
 
     if (location.trim().length > MAX_LOCATION_LENGTH) {
-        const err = new Error('La ubicación no puede superar los ${MAX_LOCATION_LENGTH} caracteres.'); err.expose = true; throw err;
+        const err = new Error(`La ubicación no puede superar los ${MAX_LOCATION_LENGTH} caracteres.`); err.expose = true; throw err;
     }
 
     if (typeof image !== 'string' || !image.trim()) {
@@ -74,13 +75,13 @@ const createPublication = async (id_user, { title, description, location, image 
         image: image.trim()
     });
 
-    return getPublication(result.insertId, { id: id_user});
+    return getPublication(result.insertId, { id: id_user });
 };
 
 const updatePublication = async (id_publication, requestingUser, { title, description, location, image }) => {
     const row = await publicationRepository.findById(id_publication);
 
-     if (!row) {
+    if (!row) {
         const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
     }
 
