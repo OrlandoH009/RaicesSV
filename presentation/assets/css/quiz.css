@@ -575,8 +575,15 @@ body.quiz-modal-open {
   margin-bottom: 1.2rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(190, 142, 86, 0.15);
+  transition: background .4s ease, border-color .4s ease, box-shadow .4s ease;
   /* Se elimina 'animation: slideInUp 0.6s...' ya que GSAP renderizará el paso de preguntas */
 }
+[data-theme="light"] .quiz-card {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.14);
+  box-shadow: 0 8px 24px rgba(17,48,104,.1);
+}
+[data-theme="light"] .quiz-card__question { color: var(--navy); }
 
 @keyframes slideInUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -623,6 +630,12 @@ body.quiz-modal-open {
   padding: 1.2rem 1.4rem;
   font-size: 1.15rem;
 }
+[data-theme="light"] .quiz-option {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.15);
+  color: var(--carbon, #2c2620);
+  box-shadow: 0 4px 14px rgba(17,48,104,.06);
+}
 
 @media (max-width: 600px) {
   .quiz-options {
@@ -646,6 +659,10 @@ body.quiz-modal-open {
   transform: translateX(8px) scale(1.01);
   box-shadow: 0 8px 20px rgba(190, 142, 86, 0.2);
   color: var(--gold);
+}
+[data-theme="light"] .quiz-option:hover {
+  background: #fffaf0;
+  color: var(--gold-hover);
 }
 
 .quiz-option:hover::after {
@@ -690,6 +707,7 @@ body.quiz-modal-open {
   border-left: 4px solid transparent;
   background: rgba(26, 40, 69, 0.85);
 }
+[data-theme="light"] .quiz-feedback { background: #fbf1e0; }
 
 .quiz-feedback.show {
   display: block;

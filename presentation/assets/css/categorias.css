@@ -93,8 +93,12 @@
   cursor: pointer;
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
   display: block;
-  transition: transform .3s, box-shadow .3s;
+  transition: transform .3s, box-shadow .3s, background .4s ease;
   background: var(--black);
+}
+[data-theme="light"] .categoria-card {
+  background: var(--card-alt-bg);
+  box-shadow: 0 8px 20px rgba(17,48,104,.12);
 }
 .categoria-card:hover {
   transform: scale(1.02);
@@ -235,6 +239,7 @@
   font-style: italic;
   font-size: 1.1rem;
 }
+[data-theme="light"] .empty-state { color: rgba(36,33,29,.65); }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {

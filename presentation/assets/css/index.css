@@ -36,6 +36,10 @@
   inset: 0;
   background: var(--overlay);
   z-index: 1;
+  transition: background .4s ease;
+}
+[data-theme="light"] .hero__overlay {
+  background: linear-gradient(160deg, rgba(74,94,194,.28), rgba(242,121,79,.22) 55%, rgba(34,160,111,.2));
 }
 
 /* Partículas doradas flotantes */
@@ -143,6 +147,10 @@
   background-size: 300% 300%;
   animation: gradientShift 12s ease infinite;
 }
+[data-theme="light"] .marquee {
+  background: linear-gradient(120deg, var(--accent-indigo) 0%, var(--accent-sky) 40%, var(--gold) 75%, var(--accent-sunset) 100%);
+  background-size: 300% 300%;
+}
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -241,13 +249,19 @@
   background: var(--fact-box-bg);
   margin: 0 auto 4rem;
   max-width: 760px;
-  background: var(--cream);
   border-radius: var(--r-md);
   padding: 2rem 2.5rem;
   text-align: center;
   box-shadow: 0 8px 4px rgba(0,0,0,.4);
   position: relative;
   animation: glowPulse 4s ease-in-out infinite;
+}
+[data-theme="light"] .fact-box {
+  animation: glowPulseLight 4s ease-in-out infinite;
+}
+@keyframes glowPulseLight {
+  0%, 100% { box-shadow: 0 8px 24px rgba(17,48,104,.08); }
+  50%      { box-shadow: 0 8px 24px rgba(242,121,79,.28); }
 }
 @keyframes glowPulse {
   0%, 100% { box-shadow: 0 8px 4px rgba(0,0,0,.4), 0 0 0 rgba(190,142,86,0); }
@@ -355,6 +369,9 @@
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
+}
+[data-theme="light"] .info-badge__inner {
+  box-shadow: 0 8px 24px rgba(17,48,104,.1);
 }
 .info-badge__inner h2 {
   font-family: var(--font-display);

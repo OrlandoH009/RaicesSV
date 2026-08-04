@@ -70,23 +70,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ── 4. Timeline de entrada del Hero ── */
+  gsap.set('.hero__overlay', { opacity: 0 });
+  gsap.set('.hero__subtitle', { y: 18, filter: 'blur(6px)' });
+  gsap.set('.hero__cta', { y: 18, scale: .92 });
+  gsap.set('.hero__scroll-cue', { y: -8 });
+  gsap.set('.hero__title .char', { y: 40, rotate: 6 });
+
   const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
   heroTl
     .fromTo('.hero__bg', { scale: 1.18 }, { scale: 1.05, duration: 2.6, ease: 'power2.out' }, 0)
+    .to('.hero__overlay', { opacity: 1, duration: 1.1, ease: 'power2.out' }, 0)
     .to('.hero__title-wrap', { opacity: 1, duration: .5 }, .25)
     .to('.hero__title .char', {
-      opacity: 1, y: 0, duration: .8, stagger: .035,
+      opacity: 1, y: 0, rotate: 0, duration: .8, stagger: .035,
       ease: 'back.out(1.7)'
     }, .35)
     .add(() => document.querySelector('.hero__title-wrap')?.classList.add('shine'), .45)
-    .to('.hero__subtitle', { opacity: 1, y: 0, duration: .7 }, '-=0.35')
-    .to('.hero__cta', { opacity: 1, y: 0, duration: .6 }, '-=0.3')
+    .to('.hero__subtitle', { opacity: 1, y: 0, filter: 'blur(0px)', duration: .8 }, '-=0.35')
+    .to('.hero__cta', { opacity: 1, y: 0, scale: 1, duration: .65, ease: 'back.out(2.2)' }, '-=0.3')
     .to('.hero__scroll-cue', { opacity: .85, y: 0, duration: .6 }, '-=0.2');
-
-  gsap.set('.hero__subtitle', { y: 18 });
-  gsap.set('.hero__cta', { y: 18 });
-  gsap.set('.hero__scroll-cue', { y: -8 });
-  gsap.set('.hero__title .char', { y: 40 });
 
   // Rebote continuo del cursor de scroll
   if (!prefersReducedMotion) {
@@ -186,18 +188,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.querySelectorAll('.hero__cta, .home-cta-final .btn-primary').forEach((el) => magnetize(el));
 
-  /* ── 10. Ambient blobs: deriva lenta ── */
+  /* ── 10. Ambient blobs: deriva lenta tipo "onda" ── */
   if (!prefersReducedMotion) {
     gsap.utils.toArray('.ambient-blob').forEach((blob, i) => {
       gsap.to(blob, {
         x: gsap.utils.random(-40, 40),
         y: gsap.utils.random(-30, 30),
+        scale: gsap.utils.random(0.92, 1.12),
+        rotate: gsap.utils.random(-15, 15),
         duration: gsap.utils.random(8, 14),
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
         delay: i * .4
       });
+    });
+  }
+
+  /* ── 11. Pulso sutil de color en el CTA principal (glow "vivo") ── */
+  if (!prefersReducedMotion) {
+    gsap.to('.hero__cta', {
+      boxShadow: '0 8px 32px rgba(190,142,86,.55)',
+      duration: 1.6,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+      delay: 2.5
     });
   }
 
