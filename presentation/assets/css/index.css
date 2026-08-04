@@ -36,6 +36,10 @@
   inset: 0;
   background: var(--overlay);
   z-index: 1;
+  transition: background .4s ease;
+}
+[data-theme="light"] .hero__overlay {
+  background: linear-gradient(160deg, rgba(74,94,194,.35), rgba(47,182,221,.22) 55%, rgba(17,48,104,.28));
 }
 
 /* Partículas doradas flotantes */
@@ -143,6 +147,10 @@
   background-size: 300% 300%;
   animation: gradientShift 12s ease infinite;
 }
+[data-theme="light"] .marquee {
+  background: linear-gradient(120deg, var(--accent-indigo) 0%, var(--accent-sky) 40%, var(--gold) 75%, var(--accent-sunset) 100%);
+  background-size: 300% 300%;
+}
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -178,7 +186,7 @@
 .stats {
   position: relative;
   padding: 1rem 2rem 4rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -197,8 +205,8 @@
 .stat {
   flex: 1 1 200px;
   max-width: 230px;
-  background: linear-gradient(160deg, rgba(190,142,86,.12), rgba(255,255,255,.03));
-  border: 1px solid rgba(190,142,86,.35);
+  background: var(--stat-bg);
+  border: 1px solid var(--stat-border);
   border-radius: var(--r-sm);
   padding: 1.6rem 1rem;
   text-align: center;
@@ -224,29 +232,36 @@
 .stat__label {
   font-family: var(--font-body);
   font-size: .92rem;
-  color: var(--white);
+  color: var(--text-main);    
   opacity: .85;
   margin-top: .3rem;
 }
 
 .fact-wrap {
   padding: 0 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
 
 /* ── Dato curioso rotativo ── */
 .fact-box {
+  background: var(--fact-box-bg);
   margin: 0 auto 4rem;
   max-width: 760px;
-  background: var(--cream);
   border-radius: var(--r-md);
   padding: 2rem 2.5rem;
   text-align: center;
   box-shadow: 0 8px 4px rgba(0,0,0,.4);
   position: relative;
   animation: glowPulse 4s ease-in-out infinite;
+}
+[data-theme="light"] .fact-box {
+  animation: glowPulseLight 4s ease-in-out infinite;
+}
+@keyframes glowPulseLight {
+  0%, 100% { box-shadow: 0 8px 24px rgba(17,48,104,.08); }
+  50%      { box-shadow: 0 8px 24px rgba(242,121,79,.28); }
 }
 @keyframes glowPulse {
   0%, 100% { box-shadow: 0 8px 4px rgba(0,0,0,.4), 0 0 0 rgba(190,142,86,0); }
@@ -289,7 +304,7 @@
 .about {
   position: relative;
   padding: 5rem 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -299,12 +314,16 @@
   z-index: 1;
   max-width: 900px;
   width: 100%;
-  background: var(--cream);
+  background: var(--card-alt-bg);
   border-radius: var(--r-md);
   padding: 3rem 3.5rem;
   box-shadow: 0 8px 4px rgba(0,0,0,.5);
   color: var(--black);
   text-align: center;
+}
+[data-theme="light"] .about__card {
+  box-shadow: 0 12px 40px rgba(17,48,104,.14);
+  border: 1px solid rgba(17,48,104,.08);
 }
 
 /* ── Blobs ambientales (decorativos, detrás del contenido) ── */
@@ -316,11 +335,18 @@
   pointer-events: none;
   z-index: 0;
   will-change: transform;
+  transition: opacity .35s ease;
 }
-.about .ambient-blob--a { width: 380px; height: 380px; background: var(--gold); top: -120px; left: -100px; }
+[data-theme="light"] .ambient-blob { opacity: .6; }
+.about .ambient-blob--a { width: 380px; height: 380px; background: var(--accent-indigo); top: -120px; left: -100px; }
 .about .ambient-blob--b { width: 320px; height: 320px; background: var(--navy-dark); bottom: -140px; right: -80px; }
-.stats .ambient-blob--a { width: 340px; height: 340px; background: var(--gold-hover); top: -100px; right: -60px; }
+.stats .ambient-blob--a { width: 340px; height: 340px; background: var(--accent-sky); top: -100px; right: -60px; }
 .home-grid .ambient-blob--a { width: 420px; height: 420px; background: var(--navy); top: -160px; left: 50%; opacity: .35; }
+[data-theme="light"] .home-grid .ambient-blob--a { opacity: .22; }
+[data-theme="light"] .about .ambient-blob--a  { background: var(--accent-indigo); }
+[data-theme="light"] .about .ambient-blob--b  { background: var(--accent-sky); }
+[data-theme="light"] .stats .ambient-blob--a  { background: var(--accent-indigo); }
+
 .about__card h2 {
   font-family: var(--font-display);
   font-weight: 700;
@@ -328,6 +354,7 @@
   margin-bottom: 1.4rem;
   text-shadow: 0 4px 4px rgba(0,0,0,.25);
 }
+[data-theme="light"] .about__card h2 { color: var(--navy); text-shadow: none; }
 .about__card p {
   font-family: var(--font-display);
   font-weight: 600;
@@ -337,26 +364,30 @@
   line-height: 1.75;
   text-shadow: 0 4px 4px rgba(0,0,0,.15);
 }
+[data-theme="light"] .about__card p { color: #3a352f; text-shadow: none; }
 
 /* ── Badge "Información para ti" ── */
 .info-badge {
   padding: 1.5rem 2rem 2rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
 .info-badge__inner {
-  background: var(--cream);
+  background: var(--card-alt-bg);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
   box-shadow: 0 8px 4px rgba(255,255,255,.25);
+}
+[data-theme="light"] .info-badge__inner {
+  box-shadow: 0 8px 24px rgba(17,48,104,.1);
 }
 .info-badge__inner h2 {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.6rem, 3vw, 2.8rem);
   white-space: nowrap;
-  background: linear-gradient(90deg, var(--navy), var(--gold-hover), var(--gold), var(--navy));
+  background: linear-gradient(90deg, var(--navy), var(--accent-sky), var(--gold-hover), var(--navy));
   background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -374,7 +405,7 @@
 .home-grid {
   position: relative;
   padding: 2rem 2rem 3rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr;
   grid-template-rows: repeat(2, 220px);
@@ -392,7 +423,7 @@
   cursor: pointer;
   box-shadow: 0 6px 4px rgba(0,0,0,.35);
   transition: transform .3s, box-shadow .3s;
-  background: var(--black);
+  background: var(--bg-body);
   text-decoration: none;
 }
 .home-card:hover {
@@ -473,7 +504,7 @@
 /* Sección CTA final */
 .home-cta-final {
   padding: 2rem 2rem 3rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }
@@ -486,7 +517,7 @@
 /* ── CTA final ── */
 .home-cta {
   padding: 3rem 2rem 5rem;
-  background: var(--black);
+  background: var(--bg-body);
   display: flex;
   justify-content: center;
 }

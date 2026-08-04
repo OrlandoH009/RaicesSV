@@ -14,13 +14,21 @@
   --danger-hover:    #a63c31;
 }
 
+[data-theme="light"] {
+  --surface:        #ffffff;
+  --surface-hover:   #fffaf0;
+  --surface-border:  rgba(17,48,104,.12);
+}
+
 .perfil-page {
   min-height: 100vh;
   background: var(--black);
   padding: calc(var(--nav-h) + 3rem) 1.5rem 5rem;
   position: relative;
   overflow: hidden;
+  transition: background .4s ease;
 }
+[data-theme="light"] .perfil-page { background: var(--bg-body); }
 
 /* Fondo: silueta de volcán muy tenue + aurora navy/dorada, igual espíritu que calendario */
 .perfil-page__bg {
@@ -34,6 +42,7 @@
   opacity: .08;
   transform: scale(1.08);
 }
+[data-theme="light"] .perfil-page__bg { opacity: .05; }
 .perfil-page__bg::after {
   content: '';
   position: absolute;
@@ -42,6 +51,13 @@
     radial-gradient(circle at 18% 15%, rgba(190, 142, 86, .10), transparent 42%),
     radial-gradient(circle at 85% 75%, rgba(17, 48, 104, .55), transparent 50%),
     linear-gradient(180deg, transparent 0%, var(--black) 92%);
+}
+[data-theme="light"] .perfil-page__bg::after {
+  background:
+    radial-gradient(circle at 18% 15%, rgba(190, 142, 86, .16), transparent 42%),
+    radial-gradient(circle at 85% 75%, rgba(74, 94, 194, .18), transparent 50%),
+    radial-gradient(circle at 40% 90%, rgba(47,182,221,.13), transparent 55%),
+    linear-gradient(180deg, transparent 0%, var(--bg-body) 92%);
 }
 
 .perfil-wrap {
@@ -73,12 +89,14 @@
   margin-bottom: .4rem;
   letter-spacing: -.01em;
 }
+[data-theme="light"] .perfil-header h1 { color: var(--navy); }
 .perfil-header p {
   font-family: var(--font-display);
   font-style: italic;
   color: rgba(255, 255, 255, .45);
   font-size: .95rem;
 }
+[data-theme="light"] .perfil-header p { color: rgba(36,33,29,.55); }
 
 /* ── Avatar: anillo dorado/jade alternado, elemento firma de la página ── */
 .avatar-zone {
@@ -170,12 +188,14 @@
   border-radius: var(--r-sm);
   padding: .55rem 1rem;
   cursor: pointer;
-  transition: background .2s, border-color .2s, transform .15s;
+  transition: background .2s, border-color .2s, transform .15s, color .2s;
   display: inline-flex;
   align-items: center;
   gap: .45rem;
 }
+[data-theme="light"] .avatar-actions button { color: var(--navy); }
 .avatar-actions button:hover { background: var(--surface-hover); border-color: var(--gold); }
+[data-theme="light"] .avatar-actions button:hover { color: var(--accent-sunset); }
 .avatar-actions button:active { transform: scale(.96); }
 .avatar-actions button svg { width: 15px; height: 15px; }
 
@@ -193,8 +213,13 @@
   transition: border-color .35s cubic-bezier(.22,1,.36,1),
               background .35s cubic-bezier(.22,1,.36,1),
               box-shadow .35s cubic-bezier(.22,1,.36,1),
-              transform .35s cubic-bezier(.22,1,.36,1);
+              transform .35s cubic-bezier(.22,1,.36,1),
+              color .35s ease;
   will-change: transform;
+}
+[data-theme="light"] .perfil-card {
+  color: var(--carbon, #2c2620);
+  box-shadow: 0 8px 24px rgba(17,48,104,.08);
 }
 .perfil-card:hover {
   background: var(--surface-hover);
@@ -225,6 +250,7 @@
   color: var(--white);
   margin-bottom: .3rem;
 }
+[data-theme="light"] .perfil-card h2 { color: var(--navy); }
 .perfil-card--danger h2 { color: #e08579; }
 .perfil-card__desc {
   font-size: .87rem;
@@ -232,6 +258,7 @@
   margin-bottom: 1.3rem;
   line-height: 1.5;
 }
+[data-theme="light"] .perfil-card__desc { color: rgba(36,33,29,.6); }
 
 /* ── Inputs sobre fondo oscuro ── */
 .perfil-card .form-group { margin-bottom: 1.1rem; }
@@ -244,6 +271,7 @@
   color: rgba(255, 255, 255, .55);
   margin-bottom: .4rem;
 }
+[data-theme="light"] .perfil-card .form-group label { color: rgba(36,33,29,.6); }
 .perfil-card .form-group input,
 .perfil-card .form-group textarea {
   width: 100%;
@@ -255,17 +283,28 @@
   color: var(--white);
   background: rgba(0, 0, 0, .25);
   outline: none;
-  transition: border-color .2s, box-shadow .2s, background .2s;
+  transition: border-color .2s, box-shadow .2s, background .2s, color .2s;
   box-sizing: border-box;
+}
+[data-theme="light"] .perfil-card .form-group input,
+[data-theme="light"] .perfil-card .form-group textarea {
+  color: var(--carbon, #2c2620);
+  background: rgba(17,48,104,.04);
 }
 .perfil-card .form-group textarea { resize: vertical; min-height: 90px; }
 .perfil-card .form-group input::placeholder,
 .perfil-card .form-group textarea::placeholder { color: rgba(255,255,255,.32); }
+[data-theme="light"] .perfil-card .form-group input::placeholder,
+[data-theme="light"] .perfil-card .form-group textarea::placeholder { color: rgba(36,33,29,.35); }
 .perfil-card .form-group input:focus,
 .perfil-card .form-group textarea:focus {
   border-color: var(--gold);
   background: rgba(0, 0, 0, .4);
   box-shadow: 0 0 0 3px rgba(190, 142, 86, .15);
+}
+[data-theme="light"] .perfil-card .form-group input:focus,
+[data-theme="light"] .perfil-card .form-group textarea:focus {
+  background: #ffffff;
 }
 .perfil-card--security .form-group input:focus {
   border-color: var(--jade);
