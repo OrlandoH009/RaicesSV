@@ -426,6 +426,39 @@ ${RAICES_LANDMARKS_INFO}
       #rs-chat-window { width: calc(100vw - 24px); left: 12px; bottom: 92px; height: 75vh; max-height: 75vh; }
       #rs-chat-btn    { left: 16px; bottom: 16px; }
     }
+
+    /* ── Modo claro: ventana y burbujas del chat ── */
+    [data-theme="light"] #rs-chat-window {
+      background: #fffdf8;
+      border-color: rgba(190,142,86,.6);
+      box-shadow: 0 16px 40px rgba(17,48,104,.22);
+    }
+    [data-theme="light"] #rs-chat-messages { background: #fffdf8; }
+    [data-theme="light"] .rs-msg.bot .rs-msg-bubble {
+      background: #f3ecdd;
+      border-color: rgba(17,48,104,.1);
+      color: #2c2620;
+    }
+    [data-theme="light"] .rs-typing { background: #f3ecdd; }
+    [data-theme="light"] #rs-chat-footer {
+      background: #fbf1e0;
+      border-top-color: rgba(17,48,104,.08);
+    }
+    [data-theme="light"] #rs-chat-input {
+      background: #ffffff;
+      border-color: rgba(190,142,86,.35);
+      color: #2c2620;
+    }
+    [data-theme="light"] #rs-chat-input:focus { background: #fffaf0; }
+    [data-theme="light"] #rs-chat-input::placeholder { color: rgba(44,38,32,.4); }
+    [data-theme="light"] #rs-planner-toggle {
+      background: rgba(17,48,104,.05);
+      color: rgba(44,38,32,.85);
+    }
+    [data-theme="light"] .rs-cancel-btn {
+      color: rgba(44,38,32,.6) !important;
+      border-color: rgba(17,48,104,.15) !important;
+    }
   `;
 
   const LANDMARKS_MINI = [

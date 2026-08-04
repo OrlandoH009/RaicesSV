@@ -14,7 +14,12 @@ body.welcome-lock { overflow: hidden; }
   background: var(--black);
   cursor: pointer;
   overflow: hidden;
+  transition: background .4s ease;
 }
+[data-theme="light"] .welcome-overlay { background: var(--bg-body, #faf6ee); }
+[data-theme="light"] .welcome-overlay__title,
+[data-theme="light"] .welcome-overlay__eyebrow-title { color: var(--navy); }
+[data-theme="light"] .welcome-overlay__sub { color: rgba(36,33,29,.75); }
 .welcome-overlay__bg {
   position: absolute; inset: 0;
   background: radial-gradient(ellipse at 25% 20%, rgba(190,142,86,.16) 0%, transparent 55%),
@@ -264,6 +269,9 @@ body.welcome-lock { overflow: hidden; }
   background: var(--card-alt-bg);
   border-color: rgba(17,48,104,.15);
   box-shadow: 0 8px 20px rgba(17,48,104,.12);
+}
+[data-theme="light"] .gastro-card:hover {
+  box-shadow: 0 14px 34px rgba(34,160,111,.28), 0 0 0 1px rgba(34,160,111,.25);
 }
 .gastro-card img {
   position: absolute; inset: 0;

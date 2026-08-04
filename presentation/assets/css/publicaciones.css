@@ -203,6 +203,7 @@
     }
     [data-theme="light"] .publication-card:hover {
       background: #fffaf0;
+      box-shadow: 0 14px 40px rgba(190,142,86,.35), 0 0 0 1px rgba(190,142,86,.3);
     }
 
     .publication-card::before {
@@ -842,7 +843,16 @@ body {
   position: relative;
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(190, 142, 86, 0.15);
+  transition: background .4s ease;
 }
+[data-theme="light"] .guest-modal {
+  background: linear-gradient(135deg, #fffdf8 0%, #fbf1e0 100%);
+  box-shadow: 0 20px 50px rgba(17,48,104,.2);
+}
+[data-theme="light"] .guest-modal__title { color: var(--navy); }
+[data-theme="light"] .guest-modal__text { color: rgba(36,33,29,.75); }
+[data-theme="light"] .guest-modal__close { color: rgba(36,33,29,.5); }
+[data-theme="light"] .guest-modal__skip { color: rgba(36,33,29,.45); }
 
 /* Botón "X" para cerrar */
 .guest-modal__close {

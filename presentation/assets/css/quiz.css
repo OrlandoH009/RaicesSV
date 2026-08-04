@@ -581,7 +581,7 @@ body.quiz-modal-open {
 [data-theme="light"] .quiz-card {
   background: #ffffff;
   border-color: rgba(17,48,104,.14);
-  box-shadow: 0 8px 24px rgba(17,48,104,.1);
+  box-shadow: 0 8px 24px rgba(17,48,104,.1), 0 0 40px rgba(242,121,79,.1);
 }
 [data-theme="light"] .quiz-card__question { color: var(--navy); }
 
