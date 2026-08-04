@@ -122,3 +122,28 @@ const updatePublication = async (id_publication, requestingUser, { title, descri
 
     return getPublication(id_publication, requestingUser);
 };
+
+const deletePublication = async (id_publication, requestingUser) => {
+    const row = await publicationRepository.findById(id_publication);
+
+    if (!row) {
+        const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
+    }
+
+    const isOwner = Boolean(requestingUser) && requestingUser.id === row.id_user;
+    const isAdmin = Boolean(requestingUser) && requestingUser.role === 'Admin';
+
+    if (!isOwner && !isAdmin) {
+        const err = new Error('No puedes eliminar publicaciones de otros usuarios.'); err.expose = true; err.status = 403; throw err;
+    }
+
+    await publicationRepository.deleteById(id_publication);
+};
+
+module.exports = {
+    listPublications,
+    getPublication,
+    createPublication,
+    updatePublication,
+    deletePublication
+};
