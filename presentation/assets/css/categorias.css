@@ -72,6 +72,7 @@
 
 /* ── Grid de categorías — Flex centrado para 5 elementos ── */
 .categorias-grid {
+  position: relative;
   padding: 2rem 2rem 5rem;
   background: var(--bg-body);
   display: flex;
@@ -80,6 +81,70 @@
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── Ecos / ondas ambientales de fondo ──
+   Anillos concéntricos difuminados, en la paleta salvadoreña
+   (añil, dorado, celeste) para que la sección no se vea vacía
+   sin competir visualmente con las tarjetas. */
+.categorias-grid::before,
+.categorias-grid::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+  z-index: 0;
+}
+.categorias-grid::before {
+  width: clamp(420px, 55vw, 780px);
+  height: clamp(420px, 55vw, 780px);
+  top: -12%;
+  left: -14%;
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(61,79,160,.10) 56%, rgba(61,79,160,.10) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 68%, rgba(190,142,86,.09) 69%, rgba(190,142,86,.09) 70%, transparent 71%),
+    radial-gradient(circle at center, transparent 82%, rgba(58,166,201,.08) 83%, rgba(58,166,201,.08) 84%, transparent 85%);
+}
+.categorias-grid::after {
+  width: clamp(360px, 46vw, 640px);
+  height: clamp(360px, 46vw, 640px);
+  bottom: -16%;
+  right: -12%;
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(190,142,86,.10) 56%, rgba(190,142,86,.10) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 70%, rgba(61,79,160,.09) 71%, rgba(61,79,160,.09) 72%, transparent 73%),
+    radial-gradient(circle at center, transparent 84%, rgba(58,166,201,.07) 85%, rgba(58,166,201,.07) 86%, transparent 87%);
+}
+[data-theme="light"] .categorias-grid::before {
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(74,94,194,.14) 56%, rgba(74,94,194,.14) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 68%, rgba(190,142,86,.16) 69%, rgba(190,142,86,.16) 70%, transparent 71%),
+    radial-gradient(circle at center, transparent 82%, rgba(47,182,221,.12) 83%, rgba(47,182,221,.12) 84%, transparent 85%);
+}
+[data-theme="light"] .categorias-grid::after {
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(190,142,86,.16) 56%, rgba(190,142,86,.16) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 70%, rgba(74,94,194,.13) 71%, rgba(74,94,194,.13) 72%, transparent 73%),
+    radial-gradient(circle at center, transparent 84%, rgba(47,182,221,.1) 85%, rgba(47,182,221,.1) 86%, transparent 87%);
+}
+.categoria-card { position: relative; z-index: 1; }
+
+@keyframes echoPulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  50%  { transform: scale(1.04); opacity: .85; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .categorias-grid::before { animation: echoPulse 10s ease-in-out infinite; }
+  .categorias-grid::after  { animation: echoPulse 12s ease-in-out infinite 1s; }
+}
+
+@media (max-width: 580px) {
+  .categorias-grid::before,
+  .categorias-grid::after { opacity: .6; }
 }
 
 .categoria-card {

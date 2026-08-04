@@ -85,15 +85,18 @@
   --fact-box-bg:    linear-gradient(160deg, #ffffff, #fbf1e0);
   --card-alt-bg:    #ffffff;
 
-  /* Acentos vivos para blobs, texto en navbar claro y detalles */
+  /* Acentos vivos para blobs, texto en navbar claro y detalles.
+     Se evita la combinación verde+rojo (asociada a la bandera de México);
+     la paleta se ancla en añil/azul, celeste y dorado — colores propios
+     de la identidad salvadoreña (añil, cielo, atardecer). */
   --accent-indigo:  #4a5ec2;
   --accent-sky:     #2fb6dd;
   --accent-sunset:  #f2794f;
-  --accent-jade:    #22a06f;
-  --blob-1: var(--accent-sunset);
+  --accent-jade:    #1f8f6e;
+  --blob-1: var(--accent-indigo);
   --blob-2: var(--accent-sky);
   --blob-3: var(--gold);
-  --blob-4: var(--accent-jade);
+  --blob-4: var(--navy);
 } 
 
 /* ── Reset ── */

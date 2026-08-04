@@ -7,7 +7,10 @@
   ============================================================ */
 
 (function () {
-  const COLOR_VARIANTS = ['sunset', 'sky', 'gold', 'jade', 'indigo', 'navy'];
+  // Se evita combinar 'sunset' (rojo-naranja) con 'jade' (verde) en el mismo
+  // set de manchas, ya que juntas evocan la bandera de México en vez de la
+  // identidad salvadoreña. La paleta prioriza añil/azul, celeste y dorado.
+  const COLOR_VARIANTS = ['indigo', 'sky', 'gold', 'navy', 'sunset'];
 
   function makeBlob(variant, size, top, left, extra) {
     const span = document.createElement('span');
