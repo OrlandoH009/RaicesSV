@@ -16,9 +16,9 @@
 }
 [data-theme="light"] .leyendas-bg {
   background:
-    radial-gradient(ellipse at 15% 20%, rgba(242,121,79,.14) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 60%, rgba(74,94,194,.14) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 90%, rgba(34,160,111,.1) 0%, transparent 55%);
+    radial-gradient(ellipse at 15% 20%, rgba(190,142,86,.16) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 60%, rgba(74,94,194,.16) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 90%, rgba(47,182,221,.12) 0%, transparent 55%);
 }
 
 /* ── Hero de bienvenida ── */
@@ -385,19 +385,8 @@
   display: flex;
   transform: scale(.92) translateY(30px);
   opacity: 0;
-  transition: transform .4s cubic-bezier(.2,.8,.3,1.05), opacity .35s, background .4s ease;
+  transition: transform .4s cubic-bezier(.2,.8,.3,1.05), opacity .35s;
 }
-[data-theme="light"] .leyenda-modal {
-  background: #fffdf8;
-  border-color: rgba(190,142,86,.5);
-  box-shadow: 0 30px 80px rgba(17,48,104,.22);
-}
-[data-theme="light"] .leyenda-modal__content h2,
-[data-theme="light"] .leyenda-modal__content .leyenda-modal__sub,
-[data-theme="light"] .leyenda-modal__relato p {
-  color: var(--carbon, #2c2620);
-}
-[data-theme="light"] .leyenda-modal__content h2 { color: var(--navy); }
 .leyenda-modal-overlay.open .leyenda-modal {
   transform: scale(1) translateY(0);
   opacity: 1;

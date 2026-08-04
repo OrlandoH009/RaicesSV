@@ -70,66 +70,97 @@
   animation: fadeIn .9s .3s ease both;
 }
 
+/* ── Wrapper de ancho completo — contiene los ecos/ondas de fondo
+   para que se extiendan por toda la sección, no solo dentro del
+   contenedor angosto de tarjetas ── */
+.categorias-grid-wrap {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg-body);
+}
+
 /* ── Grid de categorías — Flex centrado para 5 elementos ── */
 .categorias-grid {
   position: relative;
+  z-index: 1;
   padding: 2rem 2rem 5rem;
-  background: var(--bg-body);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
-  overflow: hidden;
-  isolation: isolate;
 }
 
 /* ── Ecos / ondas ambientales de fondo ──
    Anillos concéntricos difuminados, en la paleta salvadoreña
-   (añil, dorado, celeste) para que la sección no se vea vacía
-   sin competir visualmente con las tarjetas. */
-.categorias-grid::before,
-.categorias-grid::after {
+   (añil, dorado, celeste) que se extienden por todo el ancho
+   de la sección, no solo por el contenedor de tarjetas. */
+.categorias-grid-wrap::before,
+.categorias-grid-wrap::after {
   content: '';
   position: absolute;
   border-radius: 50%;
-  border: 1.5px solid transparent;
   pointer-events: none;
   z-index: 0;
 }
-.categorias-grid::before {
-  width: clamp(420px, 55vw, 780px);
-  height: clamp(420px, 55vw, 780px);
-  top: -12%;
-  left: -14%;
+.categorias-grid-wrap::before {
+  width: clamp(560px, 60vw, 1000px);
+  height: clamp(560px, 60vw, 1000px);
+  top: -22%;
+  left: -18%;
   background:
     radial-gradient(circle at center, transparent 55%, rgba(61,79,160,.10) 56%, rgba(61,79,160,.10) 57%, transparent 58%),
     radial-gradient(circle at center, transparent 68%, rgba(190,142,86,.09) 69%, rgba(190,142,86,.09) 70%, transparent 71%),
     radial-gradient(circle at center, transparent 82%, rgba(58,166,201,.08) 83%, rgba(58,166,201,.08) 84%, transparent 85%);
 }
-.categorias-grid::after {
-  width: clamp(360px, 46vw, 640px);
-  height: clamp(360px, 46vw, 640px);
-  bottom: -16%;
-  right: -12%;
+.categorias-grid-wrap::after {
+  width: clamp(480px, 52vw, 860px);
+  height: clamp(480px, 52vw, 860px);
+  bottom: -24%;
+  right: -16%;
   background:
     radial-gradient(circle at center, transparent 55%, rgba(190,142,86,.10) 56%, rgba(190,142,86,.10) 57%, transparent 58%),
     radial-gradient(circle at center, transparent 70%, rgba(61,79,160,.09) 71%, rgba(61,79,160,.09) 72%, transparent 73%),
     radial-gradient(circle at center, transparent 84%, rgba(58,166,201,.07) 85%, rgba(58,166,201,.07) 86%, transparent 87%);
 }
+[data-theme="light"] .categorias-grid-wrap::before {
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(74,94,194,.16) 56%, rgba(74,94,194,.16) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 68%, rgba(190,142,86,.18) 69%, rgba(190,142,86,.18) 70%, transparent 71%),
+    radial-gradient(circle at center, transparent 82%, rgba(47,182,221,.14) 83%, rgba(47,182,221,.14) 84%, transparent 85%);
+}
+[data-theme="light"] .categorias-grid-wrap::after {
+  background:
+    radial-gradient(circle at center, transparent 55%, rgba(190,142,86,.18) 56%, rgba(190,142,86,.18) 57%, transparent 58%),
+    radial-gradient(circle at center, transparent 70%, rgba(74,94,194,.15) 71%, rgba(74,94,194,.15) 72%, transparent 73%),
+    radial-gradient(circle at center, transparent 84%, rgba(47,182,221,.12) 85%, rgba(47,182,221,.12) 86%, transparent 87%);
+}
+
+/* Un tercer eco, más pequeño y centrado, para rellenar el espacio
+   entre las dos filas de tarjetas sin sobrecargar visualmente */
+.categorias-grid::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  width: clamp(320px, 40vw, 560px);
+  height: clamp(320px, 40vw, 560px);
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, transparent 60%, rgba(190,142,86,.08) 61%, rgba(190,142,86,.08) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 76%, rgba(61,79,160,.07) 77%, rgba(61,79,160,.07) 78%, transparent 79%);
+}
 [data-theme="light"] .categorias-grid::before {
   background:
-    radial-gradient(circle at center, transparent 55%, rgba(74,94,194,.14) 56%, rgba(74,94,194,.14) 57%, transparent 58%),
-    radial-gradient(circle at center, transparent 68%, rgba(190,142,86,.16) 69%, rgba(190,142,86,.16) 70%, transparent 71%),
-    radial-gradient(circle at center, transparent 82%, rgba(47,182,221,.12) 83%, rgba(47,182,221,.12) 84%, transparent 85%);
+    radial-gradient(circle at center, transparent 60%, rgba(190,142,86,.14) 61%, rgba(190,142,86,.14) 62%, transparent 63%),
+    radial-gradient(circle at center, transparent 76%, rgba(74,94,194,.12) 77%, rgba(74,94,194,.12) 78%, transparent 79%);
 }
-[data-theme="light"] .categorias-grid::after {
-  background:
-    radial-gradient(circle at center, transparent 55%, rgba(190,142,86,.16) 56%, rgba(190,142,86,.16) 57%, transparent 58%),
-    radial-gradient(circle at center, transparent 70%, rgba(74,94,194,.13) 71%, rgba(74,94,194,.13) 72%, transparent 73%),
-    radial-gradient(circle at center, transparent 84%, rgba(47,182,221,.1) 85%, rgba(47,182,221,.1) 86%, transparent 87%);
-}
+
 .categoria-card { position: relative; z-index: 1; }
 
 @keyframes echoPulse {
@@ -137,14 +168,21 @@
   50%  { transform: scale(1.04); opacity: .85; }
   100% { transform: scale(1);    opacity: 1; }
 }
+@keyframes echoPulseCenter {
+  0%   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+  50%  { transform: translate(-50%, -50%) scale(1.06); opacity: .8; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
 @media (prefers-reduced-motion: no-preference) {
-  .categorias-grid::before { animation: echoPulse 10s ease-in-out infinite; }
-  .categorias-grid::after  { animation: echoPulse 12s ease-in-out infinite 1s; }
+  .categorias-grid-wrap::before { animation: echoPulse 10s ease-in-out infinite; }
+  .categorias-grid-wrap::after  { animation: echoPulse 12s ease-in-out infinite 1s; }
+  .categorias-grid::before      { animation: echoPulseCenter 14s ease-in-out infinite .5s; }
 }
 
 @media (max-width: 580px) {
-  .categorias-grid::before,
-  .categorias-grid::after { opacity: .6; }
+  .categorias-grid-wrap::before,
+  .categorias-grid-wrap::after,
+  .categorias-grid::before { opacity: .6; }
 }
 
 .categoria-card {
@@ -476,4 +514,4 @@
     scrollbar-color: #c89a3b #16120e; /* thumb (oro) y track (oscuro) */
     scrollbar-width: thin;
   }
-}
+} 
