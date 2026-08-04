@@ -11,6 +11,7 @@
     <link rel="manifest" href="../assets/favicon/site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="../assets/js/theme-blobs.js"></script>
   </head>
 <body>
 
@@ -26,32 +27,32 @@
     </div>
     <div class="welcome-overlay__content">
       <span class="welcome-overlay__emoji" id="welcomeEmoji">🫓</span>
-      <p class="welcome-overlay__eyebrow">Salvadorean Roots — Gastronomía</p>
-      <h2 class="welcome-overlay__title">Sabores de El Salvador</h2>
-      <p class="welcome-overlay__sub">16 platillos, bebidas y postres que cuentan la historia del país en cada bocado</p>
+      <p class="welcome-overlay__eyebrow" data-i18n="gap.welcome.eyebrow">Salvadorean Roots — Gastronomía</p>
+      <h2 class="welcome-overlay__title" data-i18n="gap.welcome.title">Sabores de El Salvador</h2>
+      <p class="welcome-overlay__sub" data-i18n="gap.welcome.sub">16 platillos, bebidas y postres que cuentan la historia del país en cada bocado</p>
 
       <div class="welcome-overlay__stats">
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="16">0</span>
-          <span class="welcome-stat__label">Platillos</span>
+          <span class="welcome-stat__label" data-i18n="gap.welcome.stat1">Platillos</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="1">0</span>
-          <span class="welcome-stat__label">Patrimonio UNESCO</span>
+          <span class="welcome-stat__label" data-i18n="gap.welcome.stat2">Patrimonio UNESCO</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="500">0</span>
-          <span class="welcome-stat__label">Años de tradición</span>
+          <span class="welcome-stat__label" data-i18n="gap.welcome.stat3">Años de tradición</span>
         </div>
       </div>
 
       <p class="welcome-overlay__fact">
-        <span class="welcome-fact__label">¿Sabías qué?</span>
-        <span class="welcome-fact__text" id="welcomeFactText">La palabra "pupusa" viene del náhuatl <em>pupushawa</em>, que significa "cosa inflada".</span>
+        <span class="welcome-fact__label" data-i18n="gap.welcome.factLabel">¿Sabías qué?</span>
+        <span class="welcome-fact__text" id="welcomeFactText" data-i18n="gap.fact.0">La palabra "pupusa" viene del náhuatl <em>pupushawa</em>, que significa "cosa inflada".</span>
       </p>
 
-      <button class="welcome-overlay__cta" id="welcomeCta">Descubrir platillos →</button>
-      <p class="welcome-overlay__hint">o presiona <kbd>Esc</kbd> para saltar</p>
+      <button class="welcome-overlay__cta" id="welcomeCta" data-i18n="gap.welcome.cta">Descubrir platillos →</button>
+      <p class="welcome-overlay__hint" data-i18n="gap.welcome.hint">o presiona <kbd>Esc</kbd> para saltar</p>
     </div>
   </div>
 
@@ -62,13 +63,7 @@
 
       document.body.classList.add('welcome-lock');
 
-        const facts = [
-          'La palabra "pupusa" viene del náhuatl <em>pupushawa</em>, que significa "cosa inflada".',
-          'Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.',
-          'Los tamales salvadoreños se envuelven en hoja de plátano, no de maíz.',
-          'El chilate conserva técnicas de tueste prehispánicas que aún se usan hoy.',
-          'La pupusa fue declarada Patrimonio Cultural Inmaterial por la UNESCO.'
-        ];
+        const factKeys = ['gap.fact.0', 'gap.fact.1', 'gap.fact.2', 'gap.fact.3', 'gap.fact.4'];
         const factEl = document.getElementById('welcomeFactText');
         let factIndex = 0;
 
@@ -77,8 +72,9 @@
           gsap.to(factEl, {
             opacity: 0, y: -6, duration: .3, ease: 'power1.in',
             onComplete: () => {
-              factIndex = (factIndex + 1) % facts.length;
-              factEl.innerHTML = facts[factIndex];
+              factIndex = (factIndex + 1) % factKeys.length;
+              const lang = (window.SRi18n && window.SRi18n.getLang) ? window.SRi18n.getLang() : 'es';
+              factEl.innerHTML = window.SRi18n ? window.SRi18n.t(factKeys[factIndex], lang) : factKeys[factIndex];
               gsap.fromTo(factEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' });
             }
           });
@@ -102,15 +98,38 @@
         if (typeof gsap !== 'undefined') {
           gsap.set(orbitItems, { opacity: 0 });
           const tl = gsap.timeline();
-          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)' })
-            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4 }, '-=.3')
-            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out' }, '-=.3')
-            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out' }, '-=.25')
-            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4 }, '-=.4')
-            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__hint', { opacity: 0, duration: .4 }, '-=.2')
+          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)', clearProps: 'transform' })
+            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4, clearProps: 'opacity,transform' }, '-=.3')
+            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.3')
+            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out', clearProps: 'opacity,transform' }, '-=.25')
+            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4, clearProps: 'opacity,transform' }, '-=.4')
+            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__hint', { opacity: 0, duration: .4, clearProps: 'opacity,transform' }, '-=.2')
             .to(orbitItems, { opacity: .55, duration: .6, stagger: .06 }, '-=.6');
+
+          // Failsafe: si el timeline no llega a completar (pestaña en
+          // segundo plano, GSAP tardío, etc.) el título y demás textos
+          // del overlay no deben quedar invisibles para siempre.
+          setTimeout(() => {
+            [
+              '.welcome-overlay__eyebrow', '.welcome-overlay__title', '.welcome-overlay__sub',
+              '.welcome-overlay__fact', '.welcome-overlay__hint'
+            ].forEach(sel => {
+              overlay.querySelectorAll(sel).forEach(el => {
+                const opacity = window.getComputedStyle(el).opacity;
+                if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+              });
+            });
+            stats.forEach(el => {
+              const opacity = window.getComputedStyle(el).opacity;
+              if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+            });
+            if (cta) {
+              const opacity = window.getComputedStyle(cta).opacity;
+              if (parseFloat(opacity) < 0.05) { cta.style.opacity = ''; cta.style.transform = ''; }
+            }
+          }, 1500);
 
           stats.forEach((el, i) => {
             const target = +el.dataset.countTo;
@@ -168,34 +187,34 @@
 
   <main>
     <section class="page-badge">
-      <div class="page-badge__inner reveal"><h1>Gastronomía</h1></div>
+      <div class="page-badge__inner reveal"><h1 data-i18n="cards.gastronomia">Gastronomía</h1></div>
     </section>
 
 <div class="info-tabs reveal">
-  <p class="info-tabs__label">¿Qué platillo quieres conocer?</p>
+  <p class="info-tabs__label" data-i18n="gap.tabsLabel">¿Qué platillo quieres conocer?</p>
   <div class="info-tabs__carousel">
-    <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
+    <button class="info-tabs__arrow" id="tabsPrev" data-i18n-attr="aria-label:evp.tabsPrev" aria-label="Anterior">
       <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
     </button>
     <div class="info-tabs__list" id="tabsList">
-      <button class="tab-btn active" data-tab="pupusas">Pupusas</button>
-      <button class="tab-btn" data-tab="tamales">Tamales</button>
-      <button class="tab-btn" data-tab="sopa">Sopa de Pata</button>
-      <button class="tab-btn" data-tab="yuca">Yuca Frita</button>
-      <button class="tab-btn" data-tab="atol">Atol de Elote</button>
-      <button class="tab-btn" data-tab="semita">Semita</button>
-      <button class="tab-btn" data-tab="gallinaindia">Gallina India</button>
-      <button class="tab-btn" data-tab="panesconpollo">Panes con Pollo</button>
-      <button class="tab-btn" data-tab="riguas">Riguas</button>
-      <button class="tab-btn" data-tab="empanadasplatano">Empanadas de Plátano</button>
-      <button class="tab-btn" data-tab="mariscada">Mariscada</button>
-      <button class="tab-btn" data-tab="casamiento">Casamiento</button>
-      <button class="tab-btn" data-tab="enchiladas">Enchiladas</button>
-      <button class="tab-btn" data-tab="nuegadosyuca">Nuégados de Yuca</button>
-      <button class="tab-btn" data-tab="chilate">Chilate con Nuégados</button>
-      <button class="tab-btn" data-tab="torrejas">Torrejas</button>
+      <button class="tab-btn active" data-tab="pupusas" data-i18n="gas.pupusas.title">Pupusas</button>
+      <button class="tab-btn" data-tab="tamales" data-i18n="gas.tamales.title">Tamales</button>
+      <button class="tab-btn" data-tab="sopa" data-i18n="gas.sopa.title">Sopa de Pata</button>
+      <button class="tab-btn" data-tab="yuca" data-i18n="gas.yuca.tabTitle">Yuca Frita</button>
+      <button class="tab-btn" data-tab="atol" data-i18n="gas.atol.title">Atol de Elote</button>
+      <button class="tab-btn" data-tab="semita" data-i18n="gas.semita.title">Semita</button>
+      <button class="tab-btn" data-tab="gallinaindia" data-i18n="gas.gallinaIndia.tabTitle">Gallina India</button>
+      <button class="tab-btn" data-tab="panesconpollo" data-i18n="gas.panesConPollo.title">Panes con Pollo</button>
+      <button class="tab-btn" data-tab="riguas" data-i18n="gas.riguas.title">Riguas</button>
+      <button class="tab-btn" data-tab="empanadasplatano" data-i18n="gas.empanadasPlatano.title">Empanadas de Plátano</button>
+      <button class="tab-btn" data-tab="mariscada" data-i18n="gas.mariscada.title">Mariscada</button>
+      <button class="tab-btn" data-tab="casamiento" data-i18n="gas.casamiento.title">Casamiento</button>
+      <button class="tab-btn" data-tab="enchiladas" data-i18n="gas.enchiladas.tabTitle">Enchiladas</button>
+      <button class="tab-btn" data-tab="nuegadosyuca" data-i18n="gas.nuegadosYuca.title">Nuégados de Yuca</button>
+      <button class="tab-btn" data-tab="chilate" data-i18n="gas.chilate.title">Chilate con Nuégados</button>
+      <button class="tab-btn" data-tab="torrejas" data-i18n="gas.torrejas.title">Torrejas</button>
     </div>
-    <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente">
+    <button class="info-tabs__arrow" id="tabsNext" data-i18n-attr="aria-label:evp.tabsNext" aria-label="Siguiente">
       <svg viewBox="0 0 24 24"><path d="m8.6 16.6 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
     </button>
   </div>
@@ -204,30 +223,30 @@
     <div class="info-panel active" id="tab-pupusas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/pupusas.jpg" alt="Pupusas" />
+          <img src="../assets/media/gastronomia/pupusas.jpg" data-i18n-attr="alt:gas.pupusas.title" alt="Pupusas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Pupusas</h2>
-          <p class="info-content__hero-sub">El plato nacional de El Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.pupusas.title">Pupusas</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.pupusas.sub">El plato nacional de El Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Masa de maíz o arroz</span>
-            <span class="info-chip">Relleno variado</span>
-            <span class="info-chip">Con curtido y salsa</span>
-            <span class="info-chip">Patrimonio Cultural UNESCO</span>
+            <span class="info-chip" data-i18n="gas.pupusas.chip1">Masa de maíz o arroz</span>
+            <span class="info-chip" data-i18n="gas.pupusas.chip2">Relleno variado</span>
+            <span class="info-chip" data-i18n="gas.pupusas.chip3">Con curtido y salsa</span>
+            <span class="info-chip" data-i18n="gas.pupusas.chip4">Patrimonio Cultural UNESCO</span>
           </div>
-          <h3>El orgullo gastronómico</h3>
-          <p>La pupusa es el plato nacional de El Salvador y uno de los alimentos más emblemáticos de la gastronomía centroamericana. Esta tortilla gruesa de masa de maíz o arroz con relleno fue declarada Patrimonio Cultural Intangible por la UNESCO. Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.</p>
-          <p>Sus orígenes se remontan a la cultura Pipil, quienes elaboraban estas tortillas rellenas mucho antes de la llegada de los españoles. La palabra "pupusa" proviene del náhuatl <em>pupushawa</em>, que significa "cosa inflada o abultada".</p>
-          <h3>Tipos de pupusas</h3>
-          <p>Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.</p>
-          <p>La pupusa de arroz tiene una textura más suave y es especialmente popular en la zona central del país. Se sirven siempre acompañadas de curtido (repollo encurtido) y salsa de tomate casera.</p>
-          <h3>Cómo se hacen</h3>
-          <p>La elaboración requiere maestría: se toma una porción de masa, se forma una bola, se aplana en la palma, se coloca el relleno en el centro y se cierra sellando los bordes. Luego se aplana en forma circular y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.</p>
+          <h3 data-i18n="gas.pupusas.h1">El orgullo gastronómico</h3>
+          <p data-i18n="gas.pupusas.p1">La pupusa es el plato nacional de El Salvador y uno de los alimentos más emblemáticos de la gastronomía centroamericana. Esta tortilla gruesa de masa de maíz o arroz con relleno fue declarada Patrimonio Cultural Intangible por la UNESCO. Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.</p>
+          <p data-i18n="gas.pupusas.p2">Sus orígenes se remontan a la cultura Pipil, quienes elaboraban estas tortillas rellenas mucho antes de la llegada de los españoles. La palabra "pupusa" proviene del náhuatl <em>pupushawa</em>, que significa "cosa inflada o abultada".</p>
+          <h3 data-i18n="gas.pupusas.h2">Tipos de pupusas</h3>
+          <p data-i18n="gas.pupusas.p3">Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.</p>
+          <p data-i18n="gas.pupusas.p4">La pupusa de arroz tiene una textura más suave y es especialmente popular en la zona central del país. Se sirven siempre acompañadas de curtido (repollo encurtido) y salsa de tomate casera.</p>
+          <h3 data-i18n="gas.pupusas.h3">Cómo se hacen</h3>
+          <p data-i18n="gas.pupusas.p5">La elaboración requiere maestría: se toma una porción de masa, se forma una bola, se aplana en la palma, se coloca el relleno en el centro y se cierra sellando los bordes. Luego se aplana en forma circular y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=pupusas">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -237,29 +256,29 @@
     <div class="info-panel" id="tab-tamales">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Tamales.jpg" alt="Tamales" style="object-position: center 70%;" />
+          <img src="../assets/media/Tamales.jpg" data-i18n-attr="alt:gas.tamales.title" alt="Tamales" style="object-position: center 70%;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Tamales</h2>
-          <p class="info-content__hero-sub">Tradición festiva salvadoreña</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.tamales.title">Tamales</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.tamales.sub">Tradición festiva salvadoreña</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Masa de maíz</span>
-            <span class="info-chip">Envueltos en hoja</span>
-            <span class="info-chip">Navidad y fiestas</span>
-            <span class="info-chip">Tradición familiar</span>
+            <span class="info-chip" data-i18n="gas.tamales.chip1">Masa de maíz</span>
+            <span class="info-chip" data-i18n="gas.tamales.chip2">Envueltos en hoja</span>
+            <span class="info-chip" data-i18n="gas.tamales.chip3">Navidad y fiestas</span>
+            <span class="info-chip" data-i18n="gas.tamales.chip4">Tradición familiar</span>
           </div>
-          <h3>El tamal salvadoreño</h3>
-          <p>Los tamales salvadoreños son diferentes a los de otros países centroamericanos. Se envuelven en hojas de plátano (no en hojas de maíz) lo que les da un sabor y aroma característico. La masa se prepara con maíz cocido en cal (nixtamal), y el relleno tradicional incluye carne de cerdo o pollo con chile, aceitunas, alcaparras y papas.</p>
-          <p>La preparación de tamales es un ritual familiar que generalmente involucra a toda la familia. Las abuelas transmiten sus recetas secretas de generación en generación, haciendo que cada familia tenga sus propios tamales únicos.</p>
-          <h3>Tipos de tamales</h3>
-          <p>El tamal de elote es una variante dulce hecha con maíz tierno, azúcar, mantequilla y a veces relleno de crema. Se consume especialmente en agosto durante las fiestas agostinas. También existe el tamal pisque, relleno solo de frijoles, y el tamal de chipilín, que incluye esta hierba aromática en la masa.</p>
-          <h3>Temporada navideña</h3>
-          <p>La elaboración de tamales alcanza su punto máximo durante la Navidad. Es tradición que las familias se reúnan días antes del 24 de diciembre para elaborar los tamales que se compartirán en la cena navideña. Esta práctica comunitaria llamada "tamalada" es un símbolo de unión familiar.</p>
+          <h3 data-i18n="gas.tamales.h1">El tamal salvadoreño</h3>
+          <p data-i18n="gas.tamales.p1">Los tamales salvadoreños son diferentes a los de otros países centroamericanos. Se envuelven en hojas de plátano (no en hojas de maíz) lo que les da un sabor y aroma característico. La masa se prepara con maíz cocido en cal (nixtamal), y el relleno tradicional incluye carne de cerdo o pollo con chile, aceitunas, alcaparras y papas.</p>
+          <p data-i18n="gas.tamales.p2">La preparación de tamales es un ritual familiar que generalmente involucra a toda la familia. Las abuelas transmiten sus recetas secretas de generación en generación, haciendo que cada familia tenga sus propios tamales únicos.</p>
+          <h3 data-i18n="gas.tamales.h2">Tipos de tamales</h3>
+          <p data-i18n="gas.tamales.p3">El tamal de elote es una variante dulce hecha con maíz tierno, azúcar, mantequilla y a veces relleno de crema. Se consume especialmente en agosto durante las fiestas agostinas. También existe el tamal pisque, relleno solo de frijoles, y el tamal de chipilín, que incluye esta hierba aromática en la masa.</p>
+          <h3 data-i18n="gas.tamales.h3">Temporada navideña</h3>
+          <p data-i18n="gas.tamales.p4">La elaboración de tamales alcanza su punto máximo durante la Navidad. Es tradición que las familias se reúnan días antes del 24 de diciembre para elaborar los tamales que se compartirán en la cena navideña. Esta práctica comunitaria llamada "tamalada" es un símbolo de unión familiar.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=tamales">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -269,29 +288,29 @@
     <div class="info-panel" id="tab-sopa">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Sopa de Pata.jpg" alt="Sopa de Pata" />
+          <img src="../assets/media/Sopa de Pata.jpg" data-i18n-attr="alt:gas.sopa.title" alt="Sopa de Pata" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Sopa de Pata</h2>
-          <p class="info-content__hero-sub">El sabor más auténtico de El Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.sopa.title">Sopa de Pata</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.sopa.sub">El sabor más auténtico de El Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Pata de res</span>
-            <span class="info-chip">Con verduras tropicales</span>
-            <span class="info-chip">Caldo reconfortante</span>
-            <span class="info-chip">Plato de tradición</span>
+            <span class="info-chip" data-i18n="gas.sopa.chip1">Pata de res</span>
+            <span class="info-chip" data-i18n="gas.sopa.chip2">Con verduras tropicales</span>
+            <span class="info-chip" data-i18n="gas.sopa.chip3">Caldo reconfortante</span>
+            <span class="info-chip" data-i18n="gas.sopa.chip4">Plato de tradición</span>
           </div>
-          <h3>El caldo más salvadoreño</h3>
-          <p>La sopa de pata es considerada uno de los platos más representativos y auténticos de la cocina salvadoreña. Se prepara con patas de res (pezuñas y rodillas) cocinadas durante horas hasta obtener un caldo gelatinoso y rico en colágeno, al que se añaden verduras como güisquil, elote, yuca, plátano verde y chipilín.</p>
-          <p>Su preparación es laboriosa y requiere horas de cocción lenta. El resultado es un caldo espeso, reconfortante y nutritivo que los salvadoreños consumen especialmente los fines de semana o en ocasiones especiales.</p>
-          <h3>Ingredientes típicos</h3>
-          <p>Además de la pata de res, la sopa lleva: maíz tierno en trozos, yuca, plátano verde, güisquil (chayote), ejotes (judías verdes), chipilín (hierba local aromática), tomate, cebolla, ajo y culantro (cilantro). Se sazona con achiote para darle el color rojizo característico.</p>
-          <h3>Dónde probarla</h3>
-          <p>La sopa de pata se puede encontrar en los mercados municipales de todo el país, especialmente los domingos en la mañana. En San Salvador, el Mercado Central y el Mercado de Artesanías son buenos lugares para probar versiones auténticas preparadas por cocineras tradicionales.</p>
+          <h3 data-i18n="gas.sopa.h1">El caldo más salvadoreño</h3>
+          <p data-i18n="gas.sopa.p1">La sopa de pata es considerada uno de los platos más representativos y auténticos de la cocina salvadoreña. Se prepara con patas de res (pezuñas y rodillas) cocinadas durante horas hasta obtener un caldo gelatinoso y rico en colágeno, al que se añaden verduras como güisquil, elote, yuca, plátano verde y chipilín.</p>
+          <p data-i18n="gas.sopa.p2">Su preparación es laboriosa y requiere horas de cocción lenta. El resultado es un caldo espeso, reconfortante y nutritivo que los salvadoreños consumen especialmente los fines de semana o en ocasiones especiales.</p>
+          <h3 data-i18n="gas.sopa.h2">Ingredientes típicos</h3>
+          <p data-i18n="gas.sopa.p3">Además de la pata de res, la sopa lleva: maíz tierno en trozos, yuca, plátano verde, güisquil (chayote), ejotes (judías verdes), chipilín (hierba local aromática), tomate, cebolla, ajo y culantro (cilantro). Se sazona con achiote para darle el color rojizo característico.</p>
+          <h3 data-i18n="gas.sopa.h3">Dónde probarla</h3>
+          <p data-i18n="gas.sopa.p4">La sopa de pata se puede encontrar en los mercados municipales de todo el país, especialmente los domingos en la mañana. En San Salvador, el Mercado Central y el Mercado de Artesanías son buenos lugares para probar versiones auténticas preparadas por cocineras tradicionales.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=sopa">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -301,29 +320,29 @@
     <div class="info-panel" id="tab-yuca">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Yuca.jpg" alt="Yuca Frita" style="object-position: top;" />
+          <img src="../assets/media/Yuca.jpg" data-i18n-attr="alt:gas.yuca.title" alt="Yuca Frita" style="object-position: top;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Yuca Frita con Chicharrón</h2>
-          <p class="info-content__hero-sub">El antojo más popular de las calles salvadoreñas</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.yuca.title">Yuca Frita con Chicharrón</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.yuca.sub">El antojo más popular de las calles salvadoreñas</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Frita o hervida</span>
-            <span class="info-chip">Con chicharrón</span>
-            <span class="info-chip">Con curtido</span>
-            <span class="info-chip">Comida callejera</span>
+            <span class="info-chip" data-i18n="gas.yuca.chip1">Frita o hervida</span>
+            <span class="info-chip" data-i18n="gas.yuca.chip2">Con chicharrón</span>
+            <span class="info-chip" data-i18n="gas.yuca.chip3">Con curtido</span>
+            <span class="info-chip" data-i18n="gas.yuca.chip4">Comida callejera</span>
           </div>
-          <h3>La yuca en la cultura salvadoreña</h3>
-          <p>La yuca (mandioca) es un tubérculo de origen americano que los pueblos indígenas de El Salvador cultivaban desde antes de la colonización. En El Salvador se consume principalmente frita o hervida, acompañada de chicharrón (cerdo frito crujiente), curtido de repollo y salsa de tomate.</p>
-          <p>Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierten en una combinación irresistible.</p>
-          <h3>Preparación tradicional</h3>
-          <p>La yuca se pela, se corta en trozos y se hierve en agua con sal hasta que esté tierna. Luego se fríe en aceite caliente hasta dorar. El chicharrón se prepara friendo trozos de carne de cerdo con grasa en su jugo hasta que queden dorados y crujientes.</p>
-          <h3>Variaciones</h3>
-          <p>También existe la yuca en caldillo, preparada en un caldo de tomate y hierbas. En algunas regiones del país se acompaña con pepián (salsa de semillas de calabaza), que añade un sabor más complejo y terroso al plato.</p>
+          <h3 data-i18n="gas.yuca.h1">La yuca en la cultura salvadoreña</h3>
+          <p data-i18n="gas.yuca.p1">La yuca (mandioca) es un tubérculo de origen americano que los pueblos indígenas de El Salvador cultivaban desde antes de la colonización. En El Salvador se consume principalmente frita o hervida, acompañada de chicharrón (cerdo frito crujiente), curtido de repollo y salsa de tomate.</p>
+          <p data-i18n="gas.yuca.p2">Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierten en una combinación irresistible.</p>
+          <h3 data-i18n="gas.yuca.h2">Preparación tradicional</h3>
+          <p data-i18n="gas.yuca.p3">La yuca se pela, se corta en trozos y se hierve en agua con sal hasta que esté tierna. Luego se fríe en aceite caliente hasta dorar. El chicharrón se prepara friendo trozos de carne de cerdo con grasa en su jugo hasta que queden dorados y crujientes.</p>
+          <h3 data-i18n="gas.yuca.h3">Variaciones</h3>
+          <p data-i18n="gas.yuca.p4">También existe la yuca en caldillo, preparada en un caldo de tomate y hierbas. En algunas regiones del país se acompaña con pepián (salsa de semillas de calabaza), que añade un sabor más complejo y terroso al plato.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=yuca">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -333,29 +352,29 @@
     <div class="info-panel" id="tab-atol">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/atol-elote.jpg" alt="Atol de Elote" style="object-position: center 80%;" />
+          <img src="../assets/media/gastronomia/atol-elote.jpg" data-i18n-attr="alt:gas.atol.title" alt="Atol de Elote" style="object-position: center 80%;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Atol de Elote</h2>
-          <p class="info-content__hero-sub">La bebida ancestral de los pueblos originarios</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.atol.title">Atol de Elote</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.atol.sub">La bebida ancestral de los pueblos originarios</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Maíz tierno</span>
-            <span class="info-chip">Leche y azúcar</span>
-            <span class="info-chip">Bebida caliente</span>
-            <span class="info-chip">Origen prehispánico</span>
+            <span class="info-chip" data-i18n="gas.atol.chip1">Maíz tierno</span>
+            <span class="info-chip" data-i18n="gas.atol.chip2">Leche y azúcar</span>
+            <span class="info-chip" data-i18n="gas.atol.chip3">Bebida caliente</span>
+            <span class="info-chip" data-i18n="gas.atol.chip4">Origen prehispánico</span>
           </div>
-          <h3>Bebida ancestral</h3>
-          <p>El atol de elote es una bebida caliente espesa de origen prehispánico, elaborada con maíz tierno (elote) molido, leche, azúcar y canela. Su nombre viene del náhuatl <em>atolli</em>, que significa "aguado" o "bebida de maíz". Es una de las bebidas más antiguas y arraigadas en la cultura salvadoreña.</p>
-          <p>Históricamente fue un alimento fundamental para los pueblos indígenas mesoamericanos, quienes lo consumían tanto en la vida cotidiana como en ceremonias religiosas y rituales.</p>
-          <h3>Tipos de atol</h3>
-          <p>El atol shuco es una variante fermentada, elaborada con maíz negro molido, frijoles y agua. Tiene un sabor ácido característico y es especialmente popular en la zona occidental del país. También existe el atol de piña, de tamarindo y el chuco de semilla de ayote, cada uno con su propia personalidad de sabor.</p>
-          <h3>Dónde tomarlo</h3>
-          <p>El atol de elote se encuentra en los mercados municipales, pupuserías y puestos callejeros de todo el país. Es particularmente popular en las mañanas frías y durante las fiestas patronales. En muchos hogares se prepara los domingos como parte del desayuno familiar.</p>
+          <h3 data-i18n="gas.atol.h1">Bebida ancestral</h3>
+          <p data-i18n="gas.atol.p1">El atol de elote es una bebida caliente espesa de origen prehispánico, elaborada con maíz tierno (elote) molido, leche, azúcar y canela. Su nombre viene del náhuatl <em>atolli</em>, que significa "aguado" o "bebida de maíz". Es una de las bebidas más antiguas y arraigadas en la cultura salvadoreña.</p>
+          <p data-i18n="gas.atol.p2">Históricamente fue un alimento fundamental para los pueblos indígenas mesoamericanos, quienes lo consumían tanto en la vida cotidiana como en ceremonias religiosas y rituales.</p>
+          <h3 data-i18n="gas.atol.h2">Tipos de atol</h3>
+          <p data-i18n="gas.atol.p3">El atol shuco es una variante fermentada, elaborada con maíz negro molido, frijoles y agua. Tiene un sabor ácido característico y es especialmente popular en la zona occidental del país. También existe el atol de piña, de tamarindo y el chuco de semilla de ayote, cada uno con su propia personalidad de sabor.</p>
+          <h3 data-i18n="gas.atol.h3">Dónde tomarlo</h3>
+          <p data-i18n="gas.atol.p4">El atol de elote se encuentra en los mercados municipales, pupuserías y puestos callejeros de todo el país. Es particularmente popular en las mañanas frías y durante las fiestas patronales. En muchos hogares se prepara los domingos como parte del desayuno familiar.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=atol">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -365,30 +384,30 @@
     <div class="info-panel" id="tab-semita">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/semita.avif " alt="Semita" style="object-position: center 40%;" />
+          <img src="../assets/media/gastronomia/semita.avif " data-i18n-attr="alt:gas.semita.title" alt="Semita" style="object-position: center 40%;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Semita</h2>
-          <p class="info-content__hero-sub">El pan más famoso de El Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.semita.title">Semita</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.semita.sub">El pan más famoso de El Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Pan artesanal</span>
-            <span class="info-chip">Relleno de piña o mora</span>
-            <span class="info-chip">Tradición de Cojutepeque</span>
-            <span class="info-chip">Ideal con café</span>
+            <span class="info-chip" data-i18n="gas.semita.chip1">Pan artesanal</span>
+            <span class="info-chip" data-i18n="gas.semita.chip2">Relleno de piña o mora</span>
+            <span class="info-chip" data-i18n="gas.semita.chip3">Tradición de Cojutepeque</span>
+            <span class="info-chip" data-i18n="gas.semita.chip4">Ideal con café</span>
           </div>
-          <h3>El pan de la identidad</h3>
-          <p>La semita papalona es un pan dulce artesanal originario de Cojutepeque, Cuscatlán, y se ha convertido en uno de los dulces más representativos de la panadería salvadoreña. Es un pan de masa blanda relleno de mermelada de piña o mora, cubierto con una capa crujiente de azúcar caramelizada.</p>
-          <p>Su nombre viene de la mezcla de "semita" (pan dulce de origen árabe introducido por los españoles) y "papalona" (término local que hace referencia a su forma abultada y esponjosa).</p>
-          <h3>Tradición panadera</h3>
-          <p>La elaboración de semitas es un arte que se transmite de generación en generación en Cojutepeque. Las panaderías familiares del municipio producen este pan de manera artesanal usando horno de leña, lo que le da un sabor y textura únicos que no se pueden replicar con hornos modernos.</p>
-          <p>Es costumbre que los viajeros que pasan por la carretera Panamericana a la altura de Cojutepeque se detengan a comprar semitas para llevar de regalo a familiares y amigos.</p>
-          <h3>Pan en la cultura</h3>
-          <p>El Salvador tiene una rica tradición panadera influenciada por la cultura española y árabe. El pan francés (birote) es el acompañante inseparable del café salvadoreño, y la gran variedad de panes dulces artesanales forma parte esencial de las fiestas patronales y celebraciones familiares de todo el país.</p>
+          <h3 data-i18n="gas.semita.h1">El pan de la identidad</h3>
+          <p data-i18n="gas.semita.p1">La semita papalona es un pan dulce artesanal originario de Cojutepeque, Cuscatlán, y se ha convertido en uno de los dulces más representativos de la panadería salvadoreña. Es un pan de masa blanda relleno de mermelada de piña o mora, cubierto con una capa crujiente de azúcar caramelizada.</p>
+          <p data-i18n="gas.semita.p2">Su nombre viene de la mezcla de "semita" (pan dulce de origen árabe introducido por los españoles) y "papalona" (término local que hace referencia a su forma abultada y esponjosa).</p>
+          <h3 data-i18n="gas.semita.h2">Tradición panadera</h3>
+          <p data-i18n="gas.semita.p3">La elaboración de semitas es un arte que se transmite de generación en generación en Cojutepeque. Las panaderías familiares del municipio producen este pan de manera artesanal usando horno de leña, lo que le da un sabor y textura únicos que no se pueden replicar con hornos modernos.</p>
+          <p data-i18n="gas.semita.p4">Es costumbre que los viajeros que pasan por la carretera Panamericana a la altura de Cojutepeque se detengan a comprar semitas para llevar de regalo a familiares y amigos.</p>
+          <h3 data-i18n="gas.semita.h3">Pan en la cultura</h3>
+          <p data-i18n="gas.semita.p5">El Salvador tiene una rica tradición panadera influenciada por la cultura española y árabe. El pan francés (birote) es el acompañante inseparable del café salvadoreño, y la gran variedad de panes dulces artesanales forma parte esencial de las fiestas patronales y celebraciones familiares de todo el país.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -398,28 +417,28 @@
     <div class="info-panel" id="tab-gallinaindia">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/sopa-gallina.jpg" alt="Sopa de Gallina India" />
+          <img src="../assets/media/gastronomia/sopa-gallina.jpg" data-i18n-attr="alt:gas.gallinaIndia.title" alt="Sopa de Gallina India" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Sopa de Gallina India</h2>
-          <p class="info-content__hero-sub">El caldo dominical de las familias salvadoreñas</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.gallinaIndia.title">Sopa de Gallina India</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.gallinaIndia.sub">El caldo dominical de las familias salvadoreñas</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Gallina criolla</span>
-            <span class="info-chip">Caldo dorado con achiote</span>
-            <span class="info-chip">Papa, güisquil y elote</span>
-            <span class="info-chip">Plato de domingo</span>
+            <span class="info-chip" data-i18n="gas.gallinaIndia.chip1">Gallina criolla</span>
+            <span class="info-chip" data-i18n="gas.gallinaIndia.chip2">Caldo dorado con achiote</span>
+            <span class="info-chip" data-i18n="gas.gallinaIndia.chip3">Papa, güisquil y elote</span>
+            <span class="info-chip" data-i18n="gas.gallinaIndia.chip4">Plato de domingo</span>
           </div>
-          <h3>Un caldo de raíces campesinas</h3>
-          <p>La sopa de gallina india se prepara con gallinas criollas de patio, más magras y sabrosas que el pollo de granja. Su caldo se cocina lentamente con verduras de la milpa, logrando un sabor profundo característico de la cocina rural salvadoreña.</p>
-          <h3>Ingredientes de la milpa</h3>
-          <p>Papa, güisquil y elote tierno son la base vegetal, sazonados con achiote para el color dorado y hierbabuena fresca al final para el aroma. Se sirve acompañada de arroz blanco y tortillas recién hechas.</p>
-          <h3>Tradición dominical</h3>
-          <p>Es común que las familias salvadoreñas preparen este plato los domingos, reuniendo a varias generaciones alrededor de la mesa para disfrutar de un almuerzo largo y compartido.</p>
+          <h3 data-i18n="gas.gallinaIndia.h1">Un caldo de raíces campesinas</h3>
+          <p data-i18n="gas.gallinaIndia.p1">La sopa de gallina india se prepara con gallinas criollas de patio, más magras y sabrosas que el pollo de granja. Su caldo se cocina lentamente con verduras de la milpa, logrando un sabor profundo característico de la cocina rural salvadoreña.</p>
+          <h3 data-i18n="gas.gallinaIndia.h2">Ingredientes de la milpa</h3>
+          <p data-i18n="gas.gallinaIndia.p2">Papa, güisquil y elote tierno son la base vegetal, sazonados con achiote para el color dorado y hierbabuena fresca al final para el aroma. Se sirve acompañada de arroz blanco y tortillas recién hechas.</p>
+          <h3 data-i18n="gas.gallinaIndia.h3">Tradición dominical</h3>
+          <p data-i18n="gas.gallinaIndia.p3">Es común que las familias salvadoreñas preparen este plato los domingos, reuniendo a varias generaciones alrededor de la mesa para disfrutar de un almuerzo largo y compartido.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=gallinaindia">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -429,28 +448,28 @@
     <div class="info-panel" id="tab-panesconpollo">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/pan-pollo.jpg" alt="Panes con Pollo" />
+          <img src="../assets/media/gastronomia/pan-pollo.jpg" data-i18n-attr="alt:gas.panesConPollo.title" alt="Panes con Pollo" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Panes con Pollo</h2>
-          <p class="info-content__hero-sub">El sándwich festivo de las celebraciones salvadoreñas</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.panesConPollo.title">Panes con Pollo</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.panesConPollo.sub">El sándwich festivo de las celebraciones salvadoreñas</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Pollo en recado rojo</span>
-            <span class="info-chip">Pan francés (birote)</span>
-            <span class="info-chip">Verduras encurtidas</span>
-            <span class="info-chip">Fiestas y cumpleaños</span>
+            <span class="info-chip" data-i18n="gas.panesConPollo.chip1">Pollo en recado rojo</span>
+            <span class="info-chip" data-i18n="gas.panesConPollo.chip2">Pan francés (birote)</span>
+            <span class="info-chip" data-i18n="gas.panesConPollo.chip3">Verduras encurtidas</span>
+            <span class="info-chip" data-i18n="gas.panesConPollo.chip4">Fiestas y cumpleaños</span>
           </div>
-          <h3>El sándwich de las fiestas</h3>
-          <p>Los panes con pollo son protagonistas indiscutibles de cumpleaños, bodas y celebraciones familiares en El Salvador. El pollo se cocina en un recado rojo aromático a base de achiote, tomate y especias, luego se desmenuza y se coloca en pan francés untado con mostaza y mayonesa.</p>
-          <h3>El toque encurtido</h3>
-          <p>Se corona con vegetales encurtidos como rábano, repollo y chile, además de hojas de hierbabuena que aportan frescura. Cada familia guarda su propia receta de recado, transmitida de generación en generación.</p>
-          <h3>Presencia en toda ocasión especial</h3>
-          <p>Es habitual encontrar mesas repletas de panes con pollo en celebraciones grandes, ya que se preparan en cantidad y se sirven como plato principal para invitados de todas las edades.</p>
+          <h3 data-i18n="gas.panesConPollo.h1">El sándwich de las fiestas</h3>
+          <p data-i18n="gas.panesConPollo.p1">Los panes con pollo son protagonistas indiscutibles de cumpleaños, bodas y celebraciones familiares en El Salvador. El pollo se cocina en un recado rojo aromático a base de achiote, tomate y especias, luego se desmenuza y se coloca en pan francés untado con mostaza y mayonesa.</p>
+          <h3 data-i18n="gas.panesConPollo.h2">El toque encurtido</h3>
+          <p data-i18n="gas.panesConPollo.p2">Se corona con vegetales encurtidos como rábano, repollo y chile, además de hojas de hierbabuena que aportan frescura. Cada familia guarda su propia receta de recado, transmitida de generación en generación.</p>
+          <h3 data-i18n="gas.panesConPollo.h3">Presencia en toda ocasión especial</h3>
+          <p data-i18n="gas.panesConPollo.p3">Es habitual encontrar mesas repletas de panes con pollo en celebraciones grandes, ya que se preparan en cantidad y se sirven como plato principal para invitados de todas las edades.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=panesconpollo">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -460,28 +479,28 @@
     <div class="info-panel" id="tab-riguas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/riguas.jpg" alt="Riguas" />
+          <img src="../assets/media/gastronomia/riguas.jpg" data-i18n-attr="alt:gas.riguas.title" alt="Riguas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Riguas</h2>
-          <p class="info-content__hero-sub">Tortitas de elote envueltas en su propia hoja</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.riguas.title">Riguas</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.riguas.sub">Tortitas de elote envueltas en su propia hoja</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Elote tierno molido</span>
-            <span class="info-chip">Envueltas en tusa</span>
-            <span class="info-chip">Dulces o saladas</span>
-            <span class="info-chip">Antojo de comal</span>
+            <span class="info-chip" data-i18n="gas.riguas.chip1">Elote tierno molido</span>
+            <span class="info-chip" data-i18n="gas.riguas.chip2">Envueltas en tusa</span>
+            <span class="info-chip" data-i18n="gas.riguas.chip3">Dulces o saladas</span>
+            <span class="info-chip" data-i18n="gas.riguas.chip4">Antojo de comal</span>
           </div>
-          <h3>Un antojo sencillo y ancestral</h3>
-          <p>Las riguas son pequeñas tortitas hechas de elote tierno molido, envueltas en la propia hoja del elote (tusa) y cocinadas sobre comal. Su preparación evoca las técnicas de cocina mesoamericana de aprovechar cada parte de la planta de maíz.</p>
-          <h3>Versiones dulces y saladas</h3>
-          <p>Se pueden preparar dulces, con un poco de azúcar y mantequilla, o saladas, añadiendo queso rallado a la masa. Ambas versiones se disfrutan recién salidas del comal, calientes y con un ligero aroma a hoja tostada.</p>
-          <h3>Comida de mercados y ferias</h3>
-          <p>Son comunes en mercados municipales y ferias patronales, donde se venden como antojito rápido y económico, perfecto para acompañar un café o un atol.</p>
+          <h3 data-i18n="gas.riguas.h1">Un antojo sencillo y ancestral</h3>
+          <p data-i18n="gas.riguas.p1">Las riguas son pequeñas tortitas hechas de elote tierno molido, envueltas en la propia hoja del elote (tusa) y cocinadas sobre comal. Su preparación evoca las técnicas de cocina mesoamericana de aprovechar cada parte de la planta de maíz.</p>
+          <h3 data-i18n="gas.riguas.h2">Versiones dulces y saladas</h3>
+          <p data-i18n="gas.riguas.p2">Se pueden preparar dulces, con un poco de azúcar y mantequilla, o saladas, añadiendo queso rallado a la masa. Ambas versiones se disfrutan recién salidas del comal, calientes y con un ligero aroma a hoja tostada.</p>
+          <h3 data-i18n="gas.riguas.h3">Comida de mercados y ferias</h3>
+          <p data-i18n="gas.riguas.p3">Son comunes en mercados municipales y ferias patronales, donde se venden como antojito rápido y económico, perfecto para acompañar un café o un atol.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=riguas">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -491,28 +510,28 @@
     <div class="info-panel" id="tab-empanadasplatano">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/empanadas.jpg" alt="Empanadas de Plátano" />
+          <img src="../assets/media/gastronomia/empanadas.jpg" data-i18n-attr="alt:gas.empanadasPlatano.title" alt="Empanadas de Plátano" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Empanadas de Plátano</h2>
-          <p class="info-content__hero-sub">Dulce callejero con corazón de plátano maduro</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.empanadasPlatano.title">Empanadas de Plátano</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.empanadasPlatano.sub">Dulce callejero con corazón de plátano maduro</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Plátano maduro</span>
-            <span class="info-chip">Relleno de frijol dulce</span>
-            <span class="info-chip">Fritas y crujientes</span>
-            <span class="info-chip">Postre callejero</span>
+            <span class="info-chip" data-i18n="gas.empanadasPlatano.chip1">Plátano maduro</span>
+            <span class="info-chip" data-i18n="gas.empanadasPlatano.chip2">Relleno de frijol dulce</span>
+            <span class="info-chip" data-i18n="gas.empanadasPlatano.chip3">Fritas y crujientes</span>
+            <span class="info-chip" data-i18n="gas.empanadasPlatano.chip4">Postre callejero</span>
           </div>
-          <h3>Dulzura envuelta en plátano</h3>
-          <p>Las empanadas de plátano se elaboran con puré de plátano maduro que envuelve un relleno de frijoles refritos dulces o leche condensada. Se fríen hasta dorar y se espolvorean con azúcar y canela.</p>
-          <h3>Contraste de sabores</h3>
-          <p>El contraste entre la dulzura del plátano y el relleno cremoso las convierte en un postre muy popular, vendido en las calles y mercados, especialmente por las tardes como merienda.</p>
-          <h3>Una receta de aprovechamiento</h3>
-          <p>Su origen está ligado a la costumbre de aprovechar plátanos muy maduros, transformándolos en un dulce sencillo pero muy apreciado en los hogares salvadoreños.</p>
+          <h3 data-i18n="gas.empanadasPlatano.h1">Dulzura envuelta en plátano</h3>
+          <p data-i18n="gas.empanadasPlatano.p1">Las empanadas de plátano se elaboran con puré de plátano maduro que envuelve un relleno de frijoles refritos dulces o leche condensada. Se fríen hasta dorar y se espolvorean con azúcar y canela.</p>
+          <h3 data-i18n="gas.empanadasPlatano.h2">Contraste de sabores</h3>
+          <p data-i18n="gas.empanadasPlatano.p2">El contraste entre la dulzura del plátano y el relleno cremoso las convierte en un postre muy popular, vendido en las calles y mercados, especialmente por las tardes como merienda.</p>
+          <h3 data-i18n="gas.empanadasPlatano.h3">Una receta de aprovechamiento</h3>
+          <p data-i18n="gas.empanadasPlatano.p3">Su origen está ligado a la costumbre de aprovechar plátanos muy maduros, transformándolos en un dulce sencillo pero muy apreciado en los hogares salvadoreños.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=empanadasplatano">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -522,28 +541,28 @@
     <div class="info-panel" id="tab-mariscada">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/mariscada.jpg" alt="Mariscada" />
+          <img src="../assets/media/gastronomia/mariscada.jpg" data-i18n-attr="alt:gas.mariscada.title" alt="Mariscada" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Mariscada</h2>
-          <p class="info-content__hero-sub">El sabor del Pacífico salvadoreño en un solo plato</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.mariscada.title">Mariscada</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.mariscada.sub">El sabor del Pacífico salvadoreño en un solo plato</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Camarones y pescado</span>
-            <span class="info-chip">Leche de coco</span>
-            <span class="info-chip">Sabor costero</span>
-            <span class="info-chip">Zonas de playa</span>
+            <span class="info-chip" data-i18n="gas.mariscada.chip1">Camarones y pescado</span>
+            <span class="info-chip" data-i18n="gas.mariscada.chip2">Leche de coco</span>
+            <span class="info-chip" data-i18n="gas.mariscada.chip3">Sabor costero</span>
+            <span class="info-chip" data-i18n="gas.mariscada.chip4">Zonas de playa</span>
           </div>
-          <h3>Tesoro de la costa</h3>
-          <p>La mariscada es un guiso abundante de mariscos variados —camarones, pescado, pulpo y calamar— cocinados en un caldo cremoso de leche de coco, tomate y chile dulce. Es un plato típico de las zonas costeras de El Salvador, como La Libertad y la costa del Bálsamo.</p>
-          <h3>Sabor tropical</h3>
-          <p>La leche de coco aporta una textura suave y un sabor tropical que combina perfectamente con el frescor de los mariscos recién pescados. Se sirve acompañada de yuca o plátano verde.</p>
-          <h3>Plato de fin de semana en la playa</h3>
-          <p>Es habitual disfrutarla los fines de semana en restaurantes de playa, donde se prepara con mariscos del día, siendo uno de los platos más solicitados por turistas y locales.</p>
+          <h3 data-i18n="gas.mariscada.h1">Tesoro de la costa</h3>
+          <p data-i18n="gas.mariscada.p1">La mariscada es un guiso abundante de mariscos variados —camarones, pescado, pulpo y calamar— cocinados en un caldo cremoso de leche de coco, tomate y chile dulce. Es un plato típico de las zonas costeras de El Salvador, como La Libertad y la costa del Bálsamo.</p>
+          <h3 data-i18n="gas.mariscada.h2">Sabor tropical</h3>
+          <p data-i18n="gas.mariscada.p2">La leche de coco aporta una textura suave y un sabor tropical que combina perfectamente con el frescor de los mariscos recién pescados. Se sirve acompañada de yuca o plátano verde.</p>
+          <h3 data-i18n="gas.mariscada.h3">Plato de fin de semana en la playa</h3>
+          <p data-i18n="gas.mariscada.p3">Es habitual disfrutarla los fines de semana en restaurantes de playa, donde se prepara con mariscos del día, siendo uno de los platos más solicitados por turistas y locales.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=mariscada">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -553,28 +572,28 @@
     <div class="info-panel" id="tab-casamiento">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/casamiento.jpg" alt="Casamiento" />
+          <img src="../assets/media/gastronomia/casamiento.jpg" data-i18n-attr="alt:gas.casamiento.title" alt="Casamiento" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Casamiento</h2>
-          <p class="info-content__hero-sub">La unión perfecta entre el arroz y el frijol</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.casamiento.title">Casamiento</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.casamiento.sub">La unión perfecta entre el arroz y el frijol</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Arroz y frijol</span>
-            <span class="info-chip">Desayuno típico</span>
-            <span class="info-chip">Económico y nutritivo</span>
-            <span class="info-chip">Plato de diario</span>
+            <span class="info-chip" data-i18n="gas.casamiento.chip1">Arroz y frijol</span>
+            <span class="info-chip" data-i18n="gas.casamiento.chip2">Desayuno típico</span>
+            <span class="info-chip" data-i18n="gas.casamiento.chip3">Económico y nutritivo</span>
+            <span class="info-chip" data-i18n="gas.casamiento.chip4">Plato de diario</span>
           </div>
-          <h3>El nombre de la unión</h3>
-          <p>El casamiento debe su nombre a la combinación de arroz y frijoles sofritos juntos, una "unión" de dos ingredientes básicos de la dieta salvadoreña. Es un plato sencillo, económico y muy nutritivo, presente en la mesa de casi todos los hogares.</p>
-          <h3>Versátil en cualquier comida</h3>
-          <p>Se disfruta en el desayuno acompañado de huevos revueltos, plátano frito y queso, o en el almuerzo y la cena junto a una proteína como carne o pollo. Es un acompañamiento tan versátil como reconfortante.</p>
-          <h3>Presente en toda Centroamérica</h3>
-          <p>Platos similares existen en otros países bajo distintos nombres, pero en El Salvador el casamiento conserva su sazón particular gracias al sofrito de cebolla, ajo y chile verde.</p>
+          <h3 data-i18n="gas.casamiento.h1">El nombre de la unión</h3>
+          <p data-i18n="gas.casamiento.p1">El casamiento debe su nombre a la combinación de arroz y frijoles sofritos juntos, una "unión" de dos ingredientes básicos de la dieta salvadoreña. Es un plato sencillo, económico y muy nutritivo, presente en la mesa de casi todos los hogares.</p>
+          <h3 data-i18n="gas.casamiento.h2">Versátil en cualquier comida</h3>
+          <p data-i18n="gas.casamiento.p2">Se disfruta en el desayuno acompañado de huevos revueltos, plátano frito y queso, o en el almuerzo y la cena junto a una proteína como carne o pollo. Es un acompañamiento tan versátil como reconfortante.</p>
+          <h3 data-i18n="gas.casamiento.h3">Presente en toda Centroamérica</h3>
+          <p data-i18n="gas.casamiento.p3">Platos similares existen en otros países bajo distintos nombres, pero en El Salvador el casamiento conserva su sazón particular gracias al sofrito de cebolla, ajo y chile verde.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=casamiento">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -584,28 +603,28 @@
     <div class="info-panel" id="tab-enchiladas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/enchiladas.jpg" alt="Enchiladas Salvadoreñas" />
+          <img src="../assets/media/gastronomia/enchiladas.jpg" data-i18n-attr="alt:gas.enchiladas.title" alt="Enchiladas Salvadoreñas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Enchiladas Salvadoreñas</h2>
-          <p class="info-content__hero-sub">Nada que ver con las enchiladas mexicanas</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.enchiladas.title">Enchiladas Salvadoreñas</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.enchiladas.sub">Nada que ver con las enchiladas mexicanas</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Tortilla crujiente</span>
-            <span class="info-chip">Carne molida y curtido</span>
-            <span class="info-chip">Remolacha y huevo duro</span>
-            <span class="info-chip">Antojo de feria</span>
+            <span class="info-chip" data-i18n="gas.enchiladas.chip1">Tortilla crujiente</span>
+            <span class="info-chip" data-i18n="gas.enchiladas.chip2">Carne molida y curtido</span>
+            <span class="info-chip" data-i18n="gas.enchiladas.chip3">Remolacha y huevo duro</span>
+            <span class="info-chip" data-i18n="gas.enchiladas.chip4">Antojo de feria</span>
           </div>
-          <h3>Una versión muy distinta</h3>
-          <p>A diferencia de las enchiladas mexicanas, las salvadoreñas son tortillas de maíz fritas hasta quedar crujientes, cubiertas con carne molida sazonada, curtido de repollo, salsa de tomate, remolacha y huevo duro picado.</p>
-          <h3>Capas de sabor y textura</h3>
-          <p>El contraste entre la base crujiente y los ingredientes frescos las convierte en un antojo muy popular en ferias patronales y puestos callejeros de todo el país.</p>
-          <h3>Comida para compartir en familia</h3>
-          <p>Suelen prepararse en grandes cantidades para reuniones familiares, ya que cada quien arma su propia enchilada al gusto, añadiendo más o menos curtido y salsa.</p>
+          <h3 data-i18n="gas.enchiladas.h1">Una versión muy distinta</h3>
+          <p data-i18n="gas.enchiladas.p1">A diferencia de las enchiladas mexicanas, las salvadoreñas son tortillas de maíz fritas hasta quedar crujientes, cubiertas con carne molida sazonada, curtido de repollo, salsa de tomate, remolacha y huevo duro picado.</p>
+          <h3 data-i18n="gas.enchiladas.h2">Capas de sabor y textura</h3>
+          <p data-i18n="gas.enchiladas.p2">El contraste entre la base crujiente y los ingredientes frescos las convierte en un antojo muy popular en ferias patronales y puestos callejeros de todo el país.</p>
+          <h3 data-i18n="gas.enchiladas.h3">Comida para compartir en familia</h3>
+          <p data-i18n="gas.enchiladas.p3">Suelen prepararse en grandes cantidades para reuniones familiares, ya que cada quien arma su propia enchilada al gusto, añadiendo más o menos curtido y salsa.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=enchiladas">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -615,28 +634,28 @@
     <div class="info-panel" id="tab-nuegadosyuca">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/nuegados-yuca.jpg" alt="Nuégados de Yuca" />
+          <img src="../assets/media/gastronomia/nuegados-yuca.jpg" data-i18n-attr="alt:gas.nuegadosYuca.title" alt="Nuégados de Yuca" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Nuégados de Yuca</h2>
-          <p class="info-content__hero-sub">Bolitas doradas bañadas en miel de panela</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.nuegadosYuca.title">Nuégados de Yuca</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.nuegadosYuca.sub">Bolitas doradas bañadas en miel de panela</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Yuca rallada</span>
-            <span class="info-chip">Miel de panela</span>
-            <span class="info-chip">Fritos y crujientes</span>
-            <span class="info-chip">Postre de mercado</span>
+            <span class="info-chip" data-i18n="gas.nuegadosYuca.chip1">Yuca rallada</span>
+            <span class="info-chip" data-i18n="gas.nuegadosYuca.chip2">Miel de panela</span>
+            <span class="info-chip" data-i18n="gas.nuegadosYuca.chip3">Fritos y crujientes</span>
+            <span class="info-chip" data-i18n="gas.nuegadosYuca.chip4">Postre de mercado</span>
           </div>
-          <h3>Dulce tradicional de yuca</h3>
-          <p>Los nuégados de yuca son pequeñas bolitas fritas hechas de yuca rallada, bañadas generosamente en miel de dulce de panela con canela. Su textura crujiente por fuera y suave por dentro los hace irresistibles.</p>
-          <h3>Compañero del chilate</h3>
-          <p>Tradicionalmente se sirven junto al chilate, una bebida de maíz tostado, formando el dúo dulce más querido de las tardes salvadoreñas.</p>
-          <h3>Presencia en mercados y fiestas</h3>
-          <p>Se encuentran fácilmente en mercados municipales y durante fiestas patronales, vendidos por generaciones de familias reposteras que mantienen viva la receta tradicional.</p>
+          <h3 data-i18n="gas.nuegadosYuca.h1">Dulce tradicional de yuca</h3>
+          <p data-i18n="gas.nuegadosYuca.p1">Los nuégados de yuca son pequeñas bolitas fritas hechas de yuca rallada, bañadas generosamente en miel de dulce de panela con canela. Su textura crujiente por fuera y suave por dentro los hace irresistibles.</p>
+          <h3 data-i18n="gas.nuegadosYuca.h2">Compañero del chilate</h3>
+          <p data-i18n="gas.nuegadosYuca.p2">Tradicionalmente se sirven junto al chilate, una bebida de maíz tostado, formando el dúo dulce más querido de las tardes salvadoreñas.</p>
+          <h3 data-i18n="gas.nuegadosYuca.h3">Presencia en mercados y fiestas</h3>
+          <p data-i18n="gas.nuegadosYuca.p3">Se encuentran fácilmente en mercados municipales y durante fiestas patronales, vendidos por generaciones de familias reposteras que mantienen viva la receta tradicional.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=nuegadosyuca">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -646,28 +665,28 @@
     <div class="info-panel" id="tab-chilate">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/chilate-nuegado.jpg" alt="Chilate con Nuégados" />
+          <img src="../assets/media/gastronomia/chilate-nuegado.jpg" data-i18n-attr="alt:gas.chilate.title" alt="Chilate con Nuégados" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Chilate con Nuégados</h2>
-          <p class="info-content__hero-sub">La bebida de maíz tostado más querida del país</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.chilate.title">Chilate con Nuégados</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.chilate.sub">La bebida de maíz tostado más querida del país</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Maíz tostado</span>
-            <span class="info-chip">Canela y jengibre</span>
-            <span class="info-chip">Bebida caliente</span>
-            <span class="info-chip">Tradición de tarde</span>
+            <span class="info-chip" data-i18n="gas.chilate.chip1">Maíz tostado</span>
+            <span class="info-chip" data-i18n="gas.chilate.chip2">Canela y jengibre</span>
+            <span class="info-chip" data-i18n="gas.chilate.chip3">Bebida caliente</span>
+            <span class="info-chip" data-i18n="gas.chilate.chip4">Tradición de tarde</span>
           </div>
-          <h3>El maíz tostado como protagonista</h3>
-          <p>El chilate es una bebida caliente hecha de maíz blanco tostado y molido, cocinado con agua, canela, clavo de olor y jengibre. Su sabor tostado y ligeramente picante lo distingue de otras bebidas de maíz como el atol.</p>
-          <h3>Inseparable de los nuégados</h3>
-          <p>Se sirve tradicionalmente acompañado de nuégados de yuca bañados en miel, creando una combinación de sabores tostados y dulces muy apreciada en las tardes frías.</p>
-          <h3>Bebida de raíces indígenas</h3>
-          <p>Su preparación conserva técnicas prehispánicas de tueste y molienda del maíz, siendo una de las bebidas más antiguas que aún se preparan en los hogares salvadoreños.</p>
+          <h3 data-i18n="gas.chilate.h1">El maíz tostado como protagonista</h3>
+          <p data-i18n="gas.chilate.p1">El chilate es una bebida caliente hecha de maíz blanco tostado y molido, cocinado con agua, canela, clavo de olor y jengibre. Su sabor tostado y ligeramente picante lo distingue de otras bebidas de maíz como el atol.</p>
+          <h3 data-i18n="gas.chilate.h2">Inseparable de los nuégados</h3>
+          <p data-i18n="gas.chilate.p2">Se sirve tradicionalmente acompañado de nuégados de yuca bañados en miel, creando una combinación de sabores tostados y dulces muy apreciada en las tardes frías.</p>
+          <h3 data-i18n="gas.chilate.h3">Bebida de raíces indígenas</h3>
+          <p data-i18n="gas.chilate.p3">Su preparación conserva técnicas prehispánicas de tueste y molienda del maíz, siendo una de las bebidas más antiguas que aún se preparan en los hogares salvadoreños.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=chilateconnuegados">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -677,28 +696,28 @@
     <div class="info-panel" id="tab-torrejas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/gastronomia/torrejas.jpg" alt="Torrejas" />
+          <img src="../assets/media/gastronomia/torrejas.jpg" data-i18n-attr="alt:gas.torrejas.title" alt="Torrejas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Torrejas</h2>
-          <p class="info-content__hero-sub">El dulce infaltable de la Semana Santa salvadoreña</p>
+          <h2 class="info-content__hero-title" data-i18n="gas.torrejas.title">Torrejas</h2>
+          <p class="info-content__hero-sub" data-i18n="gas.torrejas.sub">El dulce infaltable de la Semana Santa salvadoreña</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Pan bañado en huevo</span>
-            <span class="info-chip">Miel de panela</span>
-            <span class="info-chip">Semana  Santa</span>
-            <span class="info-chip">Postre familiar</span>
+            <span class="info-chip" data-i18n="gas.torrejas.chip1">Pan bañado en huevo</span>
+            <span class="info-chip" data-i18n="gas.torrejas.chip2">Miel de panela</span>
+            <span class="info-chip" data-i18n="gas.torrejas.chip3">Semana  Santa</span>
+            <span class="info-chip" data-i18n="gas.torrejas.chip4">Postre familiar</span>
           </div>
-          <h3>Un dulce de tradición religiosa</h3>
-          <p>Las torrejas son rebanadas de pan francés remojadas en huevo batido, fritas y luego bañadas en miel de panela con canela y clavo de olor. Es uno de los postres más representativos de la Semana Santa en El Salvador.</p>
-          <h3>Aprovechamiento y dulzura</h3>
-          <p>Tradicionalmente se preparan con pan del día anterior, aprovechando su textura firme para absorber mejor el huevo y la miel, dando como resultado un postre húmedo y aromático.</p>
-          <h3>Reunión familiar en Cuaresma</h3>
-          <p>Durante la Cuaresma y Semana Santa, muchas familias salvadoreñas se reúnen para prepararlas junto a otros dulces tradicionales como el ayote en miel, marcando el inicio de las celebraciones religiosas.</p>
+          <h3 data-i18n="gas.torrejas.h1">Un dulce de tradición religiosa</h3>
+          <p data-i18n="gas.torrejas.p1">Las torrejas son rebanadas de pan francés remojadas en huevo batido, fritas y luego bañadas en miel de panela con canela y clavo de olor. Es uno de los postres más representativos de la Semana Santa en El Salvador.</p>
+          <h3 data-i18n="gas.torrejas.h2">Aprovechamiento y dulzura</h3>
+          <p data-i18n="gas.torrejas.p2">Tradicionalmente se preparan con pan del día anterior, aprovechando su textura firme para absorber mejor el huevo y la miel, dando como resultado un postre húmedo y aromático.</p>
+          <h3 data-i18n="gas.torrejas.h3">Reunión familiar en Cuaresma</h3>
+          <p data-i18n="gas.torrejas.p3">Durante la Cuaresma y Semana Santa, muchas familias salvadoreñas se reúnen para prepararlas junto a otros dulces tradicionales como el ayote en miel, marcando el inicio de las celebraciones religiosas.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=torrejas">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
-              Ver la receta
+              <span data-i18n="gap.verReceta">Ver la receta</span>
             </a>
           </div>
         </div>
@@ -727,4 +746,4 @@
   <script src="../assets/js/chatbot.js"></script>
   <script src="../assets/js/i18n.js"></script>
 </body>
-</html> 
+</html>
