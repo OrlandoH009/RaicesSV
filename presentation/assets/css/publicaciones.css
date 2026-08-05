@@ -1046,3 +1046,196 @@ body {
 #publicationCancelEditBtn:hover {
   background: rgba(190, 142, 86, 0.15);
 }
+
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(17, 48, 104, 0.6);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.confirm-modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.confirm-modal {
+  background: linear-gradient(135deg, #1d1919 0%, #2a2624 100%);
+  border: 1px solid rgba(224, 82, 82, 0.5);
+  border-radius: var(--r-md);
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(224, 82, 82, 0.15);
+  transition: background .4s ease;
+}
+[data-theme="light"] .confirm-modal {
+  background: linear-gradient(135deg, #fffdf8 0%, #fbf1e0 100%);
+  box-shadow: 0 20px 50px rgba(17,48,104,.2);
+}
+
+.confirm-modal__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.3rem;
+  background: rgba(224, 82, 82, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e05252;
+}
+
+.confirm-modal__icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.confirm-modal__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--white);
+  margin-bottom: 0.6rem;
+}
+[data-theme="light"] .confirm-modal__title { color: var(--navy); }
+
+.confirm-modal__text {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  margin-bottom: 1.8rem;
+  line-height: 1.5;
+}
+[data-theme="light"] .confirm-modal__text { color: rgba(36,33,29,.75); }
+
+.confirm-modal__actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.confirm-modal__btn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.confirm-modal__btn--cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+[data-theme="light"] .confirm-modal__btn--cancel {
+  background: rgba(17,48,104,.05);
+  color: var(--navy);
+  border-color: rgba(17,48,104,.2);
+}
+
+.confirm-modal__btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.confirm-modal__btn--danger {
+  background: linear-gradient(135deg, #e05252 0%, #c73e3e 100%);
+  color: var(--white);
+}
+
+.confirm-modal__btn--danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(224, 82, 82, 0.4);
+}
+
+
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-width: 360px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 1rem 1.2rem;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #1d1919 0%, #2a2624 100%);
+  border: 1px solid rgba(190, 142, 86, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: var(--white);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  pointer-events: auto;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+[data-theme="light"] .toast {
+  background: #ffffff;
+  color: var(--carbon, #2c2620);
+  box-shadow: 0 10px 30px rgba(17,48,104,.15);
+}
+
+.toast.is-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.toast--success {
+  border-color: rgba(76, 175, 80, 0.4);
+}
+.toast--success .toast__icon {
+  color: #4caf50;
+}
+
+.toast--error {
+  border-color: rgba(224, 82, 82, 0.4);
+}
+.toast--error .toast__icon {
+  color: #e05252;
+}
+
+.toast--info {
+  border-color: rgba(190, 142, 86, 0.4);
+}
+.toast--info .toast__icon {
+  color: var(--gold);
+}
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+}
