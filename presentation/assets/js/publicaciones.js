@@ -41,6 +41,60 @@ let currentUserId = null;
 let editingPublicationId = null;
 
 // ════════════════════════════════════
+// notificaciones flotantes
+// ════════════════════════════════════
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast--${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('is-visible');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('is-visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, duration);
+}
+
+// ════════════════════════════════════
+// Confirmación
+// ════════════════════════════════════
+function showConfirmModal() {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('confirmModalOverlay');
+    const acceptBtn = document.getElementById('confirmModalAccept');
+    const cancelBtn = document.getElementById('confirmModalCancel');
+
+    overlay.classList.add('is-visible');
+
+    const cleanup = (result) => {
+      overlay.classList.remove('is-visible');
+      acceptBtn.removeEventListener('click', onAccept);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlayClick);
+      resolve(result);
+    };
+
+    const onAccept = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onOverlayClick = (event) => {
+      if (event.target === overlay) cleanup(false);
+    };
+
+    acceptBtn.addEventListener('click', onAccept);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlayClick);
+  });
+}
+
+// ════════════════════════════════════
 // MANEJO DEL SELECT "OTRO" DE UBICACIÓN
 // ════════════════════════════════════
 const locationSelect = document.getElementById('pubLocation');
@@ -272,12 +326,12 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   const imageFile = document.getElementById('pubImage').files[0];
 
   if (!location) {
-    alert('Por favor indica una ubicación.');
+    showToast('Por favor indica una ubicación.', 'error');
     return;
   }
 
   if (!editingPublicationId && !imageFile) {
-    alert('Por favor sube una imagen.');
+    showToast('Por favor sube una imagen.', 'error');
     return;
   }
 
@@ -305,10 +359,10 @@ document.getElementById('publicationForm').addEventListener('submit', async func
     await fetchPublications();
 
     document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
-    alert(isEditing ? '✅ ¡Publicación actualizada!' : '✅ ¡Publicación creada exitosamente!');
+    showToast(isEditing ? 'Publicación actualizada correctamente.' : 'Publicación creada correctamente.', 'success');
   } catch (error) {
     console.error(error);
-    alert(error.message || 'Ocurrió un error al guardar la publicación.');
+    showToast(error.message || 'Ocurrió un error al guardar la publicación.', 'error');
   }
 });
 
@@ -369,7 +423,7 @@ async function startEditPublication(id) {
      document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
   } catch (error) {
     console.error(error);
-    alert(error.message || 'No se pudo cargar la publicación para editar');
+    showToast(error.message || 'No se pudo cargar la publicación para editar.', 'error');
   }
 }
 
@@ -378,7 +432,7 @@ async function startEditPublication(id) {
 // ════════════════════════════════════
 
 async function confirmDeletePublication(id) {
-  const confirmed = window.confirm('¿Seguro que quieres eliminar esta publicación? Esta acción es irreversible.');
+  const confirmed = await showConfirmModal();
   if (!confirmed) return;
 
   try {
@@ -392,11 +446,12 @@ async function confirmDeletePublication(id) {
     if (editingPublicationId === id) {
       resetPublicationForm();
     }
-    
+
     await fetchPublications();
+    showToast('Publicación eliminada correctamente.', 'success');
   } catch (error) {
     console.error(error);
-    alert(error.message || 'No se pudo eliminar esta publicación.');
+    showToast(error.message || 'No se pudo eliminar esta publicación.', 'error');
   }
 }
 
