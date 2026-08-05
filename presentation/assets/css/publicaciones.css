@@ -967,3 +967,82 @@ body {
 .guest-modal__skip:hover {
   color: var(--white);
 }
+
+/* ── Autor de la publicación ── */
+.publication-author {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-style: italic;
+}
+[data-theme="light"] .publication-author {
+  color: rgba(36, 33, 29, 0.55);
+}
+
+/* ── Acciones del propietario (editar / eliminar) ── */
+.publication-owner-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(190, 142, 86, 0.2);
+}
+
+.publication-edit-btn,
+.publication-delete-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.publication-edit-btn {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+  color: var(--white);
+}
+
+.publication-edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(190, 142, 86, 0.4);
+}
+
+.publication-delete-btn {
+  background: rgba(224, 82, 82, 0.15);
+  color: #e05252;
+  border: 1px solid rgba(224, 82, 82, 0.4);
+}
+
+.publication-delete-btn:hover {
+  background: #e05252;
+  color: var(--white);
+  border-color: #e05252;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(224, 82, 82, 0.35);
+}
+
+.publication-edit-btn:active,
+.publication-delete-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Botón "Cancelar edición" del formulario ── */
+#publicationCancelEditBtn {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+[data-theme="light"] #publicationCancelEditBtn {
+  color: var(--navy);
+  border-color: var(--navy);
+}
+
+#publicationCancelEditBtn:hover {
+  background: rgba(190, 142, 86, 0.15);
+}
