@@ -156,8 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (loggedIn) {
-        // Mostrar nombre en el área de perfil
-        if (drawerUsername) drawerUsername.textContent = user?.name || user?.email || 'Usuario';
+        // Mostrar nombre en el área de perfil y remover la clave de traducción de "Invitado"
+        if (drawerUsername) {
+          drawerUsername.removeAttribute('data-i18n'); // <-- AGREGAR ESTA LÍNEA
+          drawerUsername.textContent = user?.name || user?.email || 'Usuario';
+        }
         if (drawerProfileCaption) drawerProfileCaption.setAttribute('data-i18n', 'nav.verPerfil');
         if (drawerProfileCaption) drawerProfileCaption.textContent = window.SRi18n
           ? window.SRi18n.t('nav.verPerfil', window.SRi18n.getLang())
