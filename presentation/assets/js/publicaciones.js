@@ -451,11 +451,13 @@ fetch('/auth/status')
   .then((response) => response.json())
   .then((data) => {
     isUserLoggedIn = !!data.loggedIn;
+    currentUserId = data.user ? data.user.id : null;
     checkGuestFormAccess();
   })
   .catch(() => {
     // Si falla la consulta o estás probando de forma local (offline),
     // asumimos que el usuario no está logeado para proteger el formulario y las tarjetas
     isUserLoggedIn = false;
+    currentUserId = null;
     checkGuestFormAccess();
   });
