@@ -327,6 +327,54 @@ document.getElementById('publicationCancelEditBtn').addEventListener('click', ()
   resetPublicationForm();
 });
 
+// ═══════════════════════════════════════════
+// EDITAR PUBLICACIÓN QUE EL USUARIO PUBLIQUE
+// ════════════════════════════════════════════
+
+async function startEditPublication(id) {
+  try {
+    const response = await fetch(`/api/publications/${id}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'No se pudo cargar la publicación.');
+    }
+
+    const data = await response.json();
+    const pub = data.publication;
+
+    editingPublicationId = pub.id;
+
+    document.getElementById('pubTitle').value = pub.title;
+    document.getElementById('pubDescription').value = pub.description;
+
+    const knownLocation = Array.from(locationSelect.options).some(opt => opt.value === pub.location);
+    if (knownLocation) {
+      locationSelect.value = pub.location;
+      locationOtherInput.style.display = 'none';
+      locationOtherInput.value = '';
+    } else {
+      locationSelect.value = '__otro__';
+      locationOtherInput.style.display = 'block';
+      locationOtherInput.value = pub.location;
+    }
+
+    document.getElementById('pubImage').value = '';
+    document.getElementById('previewImg').src = pub.image;
+    document.getElementById('imagePreview').classList.add('show');
+
+    document.getElementById('publicationFormTitle').textContent = 'Editar tu Publicación';
+    document.getElementById('publicationSubmitBtn').textContent = 'Guardar cambios';
+    document.getElementById('publicationCancelEditBtn').style.display = 'inline-block';
+
+     document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'No se pudo cargar la publicación para editar');
+  }
+}
+
+
+
 // ════════════════════════════════════
 // MANEJAR SUBIDA DE IMAGEN
 // ════════════════════════════════════
