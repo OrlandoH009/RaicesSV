@@ -41,60 +41,6 @@ let currentUserId = null;
 let editingPublicationId = null;
 
 // ════════════════════════════════════
-// notificaciones flotantes
-// ════════════════════════════════════
-function showToast(message, type = 'info', duration = 4000) {
-  const container = document.getElementById('toastContainer');
-  if (!container) return;
-
-  const toast = document.createElement('div');
-  toast.className = `toast toast--${type}`;
-  toast.textContent = message;
-
-  container.appendChild(toast);
-
-  requestAnimationFrame(() => {
-    toast.classList.add('is-visible');
-  });
-
-  setTimeout(() => {
-    toast.classList.remove('is-visible');
-    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-  }, duration);
-}
-
-// ════════════════════════════════════
-// Confirmación
-// ════════════════════════════════════
-function showConfirmModal() {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById('confirmModalOverlay');
-    const acceptBtn = document.getElementById('confirmModalAccept');
-    const cancelBtn = document.getElementById('confirmModalCancel');
-
-    overlay.classList.add('is-visible');
-
-    const cleanup = (result) => {
-      overlay.classList.remove('is-visible');
-      acceptBtn.removeEventListener('click', onAccept);
-      cancelBtn.removeEventListener('click', onCancel);
-      overlay.removeEventListener('click', onOverlayClick);
-      resolve(result);
-    };
-
-    const onAccept = () => cleanup(true);
-    const onCancel = () => cleanup(false);
-    const onOverlayClick = (event) => {
-      if (event.target === overlay) cleanup(false);
-    };
-
-    acceptBtn.addEventListener('click', onAccept);
-    cancelBtn.addEventListener('click', onCancel);
-    overlay.addEventListener('click', onOverlayClick);
-  });
-}
-
-// ════════════════════════════════════
 // MANEJO DEL SELECT "OTRO" DE UBICACIÓN
 // ════════════════════════════════════
 const locationSelect = document.getElementById('pubLocation');
@@ -188,8 +134,6 @@ function renderPublications(publications) {
     btn.addEventListener('click', () => confirmDeletePublication(btn.dataset.id));
   });
 }
-  
-
 
 // ════════════════════════════════════
 // MOSTRAR MODAL DE INVITACIÓN (GSAP)
@@ -199,23 +143,18 @@ function showGuestModal() {
   const modal = document.getElementById('guestModal');
 
   if (overlay && modal) {
-    // 1. Cambiamos los textos para orientarlos a la sección de mapas
     const modalTitle = modal.querySelector('.guest-modal__title');
     const modalText = modal.querySelector('.guest-modal__text');
 
     if (modalTitle) modalTitle.textContent = "¡Únete a Salvadorean Roots! 🗺️";
     if (modalText) modalText.textContent = "Necesitas una cuenta registrada para poder explorar nuestro mapa interactivo y descubrir la ubicación exacta de estos lugares increíbles.";
 
-    // 2. Hacer visible el overlay
     overlay.classList.add('is-visible');
 
-
-    // 3. Ejecutar la animación suave utilizando GSAP
     if (window.gsap) {
       gsap.set(modal, { opacity: 0, y: 30, scale: 0.9 });
       gsap.timeline({ defaults: { ease: 'power3.out' } })
         .to(modal, { opacity: 1, y: 0, scale: 1, duration: 0.5 })
-        // 👇 CAMBIAMOS '.guest-modal__btn' POR '.guest-modal__actions' AQUÍ ABAJO:
         .from(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__actions, .guest-modal__skip'), {
           opacity: 0,
           y: 12,
@@ -233,7 +172,6 @@ function showGuestModal() {
       });
     }
 
-    // 4. Configurar eventos para cerrar el modal
     const closeBtn = document.getElementById('guestModalClose');
     const skipBtn = document.getElementById('guestModalSkip');
 
@@ -261,17 +199,15 @@ function showGuestModal() {
 }
 
 // ════════════════════════════════════
-// CONTROL DE ACCESOS PARA SUBIDA (Corregido con Event Listener Directo)
+// CONTROL DE ACCESOS PARA SUBIDA
 // ════════════════════════════════════
 function checkGuestFormAccess() {
   const formSection = document.querySelector('.create-publication-section');
   if (!formSection) return;
 
-  // Si no está logeado, agregamos el overlay bloqueador al formulario
   if (!isUserLoggedIn) {
     formSection.classList.add('is-guest');
 
-    // Creamos dinámicamente la capa de bloqueo del formulario de creación
     const overlay = document.createElement('div');
     overlay.className = 'guest-blocker-overlay';
     overlay.innerHTML = `
@@ -284,7 +220,6 @@ function checkGuestFormAccess() {
     `;
     formSection.appendChild(overlay);
 
-    // Asignamos el evento de redirección directamente con JavaScript
     const loginBtn = document.getElementById('goToLoginBtn');
     if (loginBtn) {
       loginBtn.addEventListener('click', function(e) {
@@ -294,12 +229,10 @@ function checkGuestFormAccess() {
       });
     }
 
-    // Deshabilitar únicamente los elementos originales del formulario interno
     const originalForm = document.getElementById('publicationForm');
     if (originalForm) {
       const inputs = originalForm.querySelectorAll('input, textarea, select, button');
       inputs.forEach(input => {
-        // Evitamos deshabilitar nuestro nuevo botón de login por accidente
         if (input.id !== 'goToLoginBtn') {
           input.disabled = true;
           input.tabIndex = -1;
@@ -307,7 +240,7 @@ function checkGuestFormAccess() {
       });
     }
   }
-} 
+}
 
 // ════════════════════════════════════
 // MANEJAR FORMULARIO
@@ -326,12 +259,12 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   const imageFile = document.getElementById('pubImage').files[0];
 
   if (!location) {
-    showToast('Por favor indica una ubicación.', 'error');
+    alert('Por favor indica una ubicación.');
     return;
   }
 
   if (!editingPublicationId && !imageFile) {
-    showToast('Por favor sube una imagen.', 'error');
+    alert('Por favor sube una imagen.');
     return;
   }
 
@@ -359,10 +292,10 @@ document.getElementById('publicationForm').addEventListener('submit', async func
     await fetchPublications();
 
     document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
-    showToast(isEditing ? 'Publicación actualizada correctamente.' : 'Publicación creada correctamente.', 'success');
+    alert(isEditing ? 'Publicación actualizada correctamente.' : 'Publicación creada correctamente.');
   } catch (error) {
     console.error(error);
-    showToast(error.message || 'Ocurrió un error al guardar la publicación.', 'error');
+    alert(error.message || 'Ocurrió un error al guardar la publicación.');
   }
 });
 
@@ -420,10 +353,10 @@ async function startEditPublication(id) {
     document.getElementById('publicationSubmitBtn').textContent = 'Guardar cambios';
     document.getElementById('publicationCancelEditBtn').style.display = 'inline-block';
 
-     document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
   } catch (error) {
     console.error(error);
-    showToast(error.message || 'No se pudo cargar la publicación para editar.', 'error');
+    alert(error.message || 'No se pudo cargar la publicación para editar.');
   }
 }
 
@@ -432,7 +365,7 @@ async function startEditPublication(id) {
 // ════════════════════════════════════
 
 async function confirmDeletePublication(id) {
-  const confirmed = await showConfirmModal();
+  const confirmed = window.confirm('¿Seguro que quieres eliminar esta publicación? Esta acción no se puede deshacer.');
   if (!confirmed) return;
 
   try {
@@ -448,10 +381,10 @@ async function confirmDeletePublication(id) {
     }
 
     await fetchPublications();
-    showToast('Publicación eliminada correctamente.', 'success');
+    alert('Publicación eliminada correctamente.');
   } catch (error) {
     console.error(error);
-    showToast(error.message || 'No se pudo eliminar esta publicación.', 'error');
+    alert(error.message || 'No se pudo eliminar esta publicación.');
   }
 }
 
@@ -561,7 +494,6 @@ function inicializarFiltroDesdeURL() {
 }
 
 document.getElementById('publicationsFilterClear')?.addEventListener('click', () => {
-  // Limpiamos el filtro y también el parámetro de la URL, sin recargar la página
   const url = new URL(window.location.href);
   url.searchParams.delete('sitio');
   window.history.replaceState({}, '', url);
@@ -574,7 +506,6 @@ document.getElementById('publicationsFilterClear')?.addEventListener('click', ()
 // ════════════════════════════════════
 inicializarFiltroDesdeURL();
 
-// Consultamos al backend/servidor si el usuario está logeado (tal como lo haces en categorias.html)
 fetch('/auth/status')
   .then((response) => response.json())
   .then((data) => {
@@ -583,8 +514,6 @@ fetch('/auth/status')
     checkGuestFormAccess();
   })
   .catch(() => {
-    // Si falla la consulta o estás probando de forma local (offline),
-    // asumimos que el usuario no está logeado para proteger el formulario y las tarjetas
     isUserLoggedIn = false;
     currentUserId = null;
     checkGuestFormAccess();
