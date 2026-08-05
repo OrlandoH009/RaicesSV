@@ -207,40 +207,6 @@ function showGuestModal() {
 }
 
 // ════════════════════════════════════
-// MANEJAR CLIC EN TARJETA
-// ════════════════════════════════════
-// ════════════════════════════════════
-// MANEJAR CLIC EN TARJETA (Corregido)
-// ════════════════════════════════════
-function handleCardClick(e) {
-  // Prevenir cualquier comportamiento extraño y detener propagación
-  e.preventDefault();
-  e.stopPropagation();
-
-  // Si el usuario no ha iniciado sesión, mostramos tu modal de invitación
-  if (!isUserLoggedIn) {
-    showGuestModal();
-    return;
-  }
-
-  // Si está logeado, obtenemos los datos de la tarjeta contenedora
-  const card = e.currentTarget;
-  const location = card.dataset.location;
-  const lat = parseFloat(card.dataset.lat);
-  const lng = parseFloat(card.dataset.lng);
-
-  if (!location || Number.isNaN(lat) || Number.isNaN(lng)) return;
-
-  const params = new URLSearchParams({
-    location,
-    lat: lat.toString(),
-    lng: lng.toString()
-  });
-
-  window.location.href = `/views/mapa.html?${params.toString()}`;
-}
-
-// ════════════════════════════════════
 // CONTROL DE ACCESOS PARA SUBIDA (Corregido con Event Listener Directo)
 // ════════════════════════════════════
 function checkGuestFormAccess() {
@@ -292,66 +258,73 @@ function checkGuestFormAccess() {
 // ════════════════════════════════════
 // MANEJAR FORMULARIO
 // ════════════════════════════════════
-document.getElementById('publicationForm').addEventListener('submit', function(e) {
+document.getElementById('publicationForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  // Bloqueo de seguridad extra para invitados maliciosos
   if (!isUserLoggedIn) {
     showGuestModal();
     return;
   }
 
-  const title = document.getElementById('pubTitle').value;
-  const description = document.getElementById('pubDescription').value;
-  const location = document.getElementById('pubLocation').value;
+  const title = document.getElementById('pubTitle').value.trim();
+  const description = document.getElementById('pubDescription').value.trim();
+  const location = getSelectedLocation();
   const imageFile = document.getElementById('pubImage').files[0];
 
-  if (!imageFile) {
-    alert('Por favor sube una imagen');
+  if (!location) {
+    alert('Por favor indica una ubicación.');
     return;
   }
 
-  const imageUrl = URL.createObjectURL(imageFile);
+  if (!editingPublicationId && !imageFile) {
+    alert('Por favor sube una imagen.');
+    return;
+  }
 
-  const locationData = {
-    'Tazumal': { lat: 13.9286, lng: -89.6469 },
-    'Joya de Cerén': { lat: 13.8238, lng: -89.3953 },
-    'Salvador del Mundo': { lat: 13.7029, lng: -89.2073 },
-    'Suchitoto': { lat: 13.9417, lng: -88.7936 },
-    'Catedral Metropolitana': { lat: 13.6929, lng: -89.2167 },
-    'MUNA': { lat: 13.6952, lng: -89.2233 },
-    'Ruinas de San Andrés': { lat: 13.8639, lng: -89.4317 },
-    'Casa Blanca': { lat: 13.9825, lng: -89.6825 },
-    'Palacio Nacional': { lat: 13.6989, lng: -89.1912 },
-    'Teatro Nacional': { lat: 13.6980, lng: -89.1918 },
-    'Iglesia El Rosario': { lat: 13.6972, lng: -89.1905 },
-    'El Boquerón': { lat: 13.6844, lng: -89.2272 },
-    'Lago de Coatepeque': { lat: 13.8753, lng: -89.5417 },
-    'Bosque El Imposible': { lat: 13.8667, lng: -89.9333 },
-    'Puerta del Diablo': { lat: 13.6486, lng: -89.1403 }
-  };
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('location', location);
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
 
-  const coords = locationData[location] || { lat: 13.6929, lng: -89.2167 };
+  const isEditing = Boolean(editingPublicationId);
+  const url = isEditing ? `/api/publications/${editingPublicationId}` : '/api/publications';
+  const method = isEditing ? 'PUT' : 'POST';
 
-  const newPublication = {
-    id: publicationsData.length + 1,
-    title,
-    description,
-    location,
-    image: imageUrl,
-    coordinates: coords
-  };
+  try {
+    const response = await fetch(url, { method, body: formData });
 
-  publicationsData.unshift(newPublication);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'No se pudo generar la publicación.');
+    }
 
-  renderPublications();
+    resetPublicationForm();
+    await fetchPublications();
 
-  this.reset();
+    document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
+    alert(isEditing ? '✅ ¡Publicación actualizada!' : '✅ ¡Publicación creada exitosamente!');
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Ocurrió un error al guardar la publicación.');
+  }
+});
+
+function resetPublicationForm() {
+  const form = document.getElementById('publicationForm');
+  form.reset();
   document.getElementById('imagePreview').classList.remove('show');
+  locationOtherInput.style.display = 'none';
+  editingPublicationId = null;
+  document.getElementById('publicationFormTitle').textContent = 'Comparte tu Experiencia';
+  document.getElementById('publicationSubmitBtn').textContent = 'Publicar';
+  document.getElementById('publicationCancelEditBtn').style.display = 'none';
+}
 
-  document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
-
-  alert('✅ ¡Publicación creada exitosamente!');
+document.getElementById('publicationCancelEditBtn').addEventListener('click', () => {
+  resetPublicationForm();
 });
 
 // ════════════════════════════════════
@@ -450,7 +423,7 @@ function aplicarFiltroSitio(slug) {
   }
 
   actualizarEmptyStateTexto();
-  renderPublications();
+  fetchPublications();
 }
 
 function inicializarFiltroDesdeURL() {
