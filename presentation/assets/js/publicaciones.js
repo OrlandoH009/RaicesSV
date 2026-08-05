@@ -373,7 +373,32 @@ async function startEditPublication(id) {
   }
 }
 
+// ════════════════════════════════════
+// ELIMINAR PUBLICACIÓN
+// ════════════════════════════════════
 
+async function confirmDeletePublication(id) {
+  const confirmed = window.confirm('¿Seguro que quieres eliminar esta publicación? Esta acción es irreversible.');
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(`/api/publications/${id}`, { method: 'DELETE' });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'No se pudo eliminar la publicación.');
+    }
+
+    if (editingPublicationId === id) {
+      resetPublicationForm();
+    }
+    
+    await fetchPublications();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'No se pudo eliminar esta publicación.');
+  }
+}
 
 // ════════════════════════════════════
 // MANEJAR SUBIDA DE IMAGEN
