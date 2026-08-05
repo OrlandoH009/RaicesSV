@@ -810,7 +810,201 @@
         69: { nombre: "Río Sumpul", lugar: "Chalatenango", desc: "Escenario de sucesos históricos trágicos y mitos rurales sobre espíritus protectores de las aguas altas.", chips: ["Historia", "Naturaleza"] },
         70: { nombre: "Llanos de Olocuilta", lugar: "La Paz", desc: "Valles históricos rodeados de historias coloniales de carretas chillonas y duendes caminantes.", chips: ["Mitos", "Tradición"] }
       }
-}
+      },
+      // Sección Leyendas (Navegación & Hero)
+      "ley.meta.title": "Raíces Salvadoreñas — Leyendas",
+      "ley.hero.eyebrow": "Raíces Salvadoreñas te da la bienvenida",
+      "ley.hero.title": "Cuando cae la noche, El Salvador cuenta historias",
+      "ley.hero.desc": "Ríos que murmuran, caminos con trampa, sombras que velan por los niños. Descubre 16 leyendas que nuestros abuelos contaron por generaciones.",
+      "ley.hero.cta": "Explorar las leyendas",
+
+      // Tarjetas conceptuales
+      "ley.concept.card1.title": "¿Qué es una leyenda?",
+      "ley.concept.card1.hint": "Toca para descubrir",
+      "ley.concept.card1.back": "Un relato que mezcla lo real con lo sobrenatural para explicar lo inexplicable: un ruido en la quebrada, un viajero perdido, el miedo a la noche.",
+
+      "ley.concept.card2.title": "Raíces mestizas",
+      "ley.concept.card2.hint": "Toca para descubrir",
+      "ley.concept.card2.back": "Nacidas del choque entre las cosmovisiones náhuat-pipil y lenca con la fe católica traída en la época colonial. Dioses antiguos conviven con rezos cristianos.",
+
+      "ley.concept.card3.title": "De boca en boca",
+      "ley.concept.card3.hint": "Toca para descubrir",
+      "ley.concept.card3.back": "Viven a través de la palabra. Cada pueblo, cada abuela las cuenta distinto — por eso casi ninguna tiene una versión única.",
+
+      // Biblioteca & Modal
+      "ley.library.eyebrow": "La biblioteca",
+      "ley.library.title": "16 leyendas y mitos de El Salvador",
+      "ley.modal.listen": "Escuchar leyenda",
+      "ley.modal.close": "Cerrar",
+      "ley.modal.origin": "Origen aproximado",
+
+      /* ── Página: Leyendas ── */
+      "ley.modal.image_placeholder": "Espacio para imagen<br>de esta leyenda",
+
+      /* La Siguanaba */
+      "ley.data.siguanaba.title": "La Siguanaba",
+      "ley.data.siguanaba.sub": "El espíritu que extravía a los infieles",
+      "ley.data.siguanaba.tag": "Espíritu · Ríos",
+      "ley.data.siguanaba.chip1": "Espíritu femenino",
+      "ley.data.siguanaba.chip2": "Aparece de noche",
+      "ley.data.siguanaba.chip3": "Ríos y quebradas",
+      "ley.data.siguanaba.chip4": "Enloquece a hombres",
+      "ley.data.siguanaba.origin": "Tradición náhuat-pipil, extendida por todo El Salvador. Recogida por Miguel Ángel Espino en \"Mitología de Cuscatlán\".",
+      "ley.data.siguanaba.relato": "Cuentan los abuelos que hace muchísimo tiempo, cuando los dioses todavía caminaban cerca de los hombres, vivía una mujer llamada Sihuehuet, cuyo nombre en náhuat significa \"mujer hermosa\". Era, en efecto, la más bella de su pueblo: piel dorada, cabellera negra y larga como la noche, y una risa que hacía voltear a cualquiera. Estaba casada, pero su corazón inquieto la llevó a enamorarse del Lucero de la Mañana, un dios que bajaba del cielo para verla junto al río.\n\nCuando Tlaloc, el poderoso dios de las aguas y de las lluvias, descubrió la traición, no perdonó. La maldijo para siempre: le arrebató su nombre y su belleza verdadera, y la condenó a vagar eternamente por ríos, quebradas y caminos oscuros, convertida ahora en la Siguanaba, que quiere decir \"mujer horrible\". Desde entonces solo puede mostrar su hermosura como un engaño, una trampa que tiende a los hombres que, como ella hizo, traicionan a quien los ama.\n\nAsí, cualquier noche, un hombre que camina solo por un paraje solitario —de vuelta de una cantina, escapando de su casa para ver a otra mujer, o simplemente por no hacer caso a los consejos de los mayores— puede toparse con ella. Aparece bañándose en el río o lavando ropa con un guacal de oro, y lo llama con dulzura, con una voz que promete todo lo que ese hombre ha estado buscando en otros brazos. Él la sigue, hipnotizado, internándose cada vez más en el monte, sin darse cuenta de que se aleja del camino de regreso.\n\nY entonces, cuando ya está bien lejos de cualquier ayuda, ella voltea el rostro. Donde había una sonrisa, ahora hay una calavera; donde había ojos brillantes, hay cuencas vacías, o el hocico alargado y los dientes de una yegua. El grito del hombre se pierde en la noche mientras la Siguanaba ríe y desaparece, dejándolo perdido, temblando, muchas veces con fiebre durante días, y para siempre marcado por el miedo.\n\nLos viejos del pueblo dicen que hay formas de librarse de ella si uno la encuentra: morder con fuerza el filo de un machete, rezar en voz alta sin detenerse, cruzar unas tijeras o llevar agujas de coser en la bolsa, o gritar tres veces el nombre de la propia madre —porque dicen que eso le recuerda su propia traición y la hace huir. Algunos aseguran que si el hombre logra mirarle el rostro antes de que ella se lo muestre, queda libre para siempre de su maldición. Pero la lección de fondo, la que toda madre le repite a su hijo antes de dejarlo salir de noche, es siempre la misma: cuídate de seguir a la belleza que aparece sola en la oscuridad, porque detrás de ella puede estar esperándote la Siguanaba.",
+
+      /* El Cipitío */
+      "ley.data.cipitio.title": "El Cipitío",
+      "ley.data.cipitio.sub": "El niño eterno que nunca crece",
+      "ley.data.cipitio.tag": "Espíritu · Bosques",
+      "ley.data.cipitio.chip1": "Niño eterno",
+      "ley.data.cipitio.chip2": "Pies al revés",
+      "ley.data.cipitio.chip3": "Hijo de la Siguanaba",
+      "ley.data.cipitio.chip4": "Enamora doncellas",
+      "ley.data.cipitio.origin": "Mitología pipil-náhuat de todo el país; se le vincula con el mito de la Siguanaba como su hijo maldito.",
+      "ley.data.cipitio.relato": "Antes de convertirse en la Siguanaba, Sihuehuet tuvo un hijo con un dios: un niño de mejillas redondas y ombligo saltón al que llamaron Cipitío. Pero cuando ella se marchó siguiendo sus amoríos prohibidos, abandonó también a su pequeño, dejándolo solo en el monte. Los dioses, furiosos con la madre, decidieron castigar también al hijo, aunque él no tuviera culpa alguna: lo condenaron a quedarse para siempre con el cuerpo de un niño de unos diez años, sin poder crecer jamás, vagando eternamente entre los ríos y los cañaverales donde alguna vez vivió con ella.\n\nDesde entonces, el Cipitío es un espíritu pequeño, moreno, de panza redonda como un pequeño Buda, que usa un sombrero de petate tan grande que casi le tapa la cara. Lo más curioso es que sus pies están volteados al revés: los dedos apuntan hacia atrás, de modo que cualquiera que intente seguir sus huellas en la tierra terminará caminando exactamente en la dirección contraria a la que él realmente fue.\n\nA diferencia de su madre, el Cipitío no busca hacer daño. Es juguetón, curioso y, sobre todo, enamoradizo: le encanta aparecerse cerca de los ríos donde las muchachas jóvenes van a lavar ropa, especialmente si son bonitas y de ojos claros. Se esconde entre los matorrales y les lanza piedritas pequeñas para llamar su atención, o les silba desde lejos, aunque nunca se deja ver del todo. Cuando una joven se enoja o se asusta, él se ríe entre dientes y desaparece corriendo, dejando solo el eco de sus pasos.\n\nOtra de sus travesuras favoritas es meterse en las cocinas de las casas rurales durante la noche para revolcarse en la ceniza tibia de los fogones apagados, dejando huellas pequeñas y desordenadas por todo el piso a la mañana siguiente. Las abuelas, al encontrar esas marcas, sonríen y dicen sin sorpresa: \"otra vez vino el Cipitío a jugar con la ceniza.\"\n\nCon el tiempo, el Cipitío se ha convertido en uno de los personajes más queridos del folclore salvadoreño, no como una amenaza sino como un recordatorio tierno y un poco travieso: el de un niño que nunca tuvo la oportunidad de crecer, condenado por un error que no cometió, y que a pesar de todo sigue buscando, entre risas y travesuras, un poco de cariño y compañía en los ríos donde una vez vivió junto a su madre.",
+
+      /* El Cadejo */
+      "ley.data.cadejo.title": "El Cadejo",
+      "ley.data.cadejo.sub": "El guardián de dos caras: blanco y negro",
+      "ley.data.cadejo.tag": "Criatura · Caminos",
+      "ley.data.cadejo.chip1": "Cadejo blanco",
+      "ley.data.cadejo.chip2": "Cadejo negro",
+      "ley.data.cadejo.chip3": "Ojos brillantes",
+      "ley.data.cadejo.chip4": "Lucha eterna",
+      "ley.data.cadejo.origin": "Difundida en toda Centroamérica; en El Salvador se cuenta especialmente en caminos rurales y veredas nocturnas.",
+      "ley.data.cadejo.relato": "Se cuenta que hace generaciones, en algún cañaveral o vereda olvidada, nacieron dos hermanos con forma de perro grande, de pelaje largo y enredado, pero con un destino completamente distinto el uno del otro. Uno de ellos creció bueno y protector: se convirtió en el Cadejo blanco, guardián de los caminantes nocturnos que van de vuelta a casa con el corazón limpio. El otro se entregó a la oscuridad, y se transformó en el Cadejo negro, una bestia que ronda los caminos buscando a quienes salen de noche con malas intenciones —a robar, a engañar a su esposa, o a hacer daño a alguien.\n\nQuien camina solo por un sendero rural después de cierta hora puede sentir, de pronto, un olor a incienso y flores frescas mezclándose con el aire de la noche: es señal de que el Cadejo blanco camina cerca, silencioso, cuidando sus pasos desde la sombra de los árboles, con sus ojos azules brillando apenas entre la maleza. Su presencia trae calma, y muchos aseguran haber llegado sanos y salvos a casa gracias a que él los acompañó sin que se dieran cuenta.\n\nPero si en cambio el aire se llena de un olor pesado, como a azufre quemado, y se escucha un ruido de cadenas o el golpe seco de pezuñas contra la tierra, hay que empezar a rezar: es el Cadejo negro que se acerca, con sus ojos rojos encendidos como brasas, buscando a alguien a quien asustar hasta la locura, o algo peor.\n\nLa leyenda cuenta que, de vez en cuando, los dos hermanos se encuentran en la oscuridad y libran una batalla feroz, una lucha eterna entre el bien y el mal que ninguno de los dos puede ganar del todo. Quien tiene la desgracia de escuchar esa pelea —gruñidos, cadenas arrastrándose, aullidos que parecen desgarar la noche— debe quedarse quieto, sin moverse, y esperar en silencio a que termine. Meterse en medio de esa batalla, aunque sea sin querer, puede significar quedar atrapado entre las dos fuerzas: y de ahí, aseguran los que cuentan la historia, pocos salen con la cabeza en su sitio.\n\nPor eso, en los pueblos donde esta historia se transmite de generación en generación, los padres advierten a sus hijos que eviten salir solos de noche, y sobre todo que eviten hacerlo con malas intenciones, porque nunca se sabe cuál de los dos hermanos anda cerca esa noche, esperando para acompañar... o para castigar.",
+
+      /* La Llorona */
+      "ley.data.llorona.title": "La Llorona",
+      "ley.data.llorona.sub": "El lamento eterno de una madre",
+      "ley.data.llorona.tag": "Espíritu · Aguas",
+      "ley.data.llorona.chip1": "Llanto eterno",
+      "ley.data.llorona.chip2": "Ríos y lagunas",
+      "ley.data.llorona.chip3": "Medianoche",
+      "ley.data.llorona.chip4": "Busca a sus hijos",
+      "ley.data.llorona.origin": "Presente en toda Latinoamérica; la versión salvadoreña se asocia con el Río Lempa y el Lago de Coatepeque.",
+      "ley.data.llorona.relato": "Dicen que hace muchos años vivía, cerca del Río Lempa, una mujer joven y bella que se enamoró perdidamente de un hombre que nunca le correspondió del todo. Tuvieron hijos juntos, pero él la abandonó, dejándola sola con la vergüenza y el dolor de una promesa rota. Cuentan que, cegada por la desesperación y la locura de sentirse traicionada, una noche llevó a sus propios hijos hasta la orilla del río y los ahogó en sus aguas oscuras, para arrepentirse al instante siguiente, cuando ya era demasiado tarde.\n\nDesde ese momento, su alma no encontró descanso. Fue condemned a vagar eternamente por ríos y lagunas, buscando entre la niebla a los hijos que ella misma se llevó, lanzando al viento un llanto desgarrador que se puede escuchar hasta hoy en las noches más silenciosas: \"¡Ay, mis hijos! ¡Ay, mis hijos!\", un lamento que parece venir de todas partes y de ninguna a la vez, que eriza la piel y detiene el corazón de quien lo escucha.\n\nEn El Salvador se le ha visto —o mejor dicho, se le ha escuchado— especialmente cerca del Río Lempa, del Lago de Coatepeque y del Río Grande de San Miguel, siempre después de la medianoche, siempre vestida de blanco, con el cabello suelto y mojado cayéndole sobre un rostro que algunos describen hermoso todavía, y que otros aseguran que es un rostro deforme, marcado para siempre por el dolor y el arrepentimiento eterno.\n\nLos que dicen haberla visto de cerca cuentan que camina despacio por la orilla del agua, mirando hacia la corriente, como si aún esperara encontrar a sus hijos flotando entre las piedras. Si alguien se acerca demasiado, ella voltea de golpe, y quien la mira a los ojos queda paralizado de terror, incapaz de moverse durante largos minutos, mientras su llanto retumba cada vez más cerca.\n\nPor generaciones, esta ha sido una de las advertencias más poderosas para los niños salvadoreños: no acercarse solos a los ríos de noche, no jugar cerca del agua después de cierta hora, porque ahí, entre la neblina y el sonido de la corriente, puede estar esperando la Llorona, cargando para siempre el peso de una tragedia que ella misma provocó y que ahora no puede deshacer.",
+
+      /* La Descarnada */
+      "ley.data.descarnada.title": "La Descarnada",
+      "ley.data.descarnada.sub": "La muerte que camina entre los vivos",
+      "ley.data.descarnada.tag": "Presagio · Pueblos",
+      "ley.data.descarnada.chip1": "Esqueleto viviente",
+      "ley.data.descarnada.chip2": "Calles nocturnas",
+      "ley.data.descarnada.chip3": "Presagio de muerte",
+      "ley.data.descarnada.chip4": "Camina entre humanos",
+      "ley.data.descarnada.origin": "Frecuente en los pueblos del interior del país, sobre todo en zonas con cementerios y caminos rurales solitarios.",
+      "ley.data.descarnada.relato": "En los pueblos más antiguos del interior de El Salvador, donde las calles todavía son de tierra y el cementerio queda apenas a las afueras, se cuenta la historia de una figura que no persigue, no grita, ni asusta con intención: simplemente camina. Le llaman la Descarnada, y quien la ve sabe, sin que nadie se lo tenga que explicar, que la muerte anda cerca.\n\nSe le describe como una mujer altísima y delgada hasta los huesos, cubierta apenas por una sábana blanca deshilachada o un vestido raído que el viento nocturno mueve de un lado a otro. Cuando la tela se agita, se alcanzan a ver, entre los pliegues, los huesos desnudos de su cuerpo, como si no le quedara ni un gramo de carne. Camina despacio, sin prisa, por las calles solitarias de los pueblos, por los caminos que bordean los cementerios, o por los senderos rurales que casi nadie transita después de cierta hora.\n\nA diferencia de otras figuras del folclore salvadoreño, la Descarnada no busca engañar a nadie, ni seducir, ni hacer travesuras. No corre detrás de quien la ve, no habla, no amenaza. Solamente sigue su camino, con un sonido seco y hueco de huesos entrechocando a cada paso, como si caminara con el esqueleto suelto bajo la tela raída. Y esa indiferencia, esa calma inquietante, es quizás lo más aterrador de todo: uno sabe que ella no viene por ti directamente, pero verla significa que la muerte, de alguna forma, ha puesto su mirada sobre tu casa, tu familia o tú mismo.\n\nNumerosas personas en distintos pueblos del país aseguran haberla visto, casi siempre de madrugada, caminando lentamente por calles empedradas o por veredas que llevan al panteón local. Algunos dicen haberla encontrado de frente en una esquina oscura, quedándose paralizados mientras ella pasaba de largo sin siquiera voltear a verlos, dejando tras de sí un frío que tardaba horas en desaparecer del cuerpo.\n\nLa creencia popular asegura que quien se topa con la Descarnada, o alguien de su familia cercana, no tardará en enfrentar una muerte próxima. Por eso, en las noches donde se rumora que ha sido vista rondando, los pueblos enteros se quedan más callados de lo normal, con las puertas bien cerradas, mientras los mayores recuerdan a los más jóvenes que la muerte, en El Salvador, no siempre llega de improviso: a veces, antes, se deja ver caminando entre los vivos.",
+
+      /* El Duende */
+      "ley.data.duende.title": "El Duende",
+      "ley.data.duende.sub": "El pequeño guardián de los bosques",
+      "ley.data.duende.tag": "Criatura · Bosques",
+      "ley.data.duende.chip1": "Guardián del bosque",
+      "ley.data.duende.chip2": "Toca música",
+      "ley.data.duende.chip3": "Sombrero grande",
+      "ley.data.duende.chip4": "Travieso pero inofensivo",
+      "ley.data.duende.origin": "Zonas rurales y boscosas de todo el país; muy popular en cantones alejados de los cascos urbanos.",
+      "ley.data.duende.relato": "En los cantones más alejados, donde el bosque todavía es espeso y las quebradas corren escondidas entre la maleza, los campesinos hablan de un pequeño ser que vive entre los árboles desde tiempos que nadie recuerda con exactitud: el Duende. No mide más de sesenta centímetros de alto, pero tiene la cara arrugada de un anciano sabio o, según quien lo cuente, el rostro travieso de un niño eterno. Viste ropa colorida y luce siempre un sombrero de paja tan grande que parece flotar solo sobre sus hombros diminutos.\n\nA diferencia de otras criaturas del folclore salvadoreño que inspiran verdadero terror, el Duende no es maligno por naturaleza. Es curioso, juguetón y, sobre todo, un maestro del engaño inofensivo: le encanta esconder las herramientas de trabajo de los campesinos justo cuando más las necesitan, cambiar de lugar los objetos de la casa durante la noche, o asustar sin motivo a las gallinas y a los animales domésticos, solo para divertirse con el alboroto que provoca.\n\nSu fama más grande, sin embargo, viene de la música. Por las noches, quien se adentra en el monte puede escuchar el sonido lejano de una marimba, una guitarra o una flauta tocando melodías que nadie reconoce, melodías que parecen venir de todas direcciones a la vez. Es el Duende, tocando para sí mismo entre los árboles. Algunos, atraídos por esa música misteriosa, se han internado en el bosque siguiendo el sonido, solo para descubrir, horas después, que estaban completamente perdidos: el Duende también puede imitar voces humanas, llamando por su nombre a quienes busca confundir, guiándolos cada vez más lejos del camino de regreso.\n\nExiste además una variante muy conocida de esta leyenda, quizás la más repetida entre las familias rurales: se dice que el Duende se enamora perdidamente de las niñas pequeñas de ojos claros y trenzas largas. Cuando esto sucede, comienza a aparecerse por las noches cerca de la casa de la niña, jalándole suavemente las trenzas mientras duerme, escondiéndole sus juguetes favoritos, o siguiéndola de manera brought insistente cuando camina sola. Por generaciones, muchas madres y abuelas optaron por cortarle el cabello a sus hijas pequeñas específicamente para alejar al Duende y evitar que se encariñara demasiado con ellas.\n\nCon el paso del tiempo, esta leyenda ha cumplido, sin proponérselo, una función que va más allá del simple susto: el miedo a toparse con el Duende ha hecho que generaciones de niños y adultos eviten adentrarse innecesariamente en los bosques y quebradas más profundos, ayudando —de manera indirecta pero real— a proteger estos ecosistemas de la deforestación y el abandono.",
+
+      /* La Carreta Bruja */
+      "ley.data.carreta_bruja.title": "La Carreta Bruja",
+      "ley.data.carreta_bruja.sub": "El carruaje sin bueyes que recoge almas",
+      "ley.data.carreta_bruja.tag": "Presagio · Caminos rurales",
+      "ley.data.carreta_bruja.chip1": "Carreta fantasma",
+      "ley.data.carreta_bruja.chip2": "Ruido de cadenas",
+      "ley.data.carreta_bruja.chip3": "Recoge almas",
+      "ley.data.carreta_bruja.chip4": "Viernes de noche",
+      "ley.data.carreta_bruja.origin": "Tradición oral de zonas rurales, especialmente relatada en pueblos del oriente y centro del país.",
+      "ley.data.carreta_bruja.relato": "Hace ya muchos años, cuentan los más viejos del pueblo, vivía un hombre que se había entregado en cuerpo y alma al diablo, cambiando su vida por riquezas y poder. Una noche, cegado por la maldad que llevaba dentro, intentó obligar a sus propios bueyes a entrar por la fuerza a la iglesia del pueblo, con intenciones oscuras que nadie se atrevió jamás a repetir en voz alta. Pero los bueyes, sintiendo el mal que los rodeaba, se resistieron con todas sus fuerzas: reventaron las coyundas que los ataban a la carreta y escaparon despavoridos hacia el monte, dejando al hombre maldito y a su carreta solos, en medio de la noche.\n\nDesde entonces, dicen que esa misma carreta rueda sola por los caminos rurales, sin ningún animal que la jale, advancing lentamente entre chirridos de madera vieja y el tintineo metálico de cadenas oxidadas. En la punta de sus trinquetes cuelgan calaveras que se balancean con cada movimiento, y quienes se atreven a mirar dentro de ella aseguran haber visto los cuerpos de personas que ya no reconocían, apilados en un silencio que da más miedo que cualquier grito.\n\nDetrás de la carreta, cuentan algunos testigos, avanzan seres extraños con cabeza de zacate seco, como espantapájaros vivientes, siguiendo el mismo camino sin apartarse jamás de su ruta fija. Nadie sabe bien a dónde se dirigen, pero todos coinciden en algo: hay que apartarse del camino y quedarse muy quieto cuando se escucha acercarse el sonido inconfundible de sus ruedas de madera contra la tierra.\n\nUno de los relatos más recordados es el de un hombre que, volviendo tarde a su casa, sintió que algo se aproximaba en la oscuridad. Al voltear, vio la carreta desvencijada advancing hacia él lentamente, sin bueyes, cargada de calaveras y de aquellos seres de zacate que la seguían de cerca. El miedo lo paralizó por completo; no recuerda cómo llegó esa noche a su casa, solo que pasó los siguientes tres días con una fiebre altísima, y que desde entonces nunca más se dejó sorprender por la noche, mucho menos si era viernes.\n\nPorque según cuenta la tradición, es precisamente los viernes de noche cuando la Carreta Bruja sale con más fuerza a recorrer los caminos, recogiendo —dicen algunos— las almas de quienes han llevado una vida de maldad, mientras que otros aseguran que simplemente arrastra su condena eterna, sin un destino claro, como recordatorio permanente de lo que puede pasar cuando alguien decide entregarse al mal.",
+
+      /* La Cuyancúa */
+      "ley.data.cuyancua.title": "La Cuyancúa",
+      "ley.data.cuyancua.sub": "La bestia mitad serpiente, mitad cerdo",
+      "ley.data.cuyancua.tag": "Criatura · Sonsonate",
+      "ley.data.cuyancua.chip1": "Mitad culebra",
+      "ley.data.cuyancua.chip2": "Mitad cerdo",
+      "ley.data.cuyancua.chip3": "Anuncia temporales",
+      "ley.data.cuyancua.chip4": "Cañales de Izalco",
+      "ley.data.cuyancua.origin": "Zona de Izalco, departamento de Sonsonate; documentada por Leonhard Schultze-Jena en sus estudios sobre los pipiles de Izalco.",
+      "ley.data.cuyancua.relato": "En los extensos cañaverales que rodean Izalco, en el departamento de Sonsonate, los pobladores más antiguos hablan con respeto y algo de temor de una criatura que pocos han visto de cerca, pero que muchos aseguran haber escuchado: la Cuyancúa. Es descrita como un ser híbrido y perturbador, con el cuerpo de una serpiente enroscada en su parte trasera, y la cabeza, las patas y el gruñido de un cerdo en su parte delantera. Su tamaño, dicen quienes la han visto de lejos entre la maleza, es similar al de una vaca pequeña, lo suficientemente grande como para hacer temblar los cañales a su paso.\n\nLo que más ha alimentado esta leyenda a través de los años no es tanto su apariencia, sino el sonido que emite: un chillido agudo y penetrante, muy parecido al de un cerdo asustado, que se escucha especialmente en horas de la madrugada o justo antes de que se aproxime un temporal fuerte. Algunos ancianos de la zona explican que ese chillido lo produce cuando se le eriza todo el pelaje del lomo, como si presintiera la tormenta antes que nadie más en el pueblo.\n\nLos lugareños de los cañales de San Ramón, cerca de Izalco, cuentan que no se trata de una sola Cuyancúa, sino de varias, que emergen de tanto en tanto de entre los surcos de caña recién cortada, especialmente en las noches húmedas que anteceden a las lluvias más fuertes de la temporada. El propio investigador alemán Leonhard Schultze-Jena, que estudió a fondo la mitología de los pipiles de Izalco a inicios del siglo veinte, recogió y confirmó por escrito la existencia de este mito entre los pobladores de la región, dándole un lugar permanente dentro del folclore salvadoreño.\n\nAdemás de anunciar tormentas, a la Cuyancúa se le atribuye cierto dominio sobre los ríos y quebradas cercanas a los cañaverales, como si fuera una guardiana silenciosa de esas aguas. Por eso, cuando los agricultores escuchan su chillido característico resonando entre los cañales al anochecer, saben que es momento de asegurar bien sus casas, guardar los animales y prepararse: la lluvia, casi siempre, no tarda en llegar después de que la Cuyancúa se ha dejado escuchar.",
+
+      /* El Tabudo */
+      "ley.data.tabudo.title": "El Tabudo",
+      "ley.data.tabudo.sub": "El lagarto gigante de los volcanes",
+      "ley.data.tabudo.tag": "Criatura · Volcanes",
+      "ley.data.tabudo.chip1": "Lagarto enorme",
+      "ley.data.tabudo.chip2": "Vive en volcanes activos",
+      "ley.data.tabudo.chip3": "Guardián del fuego",
+      "ley.data.tabudo.chip4": "Itzqueye",
+      "ley.data.tabudo.origin": "Asociado a las zonas volcánicas del país; vinculado en algunas versiones con Itzqueye, diosa pipil del agua dulce.",
+      "ley.data.tabudo.relato": "En las faldas de los volcanes activos de El Salvador, donde el vapor de azufre sube entre las rocas y el suelo a veces retumba con un calor que viene de muy adentro, se cuenta la existencia de una criatura tan antigua como las propias montañas de fuego: el Tabudo, un lagarto de proporciones descomunales que, según la tradición, habita en las entrañas mismas de los volcanes, custodiando los pasajes que llevan hacia el fuego interior de la tierra.\n\nNadie ha podido describir con exactitud su tamaño real, porque casi nadie que se ha acercado demasiado ha regresado para contarlo con detalle. Se dice que su piel es tan oscura y áspera como la roca volcánica, y que se mueve despacio entre las cuevas y pozas de aguas termales que rodean los cráteres, como si el calor no le afectara en absoluto, como si él mismo fuera parte del volcán.\n\nUno de los relatos más conocidos sobre el Tabudo habla de un hombre que, por curiosidad o por descuido, se acercó demasiado a una de las pozas volcánicas cercanas a un cráter activo. De pronto, sin ninguna advertencia, una corriente subacuática sorpresiva y misteriosa lo arrastró hacia el fondo, llevándolo —según cuenta la leyenda— directamente hasta los dominios de Itzqueye, la diosa pipil del agua dulce, guardiana de esas aguas ocultas bajo la montaña. El hombre desapareció por completo, y nadie volvió a saber de él.\n\nAlgunas versiones de la historia relacionan directamente al Tabudo con Itzqueye, sugiriendo que el lagarto gigante es en realidad su guardián personal, encargado de proteger sus dominios acuáticos escondidos entre el fuego del volcán, castigando con la desaparición a quien se atreve a curiosear demasiado cerca de sus aguas sagradas.\n\nPor generaciones, esta leyenda ha servido como una advertencia práctica y muy necesaria: los volcanes de El Salvador son hermosos, pero también peligrosos, llenos de pozas ocultas, corrientes traicioneras y terreno inestable. El miedo a toparse con el Tabudo ha mantenido a muchas personas alejadas de zonas volcánicas realmente riesgosas, recordándoles que algunas cosas, en las profundidades de la montaña, es mejor no ir a buscarlas.",
+
+      /* La Giganta de Jocoro */
+      "ley.data.giganta_jocoro.title": "La Giganta de Jocoro",
+      "ley.data.giganta_jocoro.sub": "El icono gigante de las fiestas patronales",
+      "ley.data.giganta_jocoro.tag": "Tradición · Morazán",
+      "ley.data.giganta_jocoro.chip1": "Figura gigante",
+      "ley.data.giganta_jocoro.chip2": "Fiestas patronales",
+      "ley.data.giganta_jocoro.chip3": "Tradición Lenca",
+      "ley.data.giganta_jocoro.chip4": "Icono de Jocoro",
+      "ley.data.giganta_jocoro.origin": "Municipio de Jocoro, departamento de Morazán; vinculada a la tradición Lenca y a los megalitos de Corinto.",
+      "ley.data.giganta_jocoro.relato": "En el municipio de Jocoro, en el departamento de Morazán, se cuenta una historia distinta a la mayoría de las leyendas salvadoreñas: no habla de un espíritu vengativo ni de una criatura temida en la oscuridad, sino de una figura gigante que, lejos de asustar, se ha convertido en el orgullo más grande de todo el pueblo. Le llaman la Giganta de Jocoro, y cada año, durante las fiestas patronales, sale a recorrer las calles acompañada de toda su familia gigante y de una alegre corte de personajes enmascarados que bailan a su alrededor.\n\nEl origen de esta tradición se remonta a las creencias ancestrales del pueblo Lenca, que habitó gran parte del oriente de El Salvador desde tiempos muy antiguos. Según esa cosmovisión, existieron efectivamente gigantes en el territorio, seres de gran tamaño y fuerza sobrehumana que, según cuentan algunos, fueron los verdaderos autores de la formación y la decoración de los enormes megalitos que todavía hoy se pueden encontrar en Corinto, también en el departamento de Morazán, como testimonio de piedra de un pasado que se resiste a desaparecer del todo.\n\nCon el paso de los siglos, esa creencia ancestral se transformó poco a poco en una celebración comunitaria: la Giganta dejó de ser solo un recuerdo mitológico para convertirse en un personaje central de las fiestas patronales de Jocoro, con su propia familia de gigantes y su comitiva de acompañantes enmascarados, todos ellos construidos con gran cuidado por artesanos locales que mantienen viva esta tradición año tras año.\n\nHoy, ver desfilar a la Giganta de Jocoro por las calles del pueblo es, para muchos morazánicos, un motivo de identidad tan fuerte como puede serlo la Siguanaba o el Cipitío para el resto del país. Niños y adultos se agolpan en las aceras para verla pasar, celebrando no un miedo ancestral, sino un vínculo directo con sus raíces Lencas, recordando que en algún momento de la historia, en esa misma tierra oriental, se habló en serio de la existencia de gigantes.",
+
+      /* El Sisimite */
+      "ley.data.sisimite.title": "El Sisimite",
+      "ley.data.sisimite.sub": "El hombre salvaje de los cerros",
+      "ley.data.sisimite.tag": "Criatura · Montañas",
+      "ley.data.sisimite.chip1": "Cubierto de pelo",
+      "ley.data.sisimite.chip2": "Pies al revés",
+      "ley.data.sisimite.chip3": "Vive en cuevas",
+      "ley.data.sisimite.chip4": "Rapta viajeros",
+      "ley.data.sisimite.origin": "Zonas montañosas y boscosas de El Salvador y otros países centroamericanos; comparte raíces con relatos mesoamericanos del hombre salvaje.",
+      "ley.data.sisimite.relato": "En los cerros más apartados de El Salvador, donde la neblina cubre las cuevas y los senderos apenas son visibles entre la vegetación cerrada, se habla desde hace generaciones de un ser que habita en lo más profundo de la montaña: el Sisimite, un humanoide gigantesco, cubierto de pies a cabeza por un pelaje espeso y enmarañado, que vive completamente aislado de los pueblos, en cuevas que muy pocos se atreven a buscar.\n\nAl igual que el Cipitío, el Sisimite tiene una particularidad que lo hace todavía más temido: sus pies están colocados al revés, con los dedos apuntando hacia atrás. Esto significa que cualquier cazador o viajero que se pierda en la montaña y trate de seguir sus huellas para encontrar el camino de regreso, terminará caminando exactamente en la dirección opuesta a la que el Sisimite realmente tomó, adentrándose todavía más en terreno desconocido en lugar de salir de él.\n\nLos relatos más antiguos hablan de su fuerza sobrehumana, capaz de arrancar árboles de raíz y mover rocas enormes como si no pesaran nada. Se dice que ronda los senderos más solitarios durante la noche, y que ha llegado a raptar a viajeros descuidados —sobre todo mujeres jóvenes que se aventuran solas por la montaña— llevándoselos a sus cuevas profundas, de las cuales muy pocos, según cuenta la tradición oral, han logrado escapar con vida para contarlo.\n\nSu presencia se siente antes de verlo: un silencio extraño se apodera del bosque, los pájaros dejan de cantar de golpe, y un olor fuerte a tierra húmeda y animal salvaje se cuela entre los árboles. Quienes aseguran haberlo visto de lejos describen una silueta enorme, encorvada, moviéndose entre las sombras con una agilidad que no debería ser posible para un ser de ese tamaño.\n\nEsta leyenda, compartida con matices similares en otros países de Centroamérica, ha cumplido durante generaciones una función muy práctica: mantener alejadas a las personas, especialmente a las mujeres y los niños, de las zonas montañosas más remotas y peligrosas del país, donde los verdaderos riesgos —despeñaderos, animales salvajes, y la posibilidad real de perderse sin remedio— son tan grandes como los que se le atribuyen al propio Sisimite.",
+
+      /* El Justo Juez de la Noche */
+      "ley.data.justo_juez.title": "El Justo Juez de la Noche",
+      "ley.data.justo_juez.sub": "El jinete que juzga a los pecadores",
+      "ley.data.justo_juez.tag": "Presagio · Caminos",
+      "ley.data.justo_juez.chip1": "Jinete nocturno",
+      "ley.data.justo_juez.chip2": "Reza el Justo Juez",
+      "ley.data.justo_juez.chip3": "Persigue infieles",
+      "ley.data.justo_juez.chip4": "Oración protectora",
+      "ley.data.justo_juez.origin": "Tradición oral extendida en pueblos rurales; se relaciona con la oración popular católica conocida como \"el Justo Juez\".",
+      "ley.data.justo_juez.relato": "En los caminos rurales de El Salvador, donde la fe católica se mezcla con el miedo ancestral a la oscuridad, se cuenta la historia de un jinete que aparece únicamente ante quienes llevan sobre su conciencia el peso de una vida deshonesta: hombres infieles, borrachos que maltratan a su familia, o personas que han hecho daño sin arrepentimiento. Le llaman el Justo Juez de la Noche, y su sola aparición se siente como una sentencia silenciosa que cae sobre quien la merece.\n\nNadie describe con claridad su rostro, oculto siempre bajo la sombra de un sombrero o entre la oscuridad de la noche cerrada. Monta un caballo negro que no hace ruido al galopar, como si sus cascos apenas rozaran el suelo, y avanza por los caminos solitarios sin decir una sola palabra, sin necesidad de gritar ni amenazar: su presencia por sí sola basta para desatar el pánico.\n\nQuienes lo han encontrado en su camino cuentan que, apenas se acerca, los caballos propios se agitan nerviosos, relinchando sin motivo aparente, mientras los perros del vecindario aúllan al unísono como si percibieran algo que los humanos apenas alcanzan a sentir: una opresión pesada en el pecho, un frío que sube desde los pies, la certeza absoluta de que ese jinete sabe exactamente quién es uno y qué ha hecho mal en la vida.\n\nLa tradición asegura que existe una única forma de librarse de su presencia: rezar en voz alta, con fe verdadera, la oración popular conocida como \"el Justo Juez\", una plegaria transmitida de generación en generación precisamente para estos momentos de peligro nocturno. Se dice que en cuanto las primeras palabras de la oración salen de la boca del viajero asustado, el jinete se detiene, observa un instante más, y luego se aleja despacio hacia la oscuridad de donde vino, sin insistir, como si su única misión hubiera sido recordarle a esa persona que la noche también puede traer justicia.\n\nMás que un simple espanto, esta figura cumple una función moral muy clara dentro de la tradición salvadoreña: recuerda a quien anda por caminos oscuros —literal y metafóricamente— que una vida de vicios, infidelidades y maltratos tiene consecuencias, y que la fe, representada en esa oración protectora, sigue siendo el refugio más seguro frente al miedo de la noche.",
+
+      /* El Padre sin Cabeza */
+      "ley.data.padre_sin_cabeza.title": "El Padre sin Cabeza",
+      "ley.data.padre_sin_cabeza.sub": "El sacerdote que vaga sin descanso",
+      "ley.data.padre_sin_cabeza.tag": "Espíritu · Pueblos coloniales",
+      "ley.data.padre_sin_cabeza.chip1": "Sacerdote decapitado",
+      "ley.data.padre_sin_cabeza.chip2": "Monta un caballo negro",
+      "ley.data.padre_sin_cabeza.chip3": "Cascos coloniales",
+      "ley.data.padre_sin_cabeza.chip4": "Penitencia eterna",
+      "ley.data.padre_sin_cabeza.origin": "Pueblos con fuerte herencia colonial, como Suchitoto y otros cascos históricos del país.",
+      "ley.data.padre_sin_cabeza.relato": "En los pueblos con más historia colonial de El Salvador, como Suchitoto, donde las calles todavía conservan sus adoquines de piedra y las iglesias centenarias dominan la plaza principal, se cuenta la historia de un sacerdote que, hace siglos, cometió una falta tan grave que ni la muerte pudo darle descanso. Le conocen como el Padre sin Cabeza, y su condena es vagar eternamente, montado sobre un caballo negro que galopa sin hacer ningún ruido, por las mismas calles que una vez recorrió con vida.\n\nNadie en el pueblo sabe con certeza qué fue exactamente lo que hizo aquel sacerdote para merecer semejante castigo: algunos hablan de un pecado imperdonable cometido dentro de la propia iglesia, otros de una traición a su fe o a alguien que confiaba en él. Lo que todos coinciden en contar es el castigo: perdió su cabeza para siempre, y desde entonces recorre las calles empedradas sin ella, vestido con su sotana oscura, mientras el caballo avanza silencioso bajo la luz de la luna.\n\nSu aparición trae consigo un frío intenso e inexplicable que se siente en el aire incluso en las noches más calurosas del verano salvadoreño. Los pocos que aseguran haberlo visto describen la silueta inconfundible de un jinete sin cabeza recorriendo la plaza principal o las callejuelas cercanas a la iglesia justo después de la medianoche, sin detenerse jamás, sin mirar a nadie, cumpliendo un recorrido que parece repetirse noche tras noche desde hace generaciones.\n\nExisten distintas versiones sobre el propósito de su eterno peregrinar: algunos cuentan que busca desesperadamente una confesión que nunca pudo hacer en vida, otros aseguran que simplemente cumple su penitencia en silencio, sin posibilidad alguna de comunicarse con los vivos que se cruzan en su camino, condenado a repetir el mismo trayecto sin final.\n\nEsta leyenda refleja algo muy propio de los pueblos coloniales salvadoreños: el peso enorme que tuvo la Iglesia en la vida cotidiana durante siglos, y sirve como un recordatorio simbólico muy directo: ninguna falta, ni siquiera la cometida por una autoridad religiosa respetada, queda sin consecuencia, aunque esa consecuencia tenga que perseguir a su culpable durante toda la eternidad.",
+
+      /* El Sombrerón */
+      "ley.data.sombreron.title": "El Sombrerón",
+      "ley.data.sombreron.sub": "El pequeño jinete de sombrero enorme",
+      "ley.data.sombreron.tag": "Criatura · Caminos nocturnos",
+      "ley.data.sombreron.chip1": "Sombrero descomunal",
+      "ley.data.sombreron.chip2": "Trenza los caballos",
+      "ley.data.sombreron.chip3": "Ronda las calles",
+      "ley.data.sombreron.chip4": "Asusta animales",
+      "ley.data.sombreron.origin": "Leyenda compartida con otros países de Centroamérica, adaptada en la tradición oral salvadoreña de pueblos y caseríos.",
+      "ley.data.sombreron.relato": "En los caseríos y pueblos pequeños de El Salvador, donde todavía hay corrales con caballos y las calles se quedan completamente a oscuras después de cierta hora, se cuenta la historia de un hombre pequeño y silencioso, vestido enteramente de negro, cuyo sombrero de ala tan ancha le cubre casi todo el rostro, dejando ver apenas la sombra de sus ojos. Le llaman el Sombrerón, y su presencia se asocia siempre con la noche y, sobre todo, con los caballos.\n\nLos dueños de fincas y corrales cuentan que, de vez en cuando, amanecen sus caballos con las crines completamente trenzadas, en nudos tan complicados y perfectos que parecen imposibles de hacer con prisa o en la oscuridad. Nadie ha visto directamente al Sombrerón haciendo este trabajo minucioso durante la noche, pero todos en el pueblo saben perfectamente a quién atribuirle esas trenzas imposibles de deshacer al día siguiente.\n\nMás inquietante todavía resulta lo que cuentan los viajeros nocturnos que caminan solos por las calles del caserío: aseguran sentir, de pronto, unos pasos detrás de ellos, siempre a la misma distancia, sin acercarse ni alejarse. Al voltear, encuentran la figura silenciosa del Sombrerón, siguiéndolos de cerca sin decir una palabra, sin hacer ademán de atacar, únicamente observando desde la sombra de su enorme sombrero. Esa persecución silenciosa, sin motivo aparente ni final claro, es quizás lo que más terror provoca entre quienes se topan con él.\n\nAunque comparte similitudes con leyendas parecidas de otros países centroamericanos, en El Salvador el Sombrerón se ha adaptado a la vida rural y ganadera de los pueblos pequeños, convirtiéndose en la explicación popular perfecta para esos nudos extraños en las crines de los caballos y para el comportamiento nervioso que a veces muestran los animales de las fincas sin ninguna razón visible.\n\nCon el tiempo, esta figura ha servido también como una advertencia más para no caminar solo por las calles oscuras del caserío después de cierta hora: porque nunca se sabe si esos pasos silenciosos que uno cree escuchar detrás son solo el eco de los propios, o si en realidad el Sombrerón ha decidido seguirte esa noche, con su sombrero enorme y su silencio inquietante, hasta la puerta misma de tu casa.",
+
+      /* El Cuco de los Sueños */
+      "ley.data.cuco_de_los_suenos.title": "El Cuco de los Sueños",
+      "ley.data.cuco_de_los_suenos.sub": "El ser que se lleva a los niños desobedientes",
+      "ley.data.cuco_de_los_suenos.tag": "Advertencia · Hogar",
+      "ley.data.cuco_de_los_suenos.chip1": "Figura sin forma fija",
+      "ley.data.cuco_de_los_suenos.chip2": "Aparece de noche",
+      "ley.data.cuco_de_los_suenos.chip3": "Vigila a los niños",
+      "ley.data.cuco_de_los_suenos.chip4": "Tradición oral familiar",
+      "ley.data.cuco_de_los_suenos.origin": "Tradición doméstica transmitida de madres y abuelas a los niños en todo El Salvador, sin un origen geográfico único.",
+      "ley.data.cuco_de_los_suenos.relato": "A diferencia de otras leyendas que se cuentan alrededor de un río, un volcán o un pueblo específico, el Cuco no tiene un lugar fijo donde vive, ni una historia de origen clara como la Siguanaba o el Cipitío. Vive, en realidad, en la imaginación de cada familia salvadoreña, y cada abuela, cada madre, lo describe un poco distinto según lo que ella misma escuchó de niña.\n\nPara algunos es una sombra alargada que se estira por las paredes del cuarto justo cuando se apaga la luz. Para otros, es un anciano encorvado que ronda las casas de noche, mirando por las ventanas para ver qué niño sigue despierto pasada su hora de dormir. Hay quienes lo imaginan sin forma definida en absoluto, como una presencia que simplemente se siente, un frío repentino en la habitación, un crujido en el techo justo cuando el niño ha decidido no obedecer a sus padres.\n\nLo único que se mantiene igual en cada versión de la historia es su propósito: el Cuco existe para que los niños se porten bien, se duerman a la hora que les corresponde, y no le hagan travesuras a sus padres. \"Pórtate bien o te lleva el Cuco\" es una frase que casi cualquier salvadoreño escuchó de pequeño, susurrada justo antes de apagar la luz, con esa mezcla exacta de cariño y advertencia que solo una madre o una abuela saben transmitir.\n\nA diferencia de figuras como la Siguanaba o el Cadejo, que castigan comportamientos de adultos —la infidelidad, la mala vida, los vicios—, el Cuco cumple una función exclusivamente dentro del hogar: es el guardián invisible del buen comportamiento infantil, el recordatorio nocturno de que hay reglas que cumplir y horarios que respetar, incluso cuando los padres ya no están repitiéndolo en voz alta.\n\nAunque ha perdido fuerza frente a otras historias más elaboradas del folclore salvadoreño, el Cuco sigue vivo en el anecdotario familiar de muchísimas casas del país. Todavía hoy, en noches donde un niño se resiste a dormir, alguna abuela sonríe con complicidad y repite la misma advertencia que ella escuchó de pequeña: que ahí afuera, en la oscuridad del cuarto, el Cuco anda esperando a los que no se portan bien.",
     },
 
     en: {
@@ -1596,7 +1790,201 @@
         69: { nombre: "Sumpul River", lugar: "Chalatenango", desc: "Setting for tragic historical events and rural myths about protective spirits of the high waters.", chips: ["History", "Nature"] },
         70: { nombre: "Llanos de Olocuilta", lugar: "La Paz", desc: "Historic valleys surrounded by colonial stories of rattling wagons and wandering goblins.", chips: ["Myths", "Tradition"] }
       }
-}
+      },
+      // Sección Leyendas (Navegación & Hero)
+      "ley.meta.title": "Salvadorean Roots — Legends",
+      "ley.hero.eyebrow": "Salvadorean Roots welcomes you",
+      "ley.hero.title": "When night falls,   El Salvador tells stories",
+      "ley.hero.desc": "Whispering rivers, tricking paths, shadows watching over children. Discover 16 legends that our grandparents told for generations.",
+      "ley.hero.cta": "Explore the legends",
+
+      // Tarjetas conceptuales
+      "ley.concept.card1.title": "What is a legend?",
+      "ley.concept.card1.hint": "Tap to discover",
+      "ley.concept.card1.back": "A story that blends the real with the supernatural to explain the inexplicable: a noise in the ravine, a lost traveler, the fear of the night.",
+
+      "ley.concept.card2.title": "Mestizo roots",
+      "ley.concept.card2.hint": "Tap to discover",
+      "ley.concept.card2.back": "Born from the clash between the Náhuat-Pipil and Lenca cosmovisions and the Catholic faith brought during colonial times. Ancient gods coexist with Christian prayers.",
+
+      "ley.concept.card3.title": "Told, not written",
+      "ley.concept.card3.hint": "Tap to discover",
+      "ley.concept.card3.back": "They live by word of mouth. Every town, every grandmother tells them differently — that's why almost none has a single version.",
+
+      // Biblioteca & Modal
+      "ley.library.eyebrow": "The library",
+      "ley.library.title": "16 legends and myths of El Salvador",
+      "ley.modal.listen": "Listen to legend",
+      "ley.modal.close": "Close",
+      "ley.modal.origin": "Approximate origin",
+
+      /* ── Página: Leyendas ── */
+      "ley.modal.image_placeholder": "Space for image<br>of this legend",
+
+      /* La Siguanaba */
+      "ley.data.siguanaba.title": "La Siguanaba",
+      "ley.data.siguanaba.sub": "The spirit that leads unfaithful men astray",
+      "ley.data.siguanaba.tag": "Spirit · Rivers",
+      "ley.data.siguanaba.chip1": "Female spirit",
+      "ley.data.siguanaba.chip2": "Appears at night",
+      "ley.data.siguanaba.chip3": "Rivers and ravines",
+      "ley.data.siguanaba.chip4": "Drives men mad",
+      "ley.data.siguanaba.origin": "Náhuat-Pipil tradition, widespread across El Salvador. Collected by Miguel Ángel Espino in \"Mitología de Cuscatlán\".",
+      "ley.data.siguanaba.relato": "The elders say that a very long time ago, when the gods still walked among men, there lived a woman named Sihuehuet, whose name in Náhuat means \"beautiful woman.\" She was indeed the fairest in her town: golden skin, black hair as long as the night, and a laugh that turned every head. She was married, but her restless heart led her to fall in love with the Morning Star, a god who descended from the heavens to meet her by the river.\n\nWhen Tlaloc, the powerful god of waters and rains, discovered her betrayal, he showed no mercy. He cursed her forever: stripped away her name and true beauty, condemning her to wander eternally through rivers, ravines, and dark paths as La Siguanaba, which means \"hideous woman.\" From then on, she could only use her beauty as a lure, a trap set for men who, like her, betray those who love them.\n\nThus, on any given night, a man walking alone down a deserted trail—returning from a tavern, sneaking away from home to see another woman, or simply ignoring his elders' advice—might run into her. She appears bathing in the river or washing clothes with a golden bowl, calling out sweetly with a voice that promises everything he has been searching for in other arms. He follows her, hypnotized, straying deeper into the wilderness without realizing how far he gets from the way back.\n\nAnd then, when he is far away from any help, she turns her head. Where a smile used to be, now lies a skull; where bright eyes shone, empty sockets stare back, or the elongated snout and teeth of a mare. The man's scream gets lost in the night while La Siguanaba laughs and disappears, leaving him lost, trembling, often burning with fever for days, and forever scarred by fear.\n\nThe town elders say there are ways to escape her if encountered: bite hard on the edge of a machete, pray out loud without stopping, cross a pair of scissors or carry sewing needles in your pocket, or yell your mother's name three times—because they say it reminds her of her own betrayal and makes her flee. Some claim that if a man manages to look at her face before she reveals it, he is freed from her curse forever. But the core lesson every mother repeats to her son before letting him out at night remains the same: beware of following beauty that appears alone in the dark, for behind it, La Siguanaba may be waiting for you.",
+
+      /* El Cipitío */
+      "ley.data.cipitio.title": "El Cipitío",
+      "ley.data.cipitio.sub": "The eternal child who never grows up",
+      "ley.data.cipitio.tag": "Spirit · Forests",
+      "ley.data.cipitio.chip1": "Eternal child",
+      "ley.data.cipitio.chip2": "Backward feet",
+      "ley.data.cipitio.chip3": "Son of La Siguanaba",
+      "ley.data.cipitio.chip4": "Charms young maidens",
+      "ley.data.cipitio.origin": "Pipil-Náhuat mythology nationwide; linked to the myth of La Siguanaba as her cursed son.",
+      "ley.data.cipitio.relato": "Before turning into La Siguanaba, Sihuehuet had a son with a god: a round-cheeked boy with a protruding belly button whom they called Cipitío. But when she left following her forbidden love affairs, she abandoned her child, leaving him alone in the wild. The gods, furious with the mother, decided to punish the son as well, even though he was blameless: they condemned him to remain forever in the body of a ten-year-old boy, unable to grow up, wandering eternally among the rivers and sugarcane fields where he once lived with her.\n\nSince then, El Cipitío has been a small, dark-skinned spirit with a round belly like a little Buddha, wearing a straw hat so huge it nearly covers his face. The oddest detail is that his feet are turned backward: his toes point behind him, so anyone trying to follow his tracks in the dirt ends up walking in the exact opposite direction of where he actually went.\n\nUnlike his mother, El Cipitío does not seek to do harm. He is playful, curious, and above all, romantic: he loves appearing near rivers where young women wash clothes, especially if they are pretty with light eyes. He hides in the bushes and throws tiny pebbles to get their attention, or whistles from afar, though he never lets himself be fully seen. When a young maiden gets angry or frightened, he giggles and runs away, leaving only the echo of his footsteps.\n\nAnother of his favorite pranks is sneaking into rural kitchens at night to roll around in the warm ash of extinguished stoves, leaving small, messy footprints all over the floor by morning. Upon finding those marks, grandmothers smile and say without surprise: \"Cipitío came to play with the ashes again.\"\n\nOver time, El Cipitío has become one of the most beloved figures of Salvadoran folklore—not as a threat, but as a tender and mischievous reminder of a child who never had the chance to grow up, condemned by a mistake he did not commit, and who despite everything continues to seek warmth and company through laughter and pranks along the rivers.",
+
+      /* El Cadejo */
+      "ley.data.cadejo.title": "El Cadejo",
+      "ley.data.cadejo.sub": "The two-faced guardian: white and black",
+      "ley.data.cadejo.tag": "Creature · Roads",
+      "ley.data.cadejo.chip1": "White Cadejo",
+      "ley.data.cadejo.chip2": "Black Cadejo",
+      "ley.data.cadejo.chip3": "Glowing eyes",
+      "ley.data.cadejo.chip4": "Eternal struggle",
+      "ley.data.cadejo.origin": "Widespread across Central America; told in El Salvador especially along rural roads and night trails.",
+      "ley.data.cadejo.relato": "It is said that generations ago, in some forgotten sugarcane field or trail, two brothers were born in the form of large dogs with long, tangled fur, but with entirely different fates. One grew up good and protective: he became the White Cadejo, guardian of night travelers returning home with a clean heart. The other gave himself over to darkness, transforming into the Black Cadejo, a beast that haunts the roads searching for those who venture out at night with bad intentions—to steal, to betray their spouse, or to harm someone.\n\nAnyone walking alone down a rural path after a certain hour might suddenly catch the scent of incense and fresh flowers mixing with the night air: a sign that the White Cadejo is walking nearby, quietly guarding their steps from the shadow of the trees, his blue eyes barely gleaming among the brush. His presence brings calm, and many swear they arrived home safe and sound because he accompanied them unnoticed.\n\nIf, on the other hand, the air fills with a heavy smell of burning sulfur and the sound of dragging chains or hooves striking the dirt is heard, one must begin to pray: the Black Cadejo approaches, eyes burning red like hot coals, seeking someone to terrify into madness or worse.\n\nLegend says that every so often, the two brothers meet in the dark and wage a fierce battle, an eternal struggle between good and evil that neither can truly win. Whoever has the misfortune of hearing that fight—snarls, rattling chains, howls that seem to tear the night apart—must stay completely still and wait in silence until it ends. Getting caught in the middle of that battle, even by accident, can mean becoming trapped between two forces; and from that, those who tell the story claim, few leave with their minds intact.\n\nThat is why, in towns where this story is passed down through generations, parents warn their children to avoid walking alone at night—and above all, to avoid doing so with bad intentions—because one never knows which of the two brothers is wandering near that night, waiting to accompany... or to punish.",
+
+      /* La Llorona */
+      "ley.data.llorona.title": "La Llorona",
+      "ley.data.llorona.sub": "The eternal wail of a mother",
+      "ley.data.llorona.tag": "Spirit · Waters",
+      "ley.data.llorona.chip1": "Eternal weeping",
+      "ley.data.llorona.chip2": "Rivers and lakes",
+      "ley.data.llorona.chip3": "Midnight",
+      "ley.data.llorona.chip4": "Searches for her children",
+      "ley.data.llorona.origin": "Present throughout Latin America; the Salvadoran version is associated with the Lempa River and Lake Coatepeque.",
+      "ley.data.llorona.relato": "They say that many years ago, near the Lempa River, lived a young and beautiful woman who fell madly in love with a man who never fully returned her affection. They had children together, but he abandoned her, leaving her alone with shame and the pain of a broken promise. Blinded by despair and the madness of feeling betrayed, she took her children to the riverbank one night and drowned them in its dark waters, only to repent the very next instant when it was already too late.\n\nFrom that moment on, her soul found no rest. She was condemned to wander eternally by rivers and lakes, searching through the fog for the children she took, casting a gut-wrenching cry to the wind that can still be heard on the quietest nights: \"Oh, my children! Oh, my children!\"—a wail that seems to come from everywhere and nowhere at once, chilling the skin and stopping the heart of whoever hears it.\n\nIn El Salvador she has been seen—or rather, heard—especially near the Lempa River, Lake Coatepeque, and the Grande River of San Miguel, always past midnight, dressed in white, her wet hair falling over a face that some describe as still beautiful, while others claim is deformed, forever marked by pain and endless remorse.\n\nThose who claim to have seen her up close say she walks slowly along the water's edge, gazing into the current as if still expecting to find her children floating among the stones. If someone draws too near, she turns abruptly, and whoever looks into her eyes becomes paralyzed with terror, unable to move for long minutes while her wailing echoes closer and closer.\n\nFor generations, this has been one of the most powerful warnings for Salvadoran children: never go near rivers alone at night, nor play near the water past a certain hour, because there, among the mist and the sound of the stream, La Llorona may be waiting, forever carrying the weight of a tragedy she caused and can never undo.",
+
+      /* La Descarnada */
+      "ley.data.descarnada.title": "La Descarnada",
+      "ley.data.descarnada.sub": "Death walking among the living",
+      "ley.data.descarnada.tag": "Omen · Towns",
+      "ley.data.descarnada.chip1": "Living skeleton",
+      "ley.data.descarnada.chip2": "Night streets",
+      "ley.data.descarnada.chip3": "Omen of death",
+      "ley.data.descarnada.chip4": "Walks among humans",
+      "ley.data.descarnada.origin": "Common in towns across the country's interior, especially around cemeteries and lonely roads.",
+      "ley.data.descarnada.relato": "In the oldest towns of interior El Salvador, where dirt streets remain and the cemetery lies just outside, people tell the story of a figure that does not chase, scream, or intentionally terrify: she simply walks. They call her La Descarnada, and whoever sees her knows, without explanation, that death is near.\n\nShe is described as a tall woman, thin down to the bone, barely covered by a frayed white sheet or ragged dress that the night wind sways back and forth. When the cloth shifts, bare bones are revealed between the folds, as if not a single ounce of flesh remained. She walks slowly, unhurriedly, down the quiet streets of small towns, along paths bordering cemeteries, or down rural trails that almost no one travels after dark.\n\nUnlike other figures of Salvadoran folklore, La Descarnada does not seek to trick, seduce, or play pranks. She does not run after those who spot her, nor speak, nor threaten. She simply continues on her path with a dry, hollow clatter of bones knocking against each other with every step, as if walking with an unattached skeleton beneath the tattered cloth. That eerily calm indifference is perhaps the most terrifying part of all: one knows she is not coming directly for them, but seeing her means death has somehow cast its sight upon your home, your family, or yourself.\n\nNumerous people in different towns across the country claim to have seen her, almost always during the early morning hours, walking slowly down cobbled streets or paths leading to the local cemetery. Some say they met her head-on at a dark corner, standing frozen while she passed right by without even turning to look, leaving behind a cold chill that took hours to fade.\n\nPopular belief holds that whoever encounters La Descarnada, or someone close in their family, will soon face an impending death. That is why on nights when rumors spread that she has been spotted roaming, entire towns grow quieter than usual, doors stay tightly locked, while elders remind youth that death in El Salvador does not always arrive unexpectedly: sometimes, beforehand, it lets itself be seen walking among the living.",
+
+      /* El Duende */
+      "ley.data.duende.title": "El Duende",
+      "ley.data.duende.sub": "The tiny guardian of the forests",
+      "ley.data.duende.tag": "Creature · Forests",
+      "ley.data.duende.chip1": "Forest guardian",
+      "ley.data.duende.chip2": "Plays music",
+      "ley.data.duende.chip3": "Large straw hat",
+      "ley.data.duende.chip4": "Playful but harmless",
+      "ley.data.duende.origin": "Rural and forested areas nationwide; highly popular in remote villages.",
+      "ley.data.duende.relato": "In remote villages where the forest is still dense and streams run hidden beneath brush, farmers speak of a small creature living among trees since time immemorial: El Duende. Standing no taller than two feet, he bears the wrinkled face of a wise elder or the playful face of an eternal child. He wears colorful clothes and a straw hat so massive it seems to float on his tiny shoulders.\n\nUnlike other figures in Salvadoran folklore that inspire true terror, El Duende is not evil by nature. He is curious, playful, and a master of harmless trickery: he loves hiding farmers' work tools right when needed most, rearranging household objects overnight, or frightening chickens and pets just to enjoy the commotion.\n\nHis greatest fame, however, comes from music. At night, anyone venturing into the woods can hear the distant sounds of a marimba, guitar, or flute playing unfamiliar melodies that seem to come from everywhere at once. It is El Duende playing for himself among the trees. Drawn by the mysterious music, some have ventured deep into the woods following the sound, only to realize hours later that they were completely lost: El Duende can also imitate human voices, calling targets by name to guide them further from the path home.\n\nThere is also a well-known variation of this legend: El Duende falls hopelessly in love with young girls with light eyes and long braids. When this happens, he appears at night near the girl's house, gently tugging her braids while she sleeps, hiding her favorite toys, or persistently following her when she walks alone. For generations, many mothers cut their young daughters' hair specifically to keep El Duende away.\n\nOver time, this legend has served a practical function beyond simple scares: the fear of encountering El Duende kept generations of children and adults from wandering unnecessarily into deep forests and ravines, helping preserve these ecosystems.",
+
+      /* La Carreta Bruja */
+      "ley.data.carreta_bruja.title": "La Carreta Bruja",
+      "ley.data.carreta_bruja.sub": "The driverless cart that collects souls",
+      "ley.data.carreta_bruja.tag": "Omen · Rural roads",
+      "ley.data.carreta_bruja.chip1": "Ghost cart",
+      "ley.data.carreta_bruja.chip2": "Rattling chains",
+      "ley.data.carreta_bruja.chip3": "Collects souls",
+      "ley.data.carreta_bruja.chip4": "Friday nights",
+      "ley.data.carreta_bruja.origin": "Oral tradition in rural areas, especially told in eastern and central towns.",
+      "ley.data.carreta_bruja.relato": "Many years ago, town elders say, lived a man who surrendered his soul to the devil in exchange for wealth and power. One night, blinded by inner malice, he attempted to force his own oxen into the town church for dark purposes. Feeling the evil around them, the oxen resisted, broke their yokes, and fled into the woods, leaving the cursed man and his cart alone in the night.\n\nSince then, that same cart rolls down rural roads on its own without any animals pulling it, creaking with old wood and the clinking of rusty chains. Skulls sway from its stakes, and those daring to look inside claim to have seen stacked bodies of unrecognized people in terrifying silence.\n\nBehind the cart, witnesses say, strange creatures with dry grass heads follow like living scarecrows. Nobody knows where they head, but all agree: one must step off the path and stay still when hearing those wooden wheels against the dirt.\n\nOne remembered story tells of a man returning late who heard something approaching. Turning around, he saw the dilapidated cart moving without oxen, loaded with skulls and followed by grass-headed beings. Paralysed by fear, he spent three days with a high fever and never let night catch him outdoors again, especially on Fridays.\n\nAccording to tradition, Friday nights are when La Carreta Bruja travels roads most actively, collecting souls of the wicked or dragging its eternal curse as a reminder of the price of evil.",
+
+      /* La Cuyancúa */
+      "ley.data.cuyancua.title": "La Cuyancúa",
+      "ley.data.cuyancua.sub": "The beast half-snake, half-pig",
+      "ley.data.cuyancua.tag": "Creature · Sonsonate",
+      "ley.data.cuyancua.chip1": "Half snake",
+      "ley.data.cuyancua.chip2": "Half pig",
+      "ley.data.cuyancua.chip3": "Foretells storms",
+      "ley.data.cuyancua.chip4": "Sugarcane fields of Izalco",
+      "ley.data.cuyancua.origin": "Izalco region, Sonsonate department; documented by Leonhard Schultze-Jena.",
+      "ley.data.cuyancua.relato": "In the vast sugarcane fields around Izalco, Sonsonate, older residents speak with respect and fear of a creature few have seen up close but many have heard: La Cuyancúa. It is described as a disturbing hybrid with the coiled body of a serpent behind and the head, legs, and grunt of a pig in front, similar in size to a small cow.\n\nWhat has fueled this legend is the sound it emits: a sharp, piercing squeal similar to a frightened pig, heard during early morning hours or right before severe storms. Elders explain that this squeal occurs when its back bristles up, sensing rain before anyone else in town.\n\nLocals near San Ramón report that multiple Cuyancúas exist, emerging periodically from cut sugarcane rows on humid nights before heavy rains. German researcher Leonhard Schultze-Jena documented this Pipil myth in the early 20th century, cementing its place in Salvadoran folklore.\n\nBesides forecasting rain, La Cuyancúa is believed to rule over nearby rivers and streams. When farmers hear its squeal echoing through sugarcane fields at dusk, they secure their homes and prepare, knowing heavy rain will soon follow.",
+
+      /* El Tabudo */
+      "ley.data.tabudo.title": "El Tabudo",
+      "ley.data.tabudo.sub": "The giant lizard of the volcanoes",
+      "ley.data.tabudo.tag": "Creature · Volcanoes",
+      "ley.data.tabudo.chip1": "Enormous lizard",
+      "ley.data.tabudo.chip2": "Lives in active volcanoes",
+      "ley.data.tabudo.chip3": "Guardian of fire",
+      "ley.data.tabudo.chip4": "Itzqueye",
+      "ley.data.tabudo.origin": "Associated with volcanic areas; linked to Itzqueye, Pipil goddess of fresh water.",
+      "ley.data.tabudo.relato": "On the slopes of El Salvador's active volcanoes, where sulfur vapors rise between rocks, lives a creature as old as the mountains: El Tabudo, a giant lizard guarding underground passages leading to the earth's inner fire.\n\nIts exact size is unknown because few who get close return with details. Its skin is as dark and rough as volcanic rock, moving slowly among thermal pools around craters as if unaffected by heat.\n\nOne account tells of a man who ventured too close to a volcanic pool near an active crater. An underwater current dragged him to the depths, into the domain of Itzqueye, Pipil goddess of fresh water. The man vanished completely.\n\nSome versions link El Tabudo directly to Itzqueye as her personal guardian protecting hidden aquatic realms beneath volcanic fire, punishing curious onlookers with disappearance. For generations, this legend served as a practical warning about real volcanic dangers.",
+
+      /* La Giganta de Jocoro */
+      "ley.data.giganta_jocoro.title": "La Giganta de Jocoro",
+      "ley.data.giganta_jocoro.sub": "The giant icon of local patron saint festivals",
+      "ley.data.giganta_jocoro.tag": "Tradition · Morazán",
+      "ley.data.giganta_jocoro.chip1": "Giant figure",
+      "ley.data.giganta_jocoro.chip2": "Patron festivities",
+      "ley.data.giganta_jocoro.chip3": "Lenca tradition",
+      "ley.data.giganta_jocoro.chip4": "Icon of Jocoro",
+      "ley.data.giganta_jocoro.origin": "Jocoro, Morazán; tied to Lenca tradition and the megaliths of Corinto.",
+      "ley.data.giganta_jocoro.relato": "In Jocoro, Morazán, storytellers tell a tale unlike most Salvadoran legends: it speaks not of revengeful spirits, but of a beloved giant figure. Known as La Giganta de Jocoro, she parades through town streets during annual festivals alongside giant family figures and masked dancers.\n\nThis tradition traces back to ancestral beliefs of the Lenca people who inhabited eastern El Salvador. According to their worldview, giants of great strength once lived in the territory, creating the massive megaliths found in Corinto, Morazán.\n\nOver centuries, this belief transformed into a community celebration. Crafted by local artisans, La Giganta became a central festival icon rather than just a mythological memory.\n\nToday, watching La Giganta parade through town brings local pride and connects residents directly to their Lenca heritage, celebrating ancestral roots rather than fear.",
+
+      /* El Sisimite */
+      "ley.data.sisimite.title": "El Sisimite",
+      "ley.data.sisimite.sub": "The wild man of the hills",
+      "ley.data.sisimite.tag": "Creature · Mountains",
+      "ley.data.sisimite.chip1": "Covered in fur",
+      "ley.data.sisimite.chip2": "Backward feet",
+      "ley.data.sisimite.chip3": "Lives in caves",
+      "ley.data.sisimite.chip4": "Abducts travelers",
+      "ley.data.sisimite.origin": "Mountainous regions; shares roots with Mesoamerican wild man tales.",
+      "ley.data.sisimite.relato": "In remote Salvadoran hills where fog covers caves, tales speak of El Sisimite: a giant humanoid covered in thick fur who lives isolated in deep mountain caves.\n\nLike El Cipitío, his feet face backward. Anyone trying to track him end up walking away from his real location, getting lost deeper in unknown terrain.\n\nOld stories tell of his immense strength, capable of uprooting trees and moving massive rocks. He roams lonely trails at night, allegedly abducting careless travelers—especially young women—bringing them to deep caves.\n\nHis presence is felt before he is seen: forest silence falls, birds stop singing, and a smell of wild animal fills the air. Sightings describe a large, hunched silhouette moving with surprising agility.\n\nThis legend kept people away from dangerous highland areas, where real risks like cliffs and wild animals posed genuine danger.",
+
+      /* El Justo Juez de la Noche */
+      "ley.data.justo_juez.title": "El Justo Juez de la Noche",
+      "ley.data.justo_juez.sub": "The rider who judges sinners",
+      "ley.data.justo_juez.tag": "Omen · Roads",
+      "ley.data.justo_juez.chip1": "Night horseman",
+      "ley.data.justo_juez.chip2": "Justo Juez prayer",
+      "ley.data.justo_juez.chip3": "Pursues unfaithful men",
+      "ley.data.justo_juez.chip4": "Protective prayer",
+      "ley.data.justo_juez.origin": "Oral tradition in rural towns; linked to the Catholic prayer \"El Justo Juez\".",
+      "ley.data.justo_juez.relato": "Along rural roads where Catholic faith mixes with night fears, a rider appears before those carrying guilt for dishonest lives: unfaithful men, abusive husbands, or unrepentant wrongdoers. Known as El Justo Juez de la Noche, his appearance feels like a silent sentence.\n\nHis face remains hidden under a broad hat or night shadows. Riding a silent black steed whose hooves barely touch dirt, he travels without uttering words; his presence alone induces panic.\n\nThose who encounter him report nearby horses acting agitated and dogs howling in unison. Travelers feel heavy chest oppression and coldness, knowing the rider recognizes their misdeeds.\n\nTradition states the only escape is reciting the traditional \"Justo Juez\" prayer with genuine faith. Upon hearing the prayer, the rider stops, observes briefly, and rides back into darkness.\n\nThis figure serves a moral purpose in Salvadoran tradition, reminding people that dishonest actions carry consequences while faith offers protection.",
+
+      /* El Padre sin Cabeza */
+      "ley.data.padre_sin_cabeza.title": "El Padre sin Cabeza",
+      "ley.data.padre_sin_cabeza.sub": "The priest who wanders without rest",
+      "ley.data.padre_sin_cabeza.tag": "Spirit · Colonial towns",
+      "ley.data.padre_sin_cabeza.chip1": "Headless priest",
+      "ley.data.padre_sin_cabeza.chip2": "Rides a black horse",
+      "ley.data.padre_sin_cabeza.chip3": "Colonial cobblestones",
+      "ley.data.padre_sin_cabeza.chip4": "Eternal penance",
+      "ley.data.padre_sin_cabeza.origin": "Colonial towns like Suchitoto and historical centers across the country.",
+      "ley.data.padre_sin_cabeza.relato": "In historic colonial towns like Suchitoto, stories tell of a priest who committed a grave sin centuries ago. Known as El Padre sin Cabeza, his soul wanders eternally, riding a noiseless black horse along cobbled streets past midnight.\n\nAccounts vary regarding his crime: some mention an unforgivable sin inside the church, while others talk of betrayal. His punishment was losing his head, condemned to ride in dark robes under moonlight without rest.\n\nHis appearance brings intense coldness even on hot summer nights. Few witnesses describe a headless rider passing central plazas or church streets, never stopping or speaking.\n\nSome believe he seeks an unmade confession, while others view him doing quiet penance. This legend reflects historical religious influence in colonial towns, serving as a reminder that severe misdeeds bring eternal consequences.",
+
+      /* El Sombrerón */
+      "ley.data.sombreron.title": "El Sombrerón",
+      "ley.data.sombreron.sub": "The small rider with a massive hat",
+      "ley.data.sombreron.tag": "Creature · Night roads",
+      "ley.data.sombreron.chip1": "Huge hat",
+      "ley.data.sombreron.chip2": "Braids horse manes",
+      "ley.data.sombreron.chip3": "Prowls the streets",
+      "ley.data.sombreron.chip4": "Spooks animals",
+      "ley.data.sombreron.origin": "Widespread in Central American folklore, adapted to Salvadoran rural life.",
+      "ley.data.sombreron.relato": "In small Salvadoran villages, a short, silent man dressed in black wearing a broad hat prowls dark streets. Known as El Sombrerón, his presence centers around night paths and livestock corrals.\n\nFarm owners report finding horses with intricate braids in their manes by morning, knots too complex to make quickly or in pitch darkness. Locals attribute these mysterious braids directly to El Sombrerón.\n\nNight travelers report feeling steps behind them at a fixed distance. Turning around reveals the silent figure of El Sombrerón following closely without speaking or attacking, simply watching from under his hat.\n\nIn El Salvador, this figure adapted to rural cattle life, explaining knotted horse manes and skittish farm animals while serving as a warning against walking lonely paths late at night.",
+
+      /* El Cuco de los Sueños */
+      "ley.data.cuco_de_los_suenos.title": "El Cuco de los Sueños",
+      "ley.data.cuco_de_los_suenos.sub": "The shadow that takes disobedient children",
+      "ley.data.cuco_de_los_suenos.tag": "Warning · Home",
+      "ley.data.cuco_de_los_suenos.chip1": "Shapeless figure",
+      "ley.data.cuco_de_los_suenos.chip2": "Appears at night",
+      "ley.data.cuco_de_los_suenos.chip3": "Watches over kids",
+      "ley.data.cuco_de_los_suenos.chip4": "Family oral tradition",
+      "ley.data.cuco_de_los_suenos.origin": "Domestic tradition passed down by grandmothers across El Salvador.",
+      "ley.data.cuco_de_los_suenos.relato": "Unlike legends tied to rivers or mountains, El Cuco has no fixed location. He lives in family imagination, described slightly differently by each grandmother and mother.\n\nSome view him as a long shadow stretching across bedroom walls when lights go out, while others describe an old man looking through windows past bedtime. Others imagine a shapeless presence felt through sudden room chills or creaking roofs.\n\nHis purpose remains constant: encouraging children to behave, sleep on time, and obey parents. \"Behave or El Cuco will take you\" is a familiar phrase whispered before bedtime with a mix of care and warning.\n\nEl Cuco functions within the household as an invisible guardian of childhood behavior, maintaining family tradition across generations as a gentle nighttime warning.",
     }
   };
 
@@ -1712,4 +2100,5 @@
 
   // Expuesto por si otro script necesita traducir contenido dinámico
   window.SRi18n = { t, getLang, setLang, applyTranslations, toggleLang };
+
 })();

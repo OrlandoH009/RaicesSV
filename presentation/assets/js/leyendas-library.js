@@ -8,6 +8,12 @@
 const LEYENDAS_DATA = [
   {
     id: "siguanaba",
+    tituloKey: "ley.data.siguanaba.title",
+    subKey: "ley.data.siguanaba.sub",
+    tagKey: "ley.data.siguanaba.tag",
+    chipsKeys: ["ley.data.siguanaba.chip1", "ley.data.siguanaba.chip2", "ley.data.siguanaba.chip3", "ley.data.siguanaba.chip4"],
+    origenKey: "ley.data.siguanaba.origin",
+    relatoKey: "ley.data.siguanaba.relato",
     titulo: "La Siguanaba",
     sub: "El espíritu que extravía a los infieles",
     tag: "Espíritu · Ríos",
@@ -26,6 +32,12 @@ Los viejos del pueblo dicen que hay formas de librarse de ella si uno la encuent
   },
   {
     id: "cipitio",
+    tituloKey: "ley.data.cipitio.title",
+    subKey: "ley.data.cipitio.sub",
+    tagKey: "ley.data.cipitio.tag",
+    chipsKeys: ["ley.data.cipitio.chip1", "ley.data.cipitio.chip2", "ley.data.cipitio.chip3", "ley.data.cipitio.chip4"],
+    origenKey: "ley.data.cipitio.origin",
+    relatoKey: "ley.data.cipitio.relato",
     titulo: "El Cipitío",
     sub: "El niño eterno que nunca crece",
     tag: "Espíritu · Bosques",
@@ -44,6 +56,12 @@ Con el tiempo, el Cipitío se ha convertido en uno de los personajes más querid
   },
   {
     id: "cadejo",
+    tituloKey: "ley.data.cadejo.title",
+    subKey: "ley.data.cadejo.sub",
+    tagKey: "ley.data.cadejo.tag",
+    chipsKeys: ["ley.data.cadejo.chip1", "ley.data.cadejo.chip2", "ley.data.cadejo.chip3", "ley.data.cadejo.chip4"],
+    origenKey: "ley.data.cadejo.origin",
+    relatoKey: "ley.data.cadejo.relato",
     titulo: "El Cadejo",
     sub: "El guardián de dos caras: blanco y negro",
     tag: "Criatura · Caminos",
@@ -62,6 +80,12 @@ Por eso, en los pueblos donde esta historia se transmite de generación en gener
   },
   {
     id: "llorona",
+    tituloKey: "ley.data.llorona.title",
+    subKey: "ley.data.llorona.sub",
+    tagKey: "ley.data.llorona.tag",
+    chipsKeys: ["ley.data.llorona.chip1", "ley.data.llorona.chip2", "ley.data.llorona.chip3", "ley.data.llorona.chip4"],
+    origenKey: "ley.data.llorona.origin",
+    relatoKey: "ley.data.llorona.relato",
     titulo: "La Llorona",
     sub: "El lamento eterno de una madre",
     tag: "Espíritu · Aguas",
@@ -80,6 +104,12 @@ Por generaciones, esta ha sido una de las advertencias más poderosas para los n
   },
   {
     id: "descarnada",
+    tituloKey: "ley.data.descarnada.title",
+    subKey: "ley.data.descarnada.sub",
+    tagKey: "ley.data.descarnada.tag",
+    chipsKeys: ["ley.data.descarnada.chip1", "ley.data.descarnada.chip2", "ley.data.descarnada.chip3", "ley.data.descarnada.chip4"],
+    origenKey: "ley.data.descarnada.origin",
+    relatoKey: "ley.data.descarnada.relato",
     titulo: "La Descarnada",
     sub: "La muerte que camina entre los vivos",
     tag: "Presagio · Pueblos",
@@ -98,6 +128,12 @@ La creencia popular asegura que quien se topa con la Descarnada, o alguien de su
   },
   {
     id: "duende",
+    tituloKey: "ley.data.duende.title",
+    subKey: "ley.data.duende.sub",
+    tagKey: "ley.data.duende.tag",
+    chipsKeys: ["ley.data.duende.chip1", "ley.data.duende.chip2", "ley.data.duende.chip3", "ley.data.duende.chip4"],
+    origenKey: "ley.data.duende.origin",
+    relatoKey: "ley.data.duende.relato",
     titulo: "El Duende",
     sub: "El pequeño guardián de los bosques",
     tag: "Criatura · Bosques",
@@ -110,12 +146,18 @@ A diferencia de otras criaturas del folclore salvadoreño que inspiran verdadero
 
 Su fama más grande, sin embargo, viene de la música. Por las noches, quien se adentra en el monte puede escuchar el sonido lejano de una marimba, una guitarra o una flauta tocando melodías que nadie reconoce, melodías que parecen venir de todas direcciones a la vez. Es el Duende, tocando para sí mismo entre los árboles. Algunos, atraídos por esa música misteriosa, se han internado en el bosque siguiendo el sonido, solo para descubrir, horas después, que estaban completamente perdidos: el Duende también puede imitar voces humanas, llamando por su nombre a quienes busca confundir, guiándolos cada vez más lejos del camino de regreso.
 
-Existe además una variante muy conocida de esta leyenda, quizás la más repetida entre las familias rurales: se dice que el Duende se enamora perdidamente de las niñas pequeñas de ojos claros y trenzas largas. Cuando esto sucede, comienza a aparecerse por las noches cerca de la casa de la niña, jalándole suavemente las trenzas mientras duerme, escondiéndole sus juguetes favoritos, o siguiéndola de manera insistente cuando camina sola. Por generaciones, muchas madres y abuelas optaron por cortarle el cabello a sus hijas pequeñas específicamente para alejar al Duende y evitar que se encariñara demasiado con ellas.
+Existe además una variante muy conocida de esta leyenda, quizás la más repetida entre las familias rurales: se dice que el Duende se enamora perdidamente de las niñas pequeñas de ojos claros y trenzas largas. Cuando esto sucede, comienza a aparecerse por las noches cerca de la casa de la niña, jalándole suavemente las trenzas mientras duerme, escondiéndole sus juguetes favoritos, o siguiéndola de manera brought insistente cuando camina sola. Por generaciones, muchas madres y abuelas optaron por cortarle el cabello a sus hijas pequeñas específicamente para alejar al Duende y evitar que se encariñara demasiado con ellas.
 
 Con el paso del tiempo, esta leyenda ha cumplido, sin proponérselo, una función que va más allá del simple susto: el miedo a toparse con el Duende ha hecho que generaciones de niños y adultos eviten adentrarse innecesariamente en los bosques y quebradas más profundos, ayudando —de manera indirecta pero real— a proteger estos ecosistemas de la deforestación y el abandono.`
   },
   {
     id: "carreta-bruja",
+    tituloKey: "ley.data.carreta_bruja.title",
+    subKey: "ley.data.carreta_bruja.sub",
+    tagKey: "ley.data.carreta_bruja.tag",
+    chipsKeys: ["ley.data.carreta_bruja.chip1", "ley.data.carreta_bruja.chip2", "ley.data.carreta_bruja.chip3", "ley.data.carreta_bruja.chip4"],
+    origenKey: "ley.data.carreta_bruja.origin",
+    relatoKey: "ley.data.carreta_bruja.relato",
     titulo: "La Carreta Bruja",
     sub: "El carruaje sin bueyes que recoge almas",
     tag: "Presagio · Caminos rurales",
@@ -124,7 +166,7 @@ Con el paso del tiempo, esta leyenda ha cumplido, sin proponérselo, una funció
     img: null,
     relato: `Hace ya muchos años, cuentan los más viejos del pueblo, vivía un hombre que se había entregado en cuerpo y alma al diablo, cambiando su vida por riquezas y poder. Una noche, cegado por la maldad que llevaba dentro, intentó obligar a sus propios bueyes a entrar por la fuerza a la iglesia del pueblo, con intenciones oscuras que nadie se atrevió jamás a repetir en voz alta. Pero los bueyes, sintiendo el mal que los rodeaba, se resistieron con todas sus fuerzas: reventaron las coyundas que los ataban a la carreta y escaparon despavoridos hacia el monte, dejando al hombre maldito y a su carreta solos, en medio de la noche.
 
-Desde entonces, dicen que esa misma carreta rueda sola por los caminos rurales, sin ningún animal que la jale, avanzando lentamente entre chirridos de madera vieja y el tintineo metálico de cadenas oxidadas. En la punta de sus trinquetes cuelgan calaveras que se balancean con cada movimiento, y quienes se atreven a mirar dentro de ella aseguran haber visto los cuerpos de personas que ya no reconocían, apilados en un silencio que da más miedo que cualquier grito.
+Desde entonces, dicen que esa misma carreta rueda sola por los caminos rurales, sin ningún animal que la jale, advancing lentamente entre chirridos de madera vieja y el tintineo metálico de cadenas oxidadas. En la punta de sus trinquetes cuelgan calaveras que se balancean con cada movimiento, y quienes se atreven a mirar dentro de ella aseguran haber visto los cuerpos de personas que ya no reconocían, apilados en un silencio que da más miedo que cualquier grito.
 
 Detrás de la carreta, cuentan algunos testigos, avanzan seres extraños con cabeza de zacate seco, como espantapájaros vivientes, siguiendo el mismo camino sin apartarse jamás de su ruta fija. Nadie sabe bien a dónde se dirigen, pero todos coinciden en algo: hay que apartarse del camino y quedarse muy quieto cuando se escucha acercarse el sonido inconfundible de sus ruedas de madera contra la tierra.
 
@@ -134,6 +176,12 @@ Porque según cuenta la tradición, es precisamente los viernes de noche cuando 
   },
   {
     id: "cuyancua",
+    tituloKey: "ley.data.cuyancua.title",
+    subKey: "ley.data.cuyancua.sub",
+    tagKey: "ley.data.cuyancua.tag",
+    chipsKeys: ["ley.data.cuyancua.chip1", "ley.data.cuyancua.chip2", "ley.data.cuyancua.chip3", "ley.data.cuyancua.chip4"],
+    origenKey: "ley.data.cuyancua.origin",
+    relatoKey: "ley.data.cuyancua.relato",
     titulo: "La Cuyancúa",
     sub: "La bestia mitad serpiente, mitad cerdo",
     tag: "Criatura · Sonsonate",
@@ -150,6 +198,12 @@ Además de anunciar tormentas, a la Cuyancúa se le atribuye cierto dominio sobr
   },
   {
     id: "tabudo",
+    tituloKey: "ley.data.tabudo.title",
+    subKey: "ley.data.tabudo.sub",
+    tagKey: "ley.data.tabudo.tag",
+    chipsKeys: ["ley.data.tabudo.chip1", "ley.data.tabudo.chip2", "ley.data.tabudo.chip3", "ley.data.tabudo.chip4"],
+    origenKey: "ley.data.tabudo.origin",
+    relatoKey: "ley.data.tabudo.relato",
     titulo: "El Tabudo",
     sub: "El lagarto gigante de los volcanes",
     tag: "Criatura · Volcanes",
@@ -168,6 +222,12 @@ Por generaciones, esta leyenda ha servido como una advertencia práctica y muy n
   },
   {
     id: "giganta-jocoro",
+    tituloKey: "ley.data.giganta_jocoro.title",
+    subKey: "ley.data.giganta_jocoro.sub",
+    tagKey: "ley.data.giganta_jocoro.tag",
+    chipsKeys: ["ley.data.giganta_jocoro.chip1", "ley.data.giganta_jocoro.chip2", "ley.data.giganta_jocoro.chip3", "ley.data.giganta_jocoro.chip4"],
+    origenKey: "ley.data.giganta_jocoro.origin",
+    relatoKey: "ley.data.giganta_jocoro.relato",
     titulo: "La Giganta de Jocoro",
     sub: "El icono gigante de las fiestas patronales",
     tag: "Tradición · Morazán",
@@ -184,6 +244,12 @@ Hoy, ver desfilar a la Giganta de Jocoro por las calles del pueblo es, para much
   },
   {
     id: "sisimite",
+    tituloKey: "ley.data.sisimite.title",
+    subKey: "ley.data.sisimite.sub",
+    tagKey: "ley.data.sisimite.tag",
+    chipsKeys: ["ley.data.sisimite.chip1", "ley.data.sisimite.chip2", "ley.data.sisimite.chip3", "ley.data.sisimite.chip4"],
+    origenKey: "ley.data.sisimite.origin",
+    relatoKey: "ley.data.sisimite.relato",
     titulo: "El Sisimite",
     sub: "El hombre salvaje de los cerros",
     tag: "Criatura · Montañas",
@@ -202,6 +268,12 @@ Esta leyenda, compartida con matices similares en otros países de Centroaméric
   },
   {
     id: "justo-juez",
+    tituloKey: "ley.data.justo_juez.title",
+    subKey: "ley.data.justo_juez.sub",
+    tagKey: "ley.data.justo_juez.tag",
+    chipsKeys: ["ley.data.justo_juez.chip1", "ley.data.justo_juez.chip2", "ley.data.justo_juez.chip3", "ley.data.justo_juez.chip4"],
+    origenKey: "ley.data.justo_juez.origin",
+    relatoKey: "ley.data.justo_juez.relato",
     titulo: "El Justo Juez de la Noche",
     sub: "El jinete que juzga a los pecadores",
     tag: "Presagio · Caminos",
@@ -220,6 +292,12 @@ Más que un simple espanto, esta figura cumple una función moral muy clara dent
   },
   {
     id: "padre-sin-cabeza",
+    tituloKey: "ley.data.padre_sin_cabeza.title",
+    subKey: "ley.data.padre_sin_cabeza.sub",
+    tagKey: "ley.data.padre_sin_cabeza.tag",
+    chipsKeys: ["ley.data.padre_sin_cabeza.chip1", "ley.data.padre_sin_cabeza.chip2", "ley.data.padre_sin_cabeza.chip3", "ley.data.padre_sin_cabeza.chip4"],
+    origenKey: "ley.data.padre_sin_cabeza.origin",
+    relatoKey: "ley.data.padre_sin_cabeza.relato",
     titulo: "El Padre sin Cabeza",
     sub: "El sacerdote que vaga sin descanso",
     tag: "Espíritu · Pueblos coloniales",
@@ -238,6 +316,12 @@ Esta leyenda refleja algo muy propio de los pueblos coloniales salvadoreños: el
   },
   {
     id: "sombreron",
+    tituloKey: "ley.data.sombreron.title",
+    subKey: "ley.data.sombreron.sub",
+    tagKey: "ley.data.sombreron.tag",
+    chipsKeys: ["ley.data.sombreron.chip1", "ley.data.sombreron.chip2", "ley.data.sombreron.chip3", "ley.data.sombreron.chip4"],
+    origenKey: "ley.data.sombreron.origin",
+    relatoKey: "ley.data.sombreron.relato",
     titulo: "El Sombrerón",
     sub: "El pequeño jinete de sombrero enorme",
     tag: "Criatura · Caminos nocturnos",
@@ -256,6 +340,12 @@ Con el tiempo, esta figura ha servido también como una advertencia más para no
   },
   {
     id: "cuco-de-los-suenos",
+    tituloKey: "ley.data.cuco_de_los_suenos.title",
+    subKey: "ley.data.cuco_de_los_suenos.sub",
+    tagKey: "ley.data.cuco_de_los_suenos.tag",
+    chipsKeys: ["ley.data.cuco_de_los_suenos.chip1", "ley.data.cuco_de_los_suenos.chip2", "ley.data.cuco_de_los_suenos.chip3", "ley.data.cuco_de_los_suenos.chip4"],
+    origenKey: "ley.data.cuco_de_los_suenos.origin",
+    relatoKey: "ley.data.cuco_de_los_suenos.relato",
     titulo: "El Cuco de los Sueños",
     sub: "El ser que se lleva a los niños desobedientes",
     tag: "Advertencia · Hogar",
@@ -277,10 +367,31 @@ Aunque ha perdido fuerza frente a otras historias más elaboradas del folclore s
 let currentLeyendaIndex = -1;
 let ttsUtterance = null;
 
+// Obtiene el idioma guardado ('es' o 'en')
+function getCurrentLang() {
+  const lang = localStorage.getItem('sr_lang') || localStorage.getItem('i18nextLng') || 'es';
+  return (lang.startsWith('en') || lang === 'us') ? 'en' : 'es';
+}
+
+// Función auxiliar para obtener traducción dinámicamente desde el sistema SRi18n
+function getTextTranslation(key, fallbackText) {
+  const lang = getCurrentLang();
+
+  // Soporte para tu librería SRi18n (i18n.js)
+  if (window.SRi18n && typeof window.SRi18n.t === 'function') {
+    const translation = window.SRi18n.t(key, lang);
+    // t() devuelve la propia key si no encuentra traducción; en ese caso usamos el fallback
+    if (translation && translation !== key) return translation;
+  }
+
+  return fallbackText;
+}
+
 function crearPortadaHTML(l, index) {
   const imgHtml = l.img
     ? `<img src="${l.img}" alt="${l.titulo}" onload="this.classList.add('loaded')">`
     : `<div class="leyenda-book__placeholder">📖</div>`;
+  
   return `
     <button class="leyenda-book" data-index="${index}" aria-label="Abrir ${l.titulo}">
       <div class="leyenda-book__cover">
@@ -289,8 +400,8 @@ function crearPortadaHTML(l, index) {
         <div class="leyenda-book__spine"></div>
         <div class="leyenda-book__num">${index + 1}</div>
         <div class="leyenda-book__footer">
-          <div class="leyenda-book__title">${l.titulo}</div>
-          <div class="leyenda-book__tag">${l.tag}</div>
+          <div class="leyenda-book__title" data-i18n="${l.tituloKey}">${getTextTranslation(l.tituloKey, l.titulo)}</div>
+          <div class="leyenda-book__tag" data-i18n="${l.tagKey}">${getTextTranslation(l.tagKey, l.tag)}</div>
         </div>
       </div>
     </button>
@@ -307,9 +418,18 @@ function renderLibrary() {
 }
 
 function buildModalBody(l) {
-  const chips = l.chips.map(c => `<span class="leyenda-modal__chip">${c}</span>`).join("");
+  // Traducimos dinámicamente todos los campos con sus claves i18n
+  const tituloTrad = getTextTranslation(l.tituloKey, l.titulo);
+  const subTrad = getTextTranslation(l.subKey, l.sub);
+  const relatoTrad = getTextTranslation(l.relatoKey, l.relato);
 
-  const parrafos = l.relato
+  const chips = l.chips.map((c, i) => {
+    const chipKey = l.chipsKeys[i];
+    const chipText = getTextTranslation(chipKey, c);
+    return `<span class="leyenda-modal__chip" data-i18n="${chipKey}">${chipText}</span>`;
+  }).join("");
+
+  const parrafos = relatoTrad
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean)
@@ -317,10 +437,10 @@ function buildModalBody(l) {
     .join("");
 
   const mediaHtml = l.img
-    ? `<img src="${l.img}" alt="${l.titulo}" onload="this.classList.add('loaded')">`
+    ? `<img src="${l.img}" alt="${tituloTrad}" onload="this.classList.add('loaded')">`
     : `<div class="leyenda-modal__media-placeholder">
          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
-         <small>Espacio para imagen<br>de esta leyenda</small>
+         <small data-i18n="ley.modal.image_placeholder">${getTextTranslation("ley.modal.image_placeholder", "Espacio para imagen<br>de esta leyenda")}</small>
        </div>`;
 
   return `
@@ -330,21 +450,71 @@ function buildModalBody(l) {
     </div>
     <div class="leyenda-modal__content" id="leyendaModalScroll">
       <div class="leyenda-modal__chips">${chips}</div>
-      <h2>${l.titulo}</h2>
-      <p class="leyenda-modal__sub">${l.sub}</p>
+      <h2 data-i18n="${l.tituloKey}">${tituloTrad}</h2>
+      <p class="leyenda-modal__sub" data-i18n="${l.subKey}">${subTrad}</p>
       <div class="leyenda-modal__relato">${parrafos}</div>
     </div>
   `;
 }
 
+function openLeyendaModal(index) {
+  const l = LEYENDAS_DATA[index];
+  if (!l) return;
+  currentLeyendaIndex = index;
+
+  const overlay = document.getElementById("leyendaModalOverlay");
+  const modal = document.getElementById("leyendaModal");
+
+  // 1. Inyectamos la estructura modal con textos ya traducidos
+  modal.innerHTML = buildModalBody(l);
+
+  // 2. Inyectamos el texto de origen de la leyenda
+  const originTextEl = document.getElementById("leyendaModalOriginText");
+  if (originTextEl) {
+    originTextEl.setAttribute("data-i18n", l.origenKey);
+    originTextEl.textContent = getTextTranslation(l.origenKey, l.origen);
+  }
+
+  const originBox = document.getElementById("leyendaModalOrigin");
+  if (originBox) originBox.classList.remove("show");
+  if (overlay) overlay.classList.add("open");
+  document.body.classList.add("modal-lock");
+
+  // 3. Forzar refresco global si utilizas una función centralizadora (e.g. updatePageLanguage / i18next)
+  if (typeof updatePageLanguage === 'function') {
+    updatePageLanguage(getCurrentLang());
+  } else if (typeof i18next !== 'undefined' && typeof jqueryI18next !== 'undefined') {
+    window.jQuery('#leyendaModal').localize();
+  }
+
+  stopNarration();
+}
+
+function closeLeyendaModal() {
+  const overlay = document.getElementById("leyendaModalOverlay");
+  if (overlay) overlay.classList.remove("open");
+  document.body.classList.remove("modal-lock");
+  stopNarration();
+  const originBox = document.getElementById("leyendaModalOrigin");
+  if (originBox) originBox.classList.remove("show");
+}
+
+function toggleOrigin() {
+  const originBox = document.getElementById("leyendaModalOrigin");
+  if (originBox) originBox.classList.toggle("show");
+}
+
+/* ============================================================
+   SISTEMA DE NARRACIÓN Y VOZ (TTS)
+   ============================================================ */
 function getNarrationChunks(l) {
-  const fullText = `${l.titulo}. ${l.sub}. ${l.relato.replace(/\n+/g, " ")}`;
-  // Partimos por oraciones (punto, signo de exclamación/interrogación seguido de espacio)
-  // para evitar el límite/bug de Chrome con utterances demasiado largos.
+  const titulo = getTextTranslation(l.tituloKey, l.titulo);
+  const sub = getTextTranslation(l.subKey, l.sub);
+  const relato = getTextTranslation(l.relatoKey, l.relato);
+
+  const fullText = `${titulo}. ${sub}. ${relato.replace(/<[^>]*>/g, '').replace(/\n+/g, " ")}`;
   const rawSentences = fullText.match(/[^.!?]+[.!?]+["')\]]*|\s*[^.!?]+$/g) || [fullText];
 
-  // Agrupamos oraciones en bloques de ~180 caracteres para no generar
-  // demasiados utterances pequeños (suena entrecortado) ni muy largos (se traba).
   const chunks = [];
   let current = "";
   rawSentences.forEach(sentence => {
@@ -359,36 +529,6 @@ function getNarrationChunks(l) {
   });
   if (current) chunks.push(current.trim());
   return chunks;
-}
-
-function openLeyendaModal(index) {
-  const l = LEYENDAS_DATA[index];
-  if (!l) return;
-  currentLeyendaIndex = index;
-
-  const overlay = document.getElementById("leyendaModalOverlay");
-  const modal = document.getElementById("leyendaModal");
-  const originBox = document.getElementById("leyendaModalOrigin");
-
-  modal.innerHTML = buildModalBody(l);
-  document.getElementById("leyendaModalOriginText").textContent = l.origen;
-  originBox.classList.remove("show");
-
-  overlay.classList.add("open");
-  document.body.classList.add("modal-lock");
-  stopNarration();
-}
-
-function closeLeyendaModal() {
-  const overlay = document.getElementById("leyendaModalOverlay");
-  overlay.classList.remove("open");
-  document.body.classList.remove("modal-lock");
-  stopNarration();
-  document.getElementById("leyendaModalOrigin").classList.remove("show");
-}
-
-function toggleOrigin() {
-  document.getElementById("leyendaModalOrigin").classList.toggle("show");
 }
 
 let narrationQueue = [];
@@ -421,14 +561,18 @@ function speakNextChunk() {
   const chunkText = narrationQueue[narrationQueueIndex];
   narrationQueueIndex++;
 
+  const langKey = getCurrentLang();
+  const isEn = (langKey === 'en');
+
   ttsUtterance = new SpeechSynthesisUtterance(chunkText);
-  ttsUtterance.lang = "es-ES";
+  ttsUtterance.lang = isEn ? "en-GB" : "es-ES";
   ttsUtterance.rate = 0.95;
   ttsUtterance.pitch = 1;
 
   const voices = window.speechSynthesis.getVoices();
-  const esVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("es"));
-  if (esVoice) ttsUtterance.voice = esVoice;
+  const targetVoice = voices.find(v => v.lang && v.lang.toLowerCase() === "en-gb")
+  || voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isEn ? "en" : "es"));
+  if (targetVoice) ttsUtterance.voice = targetVoice;
 
   ttsUtterance.onend = () => speakNextChunk();
   ttsUtterance.onerror = () => speakNextChunk();
@@ -439,7 +583,6 @@ function speakNextChunk() {
 
 function toggleNarration() {
   if (currentLeyendaIndex < 0) return;
-  const btn = document.getElementById("leyendaNarrateBtn");
 
   if (!("speechSynthesis" in window)) {
     alert("Tu navegador no soporta la narración por voz.");
@@ -455,9 +598,6 @@ function toggleNarration() {
   narrationQueue = getNarrationChunks(l);
   narrationQueueIndex = 0;
 
-  // Chrome pausa/traba la síntesis de voz si pasa demasiado tiempo hablando
-  // seguido sin interacción; este "keep-alive" evita que se quede congelada
-  // llamando resume() periódicamente mientras hay algo en cola.
   if (narrationKeepAliveTimer) clearInterval(narrationKeepAliveTimer);
   narrationKeepAliveTimer = setInterval(() => {
     if (window.speechSynthesis.speaking) {
@@ -468,7 +608,6 @@ function toggleNarration() {
 
   speakNextChunk();
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   renderLibrary();
@@ -484,17 +623,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const narrateBtn = document.getElementById("leyendaNarrateBtn");
 
   if (closeBtn) closeBtn.addEventListener("click", closeLeyendaModal);
-  if (narrateBtn) {
-    narrateBtn.addEventListener("click", () => {
-      toggleNarration();
-      toggleOrigin();
-    });
-  }
+  if (narrateBtn) narrateBtn.addEventListener("click", toggleNarration);
+
   if (overlay) {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeLeyendaModal();
     });
   }
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeLeyendaModal();
   });
@@ -502,4 +638,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.onvoiceschanged = () => {};
   }
+
+  // Re-traduce el modal si el idioma cambia mientras está abierto
+  document.addEventListener("langchange", () => {
+    if (currentLeyendaIndex >= 0) {
+      const modal = document.getElementById("leyendaModal");
+      const l = LEYENDAS_DATA[currentLeyendaIndex];
+      if (modal && l) {
+        modal.innerHTML = buildModalBody(l);
+        const originTextEl = document.getElementById("leyendaModalOriginText");
+        if (originTextEl) {
+          originTextEl.setAttribute("data-i18n", l.origenKey);
+          originTextEl.textContent = getTextTranslation(l.origenKey, l.origen);
+        }
+      }
+    }
+    // También re-traduce las portadas de la biblioteca (títulos/tags)
+    renderLibrary();
+  });
 });
