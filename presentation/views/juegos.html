@@ -115,6 +115,32 @@
           </div>
         </div>
 
+        <!-- Tarjeta Juego 4 -->
+        <div class="game-card">
+          <div class="game-card__media" style="background: linear-gradient(135deg, #2D6A4F 0%, #113068 100%);">
+            <span class="game-card__emoji">🙈</span>
+          </div>
+          <div class="game-card__body">
+            <span class="game-card__tag">Ruta 04 — Memoria</span>
+            <h3 class="game-card__title">Escondelero</h3>
+            <p class="game-card__desc">Vos sos el que la trae. Tus amigos se van a escapar corriendo hacia el bote en cualquier momento: movete rápido por el patio e interceptalos antes de que lleguen y se salven. ¡No dejes que se te escapen muchos!</p>
+            <button class="btn-play-trigger" data-open-modal="encantados">⚡ Jugar Ahora</button>
+          </div>
+        </div>
+
+        <!-- Tarjeta Juego 5 -->
+        <div class="game-card">
+          <div class="game-card__media" style="background: linear-gradient(135deg, #F2C744 0%, #FF9944 100%);">
+            <span class="game-card__emoji">🌽</span>
+          </div>
+          <div class="game-card__body">
+            <span class="game-card__tag">Ruta 05 — Recreo</span>
+            <h3 class="game-card__title">Elotes y Olé</h3>
+            <p class="game-card__desc">Corré por el patio de la escuela recogiendo elotes locos, mangos y minutas, mientras esquivás los pupitres y las pelotas perdidas del recreo. ¡Sumá combos y no perdás el ritmo!</p>
+            <button class="btn-play-trigger" data-open-modal="elotes">⚡ Jugar Ahora</button>
+          </div>
+        </div>
+
       </div>
 
       <!-- ══════════════════════════════════════════
@@ -258,6 +284,103 @@
                     <button class="btn-primary" id="resumeBtn-coasters">Reanudar</button>
                     <button class="btn-primary" id="menuBtn-coasters" style="background-color: var(--navy); border: 2px solid var(--white);">Menú</button>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           VENTANA FLOTANTE (MODAL JUEGO 4: ENCANTADOS Y BOTE)
+           ══════════════════════════════════════════ -->
+      <div class="game-modal" id="modal-encantados">
+        <div class="game-modal__overlay"></div>
+        <div class="game-modal__content">
+          <button class="game-modal__close" data-close-modal="encantados" aria-label="Cerrar juego">✕</button>
+
+          <div class="game-panel">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag">Ruta 04 — Memoria</span>
+                <h2>🙈 Escondelero</h2>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="encantados-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-encantados"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-encantados">
+                  <span id="pauseIcon-encantados">⏸️</span>
+                </button>
+                <button class="icon-btn fullscreen-btn">⛶</button>
+                <div class="volume-group">
+                  <span class="volume-icon" id="volumeIcon-encantados">🔊</span>
+                  <input type="range" id="volumeSlider-encantados" min="0" max="1" step="0.05" value="0.45" />
+                </div>
+              </div>
+              <canvas id="canvas-encantados"></canvas>
+              <div class="damage-overlay" id="damageOverlay-encantados"></div>
+              <audio id="bgMusic-encantados" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-encantados">
+                <div class="overlay-card" id="overlay-card-encantados"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-encantados">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag">Pausa</span>
+                  <h3>Juego en pausa</h3>
+                  <p>Presioná reanudar para seguir buscando a tus amigos.</p>
+                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="btn-primary" id="resumeBtn-encantados">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-encantados" style="background-color: var(--navy); border: 2px solid var(--white);">Menú</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           VENTANA FLOTANTE (MODAL JUEGO 5: ELOTES Y OLÉ)
+           ══════════════════════════════════════════ -->
+      <div class="game-modal" id="modal-elotes">
+        <div class="game-modal__overlay"></div>
+        <div class="game-modal__content">
+          <button class="game-modal__close" data-close-modal="elotes" aria-label="Cerrar juego">✕</button>
+
+          <div class="game-panel">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag">Ruta 05 — Recreo</span>
+                <h2>🌽 Elotes y Olé</h2>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="elotes-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-elotes"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-elotes">
+                  <span id="pauseIcon-elotes">⏸️</span>
+                </button>
+                <button class="icon-btn fullscreen-btn">⛶</button>
+                <div class="volume-group">
+                  <span class="volume-icon" id="volumeIcon-elotes">🔊</span>
+                  <input type="range" id="volumeSlider-elotes" min="0" max="1" step="0.05" value="0.45" />
+                </div>
+              </div>
+              <canvas id="canvas-elotes"></canvas>
+              <div class="damage-overlay" id="damageOverlay-elotes"></div>
+              <audio id="bgMusic-elotes" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-elotes">
+                <div class="overlay-card" id="overlay-card-elotes"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-elotes">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag">Pausa</span>
+                  <h3>Recreo en pausa</h3>
+                  <p>Presioná reanudar para seguir la carrera de sabores.</p>
+                  <button class="btn-primary" id="resumeBtn-elotes">Reanudar</button>
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Salvadorean Roots — Leyendas</title>
+  <title data-i18n="ley.meta.title">Salvadorean Roots — Leyendas</title>
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/leyendas.css">
   <link rel="icon" href="../assets/favicon/favicon.ico" />
@@ -52,11 +52,11 @@
       <div class="leyenda-hero__firefly f3"></div>
       <div class="leyenda-hero__firefly f4"></div>
       <div class="leyenda-hero__inner reveal">
-        <span class="leyenda-hero__eyebrow">Salvadorean Roots te da la bienvenida</span>
-        <h1>Cuando cae la noche,<br>El Salvador cuenta historias</h1>
-        <p>Ríos que susurran, caminos que engañan, sombras que vigilan a los niños. Descubre 16 leyendas que nuestros abuelos contaron por generaciones.</p>
+        <span class="leyenda-hero__eyebrow" data-i18n="ley.hero.eyebrow">Salvadorean Roots te da la bienvenida</span>
+        <h1 data-i18n="ley.hero.title">Cuando cae la noche,<br>El Salvador cuenta historias</h1>
+        <p data-i18n="ley.hero.desc">Ríos que susurran, caminos que engañan, sombras que vigilan a los niños. Descubre 16 leyendas que nuestros abuelos contaron por generaciones.</p>
         <a href="#leyenda-library" class="leyenda-hero__cta">
-          <span>Explorar las leyendas</span>
+          <span data-i18n="ley.hero.cta">Explorar las leyendas</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
         </a>
       </div>
@@ -69,11 +69,11 @@
           <div class="leyenda-flip__inner">
             <div class="leyenda-flip__front">
               <span class="leyenda-flip__icon">🌒</span>
-              <h3>¿Qué es una leyenda?</h3>
-              <span class="leyenda-flip__hint">Toca para descubrir</span>
+              <h3 data-i18n="ley.concept.card1.title">¿Qué es una leyenda?</h3>
+              <span class="leyenda-flip__hint" data-i18n="ley.concept.card1.hint">Toca para descubrir</span>
             </div>
             <div class="leyenda-flip__back">
-              <p>Una historia que mezcla lo real con lo sobrenatural para explicar lo inexplicable: un ruido en la quebrada, un viajero perdido, el miedo a la noche.</p>
+              <p data-i18n="ley.concept.card1.back">Una historia que mezcla lo real con lo sobrenatural para explicar lo inexplicable: un ruido en la quebrada, un viajero perdido, el miedo a la noche.</p>
             </div>
           </div>
         </div>
@@ -81,11 +81,11 @@
           <div class="leyenda-flip__inner">
             <div class="leyenda-flip__front">
               <span class="leyenda-flip__icon">🪶</span>
-              <h3>Raíces mestizas</h3>
-              <span class="leyenda-flip__hint">Toca para descubrir</span>
+              <h3 data-i18n="ley.concept.card2.title">Raíces mestizas</h3>
+              <span class="leyenda-flip__hint" data-i18n="ley.concept.card2.hint">Toca para descubrir</span>
             </div>
             <div class="leyenda-flip__back">
-              <p>Nacen del choque entre la cosmovisión náhuat-pipil y lenca con la fe católica traída en la colonia. Dioses antiguos conviven con oraciones cristianas.</p>
+              <p data-i18n="ley.concept.card2.back">Nacen del choque entre la cosmovisión náhuat-pipil y lenca con la fe católica traída en la colonia. Dioses antiguos conviven con oraciones cristianas.</p>
             </div>
           </div>
         </div>
@@ -93,11 +93,11 @@
           <div class="leyenda-flip__inner">
             <div class="leyenda-flip__front">
               <span class="leyenda-flip__icon">🗣️</span>
-              <h3>Se cuentan, no se escriben</h3>
-              <span class="leyenda-flip__hint">Toca para descubrir</span>
+              <h3 data-i18n="ley.concept.card3.title">Se cuentan, no se escriben</h3>
+              <span class="leyenda-flip__hint" data-i18n="ley.concept.card3.hint">Toca para descubrir</span>
             </div>
             <div class="leyenda-flip__back">
-              <p>Viven de boca en boca. Cada pueblo, cada abuela, las cuenta distinto — por eso casi ninguna tiene una sola versión.</p>
+              <p data-i18n="ley.concept.card3.back">Viven de boca en boca. Cada pueblo, cada abuela, las cuenta distinto — por eso casi ninguna tiene una sola versión.</p>
             </div>
           </div>
         </div>
@@ -107,8 +107,8 @@
     <!-- Biblioteca de portadas -->
     <section class="leyenda-library" id="leyenda-library">
       <div class="leyenda-library__head reveal">
-        <span>La biblioteca</span>
-        <h2>16 leyendas y mitos de El Salvador</h2>
+        <span data-i18n="ley.library.eyebrow">La biblioteca</span>
+        <h2 data-i18n="ley.library.title">16 leyendas y mitos de El Salvador</h2>
       </div>
       <div class="leyenda-grid" id="leyendaGrid">
         <!-- Las 16 portadas se generan dinámicamente desde leyendas-library.js -->
@@ -121,10 +121,10 @@
     <div class="leyenda-modal" id="leyendaModal">
       <!-- Contenido inyectado por JS -->
     </div>
-    <button class="leyenda-modal__narrate" id="leyendaNarrateBtn" aria-label="Escuchar leyenda" title="Escuchar leyenda">🔊</button>
-    <button class="leyenda-modal__close" id="leyendaCloseBtn" aria-label="Cerrar">✕</button>
+    <button class="leyenda-modal__narrate" id="leyendaNarrateBtn" aria-label="Escuchar leyenda" title="Escuchar leyenda" data-i18n-attr="aria-label:ley.modal.listen,title:ley.modal.listen">🔊</button>
+    <button class="leyenda-modal__close" id="leyendaCloseBtn" aria-label="Cerrar" data-i18n-attr="aria-label:ley.modal.close">✕</button>
     <div class="leyenda-modal__origin" id="leyendaModalOrigin">
-      <span>Origen aproximado</span>
+      <span data-i18n="ley.modal.origin">Origen aproximado</span>
       <p id="leyendaModalOriginText"></p>
     </div>
   </div>
@@ -134,11 +134,14 @@
       <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li><li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
         <li><a href="../views/sitios-culturales.html" data-i18n="cards.sitios">Sitios Culturales</a></li>
         <li><a href="../views/gastronomia.html" data-i18n="cards.gastronomia">Gastronomía</a></li>
-        <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li><li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
-        <li><a href="../views/leyendas.html" data-i18n="cards.leyendas">Leyendas</a></li><li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
+        <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="cards.leyendas">Leyendas</a></li>
+        <li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
       <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>

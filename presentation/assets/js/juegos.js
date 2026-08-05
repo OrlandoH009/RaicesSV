@@ -1,88 +1,14 @@
 /* ============================================================
   Salvadorean Roots — juegos.js (SÚPER NÍTIDO, 85% ANCHO, DIFICULTAD EXTRA)
-   Gestor de tabs, lógica de overlays y juego de alta respuesta
+   Registro global de estado de juegos + lógica de overlays
    ============================================================ */
 
-/* Sistema de Tabs */
-(function initGameTabs(){
-  const tabs = document.querySelectorAll('.game-tab-btn');
-  const tabIndicator = document.querySelector('.tab-indicator');
-  const gameContents = document.querySelectorAll('.game-content');
-  let gameStates = {};
-
-  function switchGame(e) {
-    const gameId = e.target.closest('.game-tab-btn').dataset.game;
-    
-    // Pausar juego anterior si está corriendo
-    const currentActive = document.querySelector('.game-content.active');
-    if(currentActive) {
-      const currentGameId = currentActive.id.split('-')[1];
-      if(gameStates[currentGameId] && gameStates[currentGameId].pause) {
-        gameStates[currentGameId].pause();
-      }
-    }
-
-    // Ocultar todos los juegos
-    gameContents.forEach(content => {
-      content.classList.remove('active');
-      void content.offsetHeight;
-    });
-
-    // Mostrar el juego seleccionado
-    const selectedGame = document.getElementById(`game-${gameId}`);
-    if(selectedGame) {
-      selectedGame.classList.add('active');
-      void selectedGame.offsetHeight;
-      
-      // Disparar evento personalizado
-      selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
-    }
-
-    tabs.forEach(tab => {
-      tab.classList.remove('active');
-    });
-    const clickedTab = e.target.closest('.game-tab-btn');
-    clickedTab.classList.add('active');
-
-    updateIndicator(clickedTab);
-    localStorage.setItem('lastGame', gameId);
-  }
-
-  function updateIndicator(activeTab) {
-    if(!tabIndicator || !activeTab) return;
-    
-    const tabWidth = activeTab.offsetWidth;
-    const tabOffset = activeTab.offsetLeft;
-    
-    gsap.to(tabIndicator, {
-      width: tabWidth,
-      left: tabOffset,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  }
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', switchGame);
-  });
-
-  window.addEventListener('load', () => {
-    const activeTab = document.querySelector('.game-tab-btn.active');
-    if(activeTab) {
-      updateIndicator(activeTab);
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    const activeTab = document.querySelector('.game-tab-btn.active');
-    if(activeTab) {
-      updateIndicator(activeTab);
-    }
-  });
-
-  window.gameStates = gameStates;
+/* Registro global de estado de cada juego (usado por el sistema de modales
+   y por los atajos de teclado globales para pausar/reanudar/detener) */
+(function initGameStateRegistry(){
+  window.gameStates = {};
   window.switchGameState = function(gameId, state) {
-    gameStates[gameId] = state;
+    window.gameStates[gameId] = state;
   };
 })();
 
@@ -96,36 +22,6 @@
   items.forEach(el=> io.observe(el));
 })();
 
-/* Fullscreen buttons */
-(function initFullscreenButtons(){
-  const buttons = document.querySelectorAll('.fullscreen-btn');
-  if(!buttons.length) return;
-
-  buttons.forEach(btn=>{
-    const wrap = btn.closest('.canvas-wrap');
-    if(!wrap) return;
-    btn.addEventListener('click', ()=>{
-      const isCurrent = document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
-      if(!isCurrent){
-        const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.msRequestFullscreen;
-        req?.call(wrap);
-      } else {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exit?.call(document);
-      }
-    });
-  });
-
-  function syncFullscreenClass(){
-    const fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
-    document.querySelectorAll('.canvas-wrap').forEach(wrap=>{
-      wrap.classList.toggle('is-fullscreen', wrap === fsEl);
-    });
-  }
-  document.addEventListener('fullscreenchange', syncFullscreenClass);
-  document.addEventListener('webkitfullscreenchange', syncFullscreenClass);
-})();
-
 /* ---------------------------------------------------------
    JUEGO 1: ATRAPA LA PUPUSA (OPTIMIZADO ANTI-BLUR)
 --------------------------------------------------------- */
@@ -133,10 +29,11 @@
   const canvas = document.getElementById('canvas-pupusa');
   if(!canvas || typeof Matter === 'undefined') return;
 
+  const canvasWrap = canvas.closest('.canvas-wrap');
+
   // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
-// Reemplaza esta función dentro de initGamePupusa()
-function resizeCanvas() {
-    const wrap = canvas.closest('.canvas-wrap');
+  function resizeCanvas() {
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -146,13 +43,32 @@ function resizeCanvas() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
+  // Escuchar cambios de pantalla completa del contenedor
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
+  const fsBtnPupusa = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtnPupusa) {
+    fsBtnPupusa.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
 
   const hud = document.getElementById('hud-pupusa');
   const overlay = document.getElementById('overlay-pupusa');
   const overlayCard = document.getElementById('overlay-card-pupusa');
-  const gameContent = document.getElementById('game-pupusa');
+  const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
   // DIFICULTAD INCREMENTADA: Se aumentó la gravedad y se acortaron los intervalos de aparición (más rápidos y difíciles)
@@ -178,7 +94,15 @@ function resizeCanvas() {
       );
     }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
   function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
   
   function drawEmoji(emoji, x, y, size, angle){
@@ -324,7 +248,6 @@ function resizeCanvas() {
     }
   }
 
-  const canvasWrap = canvas.closest('.canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn-pupusa');
   const pauseIcon = document.getElementById('pauseIcon-pupusa');
   const pauseOverlay = document.getElementById('pauseOverlay-pupusa');
@@ -355,8 +278,8 @@ function resizeCanvas() {
   }
 
   pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) start();
-    else if(paused) resumeGame();
+    if(!running && !paused) return;
+    if(paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
@@ -571,6 +494,7 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: stopMusic,
     running: () => running,
+    paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; }
   });
 })();
@@ -583,8 +507,10 @@ function resizeCanvas() {
   const canvas = document.getElementById('canvas-trompos');
   if(!canvas || typeof Matter === 'undefined') return;
 
-function resizeCanvas() {
-    const wrap = canvas.closest('.canvas-wrap');
+  const canvasWrap = canvas.closest('.canvas-wrap');
+
+  function resizeCanvas() {
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     const rect = canvas.getBoundingClientRect();
     
@@ -594,13 +520,32 @@ function resizeCanvas() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
+  // Escuchar cambios de pantalla completa del contenedor
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
+  const fsBtnTrompos = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtnTrompos) {
+    fsBtnTrompos.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
 
   const hud = document.getElementById('hud-trompos');
   const overlay = document.getElementById('overlay-trompos');
   const overlayCard = document.getElementById('overlay-card-trompos');
-  const gameContent = document.getElementById('game-trompos');
+  const gameContent = document.getElementById('modal-trompos');
 
   let gameMode = null;
   let npcDifficulty = null;
@@ -638,7 +583,15 @@ function resizeCanvas() {
       );
     }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
   function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
   let rafId = null;
@@ -1074,7 +1027,6 @@ function resizeCanvas() {
     document.getElementById('p-restart').onclick = showModeSelector;
   }
 
-  const canvasWrap = canvas.closest('.canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn-trompos');
   const pauseIcon = document.getElementById('pauseIcon-trompos');
   const pauseOverlay = document.getElementById('pauseOverlay-trompos');
@@ -1121,8 +1073,8 @@ function resizeCanvas() {
   }
 
   pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) start();
-    else if(paused) resumeGame();
+    if(!running && !paused) return;
+    if(paused) resumeGame();
     else pauseGame();
   });
   
@@ -1284,6 +1236,7 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: stopMusic,
     running: () => running,
+    paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; }
   });
 })();
@@ -1294,6 +1247,15 @@ function resizeCanvas() {
 (function initGameModals() {
   const triggers = document.querySelectorAll('[data-open-modal]');
   const closeButtons = document.querySelectorAll('[data-close-modal]');
+  const hasGsap = !!window.gsap;
+
+  // Si GSAP está disponible, dejamos que controle transform/opacity por completo
+  // y desactivamos las transiciones CSS del modal para evitar animaciones dobles.
+  if(hasGsap){
+    document.querySelectorAll('.game-modal, .game-modal__content').forEach(el => {
+      el.style.transition = 'none';
+    });
+  }
 
   triggers.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1303,9 +1265,18 @@ function resizeCanvas() {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Evita scroll de fondo
 
+        // Animación de entrada más fluida con GSAP (con fallback a la transición CSS existente)
+        const content = modal.querySelector('.game-modal__content');
+        if(hasGsap && content){
+          gsap.set(modal, { autoAlpha: 1 });
+          gsap.fromTo(content,
+            { scale: 0.85, y: 24, autoAlpha: 0 },
+            { scale: 1, y: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(1.6)' }
+          );
+        }
+
         // Activa el estado visible para el motor del juego y ajusta canvas
-        const selectedGame = document.getElementById(`game-${gameId}`) || modal;
-        selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+        modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
       }
     });
   });
@@ -1315,17 +1286,67 @@ function resizeCanvas() {
       const gameId = btn.dataset.closeModal;
       const modal = document.getElementById(`modal-${gameId}`);
       if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = ''; // Devuelve el scroll normal
-
         // Pausa automática y detención de música al cerrar la ventana flotante
         if (window.gameStates && window.gameStates[gameId]) {
           if (window.gameStates[gameId].pause) window.gameStates[gameId].pause();
           if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
           if (window.gameStates[gameId].setVisible) window.gameStates[gameId].setVisible(false);
         }
+
+        const content = modal.querySelector('.game-modal__content');
+        if(hasGsap && content){
+          gsap.to(content, {
+            scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
+            onComplete: () => {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+              gsap.set(modal, { clearProps: 'opacity,visibility' });
+              gsap.set(content, { clearProps: 'all' });
+            }
+          });
+        } else {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
       }
     });
+  });
+
+  // Atajos de teclado globales para el modal de juego actualmente abierto:
+  // "P" pausa/reanuda (solo si el juego ya inició) y "F" alterna pantalla completa
+  window.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if(key !== 'p' && key !== 'f') return;
+
+    const activeModal = document.querySelector('.game-modal.active');
+    if(!activeModal) return;
+    const gameId = activeModal.id.replace('modal-', '');
+
+    if(key === 'p'){
+      const state = window.gameStates && window.gameStates[gameId];
+      if(!state) return;
+      const isRunning = state.running ? state.running() : false;
+      const isPaused = state.paused ? state.paused() : false;
+      if(!isRunning && !isPaused) return; // el juego todavía no ha iniciado
+      if(isPaused){
+        if(state.resume) state.resume();
+      } else if(isRunning){
+        if(state.pause) state.pause();
+      }
+    }
+
+    if(key === 'f'){
+      const canvasWrap = document.getElementById(`${gameId}-canvas-wrap`) || activeModal.querySelector('.canvas-wrap');
+      if(!canvasWrap) return;
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if(!isCurrent){
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    }
   });
 })();
 
@@ -1498,8 +1519,22 @@ function resizeCanvas() {
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
 
   function resetGame() {
     resizeCanvas();
@@ -1911,9 +1946,975 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: () => bgMusic?.pause(),
     running: () => running,
+    paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; }
   });
 })();
+
+/* ---------------------------------------------------------
+   JUEGO 4: ESCONDELERO (PERSECUCIÓN — ATRAPÁ ANTES DEL BOTE)
+--------------------------------------------------------- */
+(function initGameEncantados(){
+  const canvas = document.getElementById('canvas-encantados');
+  if(!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const hud = document.getElementById('hud-encantados');
+  const overlay = document.getElementById('overlay-encantados');
+  const overlayCard = document.getElementById('overlay-card-encantados');
+  const gameContent = document.getElementById('modal-encantados');
+  const canvasWrap = document.getElementById('encantados-canvas-wrap');
+
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  function resizeCanvas() {
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    layoutHideSpots();
+    bote.x = canvas.width / 2;
+    bote.y = 62;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
+  // Dificultad: cuántos amigos hay que atrapar, qué tan seguido y rápido se escapan al bote
+  let gameConfig = {
+    easy:   { kidsToWin: 6, escapeMin: 2200, escapeMax: 3600, fleeSpeed: 2.6, catcherSpeed: 2.6, maxEscapes: 5, timeLimit: 45 },
+    medium: { kidsToWin: 8, escapeMin: 1700, escapeMax: 2800, fleeSpeed: 3.3, catcherSpeed: 2.6, maxEscapes: 4, timeLimit: 42 },
+    hard:   { kidsToWin: 10, escapeMin: 1200, escapeMax: 2200, fleeSpeed: 4.0, catcherSpeed: 2.6, maxEscapes: 3, timeLimit: 38 }
+  };
+  let difficulty = 'easy';
+
+  const KID_EMOJIS = ['🧒','👧','👦','🧑'];
+  const HIDE_SPOTS_EMOJI = ['🌳','🛢️','🧺','🪴','🧱','⛲','📦','🪵'];
+
+  // El "bote" es el punto seguro al que corren los amigos escondidos
+  const bote = { x: 0, y: 62, radius: 34 };
+
+  // El catcher (jugador) — "el que la trae"
+  const catcher = { x: 0, y: 0, radius: 22 };
+
+  let hideSpots = []; // {x,y,emoji}
+  let kids = []; // {x,y,spotIndex,state:'hidden'|'fleeing'|'caught'|'escaped', targetTimer}
+
+  let score = 0, caught = 0, escaped = 0, timeLeft = 0;
+  let nextEscapeIn = 0, escapeAccum = 0;
+  let lastTime = null;
+  let keys = {};
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  if(hud){
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>Puntos</span>
+        <b id="e-score">0</b>
+      </div>
+      <div class="hud-item">
+        <span>Atrapados</span>
+        <span class="encantados-round-dots" id="e-dots"></span>
+      </div>
+      <div class="hud-item">
+        <span>Se salvaron</span>
+        <b id="e-escaped">0</b>
+      </div>
+      <div class="hud-item">
+        <span>Tiempo</span>
+        <b id="e-time">-</b>
+      </div>`;
+  }
+
+  function renderDots(){
+    const dotsEl = document.getElementById('e-dots');
+    if(!dotsEl) return;
+    const total = gameConfig[difficulty].kidsToWin;
+    let html = '';
+    for(let i=0;i<total;i++){
+      html += `<span class="dot${i < caught ? ' found' : ''}"></span>`;
+    }
+    dotsEl.innerHTML = html;
+  }
+
+  function updateHud(){
+    const scoreEl = document.getElementById('e-score');
+    const escapedEl = document.getElementById('e-escaped');
+    const timeEl = document.getElementById('e-time');
+    if(scoreEl) scoreEl.textContent = score;
+    if(escapedEl) escapedEl.textContent = `${escaped}/${gameConfig[difficulty].maxEscapes}`;
+    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+    renderDots();
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-encantados');
+  const volumeSlider = document.getElementById('volumeSlider-encantados');
+  const volumeIcon = document.getElementById('volumeIcon-encantados');
+  const damageOverlay = document.getElementById('damageOverlay-encantados');
+  let volume = Number(volumeSlider?.value || 0.45);
+  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
+  function stopMusic(){ bgMusic?.pause(); }
+  function flashEscape(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  function layoutHideSpots(){
+    if(!canvas.width || !canvas.height) return;
+    const count = 10;
+    const cols = 5;
+    const rows = Math.ceil(count / cols);
+    const marginX = canvas.width * 0.08;
+    const marginY = canvas.height * 0.28;
+    const usableW = canvas.width - marginX*2;
+    const usableH = canvas.height - marginY*2 - 40;
+    const cellW = usableW / cols;
+    const cellH = usableH / rows;
+
+    const spots = [];
+    let i = 0;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        if(i >= count) break;
+        const jitterX = (Math.random()-0.5) * cellW * 0.25;
+        const jitterY = (Math.random()-0.5) * cellH * 0.25;
+        spots.push({
+          x: marginX + c*cellW + cellW/2 + jitterX,
+          y: marginY + 40 + r*cellH + cellH/2 + jitterY,
+          emoji: HIDE_SPOTS_EMOJI[i % HIDE_SPOTS_EMOJI.length]
+        });
+        i++;
+      }
+    }
+    hideSpots = spots;
+  }
+
+  function randomEscapeInterval(){
+    const config = gameConfig[difficulty];
+    return config.escapeMin + Math.random()*(config.escapeMax - config.escapeMin);
+  }
+
+  function setupGame(){
+    const config = gameConfig[difficulty];
+    layoutHideSpots();
+    kids = hideSpots.map((spot, idx) => ({
+      x: spot.x, y: spot.y,
+      spotIndex: idx,
+      emoji: KID_EMOJIS[idx % KID_EMOJIS.length],
+      state: 'hidden',
+      vx: 0, vy: 0
+    }));
+
+    catcher.x = canvas.width / 2;
+    catcher.y = canvas.height - 70;
+
+    score = 0; caught = 0; escaped = 0;
+    timeLeft = config.timeLimit;
+    escapeAccum = 0;
+    nextEscapeIn = randomEscapeInterval();
+    lastTime = null;
+
+    hideOverlay();
+    updateHud();
+    cancelAnimationFrame(rafId);
+    playMusic();
+    running = true;
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    rafId = requestAnimationFrame(step);
+  }
+
+  // Controles de teclado (WASD / flechas) — único método de control
+  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  function triggerEscape(){
+    const hidden = kids.filter(k => k.state === 'hidden');
+    if(!hidden.length) return;
+    const kid = hidden[Math.floor(Math.random()*hidden.length)];
+    kid.state = 'fleeing';
+  }
+
+  function endGame(win){
+    running = false;
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    let title = win ? '🏆 ¡Los atrapaste a todos antes del bote!' : (timeLeft <= 0 ? '⏰ ¡Se acabó el tiempo!' : '🏁 ¡Se te escaparon demasiados!');
+    let text = score >= 150 ? '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.' :
+               score >= 80 ? '👍 Buena persecución, ¡ya casi los atrapás a todos!' :
+               'Seguí practicando tus reflejos para la próxima ronda de encantados.';
+
+    showOverlay(`
+      <span class="overlay-tag">Fin del Juego</span>
+      <h3>${title}</h3>
+      <div class="overlay-score">${score} pts</div>
+      <p>Atrapaste ${caught} de ${gameConfig[difficulty].kidsToWin} amigos. ${text}</p>
+      <button class="btn-primary" id="e-restart">Jugar de nuevo</button>`);
+    document.getElementById('e-restart').onclick = showDifficultySelector;
+  }
+
+  function step(timestamp){
+    if(!running || !isGameVisible) return;
+    if(lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    const dtSec = dt / 1000;
+
+    const config = gameConfig[difficulty];
+
+    timeLeft -= dtSec;
+
+    // Mover al catcher (jugador) con teclado o siguiendo el puntero
+    let moveX = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+    let moveY = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
+    if(moveX !== 0 || moveY !== 0){
+      const len = Math.hypot(moveX, moveY) || 1;
+      catcher.x += (moveX/len) * config.catcherSpeed;
+      catcher.y += (moveY/len) * config.catcherSpeed;
+    }
+    catcher.x = Math.max(catcher.radius, Math.min(canvas.width - catcher.radius, catcher.x));
+    catcher.y = Math.max(catcher.radius, Math.min(canvas.height - catcher.radius, catcher.y));
+
+    // Disparar nuevas fugas periódicamente
+    escapeAccum += dt;
+    if(escapeAccum >= nextEscapeIn){
+      escapeAccum = 0;
+      nextEscapeIn = randomEscapeInterval();
+      triggerEscape();
+    }
+
+    // Actualizar amigos que están huyendo hacia el bote
+    for(const kid of kids){
+      if(kid.state !== 'fleeing') continue;
+      const dx = bote.x - kid.x;
+      const dy = bote.y - kid.y;
+      const dist = Math.hypot(dx, dy);
+      if(dist > 2){
+        kid.x += (dx/dist) * config.fleeSpeed * (dt/16.6);
+        kid.y += (dy/dist) * config.fleeSpeed * (dt/16.6);
+      }
+
+      // ¿Lo atrapó el catcher?
+      const catchDist = Math.hypot(kid.x - catcher.x, kid.y - catcher.y);
+      if(catchDist < catcher.radius + 16){
+        kid.state = 'caught';
+        caught++;
+        score += 25;
+        updateHud();
+        continue;
+      }
+
+      // ¿Llegó al bote?
+      if(dist < bote.radius){
+        kid.state = 'escaped';
+        escaped++;
+        score = Math.max(0, score - 10);
+        flashEscape();
+        updateHud();
+      }
+    }
+
+    // Condiciones de fin
+    if(caught >= config.kidsToWin){ endGame(true); return; }
+    if(escaped >= config.maxEscapes){ endGame(false); return; }
+    if(timeLeft <= 0){ endGame(caught >= Math.ceil(config.kidsToWin*0.6)); return; }
+
+    updateHud();
+
+    // ---- Render ----
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+    grad.addColorStop(0, '#cdb98a');
+    grad.addColorStop(1, '#b89b6a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = '#bfe3ff';
+    ctx.fillRect(0,0,canvas.width, canvas.height*0.12);
+
+    // Bote (meta)
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.translate(bote.x, bote.y);
+    ctx.fillStyle = '#5c4a30';
+    ctx.beginPath();
+    ctx.ellipse(0, bote.radius*0.8, bote.radius, bote.radius*0.35, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = (bote.radius*1.8)+'px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🛢️', 0, 0);
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillStyle = '#113068';
+    ctx.fillText('¡BOTE!', 0, bote.radius + 16);
+    ctx.restore();
+
+    // Escondites (objetos)
+    for(const spot of hideSpots){
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.translate(spot.x, spot.y);
+      ctx.fillStyle = '#5c4a30';
+      ctx.beginPath();
+      ctx.ellipse(0, 24, 26, 10, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = '46px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#2c1f0e';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(spot.emoji, 0, 0);
+      ctx.fillText(spot.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    // Amigos huyendo
+    for(const kid of kids){
+      if(kid.state !== 'fleeing') continue;
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.translate(kid.x, kid.y);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(0, 16, 14, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = '30px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#2c1f0e';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(kid.emoji, 0, 0);
+      ctx.fillText(kid.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    // Catcher (jugador)
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.translate(catcher.x, catcher.y);
+    ctx.fillStyle = '#5c4a30';
+    ctx.beginPath();
+    ctx.ellipse(0, catcher.radius*0.9, catcher.radius*0.9, catcher.radius*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = (catcher.radius*1.7)+'px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🏃', 0, 1);
+    ctx.restore();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  const pauseBtn = document.getElementById('pauseBtn-encantados');
+  const pauseIcon = document.getElementById('pauseIcon-encantados');
+  const pauseOverlay = document.getElementById('pauseOverlay-encantados');
+  const resumeBtn = document.getElementById('resumeBtn-encantados');
+  const menuBtn = document.getElementById('menuBtn-encantados');
+
+  function pauseGame(){
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+  function resumeGame(){
+    if(!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if(volume > 0) bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    showModeSelector();
+  }
+  pauseBtn?.addEventListener('click', ()=>{
+    if(!running && !paused) return;
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  function showDifficultySelector(){
+    showOverlay(`
+      <span class="overlay-tag">Elegí tu dificultad</span>
+      <h3>🏃 ¿Qué tan rápidos son tus amigos?</h3>
+      <p>Más difícil significa que corren más rápido al bote y tenés menos escapes permitidos.</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-encantados">
+          🟢 Fácil
+          <div class="difficulty-desc">Atrapá 6 amigos, corren despacio</div>
+        </button>
+        <button class="difficulty-btn medium" id="btn-medium-encantados">
+          🟡 Normal
+          <div class="difficulty-desc">Atrapá 8 amigos, corren más seguido</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-encantados">
+          🔴 Difícil
+          <div class="difficulty-desc">Atrapá 10 amigos, casi no hay respiro</div>
+        </button>
+      </div>`);
+    document.getElementById('btn-easy-encantados').onclick = () => { difficulty='easy'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+    document.getElementById('btn-medium-encantados').onclick = () => { difficulty='medium'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+    document.getElementById('btn-hard-encantados').onclick = () => { difficulty='hard'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+  }
+
+  function showModeSelector(){
+    showOverlay(`
+      <span class="overlay-tag">Ruta 04</span>
+      <h3>🏃 Escondelero</h3>
+      <p>Vos sos "el que la trae". Tus amigos están escondidos por todo el patio y de repente van a salir corriendo hacia el bote para salvarse. Movete con las teclas <strong>WASD</strong> o las <strong>flechas</strong> del teclado e interceptalos antes de que lleguen.</p>
+      <p class="rules-title">Reglas del juego</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">✅</span> Tocá a los amigos que van corriendo antes de que lleguen al bote — cada atrapada suma puntos.</li>
+        <li class="rule-bad"><span class="rule-icon">❌</span> Si un amigo llega al bote, se salva y perdés puntos. Si se te escapan demasiados, perdés la partida.</li>
+      </ul>
+      <button class="btn-primary" id="e-start">Continuar</button>`);
+    document.getElementById('e-start').onclick = showDifficultySelector;
+  }
+
+  resizeCanvas();
+  showModeSelector();
+
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'encantados') {
+      isGameVisible = true;
+      resizeCanvas();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('encantados', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: () => bgMusic?.pause(),
+    running: () => running,
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; }
+  });
+})();
+
+/* ---------------------------------------------------------
+   JUEGO 5: ELOTES Y OLÉ (RECOLECCIÓN EN CARRILES DEL RECREO)
+--------------------------------------------------------- */
+(function initGameElotes(){
+  const canvas = document.getElementById('canvas-elotes');
+  if(!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const hud = document.getElementById('hud-elotes');
+  const overlay = document.getElementById('overlay-elotes');
+  const overlayCard = document.getElementById('overlay-card-elotes');
+  const gameContent = document.getElementById('modal-elotes');
+  const canvasWrap = document.getElementById('elotes-canvas-wrap');
+
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  function resizeCanvas() {
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    laneWidth = canvas.width / lanesCount;
+    for(let i=0;i<lanesCount;i++){ lanePositions[i] = (i*laneWidth) + (laneWidth/2); }
+    player.y = canvas.height - 90;
+    player.targetX = lanePositions[player.lane];
+  }
+
+  const lanesCount = 3;
+  let laneWidth = 0;
+  const lanePositions = [];
+
+  let player = { x:0, y:0, lane:1, targetX:0 };
+  let items = []; // {x,y,lane,type,emoji,points,speed}
+  let obstacles = []; // {x,y,lane,emoji,speed}
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
+  let keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if(running && !paused){
+      if(e.key.toLowerCase()==='a' || e.key==='ArrowLeft') moveLane(-1);
+      if(e.key.toLowerCase()==='d' || e.key==='ArrowRight') moveLane(1);
+    }
+  });
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+  function moveLane(dir){
+    const next = player.lane + dir;
+    if(next >= 0 && next < lanesCount) player.lane = next;
+  }
+  // Soporte táctil: tap en mitad izquierda/derecha del canvas mueve de carril
+  canvas.addEventListener('touchstart', (e)=>{
+    if(!running || paused) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    if(x < rect.width/2) moveLane(-1); else moveLane(1);
+  }, {passive:true});
+
+  const GOOD_ITEMS = [
+    {emoji:'🌽', pts:10, label:'elote loco'},
+    {emoji:'🥭', pts:8, label:'mango'},
+    {emoji:'🍧', pts:12, label:'minuta'},
+    {emoji:'🍬', pts:6, label:'dulce'}
+  ];
+  const BAD_ITEMS = [
+    {emoji:'🪑', label:'pupitre'},
+    {emoji:'⚽', label:'pelota perdida'},
+    {emoji:'🧹', label:'escoba del conserje'}
+  ];
+
+  let gameConfig = {
+    easy:   { timeLimit: 40, itemMinGap: 900, itemMaxGap: 1400, obstacleMinGap: 1600, obstacleMaxGap: 2400, speed: 3.2, initialLives: 4 },
+    hard:   { timeLimit: 35, itemMinGap: 650, itemMaxGap: 1050, obstacleMinGap: 1100, obstacleMaxGap: 1700, speed: 4.4, initialLives: 3 }
+  };
+  let difficulty = null;
+  let score = 0, lives = 3, totalLives = 3, combo = 0, timeLeft = 30;
+  let clockAccum = 0, lastTime = null;
+  let itemSpawnAccum = 0, nextItemSpawnIn = 1000;
+  let obstacleSpawnAccum = 0, nextObstacleSpawnIn = 1800;
+  const MIN_LANE_GAP = 90; // separación mínima vertical entre entidades del mismo carril
+
+  function randomItemGap(){
+    const c = gameConfig[difficulty];
+    return c.itemMinGap + Math.random()*(c.itemMaxGap - c.itemMinGap);
+  }
+  function randomObstacleGap(){
+    const c = gameConfig[difficulty];
+    return c.obstacleMinGap + Math.random()*(c.obstacleMaxGap - c.obstacleMinGap);
+  }
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  function renderLives(count){
+    const hearts = [];
+    for(let i=0;i<totalLives;i++){
+      const active = i < count;
+      hearts.push(`<span class="heart${active?'':' broken'}">${active?'❤️':'💔'}</span>`);
+    }
+    return hearts.join('');
+  }
+
+  if(hud){
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>Puntos</span>
+        <b id="el-score">0</b>
+      </div>
+      <div class="hud-item lives">
+        <span>Vidas</span>
+        <b id="el-lives">${renderLives(3)}</b>
+      </div>
+      <div class="hud-item">
+        <span>Combo</span>
+        <span class="elotes-combo" id="el-combo">x1</span>
+      </div>
+      <div class="hud-item">
+        <span>Tiempo</span>
+        <b id="el-time">30</b>
+      </div>`;
+  }
+
+  function updateHud(){
+    const scoreEl = document.getElementById('el-score');
+    const livesEl = document.getElementById('el-lives');
+    const comboEl = document.getElementById('el-combo');
+    const timeEl = document.getElementById('el-time');
+    if(scoreEl) scoreEl.textContent = score;
+    if(livesEl) livesEl.innerHTML = renderLives(lives);
+    if(comboEl) comboEl.textContent = 'x' + Math.max(1, 1 + Math.floor(combo/5));
+    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-elotes');
+  const volumeSlider = document.getElementById('volumeSlider-elotes');
+  const volumeIcon = document.getElementById('volumeIcon-elotes');
+  const damageOverlay = document.getElementById('damageOverlay-elotes');
+  let volume = Number(volumeSlider?.value || 0.45);
+  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
+  function stopMusic(){ bgMusic?.pause(); }
+  function flashDamage(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  const pauseBtn = document.getElementById('pauseBtn-elotes');
+  const pauseIcon = document.getElementById('pauseIcon-elotes');
+  const pauseOverlay = document.getElementById('pauseOverlay-elotes');
+  const resumeBtn = document.getElementById('resumeBtn-elotes');
+
+  function pauseGame(){
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+  function resumeGame(){
+    if(!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if(volume > 0) bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+  pauseBtn?.addEventListener('click', ()=>{
+    if(!running && !paused) return;
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+
+  function spawnEntities(dt){
+    const config = gameConfig[difficulty];
+
+    itemSpawnAccum += dt;
+    if(itemSpawnAccum >= nextItemSpawnIn){
+      const lane = Math.floor(Math.random()*lanesCount);
+      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
+      if(!blocked){
+        itemSpawnAccum = 0;
+        nextItemSpawnIn = randomItemGap();
+        const good = GOOD_ITEMS[Math.floor(Math.random()*GOOD_ITEMS.length)];
+        items.push({ x: lanePositions[lane], y: -30, lane, emoji: good.emoji, pts: good.pts, speed: config.speed });
+      }
+    }
+
+    obstacleSpawnAccum += dt;
+    if(obstacleSpawnAccum >= nextObstacleSpawnIn){
+      const lane = Math.floor(Math.random()*lanesCount);
+      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
+      if(!blocked){
+        obstacleSpawnAccum = 0;
+        nextObstacleSpawnIn = randomObstacleGap();
+        const bad = BAD_ITEMS[Math.floor(Math.random()*BAD_ITEMS.length)];
+        obstacles.push({ x: lanePositions[lane], y: -30, lane, emoji: bad.emoji, speed: config.speed });
+      }
+    }
+  }
+
+  function step(timestamp){
+    if(!running || !isGameVisible) return;
+    if(lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    const timeScale = dt / 16.67; // normaliza el movimiento a ~60fps sin importar la tasa real de refresco
+
+    spawnEntities(dt);
+
+    player.targetX = lanePositions[player.lane];
+    player.x += (player.targetX - player.x) * Math.min(1, 0.28 * timeScale);
+
+    items.forEach((it, idx) => {
+      it.y += it.speed * timeScale;
+      if(Math.abs(it.x - player.x) < 34 && Math.abs(it.y - player.y) < 42 && it.lane === player.lane){
+        const multiplier = Math.max(1, 1 + Math.floor(combo/5));
+        score += it.pts * multiplier;
+        combo++;
+        items.splice(idx,1);
+        updateHud();
+        return;
+      }
+      if(it.y > canvas.height + 40) items.splice(idx,1);
+    });
+
+    obstacles.forEach((obs, idx) => {
+      obs.y += obs.speed * timeScale;
+      if(Math.abs(obs.x - player.x) < 30 && Math.abs(obs.y - player.y) < 40 && obs.lane === player.lane){
+        lives -= 1;
+        combo = 0;
+        flashDamage();
+        obstacles.splice(idx,1);
+        updateHud();
+        return;
+      }
+      if(obs.y > canvas.height + 40) obstacles.splice(idx,1);
+    });
+
+    clockAccum += dt;
+    while(clockAccum >= 1000 && timeLeft > 0){
+      clockAccum -= 1000;
+      timeLeft -= 1;
+    }
+    updateHud();
+
+    if(lives <= 0 || timeLeft <= 0){
+      running = false;
+      endGame();
+      return;
+    }
+
+    // Render
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    drawYard();
+    obstacles.forEach(drawEmojiEntity);
+    items.forEach(drawEmojiEntity);
+    drawPlayer();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function drawYard(){
+    ctx.fillStyle = '#e8d9a8';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(120,90,40,0.35)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([16,20]);
+    for(let i=1;i<lanesCount;i++){
+      ctx.beginPath();
+      ctx.moveTo(i*laneWidth, 0);
+      ctx.lineTo(i*laneWidth, canvas.height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  function drawEmojiEntity(entity){
+    ctx.save();
+    ctx.font = '32px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(entity.emoji, entity.x, entity.y);
+    ctx.restore();
+  }
+
+  function drawPlayer(){
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(0, 22, 22, 8, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = '40px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('🧒', 0, 0);
+    ctx.restore();
+  }
+
+  function endGame(){
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    let text = score >= 150 ? '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!' :
+               score >= 80 ? '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.' :
+               '👍 Buen intento, ¡seguí practicando para el próximo recreo!';
+
+    showOverlay(`
+      <span class="overlay-tag">${difficulty === 'easy' ? '🟢 Nivel Fácil' : '🔴 Nivel Difícil'}</span>
+      <h3>¡Sonó la campana!</h3>
+      <div class="overlay-score">${score} pts</div>
+      <p>${text}</p>
+      <button class="btn-primary" id="el-restart">Jugar de nuevo</button>`);
+    document.getElementById('el-restart').onclick = showDifficultySelector;
+  }
+
+  function start(){
+    resizeCanvas();
+    items = [];
+    obstacles = [];
+    player.lane = 1;
+    player.x = lanePositions[1];
+    player.targetX = lanePositions[1];
+    score = 0;
+    combo = 0;
+    lives = totalLives;
+    timeLeft = gameConfig[difficulty].timeLimit;
+    clockAccum = 0;
+    lastTime = null;
+    itemSpawnAccum = 0;
+    nextItemSpawnIn = randomItemGap();
+    obstacleSpawnAccum = 0;
+    nextObstacleSpawnIn = randomObstacleGap();
+    running = true;
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    updateHud();
+    hideOverlay();
+    cancelAnimationFrame(rafId);
+    playMusic();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showDifficultySelector(){
+    showOverlay(`
+      <span class="overlay-tag">Elegí tu dificultad</span>
+      <h3>🌽 Selecciona Nivel</h3>
+      <p>¿Qué tan movido va a estar el recreo hoy?</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-elotes">
+          🟢 Fácil
+          <div class="difficulty-desc">Recreo tranquilo</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-elotes">
+          🔴 Difícil
+          <div class="difficulty-desc">Recreo a toda velocidad</div>
+        </button>
+      </div>`);
+    document.getElementById('btn-easy-elotes').onclick = () => {
+      difficulty='easy'; totalLives = gameConfig.easy.initialLives;
+      setTimeout(()=>{ start(); }, 100);
+    };
+    document.getElementById('btn-hard-elotes').onclick = () => {
+      difficulty='hard'; totalLives = gameConfig.hard.initialLives;
+      setTimeout(()=>{ start(); }, 100);
+    };
+  }
+
+  showOverlay(`
+    <span class="overlay-tag">Ruta 05</span>
+    <h3>🌽 Elotes y Olé</h3>
+    <p>Movete entre los 3 carriles del patio con el mouse, las flechas (A/D) o tocando a los lados. Recogé lo rico del recreo y esquivá lo que te estorba.</p>
+    <p class="rules-title">Reglas del juego</p>
+    <ul class="rules-list">
+      <li class="rule-good"><span class="rule-icon">✅</span> Recogé <strong>🌽 elotes locos</strong>, <strong>🥭 mangos</strong>, <strong>🍧 minutas</strong> y <strong>🍬 dulces</strong> — suman puntos y combo.</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🪑 pupitres</strong>, <strong>⚽ pelotas perdidas</strong> y <strong>🧹 la escoba del conserje</strong> — te quitan una vida y el combo.</li>
+    </ul>
+    <button class="btn-primary" id="el-start">Continuar</button>`);
+  document.getElementById('el-start').onclick = showDifficultySelector;
+
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'elotes') {
+      isGameVisible = true;
+      resizeCanvas();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('elotes', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: () => bgMusic?.pause(),
+    running: () => running,
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; }
+  });
+})();
+
 /* ============================================================
   Salvadorean Roots — ANIMACIONES GSAP
    ============================================================ */
