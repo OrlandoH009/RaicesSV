@@ -12,6 +12,18 @@
   };
 })();
 
+/* Helper de traducción para los juegos: usa el sistema i18n del sitio si está
+   cargado (window.SRi18n), con fallback seguro al texto en español si no lo está. */
+function jt(key, fallback) {
+  if (window.SRi18n && typeof window.SRi18n.t === 'function') {
+    const lang = window.SRi18n.getLang ? window.SRi18n.getLang() : 'es';
+    const val = window.SRi18n.t(key, lang);
+    // Si la clave no existe, t() devuelve la clave tal cual: en ese caso usamos el fallback
+    return (val && val !== key) ? val : fallback;
+  }
+  return fallback;
+}
+
 /* Reveal on scroll */
 (function initReveal(){
   const items = document.querySelectorAll('.reveal');
@@ -32,13 +44,23 @@
   const canvasWrap = canvas.closest('.canvas-wrap');
 
   // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
+  // El tamaño LÓGICO del juego (resolución interna del canvas) se mantiene fijo siempre.
+  // En pantalla completa, el CSS estira ese mismo contenido más grande (efecto zoom),
+  // pero las coordenadas, distancias y velocidades del juego no cambian.
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if(isFS && baseWidth && baseHeight){
+      // No recalculamos contra el tamaño de pantalla completa: conservamos la resolución lógica normal
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
-    // Si está en pantalla completa, toma el alto total del contenedor, si no, usa el CSS estándar
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -122,19 +144,19 @@
   
   hud.innerHTML = `
     <div class="hud-item">
-      <span>Puntos</span>
+      <span>${jt('jue.hud.points', 'Puntos')}</span>
       <b id="p-score">0</b>
     </div>
     <div class="hud-item lives">
-      <span>Vidas</span>
+      <span>${jt('jue.hud.lives', 'Vidas')}</span>
       <b id="p-lives">${renderLives(3)}</b>
     </div>
     <div class="hud-item">
-      <span>Nivel</span>
+      <span>${jt('jue.hud.level', 'Nivel')}</span>
       <b id="p-level">-</b>
     </div>
     <div class="hud-item">
-      <span>Tiempo</span>
+      <span>${jt('jue.hud.time', 'Tiempo')}</span>
       <b id="p-time">30</b>
     </div>`;
 
@@ -155,7 +177,7 @@
     if(scoreEl) scoreEl.textContent = score;
     if(livesEl) livesEl.innerHTML = renderLives(lives);
     if(timeEl) timeEl.textContent = Math.max(0, timeLeft);
-    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? '🟢 Fácil' : '🔴 Difícil';
+    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? jt('jue.diff.easy', '🟢 Fácil') : jt('jue.diff.hard', '🔴 Difícil');
   }
 
   const engine = Engine.create();
@@ -252,6 +274,7 @@
   const pauseIcon = document.getElementById('pauseIcon-pupusa');
   const pauseOverlay = document.getElementById('pauseOverlay-pupusa');
   const resumeBtn = document.getElementById('resumeBtn-pupusa');
+  const menuBtn = document.getElementById('menuBtn-pupusa');
 
   function pauseGame(){
     if(!running) return;
@@ -277,12 +300,25 @@
     rafId = requestAnimationFrame(step);
   }
 
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
+    showDifficultySelector();
+  }
+
   pauseBtn?.addEventListener('click', ()=>{
     if(!running && !paused) return;
     if(paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
 
   function spawn(){
     const isBad = Math.random() < 0.32; // Un poco más de probabilidad de obstáculos
@@ -389,18 +425,18 @@
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     
-    let text = score >= 120 ? '🏆 ¡Sos toda una maestra pupusera de El Salvador!' :
-               score >= 60 ? '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.' :
-               '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!';
+    let text = score >= 120 ? jt('jue.card1.end.high', '🏆 ¡Sos toda una maestra pupusera de El Salvador!') :
+               score >= 60 ? jt('jue.card1.end.mid', '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.') :
+               jt('jue.card1.end.low', '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!');
     
-    const difficultyLabel = gameDifficulty === 'easy' ? '🟢 Nivel Fácil' : '🔴 Nivel Difícil';
+    const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
     
     showOverlay(`
       <span class="overlay-tag">${difficultyLabel}</span>
-      <h3>¡Fin del juego!</h3>
+      <h3>${jt('jue.end.title', '¡Fin del juego!')}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${text}</p>
-      <button class="btn-primary" id="p-restart">Jugar de nuevo</button>`);
+      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('p-restart').onclick = showDifficultySelector;
   }
 
@@ -422,17 +458,17 @@
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elegí tu dificultad</span>
-      <h3>🎮 Selecciona Nivel</h3>
-      <p>La velocidad de caída y aparición ahora es mayor. ¿Estás listo?</p>
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>${jt('jue.card1.diff.title', '🎮 Selecciona Nivel')}</h3>
+      <p>${jt('jue.card1.diff.sub', 'Elegí qué tan rápido caen las pupusas y los demás ingredientes.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy">
-          🟢 Fácil
-          <div class="difficulty-desc">Caída veloz, reflejos rápidos</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card1.diff.easyDesc', 'Caída lenta, ritmo tranquilo')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard">
-          🔴 Difícil
-          <div class="difficulty-desc">Velocidad extrema de comal</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card1.diff.hardDesc', 'Caída más rápida y seguida')}</div>
         </button>
       </div>`);
     
@@ -452,15 +488,15 @@
   }
 
   showOverlay(`
-    <span class="overlay-tag">Ruta 01</span>
-    <h3>🫓 Atrapa la Pupusa</h3>
-    <p>Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.</p>
-    <p class="rules-title">Reglas del juego</p>
+    <span class="overlay-tag">${jt('jue.card1.tagModal', 'Ruta 01')}</span>
+    <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
+    <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
+    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">✅</span> Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.</li>
-      <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.</li>
+      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card1.ruleBad', 'Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.')}</li>
     </ul>
-    <button class="btn-primary" id="p-start">Continuar</button>`);
+    <button class="btn-primary" id="p-start">${jt('jue.continue', 'Continuar')}</button>`);
   
   document.getElementById('p-start').onclick = showDifficultySelector;
 
@@ -495,7 +531,8 @@
     stop: stopMusic,
     running: () => running,
     paused: () => paused,
-    setVisible: (visible) => { isGameVisible = visible; }
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showDifficultySelector
   });
 })();
 
@@ -509,13 +546,19 @@
 
   const canvasWrap = canvas.closest('.canvas-wrap');
 
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
-    
     canvas.width = rect.width;
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -598,15 +641,15 @@
 
   hud.innerHTML = `
     <div class="hud-item player1">
-      <span>🟢 Jugador 1</span>
+      <span>${jt('jue.card2.player1', '🟢 Jugador 1')}</span>
       <b id="p1-energy">100%</b>
     </div>
     <div class="hud-item player2">
-      <span id="p2-label">🔴 Jugador 2</span>
+      <span id="p2-label">${jt('jue.card2.player2', '🔴 Jugador 2')}</span>
       <b id="p2-energy">100%</b>
     </div>
     <div class="hud-item">
-      <span>Ronda</span>
+      <span>${jt('jue.hud.round', 'Ronda')}</span>
       <b id="round-val">1/3</b>
     </div>`;
 
@@ -616,7 +659,7 @@
     const roundEl = document.getElementById('round-val');
     if(p1El) p1El.textContent = Math.max(0, Math.round(top.energy)) + '%';
     if(p2El) p2El.textContent = Math.max(0, Math.round(bottom.energy)) + '%';
-    if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (J1: ${playerWins} - Riv: ${rivalWins})`;
+    if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (${jt('jue.card2.p1Short', 'J1')}: ${playerWins} - ${jt('jue.card2.rivalShort', 'Riv')}: ${rivalWins})`;
   }
 
   // Animación del HUD al recibir daño
@@ -971,13 +1014,13 @@
       // Siguiente ronda
       currentRound++;
       showOverlay(`
-        <span class="overlay-tag">Fin de Ronda</span>
-        <h3>Ronda ${currentRound - 1} finalizada</h3>
-        <p>Ganador: ${winner === 'top' ? '🟢 Jugador 1' : '🔴 Rival'}</p>
+        <span class="overlay-tag">${jt('jue.card2.roundEndTag', 'Fin de Ronda')}</span>
+        <h3>${jt('jue.card2.roundEndTitle', 'Ronda {n} finalizada').replace('{n}', currentRound - 1)}</h3>
+        <p>${jt('jue.card2.winnerLabel', 'Ganador')}: ${winner === 'top' ? jt('jue.card2.player1', '🟢 Jugador 1') : jt('jue.card2.rivalTag', '🔴 Rival')}</p>
         <div style="font-size: 1.2rem; font-weight: bold; margin: 15px 0;">
-          Marcador: J1 ${playerWins} - ${rivalWins} Rival
+          ${jt('jue.card2.scoreLabel', 'Marcador')}: ${jt('jue.card2.p1Short', 'J1')} ${playerWins} - ${rivalWins} ${jt('jue.card2.rivalShort2', 'Rival')}
         </div>
-        <button class="btn-primary" id="btn-next-round">Siguiente Ronda</button>
+        <button class="btn-primary" id="btn-next-round">${jt('jue.card2.nextRound', 'Siguiente Ronda')}</button>
       `);
       document.getElementById('btn-next-round').onclick = startNextRound;
     }
@@ -1013,16 +1056,16 @@
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
     let message = winner === 'top' 
-      ? `🟢 ¡Felicidades! Has ganado el duelo (${playerWins} - ${rivalWins})`
+      ? jt('jue.card2.end.win', '🟢 ¡Felicidades! Has ganado el duelo ({p} - {r})').replace('{p}', playerWins).replace('{r}', rivalWins)
       : gameMode === 'pvp'
-        ? `🔴 ¡Jugador 2 gana el duelo! (${rivalWins} - ${playerWins})`
-        : `🔴 El NPC salvadoreño te ha ganado (${rivalWins} - ${playerWins})`;
+        ? jt('jue.card2.end.losePvp', '🔴 ¡Jugador 2 gana el duelo! ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins)
+        : jt('jue.card2.end.loseNpc', '🔴 El NPC salvadoreño te ha ganado ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins);
 
     showOverlay(`
-      <span class="overlay-tag">Fin de la Batalla</span>
+      <span class="overlay-tag">${jt('jue.card2.end.tag', 'Fin de la Batalla')}</span>
       <h3>${message}</h3>
-      <p>¿Listo para una revancha?</p>
-      <button class="btn-primary" id="p-restart">Volver a Jugar</button>`);
+      <p>${jt('jue.card2.end.rematch', '¿Listo para una revancha?')}</p>
+      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain2', 'Volver a Jugar')}</button>`);
     
     document.getElementById('p-restart').onclick = showModeSelector;
   }
@@ -1102,39 +1145,39 @@
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elige Dificultad</span>
-      <h3>🎮 Selecciona tu Desafío</h3>
-      <p>Elige el nivel de agilidad que tendrá la IA.</p>
+      <span class="overlay-tag">${jt('jue.card2.chooseDiffTag', 'Elige Dificultad')}</span>
+      <h3>${jt('jue.card2.diff.title', '🎮 Selecciona tu Desafío')}</h3>
+      <p>${jt('jue.card2.diff.sub', 'Elige el nivel de agilidad que tendrá la IA.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-trompos">
-          🟢 Fácil
-          <div class="difficulty-desc">NPC ágil</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.easyDesc', 'NPC lento y predecible')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-trompos">
-          🟡 Normal
-          <div class="difficulty-desc">NPC rápido y certero</div>
+          ${jt('jue.diff.medium', '🟡 Normal')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.medDesc', 'NPC rápido y certero')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-trompos">
-          🔴 Difícil
-          <div class="difficulty-desc">NPC experto (Modo Imposible)</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.hardDesc', 'NPC experto (Modo Imposible)')}</div>
         </button>
       </div>`);
     
     document.getElementById('btn-easy-trompos').onclick = ()=>{
       npcDifficulty = 'easy';
-      document.getElementById('p2-label').textContent = '🟢 NPC - Fácil';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcEasy', '🟢 NPC - Fácil');
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-medium-trompos').onclick = ()=>{
       npcDifficulty = 'medium';
-      document.getElementById('p2-label').textContent = '🟡 NPC - Normal';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcMedium', '🟡 NPC - Normal');
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-hard-trompos').onclick = ()=>{
       npcDifficulty = 'hard';
-      document.getElementById('p2-label').textContent = '🔴 NPC - Experto';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcHard', '🔴 NPC - Experto');
       setTimeout(()=>{ start(); }, 100);
     };
   }
@@ -1142,13 +1185,13 @@
   // NUEVO SELECTOR DE RONDAS
   function showRoundSelector(){
     showOverlay(`
-      <span class="overlay-tag">Configuración</span>
-      <h3>🏁 ¿A cuántas rondas jugamos?</h3>
-      <p>El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.</p>
+      <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
+      <h3>${jt('jue.card2.rounds.title', '🏁 ¿A cuántas rondas jugamos?')}</h3>
+      <p>${jt('jue.card2.rounds.sub', 'El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.')}</p>
       <div class="difficulty-buttons" style="display: flex; gap: 15px; margin-top: 15px;">
-        <button class="btn-primary" id="rounds-1" style="flex: 1;">1 Ronda</button>
-        <button class="btn-primary" id="rounds-3" style="flex: 1;">Best of 3</button>
-        <button class="btn-primary" id="rounds-5" style="flex: 1;">Best of 5</button>
+        <button class="btn-primary" id="rounds-1" style="flex: 1;">${jt('jue.card2.round1', '1 Ronda')}</button>
+        <button class="btn-primary" id="rounds-3" style="flex: 1;">${jt('jue.card2.bestOf3', 'Best of 3')}</button>
+        <button class="btn-primary" id="rounds-5" style="flex: 1;">${jt('jue.card2.bestOf5', 'Best of 5')}</button>
       </div>
     `);
 
@@ -1172,23 +1215,23 @@
 
   function showModeSelector(){
     showOverlay(`
-      <span class="overlay-tag">Selecciona Modo</span>
-      <h3>⚡ Batalla de Trompos SV</h3>
-      <p>¿Cómo quieres jugar?</p>
+      <span class="overlay-tag">${jt('jue.card2.selectModeTag', 'Selecciona Modo')}</span>
+      <h3>⚡ ${jt('jue.card2.titleModal', 'Batalla de Trompos SV')}</h3>
+      <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
       <div class="mode-buttons">
         <button class="mode-btn pvp" id="btn-pvp-trompos">
-          👥 2 Jugadores
-          <div class="difficulty-desc">Compite localmente</div>
+          ${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${jt('jue.card2.mode.pvpDesc', 'Compite localmente')}</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
-          🤖 vs NPC
-          <div class="difficulty-desc">Enfrenta la IA de práctica</div>
+          ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
+          <div class="difficulty-desc">${jt('jue.card2.mode.pveDesc', 'Enfrenta la IA de práctica')}</div>
         </button>
       </div>`);
     
     document.getElementById('btn-pvp-trompos').onclick = ()=>{
       gameMode = 'pvp';
-      document.getElementById('p2-label').textContent = '🔴 Jugador 2';
+      document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
       setTimeout(()=>{ showRoundSelector(); }, 100);
     };
     
@@ -1199,10 +1242,15 @@
   }
 
   showOverlay(`
-    <span class="overlay-tag">Ruta 02</span>
-    <h3>⚡ Batalla de Trompos</h3>
-    <p>Prepará tu trompo para la batalla. Controlá su movimiento y vencé a tu oponente.</p>
-    <button class="btn-primary" id="p-start-trompos">Preparar Batalla</button>`);
+    <span class="overlay-tag">${jt('jue.card2.tagModal', 'Ruta 02')}</span>
+    <h3>⚡ ${jt('jue.card2.title', 'Batalla de Trompos')}</h3>
+    <p>${jt('jue.card2.intro', 'Empujá tu trompo contra el de tu oponente para sacarlo del círculo. El primero en caer o salirse pierde la ronda.')}</p>
+    <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+    <ul class="rules-list">
+      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP1', 'Jugador 1: teclas <strong>WASD</strong> para mover el trompo.')}</li>
+      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP2', 'Jugador 2 (o NPC): teclas de <strong>flechas</strong> ⬅️⬆️➡️⬇️.')}</li>
+    </ul>
+    <button class="btn-primary" id="p-start-trompos">${jt('jue.card2.prepareBattle', 'Preparar Batalla')}</button>`);
   
   document.getElementById('p-start-trompos').onclick = showModeSelector;
 
@@ -1237,7 +1285,8 @@
     stop: stopMusic,
     running: () => running,
     paused: () => paused,
-    setVisible: (visible) => { isGameVisible = visible; }
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
   });
 })();
 
@@ -1277,6 +1326,18 @@
 
         // Activa el estado visible para el motor del juego y ajusta canvas
         modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+
+        // Red de seguridad: si el menú inicial del juego se generó antes de que
+        // el idioma estuviera listo (por ejemplo, apenas cargó la página), lo
+        // regeneramos ahora que el modal se abre, para asegurar el idioma correcto.
+        const state = window.gameStates && window.gameStates[gameId];
+        if (state) {
+          const isRunning = state.running ? state.running() : false;
+          const isPaused = state.paused ? state.paused() : false;
+          if (!isRunning && !isPaused && state.reloadMenu) {
+            state.reloadMenu();
+          }
+        }
       }
     });
   });
@@ -1348,6 +1409,22 @@
       }
     }
   });
+
+  // Si el usuario cambia de idioma mientras un juego está abierto y todavía no ha
+  // iniciado (está en un menú/selector), recargamos esa pantalla para que se
+  // muestre en el idioma nuevo. Si el juego ya está corriendo, no lo interrumpimos:
+  // el HUD y los textos ya visibles seguirán en el idioma con el que se inició esa partida.
+  document.addEventListener('langchange', () => {
+    const activeModal = document.querySelector('.game-modal.active');
+    if(!activeModal) return;
+    const gameId = activeModal.id.replace('modal-', '');
+    const state = window.gameStates && window.gameStates[gameId];
+    if(!state) return;
+    const isRunning = state.running ? state.running() : false;
+    const isPaused = state.paused ? state.paused() : false;
+    if(isRunning || isPaused) return; // partida en curso: no la interrumpimos
+    if(state.reloadMenu) state.reloadMenu();
+  });
 })();
 
 /* ---------------------------------------------------------
@@ -1388,29 +1465,37 @@
   let trafficCars = [];
   const lanePositions = [];
 
-  // Redimensionamiento dinámico compatible con Pantalla Completa
+  // Redimensionamiento dinámico compatible con Pantalla Completa.
+  // El tamaño LÓGICO del canvas se mantiene fijo siempre; en pantalla completa
+  // el CSS estira ese mismo contenido (efecto zoom) sin cambiar posiciones ni velocidades.
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-  const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-  // Detecta si el navegador está en modo pantalla completa
-  const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-  
-  canvas.width = rect.width;
-  // Si está en pantalla completa, toma el alto total real del contenedor, si no, usa el alto del rect
-  canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
-  
-  // Recalcular el ancho de los carriles con el nuevo tamaño del canvas
-  laneWidth = canvas.width / lanesCount;
-  for(let i = 0; i < lanesCount; i++){
-    lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+
+    // Recalcular el ancho de los carriles con el tamaño lógico del canvas
+    laneWidth = canvas.width / lanesCount;
+    for(let i = 0; i < lanesCount; i++){
+      lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    }
+
+    // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
+    player.y = canvas.height - 120;
+    bot.y = canvas.height - 120;
+    player.targetX = lanePositions[player.lane];
+    bot.targetX = lanePositions[bot.lane];
   }
-  
-  // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
-  player.y = canvas.height - 120;
-  bot.y = canvas.height - 120;
-  player.targetX = lanePositions[player.lane];
-  bot.targetX = lanePositions[bot.lane];
-}
   
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -1460,17 +1545,17 @@
   if(hud) {
     hud.innerHTML = `
       <div class="hud-item">
-        <span>🚌 Ruta 44 (Tú)</span>
+        <span>${jt('jue.card3.routePlayer', '🚌 Ruta 44 (Tú)')}</span>
         <div class="coasters-progress-bar"><div id="p-prog" class="coasters-progress-fill"></div></div>
         <b id="p-dist">0m</b>
       </div>
       <div class="hud-item">
-        <span>🚍 Ruta 101-D (Bot)</span>
+        <span>${jt('jue.card3.routeBot', '🚍 Ruta 101-D (Bot)')}</span>
         <div class="coasters-progress-bar"><div id="b-prog" class="coasters-progress-fill bot"></div></div>
         <b id="b-dist">0m</b>
       </div>
       <div class="hud-item">
-        <span>Pasajeros</span>
+        <span>${jt('jue.hud.passengers', 'Pasajeros')}</span>
         <b id="p-passengers">0</b>
       </div>`;
   }
@@ -1795,31 +1880,31 @@
 
     let title, msg;
     if(winner === 'player') {
-      title = "🏆 ¡VICTORIA TOTAL!";
-      msg = `¡La Ruta 44 llegó primero! Recogiste a <b>${player.passengers}</b> pasajeros en el camino.`;
+      title = jt('jue.card3.end.winTitle', '🏆 ¡VICTORIA TOTAL!');
+      msg = jt('jue.card3.end.winMsg', '¡La Ruta 44 llegó primero! Recogiste a <b>{n}</b> pasajeros en el camino.').replace('{n}', player.passengers);
     } else {
-      title = "🏁 Te ganaron el pasaje...";
-      msg = "La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!";
+      title = jt('jue.card3.end.loseTitle', '🏁 Te ganaron el pasaje...');
+      msg = jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
     }
 
     showOverlay(`
-      <span class="overlay-tag">Fin de la Carrera</span>
+      <span class="overlay-tag">${jt('jue.card3.end.tag', 'Fin de la Carrera')}</span>
       <h3>${title}</h3>
       <p>${msg}</p>
-      <button class="btn-primary" id="btn-restart-coasters">Revancha</button>
+      <button class="btn-primary" id="btn-restart-coasters">${jt('jue.rematch', 'Revancha')}</button>
     `);
     document.getElementById('btn-restart-coasters').onclick = showModeSelector;
   }
 
   function showDistanceSelector() {
     showOverlay(`
-      <span class="overlay-tag">Configuración</span>
-      <h3>🏁 Elige la Distancia</h3>
-      <p>¿Qué tan largo será el trayecto?</p>
+      <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
+      <h3>${jt('jue.card3.distance.title', '🏁 Elige la Distancia')}</h3>
+      <p>${jt('jue.card3.distance.sub', '¿Qué tan largo será el trayecto?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-primary" id="dist-1">Express (1000m)</button>
-        <button class="btn-primary" id="dist-2">Normal (2500m)</button>
-        <button class="btn-primary" id="dist-3">Costa a Costa (5000m)</button>
+        <button class="btn-primary" id="dist-1">${jt('jue.card3.distExpress', 'Express (1000m)')}</button>
+        <button class="btn-primary" id="dist-2">${jt('jue.card3.distNormal', 'Normal (2500m)')}</button>
+        <button class="btn-primary" id="dist-3">${jt('jue.card3.distCoast', 'Costa a Costa (5000m)')}</button>
       </div>
     `);
 
@@ -1835,21 +1920,21 @@
 
   function showDifficultySelector() {
     showOverlay(`
-      <span class="overlay-tag">Dificultad</span>
-      <h3>🚦 ¿Qué tan veloz es tu rival?</h3>
-      <p>Ajusta el nivel del motorista oponente.</p>
+      <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
+      <h3>${jt('jue.card3.diff.title', '🚦 ¿Qué tan veloz es tu rival?')}</h3>
+      <p>${jt('jue.card3.diff.sub', 'Ajusta el nivel del motorista oponente.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-coasters">
-          🟢 Tranquilo
-          <div class="difficulty-desc">Va despacio</div>
+          ${jt('jue.card3.diff.easy', '🟢 Tranquilo')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.easyDesc', 'Va despacio')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-coasters">
-          🟡 Apurado
-          <div class="difficulty-desc">Busca rebasarte</div>
+          ${jt('jue.card3.diff.medium', '🟡 Apurado')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.medDesc', 'Busca rebasarte')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-coasters">
-          🔴 Hora Pico
-          <div class="difficulty-desc">Maneja a lo loco</div>
+          ${jt('jue.card3.diff.hard', '🔴 Hora Pico')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.hardDesc', 'Maneja a lo loco')}</div>
         </button>
       </div>`);
 
@@ -1875,10 +1960,15 @@
 
   function showModeSelector() {
     showOverlay(`
-      <span class="overlay-tag">Preparar Motor</span>
-      <h3>🚌 Guerra de Coasters SV</h3>
-      <p>Esquiva baches y recoge pasajeros usando 'A' y 'D' (o flechas) para ganarle a la Ruta 101-D.</p>
-      <button class="btn-primary" id="btn-start-coasters">Siguiente</button>
+      <span class="overlay-tag">${jt('jue.card3.prepareMotorTag', 'Preparar Motor')}</span>
+      <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
+      <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
+      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel', '<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.')}</li>
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
+      </ul>
+      <button class="btn-primary" id="btn-start-coasters">${jt('jue.next', 'Siguiente')}</button>
     `);
     document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
   }
@@ -1947,7 +2037,8 @@
     stop: () => bgMusic?.pause(),
     running: () => running,
     paused: () => paused,
-    setVisible: (visible) => { isGameVisible = visible; }
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
   });
 })();
 
@@ -1970,15 +2061,31 @@
   let paused = false;
   let rafId = null;
 
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
-    layoutHideSpots();
+    const prevWidth = canvas.width, prevHeight = canvas.height;
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+
     bote.x = canvas.width / 2;
     bote.y = 62;
+
+    // Solo recalcular los escondites si el tamaño lógico realmente cambió,
+    // para no reposicionarlos de golpe al entrar/salir de pantalla completa.
+    if(canvas.width !== prevWidth || canvas.height !== prevHeight){
+      layoutHideSpots();
+    }
   }
   window.addEventListener('resize', resizeCanvas);
   document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
@@ -2046,19 +2153,19 @@
   if(hud){
     hud.innerHTML = `
       <div class="hud-item">
-        <span>Puntos</span>
+        <span>${jt('jue.hud.points', 'Puntos')}</span>
         <b id="e-score">0</b>
       </div>
       <div class="hud-item">
-        <span>Atrapados</span>
+        <span>${jt('jue.card4.caught', 'Atrapados')}</span>
         <span class="encantados-round-dots" id="e-dots"></span>
       </div>
       <div class="hud-item">
-        <span>Se salvaron</span>
+        <span>${jt('jue.card4.escaped', 'Se salvaron')}</span>
         <b id="e-escaped">0</b>
       </div>
       <div class="hud-item">
-        <span>Tiempo</span>
+        <span>${jt('jue.hud.time', 'Tiempo')}</span>
         <b id="e-time">-</b>
       </div>`;
   }
@@ -2190,17 +2297,17 @@
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
-    let title = win ? '🏆 ¡Los atrapaste a todos antes del bote!' : (timeLeft <= 0 ? '⏰ ¡Se acabó el tiempo!' : '🏁 ¡Se te escaparon demasiados!');
-    let text = score >= 150 ? '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.' :
-               score >= 80 ? '👍 Buena persecución, ¡ya casi los atrapás a todos!' :
-               'Seguí practicando tus reflejos para la próxima ronda de encantados.';
+    let title = win ? jt('jue.card4.end.win', '🏆 ¡Los atrapaste a todos antes del bote!') : (timeLeft <= 0 ? jt('jue.card4.end.timeUp', '⏰ ¡Se acabó el tiempo!') : jt('jue.card4.end.tooMany', '🏁 ¡Se te escaparon demasiados!'));
+    let text = score >= 150 ? jt('jue.card4.end.high', '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.') :
+               score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
+               jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
 
     showOverlay(`
-      <span class="overlay-tag">Fin del Juego</span>
+      <span class="overlay-tag">${jt('jue.card4.end.tag', 'Fin del Juego')}</span>
       <h3>${title}</h3>
       <div class="overlay-score">${score} pts</div>
-      <p>Atrapaste ${caught} de ${gameConfig[difficulty].kidsToWin} amigos. ${text}</p>
-      <button class="btn-primary" id="e-restart">Jugar de nuevo</button>`);
+      <p>${jt('jue.card4.end.caughtOf', 'Atrapaste {c} de {t} amigos.').replace('{c}', caught).replace('{t}', gameConfig[difficulty].kidsToWin)} ${text}</p>
+      <button class="btn-primary" id="e-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('e-restart').onclick = showDifficultySelector;
   }
 
@@ -2296,7 +2403,7 @@
     ctx.fillText('🛢️', 0, 0);
     ctx.font = 'bold 13px sans-serif';
     ctx.fillStyle = '#113068';
-    ctx.fillText('¡BOTE!', 0, bote.radius + 16);
+    ctx.fillText(jt('jue.card4.baseLabel', '¡BOTE!'), 0, bote.radius + 16);
     ctx.restore();
 
     // Escondites (objetos)
@@ -2401,21 +2508,21 @@
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elegí tu dificultad</span>
-      <h3>🏃 ¿Qué tan rápidos son tus amigos?</h3>
-      <p>Más difícil significa que corren más rápido al bote y tenés menos escapes permitidos.</p>
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>${jt('jue.card4.diff.title', '🏃 ¿Qué tan rápidos son tus amigos?')}</h3>
+      <p>${jt('jue.card4.diff.sub', 'Más difícil significa que corren más rápido al bote y tenés menos escapes permitidos.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-encantados">
-          🟢 Fácil
-          <div class="difficulty-desc">Atrapá 6 amigos, corren despacio</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.easyDesc', 'Atrapá 6 amigos, corren despacio')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-encantados">
-          🟡 Normal
-          <div class="difficulty-desc">Atrapá 8 amigos, corren más seguido</div>
+          ${jt('jue.diff.medium', '🟡 Normal')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.medDesc', 'Atrapá 8 amigos, corren más seguido')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-encantados">
-          🔴 Difícil
-          <div class="difficulty-desc">Atrapá 10 amigos, casi no hay respiro</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.hardDesc', 'Atrapá 10 amigos, casi no hay respiro')}</div>
         </button>
       </div>`);
     document.getElementById('btn-easy-encantados').onclick = () => { difficulty='easy'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
@@ -2425,15 +2532,15 @@
 
   function showModeSelector(){
     showOverlay(`
-      <span class="overlay-tag">Ruta 04</span>
-      <h3>🏃 Escondelero</h3>
-      <p>Vos sos "el que la trae". Tus amigos están escondidos por todo el patio y de repente van a salir corriendo hacia el bote para salvarse. Movete con las teclas <strong>WASD</strong> o las <strong>flechas</strong> del teclado e interceptalos antes de que lleguen.</p>
-      <p class="rules-title">Reglas del juego</p>
+      <span class="overlay-tag">${jt('jue.card4.tagModal', 'Ruta 04')}</span>
+      <h3>🏃 ${jt('jue.card4.title', 'Escondelero')}</h3>
+      <p>${jt('jue.card4.intro', 'Vos sos "el que la trae". Tus amigos están escondidos por todo el patio y de repente van a salir corriendo hacia el bote para salvarse. Movete con las teclas <strong>WASD</strong> o las <strong>flechas</strong> del teclado e interceptalos antes de que lleguen.')}</p>
+      <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
       <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">✅</span> Tocá a los amigos que van corriendo antes de que lleguen al bote — cada atrapada suma puntos.</li>
-        <li class="rule-bad"><span class="rule-icon">❌</span> Si un amigo llega al bote, se salva y perdés puntos. Si se te escapan demasiados, perdés la partida.</li>
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card4.ruleGood', 'Tocá a los amigos que van corriendo antes de que lleguen al bote — cada atrapada suma puntos.')}</li>
+        <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card4.ruleBad', 'Si un amigo llega al bote, se salva y perdés puntos. Si se te escapan demasiados, perdés la partida.')}</li>
       </ul>
-      <button class="btn-primary" id="e-start">Continuar</button>`);
+      <button class="btn-primary" id="e-start">${jt('jue.continue', 'Continuar')}</button>`);
     document.getElementById('e-start').onclick = showDifficultySelector;
   }
 
@@ -2455,7 +2562,8 @@
     stop: () => bgMusic?.pause(),
     running: () => running,
     paused: () => paused,
-    setVisible: (visible) => { isGameVisible = visible; }
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
   });
 })();
 
@@ -2478,12 +2586,21 @@
   let paused = false;
   let rafId = null;
 
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
     laneWidth = canvas.width / lanesCount;
     for(let i=0;i<lanesCount;i++){ lanePositions[i] = (i*laneWidth) + (laneWidth/2); }
     player.y = canvas.height - 90;
@@ -2602,19 +2719,19 @@
   if(hud){
     hud.innerHTML = `
       <div class="hud-item">
-        <span>Puntos</span>
+        <span>${jt('jue.hud.points', 'Puntos')}</span>
         <b id="el-score">0</b>
       </div>
       <div class="hud-item lives">
-        <span>Vidas</span>
+        <span>${jt('jue.hud.lives', 'Vidas')}</span>
         <b id="el-lives">${renderLives(3)}</b>
       </div>
       <div class="hud-item">
-        <span>Combo</span>
+        <span>${jt('jue.hud.combo', 'Combo')}</span>
         <span class="elotes-combo" id="el-combo">x1</span>
       </div>
       <div class="hud-item">
-        <span>Tiempo</span>
+        <span>${jt('jue.hud.time', 'Tiempo')}</span>
         <b id="el-time">30</b>
       </div>`;
   }
@@ -2654,6 +2771,7 @@
   const pauseIcon = document.getElementById('pauseIcon-elotes');
   const pauseOverlay = document.getElementById('pauseOverlay-elotes');
   const resumeBtn = document.getElementById('resumeBtn-elotes');
+  const menuBtn = document.getElementById('menuBtn-elotes');
 
   function pauseGame(){
     if(!running) return;
@@ -2676,12 +2794,25 @@
     if(volume > 0) bgMusic?.play().catch(()=>{});
     rafId = requestAnimationFrame(step);
   }
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    items = [];
+    obstacles = [];
+    showDifficultySelector();
+  }
   pauseBtn?.addEventListener('click', ()=>{
     if(!running && !paused) return;
     if(paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
 
   function spawnEntities(dt){
     const config = gameConfig[difficulty];
@@ -2817,16 +2948,16 @@
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
-    let text = score >= 150 ? '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!' :
-               score >= 80 ? '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.' :
-               '👍 Buen intento, ¡seguí practicando para el próximo recreo!';
+    let text = score >= 150 ? jt('jue.card5.end.high', '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!') :
+               score >= 80 ? jt('jue.card5.end.mid', '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.') :
+               jt('jue.card5.end.low', '👍 Buen intento, ¡seguí practicando para el próximo recreo!');
 
     showOverlay(`
-      <span class="overlay-tag">${difficulty === 'easy' ? '🟢 Nivel Fácil' : '🔴 Nivel Difícil'}</span>
-      <h3>¡Sonó la campana!</h3>
+      <span class="overlay-tag">${difficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil')}</span>
+      <h3>${jt('jue.card5.end.title', '¡Sonó la campana!')}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${text}</p>
-      <button class="btn-primary" id="el-restart">Jugar de nuevo</button>`);
+      <button class="btn-primary" id="el-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('el-restart').onclick = showDifficultySelector;
   }
 
@@ -2861,17 +2992,17 @@
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elegí tu dificultad</span>
-      <h3>🌽 Selecciona Nivel</h3>
-      <p>¿Qué tan movido va a estar el recreo hoy?</p>
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>🌽 ${jt('jue.card5.diff.title', 'Selecciona Nivel')}</h3>
+      <p>${jt('jue.card5.diff.sub', '¿Qué tan movido va a estar el recreo hoy?')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-elotes">
-          🟢 Fácil
-          <div class="difficulty-desc">Recreo tranquilo</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card5.diff.easyDesc', 'Recreo tranquilo')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-elotes">
-          🔴 Difícil
-          <div class="difficulty-desc">Recreo a toda velocidad</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card5.diff.hardDesc', 'Recreo a toda velocidad')}</div>
         </button>
       </div>`);
     document.getElementById('btn-easy-elotes').onclick = () => {
@@ -2885,15 +3016,15 @@
   }
 
   showOverlay(`
-    <span class="overlay-tag">Ruta 05</span>
-    <h3>🌽 Elotes y Olé</h3>
-    <p>Movete entre los 3 carriles del patio con el mouse, las flechas (A/D) o tocando a los lados. Recogé lo rico del recreo y esquivá lo que te estorba.</p>
-    <p class="rules-title">Reglas del juego</p>
+    <span class="overlay-tag">${jt('jue.card5.tagModal', 'Ruta 05')}</span>
+    <h3>🌽 ${jt('jue.card5.title', 'Elotes y Olé')}</h3>
+    <p>${jt('jue.card5.intro', 'Movete entre los 3 carriles del patio con las teclas <strong>A</strong>/<strong>D</strong>, las flechas ⬅️➡️, o tocando a los lados de la pantalla en el celular. Recogé lo rico del recreo y esquivá lo que te estorba.')}</p>
+    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">✅</span> Recogé <strong>🌽 elotes locos</strong>, <strong>🥭 mangos</strong>, <strong>🍧 minutas</strong> y <strong>🍬 dulces</strong> — suman puntos y combo.</li>
-      <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🪑 pupitres</strong>, <strong>⚽ pelotas perdidas</strong> y <strong>🧹 la escoba del conserje</strong> — te quitan una vida y el combo.</li>
+      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleGood', 'Recogé <strong>🌽 elotes locos</strong>, <strong>🥭 mangos</strong>, <strong>🍧 minutas</strong> y <strong>🍬 dulces</strong> — suman puntos y combo.')}</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card5.ruleBad', 'Evitá <strong>🪑 pupitres</strong>, <strong>⚽ pelotas perdidas</strong> y <strong>🧹 la escoba del conserje</strong> — te quitan una vida y el combo.')}</li>
     </ul>
-    <button class="btn-primary" id="el-start">Continuar</button>`);
+    <button class="btn-primary" id="el-start">${jt('jue.continue', 'Continuar')}</button>`);
   document.getElementById('el-start').onclick = showDifficultySelector;
 
   gameContent?.addEventListener('gameVisible', (e) => {
@@ -2911,7 +3042,8 @@
     stop: () => bgMusic?.pause(),
     running: () => running,
     paused: () => paused,
-    setVisible: (visible) => { isGameVisible = visible; }
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showDifficultySelector
   });
 })();
 
