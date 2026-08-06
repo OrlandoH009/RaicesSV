@@ -20,12 +20,38 @@ db.on('error', (err) => {
     console.error('Error inesperado en el pool de MySQL:', err);
 });
 
+const ensureUserStatusTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS user_status(
+            id_status INT AUTO_INCREMENT PRIMARY KEY,
+            status VARCHAR(50) NOT NULL UNIQUE
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla user_status:', err);
+                    return resolve();
+            }
+            db.query(
+                `INSERT IGNORE INTO user_status(id_status, status) VALUES (1, 'Activo'), (2, 'Suspendido')`,
+                (insertErr) => {
+                    if (insertErr) {
+                        console.error('No se pudo inicializar user_status:', insertErr);
+                    }
+                    resolve();
+                }
+            );
+        }
+    );
+});
+
 const ensureProfileColumns = () => {
     const migrations = [
         { name: 'description', definition: 'VARCHAR(300) NULL' },
         { name: 'avatar_url', definition: 'VARCHAR(255) NULL' },
         { name: 'avatar_source', definition: "ENUM('local', 'google') NULL" },
-        { name: 'google_avatar_url', definition: 'VARCHAR(255) NULL' }
+        { name: 'google_avatar_url', definition: 'VARCHAR(255) NULL' },
+        { name: 'id_status', definition: 'INT NOT NULL DEFAULT 1' },
+        { name: 'created_at', definition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP' }
     ];
 
     const runMigration = ({ name, definition }) => new Promise((resolve) => {
@@ -48,7 +74,9 @@ const ensureProfileColumns = () => {
         });
     });
 
-    return Promise.all(migrations.map(runMigration));
+    return ensureUserStatusTable().then(()=>
+        Promise.all(migrations.map(runMigration))
+    );
 };
 
 const ensurePasswordResetsTable = () => new Promise((resolve) => {
