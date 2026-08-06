@@ -76,6 +76,20 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_password_resets_user (id_user)
 );
 
+CREATE TABLE IF NOT EXISTS admin_invitations (
+    id_invitation INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    invited_by INT NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (invited_by) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_admin_invitations_token_hash (token_hash),
+    INDEX idx_admin_invitations_user (id_user)
+);
+
 INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
