@@ -101,6 +101,30 @@ const ensurePasswordResetsTable = () => new Promise((resolve) => {
     );
 });
 
+const ensureAdminInvitationsTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS admin_invitations (
+            id_invitation INT AUTO_INCREMENT PRIMARY KEY,
+            id_user INT NOT NULL,
+            invited_by INT NOT NULL,
+            token_hash CHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            used_at DATETIME NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+            FOREIGN KEY (invited_by) REFERENCES users(id_user) ON DELETE CASCADE,
+            INDEX idx_admin_invitations_token_hash (token_hash),
+            INDEX idx_admin_invitations_user (id_user)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla admin_invitations:', err);
+            }
+            resolve();
+        }
+    );
+});
+
 db.getConnection((err, connection) => {
     if (err) {
         console.error('No se pudo conectar a MySQL:', err);
@@ -117,6 +141,10 @@ db.getConnection((err, connection) => {
         })
         .then(() => {
             console.log('Tabla de reseteo de contraseñas verificada');
+            return ensureAdminInvitationsTable();
+        })
+        .then(() => {
+            console.log('Tabla de invitaciones de administrador verificada');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);
