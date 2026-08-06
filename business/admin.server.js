@@ -1,13 +1,25 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const adminRepository = require('../data/repositories/admin.repository');
 const userRepository = require('../data/repositories/user.repository');
+const { sendMail } = require('../data/config/mailer.config');
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
+
 const ID_STATUS_ACTIVO = 1;
 const ID_STATUS_SUSPENDIDO = 2;
+
 const ROL_FUNDADOR = 'Fundador';
 const ROL_ADMIN = 'Admin';
 const ROL_USUARIO = 'Usuario';
+
+const INVITATION_TOKEN_BYTES = 32;
+const INVITATION_TTL_MINUTES = 60 * 24; // 24 horas para aceptar la invitación
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+//Sanitización de datos
 
 const sanitizeUserRow = (row) => ({
     id: row.id_user,
@@ -22,6 +34,8 @@ const sanitizeUserRow = (row) => ({
     hasGoogle: Boolean(row.google_id)
 });
 
+//Listas y métricas para el dashboard
+
 const listUsers = async () => {
     const rows = await adminRepository.findAllUsers();
     return rows.map(sanitizeUserRow);
@@ -35,7 +49,9 @@ const getDashboardMetrics = async () => {
         adminRepository.countPublicationsByMonth(),
         adminRepository.countPublicationsTotal()
     ]);
+
     const totalUsers = usersByStatus.reduce((sum, row) => sum + Number(row.total), 0);
+
     return {
         totalUsers,
         totalPublications: publicationsTotal,
@@ -46,114 +62,220 @@ const getDashboardMetrics = async () => {
     };
 };
 
+//Banear o desbanear un usuario
+
 const setUserStatus = async (id_user, requestingUser, { status }) => {
     const idUserNum = Number(id_user);
+
     if (!Number.isInteger(idUserNum)) {
         const err = new Error('Usuario inválido.'); err.expose = true; throw err;
     }
+
     if (status !== 'activo' && status !== 'suspendido') {
         const err = new Error('El estado debe ser "activo" o "suspendido".'); err.expose = true; throw err;
     }
+
     if (requestingUser && requestingUser.id === idUserNum) {
         const err = new Error('No puedes cambiar tu propio estado.'); err.expose = true; err.status = 403; throw err;
     }
+
     const target = await userRepository.findById(idUserNum);
     if (!target) {
         const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
     }
+
     if (target.role_name === ROL_FUNDADOR && status === 'suspendido') {
         const err = new Error('El Fundador del sitio no puede ser suspendido.'); err.expose = true; err.status = 403; throw err;
     }
+
     const id_status = status === 'activo' ? ID_STATUS_ACTIVO : ID_STATUS_SUSPENDIDO;
+
     await adminRepository.updateUserStatus(idUserNum, id_status);
+
     const updated = await userRepository.findById(idUserNum);
     return sanitizeUserRow(updated);
 };
 
-const promoteToAdmin = async (id_user, requestingUser) => {
+// Convertir un usuario a un admin
+
+const promoteToAdmin = async (id_user, requestingUser, { appBaseUrl } = {}) => {
     const idUserNum = Number(id_user);
+
     if (!Number.isInteger(idUserNum)) {
         const err = new Error('Usuario inválido.'); err.expose = true; throw err;
     }
+
     if (requestingUser && requestingUser.id === idUserNum) {
         const err = new Error('No puedes cambiar tu propio rol.'); err.expose = true; err.status = 403; throw err;
     }
+
     const target = await userRepository.findById(idUserNum);
     if (!target) {
         const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
     }
+
     if (target.role_name !== ROL_USUARIO) {
         const err = new Error('Solo se puede ascender a un Usuario normal.'); err.expose = true; throw err;
     }
-    if (!target.password) {
-        const err = new Error('Este usuario no tiene contraseña propia (solo inició sesión con Google). Debe establecer una contraseña antes de ser administrador.'); err.expose = true; err.status = 409; throw err;
+
+    //Esto es si el usuario si tenia contraseña aunque iniciara con google
+    if (target.password) {
+        await adminRepository.updateUserRoleByName(idUserNum, ROL_ADMIN);
+        const updated = await userRepository.findById(idUserNum);
+        return { pending: false, user: sanitizeUserRow(updated) };
     }
-    await adminRepository.updateUserRoleByName(idUserNum, ROL_ADMIN);
-    const updated = await userRepository.findById(idUserNum);
+
+    //Este solo funciona si el usuario no tenia una contraseña y solo se logueo con google
+    await adminRepository.invalidateUserAdminInvitations(idUserNum);
+
+    const rawToken = crypto.randomBytes(INVITATION_TOKEN_BYTES).toString('hex');
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + INVITATION_TTL_MINUTES * 60 * 1000);
+    const expiresAtSql = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
+
+    await adminRepository.createAdminInvitation(idUserNum, requestingUser.id, tokenHash, expiresAtSql);
+
+    const invitationLink = `${appBaseUrl}/aceptar-invitacion.html?token=${rawToken}`;
+
+    const html = `
+        <p>Hola ${target.name || ''},</p>
+        <p>${requestingUser.name || 'Un administrador'} te invitó a ser administrador de Salvadorean Roots.</p>
+        <p>Para completar el proceso, establece una contraseña para tu cuenta:</p>
+        <p><a href="${invitationLink}">${invitationLink}</a></p>
+        <p>Este enlace es válido por 24 horas. Si no esperabas esta invitación, puedes ignorar este correo.</p>
+    `;
+
+    await sendMail({
+        to: target.email,
+        subject: 'Invitación a administrador — Salvadorean Roots',
+        html,
+        text: `Fuiste invitado a ser administrador de Salvadorean Roots. Completa tu registro aquí: ${invitationLink} (válido por 24 horas)`
+    });
+
+    return { pending: true, user: sanitizeUserRow(target) };
+};
+
+//Completar la invitación a ser admin
+
+const completeAdminInvitation = async (rawToken, newPassword) => {
+    if (typeof rawToken !== 'string' || !rawToken.trim()) {
+        const err = new Error('El enlace de invitación no es válido o ya expiró.'); err.expose = true; throw err;
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD_LENGTH) {
+        const err = new Error(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`); err.expose = true; throw err;
+    }
+
+    const tokenHash = hashToken(rawToken.trim());
+    const invitation = await adminRepository.findValidAdminInvitation(tokenHash);
+
+    if (!invitation) {
+        const err = new Error('El enlace de invitación no es válido o ya expiró.'); err.expose = true; throw err;
+    }
+
+    const target = await userRepository.findById(invitation.id_user);
+    if (!target) {
+        const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
+    }
+
+    if (target.role_name !== ROL_USUARIO) {
+        const err = new Error('Este usuario ya no está pendiente de ascenso.'); err.expose = true; throw err;
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await userRepository.updatePassword(invitation.id_user, newHash);
+    await adminRepository.updateUserRoleByName(invitation.id_user, ROL_ADMIN);
+    await adminRepository.markAdminInvitationUsed(invitation.id_invitation);
+
+    const updated = await userRepository.findById(invitation.id_user);
     return sanitizeUserRow(updated);
 };
 
+//Degradar un admin a usuario y eliminar admin
+
 const demoteAdminToUser = async (id_user, requestingUser) => {
     const idUserNum = Number(id_user);
+
     if (requestingUser.role !== ROL_FUNDADOR) {
         const err = new Error('Solo el Fundador puede degradar administradores.'); err.expose = true; err.status = 403; throw err;
     }
+
     if (requestingUser.id === idUserNum) {
         const err = new Error('No puedes cambiar tu propio rol.'); err.expose = true; err.status = 403; throw err;
     }
+
     const target = await userRepository.findById(idUserNum);
     if (!target) {
         const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
     }
+
     if (target.role_name === ROL_FUNDADOR) {
         const err = new Error('El Fundador no puede ser degradado.'); err.expose = true; err.status = 403; throw err;
     }
+
     if (target.role_name !== ROL_ADMIN) {
         const err = new Error('Este usuario no es administrador.'); err.expose = true; throw err;
     }
+
     await adminRepository.updateUserRoleByName(idUserNum, ROL_USUARIO);
+
     const updated = await userRepository.findById(idUserNum);
     return sanitizeUserRow(updated);
 };
 
 const deleteAdmin = async (id_user, requestingUser) => {
     const idUserNum = Number(id_user);
+
     if (requestingUser.role !== ROL_FUNDADOR) {
         const err = new Error('Solo el Fundador puede eliminar administradores.'); err.expose = true; err.status = 403; throw err;
     }
+
     if (requestingUser.id === idUserNum) {
         const err = new Error('No puedes eliminarte a ti mismo.'); err.expose = true; err.status = 403; throw err;
     }
+
     const target = await userRepository.findById(idUserNum);
     if (!target) {
         const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
     }
+
     if (target.role_name === ROL_FUNDADOR) {
         const err = new Error('El Fundador no puede ser eliminado.'); err.expose = true; err.status = 403; throw err;
     }
+
     if (target.role_name !== ROL_ADMIN) {
         const err = new Error('Esta acción solo aplica a administradores.'); err.expose = true; throw err;
     }
+
     await adminRepository.deleteUserById(idUserNum);
 };
+
+// Creación de un nuevo administrador
 
 const createAdmin = async (name, email, password) => {
     if (typeof name !== 'string' || !name.trim()) {
         const err = new Error('El nombre es obligatorio.'); err.expose = true; throw err;
     }
+
     if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
         const err = new Error('El correo electrónico no es válido.'); err.expose = true; throw err;
     }
+
     if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
         const err = new Error(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`); err.expose = true; throw err;
     }
+
     const normalizedEmail = email.trim().toLowerCase();
+
     const existing = await userRepository.findByEmail(normalizedEmail);
     if (existing) {
         const err = new Error('Ya existe una cuenta con ese correo electrónico.'); err.expose = true; throw err;
     }
+
     const hash = await bcrypt.hash(password, 10);
+
     const result = await adminRepository.createAdminUser(name.trim(), normalizedEmail, hash);
+
     const created = await userRepository.findById(result.insertId);
     return sanitizeUserRow(created);
 };
@@ -163,6 +285,7 @@ module.exports = {
     getDashboardMetrics,
     setUserStatus,
     promoteToAdmin,
+    completeAdminInvitation,
     demoteAdminToUser,
     deleteAdmin,
     createAdmin
