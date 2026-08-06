@@ -1,19 +1,3 @@
-/* ============================================================
-   RAÍCES SV — chat-proxy.js
-   Proxy Node.js/Express para OpenRouter (equivalente a chat-proxy.php)
-   ============================================================
-
-   Requisitos:
-     npm install express cors dotenv
-
-   Ejecutar:
-     node chat-proxy.js
-   (por defecto en el puerto 3000, configurable con la variable PORT)
-
-   Variable de entorno requerida:
-     OPENROUTER_API_KEY=sk-or-v1-tu_key_completa
-============================================================ */
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -21,11 +5,9 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- Config ---
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODEL = 'meta-llama/llama-3.1-8b-instruct'; 
-const MAX_TOKENS = 800;   // Protege tu presupuesto manteniendo las respuestas al grano
-const TIMEOUT_MS = 25000; // Reducido a 10s porque este modelo responde en milisegundos
+const MODEL = 'meta-llama/llama-3.1-8b-instruct';
+const TIMEOUT_MS = 30000;
 
 app.use(cors({ origin: '*', methods: ['POST', 'OPTIONS'] }));
 app.use(express.json());
@@ -35,14 +17,13 @@ app.post('/chat-proxy', async (req, res) => {
     return res.status(500).json({ error: 'API key no configurada en el servidor' });
   }
 
-  const { system: systemPrompt, messages } = req.body || {};
+  const { system: systemPrompt, messages, max_tokens } = req.body || {};
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
 
   const formattedMessages = [];
-
   if (systemPrompt) {
     formattedMessages.push({ role: 'system', content: systemPrompt });
   }
@@ -54,14 +35,19 @@ app.post('/chat-proxy', async (req, res) => {
     });
   }
 
+  // Detectar si es una traducción para ajustar tokens
+  const isTranslation = systemPrompt && systemPrompt.toLowerCase().includes('translator');
+  const tokenLimit = isTranslation ? 2000 : (max_tokens || 800);
+
   const payload = {
     model: MODEL,
     messages: formattedMessages,
-    max_tokens: MAX_TOKENS, 
-    temperature: 0.3,
+    max_tokens: tokenLimit,
+    temperature: isTranslation ? 0.1 : 0.3,
+    stream: true,
     providers: {
-      order: ["Cloudflare", "DeepInfra"], // Lista ordenada por prioridad
-      allow_fallbacks: false            // false = si tus proveedores elegidos fallan, no usa otros
+      order: ["Cloudflare", "DeepInfra"],
+      allow_fallbacks: false
     }
   };
 
@@ -83,35 +69,54 @@ app.post('/chat-proxy', async (req, res) => {
 
     clearTimeout(timeout);
 
-    const httpCode = response.status;
-    const raw = await response.text();
-
-    // Log para debug — revisa la consola/logs del proceso Node
-    console.log('OpenRouter response:', raw);
-
-    let responseData;
-    try {
-      responseData = JSON.parse(raw);
-    } catch (parseErr) {
-      return res.status(502).json({ error: 'Respuesta inválida de OpenRouter', raw });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Error en OpenRouter' });
     }
 
-    if (responseData.error) {
-      return res.status(httpCode >= 400 ? httpCode : 500).json({ error: responseData.error });
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        const cleanedLine = line.trim();
+        if (!cleanedLine || cleanedLine === 'data: [DONE]') continue;
+
+        if (cleanedLine.startsWith('data: ')) {
+          try {
+            const parsed = JSON.parse(cleanedLine.replace(/^data:\s*/, ''));
+            const textChunk = parsed?.choices?.[0]?.delta?.content || '';
+            if (textChunk) {
+              res.write(textChunk);
+            }
+          } catch (e) {
+            // Ignorar errores de parseo
+          }
+        }
+      }
     }
-
-    const text = responseData?.choices?.[0]?.message?.content;
-
-    if (!text) {
-      return res.status(500).json({ error: 'Respuesta vacía del modelo', debug: responseData });
-    }
-
-    return res.status(200).json({
-      content: [{ type: 'text', text }],
-    });
+    res.end();
 
   } catch (err) {
     clearTimeout(timeout);
+    
+    if (res.headersSent) {
+      console.error('Error durante el streaming:', err);
+      return res.end();
+    }
+
     if (err.name === 'AbortError') {
       return res.status(504).json({ error: 'Timeout esperando respuesta de OpenRouter' });
     }
