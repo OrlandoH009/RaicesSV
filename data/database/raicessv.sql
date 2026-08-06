@@ -6,9 +6,15 @@ CREATE TABLE IF NOT EXISTS rols(
     rol VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS user_status(
+    id_status INT AUTO_INCREMENT PRIMARY KEY,
+    status VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS users(
     id_user INT AUTO_INCREMENT PRIMARY KEY,
     id_rol INT NOT NULL DEFAULT 2,
+    id_status INT NOT NULL DEFAULT 1,
     name VARCHAR(125) NOT NULL,
     email VARCHAR(125) NOT NULL UNIQUE,
     password VARCHAR(125) NULL,
@@ -17,7 +23,9 @@ CREATE TABLE IF NOT EXISTS users(
     avatar_url VARCHAR(255) NULL,
     avatar_source ENUM('local', 'google') NULL,
     google_avatar_url VARCHAR(255) NULL,
-    FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_rol) REFERENCES rols(id_rol),
+    FOREIGN KEY (id_status) REFERENCES user_status(id_status)
 );
 
 CREATE TABLE IF NOT EXISTS properties(
@@ -70,6 +78,8 @@ CREATE TABLE IF NOT EXISTS password_resets (
 
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
+INSERT IGNORE INTO user_status(status) VALUES ('Activo');
+INSERT IGNORE INTO user_status(status) VALUES ('Suspendido');
 INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', 1);
 INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', 1);
 INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Ale', 'jenialecastro0811@gmail.com', '87654321', 1);
