@@ -76,14 +76,15 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_password_resets_user (id_user)
 );
 
+INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
 INSERT IGNORE INTO user_status(status) VALUES ('Activo');
 INSERT IGNORE INTO user_status(status) VALUES ('Suspendido');
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Ale', 'jenialecastro0811@gmail.com', '87654321', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Tonatiuh', 'tona@gmail.com', '12345678', 1);
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', (SELECT id_rol FROM rols WHERE rol = 'Fundador'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Ale', 'jenialecastro0811@gmail.com', '87654321', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Tonatiuh', 'tona@gmail.com', '12345678', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
 
 INSERT INTO publications (id_user, title, description, location, image) VALUES
 (1, 'Ruinas de Tazumal', 'Una vista espectacular de las pirámides antiguas al atardecer. El lugar es perfecto para aprender sobre la historia prehispánica de El Salvador.', 'Tazumal', 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=500&h=350&fit=crop'),
