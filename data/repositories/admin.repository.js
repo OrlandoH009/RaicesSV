@@ -153,6 +153,60 @@ const createAdminUser = (name, email, passwordHash) => {
     });
 };
 
+const createAdminInvitation = (id_user, invited_by, tokenHash, expiresAt) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO admin_invitations(id_user, invited_by, token_hash, expires_at) VALUES (?, ?, ?, ?)',
+            [id_user, invited_by, tokenHash, expiresAt],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const findValidAdminInvitation = (tokenHash) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT * FROM admin_invitations
+             WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()
+             ORDER BY id_invitation DESC LIMIT 1`,
+            [tokenHash],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const markAdminInvitationUsed = (id_invitation) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE admin_invitations SET used_at = NOW() WHERE id_invitation = ?',
+            [id_invitation],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const invalidateUserAdminInvitations = (id_user) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE admin_invitations SET used_at = NOW() WHERE id_user = ? AND used_at IS NULL',
+            [id_user],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
 // ── Publicaciones (para métricas del dashboard) ──
 
 const countPublicationsTotal = () => {
@@ -193,6 +247,10 @@ module.exports = {
     countUsersByRoleName,
     deleteUserById,
     createAdminUser,
+    createAdminInvitation,
+    findValidAdminInvitation,
+    markAdminInvitationUsed,
+    invalidateUserAdminInvitations,
     countPublicationsTotal,
     countPublicationsByMonth
 };
