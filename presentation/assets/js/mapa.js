@@ -509,11 +509,9 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   sbEmojiBadge.textContent = lm.emoji;
   sbEmojiBadge.style.background = lm.color;
   
-  // ¡CORREGIDO AQUÍ!: Pasamos 'lang' a la función
   sbCat.textContent = `${lm.emoji} ${obtenerEtiquetaCategoria(lm.cat, lang)}`;
   sbCat.style.color = CAT_COLORS[lm.cat];
   
-  // 1. TRADUCCIÓN DEL TÍTULO PRINCIPAL
   let tituloTraducido = lm.nombre;
   if (window.SRi18n && lm.id) {
     const tradNombre = window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang);
@@ -523,7 +521,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   sbTitle.textContent = tituloTraducido;
 
-  // 2. TRADUCCIÓN DEL LUGAR / DIRECCIÓN
   let lugarTraducido = lm.lugar;
   if (window.SRi18n && lm.id) {
     const tradLugar = window.SRi18n.t(`mapa.puntos.${lm.id}.lugar`, lang);
@@ -533,7 +530,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   sbPlace.textContent = lugarTraducido;
   
-  // 3. CONTROL DE DESCRIPCIÓN CON FALLBACK
   let descFinal = '';
   if (window.SRi18n && lm.id) {
     const tradEv = window.SRi18n.t(`ev.${lm.id}.desc`, lang);
@@ -547,7 +543,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   sbDesc.textContent = descFinal || lm.desc || (lang === 'en' ? 'Description available soon.' : 'Descripción disponible próximamente.');
   
-  // 4. CONTROL DE CHIPS (DETAILS) CON FALLBACK
   let chipsFinales = lm.chips || [];
   if (window.SRi18n && lm.id) {
     const chipsTraducidos = window.SRi18n.t(`mapa.puntos.${lm.id}.chips`, lang);
@@ -557,7 +552,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   
   if (chipsFinales.length === 0) {
-    // ¡CORREGIDO AQUÍ TAMBIÉN!: Pasamos 'lang'
     chipsFinales = [obtenerEtiquetaCategoria(lm.cat, lang)];
   }
   
@@ -606,7 +600,6 @@ sbDirections.addEventListener('click', () => {
 /* ── Renderizar markers ── */
 const markers = [];
 
-// Función auxiliar para generar o actualizar el HTML del tooltip basado en un idioma
 function generarHtmlTooltip(lm, lang) {
   const nameTrad = window.SRi18n ? window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang) : lm.nombre;
   const nombreTooltip = (nameTrad && nameTrad !== `mapa.puntos.${lm.id}.nombre`) ? nameTrad : lm.nombre;
@@ -656,12 +649,10 @@ LANDMARKS.forEach(lm => {
 
 /* ── Corrección de carga inicial asíncrona para i18n ── */
 window.addEventListener('DOMContentLoaded', () => {
-  // Damos un margen mínimo por si i18n se inicializa justo tras el DOM
   setTimeout(() => {
     if (window.SRi18n) {
       const idiomaDefinitivo = window.SRi18n.getLang();
       
-      // Si el idioma del sitio no es español, actualizamos los tooltips al instante
       if (idiomaDefinitivo !== 'es') {
         markers.forEach(m => {
           const lm = LANDMARKS.find(l => l.id === m._landmarkId);
@@ -670,7 +661,6 @@ window.addEventListener('DOMContentLoaded', () => {
           }
         });
         
-        // Si por URLs vino un sidebar abierto por defecto, lo sincronizamos también
         if (activeLandmark) {
           abrirSidebar(activeLandmark, activeMarker, idiomaDefinitivo);
         }
@@ -683,20 +673,16 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener("langchange", (e) => {
   const idiomaActual = e.detail.lang;
 
-  // 1. Si el sidebar está abierto, refrescarlo de inmediato pasándole el idioma
   if (activeLandmark) {
     abrirSidebar(activeLandmark, activeMarker, idiomaActual);
   }
 
-  // 2. Refrescar vistas previas (tooltips) con nombre y categoría traducidos
   markers.forEach(m => {
     const lm = LANDMARKS.find(l => l.id === m._landmarkId);
     if (lm) {
-      // Traducir Nombre
       const nameTrad = window.SRi18n ? window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, idiomaActual) : lm.nombre;
       const nombreTooltip = (nameTrad && nameTrad !== `mapa.puntos.${lm.id}.nombre`) ? nameTrad : lm.nombre;
 
-      // ¡CORREGIDO AQUÍ!: Pasamos 'idiomaActual' a obtenerEtiquetaCategoria
       let catTraducida = obtenerEtiquetaCategoria(lm.cat, idiomaActual);
       if (window.SRi18n) {
         const tradCat = window.SRi18n.t(`mapa.categorias.${lm.cat}`, idiomaActual);
@@ -705,7 +691,6 @@ document.addEventListener("langchange", (e) => {
         }
       }
 
-      // Generar el nuevo HTML
       const nuevoContenido = `
         <div class="marker-tooltip">
            <img src="${getImgUrl(lm)}" alt="${nombreTooltip}" loading="lazy" />
@@ -715,7 +700,6 @@ document.addEventListener("langchange", (e) => {
            </div>
          </div>`;
 
-      // Actualizar el contenido del Tooltip en Leaflet
       m.setTooltipContent(nuevoContenido);
 
       if (m.isTooltipOpen && m.isTooltipOpen()) {
@@ -817,7 +801,7 @@ const TRADUCTOR_A_LANDMARK = {
           const deptoMostrar = deptoParam ? decodeURIComponent(deptoParam) : 'El Salvador';
 
           lmEvento = {
-            id: idEvento, // Puede ser null o el ID del evento numérico
+            id: idEvento,
             cat: 'evento',
             emoji: '🎉',
             color: CAT_COLORS.evento,
@@ -1050,3 +1034,69 @@ if (btnMiUbicacion) {
     }
   });
 }
+
+/* ══════════════════════════════════════════════════════════
+   INTEGRACIÓN CON CHATBOT
+   ══════════════════════════════════════════════════════════ */
+(function integrarConChatbot() {
+  document.addEventListener('rs-chat-location', (e) => {
+    const { lat, lng, nombre } = e.detail;
+    if (!lat || !lng) return;
+    
+    let lm = LANDMARKS.find(l => 
+      Math.abs(l.coords[0] - lat) < 0.01 && 
+      Math.abs(l.coords[1] - lng) < 0.01
+    );
+    
+    if (!lm) {
+      lm = {
+        id: Date.now(),
+        cat: 'cultural',
+        emoji: '📍',
+        color: '#be8e56',
+        nombre: nombre || 'Lugar destacado',
+        lugar: 'El Salvador',
+        coords: [lat, lng],
+        desc: 'Lugar recomendado por Pupusita.',
+        chips: ['Recomendado por Pupusita']
+      };
+    }
+    
+    let marker = markers.find(m => m._landmarkId === lm.id);
+    if (!marker) {
+      const icono = crearIcono(lm.emoji, lm.color);
+      marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
+      marker._landmarkCat = lm.cat;
+      marker._landmarkId = lm.id;
+      
+      const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+      marker.bindTooltip(
+        `<div class="marker-tooltip">
+           <div class="marker-tooltip__info">
+             <span class="marker-tooltip__cat" style="color:${lm.color}">${lm.emoji} ${lm.cat}</span>
+             <span class="marker-tooltip__name">${lm.nombre}</span>
+           </div>
+         </div>`,
+        { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
+      );
+      
+      marker.on('click', () => {
+        abrirSidebar(lm, marker);
+        mapa.setView(marker.getLatLng(), 13.4, { animate: true });
+      });
+      
+      markers.push(marker);
+    }
+    
+    if (marker) {
+      mapa.setView([lat, lng], 13.4, { animate: true, duration: 1 });
+      setTimeout(() => {
+        abrirSidebar(lm, marker);
+        marker._icon?.querySelector('.custom-marker')?.classList.add('custom-marker--highlight');
+        setTimeout(() => {
+          marker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--highlight');
+        }, 3000);
+      }, 500);
+    }
+  });
+})();
