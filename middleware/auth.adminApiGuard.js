@@ -12,4 +12,4 @@ const requireAdminApiAuth = (req, res, next) => {
     next();
 };
 
-modulo.exports = requireAdminApiAuth;
+module.exports = requireAdminApiAuth;
