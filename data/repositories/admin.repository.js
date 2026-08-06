@@ -101,6 +101,44 @@ const updateUserRole = (id_user, id_rol) => {
     });
 };
 
+const updateUserRoleByName = (id_user, roleName) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE users SET id_rol = (SELECT id_rol FROM rols WHERE rol = ?) WHERE id_user = ?',
+            [roleName, id_user],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const countUsersByRoleName = (roleName) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT COUNT(*) AS total
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE r.rol = ?`,
+            [roleName],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0].total);
+            }
+        );
+    });
+};
+
+const deleteUserById = (id_user) => {
+    return new Promise((resolve, reject) => {
+        db.query('DELETE FROM users WHERE id_user = ?', [id_user], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
 const createAdminUser = (name, email, passwordHash) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -151,6 +189,9 @@ module.exports = {
     countUsersByMonth,
     updateUserStatus,
     updateUserRole,
+    updateUserRoleByName,
+    countUsersByRoleName,
+    deleteUserById,
     createAdminUser,
     countPublicationsTotal,
     countPublicationsByMonth
