@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.to(submitBtn, {
           scale: 1,
           y: 0,
-          boxShadow: '0 2px 8px rgba(0,0,0,.12)', // Volvemos a la sombra original de tu CSS
+          boxShadow: '0 2px 8px rgba(0,0,0,.12)',
           duration: 0.25,
           ease: 'power2.out',
           onComplete: () => { if (glowTween) glowTween.resume(); }
@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
     
-    // Capturamos la ruta destino por si acaso
     const targetRedirect = params.get('redirect') || '/';
 
     const payload = {
@@ -170,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
       redirect: targetRedirect
     };
 
-     try {
+    try {
       const response = await fetch('/login', {
         method: 'POST',
         headers: {
@@ -179,14 +178,21 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
 
-      // 1. Si las credenciales son correctas (status 200)
       if (response.ok) {
         const data = await response.json();
+
+        // ============================================================
+        // 🔥 PASO 3: ACTUALIZAR ESTADO PARA EL CHATBOT 🔥
+        // ============================================================
+        window.USER_AUTH_STATE = 'autenticado';
+        localStorage.setItem('userAuthState', 'autenticado');
+        document.dispatchEvent(new CustomEvent('authchange'));
+        // ============================================================
+
         window.location.href = data.redirect || '/';
         return;
       }
 
-      // 2. Si hay algún error (como contraseña incorrecta)
       const text = await response.text();
       showMessage(text || 'No se pudo iniciar sesión.');
       
