@@ -29,6 +29,10 @@ const login = async (email, password) => {
         const err = new Error(INVALID_CREDENTIALS_MSG); err.expose = true; throw err;
     }
 
+    if (user.status_name === 'Suspendido') {
+        const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+    }
+
     let valid = false;
 
     if (user.password && typeof user.password === 'string') {
