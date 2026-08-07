@@ -272,6 +272,10 @@
     <div class="admin-modal">
       <h3 id="adminConfirmTitle">¿Confirmar acción?</h3>
       <p id="adminConfirmText">Esta acción no se puede deshacer.</p>
+      <div class="form-group admin-modal__reason" id="adminConfirmReasonGroup" hidden>
+        <label for="adminConfirmReasonInput">Motivo de la suspensión</label>
+        <textarea id="adminConfirmReasonInput" rows="3" maxlength="500" placeholder="Explica por qué se suspende esta cuenta… (500 caracteres máximos)"></textarea>
+      </div>
       <div class="admin-modal__actions">
         <button type="button" class="admin-btn admin-btn--ghost" id="adminConfirmCancel">Cancelar</button>
         <button type="button" class="admin-btn admin-btn--danger" id="adminConfirmAccept">Confirmar</button>
