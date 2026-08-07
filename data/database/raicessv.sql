@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
     INDEX idx_admin_invitations_user (id_user)
 );
 
-CREATE TABLE IF NOT EXISTS users_suspensions(
+CREATE TABLE IF NOT EXISTS user_suspensions(
     id_suspension INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,
     suspended_by INT NOT NULL,
