@@ -125,6 +125,27 @@ const ensureAdminInvitationsTable = () => new Promise((resolve) => {
     );
 });
 
+const ensureUserSuspensionsTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS user_suspensions (
+            id_suspension INT AUTO_INCREMENT PRIMARY KEY,
+            id_user INT NOT NULL,
+            suspended_by INT NOT NULL,
+            reason VARCHAR(500) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+            FOREIGN KEY (suspended_by) REFERENCES users(id_user) ON DELETE CASCADE,
+            INDEX idx_user_suspensions_user (id_user)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla user_suspensions:', err);
+            }
+            resolve();
+        }
+    );
+});
+
 db.getConnection((err, connection) => {
     if (err) {
         console.error('No se pudo conectar a MySQL:', err);
@@ -145,6 +166,10 @@ db.getConnection((err, connection) => {
         })
         .then(() => {
             console.log('Tabla de invitaciones de administrador verificada');
+            return ensureUserSuspensionsTable();
+        })
+        .then(() => {
+            console.log('Tabla de historial de suspensiones verificada');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);
