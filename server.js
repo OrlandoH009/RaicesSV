@@ -23,6 +23,8 @@ const chatRoutes = require('./routes/chat.routes');
 const profileRoutes = require('./routes/profile.routes');
 const publicationsRoutes = require('./routes/publications.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
+const requireAdmin = require('./middleware/auth.adminRoutes');
+const adminRoutes = require('./routes/admin.routes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
 
 app.set('trust proxy', 1);
@@ -167,6 +169,12 @@ protectedViews.forEach((fileName) => {
     );
 });
 
+app.get(
+    ['/admin.html', '/admin', '/views/admin.html'],
+    requireAdmin,
+    sendView('admin.html')
+);
+
 /* ───────────── Rutas de autenticación (con límite de intentos) ───────────── */
 
 app.use(
@@ -178,6 +186,7 @@ app.use(authRoutes);
 app.use(chatRoutes);
 app.use(profileRoutes);
 app.use(publicationsRoutes);
+app.use(adminRoutes);
 
 app.use((req, res) => {
     res.status(404).send('Página no encontrada.');
