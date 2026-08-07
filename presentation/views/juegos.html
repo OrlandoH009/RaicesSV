@@ -11,47 +11,62 @@
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#113068" />
 </head>
-<body data-gsap-reveal>
+<body data-gsap-reveal data-i18n-title="jue.meta.title" data-i18n-desc="jue.meta.description">
 
   <nav class="navbar" id="navbar">
     <div class="navbar__logo">
       <a href="../views/index.html">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" data-i18n-attr="alt:home.logoAlt" />
       </a>
     </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+
+    <!-- Botón de traducción (escritorio) -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label></span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
-    <div class="drawer-section-label">Explorar</div>
-    <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
-    <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
-    <a href="../views/recetas.html" class="drawer-link">Recetario</a>
-    <a href="../views/eventos.html" class="drawer-link">Eventos Culturales</a>
-    <a href="../views/historia.html" class="drawer-link">Historia</a>
-    <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
-    <a href="../views/juegos.html" class="drawer-link active">Juegos Interactivos</a>
-    <a href="../views/leyendas.html" class="drawer-link">Leyendas</a>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <a href="../views/sitios-culturales.html" class="drawer-link" data-i18n="nav.sitios">Sitios Culturales</a>
+    <a href="../views/gastronomia.html" class="drawer-link" data-i18n="nav.gastronomia">Gastronomía</a>
+    <a href="../views/recetas.html" class="drawer-link" data-i18n="nav.recetario">Recetario</a>
+    <a href="../views/eventos.html" class="drawer-link" data-i18n="nav.eventos">Eventos Culturales</a>
+    <a href="../views/historia.html" class="drawer-link" data-i18n="nav.historia">Historia</a>
+    <a href="../views/quiz.html" class="drawer-link" data-i18n="nav.quiz">Quiz Cultural</a>
+    <a href="../views/juegos.html" class="drawer-link active" data-i18n="nav.juegos">Juegos Interactivos</a>
+    <a href="../views/leyendas.html" class="drawer-link" data-i18n="nav.leyendas">Leyendas</a>
+    <div class="drawer-divider"></div>
+
+    <!-- Botón de traducción (móvil / drawer) -->
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
+    </button>
+
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -59,13 +74,13 @@
 
     <section class="page-hero">
       <!-- Agregamos clases específicas para identificar cada elemento en el timeline de GSAP -->
-      <span class="page-hero__eyebrow hero-fade">Aprender jugando</span>
-      <h1 class="page-hero__title hero-fade">Juegos Interactivos</h1>
-      <p class="page-hero__subtitle hero-fade">Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña.</p>
+      <span class="page-hero__eyebrow hero-fade" data-i18n="jue.hero.eyebrow">Aprender jugando</span>
+      <h1 class="page-hero__title hero-fade" data-i18n="jue.hero.title">Juegos Interactivos</h1>
+      <p class="page-hero__subtitle hero-fade" data-i18n="jue.hero.subtitle">Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña.</p>
       <nav class="breadcrumb hero-fade" aria-label="Ruta de navegación">
-        <a href="../views/index.html">Inicio</a>
+        <a href="../views/index.html" data-i18n="nav.inicio">Inicio</a>
         <span>/</span>
-        <span>Juegos Interactivos</span>
+        <span data-i18n="jue.hero.title">Juegos Interactivos</span>
       </nav>
     </section>
 
@@ -82,10 +97,10 @@
             <span class="game-card__emoji">🫓</span>
           </div>
           <div class="game-card__body">
-            <span class="game-card__tag">Ruta 01 — Reflejos</span>
-            <h3 class="game-card__title">Atrapa la Pupusa</h3>
-            <p class="game-card__desc">Mové el comal rápidamente y atrapá las pupusas calientes antes de que caigan al suelo. ¡Cuidado con las chanclas y los obstáculos!</p>
-            <button class="btn-play-trigger" data-open-modal="pupusa">⚡ Jugar Ahora</button>
+            <span class="game-card__tag" data-i18n="jue.card1.tag">Ruta 01 — Reflejos</span>
+            <h3 class="game-card__title" data-i18n="jue.card1.title">Atrapa la Pupusa</h3>
+            <p class="game-card__desc" data-i18n="jue.card1.desc">Mové el comal rápidamente y atrapá las pupusas calientes antes de que caigan al suelo. ¡Cuidado con las chanclas y los obstáculos!</p>
+            <button class="btn-play-trigger" data-open-modal="pupusa" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
 
@@ -95,10 +110,10 @@
             <span class="game-card__emoji">🌀</span>
           </div>
           <div class="game-card__body">
-            <span class="game-card__tag">Ruta 02 — Estrategia</span>
-            <h3 class="game-card__title">Batalla de Trompos</h3>
-            <p class="game-card__desc">Prepárate para el choque de tu vida. Controla la física de tu trompo de madera y saca a tu rival de la pista en un duelo dinámico.</p>
-            <button class="btn-play-trigger" data-open-modal="trompos">⚡ Jugar Ahora</button>
+            <span class="game-card__tag" data-i18n="jue.card2.tag">Ruta 02 — Estrategia</span>
+            <h3 class="game-card__title" data-i18n="jue.card2.title">Batalla de Trompos</h3>
+            <p class="game-card__desc" data-i18n="jue.card2.desc">Prepárate para el choque de tu vida. Controla la física de tu trompo de madera y saca a tu rival de la pista en un duelo dinámico.</p>
+            <button class="btn-play-trigger" data-open-modal="trompos" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
 
@@ -108,10 +123,36 @@
             <span class="game-card__emoji">🚌</span>
           </div>
           <div class="game-card__body">
-            <span class="game-card__tag">Ruta 03 — Adrenalina</span>
-            <h3 class="game-card__title">Guerra de Coasters</h3>
-            <p class="game-card__desc">Pilotea tu bus, recoge pasajeros en el camino y gánale el "mandado" al bot rival en una carrera frenética por las calles de San Salvador. ¡Cuidado con los baches!</p>
-            <button class="btn-play-trigger" data-open-modal="coasters">⚡ Jugar Ahora</button>
+            <span class="game-card__tag" data-i18n="jue.card3.tag">Ruta 03 — Adrenalina</span>
+            <h3 class="game-card__title" data-i18n="jue.card3.title">Guerra de Coasters</h3>
+            <p class="game-card__desc" data-i18n="jue.card3.desc">Pilotea tu bus, recoge pasajeros en el camino y gánale el "mandado" al bot rival en una carrera frenética por las calles de San Salvador. ¡Cuidado con los baches!</p>
+            <button class="btn-play-trigger" data-open-modal="coasters" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
+          </div>
+        </div>
+
+        <!-- Tarjeta Juego 4 -->
+        <div class="game-card">
+          <div class="game-card__media" style="background: linear-gradient(135deg, #2D6A4F 0%, #113068 100%);">
+            <span class="game-card__emoji">🙈</span>
+          </div>
+          <div class="game-card__body">
+            <span class="game-card__tag" data-i18n="jue.card4.tag">Ruta 04 — Memoria</span>
+            <h3 class="game-card__title" data-i18n="jue.card4.title">Escondelero</h3>
+            <p class="game-card__desc" data-i18n="jue.card4.desc">Vos sos el que la trae. Tus amigos se van a escapar corriendo hacia el bote en cualquier momento: movete rápido por el patio e interceptalos antes de que lleguen y se salven. ¡No dejes que se te escapen muchos!</p>
+            <button class="btn-play-trigger" data-open-modal="encantados" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
+          </div>
+        </div>
+
+        <!-- Tarjeta Juego 5 -->
+        <div class="game-card">
+          <div class="game-card__media" style="background: linear-gradient(135deg, #F2C744 0%, #FF9944 100%);">
+            <span class="game-card__emoji">🌽</span>
+          </div>
+          <div class="game-card__body">
+            <span class="game-card__tag" data-i18n="jue.card5.tag">Ruta 05 — Recreo</span>
+            <h3 class="game-card__title" data-i18n="jue.card5.title">Elotes y Olé</h3>
+            <p class="game-card__desc" data-i18n="jue.card5.desc">Corré por el patio de la escuela recogiendo elotes locos, mangos y minutas, mientras esquivás los pupitres y las pelotas perdidas del recreo. ¡Sumá combos y no perdás el ritmo!</p>
+            <button class="btn-play-trigger" data-open-modal="elotes" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
 
@@ -128,8 +169,8 @@
           <div class="game-panel">
             <div class="game-panel__head">
               <div>
-                <span class="game-panel__tag">Ruta 01</span>
-                <h2>🫓 Atrapa la Pupusa</h2>
+                <span class="game-panel__tag" data-i18n="jue.card1.tagModal">Ruta 01</span>
+                <h2>🫓 <span data-i18n="jue.card1.title">Atrapa la Pupusa</span></h2>
               </div>
             </div>
 
@@ -153,10 +194,10 @@
               </div>
               <div class="overlay hidden" id="pauseOverlay-pupusa">
                 <div class="overlay-card overlay-card--pause">
-                  <span class="overlay-tag">Pausa</span>
-                  <h3>Juego en pausa</h3>
-                  <p>Presioná reanudar para volver a atrapar pupusas.</p>
-                  <button class="btn-primary" id="resumeBtn-pupusa">Reanudar</button>
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.pause.title">Juego en pausa</h3>
+                  <p data-i18n="jue.card1.pauseText">Presioná reanudar para volver a atrapar pupusas.</p>
+                  <button class="btn-primary" id="resumeBtn-pupusa" data-i18n="jue.pause.resume">Reanudar</button>
                 </div>
               </div>
             </div>
@@ -170,13 +211,13 @@
       <div class="game-modal" id="modal-trompos">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="trompos" aria-label="Cerrar juego">✕</button>
+          <button class="game-modal__close" data-close-modal="trompos" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
           
           <div class="game-panel">
             <div class="game-panel__head">
               <div>
-                <span class="game-panel__tag">Ruta 02</span>
-                <h2>⚡ Batalla de Trompos</h2>
+                <span class="game-panel__tag" data-i18n="jue.card2.tagModal">Ruta 02</span>
+                <h2>⚡ <span data-i18n="jue.card2.title">Batalla de Trompos</span></h2>
               </div>
             </div>
 
@@ -200,12 +241,12 @@
               </div>
               <div class="overlay hidden" id="pauseOverlay-trompos">
                 <div class="overlay-card overlay-card--pause">
-                  <span class="overlay-tag">Pausa</span>
-                  <h3>Batalla en pausa</h3>
-                  <p>Presioná reanudar para continuar la batalla o vuelve a configurar.</p>
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.card2.pauseTitle">Batalla en pausa</h3>
+                  <p data-i18n="jue.card2.pauseText">Presioná reanudar para continuar la batalla o vuelve a configurar.</p>
                   <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-                    <button class="btn-primary" id="resumeBtn-trompos">Reanudar</button>
-                    <button class="btn-primary" id="menuBtn-trompos" style="background-color: var(--navy); border: 2px solid var(--white);">Menú</button>
+                    <button class="btn-primary" id="resumeBtn-trompos" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-trompos" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
                   </div>
                 </div>
               </div>
@@ -220,13 +261,13 @@
       <div class="game-modal" id="modal-coasters">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="coasters" aria-label="Cerrar juego">✕</button>
+          <button class="game-modal__close" data-close-modal="coasters" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
           
           <div class="game-panel">
             <div class="game-panel__head">
               <div>
-                <span class="game-panel__tag">Ruta 03 — Adrenalina</span>
-                <h2>🚌 Guerra de Coasters: ¡Pelea por el Pasaje!</h2>
+                <span class="game-panel__tag" data-i18n="jue.card3.tagModal">Ruta 03 — Adrenalina</span>
+                <h2>🚌 <span data-i18n="jue.card3.titleModal">Guerra de Coasters: ¡Pelea por el Pasaje!</span></h2>
               </div>
             </div>
 
@@ -251,12 +292,12 @@
               </div>
               <div class="overlay hidden" id="pauseOverlay-coasters">
                 <div class="overlay-card overlay-card--pause">
-                  <span class="overlay-tag">Pausa</span>
-                  <h3>Carrera en Pausa</h3>
-                  <p>¡No dejes que la competencia te gane el pasaje! Presiona reanudar.</p>
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.card3.pauseTitle">Carrera en Pausa</h3>
+                  <p data-i18n="jue.card3.pauseText">¡No dejes que la competencia te gane el pasaje! Presiona reanudar.</p>
                   <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
-                    <button class="btn-primary" id="resumeBtn-coasters">Reanudar</button>
-                    <button class="btn-primary" id="menuBtn-coasters" style="background-color: var(--navy); border: 2px solid var(--white);">Menú</button>
+                    <button class="btn-primary" id="resumeBtn-coasters" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-coasters" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
                   </div>
                 </div>
               </div>
@@ -265,24 +306,121 @@
         </div>
       </div>
 
-      <p class="games-footnote reveal">Juegos de la cultura salvadoreña — ¡Desafía tus habilidades!</p>
+      <!-- ══════════════════════════════════════════
+           VENTANA FLOTANTE (MODAL JUEGO 4: ENCANTADOS Y BOTE)
+           ══════════════════════════════════════════ -->
+      <div class="game-modal" id="modal-encantados">
+        <div class="game-modal__overlay"></div>
+        <div class="game-modal__content">
+          <button class="game-modal__close" data-close-modal="encantados" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+
+          <div class="game-panel">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag" data-i18n="jue.card4.tagModal">Ruta 04 — Memoria</span>
+                <h2>🙈 <span data-i18n="jue.card4.title">Escondelero</span></h2>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="encantados-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-encantados"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-encantados">
+                  <span id="pauseIcon-encantados">⏸️</span>
+                </button>
+                <button class="icon-btn fullscreen-btn">⛶</button>
+                <div class="volume-group">
+                  <span class="volume-icon" id="volumeIcon-encantados">🔊</span>
+                  <input type="range" id="volumeSlider-encantados" min="0" max="1" step="0.05" value="0.45" />
+                </div>
+              </div>
+              <canvas id="canvas-encantados"></canvas>
+              <div class="damage-overlay" id="damageOverlay-encantados"></div>
+              <audio id="bgMusic-encantados" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-encantados">
+                <div class="overlay-card" id="overlay-card-encantados"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-encantados">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.pause.title">Juego en pausa</h3>
+                  <p data-i18n="jue.card4.pauseText">Presioná reanudar para seguir buscando a tus amigos.</p>
+                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="btn-primary" id="resumeBtn-encantados" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-encantados" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           VENTANA FLOTANTE (MODAL JUEGO 5: ELOTES Y OLÉ)
+           ══════════════════════════════════════════ -->
+      <div class="game-modal" id="modal-elotes">
+        <div class="game-modal__overlay"></div>
+        <div class="game-modal__content">
+          <button class="game-modal__close" data-close-modal="elotes" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+
+          <div class="game-panel">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag" data-i18n="jue.card5.tagModal">Ruta 05 — Recreo</span>
+                <h2>🌽 <span data-i18n="jue.card5.title">Elotes y Olé</span></h2>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="elotes-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-elotes"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-elotes">
+                  <span id="pauseIcon-elotes">⏸️</span>
+                </button>
+                <button class="icon-btn fullscreen-btn">⛶</button>
+                <div class="volume-group">
+                  <span class="volume-icon" id="volumeIcon-elotes">🔊</span>
+                  <input type="range" id="volumeSlider-elotes" min="0" max="1" step="0.05" value="0.45" />
+                </div>
+              </div>
+              <canvas id="canvas-elotes"></canvas>
+              <div class="damage-overlay" id="damageOverlay-elotes"></div>
+              <audio id="bgMusic-elotes" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-elotes">
+                <div class="overlay-card" id="overlay-card-elotes"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-elotes">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.card5.pauseTitle">Recreo en pausa</h3>
+                  <p data-i18n="jue.card5.pauseText">Presioná reanudar para seguir la carrera de sabores.</p>
+                  <button class="btn-primary" id="resumeBtn-elotes" data-i18n="jue.pause.resume">Reanudar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="games-footnote reveal" data-i18n="jue.footnote">Juegos de la cultura salvadoreña — ¡Desafía tus habilidades!</p>
     </section>
   </main>
 
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/juegos.html">Juegos</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/juegos.html" data-i18n="footer.juegos">Juegos</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
 
@@ -290,6 +428,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/juegos.js"></script>
+  <script src="../assets/js/chatbot.js"></script>
 </body>
 </html>

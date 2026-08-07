@@ -19,7 +19,8 @@ const login = async (req, res) => {
             id: user.id_user,
             name: user.name,
             email: user.email,
-            avatarUrl: user.avatar_url || null
+            avatarUrl: user.avatar_url || null,
+            role: user.role_name
         };
 
         req.session.regenerate((err) => {

@@ -302,11 +302,14 @@
   overflow: hidden;
   border-radius: var(--r-sm);
 }
-/* Cuando el contenedor entra en pantalla completa, el canvas debe estirarse por completo */
+/* Cuando el contenedor entra en pantalla completa, el canvas debe estirarse por completo
+   (efecto zoom): el juego mantiene su resolución lógica interna y el navegador
+   escala el contenido dibujado, por eso usamos suavizado en vez del modo "pixelated". */
 .canvas-wrap:fullscreen canvas,
 .canvas-wrap:-webkit-full-screen canvas {
   height: 100% !important;
   max-height: 100vh !important;
+  image-rendering: auto !important;
 }
 
 canvas {
@@ -338,7 +341,7 @@ canvas {
   position: absolute;
   top: .7rem;
   right: .7rem;
-  z-index: 7;
+  z-index: 20; /* Por encima del overlay (15) para que pausa/pantalla completa/volumen sean clicables siempre, incluso con el menú abierto */
   display: flex;
   gap: .5rem;
 }
@@ -967,6 +970,36 @@ canvas {
   50% {
     transform: translateY(-8px);
   }
+}
+
+/* --- ESTILOS DEL JUEGO ESCONDELERO --- */
+.hud-item .encantados-round-dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.encantados-round-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+.encantados-round-dots .dot.found {
+  background: #00e676;
+  border-color: #00e676;
+}
+
+/* --- ESTILOS DEL JUEGO ELOTES Y OLÉ --- */
+.hud-item .elotes-combo {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 153, 68, 0.2);
+  border: 1px solid #FF9944;
+  font-size: 0.85em;
 }
 
 /* 3. ¡EL HOVER CON CSS! */
