@@ -259,6 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (params.get('cuentaEliminada') === '1') {
     showNotice('Tu cuenta fue eliminada correctamente');
   }
+  if (params.get('suspendido') === '1') {
+    showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.');
+  }
 
   /* ── Verificar protección de rutas ── */
   const protectedPages = ['mapa.html', 'mapa', '/mapa'];
