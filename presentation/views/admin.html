@@ -14,7 +14,6 @@
 
   <div class="admin-shell">
 
-    <!-- ═══════════ SIDEBAR ═══════════ -->
     <aside class="admin-sidebar" id="adminSidebar">
       <div class="admin-sidebar__brand">
         <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Salvadorean Roots" />
@@ -51,10 +50,8 @@
       </a>
     </aside>
 
-    <!-- ═══════════ CONTENIDO ═══════════ -->
     <div class="admin-main">
 
-      <!-- HEADER -->
       <header class="admin-header">
         <div class="admin-header__context">
           <button type="button" class="admin-back" id="adminBackBtn" hidden>
@@ -84,10 +81,8 @@
         </div>
       </header>
 
-      <!-- TOASTS -->
       <div id="admin-toast"></div>
 
-      <!-- ═══════════ SECCIÓN: RESUMEN ═══════════ -->
       <section class="admin-section is-active" id="section-resumen" data-section-panel="resumen">
 
         <div class="admin-metrics" id="adminMetrics">
@@ -135,10 +130,8 @@
         </div>
       </section>
 
-      <!-- ═══════════ SECCIÓN: USUARIOS ═══════════ -->
       <section class="admin-section" id="section-usuarios" data-section-panel="usuarios">
 
-        <!-- Vista: LISTA -->
         <div class="admin-view is-active" id="usuarios-view-list">
           <div class="admin-toolbar">
             <div class="admin-search">
@@ -171,9 +164,7 @@
                   <th>Registrado</th>
                 </tr>
               </thead>
-              <tbody id="usersTableBody">
-                <!-- Filas inyectadas por admin.js -->
-              </tbody>
+              <tbody id="usersTableBody"></tbody>
             </table>
             <div class="admin-empty-state" id="usersEmptyState" hidden>
               <span>No se encontraron usuarios con esos filtros.</span>
@@ -191,18 +182,13 @@
           </div>
         </div>
 
-        <!-- Vista: DETALLE -->
         <div class="admin-view" id="usuarios-view-detail">
-          <div class="admin-detail-card" id="userDetailCard">
-            <!-- Contenido inyectado por admin.js -->
-          </div>
+          <div class="admin-detail-card" id="userDetailCard"></div>
         </div>
       </section>
 
-      <!-- ═══════════ SECCIÓN: PUBLICACIONES ═══════════ -->
       <section class="admin-section" id="section-publicaciones" data-section-panel="publicaciones">
 
-        <!-- Vista: LISTA -->
         <div class="admin-view is-active" id="publicaciones-view-list">
           <div class="admin-toolbar">
             <div class="admin-search">
@@ -211,9 +197,7 @@
             </div>
           </div>
 
-          <div class="admin-pubs-grid" id="publicationsGrid">
-            <!-- Tarjetas inyectadas por admin.js -->
-          </div>
+          <div class="admin-pubs-grid" id="publicationsGrid"></div>
           <div class="admin-empty-state" id="publicationsEmptyState" hidden>
             <span>No se encontraron publicaciones con esos filtros.</span>
           </div>
@@ -229,18 +213,13 @@
           </div>
         </div>
 
-        <!-- Vista: DETALLE -->
         <div class="admin-view" id="publicaciones-view-detail">
-          <div class="admin-detail-card" id="publicationDetailCard">
-            <!-- Contenido inyectado por admin.js -->
-          </div>
+          <div class="admin-detail-card" id="publicationDetailCard"></div>
         </div>
       </section>
 
-      <!-- ═══════════ SECCIÓN: EQUIPO ═══════════ -->
       <section class="admin-section" id="section-equipo" data-section-panel="equipo">
 
-        <!-- Vista: LISTA -->
         <div class="admin-view is-active" id="equipo-view-list">
           <div class="admin-team-header">
             <p class="admin-team-header__desc">Administradores y fundador con acceso al panel.</p>
@@ -250,23 +229,17 @@
             </button>
           </div>
 
-          <div class="admin-team-grid" id="teamListBody">
-            <!-- Tarjetas inyectadas por admin.js -->
-          </div>
+          <div class="admin-team-grid" id="teamListBody"></div>
         </div>
 
-        <!-- Vista: DETALLE -->
         <div class="admin-view" id="equipo-view-detail">
-          <div class="admin-detail-card" id="teamDetailCard">
-            <!-- Contenido inyectado por admin.js -->
-          </div>
+          <div class="admin-detail-card" id="teamDetailCard"></div>
         </div>
       </section>
 
     </div>
   </div>
 
-  <!-- PANEL LATERAL: CREAR ADMINISTRADOR -->
   <div class="admin-drawer-overlay" id="createAdminOverlay">
     <form class="admin-drawer" id="createAdminForm">
       <div class="admin-drawer__head">
@@ -295,7 +268,6 @@
     </form>
   </div>
 
-  <!-- MODAL DE CONFIRMACIÓN GENÉRICO (suspender / eliminar / degradar) -->
   <div class="admin-modal-overlay" id="adminConfirmOverlay">
     <div class="admin-modal">
       <h3 id="adminConfirmTitle">¿Confirmar acción?</h3>
