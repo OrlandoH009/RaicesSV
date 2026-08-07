@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const requireAdminApiAuth = require('../middleware/auth.adminApiGuard');
+const { rateLimit } = require('../middleware/security.middleware');
 const adminService = require('../business/admin.server');
 
 const handle = (fn) => async (req, res) => {
@@ -62,5 +63,14 @@ router.post('/api/admin/users', requireAdminApiAuth, handle(async (req) => {
     const user = await adminService.createAdmin(req.body.name, req.body.email, req.body.password);
     return { user };
 }));
+
+router.post(
+    '/api/admin/invitations/accept',
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.'}),
+    handle(async (req) => {
+        const user = await adminService.completeAdminInvitation(req.body.token, req.body.password);
+        return { user };
+    })
+);
 
 module.exports = router;
