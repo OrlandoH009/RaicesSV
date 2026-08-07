@@ -175,6 +175,11 @@ app.get(
     sendView('admin.html')
 );
 
+app.get(
+    ['/aceptar-invitacion.html', '/views/aceptar-invitacion.html'],
+    sendView('aceptar-invitacion.html')
+)
+
 /* ───────────── Rutas de autenticación (con límite de intentos) ───────────── */
 
 app.use(
