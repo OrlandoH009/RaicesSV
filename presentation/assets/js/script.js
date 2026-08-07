@@ -213,10 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!link) return;
     if (link.href.includes('redirect=')) return;
 
+    event.preventDefault();
+
     const url = new URL(link.href, window.location.origin);
     url.searchParams.set('redirect', window.location.pathname);
-    link.href= url.toString();
-  })
+    window.location.href = url.toString();
+  });
 
   // Permite que otras páginas (ej. perfil.js tras guardar cambios) actualicen
   // el nombre/avatar del menú hamburguesa al instante, sin recargar la página.
