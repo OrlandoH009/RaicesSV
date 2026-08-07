@@ -7,11 +7,7 @@ const register = require('../business/auth.register');
 const googleCallback = require('../business/auth.google');
 const forgotPassword = require('../business/auth.forgotPassword');
 const resetPassword = require('../business/auth.resetPassword');
-const getAuthStatus = require('../business/auth.status'); // 👈 Importar
 const { rateLimit } = require('../middleware/security.middleware');
-
-// 👇 Nueva ruta para consultar estado de autenticación
-router.get('/auth/status', getAuthStatus);
 
 router.post('/login', login);
 router.post('/register', register);
