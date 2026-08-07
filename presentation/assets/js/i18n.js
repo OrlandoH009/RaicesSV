@@ -1005,6 +1005,12 @@
       "ley.data.cuco_de_los_suenos.chip4": "Tradición oral familiar",
       "ley.data.cuco_de_los_suenos.origin": "Tradición doméstica transmitida de madres y abuelas a los niños en todo El Salvador, sin un origen geográfico único.",
       "ley.data.cuco_de_los_suenos.relato": "A diferencia de otras leyendas que se cuentan alrededor de un río, un volcán o un pueblo específico, el Cuco no tiene un lugar fijo donde vive, ni una historia de origen clara como la Siguanaba o el Cipitío. Vive, en realidad, en la imaginación de cada familia salvadoreña, y cada abuela, cada madre, lo describe un poco distinto según lo que ella misma escuchó de niña.\n\nPara algunos es una sombra alargada que se estira por las paredes del cuarto justo cuando se apaga la luz. Para otros, es un anciano encorvado que ronda las casas de noche, mirando por las ventanas para ver qué niño sigue despierto pasada su hora de dormir. Hay quienes lo imaginan sin forma definida en absoluto, como una presencia que simplemente se siente, un frío repentino en la habitación, un crujido en el techo justo cuando el niño ha decidido no obedecer a sus padres.\n\nLo único que se mantiene igual en cada versión de la historia es su propósito: el Cuco existe para que los niños se porten bien, se duerman a la hora que les corresponde, y no le hagan travesuras a sus padres. \"Pórtate bien o te lleva el Cuco\" es una frase que casi cualquier salvadoreño escuchó de pequeño, susurrada justo antes de apagar la luz, con esa mezcla exacta de cariño y advertencia que solo una madre o una abuela saben transmitir.\n\nA diferencia de figuras como la Siguanaba o el Cadejo, que castigan comportamientos de adultos —la infidelidad, la mala vida, los vicios—, el Cuco cumple una función exclusivamente dentro del hogar: es el guardián invisible del buen comportamiento infantil, el recordatorio nocturno de que hay reglas que cumplir y horarios que respetar, incluso cuando los padres ya no están repitiéndolo en voz alta.\n\nAunque ha perdido fuerza frente a otras historias más elaboradas del folclore salvadoreño, el Cuco sigue vivo en el anecdotario familiar de muchísimas casas del país. Todavía hoy, en noches donde un niño se resiste a dormir, alguna abuela sonríe con complicidad y repite la misma advertencia que ella escuchó de pequeña: que ahí afuera, en la oscuridad del cuarto, el Cuco anda esperando a los que no se portan bien.",
+
+      "lock.title": "¡Un momento!",
+      "lock.text": "Perdona, debes registrarte para poder seguir disfrutando de nuestra información. Es rápido y gratis.",
+      "lock.register": "Registrarme",
+      "lock.login": "Ya tengo cuenta",
+      "lock.close": "Cerrar"
     },
 
     en: {
@@ -1985,6 +1991,12 @@
       "ley.data.cuco_de_los_suenos.chip4": "Family oral tradition",
       "ley.data.cuco_de_los_suenos.origin": "Domestic tradition passed down by grandmothers across El Salvador.",
       "ley.data.cuco_de_los_suenos.relato": "Unlike legends tied to rivers or mountains, El Cuco has no fixed location. He lives in family imagination, described slightly differently by each grandmother and mother.\n\nSome view him as a long shadow stretching across bedroom walls when lights go out, while others describe an old man looking through windows past bedtime. Others imagine a shapeless presence felt through sudden room chills or creaking roofs.\n\nHis purpose remains constant: encouraging children to behave, sleep on time, and obey parents. \"Behave or El Cuco will take you\" is a familiar phrase whispered before bedtime with a mix of care and warning.\n\nEl Cuco functions within the household as an invisible guardian of childhood behavior, maintaining family tradition across generations as a gentle nighttime warning.",
+      
+      "lock.title": "Hold on!",
+      "lock.text": "Sorry, you must register to keep enjoying our information. It's quick and free.",
+      "lock.register": "Sign up",
+      "lock.login": "I already have an account",
+      "lock.close": "Close"
     }
   };
 
