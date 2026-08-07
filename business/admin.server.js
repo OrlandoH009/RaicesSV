@@ -64,14 +64,14 @@ const getDashboardMetrics = async () => {
 
 //Banear o desbanear un usuario
 
-const setUserStatus = async (id_user, requestingUser, { status }) => {
+const setUserStatus = async (id_user, requestingUser, { status, reason }) => {
     const idUserNum = Number(id_user);
 
     if (!Number.isInteger(idUserNum)) {
-        const err = new Error('Usuario inválido.'); err.expose = true; throw err;
+        const err = new Error('Usuario inválido'); err.expose = true; throw err;
     }
 
-    if (status !== 'activo' && status !== 'suspendido') {
+     if (status !== 'activo' && status !== 'suspendido') {
         const err = new Error('El estado debe ser "activo" o "suspendido".'); err.expose = true; throw err;
     }
 
@@ -86,6 +86,33 @@ const setUserStatus = async (id_user, requestingUser, { status }) => {
 
     if (target.role_name === ROL_FUNDADOR && status === 'suspendido') {
         const err = new Error('El Fundador del sitio no puede ser suspendido.'); err.expose = true; err.status = 403; throw err;
+    }
+
+    const currentStatus = target.status_name === 'Suspendido' ? 'suspendido' : 'activo';
+    if (currentStatus === status) {
+        const err = new Error(status === 'suspendido' ? 'Este usuario ya está suspendido.' : 'Este usuario ya está activo.'); err.expose = true; throw err;
+    }
+
+    if (status === 'suspendido') {
+        if (typeof reason !== 'string' || !reason.trim()) {
+            const err = new Error('Debes indicar el motivo de la suspensión.'); err.expose = true; throw err;
+        }
+
+        await adminRepository.createSuspensionRecord(idUserNum, requestingUser.id, reason.trim());
+
+        const html = `
+            <p>Hola ${target.name || ''},</p>
+            <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
+            <p><strong>Motivo:</strong> ${reason.trim()}</p>
+            <p>Si consideras que esto es un error, puedes contactar a un administrador del sitio.</p>
+        `;
+
+        await sendMail({
+            to: target.email,
+            subject: 'Tu cuenta ha sido suspendida — Salvadorean Roots',
+            html,
+            text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}`
+        });
     }
 
     const id_status = status === 'activo' ? ID_STATUS_ACTIVO : ID_STATUS_SUSPENDIDO;
