@@ -173,9 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
             : defaultAvatarSVG;
         }
 
+        const isAdminRole = user?.role === 'Admin' || user?.role === 'Fundador';
+        const adminLinkHtml = isAdminRole
+          ? `<a href="/admin" class="btn-login">Panel de administración</a>`
+          : '';
+
         authContainer.innerHTML = `
           <p class="drawer-auth-label" data-i18n="nav.conectado">Conectado</p>
           <a href="../views/perfil.html" class="btn-login" data-i18n="nav.miPerfil">Mi perfil</a>
+          ${adminLinkHtml}
           <button type="button" class="btn-logout" id="logout-link" data-i18n="nav.cerrarSesion">Cerrar sesión</button>
         `;
       } else {
