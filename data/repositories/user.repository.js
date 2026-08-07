@@ -4,23 +4,26 @@ const findByEmail = (email) => {
     return new Promise((resolve, reject) => {
 
         db.query(
-            'SELECT * FROM users WHERE email = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE u.email = ?`,
             [email],
             (err, results) => {
-
                 if (err) return reject(err);
-
                 resolve(results[0]);
             }
         );
-
     });
 };
 
 const findByGoogleId = (googleId) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'SELECT * FROM users WHERE google_id = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE u.google_id = ?`,
             [googleId],
             (e, results) => {
                 if (e) return reject(e);
@@ -95,7 +98,10 @@ const linkGoogleId = (id_user, googleId) => {
 const findById = (id_user) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'SELECT * FROM users WHERE id_user = ?',
+            `SELECT u.*, r.rol AS role_name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            WHERE u.id_user = ?`,
             [id_user],
             (err, results) => {
                 if (err) return reject(err);

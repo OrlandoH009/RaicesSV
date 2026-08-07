@@ -156,8 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (loggedIn) {
-        // Mostrar nombre en el área de perfil
-        if (drawerUsername) drawerUsername.textContent = user?.name || user?.email || 'Usuario';
+        // Mostrar nombre en el área de perfil y remover la clave de traducción de "Invitado"
+        if (drawerUsername) {
+          drawerUsername.removeAttribute('data-i18n'); // <-- AGREGAR ESTA LÍNEA
+          drawerUsername.textContent = user?.name || user?.email || 'Usuario';
+        }
         if (drawerProfileCaption) drawerProfileCaption.setAttribute('data-i18n', 'nav.verPerfil');
         if (drawerProfileCaption) drawerProfileCaption.textContent = window.SRi18n
           ? window.SRi18n.t('nav.verPerfil', window.SRi18n.getLang())
@@ -335,31 +338,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html', 'juegos.html'];
 
   const lockModalHTML = `
-    <div class="lock-modal-overlay" id="lockModalOverlay">
-      <div class="lock-modal" id="lockModal" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
-        <button class="lock-modal__close" id="lockModalClose" aria-label="Cerrar">&times;</button>
-        <div class="lock-modal__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="10" width="16" height="10" rx="2"/>
-            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-          </svg>
-        </div>
-        <h3 class="lock-modal__title" id="lockModalTitle">¡Un momento!</h3>
-        <p class="lock-modal__text">
-          Perdona, debes registrarte para poder seguir disfrutando de nuestra información.
-          Es rápido y gratis.
-        </p>
-        <div class="lock-modal__actions">
-          <a href="/registro.html" class="lock-modal__btn lock-modal__btn--primary" id="lockModalRegister">Registrarme</a>
-          <a href="/login.html" class="lock-modal__btn lock-modal__btn--secondary" id="lockModalLogin">Ya tengo cuenta</a>
-        </div>
+  <div class="lock-modal-overlay" id="lockModalOverlay">
+    <div class="lock-modal" id="lockModal" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
+      <button class="lock-modal__close" id="lockModalClose" data-i18n-attr="aria-label:lock.close">&times;</button>
+      <div class="lock-modal__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="10" width="16" height="10" rx="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+        </svg>
+      </div>
+      <h3 class="lock-modal__title" id="lockModalTitle" data-i18n="lock.title">¡Un momento!</h3>
+      <p class="lock-modal__text" data-i18n="lock.text">
+        Perdona, debes registrarte para poder seguir disfrutando de nuestra información.
+        Es rápido y gratis.
+      </p>
+      <div class="lock-modal__actions">
+        <a href="/registro.html" class="lock-modal__btn lock-modal__btn--primary" id="lockModalRegister" data-i18n="lock.register">Registrarme</a>
+        <a href="/login.html" class="lock-modal__btn lock-modal__btn--secondary" id="lockModalLogin" data-i18n="lock.login">Ya tengo cuenta</a>
       </div>
     </div>
-  `;
+  </div>
+`;
 
   if (!document.getElementById('lockModalOverlay')) {
     document.body.insertAdjacentHTML('beforeend', lockModalHTML);
   }
+  // Aplicar traducciones al modal recién insertado
+  if (window.SRi18n) {
+    window.SRi18n.applyTranslations(window.SRi18n.getLang());
+  }
+
+  document.addEventListener('langchange', () => {
+  const overlay = document.getElementById('lockModalOverlay');
+  if (overlay && overlay.classList.contains('is-visible') && window.SRi18n) {
+    window.SRi18n.applyTranslations(window.SRi18n.getLang());
+  }
+});
 
   const lockOverlay = document.getElementById('lockModalOverlay');
   const lockClose = document.getElementById('lockModalClose');

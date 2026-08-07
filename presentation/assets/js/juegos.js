@@ -1,90 +1,28 @@
 /* ============================================================
   Salvadorean Roots — juegos.js (SÚPER NÍTIDO, 85% ANCHO, DIFICULTAD EXTRA)
-   Gestor de tabs, lógica de overlays y juego de alta respuesta
+   Registro global de estado de juegos + lógica de overlays
    ============================================================ */
 
-/* Sistema de Tabs */
-(function initGameTabs(){
-  const tabs = document.querySelectorAll('.game-tab-btn');
-  const tabIndicator = document.querySelector('.tab-indicator');
-  const gameContents = document.querySelectorAll('.game-content');
-  let gameStates = {};
-
-  function switchGame(e) {
-    const gameId = e.target.closest('.game-tab-btn').dataset.game;
-    
-    // Pausar juego anterior si está corriendo
-    const currentActive = document.querySelector('.game-content.active');
-    if(currentActive) {
-      const currentGameId = currentActive.id.split('-')[1];
-      if(gameStates[currentGameId] && gameStates[currentGameId].pause) {
-        gameStates[currentGameId].pause();
-      }
-    }
-
-    // Ocultar todos los juegos
-    gameContents.forEach(content => {
-      content.classList.remove('active');
-      void content.offsetHeight;
-    });
-
-    // Mostrar el juego seleccionado
-    const selectedGame = document.getElementById(`game-${gameId}`);
-    if(selectedGame) {
-      selectedGame.classList.add('active');
-      void selectedGame.offsetHeight;
-      
-      // Disparar evento personalizado
-      selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
-    }
-
-    tabs.forEach(tab => {
-      tab.classList.remove('active');
-    });
-    const clickedTab = e.target.closest('.game-tab-btn');
-    clickedTab.classList.add('active');
-
-    updateIndicator(clickedTab);
-    localStorage.setItem('lastGame', gameId);
-  }
-
-  function updateIndicator(activeTab) {
-    if(!tabIndicator || !activeTab) return;
-    
-    const tabWidth = activeTab.offsetWidth;
-    const tabOffset = activeTab.offsetLeft;
-    
-    gsap.to(tabIndicator, {
-      width: tabWidth,
-      left: tabOffset,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  }
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', switchGame);
-  });
-
-  window.addEventListener('load', () => {
-    const activeTab = document.querySelector('.game-tab-btn.active');
-    if(activeTab) {
-      updateIndicator(activeTab);
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    const activeTab = document.querySelector('.game-tab-btn.active');
-    if(activeTab) {
-      updateIndicator(activeTab);
-    }
-  });
-
-  window.gameStates = gameStates;
+/* Registro global de estado de cada juego (usado por el sistema de modales
+   y por los atajos de teclado globales para pausar/reanudar/detener) */
+(function initGameStateRegistry(){
+  window.gameStates = {};
   window.switchGameState = function(gameId, state) {
-    gameStates[gameId] = state;
+    window.gameStates[gameId] = state;
   };
 })();
+
+/* Helper de traducción para los juegos: usa el sistema i18n del sitio si está
+   cargado (window.SRi18n), con fallback seguro al texto en español si no lo está. */
+function jt(key, fallback) {
+  if (window.SRi18n && typeof window.SRi18n.t === 'function') {
+    const lang = window.SRi18n.getLang ? window.SRi18n.getLang() : 'es';
+    const val = window.SRi18n.t(key, lang);
+    // Si la clave no existe, t() devuelve la clave tal cual: en ese caso usamos el fallback
+    return (val && val !== key) ? val : fallback;
+  }
+  return fallback;
+}
 
 /* Reveal on scroll */
 (function initReveal(){
@@ -96,36 +34,6 @@
   items.forEach(el=> io.observe(el));
 })();
 
-/* Fullscreen buttons */
-(function initFullscreenButtons(){
-  const buttons = document.querySelectorAll('.fullscreen-btn');
-  if(!buttons.length) return;
-
-  buttons.forEach(btn=>{
-    const wrap = btn.closest('.canvas-wrap');
-    if(!wrap) return;
-    btn.addEventListener('click', ()=>{
-      const isCurrent = document.fullscreenElement === wrap || document.webkitFullscreenElement === wrap;
-      if(!isCurrent){
-        const req = wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.msRequestFullscreen;
-        req?.call(wrap);
-      } else {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exit?.call(document);
-      }
-    });
-  });
-
-  function syncFullscreenClass(){
-    const fsEl = document.fullscreenElement || document.webkitFullscreenElement || null;
-    document.querySelectorAll('.canvas-wrap').forEach(wrap=>{
-      wrap.classList.toggle('is-fullscreen', wrap === fsEl);
-    });
-  }
-  document.addEventListener('fullscreenchange', syncFullscreenClass);
-  document.addEventListener('webkitfullscreenchange', syncFullscreenClass);
-})();
-
 /* ---------------------------------------------------------
    JUEGO 1: ATRAPA LA PUPUSA (OPTIMIZADO ANTI-BLUR)
 --------------------------------------------------------- */
@@ -133,18 +41,48 @@
   const canvas = document.getElementById('canvas-pupusa');
   if(!canvas || typeof Matter === 'undefined') return;
 
+  const canvasWrap = canvas.closest('.canvas-wrap');
+
   // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
-// Reemplaza esta función dentro de initGamePupusa()
-function resizeCanvas() {
-    const wrap = canvas.closest('.canvas-wrap');
+  // El tamaño LÓGICO del juego (resolución interna del canvas) se mantiene fijo siempre.
+  // En pantalla completa, el CSS estira ese mismo contenido más grande (efecto zoom),
+  // pero las coordenadas, distancias y velocidades del juego no cambian.
+  let baseWidth = 0, baseHeight = 0;
+  function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if(isFS && baseWidth && baseHeight){
+      // No recalculamos contra el tamaño de pantalla completa: conservamos la resolución lógica normal
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
-    // Si está en pantalla completa, toma el alto total del contenedor, si no, usa el CSS estándar
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+
+  // Escuchar cambios de pantalla completa del contenedor
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
+  const fsBtnPupusa = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtnPupusa) {
+    fsBtnPupusa.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
 
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
@@ -152,7 +90,7 @@ function resizeCanvas() {
   const hud = document.getElementById('hud-pupusa');
   const overlay = document.getElementById('overlay-pupusa');
   const overlayCard = document.getElementById('overlay-card-pupusa');
-  const gameContent = document.getElementById('game-pupusa');
+  const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
   // DIFICULTAD INCREMENTADA: Se aumentó la gravedad y se acortaron los intervalos de aparición (más rápidos y difíciles)
@@ -178,7 +116,15 @@ function resizeCanvas() {
       );
     }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
   function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
   
   function drawEmoji(emoji, x, y, size, angle){
@@ -198,19 +144,19 @@ function resizeCanvas() {
   
   hud.innerHTML = `
     <div class="hud-item">
-      <span>Puntos</span>
+      <span>${jt('jue.hud.points', 'Puntos')}</span>
       <b id="p-score">0</b>
     </div>
     <div class="hud-item lives">
-      <span>Vidas</span>
+      <span>${jt('jue.hud.lives', 'Vidas')}</span>
       <b id="p-lives">${renderLives(3)}</b>
     </div>
     <div class="hud-item">
-      <span>Nivel</span>
+      <span>${jt('jue.hud.level', 'Nivel')}</span>
       <b id="p-level">-</b>
     </div>
     <div class="hud-item">
-      <span>Tiempo</span>
+      <span>${jt('jue.hud.time', 'Tiempo')}</span>
       <b id="p-time">30</b>
     </div>`;
 
@@ -231,7 +177,7 @@ function resizeCanvas() {
     if(scoreEl) scoreEl.textContent = score;
     if(livesEl) livesEl.innerHTML = renderLives(lives);
     if(timeEl) timeEl.textContent = Math.max(0, timeLeft);
-    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? '🟢 Fácil' : '🔴 Difícil';
+    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? jt('jue.diff.easy', '🟢 Fácil') : jt('jue.diff.hard', '🔴 Difícil');
   }
 
   const engine = Engine.create();
@@ -324,11 +270,11 @@ function resizeCanvas() {
     }
   }
 
-  const canvasWrap = canvas.closest('.canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn-pupusa');
   const pauseIcon = document.getElementById('pauseIcon-pupusa');
   const pauseOverlay = document.getElementById('pauseOverlay-pupusa');
   const resumeBtn = document.getElementById('resumeBtn-pupusa');
+  const menuBtn = document.getElementById('menuBtn-pupusa');
 
   function pauseGame(){
     if(!running) return;
@@ -354,12 +300,25 @@ function resizeCanvas() {
     rafId = requestAnimationFrame(step);
   }
 
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
+    showDifficultySelector();
+  }
+
   pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) start();
-    else if(paused) resumeGame();
+    if(!running && !paused) return;
+    if(paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
 
   function spawn(){
     const isBad = Math.random() < 0.32; // Un poco más de probabilidad de obstáculos
@@ -466,18 +425,18 @@ function resizeCanvas() {
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     
-    let text = score >= 120 ? '🏆 ¡Sos toda una maestra pupusera de El Salvador!' :
-               score >= 60 ? '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.' :
-               '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!';
+    let text = score >= 120 ? jt('jue.card1.end.high', '🏆 ¡Sos toda una maestra pupusera de El Salvador!') :
+               score >= 60 ? jt('jue.card1.end.mid', '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.') :
+               jt('jue.card1.end.low', '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!');
     
-    const difficultyLabel = gameDifficulty === 'easy' ? '🟢 Nivel Fácil' : '🔴 Nivel Difícil';
+    const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
     
     showOverlay(`
       <span class="overlay-tag">${difficultyLabel}</span>
-      <h3>¡Fin del juego!</h3>
+      <h3>${jt('jue.end.title', '¡Fin del juego!')}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${text}</p>
-      <button class="btn-primary" id="p-restart">Jugar de nuevo</button>`);
+      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('p-restart').onclick = showDifficultySelector;
   }
 
@@ -499,17 +458,17 @@ function resizeCanvas() {
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elegí tu dificultad</span>
-      <h3>🎮 Selecciona Nivel</h3>
-      <p>La velocidad de caída y aparición ahora es mayor. ¿Estás listo?</p>
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>${jt('jue.card1.diff.title', '🎮 Selecciona Nivel')}</h3>
+      <p>${jt('jue.card1.diff.sub', 'Elegí qué tan rápido caen las pupusas y los demás ingredientes.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy">
-          🟢 Fácil
-          <div class="difficulty-desc">Caída veloz, reflejos rápidos</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card1.diff.easyDesc', 'Caída lenta, ritmo tranquilo')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard">
-          🔴 Difícil
-          <div class="difficulty-desc">Velocidad extrema de comal</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card1.diff.hardDesc', 'Caída más rápida y seguida')}</div>
         </button>
       </div>`);
     
@@ -529,15 +488,15 @@ function resizeCanvas() {
   }
 
   showOverlay(`
-    <span class="overlay-tag">Ruta 01</span>
-    <h3>🫓 Atrapa la Pupusa</h3>
-    <p>Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.</p>
-    <p class="rules-title">Reglas del juego</p>
+    <span class="overlay-tag">${jt('jue.card1.tagModal', 'Ruta 01')}</span>
+    <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
+    <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
+    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">✅</span> Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.</li>
-      <li class="rule-bad"><span class="rule-icon">❌</span> Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.</li>
+      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card1.ruleBad', 'Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.')}</li>
     </ul>
-    <button class="btn-primary" id="p-start">Continuar</button>`);
+    <button class="btn-primary" id="p-start">${jt('jue.continue', 'Continuar')}</button>`);
   
   document.getElementById('p-start').onclick = showDifficultySelector;
 
@@ -571,7 +530,9 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: stopMusic,
     running: () => running,
-    setVisible: (visible) => { isGameVisible = visible; }
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showDifficultySelector
   });
 })();
 
@@ -583,16 +544,43 @@ function resizeCanvas() {
   const canvas = document.getElementById('canvas-trompos');
   if(!canvas || typeof Matter === 'undefined') return;
 
-function resizeCanvas() {
-    const wrap = canvas.closest('.canvas-wrap');
+  const canvasWrap = canvas.closest('.canvas-wrap');
+
+  let baseWidth = 0, baseHeight = 0;
+  function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      return;
+    }
     const rect = canvas.getBoundingClientRect();
-    
     canvas.width = rect.width;
-    canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+
+  // Escuchar cambios de pantalla completa del contenedor
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
+  const fsBtnTrompos = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtnTrompos) {
+    fsBtnTrompos.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
 
   const { Engine, World, Bodies, Body, Events } = Matter;
   const ctx = canvas.getContext('2d');
@@ -600,7 +588,7 @@ function resizeCanvas() {
   const hud = document.getElementById('hud-trompos');
   const overlay = document.getElementById('overlay-trompos');
   const overlayCard = document.getElementById('overlay-card-trompos');
-  const gameContent = document.getElementById('game-trompos');
+  const gameContent = document.getElementById('modal-trompos');
 
   let gameMode = null;
   let npcDifficulty = null;
@@ -638,22 +626,30 @@ function resizeCanvas() {
       );
     }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
   function clearCanvas(){ ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
   let rafId = null;
 
   hud.innerHTML = `
     <div class="hud-item player1">
-      <span>🟢 Jugador 1</span>
+      <span>${jt('jue.card2.player1', '🟢 Jugador 1')}</span>
       <b id="p1-energy">100%</b>
     </div>
     <div class="hud-item player2">
-      <span id="p2-label">🔴 Jugador 2</span>
+      <span id="p2-label">${jt('jue.card2.player2', '🔴 Jugador 2')}</span>
       <b id="p2-energy">100%</b>
     </div>
     <div class="hud-item">
-      <span>Ronda</span>
+      <span>${jt('jue.hud.round', 'Ronda')}</span>
       <b id="round-val">1/3</b>
     </div>`;
 
@@ -663,7 +659,7 @@ function resizeCanvas() {
     const roundEl = document.getElementById('round-val');
     if(p1El) p1El.textContent = Math.max(0, Math.round(top.energy)) + '%';
     if(p2El) p2El.textContent = Math.max(0, Math.round(bottom.energy)) + '%';
-    if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (J1: ${playerWins} - Riv: ${rivalWins})`;
+    if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (${jt('jue.card2.p1Short', 'J1')}: ${playerWins} - ${jt('jue.card2.rivalShort', 'Riv')}: ${rivalWins})`;
   }
 
   // Animación del HUD al recibir daño
@@ -1018,13 +1014,13 @@ function resizeCanvas() {
       // Siguiente ronda
       currentRound++;
       showOverlay(`
-        <span class="overlay-tag">Fin de Ronda</span>
-        <h3>Ronda ${currentRound - 1} finalizada</h3>
-        <p>Ganador: ${winner === 'top' ? '🟢 Jugador 1' : '🔴 Rival'}</p>
+        <span class="overlay-tag">${jt('jue.card2.roundEndTag', 'Fin de Ronda')}</span>
+        <h3>${jt('jue.card2.roundEndTitle', 'Ronda {n} finalizada').replace('{n}', currentRound - 1)}</h3>
+        <p>${jt('jue.card2.winnerLabel', 'Ganador')}: ${winner === 'top' ? jt('jue.card2.player1', '🟢 Jugador 1') : jt('jue.card2.rivalTag', '🔴 Rival')}</p>
         <div style="font-size: 1.2rem; font-weight: bold; margin: 15px 0;">
-          Marcador: J1 ${playerWins} - ${rivalWins} Rival
+          ${jt('jue.card2.scoreLabel', 'Marcador')}: ${jt('jue.card2.p1Short', 'J1')} ${playerWins} - ${rivalWins} ${jt('jue.card2.rivalShort2', 'Rival')}
         </div>
-        <button class="btn-primary" id="btn-next-round">Siguiente Ronda</button>
+        <button class="btn-primary" id="btn-next-round">${jt('jue.card2.nextRound', 'Siguiente Ronda')}</button>
       `);
       document.getElementById('btn-next-round').onclick = startNextRound;
     }
@@ -1060,21 +1056,20 @@ function resizeCanvas() {
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
     let message = winner === 'top' 
-      ? `🟢 ¡Felicidades! Has ganado el duelo (${playerWins} - ${rivalWins})`
+      ? jt('jue.card2.end.win', '🟢 ¡Felicidades! Has ganado el duelo ({p} - {r})').replace('{p}', playerWins).replace('{r}', rivalWins)
       : gameMode === 'pvp'
-        ? `🔴 ¡Jugador 2 gana el duelo! (${rivalWins} - ${playerWins})`
-        : `🔴 El NPC salvadoreño te ha ganado (${rivalWins} - ${playerWins})`;
+        ? jt('jue.card2.end.losePvp', '🔴 ¡Jugador 2 gana el duelo! ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins)
+        : jt('jue.card2.end.loseNpc', '🔴 El NPC salvadoreño te ha ganado ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins);
 
     showOverlay(`
-      <span class="overlay-tag">Fin de la Batalla</span>
+      <span class="overlay-tag">${jt('jue.card2.end.tag', 'Fin de la Batalla')}</span>
       <h3>${message}</h3>
-      <p>¿Listo para una revancha?</p>
-      <button class="btn-primary" id="p-restart">Volver a Jugar</button>`);
+      <p>${jt('jue.card2.end.rematch', '¿Listo para una revancha?')}</p>
+      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain2', 'Volver a Jugar')}</button>`);
     
     document.getElementById('p-restart').onclick = showModeSelector;
   }
 
-  const canvasWrap = canvas.closest('.canvas-wrap');
   const pauseBtn = document.getElementById('pauseBtn-trompos');
   const pauseIcon = document.getElementById('pauseIcon-trompos');
   const pauseOverlay = document.getElementById('pauseOverlay-trompos');
@@ -1121,8 +1116,8 @@ function resizeCanvas() {
   }
 
   pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) start();
-    else if(paused) resumeGame();
+    if(!running && !paused) return;
+    if(paused) resumeGame();
     else pauseGame();
   });
   
@@ -1150,39 +1145,39 @@ function resizeCanvas() {
 
   function showDifficultySelector(){
     showOverlay(`
-      <span class="overlay-tag">Elige Dificultad</span>
-      <h3>🎮 Selecciona tu Desafío</h3>
-      <p>Elige el nivel de agilidad que tendrá la IA.</p>
+      <span class="overlay-tag">${jt('jue.card2.chooseDiffTag', 'Elige Dificultad')}</span>
+      <h3>${jt('jue.card2.diff.title', '🎮 Selecciona tu Desafío')}</h3>
+      <p>${jt('jue.card2.diff.sub', 'Elige el nivel de agilidad que tendrá la IA.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-trompos">
-          🟢 Fácil
-          <div class="difficulty-desc">NPC ágil</div>
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.easyDesc', 'NPC lento y predecible')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-trompos">
-          🟡 Normal
-          <div class="difficulty-desc">NPC rápido y certero</div>
+          ${jt('jue.diff.medium', '🟡 Normal')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.medDesc', 'NPC rápido y certero')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-trompos">
-          🔴 Difícil
-          <div class="difficulty-desc">NPC experto (Modo Imposible)</div>
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card2.diff.hardDesc', 'NPC experto (Modo Imposible)')}</div>
         </button>
       </div>`);
     
     document.getElementById('btn-easy-trompos').onclick = ()=>{
       npcDifficulty = 'easy';
-      document.getElementById('p2-label').textContent = '🟢 NPC - Fácil';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcEasy', '🟢 NPC - Fácil');
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-medium-trompos').onclick = ()=>{
       npcDifficulty = 'medium';
-      document.getElementById('p2-label').textContent = '🟡 NPC - Normal';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcMedium', '🟡 NPC - Normal');
       setTimeout(()=>{ start(); }, 100);
     };
     
     document.getElementById('btn-hard-trompos').onclick = ()=>{
       npcDifficulty = 'hard';
-      document.getElementById('p2-label').textContent = '🔴 NPC - Experto';
+      document.getElementById('p2-label').textContent = jt('jue.card2.npcHard', '🔴 NPC - Experto');
       setTimeout(()=>{ start(); }, 100);
     };
   }
@@ -1190,13 +1185,13 @@ function resizeCanvas() {
   // NUEVO SELECTOR DE RONDAS
   function showRoundSelector(){
     showOverlay(`
-      <span class="overlay-tag">Configuración</span>
-      <h3>🏁 ¿A cuántas rondas jugamos?</h3>
-      <p>El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.</p>
+      <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
+      <h3>${jt('jue.card2.rounds.title', '🏁 ¿A cuántas rondas jugamos?')}</h3>
+      <p>${jt('jue.card2.rounds.sub', 'El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.')}</p>
       <div class="difficulty-buttons" style="display: flex; gap: 15px; margin-top: 15px;">
-        <button class="btn-primary" id="rounds-1" style="flex: 1;">1 Ronda</button>
-        <button class="btn-primary" id="rounds-3" style="flex: 1;">Best of 3</button>
-        <button class="btn-primary" id="rounds-5" style="flex: 1;">Best of 5</button>
+        <button class="btn-primary" id="rounds-1" style="flex: 1;">${jt('jue.card2.round1', '1 Ronda')}</button>
+        <button class="btn-primary" id="rounds-3" style="flex: 1;">${jt('jue.card2.bestOf3', 'Best of 3')}</button>
+        <button class="btn-primary" id="rounds-5" style="flex: 1;">${jt('jue.card2.bestOf5', 'Best of 5')}</button>
       </div>
     `);
 
@@ -1220,23 +1215,23 @@ function resizeCanvas() {
 
   function showModeSelector(){
     showOverlay(`
-      <span class="overlay-tag">Selecciona Modo</span>
-      <h3>⚡ Batalla de Trompos SV</h3>
-      <p>¿Cómo quieres jugar?</p>
+      <span class="overlay-tag">${jt('jue.card2.selectModeTag', 'Selecciona Modo')}</span>
+      <h3>⚡ ${jt('jue.card2.titleModal', 'Batalla de Trompos SV')}</h3>
+      <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
       <div class="mode-buttons">
         <button class="mode-btn pvp" id="btn-pvp-trompos">
-          👥 2 Jugadores
-          <div class="difficulty-desc">Compite localmente</div>
+          ${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${jt('jue.card2.mode.pvpDesc', 'Compite localmente')}</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
-          🤖 vs NPC
-          <div class="difficulty-desc">Enfrenta la IA de práctica</div>
+          ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
+          <div class="difficulty-desc">${jt('jue.card2.mode.pveDesc', 'Enfrenta la IA de práctica')}</div>
         </button>
       </div>`);
     
     document.getElementById('btn-pvp-trompos').onclick = ()=>{
       gameMode = 'pvp';
-      document.getElementById('p2-label').textContent = '🔴 Jugador 2';
+      document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
       setTimeout(()=>{ showRoundSelector(); }, 100);
     };
     
@@ -1247,10 +1242,15 @@ function resizeCanvas() {
   }
 
   showOverlay(`
-    <span class="overlay-tag">Ruta 02</span>
-    <h3>⚡ Batalla de Trompos</h3>
-    <p>Prepará tu trompo para la batalla. Controlá su movimiento y vencé a tu oponente.</p>
-    <button class="btn-primary" id="p-start-trompos">Preparar Batalla</button>`);
+    <span class="overlay-tag">${jt('jue.card2.tagModal', 'Ruta 02')}</span>
+    <h3>⚡ ${jt('jue.card2.title', 'Batalla de Trompos')}</h3>
+    <p>${jt('jue.card2.intro', 'Empujá tu trompo contra el de tu oponente para sacarlo del círculo. El primero en caer o salirse pierde la ronda.')}</p>
+    <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+    <ul class="rules-list">
+      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP1', 'Jugador 1: teclas <strong>WASD</strong> para mover el trompo.')}</li>
+      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP2', 'Jugador 2 (o NPC): teclas de <strong>flechas</strong> ⬅️⬆️➡️⬇️.')}</li>
+    </ul>
+    <button class="btn-primary" id="p-start-trompos">${jt('jue.card2.prepareBattle', 'Preparar Batalla')}</button>`);
   
   document.getElementById('p-start-trompos').onclick = showModeSelector;
 
@@ -1284,7 +1284,9 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: stopMusic,
     running: () => running,
-    setVisible: (visible) => { isGameVisible = visible; }
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
   });
 })();
 
@@ -1294,6 +1296,15 @@ function resizeCanvas() {
 (function initGameModals() {
   const triggers = document.querySelectorAll('[data-open-modal]');
   const closeButtons = document.querySelectorAll('[data-close-modal]');
+  const hasGsap = !!window.gsap;
+
+  // Si GSAP está disponible, dejamos que controle transform/opacity por completo
+  // y desactivamos las transiciones CSS del modal para evitar animaciones dobles.
+  if(hasGsap){
+    document.querySelectorAll('.game-modal, .game-modal__content').forEach(el => {
+      el.style.transition = 'none';
+    });
+  }
 
   triggers.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1303,9 +1314,30 @@ function resizeCanvas() {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Evita scroll de fondo
 
+        // Animación de entrada más fluida con GSAP (con fallback a la transición CSS existente)
+        const content = modal.querySelector('.game-modal__content');
+        if(hasGsap && content){
+          gsap.set(modal, { autoAlpha: 1 });
+          gsap.fromTo(content,
+            { scale: 0.85, y: 24, autoAlpha: 0 },
+            { scale: 1, y: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(1.6)' }
+          );
+        }
+
         // Activa el estado visible para el motor del juego y ajusta canvas
-        const selectedGame = document.getElementById(`game-${gameId}`) || modal;
-        selectedGame.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+        modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+
+        // Red de seguridad: si el menú inicial del juego se generó antes de que
+        // el idioma estuviera listo (por ejemplo, apenas cargó la página), lo
+        // regeneramos ahora que el modal se abre, para asegurar el idioma correcto.
+        const state = window.gameStates && window.gameStates[gameId];
+        if (state) {
+          const isRunning = state.running ? state.running() : false;
+          const isPaused = state.paused ? state.paused() : false;
+          if (!isRunning && !isPaused && state.reloadMenu) {
+            state.reloadMenu();
+          }
+        }
       }
     });
   });
@@ -1315,17 +1347,83 @@ function resizeCanvas() {
       const gameId = btn.dataset.closeModal;
       const modal = document.getElementById(`modal-${gameId}`);
       if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = ''; // Devuelve el scroll normal
-
         // Pausa automática y detención de música al cerrar la ventana flotante
         if (window.gameStates && window.gameStates[gameId]) {
           if (window.gameStates[gameId].pause) window.gameStates[gameId].pause();
           if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
           if (window.gameStates[gameId].setVisible) window.gameStates[gameId].setVisible(false);
         }
+
+        const content = modal.querySelector('.game-modal__content');
+        if(hasGsap && content){
+          gsap.to(content, {
+            scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
+            onComplete: () => {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+              gsap.set(modal, { clearProps: 'opacity,visibility' });
+              gsap.set(content, { clearProps: 'all' });
+            }
+          });
+        } else {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        }
       }
     });
+  });
+
+  // Atajos de teclado globales para el modal de juego actualmente abierto:
+  // "P" pausa/reanuda (solo si el juego ya inició) y "F" alterna pantalla completa
+  window.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if(key !== 'p' && key !== 'f') return;
+
+    const activeModal = document.querySelector('.game-modal.active');
+    if(!activeModal) return;
+    const gameId = activeModal.id.replace('modal-', '');
+
+    if(key === 'p'){
+      const state = window.gameStates && window.gameStates[gameId];
+      if(!state) return;
+      const isRunning = state.running ? state.running() : false;
+      const isPaused = state.paused ? state.paused() : false;
+      if(!isRunning && !isPaused) return; // el juego todavía no ha iniciado
+      if(isPaused){
+        if(state.resume) state.resume();
+      } else if(isRunning){
+        if(state.pause) state.pause();
+      }
+    }
+
+    if(key === 'f'){
+      const canvasWrap = document.getElementById(`${gameId}-canvas-wrap`) || activeModal.querySelector('.canvas-wrap');
+      if(!canvasWrap) return;
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if(!isCurrent){
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    }
+  });
+
+  // Si el usuario cambia de idioma mientras un juego está abierto y todavía no ha
+  // iniciado (está en un menú/selector), recargamos esa pantalla para que se
+  // muestre en el idioma nuevo. Si el juego ya está corriendo, no lo interrumpimos:
+  // el HUD y los textos ya visibles seguirán en el idioma con el que se inició esa partida.
+  document.addEventListener('langchange', () => {
+    const activeModal = document.querySelector('.game-modal.active');
+    if(!activeModal) return;
+    const gameId = activeModal.id.replace('modal-', '');
+    const state = window.gameStates && window.gameStates[gameId];
+    if(!state) return;
+    const isRunning = state.running ? state.running() : false;
+    const isPaused = state.paused ? state.paused() : false;
+    if(isRunning || isPaused) return; // partida en curso: no la interrumpimos
+    if(state.reloadMenu) state.reloadMenu();
   });
 })();
 
@@ -1367,29 +1465,37 @@ function resizeCanvas() {
   let trafficCars = [];
   const lanePositions = [];
 
-  // Redimensionamiento dinámico compatible con Pantalla Completa
+  // Redimensionamiento dinámico compatible con Pantalla Completa.
+  // El tamaño LÓGICO del canvas se mantiene fijo siempre; en pantalla completa
+  // el CSS estira ese mismo contenido (efecto zoom) sin cambiar posiciones ni velocidades.
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
-  const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-  // Detecta si el navegador está en modo pantalla completa
-  const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-  
-  canvas.width = rect.width;
-  // Si está en pantalla completa, toma el alto total real del contenedor, si no, usa el alto del rect
-  canvas.height = (isFS && wrap) ? wrap.clientHeight : rect.height;
-  
-  // Recalcular el ancho de los carriles con el nuevo tamaño del canvas
-  laneWidth = canvas.width / lanesCount;
-  for(let i = 0; i < lanesCount; i++){
-    lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+
+    // Recalcular el ancho de los carriles con el tamaño lógico del canvas
+    laneWidth = canvas.width / lanesCount;
+    for(let i = 0; i < lanesCount; i++){
+      lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    }
+
+    // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
+    player.y = canvas.height - 120;
+    bot.y = canvas.height - 120;
+    player.targetX = lanePositions[player.lane];
+    bot.targetX = lanePositions[bot.lane];
   }
-  
-  // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
-  player.y = canvas.height - 120;
-  bot.y = canvas.height - 120;
-  player.targetX = lanePositions[player.lane];
-  bot.targetX = lanePositions[bot.lane];
-}
   
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -1439,17 +1545,17 @@ function resizeCanvas() {
   if(hud) {
     hud.innerHTML = `
       <div class="hud-item">
-        <span>🚌 Ruta 44 (Tú)</span>
+        <span>${jt('jue.card3.routePlayer', '🚌 Ruta 44 (Tú)')}</span>
         <div class="coasters-progress-bar"><div id="p-prog" class="coasters-progress-fill"></div></div>
         <b id="p-dist">0m</b>
       </div>
       <div class="hud-item">
-        <span>🚍 Ruta 101-D (Bot)</span>
+        <span>${jt('jue.card3.routeBot', '🚍 Ruta 101-D (Bot)')}</span>
         <div class="coasters-progress-bar"><div id="b-prog" class="coasters-progress-fill bot"></div></div>
         <b id="b-dist">0m</b>
       </div>
       <div class="hud-item">
-        <span>Pasajeros</span>
+        <span>${jt('jue.hud.passengers', 'Pasajeros')}</span>
         <b id="p-passengers">0</b>
       </div>`;
   }
@@ -1498,8 +1604,22 @@ function resizeCanvas() {
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
   }
-  function hideOverlay(){ overlay.classList.add('hidden'); }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
 
   function resetGame() {
     resizeCanvas();
@@ -1760,31 +1880,31 @@ function resizeCanvas() {
 
     let title, msg;
     if(winner === 'player') {
-      title = "🏆 ¡VICTORIA TOTAL!";
-      msg = `¡La Ruta 44 llegó primero! Recogiste a <b>${player.passengers}</b> pasajeros en el camino.`;
+      title = jt('jue.card3.end.winTitle', '🏆 ¡VICTORIA TOTAL!');
+      msg = jt('jue.card3.end.winMsg', '¡La Ruta 44 llegó primero! Recogiste a <b>{n}</b> pasajeros en el camino.').replace('{n}', player.passengers);
     } else {
-      title = "🏁 Te ganaron el pasaje...";
-      msg = "La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!";
+      title = jt('jue.card3.end.loseTitle', '🏁 Te ganaron el pasaje...');
+      msg = jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
     }
 
     showOverlay(`
-      <span class="overlay-tag">Fin de la Carrera</span>
+      <span class="overlay-tag">${jt('jue.card3.end.tag', 'Fin de la Carrera')}</span>
       <h3>${title}</h3>
       <p>${msg}</p>
-      <button class="btn-primary" id="btn-restart-coasters">Revancha</button>
+      <button class="btn-primary" id="btn-restart-coasters">${jt('jue.rematch', 'Revancha')}</button>
     `);
     document.getElementById('btn-restart-coasters').onclick = showModeSelector;
   }
 
   function showDistanceSelector() {
     showOverlay(`
-      <span class="overlay-tag">Configuración</span>
-      <h3>🏁 Elige la Distancia</h3>
-      <p>¿Qué tan largo será el trayecto?</p>
+      <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
+      <h3>${jt('jue.card3.distance.title', '🏁 Elige la Distancia')}</h3>
+      <p>${jt('jue.card3.distance.sub', '¿Qué tan largo será el trayecto?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-primary" id="dist-1">Express (1000m)</button>
-        <button class="btn-primary" id="dist-2">Normal (2500m)</button>
-        <button class="btn-primary" id="dist-3">Costa a Costa (5000m)</button>
+        <button class="btn-primary" id="dist-1">${jt('jue.card3.distExpress', 'Express (1000m)')}</button>
+        <button class="btn-primary" id="dist-2">${jt('jue.card3.distNormal', 'Normal (2500m)')}</button>
+        <button class="btn-primary" id="dist-3">${jt('jue.card3.distCoast', 'Costa a Costa (5000m)')}</button>
       </div>
     `);
 
@@ -1800,21 +1920,21 @@ function resizeCanvas() {
 
   function showDifficultySelector() {
     showOverlay(`
-      <span class="overlay-tag">Dificultad</span>
-      <h3>🚦 ¿Qué tan veloz es tu rival?</h3>
-      <p>Ajusta el nivel del motorista oponente.</p>
+      <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
+      <h3>${jt('jue.card3.diff.title', '🚦 ¿Qué tan veloz es tu rival?')}</h3>
+      <p>${jt('jue.card3.diff.sub', 'Ajusta el nivel del motorista oponente.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-coasters">
-          🟢 Tranquilo
-          <div class="difficulty-desc">Va despacio</div>
+          ${jt('jue.card3.diff.easy', '🟢 Tranquilo')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.easyDesc', 'Va despacio')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-coasters">
-          🟡 Apurado
-          <div class="difficulty-desc">Busca rebasarte</div>
+          ${jt('jue.card3.diff.medium', '🟡 Apurado')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.medDesc', 'Busca rebasarte')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-coasters">
-          🔴 Hora Pico
-          <div class="difficulty-desc">Maneja a lo loco</div>
+          ${jt('jue.card3.diff.hard', '🔴 Hora Pico')}
+          <div class="difficulty-desc">${jt('jue.card3.diff.hardDesc', 'Maneja a lo loco')}</div>
         </button>
       </div>`);
 
@@ -1840,10 +1960,15 @@ function resizeCanvas() {
 
   function showModeSelector() {
     showOverlay(`
-      <span class="overlay-tag">Preparar Motor</span>
-      <h3>🚌 Guerra de Coasters SV</h3>
-      <p>Esquiva baches y recoge pasajeros usando 'A' y 'D' (o flechas) para ganarle a la Ruta 101-D.</p>
-      <button class="btn-primary" id="btn-start-coasters">Siguiente</button>
+      <span class="overlay-tag">${jt('jue.card3.prepareMotorTag', 'Preparar Motor')}</span>
+      <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
+      <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
+      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel', '<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.')}</li>
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
+      </ul>
+      <button class="btn-primary" id="btn-start-coasters">${jt('jue.next', 'Siguiente')}</button>
     `);
     document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
   }
@@ -1911,9 +2036,1017 @@ function resizeCanvas() {
     resume: resumeGame,
     stop: () => bgMusic?.pause(),
     running: () => running,
-    setVisible: (visible) => { isGameVisible = visible; }
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
   });
 })();
+
+/* ---------------------------------------------------------
+   JUEGO 4: ESCONDELERO (PERSECUCIÓN — ATRAPÁ ANTES DEL BOTE)
+--------------------------------------------------------- */
+(function initGameEncantados(){
+  const canvas = document.getElementById('canvas-encantados');
+  if(!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const hud = document.getElementById('hud-encantados');
+  const overlay = document.getElementById('overlay-encantados');
+  const overlayCard = document.getElementById('overlay-card-encantados');
+  const gameContent = document.getElementById('modal-encantados');
+  const canvasWrap = document.getElementById('encantados-canvas-wrap');
+
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  let baseWidth = 0, baseHeight = 0;
+  function resizeCanvas() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const prevWidth = canvas.width, prevHeight = canvas.height;
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+
+    bote.x = canvas.width / 2;
+    bote.y = 62;
+
+    // Solo recalcular los escondites si el tamaño lógico realmente cambió,
+    // para no reposicionarlos de golpe al entrar/salir de pantalla completa.
+    if(canvas.width !== prevWidth || canvas.height !== prevHeight){
+      layoutHideSpots();
+    }
+  }
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
+  // Dificultad: cuántos amigos hay que atrapar, qué tan seguido y rápido se escapan al bote
+  let gameConfig = {
+    easy:   { kidsToWin: 6, escapeMin: 2200, escapeMax: 3600, fleeSpeed: 2.6, catcherSpeed: 2.6, maxEscapes: 5, timeLimit: 45 },
+    medium: { kidsToWin: 8, escapeMin: 1700, escapeMax: 2800, fleeSpeed: 3.3, catcherSpeed: 2.6, maxEscapes: 4, timeLimit: 42 },
+    hard:   { kidsToWin: 10, escapeMin: 1200, escapeMax: 2200, fleeSpeed: 4.0, catcherSpeed: 2.6, maxEscapes: 3, timeLimit: 38 }
+  };
+  let difficulty = 'easy';
+
+  const KID_EMOJIS = ['🧒','👧','👦','🧑'];
+  const HIDE_SPOTS_EMOJI = ['🌳','🛢️','🧺','🪴','🧱','⛲','📦','🪵'];
+
+  // El "bote" es el punto seguro al que corren los amigos escondidos
+  const bote = { x: 0, y: 62, radius: 34 };
+
+  // El catcher (jugador) — "el que la trae"
+  const catcher = { x: 0, y: 0, radius: 22 };
+
+  let hideSpots = []; // {x,y,emoji}
+  let kids = []; // {x,y,spotIndex,state:'hidden'|'fleeing'|'caught'|'escaped', targetTimer}
+
+  let score = 0, caught = 0, escaped = 0, timeLeft = 0;
+  let nextEscapeIn = 0, escapeAccum = 0;
+  let lastTime = null;
+  let keys = {};
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  if(hud){
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>${jt('jue.hud.points', 'Puntos')}</span>
+        <b id="e-score">0</b>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.card4.caught', 'Atrapados')}</span>
+        <span class="encantados-round-dots" id="e-dots"></span>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.card4.escaped', 'Se salvaron')}</span>
+        <b id="e-escaped">0</b>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.hud.time', 'Tiempo')}</span>
+        <b id="e-time">-</b>
+      </div>`;
+  }
+
+  function renderDots(){
+    const dotsEl = document.getElementById('e-dots');
+    if(!dotsEl) return;
+    const total = gameConfig[difficulty].kidsToWin;
+    let html = '';
+    for(let i=0;i<total;i++){
+      html += `<span class="dot${i < caught ? ' found' : ''}"></span>`;
+    }
+    dotsEl.innerHTML = html;
+  }
+
+  function updateHud(){
+    const scoreEl = document.getElementById('e-score');
+    const escapedEl = document.getElementById('e-escaped');
+    const timeEl = document.getElementById('e-time');
+    if(scoreEl) scoreEl.textContent = score;
+    if(escapedEl) escapedEl.textContent = `${escaped}/${gameConfig[difficulty].maxEscapes}`;
+    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+    renderDots();
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-encantados');
+  const volumeSlider = document.getElementById('volumeSlider-encantados');
+  const volumeIcon = document.getElementById('volumeIcon-encantados');
+  const damageOverlay = document.getElementById('damageOverlay-encantados');
+  let volume = Number(volumeSlider?.value || 0.45);
+  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
+  function stopMusic(){ bgMusic?.pause(); }
+  function flashEscape(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  function layoutHideSpots(){
+    if(!canvas.width || !canvas.height) return;
+    const count = 10;
+    const cols = 5;
+    const rows = Math.ceil(count / cols);
+    const marginX = canvas.width * 0.08;
+    const marginY = canvas.height * 0.28;
+    const usableW = canvas.width - marginX*2;
+    const usableH = canvas.height - marginY*2 - 40;
+    const cellW = usableW / cols;
+    const cellH = usableH / rows;
+
+    const spots = [];
+    let i = 0;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        if(i >= count) break;
+        const jitterX = (Math.random()-0.5) * cellW * 0.25;
+        const jitterY = (Math.random()-0.5) * cellH * 0.25;
+        spots.push({
+          x: marginX + c*cellW + cellW/2 + jitterX,
+          y: marginY + 40 + r*cellH + cellH/2 + jitterY,
+          emoji: HIDE_SPOTS_EMOJI[i % HIDE_SPOTS_EMOJI.length]
+        });
+        i++;
+      }
+    }
+    hideSpots = spots;
+  }
+
+  function randomEscapeInterval(){
+    const config = gameConfig[difficulty];
+    return config.escapeMin + Math.random()*(config.escapeMax - config.escapeMin);
+  }
+
+  function setupGame(){
+    const config = gameConfig[difficulty];
+    layoutHideSpots();
+    kids = hideSpots.map((spot, idx) => ({
+      x: spot.x, y: spot.y,
+      spotIndex: idx,
+      emoji: KID_EMOJIS[idx % KID_EMOJIS.length],
+      state: 'hidden',
+      vx: 0, vy: 0
+    }));
+
+    catcher.x = canvas.width / 2;
+    catcher.y = canvas.height - 70;
+
+    score = 0; caught = 0; escaped = 0;
+    timeLeft = config.timeLimit;
+    escapeAccum = 0;
+    nextEscapeIn = randomEscapeInterval();
+    lastTime = null;
+
+    hideOverlay();
+    updateHud();
+    cancelAnimationFrame(rafId);
+    playMusic();
+    running = true;
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    rafId = requestAnimationFrame(step);
+  }
+
+  // Controles de teclado (WASD / flechas) — único método de control
+  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  function triggerEscape(){
+    const hidden = kids.filter(k => k.state === 'hidden');
+    if(!hidden.length) return;
+    const kid = hidden[Math.floor(Math.random()*hidden.length)];
+    kid.state = 'fleeing';
+  }
+
+  function endGame(win){
+    running = false;
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    let title = win ? jt('jue.card4.end.win', '🏆 ¡Los atrapaste a todos antes del bote!') : (timeLeft <= 0 ? jt('jue.card4.end.timeUp', '⏰ ¡Se acabó el tiempo!') : jt('jue.card4.end.tooMany', '🏁 ¡Se te escaparon demasiados!'));
+    let text = score >= 150 ? jt('jue.card4.end.high', '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.') :
+               score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
+               jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
+
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.card4.end.tag', 'Fin del Juego')}</span>
+      <h3>${title}</h3>
+      <div class="overlay-score">${score} pts</div>
+      <p>${jt('jue.card4.end.caughtOf', 'Atrapaste {c} de {t} amigos.').replace('{c}', caught).replace('{t}', gameConfig[difficulty].kidsToWin)} ${text}</p>
+      <button class="btn-primary" id="e-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
+    document.getElementById('e-restart').onclick = showDifficultySelector;
+  }
+
+  function step(timestamp){
+    if(!running || !isGameVisible) return;
+    if(lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    const dtSec = dt / 1000;
+
+    const config = gameConfig[difficulty];
+
+    timeLeft -= dtSec;
+
+    // Mover al catcher (jugador) con teclado o siguiendo el puntero
+    let moveX = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+    let moveY = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
+    if(moveX !== 0 || moveY !== 0){
+      const len = Math.hypot(moveX, moveY) || 1;
+      catcher.x += (moveX/len) * config.catcherSpeed;
+      catcher.y += (moveY/len) * config.catcherSpeed;
+    }
+    catcher.x = Math.max(catcher.radius, Math.min(canvas.width - catcher.radius, catcher.x));
+    catcher.y = Math.max(catcher.radius, Math.min(canvas.height - catcher.radius, catcher.y));
+
+    // Disparar nuevas fugas periódicamente
+    escapeAccum += dt;
+    if(escapeAccum >= nextEscapeIn){
+      escapeAccum = 0;
+      nextEscapeIn = randomEscapeInterval();
+      triggerEscape();
+    }
+
+    // Actualizar amigos que están huyendo hacia el bote
+    for(const kid of kids){
+      if(kid.state !== 'fleeing') continue;
+      const dx = bote.x - kid.x;
+      const dy = bote.y - kid.y;
+      const dist = Math.hypot(dx, dy);
+      if(dist > 2){
+        kid.x += (dx/dist) * config.fleeSpeed * (dt/16.6);
+        kid.y += (dy/dist) * config.fleeSpeed * (dt/16.6);
+      }
+
+      // ¿Lo atrapó el catcher?
+      const catchDist = Math.hypot(kid.x - catcher.x, kid.y - catcher.y);
+      if(catchDist < catcher.radius + 16){
+        kid.state = 'caught';
+        caught++;
+        score += 25;
+        updateHud();
+        continue;
+      }
+
+      // ¿Llegó al bote?
+      if(dist < bote.radius){
+        kid.state = 'escaped';
+        escaped++;
+        score = Math.max(0, score - 10);
+        flashEscape();
+        updateHud();
+      }
+    }
+
+    // Condiciones de fin
+    if(caught >= config.kidsToWin){ endGame(true); return; }
+    if(escaped >= config.maxEscapes){ endGame(false); return; }
+    if(timeLeft <= 0){ endGame(caught >= Math.ceil(config.kidsToWin*0.6)); return; }
+
+    updateHud();
+
+    // ---- Render ----
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+    const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+    grad.addColorStop(0, '#cdb98a');
+    grad.addColorStop(1, '#b89b6a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = '#bfe3ff';
+    ctx.fillRect(0,0,canvas.width, canvas.height*0.12);
+
+    // Bote (meta)
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.translate(bote.x, bote.y);
+    ctx.fillStyle = '#5c4a30';
+    ctx.beginPath();
+    ctx.ellipse(0, bote.radius*0.8, bote.radius, bote.radius*0.35, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = (bote.radius*1.8)+'px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🛢️', 0, 0);
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillStyle = '#113068';
+    ctx.fillText(jt('jue.card4.baseLabel', '¡BOTE!'), 0, bote.radius + 16);
+    ctx.restore();
+
+    // Escondites (objetos)
+    for(const spot of hideSpots){
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.translate(spot.x, spot.y);
+      ctx.fillStyle = '#5c4a30';
+      ctx.beginPath();
+      ctx.ellipse(0, 24, 26, 10, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = '46px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#2c1f0e';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(spot.emoji, 0, 0);
+      ctx.fillText(spot.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    // Amigos huyendo
+    for(const kid of kids){
+      if(kid.state !== 'fleeing') continue;
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.translate(kid.x, kid.y);
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(0, 16, 14, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font = '30px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#2c1f0e';
+      ctx.lineJoin = 'round';
+      ctx.strokeText(kid.emoji, 0, 0);
+      ctx.fillText(kid.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    // Catcher (jugador)
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.translate(catcher.x, catcher.y);
+    ctx.fillStyle = '#5c4a30';
+    ctx.beginPath();
+    ctx.ellipse(0, catcher.radius*0.9, catcher.radius*0.9, catcher.radius*0.3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = (catcher.radius*1.7)+'px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🏃', 0, 1);
+    ctx.restore();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  const pauseBtn = document.getElementById('pauseBtn-encantados');
+  const pauseIcon = document.getElementById('pauseIcon-encantados');
+  const pauseOverlay = document.getElementById('pauseOverlay-encantados');
+  const resumeBtn = document.getElementById('resumeBtn-encantados');
+  const menuBtn = document.getElementById('menuBtn-encantados');
+
+  function pauseGame(){
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+  function resumeGame(){
+    if(!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if(volume > 0) bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    showModeSelector();
+  }
+  pauseBtn?.addEventListener('click', ()=>{
+    if(!running && !paused) return;
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  function showDifficultySelector(){
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>${jt('jue.card4.diff.title', '🏃 ¿Qué tan rápidos son tus amigos?')}</h3>
+      <p>${jt('jue.card4.diff.sub', 'Más difícil significa que corren más rápido al bote y tenés menos escapes permitidos.')}</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-encantados">
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.easyDesc', 'Atrapá 6 amigos, corren despacio')}</div>
+        </button>
+        <button class="difficulty-btn medium" id="btn-medium-encantados">
+          ${jt('jue.diff.medium', '🟡 Normal')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.medDesc', 'Atrapá 8 amigos, corren más seguido')}</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-encantados">
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card4.diff.hardDesc', 'Atrapá 10 amigos, casi no hay respiro')}</div>
+        </button>
+      </div>`);
+    document.getElementById('btn-easy-encantados').onclick = () => { difficulty='easy'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+    document.getElementById('btn-medium-encantados').onclick = () => { difficulty='medium'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+    document.getElementById('btn-hard-encantados').onclick = () => { difficulty='hard'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+  }
+
+  function showModeSelector(){
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.card4.tagModal', 'Ruta 04')}</span>
+      <h3>🏃 ${jt('jue.card4.title', 'Escondelero')}</h3>
+      <p>${jt('jue.card4.intro', 'Vos sos "el que la trae". Tus amigos están escondidos por todo el patio y de repente van a salir corriendo hacia el bote para salvarse. Movete con las teclas <strong>WASD</strong> o las <strong>flechas</strong> del teclado e interceptalos antes de que lleguen.')}</p>
+      <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card4.ruleGood', 'Tocá a los amigos que van corriendo antes de que lleguen al bote — cada atrapada suma puntos.')}</li>
+        <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card4.ruleBad', 'Si un amigo llega al bote, se salva y perdés puntos. Si se te escapan demasiados, perdés la partida.')}</li>
+      </ul>
+      <button class="btn-primary" id="e-start">${jt('jue.continue', 'Continuar')}</button>`);
+    document.getElementById('e-start').onclick = showDifficultySelector;
+  }
+
+  resizeCanvas();
+  showModeSelector();
+
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'encantados') {
+      isGameVisible = true;
+      resizeCanvas();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('encantados', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: () => bgMusic?.pause(),
+    running: () => running,
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showModeSelector
+  });
+})();
+
+/* ---------------------------------------------------------
+   JUEGO 5: ELOTES Y OLÉ (RECOLECCIÓN EN CARRILES DEL RECREO)
+--------------------------------------------------------- */
+(function initGameElotes(){
+  const canvas = document.getElementById('canvas-elotes');
+  if(!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const hud = document.getElementById('hud-elotes');
+  const overlay = document.getElementById('overlay-elotes');
+  const overlayCard = document.getElementById('overlay-card-elotes');
+  const gameContent = document.getElementById('modal-elotes');
+  const canvasWrap = document.getElementById('elotes-canvas-wrap');
+
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  let baseWidth = 0, baseHeight = 0;
+  function resizeCanvas() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+    laneWidth = canvas.width / lanesCount;
+    for(let i=0;i<lanesCount;i++){ lanePositions[i] = (i*laneWidth) + (laneWidth/2); }
+    player.y = canvas.height - 90;
+    player.targetX = lanePositions[player.lane];
+  }
+
+  const lanesCount = 3;
+  let laneWidth = 0;
+  const lanePositions = [];
+
+  let player = { x:0, y:0, lane:1, targetX:0 };
+  let items = []; // {x,y,lane,type,emoji,points,speed}
+  let obstacles = []; // {x,y,lane,emoji,speed}
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
+  let keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if(running && !paused){
+      if(e.key.toLowerCase()==='a' || e.key==='ArrowLeft') moveLane(-1);
+      if(e.key.toLowerCase()==='d' || e.key==='ArrowRight') moveLane(1);
+    }
+  });
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+  function moveLane(dir){
+    const next = player.lane + dir;
+    if(next >= 0 && next < lanesCount) player.lane = next;
+  }
+  // Soporte táctil: tap en mitad izquierda/derecha del canvas mueve de carril
+  canvas.addEventListener('touchstart', (e)=>{
+    if(!running || paused) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    if(x < rect.width/2) moveLane(-1); else moveLane(1);
+  }, {passive:true});
+
+  const GOOD_ITEMS = [
+    {emoji:'🌽', pts:10, label:'elote loco'},
+    {emoji:'🥭', pts:8, label:'mango'},
+    {emoji:'🍧', pts:12, label:'minuta'},
+    {emoji:'🍬', pts:6, label:'dulce'}
+  ];
+  const BAD_ITEMS = [
+    {emoji:'🪑', label:'pupitre'},
+    {emoji:'⚽', label:'pelota perdida'},
+    {emoji:'🧹', label:'escoba del conserje'}
+  ];
+
+  let gameConfig = {
+    easy:   { timeLimit: 40, itemMinGap: 900, itemMaxGap: 1400, obstacleMinGap: 1600, obstacleMaxGap: 2400, speed: 3.2, initialLives: 4 },
+    hard:   { timeLimit: 35, itemMinGap: 650, itemMaxGap: 1050, obstacleMinGap: 1100, obstacleMaxGap: 1700, speed: 4.4, initialLives: 3 }
+  };
+  let difficulty = null;
+  let score = 0, lives = 3, totalLives = 3, combo = 0, timeLeft = 30;
+  let clockAccum = 0, lastTime = null;
+  let itemSpawnAccum = 0, nextItemSpawnIn = 1000;
+  let obstacleSpawnAccum = 0, nextObstacleSpawnIn = 1800;
+  const MIN_LANE_GAP = 90; // separación mínima vertical entre entidades del mismo carril
+
+  function randomItemGap(){
+    const c = gameConfig[difficulty];
+    return c.itemMinGap + Math.random()*(c.itemMaxGap - c.itemMinGap);
+  }
+  function randomObstacleGap(){
+    const c = gameConfig[difficulty];
+    return c.obstacleMinGap + Math.random()*(c.obstacleMaxGap - c.obstacleMinGap);
+  }
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  function renderLives(count){
+    const hearts = [];
+    for(let i=0;i<totalLives;i++){
+      const active = i < count;
+      hearts.push(`<span class="heart${active?'':' broken'}">${active?'❤️':'💔'}</span>`);
+    }
+    return hearts.join('');
+  }
+
+  if(hud){
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>${jt('jue.hud.points', 'Puntos')}</span>
+        <b id="el-score">0</b>
+      </div>
+      <div class="hud-item lives">
+        <span>${jt('jue.hud.lives', 'Vidas')}</span>
+        <b id="el-lives">${renderLives(3)}</b>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.hud.combo', 'Combo')}</span>
+        <span class="elotes-combo" id="el-combo">x1</span>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.hud.time', 'Tiempo')}</span>
+        <b id="el-time">30</b>
+      </div>`;
+  }
+
+  function updateHud(){
+    const scoreEl = document.getElementById('el-score');
+    const livesEl = document.getElementById('el-lives');
+    const comboEl = document.getElementById('el-combo');
+    const timeEl = document.getElementById('el-time');
+    if(scoreEl) scoreEl.textContent = score;
+    if(livesEl) livesEl.innerHTML = renderLives(lives);
+    if(comboEl) comboEl.textContent = 'x' + Math.max(1, 1 + Math.floor(combo/5));
+    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-elotes');
+  const volumeSlider = document.getElementById('volumeSlider-elotes');
+  const volumeIcon = document.getElementById('volumeIcon-elotes');
+  const damageOverlay = document.getElementById('damageOverlay-elotes');
+  let volume = Number(volumeSlider?.value || 0.45);
+  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
+  function stopMusic(){ bgMusic?.pause(); }
+  function flashDamage(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  const pauseBtn = document.getElementById('pauseBtn-elotes');
+  const pauseIcon = document.getElementById('pauseIcon-elotes');
+  const pauseOverlay = document.getElementById('pauseOverlay-elotes');
+  const resumeBtn = document.getElementById('resumeBtn-elotes');
+  const menuBtn = document.getElementById('menuBtn-elotes');
+
+  function pauseGame(){
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+  function resumeGame(){
+    if(!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if(volume > 0) bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    stopMusic();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    items = [];
+    obstacles = [];
+    showDifficultySelector();
+  }
+  pauseBtn?.addEventListener('click', ()=>{
+    if(!running && !paused) return;
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  function spawnEntities(dt){
+    const config = gameConfig[difficulty];
+
+    itemSpawnAccum += dt;
+    if(itemSpawnAccum >= nextItemSpawnIn){
+      const lane = Math.floor(Math.random()*lanesCount);
+      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
+      if(!blocked){
+        itemSpawnAccum = 0;
+        nextItemSpawnIn = randomItemGap();
+        const good = GOOD_ITEMS[Math.floor(Math.random()*GOOD_ITEMS.length)];
+        items.push({ x: lanePositions[lane], y: -30, lane, emoji: good.emoji, pts: good.pts, speed: config.speed });
+      }
+    }
+
+    obstacleSpawnAccum += dt;
+    if(obstacleSpawnAccum >= nextObstacleSpawnIn){
+      const lane = Math.floor(Math.random()*lanesCount);
+      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
+      if(!blocked){
+        obstacleSpawnAccum = 0;
+        nextObstacleSpawnIn = randomObstacleGap();
+        const bad = BAD_ITEMS[Math.floor(Math.random()*BAD_ITEMS.length)];
+        obstacles.push({ x: lanePositions[lane], y: -30, lane, emoji: bad.emoji, speed: config.speed });
+      }
+    }
+  }
+
+  function step(timestamp){
+    if(!running || !isGameVisible) return;
+    if(lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    const timeScale = dt / 16.67; // normaliza el movimiento a ~60fps sin importar la tasa real de refresco
+
+    spawnEntities(dt);
+
+    player.targetX = lanePositions[player.lane];
+    player.x += (player.targetX - player.x) * Math.min(1, 0.28 * timeScale);
+
+    items.forEach((it, idx) => {
+      it.y += it.speed * timeScale;
+      if(Math.abs(it.x - player.x) < 34 && Math.abs(it.y - player.y) < 42 && it.lane === player.lane){
+        const multiplier = Math.max(1, 1 + Math.floor(combo/5));
+        score += it.pts * multiplier;
+        combo++;
+        items.splice(idx,1);
+        updateHud();
+        return;
+      }
+      if(it.y > canvas.height + 40) items.splice(idx,1);
+    });
+
+    obstacles.forEach((obs, idx) => {
+      obs.y += obs.speed * timeScale;
+      if(Math.abs(obs.x - player.x) < 30 && Math.abs(obs.y - player.y) < 40 && obs.lane === player.lane){
+        lives -= 1;
+        combo = 0;
+        flashDamage();
+        obstacles.splice(idx,1);
+        updateHud();
+        return;
+      }
+      if(obs.y > canvas.height + 40) obstacles.splice(idx,1);
+    });
+
+    clockAccum += dt;
+    while(clockAccum >= 1000 && timeLeft > 0){
+      clockAccum -= 1000;
+      timeLeft -= 1;
+    }
+    updateHud();
+
+    if(lives <= 0 || timeLeft <= 0){
+      running = false;
+      endGame();
+      return;
+    }
+
+    // Render
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    drawYard();
+    obstacles.forEach(drawEmojiEntity);
+    items.forEach(drawEmojiEntity);
+    drawPlayer();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function drawYard(){
+    ctx.fillStyle = '#e8d9a8';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(120,90,40,0.35)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([16,20]);
+    for(let i=1;i<lanesCount;i++){
+      ctx.beginPath();
+      ctx.moveTo(i*laneWidth, 0);
+      ctx.lineTo(i*laneWidth, canvas.height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  function drawEmojiEntity(entity){
+    ctx.save();
+    ctx.font = '32px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(entity.emoji, entity.x, entity.y);
+    ctx.restore();
+  }
+
+  function drawPlayer(){
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath();
+    ctx.ellipse(0, 22, 22, 8, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font = '40px sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('🧒', 0, 0);
+    ctx.restore();
+  }
+
+  function endGame(){
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    let text = score >= 150 ? jt('jue.card5.end.high', '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!') :
+               score >= 80 ? jt('jue.card5.end.mid', '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.') :
+               jt('jue.card5.end.low', '👍 Buen intento, ¡seguí practicando para el próximo recreo!');
+
+    showOverlay(`
+      <span class="overlay-tag">${difficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil')}</span>
+      <h3>${jt('jue.card5.end.title', '¡Sonó la campana!')}</h3>
+      <div class="overlay-score">${score} pts</div>
+      <p>${text}</p>
+      <button class="btn-primary" id="el-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
+    document.getElementById('el-restart').onclick = showDifficultySelector;
+  }
+
+  function start(){
+    resizeCanvas();
+    items = [];
+    obstacles = [];
+    player.lane = 1;
+    player.x = lanePositions[1];
+    player.targetX = lanePositions[1];
+    score = 0;
+    combo = 0;
+    lives = totalLives;
+    timeLeft = gameConfig[difficulty].timeLimit;
+    clockAccum = 0;
+    lastTime = null;
+    itemSpawnAccum = 0;
+    nextItemSpawnIn = randomItemGap();
+    obstacleSpawnAccum = 0;
+    nextObstacleSpawnIn = randomObstacleGap();
+    running = true;
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    updateHud();
+    hideOverlay();
+    cancelAnimationFrame(rafId);
+    playMusic();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showDifficultySelector(){
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
+      <h3>🌽 ${jt('jue.card5.diff.title', 'Selecciona Nivel')}</h3>
+      <p>${jt('jue.card5.diff.sub', '¿Qué tan movido va a estar el recreo hoy?')}</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-elotes">
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card5.diff.easyDesc', 'Recreo tranquilo')}</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-elotes">
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card5.diff.hardDesc', 'Recreo a toda velocidad')}</div>
+        </button>
+      </div>`);
+    document.getElementById('btn-easy-elotes').onclick = () => {
+      difficulty='easy'; totalLives = gameConfig.easy.initialLives;
+      setTimeout(()=>{ start(); }, 100);
+    };
+    document.getElementById('btn-hard-elotes').onclick = () => {
+      difficulty='hard'; totalLives = gameConfig.hard.initialLives;
+      setTimeout(()=>{ start(); }, 100);
+    };
+  }
+
+  showOverlay(`
+    <span class="overlay-tag">${jt('jue.card5.tagModal', 'Ruta 05')}</span>
+    <h3>🌽 ${jt('jue.card5.title', 'Elotes y Olé')}</h3>
+    <p>${jt('jue.card5.intro', 'Movete entre los 3 carriles del patio con las teclas <strong>A</strong>/<strong>D</strong>, las flechas ⬅️➡️, o tocando a los lados de la pantalla en el celular. Recogé lo rico del recreo y esquivá lo que te estorba.')}</p>
+    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
+    <ul class="rules-list">
+      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleGood', 'Recogé <strong>🌽 elotes locos</strong>, <strong>🥭 mangos</strong>, <strong>🍧 minutas</strong> y <strong>🍬 dulces</strong> — suman puntos y combo.')}</li>
+      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card5.ruleBad', 'Evitá <strong>🪑 pupitres</strong>, <strong>⚽ pelotas perdidas</strong> y <strong>🧹 la escoba del conserje</strong> — te quitan una vida y el combo.')}</li>
+    </ul>
+    <button class="btn-primary" id="el-start">${jt('jue.continue', 'Continuar')}</button>`);
+  document.getElementById('el-start').onclick = showDifficultySelector;
+
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'elotes') {
+      isGameVisible = true;
+      resizeCanvas();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('elotes', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: () => bgMusic?.pause(),
+    running: () => running,
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: showDifficultySelector
+  });
+})();
+
 /* ============================================================
   Salvadorean Roots — ANIMACIONES GSAP
    ============================================================ */

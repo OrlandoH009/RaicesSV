@@ -27,32 +27,32 @@
     </div>
     <div class="welcome-overlay__content">
       <span class="welcome-overlay__emoji" id="welcomeEmoji">🎉</span>
-      <p class="welcome-overlay__eyebrow">Salvadorean Roots — Eventos Culturales</p>
-      <h2 class="welcome-overlay__title">Fiesta y Tradición</h2>
-      <p class="welcome-overlay__sub">Un calendario vivo de celebraciones que laten en el corazón salvadoreño durante todo el año</p>
+      <p class="welcome-overlay__eyebrow" data-i18n="evp.welcome.eyebrow">Salvadorean Roots — Eventos Culturales</p>
+      <h2 class="welcome-overlay__title" data-i18n="evp.welcome.title">Fiesta y Tradición</h2>
+      <p class="welcome-overlay__sub" data-i18n="evp.welcome.sub">Un calendario vivo de celebraciones que laten en el corazón salvadoreño durante todo el año</p>
 
       <div class="welcome-overlay__stats">
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="15">0</span>
-          <span class="welcome-stat__label">Celebraciones</span>
+          <span class="welcome-stat__label" data-i18n="evp.welcome.stat1">Celebraciones</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="12">0</span>
-          <span class="welcome-stat__label">Meses del año</span>
+          <span class="welcome-stat__label" data-i18n="evp.welcome.stat2">Meses del año</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="262">0</span>
-          <span class="welcome-stat__label">Municipios que celebran</span>
+          <span class="welcome-stat__label" data-i18n="evp.welcome.stat3">Municipios que celebran</span>
         </div>
       </div>
 
       <p class="welcome-overlay__fact">
-        <span class="welcome-fact__label">¿Sabías qué?</span>
-        <span class="welcome-fact__text" id="welcomeFactText">Las Fiestas Agostinas reúnen a miles de personas cada agosto en honor al Divino Salvador del Mundo.</span>
+        <span class="welcome-fact__label" data-i18n="evp.welcome.factLabel">¿Sabías qué?</span>
+        <span class="welcome-fact__text" id="welcomeFactText" data-i18n="evp.fact.0">Las Fiestas Agostinas reúnen a miles de personas cada agosto en honor al Divino Salvador del Mundo.</span>
       </p>
 
-      <button class="welcome-overlay__cta" id="welcomeCta">Ver celebraciones →</button>
-      <p class="welcome-overlay__hint">o presiona <kbd>Esc</kbd> para saltar</p>
+      <button class="welcome-overlay__cta" id="welcomeCta" data-i18n="evp.welcome.cta">Ver celebraciones →</button>
+      <p class="welcome-overlay__hint" data-i18n="evp.welcome.hint">o presiona Esc para saltar</p>
     </div>
   </div>
 
@@ -63,13 +63,7 @@
 
       document.body.classList.add('welcome-lock');
 
-        const facts = [
-          'Las Fiestas Agostinas reúnen a miles de personas cada agosto en honor al Divino Salvador del Mundo.',
-          'Durante Semana Santa se elaboran alfombras de aserrín que pueden tardar días en completarse.',
-          'La Calabiuza de Tonacatepeque recrea leyendas salvadoreñas con máscaras y desfiles nocturnos.',
-          'El Día de los Farolitos ilumina las calles de Ciudad Barrios con miles de faroles hechos a mano.',
-          'El Festival del Añil en Suchitoto celebra el tinte que dio fama internacional a El Salvador.'
-        ];
+        const factKeys = ['evp.fact.0', 'evp.fact.1', 'evp.fact.2', 'evp.fact.3', 'evp.fact.4'];
         const factEl = document.getElementById('welcomeFactText');
         let factIndex = 0;
 
@@ -78,8 +72,9 @@
           gsap.to(factEl, {
             opacity: 0, y: -6, duration: .3, ease: 'power1.in',
             onComplete: () => {
-              factIndex = (factIndex + 1) % facts.length;
-              factEl.innerHTML = facts[factIndex];
+              factIndex = (factIndex + 1) % factKeys.length;
+              const lang = (window.SRi18n && window.SRi18n.getLang) ? window.SRi18n.getLang() : 'es';
+              factEl.innerHTML = window.SRi18n ? window.SRi18n.t(factKeys[factIndex], lang) : factKeys[factIndex];
               gsap.fromTo(factEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' });
             }
           });
@@ -103,15 +98,38 @@
         if (typeof gsap !== 'undefined') {
           gsap.set(orbitItems, { opacity: 0 });
           const tl = gsap.timeline();
-          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)' })
-            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4 }, '-=.3')
-            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out' }, '-=.3')
-            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out' }, '-=.25')
-            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4 }, '-=.4')
-            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__hint', { opacity: 0, duration: .4 }, '-=.2')
+          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)', clearProps: 'transform' })
+            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4, clearProps: 'opacity,transform' }, '-=.3')
+            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.3')
+            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out', clearProps: 'opacity,transform' }, '-=.25')
+            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4, clearProps: 'opacity,transform' }, '-=.4')
+            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__hint', { opacity: 0, duration: .4, clearProps: 'opacity,transform' }, '-=.2')
             .to(orbitItems, { opacity: .55, duration: .6, stagger: .06 }, '-=.6');
+
+          // Failsafe: si el timeline no llega a completar (pestaña en
+          // segundo plano, GSAP tardío, etc.) el título y demás textos
+          // del overlay no deben quedar invisibles para siempre.
+          setTimeout(() => {
+            [
+              '.welcome-overlay__eyebrow', '.welcome-overlay__title', '.welcome-overlay__sub',
+              '.welcome-overlay__fact', '.welcome-overlay__hint'
+            ].forEach(sel => {
+              overlay.querySelectorAll(sel).forEach(el => {
+                const opacity = window.getComputedStyle(el).opacity;
+                if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+              });
+            });
+            stats.forEach(el => {
+              const opacity = window.getComputedStyle(el).opacity;
+              if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+            });
+            if (cta) {
+              const opacity = window.getComputedStyle(cta).opacity;
+              if (parseFloat(opacity) < 0.05) { cta.style.opacity = ''; cta.style.transform = ''; }
+            }
+          }, 1500);
 
           stats.forEach((el, i) => {
             const target = +el.dataset.countTo;
@@ -173,33 +191,33 @@
 
   <main>
     <section class="page-badge">
-      <div class="page-badge__inner"><h1>Eventos Culturales</h1></div>
+      <div class="page-badge__inner"><h1 data-i18n="cards.eventos">Eventos Culturales</h1></div>
     </section>
 
     <div class="info-tabs">
-      <p class="info-tabs__label">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
+      <p class="info-tabs__label" data-i18n="evp.tabsLabel">¿Qué evento quieres conocer? (15 celebraciones de El Salvador, 2026)</p>
       <div class="info-tabs__carousel">
-        <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
+        <button class="info-tabs__arrow" id="tabsPrev" data-i18n-attr="aria-label:evp.tabsPrev" aria-label="Anterior">
           <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
         </button>
         <div class="info-tabs__list" id="tabsList">
-          <button class="tab-btn active" data-tab="agostinas">Fiestas Agostinas</button>
-          <button class="tab-btn" data-tab="semana-santa">Semana Santa</button>
-          <button class="tab-btn" data-tab="independencia">Independencia</button>
-          <button class="tab-btn" data-tab="dia-muertos">Día de los Difuntos</button>
-          <button class="tab-btn" data-tab="navidad">Navidad</button>
-          <button class="tab-btn" data-tab="fiestas-julias">Fiestas Julias</button>
-          <button class="tab-btn" data-tab="carnaval-sm">Carnaval de San Miguel</button>
-          <button class="tab-btn" data-tab="festival-maiz-suchitoto">Festival de el Maíz de Suchitoto</button>
-          <button class="tab-btn" data-tab="calabiuza">Día de la Calabiuza</button>
-          <button class="tab-btn" data-tab="farolitos">Día de los Farolitos</button>
-          <button class="tab-btn" data-tab="festival-anil">Festival del Añil</button>
-          <button class="tab-btn" data-tab="festival-barro">Festival del Barro</button>
-          <button class="tab-btn" data-tab="flores-palmas">Flores y Palmas</button>
-          <button class="tab-btn" data-tab="chicharron">Festival del Chicharrón</button>
-          <button class="tab-btn" data-tab="jocote">Festival del Jocote</button>
+          <button class="tab-btn active" data-tab="agostinas" data-i18n="ev.agostinas.title">Fiestas Agostinas</button>
+          <button class="tab-btn" data-tab="semana-santa" data-i18n="ev.semanaSanta.title">Semana Santa</button>
+          <button class="tab-btn" data-tab="independencia" data-i18n="ev.independencia.tabTitle">Independencia</button>
+          <button class="tab-btn" data-tab="dia-muertos" data-i18n="ev.diaMuertos.title">Día de los Difuntos</button>
+          <button class="tab-btn" data-tab="navidad" data-i18n="ev.navidad.title">Navidad</button>
+          <button class="tab-btn" data-tab="fiestas-julias" data-i18n="ev.fiestasJulias.title">Fiestas Julias</button>
+          <button class="tab-btn" data-tab="carnaval-sm" data-i18n="ev.carnavalSm.title">Carnaval de San Miguel</button>
+          <button class="tab-btn" data-tab="festival-maiz-suchitoto" data-i18n="ev.maizSuchitoto.title">Festival de el Maíz de Suchitoto</button>
+          <button class="tab-btn" data-tab="calabiuza" data-i18n="ev.calabiuza.title">Día de la Calabiuza</button>
+          <button class="tab-btn" data-tab="farolitos" data-i18n="ev.farolitos.title">Día de los Farolitos</button>
+          <button class="tab-btn" data-tab="festival-anil" data-i18n="ev.festivalAnil.title">Festival del Añil</button>
+          <button class="tab-btn" data-tab="festival-barro" data-i18n="ev.festivalBarro.title">Festival del Barro</button>
+          <button class="tab-btn" data-tab="flores-palmas" data-i18n="ev.floresPalmas.title">Flores y Palmas</button>
+          <button class="tab-btn" data-tab="chicharron" data-i18n="ev.chicharron.title">Festival del Chicharrón</button>
+          <button class="tab-btn" data-tab="jocote" data-i18n="ev.jocote.title">Festival del Jocote</button>
         </div>
-        <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente">
+        <button class="info-tabs__arrow" id="tabsNext" data-i18n-attr="aria-label:evp.tabsNext" aria-label="Siguiente">
           <svg viewBox="0 0 24 24"><path d="m8.6 16.6 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
         </button>
       </div>
@@ -208,33 +226,33 @@
     <div class="info-panel active" id="tab-agostinas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/Eventos Culturales.png" alt="Fiestas Agostinas" />
+          <img src="../assets/media/Eventos Culturales.png" data-i18n-attr="alt:ev.agostinas.title" alt="Fiestas Agostinas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Fiestas Agostinas</h2>
-          <p class="info-content__hero-sub">1–6 de Agosto de 2026 — Las fiestas más grandes del país</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.agostinas.title">Fiestas Agostinas</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.agostinas.sub">1–6 de Agosto de 2026 — Las fiestas más grandes del país</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">1–6 agosto 2026</span>
-            <span class="info-chip">San Salvador y todo el país</span>
-            <span class="info-chip">Procesiones, feria y cultura</span>
+            <span class="info-chip" data-i18n="ev.agostinas.chip1">1–6 agosto 2026</span>
+            <span class="info-chip" data-i18n="ev.agostinas.chip2">San Salvador y todo el país</span>
+            <span class="info-chip" data-i18n="ev.agostinas.chip3">Procesiones, feria y cultura</span>
           </div>
-          <p>Las Fiestas Agostinas son las celebraciones patronales de San Salvador y una de las festividades más importantes de El Salvador. Se realizan cada año del 1 al 6 de agosto en honor al Divino Salvador del Mundo, patrono de la capital y de la República, reuniendo a miles de salvadoreños y visitantes nacionales e internacionales.</p>
-          <p>El acto central de las fiestas es la tradicional Transfiguración del Divino Salvador del Mundo, celebrada el 5 de agosto frente a la Catedral Metropolitana. Esta ceremonia religiosa representa la transformación de Jesucristo en el Monte Tabor y constituye uno de los momentos más solemnes y esperados de toda la festividad, acompañado por procesiones, misas y actividades de fe.</p>
-          <p>Además de las celebraciones religiosas, las Fiestas Agostinas ofrecen conciertos, espectáculos culturales, desfiles, presentaciones artísticas, juegos mecánicos y una amplia feria popular. En el Parque de Diversiones SívarLand y sus alrededores los visitantes disfrutan de atracciones, artesanías y una gran variedad de gastronomía típica salvadoreña, como pupusas, elotes locos, riguas, yuca frita, tamales y dulces tradicionales.</p>
-          <p>Durante esta semana también se desarrollan eventos deportivos, actividades recreativas y expresiones culturales que fortalecen la identidad nacional. Las Fiestas Agostinas representan una combinación de fe, tradición, cultura y convivencia familiar, consolidándose como una de las celebraciones más emblemáticas y representativas de El Salvador.</p>
+          <p data-i18n="ev.agostinas.p1">Las Fiestas Agostinas son las celebraciones patronales de San Salvador y una de las festividades más importantes de El Salvador. Se realizan cada año del 1 al 6 de agosto en honor al Divino Salvador del Mundo, patrono de la capital y de la República, reuniendo a miles de salvadoreños y visitantes nacionales e internacionales.</p>
+          <p data-i18n="ev.agostinas.p2">El acto central de las fiestas es la tradicional Transfiguración del Divino Salvador del Mundo, celebrada el 5 de agosto frente a la Catedral Metropolitana. Esta ceremonia religiosa representa la transformación de Jesucristo en el Monte Tabor y constituye uno de los momentos más solemnes y esperados de toda la festividad, acompañado por procesiones, misas y actividades de fe.</p>
+          <p data-i18n="ev.agostinas.p3">Además de las celebraciones religiosas, las Fiestas Agostinas ofrecen conciertos, espectáculos culturales, desfiles, presentaciones artísticas, juegos mecánicos y una amplia feria popular. En el Parque de Diversiones SívarLand y sus alrededores los visitantes disfrutan de atracciones, artesanías y una gran variedad de gastronomía típica salvadoreña, como pupusas, elotes locos, riguas, yuca frita, tamales y dulces tradicionales.</p>
+          <p data-i18n="ev.agostinas.p4">Durante esta semana también se desarrollan eventos deportivos, actividades recreativas y expresiones culturales que fortalecen la identidad nacional. Las Fiestas Agostinas representan una combinación de fe, tradición, cultura y convivencia familiar, consolidándose como una de las celebraciones más emblemáticas y representativas de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=21&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=agostinas" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=1" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -244,33 +262,33 @@
     <div class="info-panel" id="tab-semana-santa">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/semana-santa.jpg" alt="Semana Santa" />
+          <img src="../assets/media/eventos/semana-santa.jpg" data-i18n-attr="alt:ev.semanaSanta.title" alt="Semana Santa" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Semana Santa</h2>
-          <p class="info-content__hero-sub">29 de Marzo – 5 de Abril de 2026 — Fe y tradición en cada calle</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.semanaSanta.title">Semana Santa</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.semanaSanta.sub">29 de Marzo – 5 de Abril de 2026 — Fe y tradición en cada calle</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">29 marzo–5 abril 2026</span>
-            <span class="info-chip">Procesiones</span>
-            <span class="info-chip">Alfombras de aserrín</span>
+            <span class="info-chip" data-i18n="ev.semanaSanta.chip1">29 marzo–5 abril 2026</span>
+            <span class="info-chip" data-i18n="ev.semanaSanta.chip2">Procesiones</span>
+            <span class="info-chip" data-i18n="ev.semanaSanta.chip3">Alfombras de aserrín</span>
           </div>
-          <p>La Semana Santa es una de las celebraciones religiosas y culturales más importantes de El Salvador. Durante estos días, miles de fieles participan en procesiones, misas y representaciones de la Pasión, Muerte y Resurrección de Jesucristo, manteniendo vivas tradiciones que se han transmitido de generación en generación.</p>
-          <p>Una de las manifestaciones más representativas es la elaboración de alfombras artesanales hechas con aserrín teñido, flores, sal, frutas y otros materiales naturales. Estas coloridas obras de arte adornan las calles por donde pasan las procesiones y son especialmente reconocidas en municipios como Nahuizalco, Sonsonate, Izalco, Panchimalco y otros lugares del país.</p>
-          <p>Las procesiones del Domingo de Ramos, Jueves Santo, Viernes Santo y Domingo de Resurrección reúnen a miles de personas que acompañan las imágenes religiosas entre cantos, incienso y música sacra. Paralelamente, muchas familias aprovechan el período vacacional para visitar playas, montañas y pueblos turísticos, convirtiendo la Semana Santa en una época de fe, descanso y convivencia familiar.</p>
-          <p>Durante esta temporada también es tradición disfrutar de la gastronomía típica de Cuaresma, con platillos como pescado, torrejas, riguas, jocotes en miel, mangos en miel y otros dulces artesanales. La Semana Santa representa una oportunidad para fortalecer la fe, preservar las costumbres religiosas y valorar el patrimonio cultural que distingue a El Salvador.</p>
+          <p data-i18n="ev.semanaSanta.p1">La Semana Santa es una de las celebraciones religiosas y culturales más importantes de El Salvador. Durante estos días, miles de fieles participan en procesiones, misas y representaciones de la Pasión, Muerte y Resurrección de Jesucristo, manteniendo vivas tradiciones que se han transmitido de generación en generación.</p>
+          <p data-i18n="ev.semanaSanta.p2">Una de las manifestaciones más representativas es la elaboración de alfombras artesanales hechas con aserrín teñido, flores, sal, frutas y otros materiales naturales. Estas coloridas obras de arte adornan las calles por donde pasan las procesiones y son especialmente reconocidas en municipios como Nahuizalco, Sonsonate, Izalco, Panchimalco y otros lugares del país.</p>
+          <p data-i18n="ev.semanaSanta.p3">Las procesiones del Domingo de Ramos, Jueves Santo, Viernes Santo y Domingo de Resurrección reúnen a miles de personas que acompañan las imágenes religiosas entre cantos, incienso y música sacra. Paralelamente, muchas familias aprovechan el período vacacional para visitar playas, montañas y pueblos turísticos, convirtiendo la Semana Santa en una época de fe, descanso y convivencia familiar.</p>
+          <p data-i18n="ev.semanaSanta.p4">Durante esta temporada también es tradición disfrutar de la gastronomía típica de Cuaresma, con platillos como pescado, torrejas, riguas, jocotes en miel, mangos en miel y otros dulces artesanales. La Semana Santa representa una oportunidad para fortalecer la fe, preservar las costumbres religiosas y valorar el patrimonio cultural que distingue a El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=57&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=semanasanta" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=31" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -280,33 +298,33 @@
     <div class="info-panel" id="tab-independencia">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/independencia.webp" alt="Día de la Independencia" />
+          <img src="../assets/media/eventos/independencia.webp" data-i18n-attr="alt:ev.independencia.title" alt="Día de la Independencia" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Día de la Independencia</h2>
-          <p class="info-content__hero-sub">15 de Septiembre de 2026 — Orgullo nacional</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.independencia.title">Día de la Independencia</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.independencia.sub">15 de Septiembre de 2026 — Orgullo nacional</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">15 de septiembre 2026</span>
-            <span class="info-chip">Desfiles escolares</span>
-            <span class="info-chip">Antorcha de la Libertad</span>
+            <span class="info-chip" data-i18n="ev.independencia.chip1">15 de septiembre 2026</span>
+            <span class="info-chip" data-i18n="ev.independencia.chip2">Desfiles escolares</span>
+            <span class="info-chip" data-i18n="ev.independencia.chip3">Antorcha de la Libertad</span>
           </div>
-          <p>El 15 de septiembre es una de las fechas cívicas más importantes de El Salvador, ya que conmemora la Independencia de Centroamérica, proclamada en 1821. En todo el país se realizan actos patrióticos que fortalecen el sentido de identidad nacional y recuerdan la historia compartida de las naciones centroamericanas.</p>
-          <p>Una de las tradiciones más representativas es el recorrido de la Antorcha Centroamericana de la Libertad, símbolo de la independencia y la unión regional. La llama recorre los países centroamericanos en relevos organizados por estudiantes, deportistas e instituciones, llegando a El Salvador como parte de las celebraciones patrias.</p>
-          <p>Las calles de ciudades y municipios se llenan de color con desfiles estudiantiles, bandas de paz, cachiporristas, palillonas, batallones cívicos y presentaciones artísticas. Miles de personas se reúnen para disfrutar de los actos cívicos mientras los edificios públicos, escuelas y hogares se decoran con la bandera nacional y otros símbolos patrios.</p>
-          <p>Durante esta fecha también se realizan ceremonias oficiales, izadas de bandera, interpretaciones del Himno Nacional y actividades culturales que resaltan la historia, los valores cívicos y el orgullo de ser salvadoreño. Esta celebración fortalece el respeto por la patria y transmite a las nuevas generaciones la importancia de preservar la identidad nacional.</p>
+          <p data-i18n="ev.independencia.p1">El 15 de septiembre es una de las fechas cívicas más importantes de El Salvador, ya que conmemora la Independencia de Centroamérica, proclamada en 1821. En todo el país se realizan actos patrióticos que fortalecen el sentido de identidad nacional y recuerdan la historia compartida de las naciones centroamericanas.</p>
+          <p data-i18n="ev.independencia.p2">Una de las tradiciones más representativas es el recorrido de la Antorcha Centroamericana de la Libertad, símbolo de la independencia y la unión regional. La llama recorre los países centroamericanos en relevos organizados por estudiantes, deportistas e instituciones, llegando a El Salvador como parte de las celebraciones patrias.</p>
+          <p data-i18n="ev.independencia.p3">Las calles de ciudades y municipios se llenan de color con desfiles estudiantiles, bandas de paz, cachiporristas, palillonas, batallones cívicos y presentaciones artísticas. Miles de personas se reúnen para disfrutar de los actos cívicos mientras los edificios públicos, escuelas y hogares se decoran con la bandera nacional y otros símbolos patrios.</p>
+          <p data-i18n="ev.independencia.p4">Durante esta fecha también se realizan ceremonias oficiales, izadas de bandera, interpretaciones del Himno Nacional y actividades culturales que resaltan la historia, los valores cívicos y el orgullo de ser salvadoreño. Esta celebración fortalece el respeto por la patria y transmite a las nuevas generaciones la importancia de preservar la identidad nacional.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=58&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=independencia" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=32" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -316,33 +334,33 @@
     <div class="info-panel" id="tab-dia-muertos">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/difuntos.webp" alt="Día de los Difuntos" />
+          <img src="../assets/media/eventos/difuntos.webp" data-i18n-attr="alt:ev.diaMuertos.title" alt="Día de los Difuntos" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Día de los Difuntos</h2>
-          <p class="info-content__hero-sub">1 y 2 de Noviembre de 2026 — Recordando a los que se fueron</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.diaMuertos.title">Día de los Difuntos</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.diaMuertos.sub">1 y 2 de Noviembre de 2026 — Recordando a los que se fueron</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">1–2 noviembre 2026</span>
-            <span class="info-chip">Cementerios</span>
-            <span class="info-chip">Ofrendas florales</span>
+            <span class="info-chip" data-i18n="ev.diaMuertos.chip1">1–2 noviembre 2026</span>
+            <span class="info-chip" data-i18n="ev.diaMuertos.chip2">Cementerios</span>
+            <span class="info-chip" data-i18n="ev.diaMuertos.chip3">Ofrendas florales</span>
           </div>
-          <p>El Día de Todos los Santos, celebrado el 1 de noviembre, y el Día de los Difuntos, el 2 de noviembre, son fechas de gran significado para las familias salvadoreñas. Durante estos días es tradición visitar los cementerios para recordar a los seres queridos, limpiar y decorar sus tumbas con flores naturales, coronas, velas y arreglos especiales.</p>
-          <p>En numerosos municipios del país también se celebran misas, oraciones y actos religiosos en honor a los fallecidos. Los cementerios se llenan de familias que comparten momentos de recuerdo y reflexión, creando un ambiente de respeto, unión y esperanza donde la memoria de los seres queridos permanece viva.</p>
-          <p>Muchas familias aprovechan la ocasión para reunirse y compartir alimentos tradicionales después de la visita al cementerio. Además, en algunos lugares se organizan actividades culturales, presentaciones musicales y expresiones artísticas relacionadas con las tradiciones populares, fortaleciendo el sentido de comunidad y el respeto por las costumbres salvadoreñas.</p>
-          <p>Esta conmemoración representa uno de los momentos más importantes del calendario religioso y cultural de El Salvador, ya que promueve la conservación de las tradiciones familiares, el homenaje a quienes ya partieron y la transmisión de estos valores a las nuevas generaciones.</p>
+          <p data-i18n="ev.diaMuertos.p1">El Día de Todos los Santos, celebrado el 1 de noviembre, y el Día de los Difuntos, el 2 de noviembre, son fechas de gran significado para las familias salvadoreñas. Durante estos días es tradición visitar los cementerios para recordar a los seres queridos, limpiar y decorar sus tumbas con flores naturales, coronas, velas y arreglos especiales.</p>
+          <p data-i18n="ev.diaMuertos.p2">En numerosos municipios del país también se celebran misas, oraciones y actos religiosos en honor a los fallecidos. Los cementerios se llenan de familias que comparten momentos de recuerdo y reflexión, creando un ambiente de respeto, unión y esperanza donde la memoria de los seres queridos permanece viva.</p>
+          <p data-i18n="ev.diaMuertos.p3">Muchas familias aprovechan la ocasión para reunirse y compartir alimentos tradicionales después de la visita al cementerio. Además, en algunos lugares se organizan actividades culturales, presentaciones musicales y expresiones artísticas relacionadas con las tradiciones populares, fortaleciendo el sentido de comunidad y el respeto por las costumbres salvadoreñas.</p>
+          <p data-i18n="ev.diaMuertos.p4">Esta conmemoración representa uno de los momentos más importantes del calendario religioso y cultural de El Salvador, ya que promueve la conservación de las tradiciones familiares, el homenaje a quienes ya partieron y la transmisión de estos valores a las nuevas generaciones.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=59&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=difuntos" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=33" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -352,33 +370,33 @@
     <div class="info-panel" id="tab-navidad">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/navidad.jpg" alt="Navidad y Posadas" />
+          <img src="../assets/media/eventos/navidad.jpg" data-i18n-attr="alt:ev.navidad.title" alt="Navidad y Posadas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Navidad y Posadas</h2>
-          <p class="info-content__hero-sub">Diciembre de 2026 — La época más mágica del año</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.navidad.title">Navidad y Posadas</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.navidad.sub">Diciembre de 2026 — La época más mágica del año</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">16–24 diciembre 2026</span>
-            <span class="info-chip">Posadas y nacimientos</span>
-            <span class="info-chip">Tamales navideños</span>
+            <span class="info-chip" data-i18n="ev.navidad.chip1">16–24 diciembre 2026</span>
+            <span class="info-chip" data-i18n="ev.navidad.chip2">Posadas y nacimientos</span>
+            <span class="info-chip" data-i18n="ev.navidad.chip3">Tamales navideños</span>
           </div>
-          <p>La Navidad en El Salvador es una de las celebraciones familiares y religiosas más importantes del año. Desde los primeros días de diciembre, hogares, iglesias y comunidades se adornan con luces, árboles, nacimientos y otros elementos que crean un ambiente lleno de alegría, unión y esperanza.</p>
-          <p>Entre el 16 y el 24 de diciembre se celebran las tradicionales posadas, que representan el recorrido de José y María en busca de un lugar donde hospedarse antes del nacimiento de Jesús. Durante estas reuniones se rezan novenas, se cantan villancicos, se realizan procesiones con imágenes religiosas y se comparten alimentos típicos entre vecinos y familiares.</p>
-          <p>La Nochebuena, el 24 de diciembre, es el momento más esperado de la celebración. Las familias se reúnen para compartir una cena especial en la que destacan los tamales de gallina, pavo, panes con pollo, ponche de frutas, chocolate caliente y una gran variedad de dulces tradicionales. A la medianoche es común el encendido de fuegos artificiales y los abrazos para celebrar el nacimiento del Niño Jesús.</p>
-          <p>Durante toda la temporada también se organizan conciertos navideños, festivales, ferias, actividades comunitarias y representaciones del nacimiento de Jesús. Estas tradiciones fortalecen la convivencia familiar, la fe y la identidad cultural salvadoreña, convirtiendo la Navidad en una de las épocas más esperadas y significativas del país.</p>
+          <p data-i18n="ev.navidad.p1">La Navidad en El Salvador es una de las celebraciones familiares y religiosas más importantes del año. Desde los primeros días de diciembre, hogares, iglesias y comunidades se adornan con luces, árboles, nacimientos y otros elementos que crean un ambiente lleno de alegría, unión y esperanza.</p>
+          <p data-i18n="ev.navidad.p2">Entre el 16 y el 24 de diciembre se celebran las tradicionales posadas, que representan el recorrido de José y María en busca de un lugar donde hospedarse antes del nacimiento de Jesús. Durante estas reuniones se rezan novenas, se cantan villancicos, se realizan procesiones con imágenes religiosas y se comparten alimentos típicos entre vecinos y familiares.</p>
+          <p data-i18n="ev.navidad.p3">La Nochebuena, el 24 de diciembre, es el momento más esperado de la celebración. Las familias se reúnen para compartir una cena especial en la que destacan los tamales de gallina, pavo, panes con pollo, ponche de frutas, chocolate caliente y una gran variedad de dulces tradicionales. A la medianoche es común el encendido de fuegos artificiales y los abrazos para celebrar el nacimiento del Niño Jesús.</p>
+          <p data-i18n="ev.navidad.p4">Durante toda la temporada también se organizan conciertos navideños, festivales, ferias, actividades comunitarias y representaciones del nacimiento de Jesús. Estas tradiciones fortalecen la convivencia familiar, la fe y la identidad cultural salvadoreña, convirtiendo la Navidad en una de las épocas más esperadas y significativas del país.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=60&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=navidad" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=34" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -388,33 +406,33 @@
     <div class="info-panel" id="tab-fiestas-julias">
         <div class="info-content reveal">
           <div class="info-content__hero">
-            <img src="../assets/media/eventos/julias.jpg" alt="Fiestas Julias de Santa Ana" />
+            <img src="../assets/media/eventos/julias.jpg" data-i18n-attr="alt:ev.fiestasJulias.title" alt="Fiestas Julias de Santa Ana" />
             <div class="info-content__hero-grad"></div>
-            <h2 class="info-content__hero-title">Fiestas Julias de Santa Ana</h2>
-            <p class="info-content__hero-sub">26 de Julio de 2026 — La Ciudad Heroica en fiesta</p>
+            <h2 class="info-content__hero-title" data-i18n="ev.fiestasJulias.title">Fiestas Julias de Santa Ana</h2>
+            <p class="info-content__hero-sub" data-i18n="ev.fiestasJulias.sub">26 de Julio de 2026 — La Ciudad Heroica en fiesta</p>
           </div>
           <div class="info-content__body">
             <div class="info-chips">
-              <span class="info-chip">26 de julio 2026</span>
-              <span class="info-chip">Santa Ana</span>
-              <span class="info-chip">Fiesta patronal</span>
+              <span class="info-chip" data-i18n="ev.fiestasJulias.chip1">26 de julio 2026</span>
+              <span class="info-chip" data-i18n="ev.fiestasJulias.chip2">Santa Ana</span>
+              <span class="info-chip" data-i18n="ev.fiestasJulias.chip3">Fiesta patronal</span>
             </div>
-            <p>Las Fiestas Julias son las celebraciones patronales de la ciudad de Santa Ana y se realizan en honor a Nuestra Señora Santa Ana, patrona del municipio. Durante varios días, la Ciudad Heroica se llena de actividades religiosas, culturales y recreativas que reúnen a miles de visitantes provenientes de todo el país.</p>
-            <p>Entre las actividades más destacadas se encuentran las solemnes procesiones, misas, desfiles del correo, carrozas alegóricas, elección y coronación de la reina de las fiestas, conciertos, juegos mecánicos y presentaciones artísticas. Además, el campo de la feria ofrece espacios para el entretenimiento familiar, mientras que los parques y plazas albergan exposiciones artesanales y una variada muestra de gastronomía típica salvadoreña.</p>
-            <p>Las Fiestas Julias también permiten apreciar el importante patrimonio arquitectónico de Santa Ana, como su imponente Catedral de estilo neogótico, el Teatro Nacional de Santa Ana y el Palacio Municipal, edificios que se convierten en el escenario de diversas actividades culturales durante la celebración.</p>
-            <p>Consideradas una de las fiestas patronales más importantes de El Salvador, las Fiestas Julias fortalecen la identidad cultural de los santanecos, impulsan el turismo y contribuyen al desarrollo económico de la ciudad mediante el comercio, la gastronomía y las expresiones artísticas tradicionales.</p>
+            <p data-i18n="ev.fiestasJulias.p1">Las Fiestas Julias son las celebraciones patronales de la ciudad de Santa Ana y se realizan en honor a Nuestra Señora Santa Ana, patrona del municipio. Durante varios días, la Ciudad Heroica se llena de actividades religiosas, culturales y recreativas que reúnen a miles de visitantes provenientes de todo el país.</p>
+            <p data-i18n="ev.fiestasJulias.p2">Entre las actividades más destacadas se encuentran las solemnes procesiones, misas, desfiles del correo, carrozas alegóricas, elección y coronación de la reina de las fiestas, conciertos, juegos mecánicos y presentaciones artísticas. Además, el campo de la feria ofrece espacios para el entretenimiento familiar, mientras que los parques y plazas albergan exposiciones artesanales y una variada muestra de gastronomía típica salvadoreña.</p>
+            <p data-i18n="ev.fiestasJulias.p3">Las Fiestas Julias también permiten apreciar el importante patrimonio arquitectónico de Santa Ana, como su imponente Catedral de estilo neogótico, el Teatro Nacional de Santa Ana y el Palacio Municipal, edificios que se convierten en el escenario de diversas actividades culturales durante la celebración.</p>
+            <p data-i18n="ev.fiestasJulias.p4">Consideradas una de las fiestas patronales más importantes de El Salvador, las Fiestas Julias fortalecen la identidad cultural de los santanecos, impulsan el turismo y contribuyen al desarrollo económico de la ciudad mediante el comercio, la gastronomía y las expresiones artísticas tradicionales.</p>
             <div class="evento-actions">
               <a class="evento-actions__btn" href="../views/mapa.html?evento=23&from=eventos.html" target="_self">
                 <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-                Ver en mapa
+                <span data-i18n="evp.verMapa">Ver en mapa</span>
               </a>
               <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=fiestasjulias" target="_self">
                 <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-                Ver publicaciones
+                <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
               </a>
               <a class="evento-actions__btn" href="../views/calendario.html?id=3" target="_self">
                 <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-                Revisar el calendario
+                <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
               </a>
             </div>
           </div>
@@ -424,33 +442,33 @@
     <div class="info-panel" id="tab-carnaval-sm">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/carnaval.jpg" alt="Gran Carnaval de San Miguel" />
+          <img src="../assets/media/eventos/carnaval.jpg" data-i18n-attr="alt:ev.carnavalSm.title" alt="Gran Carnaval de San Miguel" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Gran Carnaval de San Miguel</h2>
-          <p class="info-content__hero-sub">Último sábado de noviembre — El carnaval más grande de Centroamérica</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.carnavalSm.title">Gran Carnaval de San Miguel</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.carnavalSm.sub">Último sábado de noviembre — El carnaval más grande de Centroamérica</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">28 de noviembre 2026</span>
-            <span class="info-chip">San Miguel</span>
-            <span class="info-chip">Orquestas en vivo</span>
+            <span class="info-chip" data-i18n="ev.carnavalSm.chip1">28 de noviembre 2026</span>
+            <span class="info-chip" data-i18n="ev.carnavalSm.chip2">San Miguel</span>
+            <span class="info-chip" data-i18n="ev.carnavalSm.chip3">Orquestas en vivo</span>
           </div>
-          <p>El Gran Carnaval de San Miguel es la celebración más importante de las fiestas patronales dedicadas a Nuestra Señora de la Paz, patrona de la ciudad. Considerado el carnaval más grande de Centroamérica, reúne cada año a cientos de miles de personas que disfrutan de una noche llena de música, baile y tradición en las principales calles de San Miguel.</p>
-          <p>Durante el carnaval, decenas de orquestas nacionales e internacionales, grupos musicales, DJs y artistas de distintos géneros se presentan en múltiples escenarios distribuidos por toda la ciudad. Además, comparsas, carrozas alegóricas, bandas de paz, espectáculos de luces y desfiles llenan las calles de color y alegría, convirtiendo el evento en una de las mayores expresiones culturales del país.</p>
-          <p>La celebración también destaca por su variada oferta gastronómica, donde los visitantes pueden degustar pupusas, yuca frita con chicharrón, elotes locos, riguas, atol de elote, minutas y muchas otras comidas típicas. Artesanos y emprendedores aprovechan la ocasión para exhibir y comercializar productos elaborados en diferentes regiones de El Salvador.</p>
-          <p>El Gran Carnaval de San Miguel representa un importante impulso para el turismo y la economía local, atrayendo visitantes nacionales y extranjeros. Más allá de la fiesta, simboliza la identidad, hospitalidad y espíritu alegre del pueblo migueleño, consolidándose como uno de los eventos culturales más emblemáticos de El Salvador.</p>
+          <p data-i18n="ev.carnavalSm.p1">El Gran Carnaval de San Miguel es la celebración más importante de las fiestas patronales dedicadas a Nuestra Señora de la Paz, patrona de la ciudad. Considerado el carnaval más grande de Centroamérica, reúne cada año a cientos de miles de personas que disfrutan de una noche llena de música, baile y tradición en las principales calles de San Miguel.</p>
+          <p data-i18n="ev.carnavalSm.p2">Durante el carnaval, decenas de orquestas nacionales e internacionales, grupos musicales, DJs y artistas de distintos géneros se presentan en múltiples escenarios distribuidos por toda la ciudad. Además, comparsas, carrozas alegóricas, bandas de paz, espectáculos de luces y desfiles llenan las calles de color y alegría, convirtiendo el evento en una de las mayores expresiones culturales del país.</p>
+          <p data-i18n="ev.carnavalSm.p3">La celebración también destaca por su variada oferta gastronómica, donde los visitantes pueden degustar pupusas, yuca frita con chicharrón, elotes locos, riguas, atol de elote, minutas y muchas otras comidas típicas. Artesanos y emprendedores aprovechan la ocasión para exhibir y comercializar productos elaborados en diferentes regiones de El Salvador.</p>
+          <p data-i18n="ev.carnavalSm.p4">El Gran Carnaval de San Miguel representa un importante impulso para el turismo y la economía local, atrayendo visitantes nacionales y extranjeros. Más allá de la fiesta, simboliza la identidad, hospitalidad y espíritu alegre del pueblo migueleño, consolidándose como uno de los eventos culturales más emblemáticos de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=26&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=carnavalsm" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=6" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -460,21 +478,21 @@
       <div class="info-panel" id="tab-festival-maiz-suchitoto">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/maiz.jpg" alt="Festival del Maíz de Suchitoto" />
+          <img src="../assets/media/eventos/maiz.jpg" data-i18n-attr="alt:ev.maizSuchitoto.title" alt="Festival del Maíz de Suchitoto" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival del Maíz de Suchitoto</h2>
-          <p class="info-content__hero-sub">Agosto — Tradición, gastronomía y cultura salvadoreña</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.maizSuchitoto.title">Festival del Maíz de Suchitoto</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.maizSuchitoto.sub">Agosto — Tradición, gastronomía y cultura salvadoreña</p>
         </div>
 
         <div class="info-content__body">
 
           <div class="info-chips">
-            <span class="info-chip">Festival Gastronómico</span>
-            <span class="info-chip">Suchitoto, Cuscatlán</span>
-            <span class="info-chip">Tradición Salvadoreña</span>
+            <span class="info-chip" data-i18n="ev.maizSuchitoto.chip1">Festival Gastronómico</span>
+            <span class="info-chip" data-i18n="ev.maizSuchitoto.chip2">Suchitoto, Cuscatlán</span>
+            <span class="info-chip" data-i18n="ev.maizSuchitoto.chip3">Tradición Salvadoreña</span>
           </div>
 
-          <p>
+          <p data-i18n="ev.maizSuchitoto.p1">
             El <strong>Festival del Maíz de Suchitoto</strong> es una de las celebraciones
             gastronómicas y culturales más representativas del municipio. Cada año reúne
             a cientos de visitantes nacionales y extranjeros para rendir homenaje al maíz,
@@ -482,7 +500,7 @@
             cultura mesoamericana.
           </p>
 
-          <p>
+          <p data-i18n="ev.maizSuchitoto.p2">
             Durante el festival, las calles y plazas del centro histórico se llenan de
             color con ventas de comidas típicas elaboradas a base de maíz. Los asistentes
             pueden degustar una gran variedad de platillos tradicionales como pupusas,
@@ -491,14 +509,14 @@
             culinario salvadoreño.
           </p>
 
-          <p>
+          <p data-i18n="ev.maizSuchitoto.p3">
             Además de la oferta gastronómica, el evento incluye presentaciones artísticas,
             música en vivo, bailes folclóricos, grupos de danza, artesanías locales, actividades para toda la familia, concursos de cocina tradicional y espacios
             donde productores y emprendedores exhiben productos derivados del maíz y otros
             alimentos elaborados en la zona.
           </p>
 
-          <p>
+          <p data-i18n="ev.maizSuchitoto.p4">
             El festival también busca preservar las tradiciones agrícolas y fortalecer la economía local, brindando una oportunidad para que artesanos, agricultores y
             pequeños comerciantes compartan con los visitantes la riqueza cultural de Suchitoto, uno de los pueblos con mayor valor histórico y turístico de
             El Salvador.
@@ -507,15 +525,15 @@
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=14&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalmaizsuchitoto" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -525,32 +543,32 @@
     <div class="info-panel" id="tab-calabiuza">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/calabiuza.jpg" alt="Día de la Calabiuza" />
+          <img src="../assets/media/eventos/calabiuza.jpg" data-i18n-attr="alt:ev.calabiuza.title" alt="Día de la Calabiuza" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Día de la Calabiuza</h2>
-          <p class="info-content__hero-sub">1 de Noviembre de 2026 — Las leyendas cobran vida</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.calabiuza.title">Día de la Calabiuza</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.calabiuza.sub">1 de Noviembre de 2026 — Las leyendas cobran vida</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">1 de noviembre 2026</span>
-            <span class="info-chip">Tonacatepeque, San Salvador</span>
-            <span class="info-chip">Desfile nocturno</span>
+            <span class="info-chip" data-i18n="ev.calabiuza.chip1">1 de noviembre 2026</span>
+            <span class="info-chip" data-i18n="ev.calabiuza.chip2">Tonacatepeque, San Salvador</span>
+            <span class="info-chip" data-i18n="ev.calabiuza.chip3">Desfile nocturno</span>
           </div>
-          <p>El Día de la Calabiuza es una de las celebraciones más emblemáticas del folclore salvadoreño. Cada 1 de noviembre las calles de Tonacatepeque se llenan de personajes inspirados en las leyendas nacionales, como la Siguanaba, el Cadejo, el Cipitío, la Carreta Chillona y otros seres tradicionales que desfilan entre música, antorchas y coloridos disfraces.</p>
-          <p>La festividad nació como una iniciativa para rescatar las leyendas populares y las costumbres relacionadas con el Día de los Difuntos. Su nombre proviene de la "calabiuza", una calabaza tallada e iluminada con velas que antiguamente los niños utilizaban para recorrer las calles pidiendo ayote en miel y otras golosinas tradicionales.</p>
-          <p>Durante la celebración también se realizan presentaciones artísticas, música en vivo, teatro, venta de artesanías y una amplia muestra de gastronomía típica salvadoreña. Miles de visitantes nacionales y extranjeros participan cada año, convirtiendo este evento en uno de los festivales culturales más importantes de El Salvador y en un espacio para preservar la identidad y las tradiciones del país.</p>
+          <p data-i18n="ev.calabiuza.p1">El Día de la Calabiuza es una de las celebraciones más emblemáticas del folclore salvadoreño. Cada 1 de noviembre las calles de Tonacatepeque se llenan de personajes inspirados en las leyendas nacionales, como la Siguanaba, el Cadejo, el Cipitío, la Carreta Chillona y otros seres tradicionales que desfilan entre música, antorchas y coloridos disfraces.</p>
+          <p data-i18n="ev.calabiuza.p2">La festividad nació como una iniciativa para rescatar las leyendas populares y las costumbres relacionadas con el Día de los Difuntos. Su nombre proviene de la "calabiuza", una calabaza tallada e iluminada con velas que antiguamente los niños utilizaban para recorrer las calles pidiendo ayote en miel y otras golosinas tradicionales.</p>
+          <p data-i18n="ev.calabiuza.p3">Durante la celebración también se realizan presentaciones artísticas, música en vivo, teatro, venta de artesanías y una amplia muestra de gastronomía típica salvadoreña. Miles de visitantes nacionales y extranjeros participan cada año, convirtiendo este evento en uno de los festivales culturales más importantes de El Salvador y en un espacio para preservar la identidad y las tradiciones del país.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=29&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=calabiuza" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=9" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -559,33 +577,33 @@
     <div class="info-panel" id="tab-farolitos">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/farolitos.jpg" alt="Día de los Farolitos" />
+          <img src="../assets/media/eventos/farolitos.jpg" data-i18n-attr="alt:ev.farolitos.title" alt="Día de los Farolitos" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Día de los Farolitos</h2>
-          <p class="info-content__hero-sub">7 de Septiembre de 2026 — Ataco se ilumina</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.farolitos.title">Día de los Farolitos</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.farolitos.sub">7 de Septiembre de 2026 — Ataco se ilumina</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">7 de septiembre 2026</span>
-            <span class="info-chip">Concepción de Ataco, Ahuachapán Centro</span>
-            <span class="info-chip">Faroles artesanales</span>
+            <span class="info-chip" data-i18n="ev.farolitos.chip1">7 de septiembre 2026</span>
+            <span class="info-chip" data-i18n="ev.farolitos.chip2">Concepción de Ataco, Ahuachapán Centro</span>
+            <span class="info-chip" data-i18n="ev.farolitos.chip3">Faroles artesanales</span>
           </div>
-          <p>El Día de los Farolitos es una de las tradiciones más representativas de El Salvador y se celebra cada 7 de septiembre en honor al nacimiento de la Virgen María. Concepción de Ataco, uno de los pueblos más emblemáticos de la Ruta de las Flores, se convierte en el escenario principal de esta festividad al iluminar sus calles con miles de faroles artesanales.</p>
-          <p>Familias enteras, comercios, escuelas y comunidades elaboran faroles de papel de colores, madera y otros materiales, decorándolos con figuras tradicionales, flores y símbolos religiosos. Al caer la noche, los faroles son encendidos al mismo tiempo, creando un ambiente lleno de luz, color y un profundo significado espiritual y cultural.</p>
-          <p>Además del espectáculo de luces, la celebración incluye desfiles, presentaciones de música y danza folclórica, actividades religiosas, exposiciones de artesanías y una variada oferta de gastronomía típica salvadoreña. Entre los platillos más populares destacan las pupusas, elotes locos, riguas, atol de elote y dulces tradicionales elaborados por emprendedores locales.</p>
-          <p>Con el paso de los años, el Día de los Farolitos se ha convertido en uno de los eventos turísticos más importantes del país, atrayendo a miles de visitantes nacionales y extranjeros que buscan conocer una tradición que refleja la fe, la creatividad y la identidad cultural de los salvadoreños.</p>
+          <p data-i18n="ev.farolitos.p1">El Día de los Farolitos es una de las tradiciones más representativas de El Salvador y se celebra cada 7 de septiembre en honor al nacimiento de la Virgen María. Concepción de Ataco, uno de los pueblos más emblemáticos de la Ruta de las Flores, se convierte en el escenario principal de esta festividad al iluminar sus calles con miles de faroles artesanales.</p>
+          <p data-i18n="ev.farolitos.p2">Familias enteras, comercios, escuelas y comunidades elaboran faroles de papel de colores, madera y otros materiales, decorándolos con figuras tradicionales, flores y símbolos religiosos. Al caer la noche, los faroles son encendidos al mismo tiempo, creando un ambiente lleno de luz, color y un profundo significado espiritual y cultural.</p>
+          <p data-i18n="ev.farolitos.p3">Además del espectáculo de luces, la celebración incluye desfiles, presentaciones de música y danza folclórica, actividades religiosas, exposiciones de artesanías y una variada oferta de gastronomía típica salvadoreña. Entre los platillos más populares destacan las pupusas, elotes locos, riguas, atol de elote y dulces tradicionales elaborados por emprendedores locales.</p>
+          <p data-i18n="ev.farolitos.p4">Con el paso de los años, el Día de los Farolitos se ha convertido en uno de los eventos turísticos más importantes del país, atrayendo a miles de visitantes nacionales y extranjeros que buscan conocer una tradición que refleja la fe, la creatividad y la identidad cultural de los salvadoreños.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=36&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=farolitosataco" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=16" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -595,33 +613,33 @@
    <div class="info-panel" id="tab-festival-anil">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/anil.jpg" alt="Festival del Añil" />
+          <img src="../assets/media/eventos/anil.jpg" data-i18n-attr="alt:ev.festivalAnil.title" alt="Festival del Añil" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival del Añil</h2>
-          <p class="info-content__hero-sub">4 de Octubre de 2026 — El oro azul de Suchitoto</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.festivalAnil.title">Festival del Añil</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.festivalAnil.sub">4 de Octubre de 2026 — El oro azul de Suchitoto</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">4 de octubre 2026</span>
-            <span class="info-chip">Suchitoto, Cuscatlán</span>
-            <span class="info-chip">Teñido artesanal</span>
+            <span class="info-chip" data-i18n="ev.festivalAnil.chip1">4 de octubre 2026</span>
+            <span class="info-chip" data-i18n="ev.festivalAnil.chip2">Suchitoto, Cuscatlán</span>
+            <span class="info-chip" data-i18n="ev.festivalAnil.chip3">Teñido artesanal</span>
           </div>
-          <p>El Festival del Añil, celebrado en Suchitoto, rinde homenaje al "oro azul", el añil que durante los siglos XVII, XVIII y XIX fue uno de los principales productos de exportación de El Salvador y un pilar fundamental de su economía. Esta celebración busca preservar la historia y promover el conocimiento sobre una tradición que marcó el desarrollo del país.</p>
-          <p>Durante el festival, artesanos y especialistas realizan demostraciones del proceso tradicional de extracción y teñido con añil, desde la fermentación de la planta hasta la obtención del característico pigmento azul. Los visitantes también pueden participar en talleres donde elaboran pañuelos, camisetas y otras piezas teñidas de forma artesanal.</p>
-          <p>El evento incluye exposiciones de textiles, artesanías, recorridos por antiguos obrajes de añil, conferencias históricas y presentaciones artísticas que muestran la importancia cultural de este cultivo. Además, emprendedores locales ofrecen productos elaborados con tintes naturales y diversas creaciones inspiradas en el patrimonio añilero de Suchitoto.</p>
-          <p>La celebración se complementa con música en vivo, danza folclórica, gastronomía típica salvadoreña y actividades familiares, convirtiéndose en una experiencia que une historia, arte, turismo y tradición. Gracias a este festival, Suchitoto continúa preservando el legado del añil y promoviendo una de las expresiones culturales más representativas de El Salvador.</p>
+          <p data-i18n="ev.festivalAnil.p1">El Festival del Añil, celebrado en Suchitoto, rinde homenaje al "oro azul", el añil que durante los siglos XVII, XVIII y XIX fue uno de los principales productos de exportación de El Salvador y un pilar fundamental de su economía. Esta celebración busca preservar la historia y promover el conocimiento sobre una tradición que marcó el desarrollo del país.</p>
+          <p data-i18n="ev.festivalAnil.p2">Durante el festival, artesanos y especialistas realizan demostraciones del proceso tradicional de extracción y teñido con añil, desde la fermentación de la planta hasta la obtención del característico pigmento azul. Los visitantes también pueden participar en talleres donde elaboran pañuelos, camisetas y otras piezas teñidas de forma artesanal.</p>
+          <p data-i18n="ev.festivalAnil.p3">El evento incluye exposiciones de textiles, artesanías, recorridos por antiguos obrajes de añil, conferencias históricas y presentaciones artísticas que muestran la importancia cultural de este cultivo. Además, emprendedores locales ofrecen productos elaborados con tintes naturales y diversas creaciones inspiradas en el patrimonio añilero de Suchitoto.</p>
+          <p data-i18n="ev.festivalAnil.p4">La celebración se complementa con música en vivo, danza folclórica, gastronomía típica salvadoreña y actividades familiares, convirtiéndose en una experiencia que une historia, arte, turismo y tradición. Gracias a este festival, Suchitoto continúa preservando el legado del añil y promoviendo una de las expresiones culturales más representativas de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=48&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalanil" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=28" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -631,33 +649,33 @@
     <div class="info-panel" id="tab-festival-barro">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/barro.jpg" alt="Festival del Barro" />
+          <img src="../assets/media/eventos/barro.jpg" data-i18n-attr="alt:ev.festivalBarro.title" alt="Festival del Barro" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival del Barro</h2>
-          <p class="info-content__hero-sub">8 de Noviembre de 2026 — La tradición alfarera de Ilobasco</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.festivalBarro.title">Festival del Barro</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.festivalBarro.sub">8 de Noviembre de 2026 — La tradición alfarera de Ilobasco</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">8 de noviembre 2026</span>
-            <span class="info-chip">Ilobasco, Cabañas</span>
-            <span class="info-chip">Miniaturas de barro</span>
+            <span class="info-chip" data-i18n="ev.festivalBarro.chip1">8 de noviembre 2026</span>
+            <span class="info-chip" data-i18n="ev.festivalBarro.chip2">Ilobasco, Cabañas</span>
+            <span class="info-chip" data-i18n="ev.festivalBarro.chip3">Miniaturas de barro</span>
           </div>
-          <p>El Festival del Barro es una de las celebraciones artesanales más importantes de Ilobasco y rinde homenaje a los maestros alfareros que, durante generaciones, han preservado el arte de trabajar el barro. Este municipio es reconocido dentro y fuera de El Salvador por la elaboración de las famosas miniaturas conocidas como "sorpresas", piezas que esconden pequeñas escenas de la vida cotidiana en su interior.</p>
-          <p>Durante el festival, los visitantes pueden recorrer talleres familiares donde observan cada etapa del proceso artesanal, desde la preparación del barro y el moldeado de las figuras hasta el secado, la cocción en hornos tradicionales de leña y la pintura realizada completamente a mano. Muchos artesanos también ofrecen talleres para que niños y adultos experimenten esta técnica ancestral.</p>
-          <p>La celebración incluye concursos de alfarería, exposiciones de piezas tradicionales y contemporáneas, ferias de artesanías, música en vivo, danzas folclóricas y una amplia muestra de gastronomía típica salvadoreña. Además, representa una importante oportunidad para que los artesanos comercialicen directamente sus creaciones y promuevan el patrimonio cultural de Ilobasco.</p>
-          <p>Gracias a la calidad y originalidad de sus obras, la alfarería de Ilobasco se ha convertido en uno de los símbolos más representativos de la artesanía salvadoreña. El Festival del Barro contribuye a preservar este legado, fortalecer la economía local y acercar a las nuevas generaciones a una tradición que forma parte de la identidad cultural de El Salvador.</p>
+          <p data-i18n="ev.festivalBarro.p1">El Festival del Barro es una de las celebraciones artesanales más importantes de Ilobasco y rinde homenaje a los maestros alfareros que, durante generaciones, han preservado el arte de trabajar el barro. Este municipio es reconocido dentro y fuera de El Salvador por la elaboración de las famosas miniaturas conocidas como "sorpresas", piezas que esconden pequeñas escenas de la vida cotidiana en su interior.</p>
+          <p data-i18n="ev.festivalBarro.p2">Durante el festival, los visitantes pueden recorrer talleres familiares donde observan cada etapa del proceso artesanal, desde la preparación del barro y el moldeado de las figuras hasta el secado, la cocción en hornos tradicionales de leña y la pintura realizada completamente a mano. Muchos artesanos también ofrecen talleres para que niños y adultos experimenten esta técnica ancestral.</p>
+          <p data-i18n="ev.festivalBarro.p3">La celebración incluye concursos de alfarería, exposiciones de piezas tradicionales y contemporáneas, ferias de artesanías, música en vivo, danzas folclóricas y una amplia muestra de gastronomía típica salvadoreña. Además, representa una importante oportunidad para que los artesanos comercialicen directamente sus creaciones y promuevan el patrimonio cultural de Ilobasco.</p>
+          <p data-i18n="ev.festivalBarro.p4">Gracias a la calidad y originalidad de sus obras, la alfarería de Ilobasco se ha convertido en uno de los símbolos más representativos de la artesanía salvadoreña. El Festival del Barro contribuye a preservar este legado, fortalecer la economía local y acercar a las nuevas generaciones a una tradición que forma parte de la identidad cultural de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=41&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=festivalbarro" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=21" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -667,33 +685,33 @@
     <div class="info-panel" id="tab-flores-palmas">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/flores-palmas.jpg" alt="Festival de las Flores y Palmas" />
+          <img src="../assets/media/eventos/flores-palmas.jpg" data-i18n-attr="alt:ev.floresPalmas.title" alt="Festival de las Flores y Palmas" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival de las Flores y Palmas</h2>
-          <p class="info-content__hero-sub">10 de Mayo de 2026 — El inicio de la época lluviosa</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.floresPalmas.title">Festival de las Flores y Palmas</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.floresPalmas.sub">10 de Mayo de 2026 — El inicio de la época lluviosa</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">10 de mayo 2026</span>
-            <span class="info-chip">Panchimalco, San Salvador</span>
-            <span class="info-chip">Procesión de las Palmas</span>
+            <span class="info-chip" data-i18n="ev.floresPalmas.chip1">10 de mayo 2026</span>
+            <span class="info-chip" data-i18n="ev.floresPalmas.chip2">Panchimalco, San Salvador</span>
+            <span class="info-chip" data-i18n="ev.floresPalmas.chip3">Procesión de las Palmas</span>
           </div>
-          <p>El Festival de las Flores y Palmas es una de las tradiciones más antiguas y representativas de Panchimalco. Cada año reúne a cientos de habitantes y visitantes para celebrar una festividad que combina la fe católica con las costumbres indígenas heredadas del pueblo nahua-pipil, convirtiéndose en una expresión única del patrimonio cultural salvadoreño.</p>
-          <p>La tradicional Procesión de las Palmas recorre las principales calles del municipio hasta llegar a la histórica iglesia colonial de Santa Cruz de Roma. Los participantes portan palmas decoradas con flores silvestres, hojas, frutos y coloridos adornos elaborados artesanalmente, como símbolo de agradecimiento por las cosechas y de esperanza por el inicio de la temporada lluviosa.</p>
-          <p>Durante la celebración también se realizan presentaciones de danza folclórica, música tradicional, ceremonias religiosas, exposiciones de artesanías y una feria gastronómica donde los visitantes pueden degustar platillos típicos salvadoreños preparados por los habitantes del municipio. Estas actividades fortalecen el turismo y permiten conservar las tradiciones que han caracterizado a Panchimalco durante generaciones.</p>
-          <p>Gracias a su riqueza cultural e histórica, este festival es considerado una de las manifestaciones más importantes de la identidad indígena de El Salvador. La combinación de elementos religiosos, costumbres ancestrales y participación comunitaria convierte a esta celebración en una experiencia que refleja la diversidad y el legado cultural del país.</p>
+          <p data-i18n="ev.floresPalmas.p1">El Festival de las Flores y Palmas es una de las tradiciones más antiguas y representativas de Panchimalco. Cada año reúne a cientos de habitantes y visitantes para celebrar una festividad que combina la fe católica con las costumbres indígenas heredadas del pueblo nahua-pipil, convirtiéndose en una expresión única del patrimonio cultural salvadoreño.</p>
+          <p data-i18n="ev.floresPalmas.p2">La tradicional Procesión de las Palmas recorre las principales calles del municipio hasta llegar a la histórica iglesia colonial de Santa Cruz de Roma. Los participantes portan palmas decoradas con flores silvestres, hojas, frutos y coloridos adornos elaborados artesanalmente, como símbolo de agradecimiento por las cosechas y de esperanza por el inicio de la temporada lluviosa.</p>
+          <p data-i18n="ev.floresPalmas.p3">Durante la celebración también se realizan presentaciones de danza folclórica, música tradicional, ceremonias religiosas, exposiciones de artesanías y una feria gastronómica donde los visitantes pueden degustar platillos típicos salvadoreños preparados por los habitantes del municipio. Estas actividades fortalecen el turismo y permiten conservar las tradiciones que han caracterizado a Panchimalco durante generaciones.</p>
+          <p data-i18n="ev.floresPalmas.p4">Gracias a su riqueza cultural e histórica, este festival es considerado una de las manifestaciones más importantes de la identidad indígena de El Salvador. La combinación de elementos religiosos, costumbres ancestrales y participación comunitaria convierte a esta celebración en una experiencia que refleja la diversidad y el legado cultural del país.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=25&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=flores" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=5" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -703,33 +721,33 @@
     <div class="info-panel" id="tab-chicharron">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/chicharron.jpg" alt="Festival Internacional del Chicharrón" />
+          <img src="../assets/media/eventos/chicharron.jpg" data-i18n-attr="alt:ev.chicharron.title" alt="Festival Internacional del Chicharrón" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival Internacional del Chicharrón</h2>
-          <p class="info-content__hero-sub">12 de Diciembre de 2026 — Sabor y tradición en Santa Tecla</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.chicharron.title">Festival Internacional del Chicharrón</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.chicharron.sub">12 de Diciembre de 2026 — Sabor y tradición en Santa Tecla</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">12 de diciembre 2026</span>
-            <span class="info-chip">Santa Tecla, La Libertad</span>
-            <span class="info-chip">Feria gastronómica</span>
+            <span class="info-chip" data-i18n="ev.chicharron.chip1">12 de diciembre 2026</span>
+            <span class="info-chip" data-i18n="ev.chicharron.chip2">Santa Tecla, La Libertad</span>
+            <span class="info-chip" data-i18n="ev.chicharron.chip3">Feria gastronómica</span>
           </div>
-          <p>El Festival Internacional del Chicharrón es uno de los eventos gastronómicos más populares de Santa Tecla y reúne cada año a miles de visitantes para celebrar uno de los platillos más representativos de la cocina salvadoreña. El festival busca promover la gastronomía nacional, fortalecer el turismo y apoyar a emprendedores y restaurantes locales.</p>
-          <p>Durante la celebración, cocineros y comerciantes presentan una gran variedad de platillos preparados con chicharrón, desde la receta tradicional hasta innovadoras propuestas acompañadas de yuca frita, pupusas, tacos, hamburguesas, nachos y otros platillos típicos. Los asistentes también pueden degustar bebidas tradicionales y postres elaborados por productores nacionales.</p>
-          <p>Además de la feria gastronómica, el evento ofrece música en vivo, presentaciones artísticas, espectáculos culturales, actividades infantiles, concursos culinarios y espacios dedicados al emprendimiento local. Estas actividades convierten al festival en un ambiente familiar que atrae tanto a turistas nacionales como extranjeros.</p>
-          <p>Con el paso de los años, el Festival Internacional del Chicharrón se ha consolidado como una de las principales celebraciones gastronómicas de El Salvador. Su combinación de tradición, innovación culinaria y entretenimiento fortalece la identidad cultural de Santa Tecla y contribuye al desarrollo económico de la ciudad mediante el turismo y el comercio local.</p>
+          <p data-i18n="ev.chicharron.p1">El Festival Internacional del Chicharrón es uno de los eventos gastronómicos más populares de Santa Tecla y reúne cada año a miles de visitantes para celebrar uno de los platillos más representativos de la cocina salvadoreña. El festival busca promover la gastronomía nacional, fortalecer el turismo y apoyar a emprendedores y restaurantes locales.</p>
+          <p data-i18n="ev.chicharron.p2">Durante la celebración, cocineros y comerciantes presentan una gran variedad de platillos preparados con chicharrón, desde la receta tradicional hasta innovadoras propuestas acompañadas de yuca frita, pupusas, tacos, hamburguesas, nachos y otros platillos típicos. Los asistentes también pueden degustar bebidas tradicionales y postres elaborados por productores nacionales.</p>
+          <p data-i18n="ev.chicharron.p3">Además de la feria gastronómica, el evento ofrece música en vivo, presentaciones artísticas, espectáculos culturales, actividades infantiles, concursos culinarios y espacios dedicados al emprendimiento local. Estas actividades convierten al festival en un ambiente familiar que atrae tanto a turistas nacionales como extranjeros.</p>
+          <p data-i18n="ev.chicharron.p4">Con el paso de los años, el Festival Internacional del Chicharrón se ha consolidado como una de las principales celebraciones gastronómicas de El Salvador. Su combinación de tradición, innovación culinaria y entretenimiento fortalece la identidad cultural de Santa Tecla y contribuye al desarrollo económico de la ciudad mediante el turismo y el comercio local.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=50&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=chicharron" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=30" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
@@ -739,33 +757,33 @@
     <div class="info-panel" id="tab-jocote">
       <div class="info-content reveal">
         <div class="info-content__hero">
-          <img src="../assets/media/eventos/jocote.jpeg" alt="Festival del Jocote Corona" />
+          <img src="../assets/media/eventos/jocote.jpeg" data-i18n-attr="alt:ev.jocote.title" alt="Festival del Jocote Corona" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Festival del Jocote Corona</h2>
-          <p class="info-content__hero-sub">18 de Octubre de 2026 — El fruto emblemático del Cerro Verde</p>
+          <h2 class="info-content__hero-title" data-i18n="ev.jocote.title">Festival del Jocote Corona</h2>
+          <p class="info-content__hero-sub" data-i18n="ev.jocote.sub">18 de Octubre de 2026 — El fruto emblemático del Cerro Verde</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">18 de octubre 2026</span>
-            <span class="info-chip">Cerro Verde, Santa Ana</span>
-            <span class="info-chip">Feria gastronómica</span>
+            <span class="info-chip" data-i18n="ev.jocote.chip1">18 de octubre 2026</span>
+            <span class="info-chip" data-i18n="ev.jocote.chip2">Cerro Verde, Santa Ana</span>
+            <span class="info-chip" data-i18n="ev.jocote.chip3">Feria gastronómica</span>
           </div>
-          <p>El Festival del Jocote Corona es una de las celebraciones gastronómicas más representativas de la zona del Cerro Verde y rinde homenaje a esta variedad de jocote, reconocida por su gran tamaño, sabor dulce y excelente calidad. Cada año reúne a productores, emprendedores y visitantes para promover uno de los frutos más emblemáticos del occidente de El Salvador.</p>
-          <p>Durante el festival, los asistentes pueden degustar jocotes frescos y una amplia variedad de productos derivados como jocotes en miel, mermeladas, jaleas, encurtidos, refrescos, postres y otras recetas tradicionales elaboradas por productores locales. También se realizan degustaciones, concursos gastronómicos y exhibiciones sobre el cultivo y la cosecha de esta fruta.</p>
-          <p>La celebración se complementa con presentaciones artísticas, música en vivo, danzas folclóricas, ferias de artesanías y actividades recreativas para toda la familia. Además, ofrece a los visitantes la oportunidad de disfrutar de los paisajes naturales del Parque Nacional Cerro Verde y conocer la riqueza agrícola y turística de la región.</p>
-          <p>El Festival del Jocote Corona fortalece la economía de los pequeños productores, impulsa el turismo interno y contribuye a preservar las tradiciones agrícolas salvadoreñas. Gracias a esta celebración, el jocote corona continúa siendo uno de los productos más representativos de la zona occidental y un símbolo de la riqueza natural y gastronómica de El Salvador.</p>
+          <p data-i18n="ev.jocote.p1">El Festival del Jocote Corona es una de las celebraciones gastronómicas más representativas de la zona del Cerro Verde y rinde homenaje a esta variedad de jocote, reconocida por su gran tamaño, sabor dulce y excelente calidad. Cada año reúne a productores, emprendedores y visitantes para promover uno de los frutos más emblemáticos del occidente de El Salvador.</p>
+          <p data-i18n="ev.jocote.p2">Durante el festival, los asistentes pueden degustar jocotes frescos y una amplia variedad de productos derivados como jocotes en miel, mermeladas, jaleas, encurtidos, refrescos, postres y otras recetas tradicionales elaboradas por productores locales. También se realizan degustaciones, concursos gastronómicos y exhibiciones sobre el cultivo y la cosecha de esta fruta.</p>
+          <p data-i18n="ev.jocote.p3">La celebración se complementa con presentaciones artísticas, música en vivo, danzas folclóricas, ferias de artesanías y actividades recreativas para toda la familia. Además, ofrece a los visitantes la oportunidad de disfrutar de los paisajes naturales del Parque Nacional Cerro Verde y conocer la riqueza agrícola y turística de la región.</p>
+          <p data-i18n="ev.jocote.p4">El Festival del Jocote Corona fortalece la economía de los pequeños productores, impulsa el turismo interno y contribuye a preservar las tradiciones agrícolas salvadoreñas. Gracias a esta celebración, el jocote corona continúa siendo uno de los productos más representativos de la zona occidental y un símbolo de la riqueza natural y gastronómica de El Salvador.</p>
           <div class="evento-actions">
             <a class="evento-actions__btn" href="../views/mapa.html?evento=28&from=eventos.html" target="_self">
               <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-              Ver en mapa
+              <span data-i18n="evp.verMapa">Ver en mapa</span>
             </a>
             <a class="evento-actions__btn" href="../views/publicaciones.html?sitio=jocote" target="_self">
               <svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.17L4 17.17V4zm0-2a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4z"/></svg>
-              Ver publicaciones
+              <span data-i18n="evp.verPublicaciones">Ver publicaciones</span>
             </a>
             <a class="evento-actions__btn" href="../views/calendario.html?id=8" target="_self">
               <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z"/></svg>
-              Revisar el calendario
+              <span data-i18n="evp.revisarCalendario">Revisar el calendario</span>
             </a>
           </div>
         </div>
