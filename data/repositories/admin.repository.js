@@ -153,6 +153,19 @@ const createAdminUser = (name, email, passwordHash) => {
     });
 };
 
+const createSuspensionRecord = (id_user, suspended_by, reason) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO user_suspensions(id_user, suspended_by, reason) VALUES (?, ?, ?)',
+            [id_user, suspended_by, reason],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        )
+    })
+}
+
 const createAdminInvitation = (id_user, invited_by, tokenHash, expiresAt) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -247,6 +260,7 @@ module.exports = {
     countUsersByRoleName,
     deleteUserById,
     createAdminUser,
+    createSuspensionRecord,
     createAdminInvitation,
     findValidAdminInvitation,
     markAdminInvitationUsed,
