@@ -839,6 +839,45 @@
 .admin-form-status[data-kind="error"] { color: var(--admin-danger); }
 .admin-form-status[data-kind="success"] { color: var(--admin-jade); }
 
+.form-group {
+  margin-bottom: 1.1rem;
+}
+.form-group label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: .75;
+  margin-bottom: .4rem;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  background: var(--search-bg);
+  border: 1px solid var(--admin-surface-border);
+  border-radius: var(--r-sm);
+  padding: .7rem .9rem;
+  font-size: .88rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background .2s ease, border-color .2s ease;
+}
+.form-group textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  background: var(--search-bg-focus);
+  border-color: var(--gold);
+}
+
+.admin-modal__reason {
+  text-align: left;
+  margin-top: 1rem;
+}
+
 /* ═══════════════════ MODAL DE CONFIRMACIÓN ═══════════════════ */
 .admin-modal-overlay {
   position: fixed;
