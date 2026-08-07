@@ -90,6 +90,17 @@ CREATE TABLE IF NOT EXISTS admin_invitations (
     INDEX idx_admin_invitations_user (id_user)
 );
 
+CREATE TABLE IF NOT EXISTS users_suspensions(
+    id_suspension INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    suspended_by INT NOT NULL,
+    reason VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (suspended_by) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_user_suspensions_user (id_user)
+);
+
 INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
