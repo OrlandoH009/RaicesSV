@@ -35,7 +35,8 @@ router.get('/api/admin/metrics', requireAdminApiAuth, handle(async () => {
 router.patch('/api/admin/users/:id/status', requireAdminApiAuth, handle(async (req) => {
     const user = await adminService.setUserStatus(req.params.id, req.session.user, {
         status: req.body.status,
-        reason: req.body.reason
+        reason: req.body.reason,
+        appBaseUrl: getAppBaseUrl(req)
     });
     return { user };
 }));

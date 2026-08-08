@@ -784,7 +784,7 @@
 
 .admin-drawer {
   width: min(420px, 92vw);
-  height: 100%;
+  min-height: 100%;
   background: var(--bg-body);
   border-left: 1px solid var(--admin-surface-border);
   padding: 1.8rem;
@@ -1079,4 +1079,164 @@
   line-height: 1.6;
   color: var(--text-main);
   white-space: pre-wrap;
+}
+
+/* ═══════════════════ DRAWER: CREAR ADMIN — rediseño ═══════════════════ */
+
+.admin-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  gap: .9rem;
+  margin-bottom: 1.6rem;
+}
+
+.admin-drawer__head-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--gold), var(--gold-hover));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(190,142,86,.35);
+}
+.admin-drawer__head-icon svg { width: 22px; height: 22px; }
+
+.admin-drawer__head > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.admin-drawer__head h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+.admin-drawer__desc {
+  font-size: .78rem;
+  color: var(--text-main);
+  opacity: .6;
+  margin-top: .25rem;
+  margin-bottom: 0;
+}
+
+.admin-drawer__close {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-surface-border);
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text-main);
+  opacity: .7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .15s ease, background .15s ease, transform .15s ease;
+}
+.admin-drawer__close:hover {
+  opacity: 1;
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger);
+  transform: rotate(90deg);
+}
+
+/* Inputs con icono a la izquierda */
+.admin-input-group {
+  margin-bottom: 1.3rem;
+}
+.admin-input-group label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: .7;
+  margin-bottom: .5rem;
+  letter-spacing: .01em;
+}
+
+.admin-input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.admin-input-with-icon svg {
+  position: absolute;
+  left: .95rem;
+  width: 17px;
+  height: 17px;
+  color: var(--text-main);
+  opacity: .38;
+  pointer-events: none;
+  transition: opacity .2s ease, color .2s ease;
+  z-index: 1;
+}
+.admin-input-with-icon input {
+  width: 100%;
+  background: var(--search-bg);
+  border: 1.5px solid var(--admin-surface-border);
+  border-radius: var(--r-sm);
+  padding: .78rem .95rem .78rem 2.6rem;
+  font-size: .9rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.admin-input-with-icon input::placeholder {
+  color: var(--text-main);
+  opacity: .32;
+}
+.admin-input-with-icon input:focus {
+  outline: none;
+  background: var(--search-bg-focus);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(190,142,86,.14);
+}
+.admin-input-with-icon input:focus ~ svg,
+.admin-input-with-icon:focus-within svg {
+  opacity: .85;
+  color: var(--gold);
+}
+
+/* Indicador de fuerza de contraseña — 3 barras que se llenan progresivamente */
+.admin-password-strength {
+  display: flex;
+  gap: .35rem;
+  margin-top: .55rem;
+  height: 4px;
+}
+.admin-password-strength span {
+  flex: 1;
+  border-radius: 999px;
+  background: var(--admin-surface-border);
+  transition: background .25s ease, transform .25s ease;
+  transform-origin: left;
+}
+.admin-password-strength[data-strength="1"] span:nth-child(1) { background: var(--admin-danger); }
+.admin-password-strength[data-strength="2"] span:nth-child(1),
+.admin-password-strength[data-strength="2"] span:nth-child(2) { background: var(--gold); }
+.admin-password-strength[data-strength="3"] span:nth-child(1),
+.admin-password-strength[data-strength="3"] span:nth-child(2),
+.admin-password-strength[data-strength="3"] span:nth-child(3) { background: var(--admin-jade); }
+
+/* Botón de ancho completo con ícono, footer sin separación artificial */
+.admin-drawer__footer {
+  margin-top: auto;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--admin-surface-border);
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+}
+.admin-btn--block {
+  width: 100%;
+}
+.admin-form-status {
+  text-align: center;
 }

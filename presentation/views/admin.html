@@ -273,27 +273,49 @@
   <div class="admin-drawer-overlay" id="createAdminOverlay">
     <form class="admin-drawer" id="createAdminForm">
       <div class="admin-drawer__head">
-        <h3>Agregar administrador</h3>
+        <div class="admin-drawer__head-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        </div>
+        <div>
+          <h3>Agregar administrador</h3>
+          <p class="admin-drawer__desc">Se le asigna una contraseña propia de inmediato.</p>
+        </div>
         <button type="button" class="admin-drawer__close" id="closeCreateAdminBtn" aria-label="Cerrar">&times;</button>
       </div>
-      <p class="admin-drawer__desc">Crea una cuenta nueva con acceso al panel. Se le asigna una contraseña propia de inmediato.</p>
 
-      <div class="form-group">
+      <div class="admin-input-group">
         <label for="newAdminName">Nombre completo</label>
-        <input type="text" id="newAdminName" name="name" required autocomplete="name" />
+        <div class="admin-input-with-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="newAdminName" name="name" required autocomplete="name" placeholder="Ej. María Hernández" />
+        </div>
       </div>
-      <div class="form-group">
+
+      <div class="admin-input-group">
         <label for="newAdminEmail">Correo electrónico</label>
-        <input type="email" id="newAdminEmail" name="email" required autocomplete="email" />
+        <div class="admin-input-with-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+          <input type="email" id="newAdminEmail" name="email" required autocomplete="email" placeholder="correo@ejemplo.com" />
+        </div>
       </div>
-      <div class="form-group">
+
+      <div class="admin-input-group">
         <label for="newAdminPassword">Contraseña</label>
-        <input type="password" id="newAdminPassword" name="password" required minlength="8" autocomplete="new-password" />
+        <div class="admin-input-with-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="newAdminPassword" name="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" />
+        </div>
+        <div class="admin-password-strength" id="adminPasswordStrength">
+          <span></span><span></span><span></span>
+        </div>
       </div>
 
       <div class="admin-drawer__footer">
         <span class="admin-form-status" id="createAdminStatus"></span>
-        <button type="submit" class="admin-btn admin-btn--primary">Crear administrador</button>
+        <button type="submit" class="admin-btn admin-btn--primary admin-btn--block">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          <span>Crear administrador</span>
+        </button>
       </div>
     </form>
   </div>

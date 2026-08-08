@@ -651,6 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await apiFetch('/api/admin/users');
       state.users = data.users;
       applyUserFilters();
+      renderTeamGrid();
     } catch (error) {
       showToast('No se pudieron cargar los usuarios.', 'error');
     }
@@ -800,6 +801,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const createAdminForm = document.getElementById('createAdminForm');
   const closeCreateAdminBtn = document.getElementById('closeCreateAdminBtn');
   const createAdminStatus = document.getElementById('createAdminStatus');
+  const newAdminPasswordInput = document.getElementById('newAdminPassword');
+  const adminPasswordStrengthEl = document.getElementById('adminPasswordStrength');
+
+  function passwordStrength(password) {
+    if (!password) return 0;
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password)) score++;
+    if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) score++;
+    return Math.min(score, 3);
+  }
+
+  newAdminPasswordInput?.addEventListener('input', () => {
+    if (!adminPasswordStrengthEl) return;
+    const strength = passwordStrength(newAdminPasswordInput.value);
+    const bars = adminPasswordStrengthEl.querySelectorAll('span');
+
+    adminPasswordStrengthEl.setAttribute('data-strength', String(strength));
+
+    if (window.gsap && !reduceMotion) {
+      bars.forEach((bar, index) => {
+        gsap.to(bar, { scaleX: index < strength ? 1 : .3, duration: .3, ease: 'power2.out' });
+      });
+    }
+  });
 
   function renderTeamGrid() {
     if (!teamListBody) return;
@@ -888,6 +914,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (createAdminOverlay) createAdminOverlay.classList.remove('is-visible');
     createAdminForm?.reset();
     if (createAdminStatus) { createAdminStatus.textContent = ''; createAdminStatus.removeAttribute('data-kind'); }
+    if (adminPasswordStrengthEl) {
+      adminPasswordStrengthEl.removeAttribute('data-strength');
+      adminPasswordStrengthEl.querySelectorAll('span').forEach((bar) => {
+        if (window.gsap) gsap.set(bar, { scaleX: .3 });
+      });
+    }
   }
 
   openCreateAdminBtn?.addEventListener('click', openCreateAdminDrawer);
