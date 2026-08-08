@@ -113,6 +113,18 @@ const setUserStatus = async (id_user, requestingUser, { status, reason }) => {
             html,
             text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}`
         });
+    } else {
+        const html = `
+            <p>Hola ${target.name || ''},</p>
+            <p>Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.</p>
+        `;
+
+        await sendMail({
+            to: target.email,
+            subject: 'Tu cuenta ha sido reactivada — Salvadorean Roots',
+            html,
+            text: 'Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.'
+        });
     }
 
     const id_status = status === 'activo' ? ID_STATUS_ACTIVO : ID_STATUS_SUSPENDIDO;
