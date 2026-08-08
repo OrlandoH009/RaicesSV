@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="theme-switch-row">
         <span class="theme-switch-label" id="themeSwitchLabel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <span id="themeSwitchText" data-i18n="nav.modoOscuro">Modo oscuro</span>
+          <span id="themeSwitchText">Modo oscuro</span>
         </span>
         <button type="button" class="theme-switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Cambiar entre modo claro y oscuro">
           <span class="theme-switch__thumb">
@@ -329,8 +329,21 @@ function applyTheme(theme) {
 
   const themeSwitch = document.getElementById('themeSwitch');
   const themeText = document.getElementById('themeSwitchText');
-  if (themeSwitch) themeSwitch.setAttribute('aria-checked', theme === 'light' ? 'true' : 'false');
-  if (themeText) themeText.textContent = theme === 'light' ? 'Modo claro' : 'Modo oscuro';
+
+  if (themeSwitch) {
+    themeSwitch.setAttribute('aria-checked', theme === 'light' ? 'true' : 'false');
+  }
+
+  if (themeText) {
+    // Obtener la clave de traducción según el tema
+    const key = theme === 'light' ? 'nav.modoClaro' : 'nav.modoOscuro';
+    // Usar la traducción si está disponible, o un fallback en español
+    if (window.SRi18n) {
+      themeText.textContent = window.SRi18n.t(key, window.SRi18n.getLang());
+    } else {
+      themeText.textContent = theme === 'light' ? 'Modo claro' : 'Modo oscuro';
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -368,11 +381,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.SRi18n.applyTranslations(window.SRi18n.getLang());
   }
 
-  document.addEventListener('langchange', () => {
-  const overlay = document.getElementById('lockModalOverlay');
-  if (overlay && overlay.classList.contains('is-visible') && window.SRi18n) {
-    window.SRi18n.applyTranslations(window.SRi18n.getLang());
+// Actualizar el texto del modo oscuro/claro cuando cambia el idioma
+document.addEventListener('langchange', (event) => {
+  const themeText = document.getElementById('themeSwitchText');
+  if (themeText && window.SRi18n) {
+    const newLang = event.detail ? event.detail.lang : window.SRi18n.getLang();
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const key = isLight ? 'nav.modoClaro' : 'nav.modoOscuro';
+    themeText.textContent = window.SRi18n.t(key, newLang);
   }
+});
 });
 
   const lockOverlay = document.getElementById('lockModalOverlay');
@@ -428,7 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = link.href;
       });
   });
-});
 
 /* ============================================================
    Blindaje contra el botón "atrás/adelante" del navegador

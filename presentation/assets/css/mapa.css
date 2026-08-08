@@ -368,20 +368,15 @@
       height: 100%;
       width: 400px; /* Ajuste óptimo para albergar info de forma legible */
       max-width: 90vw;
-      
-      /* CAMBIO AQUÍ: Tono grisáceo menos oscuro (#242427) en lugar del negro puro */
       background: #242427; 
-      
-      /* CAMBIO AQUÍ: Borde sutil a juego con el fondo gris de la barra */
       border-right: 1.5px solid rgba(255, 255, 255, 0.12);
-      
       box-shadow: 8px 0 32px rgba(0,0,0,.55);
       z-index: 1300;
       transform: translateX(-100%);
-      transition: transform .35s cubic-bezier(.4, 0, .2, 1), background .4s ease;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      will-change: transform, opacity;
     }
     [data-theme="light"] .mapa-sidebar {
       background: #fffdf8;
@@ -1044,4 +1039,144 @@
     font-size: .85rem !important; /* Texto más pequeño y legible */
     line-height: 1.2 !important;
   }
+}
+/* ── Buscador dentro de la barra de filtros ── */
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50px;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid rgba(190,142,86,0.3);
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+[data-theme="light"] .search-wrapper {
+  background: rgba(17,48,104,0.05);
+  border-color: rgba(17,48,104,0.15);
+}
+.search-wrapper:focus-within {
+  border-color: var(--gold);
+  background: rgba(255,255,255,0.15);
+}
+#mapSearchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.4rem;
+  min-width: 100px;
+  width: 140px;
+}
+[data-theme="light"] #mapSearchInput {
+  color: var(--navy);
+}
+#mapSearchInput::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+[data-theme="light"] #mapSearchInput::placeholder {
+  color: rgba(17,48,104,0.4);
+}
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  display: none;
+  line-height: 1;
+}
+.search-clear:hover {
+  color: var(--white);
+}
+[data-theme="light"] .search-clear:hover {
+  color: var(--navy);
+}
+/* ── Lista de resultados de búsqueda (dentro de la barra) ── */
+.search-results-container {
+  position: absolute;
+  top: calc(100% + 6px);  /* Justo debajo de la barra */
+  left: 0;
+  width: 100%;
+  max-height: 320px;
+  overflow-y: auto;
+  background: rgba(20, 18, 16, 0.97);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(190, 142, 86, 0.5);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  padding: 0.4rem 0;
+  z-index: 9999;  /* Muy alto para estar sobre el mapa */
+  display: none;  /* Oculto por defecto */
+}
+[data-theme="light"] .search-results-container {
+  background: rgba(255, 253, 248, 0.98);
+  border-color: rgba(190, 142, 86, 0.6);
+  box-shadow: 0 12px 40px rgba(17, 48, 104, 0.2);
+}
+.search-results-container::-webkit-scrollbar {
+  width: 6px;
+}
+.search-results-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.search-results-container::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 10px;
+}
+
+.search-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.search-results-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s, color 0.15s;
+}
+[data-theme="light"] .search-results-list li {
+  color: rgba(36, 33, 29, 0.85);
+  border-bottom: 1px solid rgba(17, 48, 104, 0.06);
+}
+.search-results-list li:hover {
+  background: rgba(190, 142, 86, 0.15);
+  color: var(--gold);
+}
+.search-results-list li:last-child {
+  border-bottom: none;
+}
+.search-results-list .result-emoji {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.search-results-list .result-name {
+  flex: 1;
+  font-weight: 600;
+}
+.search-results-list .result-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.5;
+}
+.search-results-empty {
+  padding: 1.2rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+}
+[data-theme="light"] .search-results-empty {
+  color: rgba(36, 33, 29, 0.4);
 }
