@@ -40,6 +40,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.6 6.6L21 9.3l-5 4.6 1.4 6.7L12 17.3 6.6 20.6 8 13.9 3 9.3l6.4-.7L12 2z"/></svg>
           <span>Equipo</span>
         </button>
+        <button type="button" class="admin-nav__item" data-section="apelaciones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Apelaciones</span>
+          <span class="admin-nav__badge" id="appealsBadge" hidden>0</span>
+        </button>
 
         <div class="admin-nav__indicator" id="adminNavIndicator"></div>
       </nav>
@@ -237,6 +242,31 @@
         </div>
       </section>
 
+      <section class="admin-section" id="section-apelaciones" data-section-panel="apelaciones">
+
+        <div class="admin-view is-active" id="apelaciones-view-list">
+          <div class="admin-toolbar">
+            <div class="admin-filters">
+              <select id="appealsFilter">
+                <option value="unreviewed">Sin revisar</option>
+                <option value="reviewed">Revisadas</option>
+                <option value="all">Todas</option>
+                <option value="unresolved">Sin resolver (correo no coincide)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-appeals-list" id="appealsListBody"></div>
+          <div class="admin-empty-state" id="appealsEmptyState" hidden>
+            <span>No hay apelaciones en esta categoría.</span>
+          </div>
+        </div>
+
+        <div class="admin-view" id="apelaciones-view-detail">
+          <div class="admin-detail-card" id="appealDetailCard"></div>
+        </div>
+      </section>
+
     </div>
   </div>
 
@@ -274,7 +304,7 @@
       <p id="adminConfirmText">Esta acción no se puede deshacer.</p>
       <div class="form-group admin-modal__reason" id="adminConfirmReasonGroup" hidden>
         <label for="adminConfirmReasonInput">Motivo de la suspensión</label>
-        <textarea id="adminConfirmReasonInput" rows="3" maxlength="500" placeholder="Explica por qué se suspende esta cuenta… (500 caracteres máximos)"></textarea>
+        <textarea id="adminConfirmReasonInput" rows="3" maxlength="500" placeholder="Explica por qué se suspende esta cuenta…"></textarea>
       </div>
       <div class="admin-modal__actions">
         <button type="button" class="admin-btn admin-btn--ghost" id="adminConfirmCancel">Cancelar</button>
