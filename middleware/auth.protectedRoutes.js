@@ -9,18 +9,22 @@ async function protectRoute(req, res, next) {
     try {
         const user = await userRepository.findById(req.session.user.id);
 
-        if (!user || user.status_name === 'Suspendido') {
+        if (!user) {
             req.session.destroy(() => {
                 res.clearCookie('raices.sid');
-                res.redirect('/login.html?suspendido=1');
+                res.redirect('/login.html');
             });
             return;
         }
 
+        if (user.status_name === 'Suspendido') {
+            return res.redirect('/?suspendido=1');
+        }
+
         return next();
     } catch (error) {
-        console.error('Error verificando estado de usuario en protectRoute:', error);
-        return next(); // ante un error de BD, no bloqueamos al usuario por un problema ajeno a él
+        console.error('Error verificando el estado de la cuenta del usuario en protectRoutes:', error);
+        return next();
     }
 }
 
