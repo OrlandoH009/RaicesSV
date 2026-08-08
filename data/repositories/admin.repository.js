@@ -166,6 +166,90 @@ const createSuspensionRecord = (id_user, suspended_by, reason) => {
     })
 }
 
+const createAppeal = (id_user, email, message, is_valid) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO appeals(id_user, email, message, is_valid) VALUES (?, ?, ?, ?)',
+            [id_user, email, message, is_valid],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const findValidAppeals = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT a.*, u.name AS user_name, u.avatar_url AS user_avatar_url
+            FROM appeals a
+            LEFT JOIN users u ON u.id_user = a.id_user
+            WHERE a.is_valid = TRUE
+            ORDER BY a.reviewed_at IS NULL DESC, a.created_at DESC`,
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
+const findInvalidAppeals = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT * FROM appeals
+            WHERE is_valid = FALSE
+            ORDER BY created_at DESC`,
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
+const findAppealById = (id_appeal) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT a.*, u.name AS user_name, u.avatar_url AS user_avatar_url
+            FROM appeals a
+            LEFT JOIN users u ON u.id_user = a.id_user
+            WHERE a.id_appeal = ?`,
+            [id_appeal],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const markAppealReviewed = (id_appeal) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE appeals SET reviewed_at = NOW() WHERE id_appeal = ? AND reviewed_at IS NULL',
+            [id_appeal],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const countUnreviewedAppeals = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT COUNT(*) AS total FROM appeals WHERE is_valid = TRUE AND reviewed_at IS NULL',
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0].total);
+            }
+        );
+    });
+};
+
 const createAdminInvitation = (id_user, invited_by, tokenHash, expiresAt) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -261,6 +345,12 @@ module.exports = {
     deleteUserById,
     createAdminUser,
     createSuspensionRecord,
+    createAppeal,
+    findValidAppeals,
+    findInvalidAppeals,
+    findAppealById,
+    markAppealReviewed,
+    countUnreviewedAppeals,
     createAdminInvitation,
     findValidAdminInvitation,
     markAdminInvitationUsed,
