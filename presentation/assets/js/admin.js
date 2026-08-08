@@ -485,9 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isSelf = me.id === targetUser.id;
     const iAmFundador = me.role === 'Fundador';
+    const targetIsAdmin = targetUser.role === 'Admin';
 
     return {
-      canSuspend: !isSelf && targetUser.role !== 'Fundador',
+      canSuspend: !isSelf && targetUser.role !== 'Fundador' && (!targetIsAdmin || iAmFundador),
       canPromote: !isSelf && targetUser.role === 'Usuario',
       canDemote: !isSelf && iAmFundador && targetUser.role === 'Admin',
       canDelete: !isSelf && iAmFundador && targetUser.role === 'Admin'
