@@ -84,8 +84,12 @@ const setUserStatus = async (id_user, requestingUser, { status, reason }) => {
         const err = new Error('Usuario no encontrado.'); err.expose = true; throw err;
     }
 
-    if (target.role_name === ROL_FUNDADOR && status === 'suspendido') {
+     if (target.role_name === ROL_FUNDADOR && status === 'suspendido') {
         const err = new Error('El Fundador del sitio no puede ser suspendido.'); err.expose = true; err.status = 403; throw err;
+    }
+
+    if (target.role_name === ROL_ADMIN && requestingUser.role !== ROL_FUNDADOR) {
+        const err = new Error('Solo el fundador puede suspender a un administrador'); err.expose = true; err.status = 403; throw err;
     }
 
     const currentStatus = target.status_name === 'Suspendido' ? 'suspendido' : 'activo';
