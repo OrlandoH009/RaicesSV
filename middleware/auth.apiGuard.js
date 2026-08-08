@@ -11,17 +11,21 @@ const requireApiAuth = async(req, res, next) => {
     try {
         const user = await userRepository.findById(req.session.user.id);
 
-        if (!user || user.status_name === 'Suspendido') {
+        if (!user) {
             req.session.destroy(() => {
                 res.clearCookie('raices.sid');
-                res.status(403).json({ message: 'Tu cuenta ha sido suspendida.' });
+                res.status(401).json({ message: 'Debes iniciar sesión.' });
             });
             return;
         }
 
+        if (user.status_name === 'Suspendido') {
+            return res.status(403).json({ message: 'Tu cuenta ha sido suspendida.', suspended: true });
+        }
+
         next();
     } catch (error) {
-        console.error('Error verificando estado de usuario en requireApiAuth;', error);
+        console.error('Error verificando estado de usuario en requireApiAuth:', error);
         next();
     }
 };
