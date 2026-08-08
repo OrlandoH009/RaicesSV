@@ -20,6 +20,15 @@ router.get('/auth/google', (req, res, next) => {
     next();
 }, passport.authenticate('google', {scope: ['profile', 'email'], session: false, prompt: 'select_account'}));
 
-router.get('/auth/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login.html' }), googleCallback);
+router.get('/auth/google/callback', (req, res, next) => {
+    passport.authenticate('google', { session: false }, (err, user) => {
+        if (err || !user) {
+            const isSuspended = err && /suspendida/i.test(err.message);
+            return res.redirect(isSuspended ? '/login.html?suspendido=1' : '/login.html');
+        }
+        req.user = user;
+        next();
+    })(req, res, next);
+}, googleCallback);
 
 module.exports = router;

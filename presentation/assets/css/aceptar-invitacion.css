@@ -1,0 +1,211 @@
+/* Salvadorean Roots — aceptar-invitacion.css
+   Página de investidura: alguien fue invitado a ser administrador.
+   El dorado es protagonista, no acento. Un solo momento de espectáculo
+   (el sello), todo lo demás sobrio para no competirle. */
+
+:root {
+  --invite-surface:        rgba(255, 255, 255, .05);
+  --invite-surface-border: rgba(190, 142, 86, .28);
+}
+
+[data-theme="light"] {
+  --invite-surface:        #ffffff;
+  --invite-surface-border: rgba(190, 142, 86, .35);
+}
+
+.invite-body {
+  background: var(--black);
+  min-height: 100vh;
+  transition: background .4s ease;
+}
+[data-theme="light"] .invite-body { background: var(--bg-body); }
+
+.invite-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.invite-page__bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(190,142,86,.16), transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(17,48,104,.5), transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(190,142,86,.08), transparent 55%);
+}
+[data-theme="light"] .invite-page__bg {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(190,142,86,.22), transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(74,94,194,.12), transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(190,142,86,.14), transparent 55%);
+}
+
+.invite-card {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+  background: var(--invite-surface);
+  border: 1px solid var(--invite-surface-border);
+  border-radius: var(--r-lg);
+  padding: 3rem 2.4rem 2.6rem;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0,0,0,.35);
+}
+
+/* Sello ceremonial: anillo punteado girando + emblema al centro,
+   se "estampa" con un pop de escala al cargar (ver JS). */
+.invite-seal {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 1.6rem;
+  color: var(--gold);
+}
+.invite-seal__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: invite-ring-spin 22s linear infinite;
+}
+.invite-seal__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+}
+@keyframes invite-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invite-seal__ring { animation: none; }
+}
+
+.invite-eyebrow {
+  display: block;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: .5rem;
+}
+
+.invite-card h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
+  color: var(--text-main);
+  line-height: 1.25;
+  margin-bottom: .6rem;
+}
+
+.invite-sub {
+  font-size: .9rem;
+  color: var(--text-main);
+  opacity: .68;
+  margin-bottom: 2rem;
+}
+
+.invite-form {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.invite-form .form-group label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: .75;
+  margin-bottom: .4rem;
+}
+.invite-form .form-group input {
+  width: 100%;
+  background: var(--search-bg);
+  border: 1px solid var(--invite-surface-border);
+  border-radius: var(--r-sm);
+  padding: .8rem 1rem;
+  font-size: .92rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background .2s ease, border-color .2s ease;
+}
+.invite-form .form-group input:focus {
+  outline: none;
+  background: var(--search-bg-focus);
+  border-color: var(--gold);
+}
+
+.invite-submit {
+  margin-top: .4rem;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: .9rem 1.4rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+  transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
+}
+.invite-submit:hover {
+  background: var(--gold-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(190,142,86,.32);
+}
+.invite-submit:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.invite-status {
+  display: block;
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 600;
+  min-height: 1.1em;
+}
+.invite-status[data-kind="error"] { color: #c0483b; }
+.invite-status[data-kind="success"] { color: #4f8f6b; }
+
+#invite-toast {
+  min-height: 0;
+}
+
+.invite-expired {
+  text-align: center;
+}
+.invite-expired p {
+  font-size: .9rem;
+  color: var(--text-main);
+  opacity: .75;
+  margin-bottom: 1.4rem;
+}
+.invite-link {
+  display: inline-block;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: .88rem;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 2px;
+}
+.invite-link:hover { color: var(--gold-hover); border-color: var(--gold-hover); }
+
+@media (max-width: 480px) {
+  .invite-card { padding: 2.4rem 1.6rem 2rem; }
+}
