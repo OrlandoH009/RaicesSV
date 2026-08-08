@@ -27,32 +27,32 @@
     </div>
     <div class="welcome-overlay__content">
       <span class="welcome-overlay__emoji" id="welcomeEmoji">🏛️</span>
-      <p class="welcome-overlay__eyebrow">Salvadorean Roots — Sitios Culturales</p>
-      <h2 class="welcome-overlay__title">Raíces de Piedra</h2>
-      <p class="welcome-overlay__sub">Desde ciudades mayas sepultadas por volcanes hasta catedrales que guardan un siglo de historia</p>
+      <p class="welcome-overlay__eyebrow" data-i18n="sit.welcome.eyebrow">Salvadorean Roots — Sitios Culturales</p>
+      <h2 class="welcome-overlay__title" data-i18n="sit.welcome.title">Raíces de Piedra</h2>
+      <p class="welcome-overlay__sub" data-i18n="sit.welcome.sub">Desde ciudades mayas sepultadas por volcanes hasta catedrales que guardan un siglo de historia</p>
  
       <div class="welcome-overlay__stats">
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="11">0</span>
-          <span class="welcome-stat__label">Sitios</span>
+          <span class="welcome-stat__label" data-i18n="sit.welcome.stat1">Sitios</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="1">0</span>
-          <span class="welcome-stat__label">Patrimonio UNESCO</span>
+          <span class="welcome-stat__label" data-i18n="sit.welcome.stat2">Patrimonio UNESCO</span>
         </div>
         <div class="welcome-stat">
           <span class="welcome-stat__num" data-count-to="1600">0</span>
-          <span class="welcome-stat__label">Años de historia</span>
+          <span class="welcome-stat__label" data-i18n="sit.welcome.stat3">Años de historia</span>
         </div>
       </div>
  
       <p class="welcome-overlay__fact">
-        <span class="welcome-fact__label">¿Sabías qué?</span>
-        <span class="welcome-fact__text" id="welcomeFactText">Joya de Cerén es conocida como la "Pompeya de América" por quedar sepultada bajo ceniza volcánica en el año 590.</span>
+        <span class="welcome-fact__label" data-i18n="sit.welcome.factLabel">¿Sabías qué?</span>
+        <span class="welcome-fact__text" id="welcomeFactText" data-i18n="sit.fact.0">Joya de Cerén es conocida como la "Pompeya de América" por quedar sepultada bajo ceniza volcánica en el año 590.</span>
       </p>
  
-      <button class="welcome-overlay__cta" id="welcomeCta">Explorar sitios →</button>
-      <p class="welcome-overlay__hint">o presiona <kbd>Esc</kbd> para saltar</p>
+      <button class="welcome-overlay__cta" id="welcomeCta" data-i18n="sit.welcome.cta">Explorar sitios →</button>
+      <p class="welcome-overlay__hint" data-i18n="sit.welcome.hint">o presiona <kbd>Esc</kbd> para saltar</p>
     </div>
   </div>
  
@@ -60,37 +60,32 @@
     (function () {
       const overlay = document.getElementById('welcomeOverlay');
       if (!overlay) return;
- 
+
       document.body.classList.add('welcome-lock');
- 
-        const facts = [
-          'Joya de Cerén es conocida como la "Pompeya de América" por quedar sepultada bajo ceniza volcánica en el año 590.',
-          'Tazumal cuenta con una pirámide escalonada construida en 14 etapas a lo largo de siglos.',
-          'La Catedral Metropolitana tardó más de 100 años en construirse, tras ser destruida dos veces por terremotos.',
-          'El Teatro Nacional, inaugurado en 1917, es el teatro más antiguo aún en funciones en Centroamérica.',
-          'Suchitoto significa "lugar del pájaro flor" en náhuatl.'
-        ];
+
+        const factKeys = ['gap.fact.0', 'gap.fact.1', 'gap.fact.2', 'gap.fact.3', 'gap.fact.4'];
         const factEl = document.getElementById('welcomeFactText');
         let factIndex = 0;
- 
+
         function rotateFact() {
           if (!factEl || typeof gsap === 'undefined') return;
           gsap.to(factEl, {
             opacity: 0, y: -6, duration: .3, ease: 'power1.in',
             onComplete: () => {
-              factIndex = (factIndex + 1) % facts.length;
-              factEl.innerHTML = facts[factIndex];
+              factIndex = (factIndex + 1) % factKeys.length;
+              const lang = (window.SRi18n && window.SRi18n.getLang) ? window.SRi18n.getLang() : 'es';
+              factEl.innerHTML = window.SRi18n ? window.SRi18n.t(factKeys[factIndex], lang) : factKeys[factIndex];
               gsap.fromTo(factEl, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' });
             }
           });
         }
         const factTimer = setInterval(rotateFact, 3800);
- 
+
         const cta = document.getElementById('welcomeCta');
         const emoji = document.getElementById('welcomeEmoji');
         const stats = overlay.querySelectorAll('.welcome-stat__num');
         const orbitItems = overlay.querySelectorAll('.welcome-orbit-item');
- 
+
         function closeWelcome() {
           clearInterval(factTimer);
           if (typeof gsap === 'undefined') { overlay.remove(); document.body.classList.remove('welcome-lock'); return; }
@@ -99,20 +94,43 @@
             onComplete: () => { overlay.remove(); document.body.classList.remove('welcome-lock'); }
           });
         }
- 
+
         if (typeof gsap !== 'undefined') {
           gsap.set(orbitItems, { opacity: 0 });
           const tl = gsap.timeline();
-          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)' })
-            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4 }, '-=.3')
-            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out' }, '-=.3')
-            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out' }, '-=.25')
-            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4 }, '-=.4')
-            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out' }, '-=.2')
-            .from('.welcome-overlay__hint', { opacity: 0, duration: .4 }, '-=.2')
+          tl.from(emoji, { scale: 0, rotate: -25, duration: .6, ease: 'back.out(2.2)', clearProps: 'transform' })
+            .from('.welcome-overlay__eyebrow', { opacity: 0, y: 10, duration: .4, clearProps: 'opacity,transform' }, '-=.3')
+            .from('.welcome-overlay__title', { y: 24, opacity: 0, duration: .55, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__sub', { y: 16, opacity: 0, duration: .5, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.3')
+            .from(stats, { y: 14, opacity: 0, duration: .45, stagger: .08, ease: 'power2.out', clearProps: 'opacity,transform' }, '-=.25')
+            .from('.welcome-overlay__fact', { opacity: 0, y: 12, duration: .4, clearProps: 'opacity,transform' }, '-=.4')
+            .from(cta, { y: 12, opacity: 0, duration: .45, ease: 'power3.out', clearProps: 'opacity,transform' }, '-=.2')
+            .from('.welcome-overlay__hint', { opacity: 0, duration: .4, clearProps: 'opacity,transform' }, '-=.2')
             .to(orbitItems, { opacity: .55, duration: .6, stagger: .06 }, '-=.6');
- 
+
+          // Failsafe: si el timeline no llega a completar (pestaña en
+          // segundo plano, GSAP tardío, etc.) el título y demás textos
+          // del overlay no deben quedar invisibles para siempre.
+          setTimeout(() => {
+            [
+              '.welcome-overlay__eyebrow', '.welcome-overlay__title', '.welcome-overlay__sub',
+              '.welcome-overlay__fact', '.welcome-overlay__hint'
+            ].forEach(sel => {
+              overlay.querySelectorAll(sel).forEach(el => {
+                const opacity = window.getComputedStyle(el).opacity;
+                if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+              });
+            });
+            stats.forEach(el => {
+              const opacity = window.getComputedStyle(el).opacity;
+              if (parseFloat(opacity) < 0.05) { el.style.opacity = ''; el.style.transform = ''; }
+            });
+            if (cta) {
+              const opacity = window.getComputedStyle(cta).opacity;
+              if (parseFloat(opacity) < 0.05) { cta.style.opacity = ''; cta.style.transform = ''; }
+            }
+          }, 1500);
+
           stats.forEach((el, i) => {
             const target = +el.dataset.countTo;
             const counter = { val: 0 };
@@ -125,15 +143,15 @@
               onComplete: () => { el.textContent = target; }
             });
           });
- 
+
           gsap.to(emoji, { y: -8, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1 });
           gsap.to('.welcome-overlay__orbit', { rotate: 360, duration: 40, repeat: -1, ease: 'none' });
           orbitItems.forEach(el => gsap.to(el, { rotate: -360, duration: 40, repeat: -1, ease: 'none' }));
- 
+
           emoji.addEventListener('mouseenter', () => gsap.to(emoji, { scale: 1.15, rotate: 8, duration: .3, ease: 'back.out(3)' }));
           emoji.addEventListener('mouseleave', () => gsap.to(emoji, { scale: 1, rotate: 0, duration: .3, ease: 'power2.out' }));
         }
- 
+
         cta.addEventListener('click', closeWelcome);
         overlay.addEventListener('click', (e) => { if (e.target === overlay) closeWelcome(); });
         document.addEventListener('keydown', function esc(e) {
@@ -143,7 +161,7 @@
   </script>
  
   <nav class="navbar" id="navbar">
-    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" /></a></div>
+    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" /></a></div>
     <ul class="navbar__links">
       <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
       <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
@@ -152,6 +170,7 @@
     </ul>
     <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
     </button>
     <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
@@ -164,6 +183,12 @@
     <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
     <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
+
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
+    <div class="drawer-divider"></div>
     <div class="drawer-auth">
       <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
       <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
@@ -173,29 +198,29 @@
  
   <main>
     <section class="page-badge">
-      <div class="page-badge__inner reveal"><h1>Sitios Culturales</h1></div>
+      <div class="page-badge__inner reveal"><h1 data-i18n="cards.sitios">Sitios Culturales</h1></div>
     </section>
  
   <div class="info-tabs reveal">
-    <p class="info-tabs__label">¿Qué sitio quieres explorar?</p>
+    <p class="info-tabs__label" data-i18n="sit.tabsLabel">¿Qué sitio quieres explorar?</p>
     <div class="info-tabs__carousel">
-      <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior">
+      <button class="info-tabs__arrow" id="tabsPrev" aria-label="Anterior" data-i18n-attr="aria-label:evp.tabsPrev">
         <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
       </button>
       <div class="info-tabs__list" id="tabsList">
-        <button class="tab-btn active" data-tab="salvador">Salvador del Mundo</button>
-        <button class="tab-btn" data-tab="tazumal">Tazumal</button>
-        <button class="tab-btn" data-tab="joya">Joya de Cerén</button>
-        <button class="tab-btn" data-tab="suchitoto">Suchitoto</button>
-        <button class="tab-btn" data-tab="catedral">Catedral Metropolitana</button>
-        <button class="tab-btn" data-tab="muna">MUNA</button>
-        <button class="tab-btn" data-tab="sanandres">San Andrés</button>
-        <button class="tab-btn" data-tab="casablanca">Casa Blanca</button>
-        <button class="tab-btn" data-tab="palacionacional">Palacio Nacional</button>
-        <button class="tab-btn" data-tab="teatronacional">Teatro Nacional</button>
-        <button class="tab-btn" data-tab="elrosario">Iglesia El Rosario</button>
+        <button class="tab-btn active" data-tab="salvador" data-i18n="sit.tab.salvador">Salvador del Mundo</button>
+        <button class="tab-btn" data-tab="tazumal" data-i18n="sit.tab.tazumal">Tazumal</button>
+        <button class="tab-btn" data-tab="joya" data-i18n="sit.tab.joya">Joya de Cerén</button>
+        <button class="tab-btn" data-tab="suchitoto" data-i18n="sit.tab.suchitoto">Suchitoto</button>
+        <button class="tab-btn" data-tab="catedral" data-i18n="sit.tab.catedral">Catedral Metropolitana</button>
+        <button class="tab-btn" data-tab="muna" data-i18n="sit.tab.muna">MUNA</button>
+        <button class="tab-btn" data-tab="sanandres" data-i18n="sit.tab.sanandres">San Andrés</button>
+        <button class="tab-btn" data-tab="casablanca" data-i18n="sit.tab.casablanca">Casa Blanca</button>
+        <button class="tab-btn" data-tab="palacionacional" data-i18n="sit.tab.palacionacional">Palacio Nacional</button>
+        <button class="tab-btn" data-tab="teatronacional" data-i18n="sit.tab.teatronacional">Teatro Nacional</button>
+        <button class="tab-btn" data-tab="elrosario" data-i18n="sit.tab.elrosario">Iglesia El Rosario</button>
       </div>
-      <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente">
+      <button class="info-tabs__arrow" id="tabsNext" aria-label="Siguiente" data-i18n-attr="aria-label:evp.tabsNext">
         <svg viewBox="0 0 24 24"><path d="m8.6 16.6 1.4 1.4 6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
       </button>
     </div>
@@ -206,27 +231,27 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/salvador-mundo.jpg" alt="Salvador del Mundo" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Salvador del Mundo</h2>
-          <p class="info-content__hero-sub">San Salvador, El Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.salvador.title">Salvador del Mundo</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.salvador.sub">San Salvador, El Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">San Salvador</span>
-            <span class="info-chip">Desde 1942</span>
-            <span class="info-chip">Bien Cultural</span>
-            <span class="info-chip">Monumento religioso</span>
+            <span class="info-chip" data-i18n="sit.salvador.chip1">San Salvador</span>
+            <span class="info-chip" data-i18n="sit.salvador.chip2">Desde 1942</span>
+            <span class="info-chip" data-i18n="sit.salvador.chip3">Bien Cultural</span>
+            <span class="info-chip" data-i18n="sit.salvador.chip4">Monumento religioso</span>
           </div>
-          <h3>Historia del monumento</h3>
-          <p>El monumento al Divino Salvador del Mundo es uno de los símbolos más representativos de El Salvador. La plaza que lleva su nombre fue edificada en 1942 con motivo de la celebración del Primer Congreso Eucarístico Nacional y la creación de la Arquidiócesis de San Salvador, bajo la supervisión del arquitecto José María Barahona Villaseñor.</p>
-          <p>La escultura tiene una historia anterior a la construcción de la plaza. Fue encargada por Concepción Araujo de Mena en memoria de su padre, el expresidente Manuel Enrique Araujo, originalmente para ser colocada en su tumba en el Cementerio General de Los Ilustres. La imagen fue traída de Italia y elaborada en mármol de Carrara.</p>
-          <p>Posteriormente, la escultura fue donada al arzobispo de San Salvador, monseñor Luis Chávez y González. Entre 1938 y 1942 permaneció frente al Seminario San José de la Montaña y en 1942 fue colocada sobre el monumento construido en la entrada de San Salvador. La figura representa a Jesucristo de pie sobre un globo terráqueo que simboliza los continentes.</p>
-          <h3>Importancia cultural</h3>
-          <p>El Divino Salvador del Mundo forma parte de la identidad histórica, religiosa y cultural de San Salvador. Cada año, durante las Fiestas Agostinas, celebradas del 1 al 6 de agosto en honor al Divino Salvador del Mundo, patrono de la capital, miles de salvadoreños participan en actividades religiosas, culturales y tradicionales que forman parte de las celebraciones patronales de la ciudad.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>La Plaza Salvador del Mundo se encuentra en San Salvador, en la intersección del Paseo General Escalón, avenida Manuel Enrique Araujo, Alameda Roosevelt y bulevar Constitución. Es uno de los principales puntos de referencia de la capital y adquiere especial importancia durante las Fiestas Agostinas, cuando se desarrollan diversas actividades tradicionales en sus alrededores.</p>
+          <h3 data-i18n="sit.salvador.h1">Historia del monumento</h3>
+          <p data-i18n="sit.salvador.p1">El monumento al Divino Salvador del Mundo es uno de los símbolos más representativos de El Salvador. La plaza que lleva su nombre fue edificada en 1942 con motivo de la celebración del Primer Congreso Eucarístico Nacional y la creación de la Arquidiócesis de San Salvador, bajo la supervisión del arquitecto José María Barahona Villaseñor.</p>
+          <p data-i18n="sit.salvador.p2">La escultura tiene una historia anterior a la construcción de la plaza. Fue encargada por Concepción Araujo de Mena en memoria de su padre, el expresidente Manuel Enrique Araujo, originalmente para ser colocada en su tumba en el Cementerio General de Los Ilustres. La imagen fue traída de Italia y elaborada en mármol de Carrara.</p>
+          <p data-i18n="sit.salvador.p3">Posteriormente, la escultura fue donada al arzobispo de San Salvador, monseñor Luis Chávez y González. Entre 1938 y 1942 permaneció frente al Seminario San José de la Montaña y en 1942 fue colocada sobre el monumento construido en la entrada de San Salvador. La figura representa a Jesucristo de pie sobre un globo terráqueo que simboliza los continentes.</p>
+          <h3 data-i18n="sit.salvador.h2">Importancia cultural</h3>
+          <p data-i18n="sit.salvador.p4">El Divino Salvador del Mundo forma parte de la identidad histórica, religiosa y cultural de San Salvador. Cada año, durante las Fiestas Agostinas, celebradas del 1 al 6 de agosto en honor al Divino Salvador del Mundo, patrono de la capital, miles de salvadoreños participan en actividades religiosas, culturales y tradicionales que forman parte de las celebraciones patronales de la ciudad.</p>
+          <h3 data-i18n="sit.salvador.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.salvador.p5">La Plaza Salvador del Mundo se encuentra en San Salvador, en la intersección del Paseo General Escalón, avenida Manuel Enrique Araujo, Alameda Roosevelt y bulevar Constitución. Es uno de los principales puntos de referencia de la capital y adquiere especial importancia durante las Fiestas Agostinas, cuando se desarrollan diversas actividades tradicionales en sus alrededores.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=salvador&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=salvador" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=salvador&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=salvador" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -237,25 +262,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/Tazumal.jpg" alt="Tazumal" style="object-position: center 60%;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Tazumal</h2>
-          <p class="info-content__hero-sub">Chalchuapa, Santa Ana — Sitio arqueológico</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.tazumal.title">Tazumal</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.tazumal.sub">Chalchuapa, Santa Ana — Sitio arqueológico</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Chalchuapa, Santa Ana</span>
-            <span class="info-chip">100 d.C. – 1200 d.C.</span>
-            <span class="info-chip">Cultura mesoamericana</span>
-            <span class="info-chip">Entrada con costo</span>
+            <span class="info-chip" data-i18n="sit.tazumal.chip1">Chalchuapa, Santa Ana</span>
+            <span class="info-chip" data-i18n="sit.tazumal.chip2">100 d.C. – 1200 d.C.</span>
+            <span class="info-chip" data-i18n="sit.tazumal.chip3">Cultura mesoamericana</span>
+            <span class="info-chip" data-i18n="sit.tazumal.chip4">Entrada con costo</span>
           </div>
-          <h3>¿Qué es Tazumal?</h3>
-          <p>Tazumal es uno de los sitios arqueológicos más importantes de El Salvador y forma parte de la extensa zona arqueológica de Chalchuapa, en Santa Ana. El sitio fue escenario de un importante y sofisticado asentamiento que recibió influencias de diferentes grupos mesoamericanos, entre ellos los mayas, teotihuacanos y toltecas. Tazumal alcanzó especial importancia durante el período Clásico, cuando se convirtió en un centro rector regional.</p>
-          <h3>Descubrimientos arqueológicos</h3>
-          <p>El sitio fue registrado formalmente en 1940 por el arqueólogo estadounidense Stanley Boggs, quien identificó 13 estructuras, entre ellas la Estructura 1, el montículo principal de aproximadamente 24 metros de altura. Entre los elementos arqueológicos destacados se encuentran estructuras monumentales, un juego de pelota, sistemas de drenaje y la Estela de Tazumal, además de diversos objetos y materiales arqueológicos relacionados con la larga ocupación de Chalchuapa.</p>
-          <h3>Visita al sitio</h3>
-          <p>Tazumal está ubicado en el corazón de Chalchuapa, departamento de Santa Ana, aproximadamente a 80 kilómetros al occidente de San Salvador. El Parque Arqueológico cuenta con un espacio museográfico y recorridos guiados para conocer la historia y las estructuras del sitio. Actualmente, el Ministerio de Cultura informa que está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., con entrada diferenciada según el tipo de visitante.</p>
+          <h3 data-i18n="sit.tazumal.h1">¿Qué es Tazumal?</h3>
+          <p data-i18n="sit.tazumal.p1">Tazumal es uno de los sitios arqueológicos más importantes de El Salvador y forma parte de la extensa zona arqueológica de Chalchuapa, en Santa Ana. El sitio fue escenario de un importante y sofisticado asentamiento que recibió influencias de diferentes grupos mesoamericanos, entre ellos los mayas, teotihuacanos y toltecas. Tazumal alcanzó especial importancia durante el período Clásico, cuando se convirtió en un centro rector regional.</p>
+          <h3 data-i18n="sit.tazumal.h2">Descubrimientos arqueológicos</h3>
+          <p data-i18n="sit.tazumal.p2">El sitio fue registrado formalmente en 1940 por el arqueólogo estadounidense Stanley Boggs, quien identificó 13 estructuras, entre ellas la Estructura 1, el montículo principal de aproximadamente 24 metros de altura. Entre los elementos arqueológicos destacados se encuentran estructuras monumentales, un juego de pelota, sistemas de drenaje y la Estela de Tazumal, además de diversos objetos y materiales arqueológicos relacionados con la larga ocupación de Chalchuapa.</p>
+          <h3 data-i18n="sit.tazumal.h3">Visita al sitio</h3>
+          <p data-i18n="sit.tazumal.p3">Tazumal está ubicado en el corazón de Chalchuapa, departamento de Santa Ana, aproximadamente a 80 kilómetros al occidente de San Salvador. El Parque Arqueológico cuenta con un espacio museográfico y recorridos guiados para conocer la historia y las estructuras del sitio. Actualmente, el Ministerio de Cultura informa que está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., con entrada diferenciada según el tipo de visitante.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=tazumal&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=tazumal" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=tazumal&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=tazumal" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -266,25 +291,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/Joya Ceren.jpg" alt="Joya de Cerén" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Joya de Cerén</h2>
-          <p class="info-content__hero-sub">La Libertad — Patrimonio Mundial de la UNESCO</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.joya.title">Joya de Cerén</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.joya.sub">La Libertad — Patrimonio Mundial de la UNESCO</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">La Libertad</span>
-            <span class="info-chip">590 – 650 d.C.</span>
-            <span class="info-chip">Aldea de origen maya</span>
-            <span class="info-chip">Patrimonio Mundial 1993</span>
+            <span class="info-chip" data-i18n="sit.joya.chip1">La Libertad</span>
+            <span class="info-chip" data-i18n="sit.joya.chip2">590 – 650 d.C.</span>
+            <span class="info-chip" data-i18n="sit.joya.chip3">Aldea de origen maya</span>
+            <span class="info-chip" data-i18n="sit.joya.chip4">Patrimonio Mundial 1993</span>
           </div>
-          <h3>La "Pompeya de América"</h3>
-          <p>Joya de Cerén es un antiguo asentamiento agrícola habitado por pobladores de origen maya entre aproximadamente el 590 y 650 d.C. La aldea fue sepultada por las cenizas de la erupción del volcán Loma Caldera alrededor del año 650 d.C., lo que permitió conservar gran parte de sus estructuras y objetos cotidianos. Por su excepcional estado de conservación y por mostrar la vida diaria de una comunidad agrícola mesoamericana, es conocida como la "Pompeya de América".</p>
-          <h3>Lo que se encontró</h3>
-          <p>Las investigaciones arqueológicas han permitido conocer numerosos aspectos de la vida cotidiana de sus antiguos habitantes. En el sitio se conservan estructuras habitacionales, bodegas, una cocina, un temazcal o baño de vapor, vasijas de cerámica y restos de alimentos, plantas y animales domésticos. Estos hallazgos permiten comprender cómo vivían, trabajaban y organizaban sus actividades las comunidades que habitaron esta antigua aldea.</p>
-          <h3>Cómo llegar</h3>
-          <p>Joya de Cerén se encuentra en el Valle de Zapotitán, en el departamento de La Libertad, aproximadamente a 36 km al noroeste de San Salvador y a unos 6 km al sur de San Juan Opico. El parque cuenta con un área de visita, servicio de guías gratuitos y espacios destinados a la conservación y difusión del patrimonio arqueológico. Actualmente, el Ministerio de Cultura indica un horario de martes a domingo, de 9:00 a. m. a 4:00 p. m.</p>
+          <h3 data-i18n="sit.joya.h1">La "Pompeya de América"</h3>
+          <p data-i18n="sit.joya.p1">Joya de Cerén es un antiguo asentamiento agrícola habitado por pobladores de origen maya entre aproximadamente el 590 y 650 d.C. La aldea fue sepultada por las cenizas de la erupción del volcán Loma Caldera alrededor del año 650 d.C., lo que permitió conservar gran parte de sus estructuras y objetos cotidianos. Por su excepcional estado de conservación y por mostrar la vida diaria de una comunidad agrícola mesoamericana, es conocida como la "Pompeya de América".</p>
+          <h3 data-i18n="sit.joya.h2">Lo que se encontró</h3>
+          <p data-i18n="sit.joya.p2">Las investigaciones arqueológicas han permitido conocer numerosos aspectos de la vida cotidiana de sus antiguos habitantes. En el sitio se conservan estructuras habitacionales, bodegas, una cocina, un temazcal o baño de vapor, vasijas de cerámica y restos de alimentos, plantas y animales domésticos. Estos hallazgos permiten comprender cómo vivían, trabajaban y organizaban sus actividades las comunidades que habitaron esta antigua aldea.</p>
+          <h3 data-i18n="sit.joya.h3">Cómo llegar</h3>
+          <p data-i18n="sit.joya.p3">Joya de Cerén se encuentra en el Valle de Zapotitán, en el departamento de La Libertad, aproximadamente a 36 km al noroeste de San Salvador y a unos 6 km al sur de San Juan Opico. El parque cuenta con un área de visita, servicio de guías gratuitos y espacios destinados a la conservación y difusión del patrimonio arqueológico. Actualmente, el Ministerio de Cultura indica un horario de martes a domingo, de 9:00 a. m. a 4:00 p. m.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=joya&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=joya" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=joya&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=joya" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -295,25 +320,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/Suchitoto.webp" alt="Suchitoto" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Suchitoto</h2>
-          <p class="info-content__hero-sub">Cuscatlán — Ciudad colonial y destino cultural</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.suchitoto.title">Suchitoto</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.suchitoto.sub">Cuscatlán — Ciudad colonial y destino cultural</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Cuscatlán</span>
-            <span class="info-chip">Ciudad colonial</span>
-            <span class="info-chip">Patrimonio cultural</span>
-            <span class="info-chip">Lago Suchitlán</span>
+            <span class="info-chip" data-i18n="sit.suchitoto.chip1">Cuscatlán</span>
+            <span class="info-chip" data-i18n="sit.suchitoto.chip2">Ciudad colonial</span>
+            <span class="info-chip" data-i18n="sit.suchitoto.chip3">Patrimonio cultural</span>
+            <span class="info-chip" data-i18n="sit.suchitoto.chip4">Lago Suchitlán</span>
           </div>
-          <h3>La joya colonial</h3>
-          <p>Suchitoto significa en lengua náhuat <em>"lugar de pájaros y flores"</em>. Ubicada a unos 47 kilómetros de San Salvador, esta ciudad conserva una importante riqueza histórica y cultural, destacada por sus calles empedradas, casas de arquitectura tradicional, techos de teja y balcones. En sus alrededores también se encuentran centros culturales, galerías, museos, talleres artesanales y otros espacios dedicados al arte y la cultura.</p>
-          <h3>Arte y festivales</h3>
-          <p>Suchitoto es reconocido por su intensa actividad cultural y es sede de importantes encuentros artísticos a lo largo del año. Entre ellos se encuentra el Festival Internacional de Arte y Cultura, celebrado en febrero, además del Festival Internacional de Cine Suchitoto, el Festival del Añil y el Festival del Maíz. La Iglesia de Santa Lucía, construida en 1853 en la Plaza Central, es uno de los principales atractivos históricos y arquitectónicos de la ciudad.</p>
-          <h3>Lago Suchitlán</h3>
-          <p>El Lago Suchitlán es un lago artificial creado entre 1973 y 1976 como resultado de la construcción de la Central Hidroeléctrica Cerrón Grande. Se extiende entre los departamentos de Cuscatlán, Chalatenango y Cabañas, y actualmente es uno de los principales atractivos naturales de la zona. Desde el Puerto Turístico San Juan se pueden realizar paseos en lancha, practicar pesca y recorrer algunas de sus islas, entre ellas la Isla de los Pájaros y la Isla del Ermitaño.</p>
+          <h3 data-i18n="sit.suchitoto.h1">La joya colonial</h3>
+          <p data-i18n="sit.suchitoto.p1">Suchitoto significa en lengua náhuat <em>"lugar de pájaros y flores"</em>. Ubicada a unos 47 kilómetros de San Salvador, esta ciudad conserva una importante riqueza histórica y cultural, destacada por sus calles empedradas, casas de arquitectura tradicional, techos de teja y balcones. En sus alrededores también se encuentran centros culturales, galerías, museos, talleres artesanales y otros espacios dedicados al arte y la cultura.</p>
+          <h3 data-i18n="sit.suchitoto.h2">Arte y festivales</h3>
+          <p data-i18n="sit.suchitoto.p2">Suchitoto es reconocido por su intensa actividad cultural y es sede de importantes encuentros artísticos a lo largo del año. Entre ellos se encuentra el Festival Internacional de Arte y Cultura, celebrado en febrero, además del Festival Internacional de Cine Suchitoto, el Festival del Añil y el Festival del Maíz. La Iglesia de Santa Lucía, construida en 1853 en la Plaza Central, es uno de los principales atractivos históricos y arquitectónicos de la ciudad.</p>
+          <h3 data-i18n="sit.suchitoto.h3">Lago Suchitlán</h3>
+          <p data-i18n="sit.suchitoto.p3">El Lago Suchitlán es un lago artificial creado entre 1973 y 1976 como resultado de la construcción de la Central Hidroeléctrica Cerrón Grande. Se extiende entre los departamentos de Cuscatlán, Chalatenango y Cabañas, y actualmente es uno de los principales atractivos naturales de la zona. Desde el Puerto Turístico San Juan se pueden realizar paseos en lancha, practicar pesca y recorrer algunas de sus islas, entre ellas la Isla de los Pájaros y la Isla del Ermitaño.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=suchitoto&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=suchitoto" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=suchitoto&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=suchitoto" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -324,25 +349,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/Catedral.jpg" alt="Catedral" style="object-position: center 15%;" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Catedral Metropolitana</h2>
-          <p class="info-content__hero-sub">Centro Histórico, San Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.catedral.title">Catedral Metropolitana</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.catedral.sub">Centro Histórico, San Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Centro Histórico, S.S.</span>
-            <span class="info-chip">Templo católico</span>
-            <span class="info-chip">San Óscar Romero</span>
-            <span class="info-chip">Peregrinación</span>
+            <span class="info-chip" data-i18n="sit.catedral.chip1">Centro Histórico, S.S.</span>
+            <span class="info-chip" data-i18n="sit.catedral.chip2">Templo católico</span>
+            <span class="info-chip" data-i18n="sit.catedral.chip3">San Óscar Romero</span>
+            <span class="info-chip" data-i18n="sit.catedral.chip4">Peregrinación</span>
           </div>
-          <h3>Historia turbulenta</h3>
-          <p>La Catedral Metropolitana de San Salvador es la iglesia principal de la Arquidiócesis de San Salvador y se encuentra en el corazón del Centro Histórico, frente a la Plaza Gerardo Barrios. El templo actual forma parte de un espacio marcado por importantes acontecimientos religiosos e históricos de la capital, y su ubicación lo convierte en uno de los principales referentes del Centro Histórico de San Salvador.</p>
-          <h3>San Óscar Romero</h3>
-          <p>En la parte baja de la catedral se encuentra la cripta donde descansan los restos de San Óscar Arnulfo Romero, arzobispo de San Salvador entre 1977 y 1980. Fue asesinado el 24 de marzo de 1980 mientras celebraba misa y fue canonizado por el papa Francisco el 14 de octubre de 2018, convirtiéndose en el primer santo salvadoreño reconocido oficialmente por la Iglesia Católica. Su cripta es visitada por numerosos fieles y peregrinos.</p>
-          <h3>Arte interior</h3>
-          <p>La Catedral Metropolitana también destaca por su valor artístico y cultural. Entre sus elementos más reconocidos se encuentran los mosaicos diseñados por el artista salvadoreño Fernando Llort, cuyo estilo naíf incorpora colores y formas inspiradas en elementos de la cultura y la vida salvadoreña. La catedral es además un importante espacio para celebraciones religiosas y actividades tradicionales de la capital.</p>
+          <h3 data-i18n="sit.catedral.h1">Historia turbulenta</h3>
+          <p data-i18n="sit.catedral.p1">La Catedral Metropolitana de San Salvador es la iglesia principal de la Arquidiócesis de San Salvador y se encuentra en el corazón del Centro Histórico, frente a la Plaza Gerardo Barrios. El templo actual forma parte de un espacio marcado por importantes acontecimientos religiosos e históricos de la capital, y su ubicación lo convierte en uno de los principales referentes del Centro Histórico de San Salvador.</p>
+          <h3 data-i18n="sit.catedral.h2">San Óscar Romero</h3>
+          <p data-i18n="sit.catedral.p2">En la parte baja de la catedral se encuentra la cripta donde descansan los restos de San Óscar Arnulfo Romero, arzobispo de San Salvador entre 1977 y 1980. Fue asesinado el 24 de marzo de 1980 mientras celebraba misa y fue canonizado por el papa Francisco el 14 de octubre de 2018, convirtiéndose en el primer santo salvadoreño reconocido oficialmente por la Iglesia Católica. Su cripta es visitada por numerosos fieles y peregrinos.</p>
+          <h3 data-i18n="sit.catedral.h3">Arte interior</h3>
+          <p data-i18n="sit.catedral.p3">La Catedral Metropolitana también destaca por su valor artístico y cultural. Entre sus elementos más reconocidos se encuentran los mosaicos diseñados por el artista salvadoreño Fernando Llort, cuyo estilo naíf incorpora colores y formas inspiradas en elementos de la cultura y la vida salvadoreña. La catedral es además un importante espacio para celebraciones religiosas y actividades tradicionales de la capital.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=catedral&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=catedral" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=catedral&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=catedral" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -353,25 +378,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/MUNA.webp" alt="MUNA" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">MUNA</h2>
-          <p class="info-content__hero-sub">Museo Nacional de Antropología — San Salvador</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.muna.title">MUNA</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.muna.sub">Museo Nacional de Antropología — San Salvador</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">San Salvador</span>
-            <span class="info-chip">Desde 1883</span>
-            <span class="info-chip">6 salas permanentes</span>
-            <span class="info-chip">Entrada con costo</span>
+            <span class="info-chip" data-i18n="sit.muna.chip1">San Salvador</span>
+            <span class="info-chip" data-i18n="sit.muna.chip2">Desde 1883</span>
+            <span class="info-chip" data-i18n="sit.muna.chip3">6 salas permanentes</span>
+            <span class="info-chip" data-i18n="sit.muna.chip4">Entrada con costo</span>
           </div>
-          <h3>El museo de la identidad</h3>
-          <p>El Museo Nacional de Antropología Dr. David J. Guzmán (MUNA) tiene como misión acercar a los salvadoreños a su identidad y diversidad cultural mediante exposiciones, investigaciones, publicaciones y programas educativos relacionados con la arqueología, la antropología y la historia. Sus orígenes se remontan al Museo Nacional de El Salvador, fundado el 9 de octubre de 1883. En 2001 se formalizó como Museo Nacional de Antropología Dr. David J. Guzmán y el recinto actual abrió al público ese mismo año.</p>
-          <h3>Colecciones</h3>
-          <p>El MUNA resguarda colecciones que permiten conocer diferentes etapas de la historia y la cultura de El Salvador, incluyendo objetos prehispánicos, coloniales y republicanos. Actualmente cuenta con salas permanentes dedicadas a temas como migración y arraigo, agricultura, producción artesanal, industria e intercambio, religión y entierros prehispánicos, además de espacios dedicados a los pueblos originarios y afrodescendientes.</p>
-          <h3>Actividades</h3>
-          <p>Además de sus exposiciones permanentes, el MUNA ofrece exposiciones temporales e itinerantes, visitas guiadas, talleres y actividades ludo-educativas, conferencias y otras actividades académicas. También cuenta con una biblioteca especializada, hemeroteca y auditorio, convirtiéndose en un espacio dedicado a la conservación, investigación y difusión del patrimonio cultural salvadoreño.</p>
+          <h3 data-i18n="sit.muna.h1">El museo de la identidad</h3>
+          <p data-i18n="sit.muna.p1">El Museo Nacional de Antropología Dr. David J. Guzmán (MUNA) tiene como misión acercar a los salvadoreños a su identidad y diversidad cultural mediante exposiciones, investigaciones, publicaciones y programas educativos relacionados con la arqueología, la antropología y la historia. Sus orígenes se remontan al Museo Nacional de El Salvador, fundado el 9 de octubre de 1883. En 2001 se formalizó como Museo Nacional de Antropología Dr. David J. Guzmán y el recinto actual abrió al público ese mismo año.</p>
+          <h3 data-i18n="sit.muna.h2">Colecciones</h3>
+          <p data-i18n="sit.muna.p2">El MUNA resguarda colecciones que permiten conocer diferentes etapas de la historia y la cultura de El Salvador, incluyendo objetos prehispánicos, coloniales y republicanos. Actualmente cuenta con salas permanentes dedicadas a temas como migración y arraigo, agricultura, producción artesanal, industria e intercambio, religión y entierros prehispánicos, además de espacios dedicados a los pueblos originarios y afrodescendientes.</p>
+          <h3 data-i18n="sit.muna.h3">Actividades</h3>
+          <p data-i18n="sit.muna.p3">Además de sus exposiciones permanentes, el MUNA ofrece exposiciones temporales e itinerantes, visitas guiadas, talleres y actividades ludo-educativas, conferencias y otras actividades académicas. También cuenta con una biblioteca especializada, hemeroteca y auditorio, convirtiéndose en un espacio dedicado a la conservación, investigación y difusión del patrimonio cultural salvadoreño.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=muna&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=muna" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=muna&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=muna" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -382,25 +407,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/san-andres.jpg" alt="Ruinas de San Andrés" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Ruinas de San Andrés</h2>
-          <p class="info-content__hero-sub">Ciudad Arce y San Juan Opico, La Libertad — Sitio arqueológico</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.sanandres.title">Ruinas de San Andrés</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.sanandres.sub">Ciudad Arce y San Juan Opico, La Libertad — Sitio arqueológico</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">La Libertad</span>
-            <span class="info-chip">600 d.C. – 900 d.C.</span>
-            <span class="info-chip">Centro prehispánico</span>
-            <span class="info-chip">Entrada con costo</span>
+            <span class="info-chip" data-i18n="sit.sanandres.chip1">La Libertad</span>
+            <span class="info-chip" data-i18n="sit.sanandres.chip2">600 d.C. – 900 d.C.</span>
+            <span class="info-chip" data-i18n="sit.sanandres.chip3">Centro prehispánico</span>
+            <span class="info-chip" data-i18n="sit.sanandres.chip4">Entrada con costo</span>
           </div>
-          <h3>Capital del valle de Zapotitán</h3>
-          <p>San Andrés es uno de los centros prehispánicos más grandes de El Salvador y habría constituido una capital regional entre los años 600 y 900 d.C. La antigua comunidad llegó a ocupar alrededor de 200 hectáreas y estaba formada por un centro monumental rodeado de una amplia zona residencial. El sitio comprende una acrópolis con estructuras ceremoniales y una gran plaza al norte con varias pirámides.</p>
-          <h3>Hallazgos</h3>
-          <p>El sitio arqueológico cuenta con estructuras de adobe y otras construidas con bloques de toba volcánica, conocida localmente como talpetate. Entre sus elementos más destacados se encuentra el obraje de añil de época colonial, descubierto durante las investigaciones realizadas para establecer el museo del parque. Este espacio permite relacionar los vestigios prehispánicos de San Andrés con una etapa posterior de la historia económica de la región.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>El Parque Arqueológico San Andrés se encuentra en el valle de Zapotitán, en el departamento de La Libertad, a unos 5 kilómetros de Joya de Cerén. Cuenta con museo, áreas de picnic y un cafetín para los visitantes. El horario publicado por El Salvador Travel es de martes a domingo, de 9:00 a. m. a 4:00 p. m., aunque algunas publicaciones institucionales han manejado horarios especiales según la temporada.</p>
+          <h3 data-i18n="sit.sanandres.h1">Capital del valle de Zapotitán</h3>
+          <p data-i18n="sit.sanandres.p1">San Andrés es uno de los centros prehispánicos más grandes de El Salvador y habría constituido una capital regional entre los años 600 y 900 d.C. La antigua comunidad llegó a ocupar alrededor de 200 hectáreas y estaba formada por un centro monumental rodeado de una amplia zona residencial. El sitio comprende una acrópolis con estructuras ceremoniales y una gran plaza al norte con varias pirámides.</p>
+          <h3 data-i18n="sit.sanandres.h2">Hallazgos</h3>
+          <p data-i18n="sit.sanandres.p2">El sitio arqueológico cuenta con estructuras de adobe y otras construidas con bloques de toba volcánica, conocida localmente como talpetate. Entre sus elementos más destacados se encuentra el obraje de añil de época colonial, descubierto durante las investigaciones realizadas para establecer el museo del parque. Este espacio permite relacionar los vestigios prehispánicos de San Andrés con una etapa posterior de la historia económica de la región.</p>
+          <h3 data-i18n="sit.sanandres.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.sanandres.p3">El Parque Arqueológico San Andrés se encuentra en el valle de Zapotitán, en el departamento de La Libertad, a unos 5 kilómetros de Joya de Cerén. Cuenta con museo, áreas de picnic y un cafetín para los visitantes. El horario publicado por El Salvador Travel es de martes a domingo, de 9:00 a. m. a 4:00 p. m., aunque algunas publicaciones institucionales han manejado horarios especiales según la temporada.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=sanandres&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=sanandres" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=sanandres&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=sanandres" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -411,25 +436,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/casablanca.jpg" alt="Casa Blanca" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Casa Blanca</h2>
-          <p class="info-content__hero-sub">Chalchuapa, Santa Ana — Sitio arqueológico y taller de añil</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.casablanca.title">Casa Blanca</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.casablanca.sub">Chalchuapa, Santa Ana — Sitio arqueológico y taller de añil</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Chalchuapa, Santa Ana</span>
-            <span class="info-chip">200 a.C. – 250 d.C.</span>
-            <span class="info-chip">Señorío maya temprano</span>
-            <span class="info-chip">Entrada con costo</span>
+            <span class="info-chip" data-i18n="sit.casablanca.chip1">Chalchuapa, Santa Ana</span>
+            <span class="info-chip" data-i18n="sit.casablanca.chip2">200 a.C. – 250 d.C.</span>
+            <span class="info-chip" data-i18n="sit.casablanca.chip3">Señorío maya temprano</span>
+            <span class="info-chip" data-i18n="sit.casablanca.chip4">Entrada con costo</span>
           </div>
-          <h3>Un sitio arqueológico de Chalchuapa</h3>
-          <p>Casa Blanca forma parte de la importante zona arqueológica de Chalchuapa y, junto con el área de El Trapiche, llegó a ser el centro de un importante señorío maya temprano entre aproximadamente 200 a.C. y 250 d.C. El parque conserva estructuras y evidencias de una ocupación humana que se remonta a más de 3,000 años, además de hallazgos correspondientes a diferentes períodos de la historia prehispánica de la región.</p>
-          <h3>Tradición viva del añil</h3>
-          <p>Uno de los elementos que distingue al Parque Arqueológico Casa Blanca es su taller de añil, donde se realizan demostraciones y talleres sobre las técnicas de teñido con este colorante natural. Estas actividades permiten conocer una tradición artesanal vinculada a la historia del añil en El Salvador y acercan al visitante a las técnicas utilizadas para teñir diferentes tipos de textiles.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>El Parque Arqueológico Casa Blanca se encuentra en el kilómetro 78 de la carretera que conduce de Santa Ana a Chalchuapa. Está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., y cuenta con recorridos guiados de aproximadamente 35 a 45 minutos. La entrada para salvadoreños es de $1.00, mientras que existen tarifas diferenciadas para visitantes extranjeros.</p>
+          <h3 data-i18n="sit.casablanca.h1">Un sitio arqueológico de Chalchuapa</h3>
+          <p data-i18n="sit.casablanca.p1">Casa Blanca forma parte de la importante zona arqueológica de Chalchuapa y, junto con el área de El Trapiche, llegó a ser el centro de un importante señorío maya temprano entre aproximadamente 200 a.C. y 250 d.C. El parque conserva estructuras y evidencias de una ocupación humana que se remonta a más de 3,000 años, además de hallazgos correspondientes a diferentes períodos de la historia prehispánica de la región.</p>
+          <h3 data-i18n="sit.casablanca.h2">Tradición viva del añil</h3>
+          <p data-i18n="sit.casablanca.p2">Uno de los elementos que distingue al Parque Arqueológico Casa Blanca es su taller de añil, donde se realizan demostraciones y talleres sobre las técnicas de teñido con este colorante natural. Estas actividades permiten conocer una tradición artesanal vinculada a la historia del añil en El Salvador y acercan al visitante a las técnicas utilizadas para teñir diferentes tipos de textiles.</p>
+          <h3 data-i18n="sit.casablanca.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.casablanca.p3">El Parque Arqueológico Casa Blanca se encuentra en el kilómetro 78 de la carretera que conduce de Santa Ana a Chalchuapa. Está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., y cuenta con recorridos guiados de aproximadamente 35 a 45 minutos. La entrada para salvadoreños es de $1.00, mientras que existen tarifas diferenciadas para visitantes extranjeros.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=casablanca&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=casablanca" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=casablanca&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=casablanca" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -440,25 +465,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/palacio-nacional.jpg" alt="Palacio Nacional" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Palacio Nacional</h2>
-          <p class="info-content__hero-sub">Centro Histórico, San Salvador — Monumento Nacional</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.palacio.title">Palacio Nacional</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.palacio.sub">Centro Histórico, San Salvador — Monumento Nacional</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Centro Histórico, S.S.</span>
-            <span class="info-chip">Construido entre 1905 y 1911</span>
-            <span class="info-chip">Arquitectura ecléctica</span>
-            <span class="info-chip">Museo, entrada con costo</span>
+            <span class="info-chip" data-i18n="sit.palacio.chip1">Centro Histórico, S.S.</span>
+            <span class="info-chip" data-i18n="sit.palacio.chip2">Construido entre 1905 y 1911</span>
+            <span class="info-chip" data-i18n="sit.palacio.chip3">Arquitectura ecléctica</span>
+            <span class="info-chip" data-i18n="sit.palacio.chip4">Museo, entrada con costo</span>
           </div>
-          <h3>Cuarto edificio, un solo nombre</h3>
-          <p>El actual Palacio Nacional fue construido entre 1905 y 1911 y es el cuarto edificio que ha ocupado este espacio. El inmueble albergó durante diferentes períodos a los tres poderes del Estado: Ejecutivo, Legislativo y Judicial. Por su importancia histórica y arquitectónica, el edificio fue declarado Monumento Nacional en 1980, mientras que el Salón Azul había recibido esta declaratoria previamente en 1974.</p>
-          <h3>Arquitectura</h3>
-          <p>El Palacio Nacional presenta una arquitectura ecléctica que combina diferentes influencias, entre ellas elementos neoclásicos, renacentistas y barrocos. El edificio está organizado alrededor de patios interiores y cuenta con espacios históricos como el Salón Azul, el Salón Rojo y otros salones que forman parte de su riqueza arquitectónica y patrimonial.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>Actualmente el Palacio Nacional es un espacio cultural y patrimonial abierto al público mediante recorridos guiados. Se encuentra frente a la Plaza Cívica, en el Centro Histórico de San Salvador, muy cerca de la Catedral Metropolitana. El Ministerio de Cultura publica horarios y tarifas que pueden variar según la programación y la temporada.</p>
+          <h3 data-i18n="sit.palacio.h1">Cuarto edificio, un solo nombre</h3>
+          <p data-i18n="sit.palacio.p1">El actual Palacio Nacional fue construido entre 1905 y 1911 y es el cuarto edificio que ha ocupado este espacio. El inmueble albergó durante diferentes períodos a los tres poderes del Estado: Ejecutivo, Legislativo y Judicial. Por su importancia histórica y arquitectónica, el edificio fue declarado Monumento Nacional en 1980, mientras que el Salón Azul había recibido esta declaratoria previamente en 1974.</p>
+          <h3 data-i18n="sit.palacio.h2">Arquitectura</h3>
+          <p data-i18n="sit.palacio.p2">El Palacio Nacional presenta una arquitectura ecléctica que combina diferentes influencias, entre ellas elementos neoclásicos, renacentistas y barrocos. El edificio está organizado alrededor de patios interiores y cuenta con espacios históricos como el Salón Azul, el Salón Rojo y otros salones que forman parte de su riqueza arquitectónica y patrimonial.</p>
+          <h3 data-i18n="sit.palacio.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.palacio.p3">Actualmente el Palacio Nacional es un espacio cultural y patrimonial abierto al público mediante recorridos guiados. Se encuentra frente a la Plaza Cívica, en el Centro Histórico de San Salvador, muy cerca de la Catedral Metropolitana. El Ministerio de Cultura publica horarios y tarifas que pueden variar según la programación y la temporada.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=palacionacional&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=palacionacional" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=palacionacional&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=palacionacional" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -469,25 +494,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/teatro-nacional.jpg" alt="Teatro Nacional" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Teatro Nacional</h2>
-          <p class="info-content__hero-sub">Centro Histórico, San Salvador — Espacio escénico patrimonial</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.teatro.title">Teatro Nacional</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.teatro.sub">Centro Histórico, San Salvador — Espacio escénico patrimonial</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Centro Histórico, S.S.</span>
-            <span class="info-chip">Inaugurado en 1917</span>
-            <span class="info-chip">Estilo renacentista</span>
-            <span class="info-chip">Sede cultural</span>
+            <span class="info-chip" data-i18n="sit.teatro.chip1">Centro Histórico, S.S.</span>
+            <span class="info-chip" data-i18n="sit.teatro.chip2">Inaugurado en 1917</span>
+            <span class="info-chip" data-i18n="sit.teatro.chip3">Estilo renacentista</span>
+            <span class="info-chip" data-i18n="sit.teatro.chip4">Sede cultural</span>
           </div>
-          <h3>Un espacio histórico para las artes</h3>
-          <p>El Teatro Nacional de San Salvador fue inaugurado el 1 de marzo de 1917 por el presidente Carlos Meléndez y se encuentra en el corazón del Centro Histórico. Es uno de los espacios escénicos más importantes del país y forma parte del patrimonio cultural de San Salvador, donde se presentan espectáculos y actividades relacionadas con las artes escénicas nacionales e internacionales.</p>
-          <h3>Arte y ornamentación</h3>
-          <p>El edificio fue construido con un estilo inspirado en el Renacimiento y utilizando el sistema de cemento armado Hennebique. En su interior cuenta con diferentes espacios para presentaciones y actividades culturales, entre ellos la Gran Sala, Pequeña Sala, Sala de Cámara y Café Teatro, además de áreas destinadas a exposiciones y actividades artísticas.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>El Teatro Nacional se encuentra en el Centro Histórico de San Salvador, cerca del Parque Libertad. Además de asistir a las presentaciones de su programación artística, es posible participar en recorridos y actividades especiales organizadas por el Ministerio de Cultura. El horario de atención publicado por la institución es de miércoles a domingo, aunque puede variar según las actividades programadas.</p>
+          <h3 data-i18n="sit.teatro.h1">Un espacio histórico para las artes</h3>
+          <p data-i18n="sit.teatro.p1">El Teatro Nacional de San Salvador fue inaugurado el 1 de marzo de 1917 por el presidente Carlos Meléndez y se encuentra en el corazón del Centro Histórico. Es uno de los espacios escénicos más importantes del país y forma parte del patrimonio cultural de San Salvador, donde se presentan espectáculos y actividades relacionadas con las artes escénicas nacionales e internacionales.</p>
+          <h3 data-i18n="sit.teatro.h2">Arte y ornamentación</h3>
+          <p data-i18n="sit.teatro.p2">El edificio fue construido con un estilo inspirado en el Renacimiento y utilizando el sistema de cemento armado Hennebique. En su interior cuenta con diferentes espacios para presentaciones y actividades culturales, entre ellos la Gran Sala, Pequeña Sala, Sala de Cámara y Café Teatro, además de áreas destinadas a exposiciones y actividades artísticas.</p>
+          <h3 data-i18n="sit.teatro.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.teatro.p3">El Teatro Nacional se encuentra en el Centro Histórico de San Salvador, cerca del Parque Libertad. Además de asistir a las presentaciones de su programación artística, es posible participar en recorridos y actividades especiales organizadas por el Ministerio de Cultura. El horario de atención publicado por la institución es de miércoles a domingo, aunque puede variar según las actividades programadas.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=teatronacional&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=teatronacional" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=teatronacional&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=teatronacional" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -498,25 +523,25 @@
         <div class="info-content__hero">
           <img src="../assets/media/sitios/iglesia-rosario.jpg" alt="Iglesia El Rosario" />
           <div class="info-content__hero-grad"></div>
-          <h2 class="info-content__hero-title">Iglesia El Rosario</h2>
-          <p class="info-content__hero-sub">Centro Histórico, San Salvador — Arquitectura moderna y vitrales</p>
+          <h2 class="info-content__hero-title" data-i18n="sit.rosario.title">Iglesia El Rosario</h2>
+          <p class="info-content__hero-sub" data-i18n="sit.rosario.sub">Centro Histórico, San Salvador — Arquitectura moderna y vitrales</p>
         </div>
         <div class="info-content__body">
           <div class="info-chips">
-            <span class="info-chip">Centro Histórico, S.S.</span>
-            <span class="info-chip">Construida 1964–1971</span>
-            <span class="info-chip">Arquitectura moderna</span>
-            <span class="info-chip">Bien Cultural</span>
+            <span class="info-chip" data-i18n="sit.rosario.chip1">Centro Histórico, S.S.</span>
+            <span class="info-chip" data-i18n="sit.rosario.chip2">Construida 1964–1971</span>
+            <span class="info-chip" data-i18n="sit.rosario.chip3">Arquitectura moderna</span>
+            <span class="info-chip" data-i18n="sit.rosario.chip4">Bien Cultural</span>
           </div>
-          <h3>Un templo distinto</h3>
-          <p>La Iglesia El Rosario fue construida entre 1964 y 1971 por el arquitecto y escultor Rubén Martínez Bulnes. Su diseño moderno, aprobado por la Ciudad del Vaticano, utiliza una estructura parabólica de concreto armado que rompe con la arquitectura religiosa tradicional. El templo se caracteriza por sus grandes dimensiones, la ausencia de columnas interiores y una forma que genera un espacio amplio y continuo.</p>
-          <h3>Vitrales de colores</h3>
-          <p>Uno de los elementos más llamativos de la iglesia son sus vitrales, distribuidos en diferentes secciones de la estructura parabólica y enmarcados en concreto. La entrada de luz a través de los vidrios de colores produce diversos efectos luminosos en el interior del templo, creando una de sus características visuales más reconocidas.</p>
-          <h3>Cómo visitarlo</h3>
-          <p>La Iglesia El Rosario se encuentra entre la 6.ª y 8.ª avenida sur y entre la 2.ª y 4.ª calle oriente, en el Centro Histórico de San Salvador. El inmueble fue declarado Bien Cultural en 2015 y forma parte de un espacio de gran importancia histórica, ya que en este lugar se construyó la primera catedral de El Salvador. También conserva los restos de importantes figuras religiosas y posee el Escudo Azul para la protección de bienes culturales.</p>
+          <h3 data-i18n="sit.rosario.h1">Un templo distinto</h3>
+          <p data-i18n="sit.rosario.p1">La Iglesia El Rosario fue construida entre 1964 y 1971 por el arquitecto y escultor Rubén Martínez Bulnes. Su diseño moderno, aprobado por la Ciudad del Vaticano, utiliza una estructura parabólica de concreto armado que rompe con la arquitectura religiosa tradicional. El templo se caracteriza por sus grandes dimensiones, la ausencia de columnas interiores y una forma que genera un espacio amplio y continuo.</p>
+          <h3 data-i18n="sit.rosario.h2">Vitrales de colores</h3>
+          <p data-i18n="sit.rosario.p2">Uno de los elementos más llamativos de la iglesia son sus vitrales, distribuidos en diferentes secciones de la estructura parabólica y enmarcados en concreto. La entrada de luz a través de los vidrios de colores produce diversos efectos luminosos en el interior del templo, creando una de sus características visuales más reconocidas.</p>
+          <h3 data-i18n="sit.rosario.h3">Cómo visitarlo</h3>
+          <p data-i18n="sit.rosario.p3">La Iglesia El Rosario se encuentra entre la 6.ª y 8.ª avenida sur y entre la 2.ª y 4.ª calle oriente, en el Centro Histórico de San Salvador. El inmueble fue declarado Bien Cultural en 2015 y forma parte de un espacio de gran importancia histórica, ya que en este lugar se construyó la primera catedral de El Salvador. También conserva los restos de importantes figuras religiosas y posee el Escudo Azul para la protección de bienes culturales.</p>
           <div class="sitio-actions">
-            <a href="../views/mapa.html?sitio=elrosario&from=sitios-culturales.html" class="sitio-map-link">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=elrosario" class="sitio-pub-link">Ver publicaciones</a>
+            <a href="../views/mapa.html?sitio=elrosario&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
+            <a href="../views/publicaciones.html?sitio=elrosario" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -526,7 +551,7 @@
 
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
         <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li><li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>

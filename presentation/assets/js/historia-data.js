@@ -1,9 +1,9 @@
 /* ============================================================
   Salvadorean Roots — historia-data.js
-   Datos de la línea de tiempo histórica de El Salvador
+   Datos de la línea de tiempo histórica de El Salvador (ES / EN)
    ============================================================ */
 
-const HISTORIA_EVENTOS = [
+const HISTORIA_EVENTOS_ES = [
 
   {
     id: "pipiles",
@@ -325,3 +325,333 @@ const HISTORIA_EVENTOS = [
     }
   }
 ];
+
+const HISTORIA_EVENTOS_EN = [
+
+  {
+    id: "pipiles",
+    era: "prehispanica",
+    eraLabel: "Pre-Hispanic Era",
+    title: "Cuscatlán and the Native Peoples",
+    date: "Before 1524",
+    img: "../assets/media/historia/tazumal2.jpg",
+    text: [
+      "Long before the Spanish arrived, the territory we now know as El Salvador was inhabited by various native peoples with organized agricultural societies. In the central and western region, the Náhuat-speaking population known as the Pipil had a significant presence, while other regions were home to peoples such as the Lenca and the Ch'orti'.",
+      "The Pipil developed farming communities and trade networks. They mainly grew corn, beans, cacao, and cotton, and maintained trade relationships with other Mesoamerican peoples. The territory of Cuscatlán encompassed several communities and population centers, so it should not be understood solely as a city located exactly where present-day Antiguo Cuscatlán stands.",
+      "The region also preserves important archaeological remains from different eras and cultures. Sites such as Tazumal, San Andrés, and Casa Blanca show the continuity and diversity of the societies that inhabited Salvadoran territory before the Spanish conquest."
+    ],
+    location: {
+      lat: 13.6736,
+      lng: -89.2472,
+      zoom: 10,
+      caption: "Approximate area of the ancient territory of Cuscatlán, in central and western El Salvador."
+    }
+  },
+
+  {
+    id: "conquista",
+    era: "colonia",
+    eraLabel: "Conquest and Colony",
+    title: "The Conquest of Cuscatlán",
+    date: "1524 – 1528",
+    img: "../assets/media/historia/conquista.png",
+    text: [
+      "In 1524, Pedro de Alvarado led a Spanish expedition from Guatemala into the territory of Cuscatlán. The Spanish met resistance from indigenous populations, especially in the western region, and the advance did not amount to an immediate conquest.",
+      "After the initial incursions, the Spanish carried out new campaigns to consolidate their control. In 1528, Diego de Alvarado established a new settlement of San Salvador, consolidating the Spanish colonial presence in the territory.",
+      "The conquest brought about profound political, economic, and social transformations. Native peoples lost their autonomy and were progressively absorbed into the colonial system. In addition, diseases introduced by Europeans caused severe epidemics and a sharp decline in the indigenous population."
+    ],
+    location: {
+      lat: 13.4948,
+      lng: -89.5378,
+      zoom: 11,
+      caption: "Western El Salvador, where clashes took place during the early conquest campaigns."
+    }
+  },
+
+  {
+    id: "anil",
+    era: "colonia",
+    eraLabel: "Colonial Era",
+    title: "The Indigo Economy",
+    date: "16th – 19th Centuries",
+    img: "../assets/media/historia/eco-anil.png",
+    text: [
+      "During the colonial era, indigo became one of the main export products of Salvadoran territory. This plant yielded a blue dye highly prized by the European textile industry, which turned the province of San Salvador into a major producer within the Central American region.",
+      "Production developed mainly through indigo haciendas and workshops (obrajes) and relied heavily on the labor of indigenous populations and other groups subjected to the colonial economic structures. The indigo trade allowed certain sectors of landowners and merchants to accumulate wealth.",
+      "The colonial economy also produced profound social and cultural transformations. Indigenous, Spanish, African, and mestizo populations took part in different ways in shaping Salvadoran society, while the Spanish language and Catholicism became dominant within the colonial system."
+    ],
+    location: {
+      lat: 13.7942,
+      lng: -88.8965,
+      zoom: 10,
+      caption: "Regions of Salvadoran territory historically linked to indigo production."
+    }
+  },
+
+  {
+    id: "independencia",
+    era: "independencia",
+    eraLabel: "Independence",
+    title: "The Independence of Central America",
+    date: "1821 – 1841",
+    img: "../assets/media/historia/acta-independe.jpg",
+    text: [
+      "On September 15, 1821, the independence of the Central American provinces from Spain was proclaimed in Guatemala. The news later reached San Salvador and the other provinces, marking the start of a period of major political change.",
+      "After independence, the Central American provinces were temporarily annexed to Agustín de Iturbide's Mexican Empire. After its fall, the United Provinces of Central America were formed in 1823, later known as the Federal Republic of Central America.",
+      "Political tensions between the different states, and between liberals and conservatives, led to the dissolution of the Federation. El Salvador declared itself sovereign and independent in 1841, consolidating its political separation from the former Central American federation."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 12,
+      caption: "San Salvador, one of the main political centers of the independence process."
+    }
+  },
+
+  {
+    id: "republica-cafe",
+    era: "cafetalera",
+    eraLabel: "Coffee Republic",
+    title: "The Coffee Boom",
+    date: "19th Century",
+    img: "../assets/media/historia/auge-cafe.png",
+    text: [
+      "During the 19th century, coffee cultivation began to expand in El Salvador as indigo production lost importance. Coffee growing was encouraged during Eugenio Aguilar's administration and later received a strong push under Gerardo Barrios's government.",
+      "The growth of coffee production came with major changes in land ownership. Laws passed in 1881 and 1882 affected communal and ejido lands; in 1882 their abolition was decreed, making it easier to sell them to private owners and causing a profound shift in land tenure.",
+      "The expansion of coffee turned the crop into one of the main pillars of the Salvadoran economy and contributed to the formation of an economic elite tied to the production and export of the bean. The concentration of land also deepened the country's social inequalities."
+    ],
+    location: {
+      lat: 13.9833,
+      lng: -89.5597,
+      zoom: 10,
+      caption: "Highland regions of El Salvador where coffee production developed extensively."
+    }
+  },
+
+  {
+    id: "14-familias",
+    era: "cafetalera",
+    eraLabel: "Coffee Republic",
+    title: "The Coffee Elites",
+    date: "Late 19th – early 20th century",
+    img: "../assets/media/historia/oligarquia.png",
+    text: [
+      "During the coffee economy's boom, a powerful economic elite consolidated around land ownership, coffee production and export, and other commercial and financial activities. Over time, these families gained considerable influence over the country's economic and political life.",
+      "The popular expression 'the 14 families' was later used to represent a small group of families seen as part of the Salvadoran economic elite. However, it should not be read as an official list or as an exact historical count of the families that held all of the country's wealth.",
+      "The expansion of large coffee estates coexisted with a peasant population that depended heavily on agricultural labor. This unequal distribution of land and wealth contributed to the social tensions that marked the early decades of the 20th century."
+    ],
+    location: {
+      lat: 13.6769,
+      lng: -89.2896,
+      zoom: 12,
+      caption: "Area of former coffee estates in Santa Tecla and Antiguo Cuscatlán."
+    }
+  },
+
+  {
+    id: "matanza-1932",
+    era: "dictaduras",
+    eraLabel: "Military Dictatorships",
+    title: "The 1932 Uprising and Massacre (La Matanza)",
+    date: "January 1932",
+    img: "../assets/media/Tazumal.webp",
+    text: [
+      "The economic crisis caused by the Great Depression severely affected agricultural workers and indigenous communities. On January 22, 1932, a peasant and indigenous uprising began in several municipalities in the western part of the country, amid intense social and political conflict.",
+      "The government of General Maximiliano Hernández Martínez responded with military repression on a massive scale. Thousands of people were killed in the days and weeks that followed. Estimates of the number of victims vary considerably, so there is no single figure accepted by all historians.",
+      "The repression had deep consequences for the indigenous communities of the west. Fear of further persecution led many people to conceal aspects of their cultural identity, including the public use of the Náhuat language and certain forms of traditional dress."
+    ],
+    location: {
+      lat: 13.7167,
+      lng: -89.6833,
+      zoom: 10,
+      caption: "Western El Salvador, especially Izalco, Nahuizalco, and nearby municipalities, the main setting of the 1932 events."
+    }
+  },
+
+  {
+    id: "dictadura-martinez",
+    era: "dictaduras",
+    eraLabel: "Military Dictatorships",
+    title: "The Hernández Martínez Regime",
+    date: "1931 – 1944",
+    img: "../assets/media/historia/palacio-nacional.jpg",
+    text: [
+      "Maximiliano Hernández Martínez came to power after the 1931 coup that overthrew President Arturo Araujo. During his long rule he established an authoritarian regime marked by the concentration of power, censorship, and repression of the opposition.",
+      "His government maintained a close relationship with dominant economic sectors and developed policies aimed at stabilizing the economy after the global crisis. At the same time, political repression became a defining feature of the regime, especially after the events of 1932.",
+      "In 1944, a broad social mobilization known as the 'Strike of Fallen Arms' pressured the government and contributed to Hernández Martínez's resignation. His departure did not mean an immediate end to military influence in Salvadoran politics."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 12,
+      caption: "San Salvador, the political center of the Hernández Martínez regime."
+    }
+  },
+
+  {
+    id: "gobiernos-militares",
+    era: "dictaduras",
+    eraLabel: "Military Dictatorships",
+    title: "Military Dominance",
+    date: "1944 – 1979",
+    img: "../assets/media/MUNA.webp",
+    text: [
+      "After Hernández Martínez's fall, the military continued to hold decisive influence over Salvadoran politics. Over the following decades, various governments were led by Armed Forces officers or were heavily shaped by military power.",
+      "During the 1950s and 1960s, processes of economic modernization and industrialization took place, but significant inequalities persisted in land distribution and in access to economic and political opportunities.",
+      "During the 1970s, social conflict, political repression, and allegations of electoral fraud increased. The political and social crisis fueled the growth of popular organizations and armed groups that would later become part of the civil conflict."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 11,
+      caption: "San Salvador, the main political center during the period of military dominance."
+    }
+  },
+
+  {
+    id: "golpe-1979",
+    era: "guerra",
+    eraLabel: "Civil War",
+    title: "The 1979 Coup",
+    date: "October 15, 1979",
+    img: "../assets/media/Centro Historico.jpg",
+    text: [
+      "On October 15, 1979, a group of Armed Forces officers overthrew President Carlos Humberto Romero. The coup gave way to a Revolutionary Government Junta that promised political and social reforms.",
+      "Political violence, however, continued. Paramilitary groups and security forces were accused of serious human rights violations, while various leftist organizations strengthened their armed and political structures.",
+      "The coup failed to resolve the national crisis. On the contrary, political polarization and violence increased, and the country moved toward open armed conflict."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 12,
+      caption: "San Salvador, the political center where the events related to the 1979 coup unfolded."
+    }
+  },
+
+  {
+    id: "inicio-guerra",
+    era: "guerra",
+    eraLabel: "Civil War",
+    title: "The Civil War",
+    date: "1980 – 1992",
+    img: "../assets/media/Suchitoto.webp",
+    text: [
+      "In October 1980, the Farabundo Martí National Liberation Front (FMLN) was formed, a coalition of five leftist guerrilla organizations. In the years that followed, the conflict pitted the Salvadoran government and its armed forces against the FMLN.",
+      "The conflict was rooted in decades of social inequality, land concentration, political exclusion, and repression. It also took on an international dimension in the context of the Cold War: the United States gave broad support to the Salvadoran government, while the insurgency received outside support from various actors.",
+      "The war caused serious human rights violations, massacres, disappearances, and mass displacement of the population. Departments such as Chalatenango and Morazán became major theaters of the conflict."
+    ],
+    location: {
+      lat: 14.0333,
+      lng: -88.9333,
+      zoom: 9,
+      caption: "Chalatenango and Morazán, two of the regions most affected by the armed conflict."
+    }
+  },
+
+  {
+    id: "romero",
+    era: "guerra",
+    eraLabel: "Civil War",
+    title: "The Assassination of Óscar Romero",
+    date: "March 24, 1980",
+    img: "../assets/media/iglesia-rosario.jpg",
+    text: [
+      "The Archbishop of San Salvador, Óscar Arnulfo Romero, became one of the leading public voices against violence and repression. In his homilies he denounced killings, disappearances, and abuses committed against the Salvadoran population.",
+      "On March 24, 1980, he was assassinated while celebrating mass in the chapel of the Divine Providence Hospital in San Salvador. The site later became one of the main memorial locations linked to his life and martyrdom.",
+      "His assassination had enormous national and international repercussions and turned Romero into a symbol of the defense of human rights and of the conflict's victims. In 2018 he was canonized by the Catholic Church as Saint Óscar Romero."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.2242,
+      zoom: 13,
+      caption: "Chapel of the Divine Providence Hospital in San Salvador, where Óscar Romero was assassinated."
+    }
+  },
+
+  {
+    id: "jesuitas-uca",
+    era: "guerra",
+    eraLabel: "Civil War",
+    title: "The UCA Massacre",
+    date: "November 16, 1989",
+    img: "../assets/media/MUNA.webp",
+    text: [
+      "In November 1989, the FMLN launched a major military offensive across different areas of the country. In the early hours of November 16, members of the Armed Forces entered the campus of the José Simeón Cañas Central American University (UCA) and murdered six Jesuit priests and two women.",
+      "Among the victims was Ignacio Ellacuría, rector of the UCA, along with Ignacio Martín-Baró, Segundo Montes, Amando López, Joaquín López y López, and Juan Ramón Moreno. Julia Elba Ramos and her daughter Celina Marisela Ramos were also killed.",
+      "The massacre drew strong national and international condemnation and became one of the most emblematic human rights violations committed during the civil war."
+    ],
+    location: {
+      lat: 13.6800,
+      lng: -89.2350,
+      zoom: 13,
+      caption: "Campus of the José Simeón Cañas Central American University (UCA), in San Salvador."
+    }
+  },
+
+  {
+    id: "acuerdos-paz",
+    era: "guerra",
+    eraLabel: "Civil War",
+    title: "The Chapultepec Peace Accords",
+    date: "January 16, 1992",
+    img: "../assets/media/casablanca.jpg",
+    text: [
+      "On January 16, 1992, the Government of El Salvador and the FMLN signed the accords that ended the armed conflict at Chapultepec Castle in Mexico City.",
+      "The war left approximately 75,000 people dead, thousands missing, and around a million people displaced within and outside the country. Its social, economic, and family consequences deeply marked several generations of Salvadorans.",
+      "The accords established major political and institutional reforms, including the creation of the National Civil Police, changes to the Armed Forces, reforms to the judicial and electoral systems, and the incorporation of the FMLN into political life as a legal party."
+    ],
+    location: {
+      lat: 19.4204,
+      lng: -99.1822,
+      zoom: 14,
+      caption: "Chapultepec Castle, Mexico City, where the Peace Accords were signed."
+    }
+  },
+
+  {
+    id: "posguerra",
+    era: "actual",
+    eraLabel: "El Salvador Today",
+    title: "The Postwar Period and Democracy",
+    date: "1992 – 2019",
+    img: "../assets/media/MUNA.webp",
+    text: [
+      "After the Peace Accords, El Salvador began a process of institutional reconstruction and democratic consolidation. Over the following decades, power alternated between ARENA and the FMLN, and competitive elections were held.",
+      "The postwar period was also marked by major social problems, including migration, dependence on remittances, inequality, and the growth of violence linked to criminal structures and gangs.",
+      "Despite these challenges, institutions created or reformed after the Peace Accords were strengthened during this period, and new cultural, social, and political expressions developed within Salvadoran society."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 11,
+      caption: "San Salvador, the political and institutional center of the postwar period."
+    }
+  },
+
+  {
+    id: "hoy",
+    era: "actual",
+    eraLabel: "El Salvador Today",
+    title: "A New Chapter",
+    date: "2019 – present",
+    img: "../assets/media/Catedral.jpg",
+    text: [
+      "In 2019, Nayib Bukele took office as President of El Salvador, opening a new political era in which Nuevas Ideas became the country's leading electoral force. In 2021, El Salvador passed the Bitcoin Law, becoming the first country in the world to adopt Bitcoin as legal tender alongside the US dollar.",
+      "The Bitcoin Law was reformed in 2025. Following those reforms, acceptance of Bitcoin by the private sector became voluntary, and the State's mandatory role in its use was reduced. Because of this, the current situation should be distinguished from the original 2021 legislation.",
+      "Since March 2022, the country has maintained a state of exception implemented in response to gang violence. The measure has coincided with a sharp reduction in homicides, but national and international human rights organizations have reported arbitrary detentions, due-process violations, mistreatment, and other rights abuses. The current period remains a subject of national and international debate."
+    ],
+    location: {
+      lat: 13.6989,
+      lng: -89.1914,
+      zoom: 12,
+      caption: "San Salvador, the political and administrative center of El Salvador today."
+    }
+  }
+];
+
+// Selecciona el set de eventos según el idioma activo. Si i18n.js aún no
+// cargó (poco probable dado el orden de <script>), cae a español por defecto.
+function getHistoriaEventos() {
+  const lang = (window.SRi18n && window.SRi18n.getLang()) || 'es';
+  return lang === 'en' ? HISTORIA_EVENTOS_EN : HISTORIA_EVENTOS_ES;
+}

@@ -14,28 +14,39 @@
 <body>
 
   <nav class="navbar" id="navbar">
-  <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" /></a></div>
+  <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" /></a></div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
+    <div class="drawer-divider"></div>
+
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -45,24 +56,24 @@
     <section class="hist-hero">
       <div class="hist-hero__bg"></div>
       <div class="hist-hero__inner reveal">
-        <p class="hist-hero__eyebrow">Memoria salvadoreña · 10,000 a.C. — hoy</p>
-        <h1 class="hist-hero__title">Historia de<br>El Salvador</h1>
-        <p class="hist-hero__sub">Un recorrido por los pueblos originarios, la conquista, el añil y el café, las dictaduras militares, la insurrección de 1932, la guerra civil y la construcción de la democracia. Toca cada punto de la línea para profundizar.</p>
-        <a href="#linea" class="hist-hero__cta">Explorar la línea de tiempo ↓</a>
+        <p class="hist-hero__eyebrow" data-i18n="hist.hero.eyebrow">Memoria salvadoreña · 10,000 a.C. — hoy</p>
+        <h1 class="hist-hero__title" data-i18n="hist.hero.title">Historia de<br>El Salvador</h1>
+        <p class="hist-hero__sub" data-i18n="hist.hero.sub">Un recorrido por los pueblos originarios, la conquista, el añil y el café, las dictaduras militares, la insurrección de 1932, la guerra civil y la construcción de la democracia. Toca cada punto de la línea para profundizar.</p>
+        <a href="#linea" class="hist-hero__cta" data-i18n="hist.hero.cta">Explorar la línea de tiempo ↓</a>
       </div>
     </section>
 
     <!-- ============ FILTROS DE ERA ============ -->
     <section class="hist-filters reveal" id="linea">
-      <p class="hist-filters__label">Filtrar por era</p>
+      <p class="hist-filters__label" data-i18n="hist.filters.label">Filtrar por era</p>
       <div class="hist-filters__list" id="eraFilters">
-        <button class="era-chip active" data-era="all">Todas</button>
-        <button class="era-chip" data-era="prehispanica">Prehispánica</button>
-        <button class="era-chip" data-era="colonia">Colonia</button>
-        <button class="era-chip" data-era="cafetalera">República Cafetalera</button>
-        <button class="era-chip" data-era="dictaduras">Dictaduras Militares</button>
-        <button class="era-chip" data-era="guerra">Guerra Civil</button>
-        <button class="era-chip" data-era="actual">El Salvador Actual</button>
+        <button class="era-chip active" data-era="all" data-i18n="hist.era.all">Todas</button>
+        <button class="era-chip" data-era="prehispanica" data-i18n="hist.era.prehispanica">Prehispánica</button>
+        <button class="era-chip" data-era="colonia" data-i18n="hist.era.colonia">Colonia</button>
+        <button class="era-chip" data-era="cafetalera" data-i18n="hist.era.cafetalera">República Cafetalera</button>
+        <button class="era-chip" data-era="dictaduras" data-i18n="hist.era.dictaduras">Dictaduras Militares</button>
+        <button class="era-chip" data-era="guerra" data-i18n="hist.era.guerra">Guerra Civil</button>
+        <button class="era-chip" data-era="actual" data-i18n="hist.era.actual">El Salvador Actual</button>
       </div>
     </section>
 
@@ -87,7 +98,7 @@
     </section>
 
     <section class="hist-note reveal">
-      <p>Esta línea de tiempo resume los momentos más determinantes de la historia salvadoreña. Las fuentes incluyen investigación histórica académica y archivos de memoria histórica; algunas cifras (como el número de víctimas) varían según el historiador consultado.</p>
+      <p data-i18n="hist.note.text">Esta línea de tiempo resume los momentos más determinantes de la historia salvadoreña. Las fuentes incluyen investigación histórica académica y archivos de memoria histórica; algunas cifras (como el número de víctimas) varían según el historiador consultado.</p>
     </section>
 
   </main>
@@ -96,7 +107,7 @@
   <div class="event-modal" id="eventModal" aria-hidden="true">
     <div class="event-modal__backdrop" id="eventBackdrop"></div>
     <div class="event-modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="event-modal__close" id="eventClose" aria-label="Cerrar">✕</button>
+      <button class="event-modal__close" id="eventClose" aria-label="Cerrar" data-i18n-attr="aria-label:hist.modal.close">✕</button>
       <div class="event-modal__media">
         <img id="modalImg" src="" alt="" />
         <div class="event-modal__media-grad"></div>
@@ -107,7 +118,7 @@
       <div class="event-modal__body">
         <div class="event-modal__text" id="modalText"><!-- párrafos --></div>
         <div class="event-modal__map-block" id="modalMapBlock">
-          <h3>Zona aproximada</h3>
+          <h3 data-i18n="hist.modal.zone">Zona aproximada</h3>
           <div class="event-modal__map" id="modalMap"></div>
           <p class="event-modal__map-caption" id="modalMapCaption"></p>
         </div>
@@ -117,22 +128,23 @@
 
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
       <p class="footer__name">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li><li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li><li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li><li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li><li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li><li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="nav.leyendas">Leyendas</a></li><li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
   <script src="../assets/js/script.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/historia-data.js"></script>
   <script src="../assets/js/historia-timeline.js"></script>
   <script src="../assets/js/historia-rails.js"></script>
