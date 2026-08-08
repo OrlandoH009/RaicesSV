@@ -385,11 +385,16 @@
   display: flex;
   transform: scale(.92) translateY(30px);
   opacity: 0;
-  transition: transform .4s cubic-bezier(.2,.8,.3,1.05), opacity .35s;
+  transition: transform .4s cubic-bezier(.2,.8,.3,1.05), opacity .35s, background .35s ease;
 }
 .leyenda-modal-overlay.open .leyenda-modal {
   transform: scale(1) translateY(0);
   opacity: 1;
+}
+[data-theme="light"] .leyenda-modal {
+  background: #fffdf8;
+  border-color: rgba(17,48,104,.14);
+  box-shadow: 0 30px 80px rgba(17,48,104,.25);
 }
 
 /* Botón cerrar */
@@ -405,11 +410,19 @@
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   z-index: 20;
-  transition: background .2s, transform .2s;
+  transition: background .2s, transform .2s, color .2s, border-color .2s;
 }
 .leyenda-modal__close:hover {
   background: rgba(255,255,255,.18);
   transform: rotate(90deg);
+}
+[data-theme="light"] .leyenda-modal__close {
+  background: rgba(17,48,104,.08);
+  border-color: rgba(17,48,104,.2);
+  color: var(--navy);
+}
+[data-theme="light"] .leyenda-modal__close:hover {
+  background: rgba(17,48,104,.16);
 }
 
 /* Botón narrar (bocina), un poco más alejado del close */
@@ -480,6 +493,7 @@
   color: rgba(255,255,255,.9);
   margin: 0;
 }
+[data-theme="light"] .leyenda-modal__origin p { color: rgba(255,255,255,.92); }
 
 /* Panel izquierdo: imagen del mito (espacio para que el usuario ponga imágenes) */
 .leyenda-modal__media {
@@ -551,6 +565,7 @@
   color: var(--white);
   margin-bottom: .3rem;
 }
+[data-theme="light"] .leyenda-modal__content h2 { color: var(--navy); }
 .leyenda-modal__content .leyenda-modal__sub {
   font-family: var(--font-display);
   font-style: italic;
@@ -558,6 +573,7 @@
   margin-bottom: 1.6rem;
   font-size: .95rem;
 }
+[data-theme="light"] .leyenda-modal__content .leyenda-modal__sub { color: rgba(36,33,29,.6); }
 
 /* Relato narrado como cuento continuo */
 .leyenda-modal__relato p {
@@ -568,6 +584,7 @@
   margin-bottom: 1.3rem;
   text-align: justify;
 }
+[data-theme="light"] .leyenda-modal__relato p { color: rgba(36,33,29,.82); }
 .leyenda-modal__relato p:first-of-type::first-letter {
   font-family: var(--font-display);
   font-weight: 700;

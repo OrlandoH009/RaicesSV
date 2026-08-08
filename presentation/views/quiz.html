@@ -45,15 +45,12 @@
   </nav>
 <main>
 
-  <section class="page-badge">
-    <div class="page-badge__inner reveal"><h1>Quiz Cultural</h1></div>
-  </section>
-
-  <!-- 1. NUEVO: TÍTULO PERSISTENTE (Colocado fuera de los contenedores que se ocultan) -->
+  <!-- 1. TÍTULO PERSISTENTE -->
   <h1 class="quiz-global-title">Quiz de Salvadorean Roots</h1>
 
   <!-- 2. SECCIÓN DE BIENVENIDA (Ahora empieza con la clase active y sin el h1 dentro) -->
   <div id="quizWelcome" class="quiz-welcome quiz-setup-section active">
+    <div class="quiz-welcome__waves" id="quizWelcomeWaves" aria-hidden="true"></div>
 
     <p class="quiz-welcome__subtitle">
       Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.
@@ -217,6 +214,7 @@
   <script src="../assets/js/script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/quiz-waves.js"></script>
   <script src="../assets/js/quiz.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>

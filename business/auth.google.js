@@ -1,7 +1,6 @@
 const googleCallback = (req, res) => {
     const user = req.user;
 
-    const redirectAfterLogin = req.session.postLoginRedirect || '/';
     const sessionData = {
         id: user.id_user,
         name: user.name,
@@ -9,6 +8,11 @@ const googleCallback = (req, res) => {
         avatarUrl: user.avatar_url || null,
         role: user.role_name
     };
+
+    const isAdminRole = sessionData.role === 'Admin' || sessionData.role === 'Fundador';
+    const defaultRedirect = isAdminRole ? '/admin' : '/';
+    const redirectAfterLogin = req.session.postLoginRedirect || defaultRedirect;
+
     req.session.regenerate((regenErr) => {
         if (regenErr) {
             console.error(regenErr);

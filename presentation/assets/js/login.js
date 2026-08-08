@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
     
-    const targetRedirect = params.get('redirect') || '/';
+    const targetRedirect = params.get('redirect') || '';
 
     const payload = {
       email: formData.get('email'),

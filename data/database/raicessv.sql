@@ -6,9 +6,15 @@ CREATE TABLE IF NOT EXISTS rols(
     rol VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS user_status(
+    id_status INT AUTO_INCREMENT PRIMARY KEY,
+    status VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS users(
     id_user INT AUTO_INCREMENT PRIMARY KEY,
     id_rol INT NOT NULL DEFAULT 2,
+    id_status INT NOT NULL DEFAULT 1,
     name VARCHAR(125) NOT NULL,
     email VARCHAR(125) NOT NULL UNIQUE,
     password VARCHAR(125) NULL,
@@ -17,7 +23,9 @@ CREATE TABLE IF NOT EXISTS users(
     avatar_url VARCHAR(255) NULL,
     avatar_source ENUM('local', 'google') NULL,
     google_avatar_url VARCHAR(255) NULL,
-    FOREIGN KEY (id_rol) REFERENCES rols(id_rol)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_rol) REFERENCES rols(id_rol),
+    FOREIGN KEY (id_status) REFERENCES user_status(id_status)
 );
 
 CREATE TABLE IF NOT EXISTS properties(
@@ -68,12 +76,53 @@ CREATE TABLE IF NOT EXISTS password_resets (
     INDEX idx_password_resets_user (id_user)
 );
 
+CREATE TABLE IF NOT EXISTS admin_invitations (
+    id_invitation INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    invited_by INT NOT NULL,
+    token_hash CHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (invited_by) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_admin_invitations_token_hash (token_hash),
+    INDEX idx_admin_invitations_user (id_user)
+);
+
+CREATE TABLE IF NOT EXISTS user_suspensions(
+    id_suspension INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    suspended_by INT NOT NULL,
+    reason VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (suspended_by) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_user_suspensions_user (id_user)
+);
+
+CREATE TABLE IF NOT EXISTS appeals (
+    id_appeal INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NULL,
+    email VARCHAR(125) NOT NULL,
+    message VARCHAR(1000) NOT NULL,
+    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
+    reviewed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_appeals_user (id_user),
+    INDEX idx_appeals_reviewed (reviewed_at)
+);
+
+INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Ale', 'jenialecastro0811@gmail.com', '87654321', 1);
-INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Tonatiuh', 'tona@gmail.com', '12345678', 1);
+INSERT IGNORE INTO user_status(status) VALUES ('Activo');
+INSERT IGNORE INTO user_status(status) VALUES ('Suspendido');
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Admin', 'admin@example.com', 'admin123', (SELECT id_rol FROM rols WHERE rol = 'Fundador'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Orlanditox', 'orlan.estupinian@gmail.com', '12345678', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Ale', 'jenialecastro0811@gmail.com', '87654321', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
+INSERT IGNORE INTO users(name, email, password, id_rol) VALUES ('Tonatiuh', 'tona@gmail.com', '12345678', (SELECT id_rol FROM rols WHERE rol = 'Admin'));
 
 INSERT INTO publications (id_user, title, description, location, image) VALUES
 (1, 'Ruinas de Tazumal', 'Una vista espectacular de las pirámides antiguas al atardecer. El lugar es perfecto para aprender sobre la historia prehispánica de El Salvador.', 'Tazumal', 'https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=500&h=350&fit=crop'),
