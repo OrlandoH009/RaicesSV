@@ -5,7 +5,7 @@ const MAX_LOCATION_LENGTH = 125;
 
 const sanitizePublication = (row, currentUser) => {
     const isOwner = Boolean(currentUser) && currentUser.id === row.id_user;
-    const isAdmin = Boolean(currentUser) && currentUser.role === 'Admin';
+    const isAdmin = Boolean(currentUser) && (currentUser.role === 'Admin' || currentUser.role === 'Fundador');
 
     return {
         id: row.id_publication,
@@ -130,7 +130,7 @@ const deletePublication = async (id_publication, requestingUser) => {
     }
 
     const isOwner = Boolean(requestingUser) && requestingUser.id === row.id_user;
-    const isAdmin = Boolean(requestingUser) && requestingUser.role === 'Admin';
+    const isAdmin = Boolean(requestingUser) && (requestingUser.role === 'Admin' || requestingUser.role === 'Fundador');
 
     if (!isOwner && !isAdmin) {
         const err = new Error('No puedes eliminar publicaciones de otros usuarios.'); err.expose = true; err.status = 403; throw err;

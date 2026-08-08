@@ -8,7 +8,6 @@ const login = async (req, res) => {
     try {
 
         const { email, password, redirect } = req.body;
-        const safeRedirect = isSafeRedirect(redirect) ? redirect : '/';
 
         const user = await authService.login(
             email,
@@ -22,6 +21,10 @@ const login = async (req, res) => {
             avatarUrl: user.avatar_url || null,
             role: user.role_name
         };
+        
+        const isAdminRole = sessionData.role === 'Admin' || sessionData.role === 'Fundador';
+        const defaultRedirect = isAdminRole ? '/admin' : '/';
+        const safeRedirect = isSafeRedirect(redirect) ? redirect : defaultRedirect;
 
         req.session.regenerate((err) => {
             if (err) {

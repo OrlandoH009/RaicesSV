@@ -1,9 +1,15 @@
 const userRepository = require('../data/repositories/user.repository');
 
-async function protectRoute(req, res, next) {
+async function requireAdmin(req, res, next) {
     if (!req.session || !req.session.user) {
         const originalUrl = req.originalUrl || req.url;
         return res.redirect(`/login.html?redirect=${encodeURIComponent(originalUrl)}`);
+    }
+
+    const role = req.session.user.role;
+
+    if (role !== 'Admin' && role !== 'Fundador') {
+        return res.redirect('/');
     }
 
     try {
@@ -23,9 +29,9 @@ async function protectRoute(req, res, next) {
 
         return next();
     } catch (error) {
-        console.error('Error verificando el estado de la cuenta del usuario en protectRoutes:', error);
+        console.error('Error verificando estado de usuario en requireAdmin:', error);
         return next();
     }
 }
 
-module.exports = protectRoute;
+module.exports = requireAdmin;

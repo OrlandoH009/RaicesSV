@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salvadorean Roots — Apelar suspensión</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/apelar.css" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0f2f66" />
+</head>
+<body class="appeal-body" data-gsap-reveal>
+
+  <div class="appeal-page">
+    <div class="appeal-page__bg"></div>
+
+    <main class="appeal-card">
+      <span class="appeal-eyebrow">Cuenta suspendida</span>
+      <h1>Solicita una revisión</h1>
+      <p class="appeal-sub">Si consideras que tu suspensión fue un error, cuéntanos qué pasó. Un administrador revisará tu caso.</p>
+
+      <div id="appeal-toast"></div>
+
+      <form class="appeal-form" id="appealForm">
+        <div class="form-group">
+          <label for="appealEmail">Correo de tu cuenta</label>
+          <input type="email" id="appealEmail" name="email" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="appealMessage">Tu apelación</label>
+          <textarea id="appealMessage" name="message" rows="5" maxlength="1000" required placeholder="Explica por qué crees que la suspensión debería revisarse…"></textarea>
+        </div>
+
+        <button type="submit" class="appeal-submit" id="appealSubmitBtn">Enviar apelación</button>
+        <span class="appeal-status" id="appealStatus"></span>
+      </form>
+
+      <div class="appeal-sent" id="appealSent" hidden>
+        <p>Tu apelación fue enviada. Un administrador la revisará pronto.</p>
+        <a href="/" class="appeal-link">Volver al inicio</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="../assets/js/apelar.js"></script>
+</body>
+</html>

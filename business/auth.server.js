@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const userRepository = require('../data/repositories/user.repository');
-const { sendMail } = require('../data/config/mailer.config');
+const { sendMail, buildStyledEmailHtml, escapeHtml } = require('../data/config/mailer.config');
 const {domainHasMailServer} = require('../data/config/emailVerifier.config');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,6 +27,10 @@ const login = async (email, password) => {
     if (!user) {
         await bcrypt.compare(password, '$2b$10$C6UzMDM.H6dfI/f/IKcEeO2XQdlNZQ0Xw3n7q9Vz8v0S5b0S6b0S6');
         const err = new Error(INVALID_CREDENTIALS_MSG); err.expose = true; throw err;
+    }
+
+    if (user.status_name === 'Suspendido') {
+        const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
     }
 
     let valid = false;
@@ -112,6 +116,9 @@ const loginOrRegisterWithGoogle = async (name, email, googleId, googlePhotoUrl) 
     const existingByGoogle = await userRepository.findByGoogleId(googleId);
 
     if (existingByGoogle) {
+        if (existingByGoogle.status_name === 'Suspendido') {
+            const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+        }
         if (googlePhotoUrl) {
             await userRepository.updateGoogleAvatarCache(existingByGoogle.id_user, googlePhotoUrl);
         }
@@ -120,6 +127,9 @@ const loginOrRegisterWithGoogle = async (name, email, googleId, googlePhotoUrl) 
     const normalizedEmail = email.trim().toLowerCase();
     const existingByEmail = await userRepository.findByEmail(normalizedEmail);
     if (existingByEmail) {
+        if (existingByEmail.status_name === 'Suspendido') {
+            const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+        }
         await userRepository.linkGoogleId(existingByEmail.id_user, googleId);
         if (googlePhotoUrl) {
             await userRepository.updateGoogleAvatarCache(existingByEmail.id_user, googlePhotoUrl);
@@ -284,14 +294,20 @@ const requestPasswordReset = async (email, appBaseUrl) => {
     await userRepository.createPasswordReset(user.id_user, tokenHash, expiresAtSql);
 
     const resetLink = `${appBaseUrl}/restablecer.html?token=${rawToken}`;
+    const userName = escapeHtml(user.name || '');
 
-    const html = `
-        <p>Hola ${user.name || ''},</p>
-        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Salvadorean Roots.</p>
-        <p>Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos:</p>
-        <p><a href="${resetLink}">${resetLink}</a></p>
-        <p>Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.</p>
-    `;
+    const html = buildStyledEmailHtml({
+        title: 'Recupera tu contraseña',
+        preheader: 'Haz clic aquí para crear una nueva contraseña y recuperar el acceso a tu cuenta.',
+        greeting: `Hola ${userName}`,
+        content: `
+            <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Salvadorean Roots.</p>
+            <p>Para continuar, usa el botón que aparece a continuación. Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos.</p>
+        `,
+        ctaText: 'Restablecer contraseña',
+        ctaUrl: resetLink,
+        footerText: 'Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.'
+    });
 
     await sendMail({
         to: user.email,

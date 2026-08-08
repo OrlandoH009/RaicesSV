@@ -2,16 +2,16 @@ const db = require('../config/database.config');
 
 const findByEmail = (email) => {
     return new Promise((resolve, reject) => {
-
         db.query(
-            `SELECT u.*, r.rol AS role_name
+             `SELECT u.*, r.rol AS role_name, s.status AS status_name
             FROM users u
             INNER JOIN rols r ON r.id_rol = u.id_rol
+            INNER JOIN user_status s ON s.id_status = u.id_status
             WHERE u.email = ?`,
             [email],
             (err, results) => {
                 if (err) return reject(err);
-                resolve(results[0]);
+                    resolve(results[0]);
             }
         );
     });
@@ -20,9 +20,10 @@ const findByEmail = (email) => {
 const findByGoogleId = (googleId) => {
     return new Promise((resolve, reject) => {
         db.query(
-            `SELECT u.*, r.rol AS role_name
+            `SELECT u.*, r.rol AS role_name, s.status AS status_name
             FROM users u
             INNER JOIN rols r ON r.id_rol = u.id_rol
+            INNER JOIN user_status s ON s.id_status = u.id_status
             WHERE u.google_id = ?`,
             [googleId],
             (e, results) => {
@@ -98,9 +99,10 @@ const linkGoogleId = (id_user, googleId) => {
 const findById = (id_user) => {
     return new Promise((resolve, reject) => {
         db.query(
-            `SELECT u.*, r.rol AS role_name
+            `SELECT u.*, r.rol AS role_name, s.status AS status_name
             FROM users u
             INNER JOIN rols r ON r.id_rol = u.id_rol
+            INNER JOIN user_status s ON s.id_status = u.id_status
             WHERE u.id_user = ?`,
             [id_user],
             (err, results) => {
