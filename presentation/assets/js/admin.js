@@ -539,9 +539,10 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmAction({
         title: nextStatus === 'suspendido' ? 'Suspender usuario' : 'Reactivar usuario',
         text: nextStatus === 'suspendido'
-          ? `${user.name} no podrá acceder al sitio hasta que lo reactives.`
-          : `${user.name} podrá volver a acceder al sitio.`,
-        onConfirm: () => setUserStatus(user.id, nextStatus)
+        ? `${user.name} no podrá acceder al sitio hasta que lo reactives.`
+        : `${user.name} podrá volver a acceder al sitio.`,
+        requireReason: nextStatus === 'suspendido',
+        onConfirm: (reason) => setUserStatus(user.id, nextStatus, reason)
       });
     });
 
@@ -572,11 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showDetailView('usuarios');
   }
 
-  async function setUserStatus(userId, status) {
+  async function setUserStatus(userId, status, reason) {
     try {
       const result = await apiFetch(`/api/admin/users/${userId}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, reason })
       });
       updateUserInState(result.user);
       showToast('Estado actualizado.', 'success');
@@ -913,19 +914,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminConfirmCancel = document.getElementById('adminConfirmCancel');
   const adminConfirmAccept = document.getElementById('adminConfirmAccept');
 
+  const adminConfirmReasonGroup = document.getElementById('adminConfirmReasonGroup');
+  const adminConfirmReasonInput = document.getElementById('adminConfirmReasonInput');
+
   let pendingConfirmAction = null;
 
-  function confirmAction({ title, text, onConfirm }) {
+  function confirmAction({ title, text, onConfirm, requireReason = false }) {
     if (!adminConfirmOverlay) return;
     if (adminConfirmTitle) adminConfirmTitle.textContent = title;
     if (adminConfirmText) adminConfirmText.textContent = text;
-    pendingConfirmAction = onConfirm;
+    if (adminConfirmReasonGroup) adminConfirmReasonGroup.hidden = !requireReason;
+    if (adminConfirmReasonInput) adminConfirmReasonInput.value = '';
+
+    pendingConfirmAction = requireReason
+    ? (reason) => onConfirm(reason)
+    : onConfirm;
+
     adminConfirmOverlay.classList.add('is-visible');
   }
 
   function closeConfirmModal() {
     adminConfirmOverlay?.classList.remove('is-visible');
     pendingConfirmAction = null;
+    if (adminConfirmReasonGroup) adminConfirmReasonGroup.hidden = true;
+    if (adminConfirmReasonInput) adminConfirmReasonInput.value = '';
   }
 
   adminConfirmCancel?.addEventListener('click', closeConfirmModal);
@@ -934,8 +946,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   adminConfirmAccept?.addEventListener('click', async () => {
     const action = pendingConfirmAction;
-    closeConfirmModal();
-    if (action) await action();
+    const reasonVisible = adminConfirmReasonGroup && !adminConfirmReasonGroup.hidden;
+
+    if (reasonVisible) {
+      const reason = (adminConfirmReasonInput?.value || '').trim();
+      if (!reason) {
+        showToast('Debes indicar el motivo de la suspensión.', 'error');
+        return;
+      }
+      closeConfirmModal();
+      if (action) await action(reason);
+    } else {
+      closeConfirmModal();
+      if (action) await action();
+    }
   });
 
   loadMetrics();
