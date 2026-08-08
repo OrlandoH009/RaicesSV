@@ -178,7 +178,12 @@ app.get(
 app.get(
     ['/aceptar-invitacion.html', '/views/aceptar-invitacion.html'],
     sendView('aceptar-invitacion.html')
-)
+);
+
+app.get(
+    ['/apelar.html', '/views/apelar.html'],
+    sendView('apelar.html')
+);
 
 /* ───────────── Rutas de autenticación (con límite de intentos) ───────────── */
 
