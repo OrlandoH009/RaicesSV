@@ -1,4 +1,6 @@
-// Base de datos local de recetas estructuradas con imágenes
+// ============================================================
+// Base de datos local de recetas (ESPAÑOL)
+// ============================================================
 const recetasData = {
   pupusas: {
     titulo: "Pupusas Revueltas",
@@ -362,36 +364,414 @@ const recetasData = {
   }
 };
 
-// Categorías para el filtro dinámico
-function getCategorias() {
-  const cats = new Set(Object.values(recetasData).map(r => r.categoria));
-  return ["Todas", ...Array.from(cats)];
+// ============================================================
+// Base de datos local de recetas (INGLÉS)
+// ============================================================
+const recetasDataEN = {
+  pupusas: {
+    titulo: "Stuffed Pupusas",
+    categoria: "Signature dish",
+    porciones: "4-6 people",
+    tiempo: "45 min",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/Pupusas-Revueltas.webp",
+    ingredientes: [
+      "2 cups of corn masa (or rice flour)",
+      "1½ cups of warm water",
+      "1 cup of ground Salvadoran chicharrón",
+      "1 cup of refried black or red beans",
+      "1½ cups of grated quesillo or mozzarella cheese",
+      "Vegetable oil for your hands"
+    ],
+    pasos: [
+      "In a bowl, gradually mix the masa with warm water until you get a smooth, pliable dough.",
+      "Combine the cheese, chicharrón, and beans in a separate bowl to make the mixed filling.",
+      "Take a golf-ball-sized piece of dough and form a cavity in the center like a small bowl.",
+      "Place a generous spoonful of filling into the cavity and close the dough completely around it.",
+      "Gently pat the dough from hand to hand, turning it to form a flat disc without letting the filling escape.",
+      "Cook on a hot comal or skillet for 3–4 minutes per side until golden brown."
+    ]
+  },
+  yuca: {
+    titulo: "Fried Yuca with Chicharrón",
+    categoria: "Street snack",
+    porciones: "4 servings",
+    tiempo: "40 min",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/yuca-frita.webp",
+    ingredientes: [
+      "2 lbs of large yuca (cassava)",
+      "1 lb of crispy pork chicharrón",
+      "Salvadoran curtido (pickled cabbage)",
+      "Homemade tomato sauce",
+      "Plenty of oil for frying",
+      "Salt to taste"
+    ],
+    pasos: [
+      "Peel the yuca and cut into medium pieces, removing the fibrous center.",
+      "Boil the yuca in salted water until soft but firm.",
+      "Drain completely and let the pieces cool.",
+      "Heat plenty of oil in a deep skillet and fry the yuca until golden and crispy on the outside.",
+      "Serve a bed of fried yuca, top with a generous portion of curtido.",
+      "Finish with hot chicharrón pieces and drizzle with traditional tomato sauce."
+    ]
+  },
+  sopa: {
+    titulo: "Sopa de Pata (Beef Feet Soup)",
+    categoria: "Weekend dish",
+    porciones: "6 servings",
+    tiempo: "3 hours",
+    dificultad: "High",
+    imagen: "../assets/media/recetas/Sopa de Pata.jpg",
+    ingredientes: [
+      "2 lbs of clean beef feet",
+      "1 lb of beef tripe (mondongo)",
+      "Yuca, güisquil, corn and green plantain in chunks",
+      "Fresh chipilín leaves",
+      "Onion, garlic, green chile and achiote",
+      "Lime and cilantro for serving"
+    ],
+    pasos: [
+      "Tenderize the beef feet and tripe in a large pot with enough water, garlic and onion for about 2 hours.",
+      "When the meat is tender, remove the tripe, cut into small pieces and return to the broth.",
+      "Add the achiote for color along with the corn and yuca, which need longer cooking time.",
+      "After 15 minutes, add the güisquil, green plantain and chipilín sprigs.",
+      "Simmer until all vegetables are completely tender.",
+      "Serve hot with chopped onion, cilantro and a squeeze of lime."
+    ]
+  },
+  gallinaindia: {
+    titulo: "Sopa de Gallina India (Free-range Hen Soup)",
+    categoria: "Weekend dish",
+    porciones: "6 servings",
+    tiempo: "2 hours",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/Sopa-de-Gallina-India.webp",
+    ingredientes: [
+      "1 whole free-range hen, cut into pieces",
+      "Potatoes and güisquil in large chunks",
+      "Tender corn cut into slices",
+      "Onion, garlic, tomato and mint",
+      "Achiote and hen bouillon",
+      "White rice to serve"
+    ],
+    pasos: [
+      "Wash the hen pieces well and cook in a large pot with water, garlic and onion until tender.",
+      "Skim off any foam that rises to the surface to achieve a clean, golden broth.",
+      "Blend the tomato with a little achiote and add to the broth for color and flavor.",
+      "Add the potatoes and corn, which need longer cooking.",
+      "Add the güisquil and simmer until all vegetables are soft.",
+      "Finally add fresh mint leaves and serve with white rice on the side."
+    ]
+  },
+  panesconpollo: {
+    titulo: "Panes con Pollo (Chicken Sandwiches)",
+    categoria: "Celebration food",
+    porciones: "8 sandwiches",
+    tiempo: "1 hour 30 min",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/Panes-con-Pollo.webp",
+    ingredientes: [
+      "8 Salvadoran French rolls (birote)",
+      "1 whole hen or chicken in pieces",
+      "Red recado (achiote, spices)",
+      "Pickled vegetables: radish, cabbage, chili",
+      "Tomato, onion, mustard and mayonnaise",
+      "Lettuce and mint leaves"
+    ],
+    pasos: [
+      "Cook the chicken with red recado, garlic and onion until the meat is tender and juicy.",
+      "Shred the chicken and set aside, moistened with a little of its own seasoned broth.",
+      "Cut the rolls in half and spread generously with mustard and mayonnaise.",
+      "Place a bed of lettuce and add slices of fresh tomato.",
+      "Fill with plenty of shredded chicken and its recado sauce.",
+      "Top with pickled vegetables and a sprig of mint before closing the sandwich."
+    ]
+  },
+  tamales: {
+    titulo: "Salvadoran Tamales",
+    categoria: "Christmas tradition",
+    porciones: "12-15 tamales",
+    tiempo: "2 hours",
+    dificultad: "High",
+    imagen: "../assets/media/recetas/tamales-de-pollo.webp",
+    ingredientes: [
+      "1 lb of nixtamalized corn masa",
+      "1 liter of concentrated chicken broth",
+      "½ cup of lard or oil",
+      "Plantain leaves previously passed through boiling water",
+      "Shredded chicken cooked in recado",
+      "Potatoes, olives and capers for garnish"
+    ],
+    pasos: [
+      "Cook the masa with the chicken broth and lard over medium heat, stirring constantly until it thickens evenly.",
+      "Clean and cut the plantain leaves into rectangles about 30x30 cm.",
+      "Place a large spoonful of hot masa in the center of the leaf.",
+      "Add the chicken with recado, a strip of potato, an olive and capers.",
+      "Wrap by folding the ends firmly to prevent water leakage.",
+      "Steam in a large pot with a leaf base for 1 hour and 15 minutes."
+    ]
+  },
+  atol: {
+    titulo: "Atol de Elote (Sweet Corn Drink)",
+    categoria: "Ancestral drink",
+    porciones: "5 cups",
+    tiempo: "30 min",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/atol-elote.jpg",
+    ingredientes: [
+      "6 ripe ears of corn, kernels removed",
+      "2 cups of whole milk",
+      "2 cups of water",
+      "1 whole cinnamon stick",
+      "¾ cup of sugar",
+      "A pinch of salt"
+    ],
+    pasos: [
+      "Blend the raw corn kernels with the water until smooth.",
+      "Strain well using a fine cloth to remove all the pulp.",
+      "Pour the extracted liquid into a clean pot, add the cinnamon and salt.",
+      "Cook over medium heat, stirring constantly to prevent sticking.",
+      "When it begins to thicken, add the milk and sugar to taste.",
+      "Boil for 5 more minutes and serve hot in a clay cup."
+    ]
+  },
+  riguas: {
+    titulo: "Riguas (Corn Cakes)",
+    categoria: "Street snack",
+    porciones: "10 riguas",
+    tiempo: "40 min",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/riguas.webp",
+    ingredientes: [
+      "6 tender ears of corn, kernels removed",
+      "2 tablespoons of sugar",
+      "1 teaspoon of salt",
+      "2 tablespoons of melted butter",
+      "Corn husks (tusa) for wrapping",
+      "Grated hard cheese (optional)"
+    ],
+    pasos: [
+      "Grind the tender corn kernels in a food processor until you get a thick, slightly grainy dough.",
+      "Mix the dough with the sugar, salt and melted butter until well combined.",
+      "If desired, add grated cheese to make a savory version.",
+      "Place a portion of the mixture on a corn husk and fold into a flat packet.",
+      "Cook the riguas on a hot comal for 6-8 minutes per side.",
+      "Serve hot, fresh off the comal, plain or with sour cream."
+    ]
+  },
+  empanadasplatano: {
+    titulo: "Plantain Empanadas",
+    categoria: "Traditional dessert",
+    porciones: "8 empanadas",
+    tiempo: "50 min",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/empanadas.webp",
+    ingredientes: [
+      "4 large ripe plantains",
+      "1 cup of sweet refried beans or condensed milk",
+      "2 tablespoons of corn or wheat flour",
+      "Sugar to taste",
+      "Oil for frying",
+      "Ground cinnamon for sprinkling"
+    ],
+    pasos: [
+      "Cook the plantains with their skins on in boiling water until very soft.",
+      "Peel the plantains and mash them, gradually incorporating the flour until you have a manageable dough.",
+      "Take a portion of dough, flatten it in your palm and place sweet bean filling or condensed milk in the center.",
+      "Close to form an oval empanada, sealing the edges well with wet fingers.",
+      "Fry in hot oil until golden and crisp on both sides.",
+      "Drain excess oil and sprinkle with sugar and cinnamon before serving."
+    ]
+  },
+  mariscada: {
+    titulo: "Mariscada (Seafood Stew)",
+    categoria: "Coastal dish",
+    porciones: "6 servings",
+    tiempo: "1 hour",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/mariscada.webp",
+    ingredientes: [
+      "1 lb of cleaned shrimp",
+      "1 lb of firm fish in chunks",
+      "1 lb of mixed seafood (octopus, squid, shellfish)",
+      "Coconut milk",
+      "Tomato, onion, sweet pepper and culantro",
+      "Yuca or green plantain in chunks"
+    ],
+    pasos: [
+      "Sauté onion, tomato and sweet pepper finely chopped in hot oil.",
+      "Add coconut milk to the sauté and let it simmer gently to blend flavors.",
+      "Add the yuca or green plantain, which need more time to soften.",
+      "Add the fish and firmer seafood first, leaving the shrimp for last.",
+      "Cook the shrimp just a few minutes so they stay juicy.",
+      "Finish with fresh chopped culantro and serve hot in a deep bowl."
+    ]
+  },
+  casamiento: {
+    titulo: "Casamiento (Rice and Beans)",
+    categoria: "Everyday dish",
+    porciones: "4 servings",
+    tiempo: "25 min",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/casamiento.webp",
+    ingredientes: [
+      "2 cups of cooked white rice",
+      "2 cups of cooked red beans with their broth",
+      "2 tablespoons of oil or margarine",
+      "1 whole green chili",
+      "2 tablespoons of chopped onion",
+      "1 clove of garlic"
+    ],
+    pasos: [
+      "Heat the oil or margarine in a large skillet and sauté the onion and garlic until translucent.",
+      "Add the whole green chili and sauté a little more to release its aroma.",
+      "Add the cooked beans with a little of their broth, mixing well with the sauté.",
+      "Add the cooked rice and mix everything until the ingredients are fully combined.",
+      "Cook over medium-low heat for 10 minutes, stirring occasionally until flavors meld.",
+      "Remove the chili and serve hot, traditionally with sour cream and fresh cheese."
+    ]
+  },
+  enchiladas: {
+    titulo: "Salvadoran Enchiladas",
+    categoria: "Street snack",
+    porciones: "6 enchiladas",
+    tiempo: "1 hour",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/enchiladas-salvadorenas.webp",
+    ingredientes: [
+      "6 corn tortillas, fried until crispy",
+      "1 lb of ground beef",
+      "Pickled cabbage (curtido)",
+      "Homemade tomato sauce",
+      "Cooked beet in slices",
+      "Hard-boiled egg and grated hard cheese"
+    ],
+    pasos: [
+      "Fry the corn tortillas in hot oil until completely crispy and golden.",
+      "Cook the ground beef with onion, garlic and tomato until well seasoned and dry.",
+      "Prepare or have ready a generous portion of cabbage curtido.",
+      "Spread a layer of ground beef over each crispy tortilla.",
+      "Top with plenty of curtido, tomato sauce and beet slices.",
+      "Finish with chopped hard-boiled egg and grated cheese before serving immediately."
+    ]
+  },
+  nuegadosyuca: {
+    titulo: "Yuca Nuégados",
+    categoria: "Traditional dessert",
+    porciones: "20 nuégados",
+    tiempo: "1 hour",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/Nuegados-de-Yuca.webp",
+    ingredientes: [
+      "2 lbs of finely grated yuca",
+      "2 tablespoons of wheat flour",
+      "Plenty of oil for frying",
+      "2 cups of panela (rapadura) sugar",
+      "1 cinnamon stick",
+      "Cloves (optional)"
+    ],
+    pasos: [
+      "Grate the yuca finely and squeeze out excess water with a clean cloth.",
+      "Mix the grated yuca with the flour until a moldable dough forms.",
+      "Form small balls with the yuca dough between your palms.",
+      "Fry the balls in hot oil until they are evenly golden and crispy.",
+      "Prepare the honey by dissolving the panela with water, cinnamon and cloves, simmering until thickened.",
+      "Drench the fried nuégados with the hot honey just before serving."
+    ]
+  },
+  chilateconnuegados: {
+    titulo: "Chilate with Nuégados",
+    categoria: "Ancestral drink",
+    porciones: "6 cups",
+    tiempo: "1 hour",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/chilate-con-nuegados.webp",
+    ingredientes: [
+      "1 lb of toasted white corn, ground",
+      "1 cinnamon stick and a few cloves",
+      "A small piece of ginger",
+      "Sugar or panela to taste",
+      "Enough water",
+      "Prepared yuca nuégados"
+    ],
+    pasos: [
+      "Toast the corn on a dry comal until golden and aromatic.",
+      "Grind the toasted corn to a fine powder, like flour.",
+      "Dissolve the corn flour in cold water, avoiding lumps.",
+      "Cook over medium heat with the cinnamon, cloves and ginger, stirring constantly until it thickens.",
+      "Sweeten to taste with sugar or panela and boil for a few more minutes.",
+      "Serve the chilate hot in clay cups, accompanied by yuca nuégados bathed in honey."
+    ]
+  },
+  torrejas: {
+    titulo: "Torrejas (Fried Bread in Honey)",
+    categoria: "Holy Week tradition",
+    porciones: "8 servings",
+    tiempo: "1 hour",
+    dificultad: "Medium",
+    imagen: "../assets/media/recetas/Torreja.webp",
+    ingredientes: [
+      "1 day-old French bread or baguette",
+      "4 beaten eggs",
+      "2 cups of panela (rapadura) sugar",
+      "1 cinnamon stick and cloves",
+      "Oil for frying",
+      "Water"
+    ],
+    pasos: [
+      "Cut the bread into thick slices and let them dry slightly so they absorb the liquid better.",
+      "Beat the eggs and soak each slice of bread, covering both sides well.",
+      "Fry the bread slices in hot oil until golden all over.",
+      "Prepare the honey by dissolving the panela in water with the cinnamon and cloves, simmering until slightly thickened.",
+      "Submerge the fried slices in the hot honey, letting them absorb the sweetness for several minutes.",
+      "Serve the torrejas warm, drenched in plenty of panela honey."
+    ]
+  }
+};
+
+// ============================================================
+// Funciones de ayuda para idioma
+// ============================================================
+function getRecetasData(lang) {
+  return lang === 'en' ? recetasDataEN : recetasData;
 }
 
-// Renderiza la grilla completa de tarjetas de recetas
-function renderGrid(filtro = "Todas") {
+function getCategorias(lang) {
+  const data = getRecetasData(lang);
+  const cats = new Set(Object.values(data).map(r => r.categoria));
+  const allLabel = lang === 'en' ? 'All' : 'Todas';
+  return [allLabel, ...Array.from(cats)];
+}
+
+// ============================================================
+// Renderizado de la grilla y filtros
+// ============================================================
+function renderGrid(filtro = "Todas", langOverride = null) {
   const grid = document.getElementById("recipes-grid");
   if (!grid) return;
+  const lang = langOverride || (window.SRi18n ? window.SRi18n.getLang() : 'es');
+  const data = getRecetasData(lang);
 
-  grid.innerHTML = Object.entries(recetasData)
-    .filter(([key, data]) => filtro === "Todas" || data.categoria === filtro)
-    .map(([key, data]) => `
+  grid.innerHTML = Object.entries(data)
+    .filter(([key, receta]) => filtro === (lang === 'en' ? 'All' : 'Todas') || receta.categoria === filtro)
+    .map(([key, receta]) => `
       <article class="recipe-mini-card" data-key="${key}" tabindex="0">
         <div class="recipe-mini-card__img">
-          <img src="${data.imagen}" alt="${data.titulo}" loading="lazy" />
-          <span class="recipe-mini-card__badge">${data.categoria}</span>
+          <img src="${receta.imagen}" alt="${receta.titulo}" loading="lazy" />
+          <span class="recipe-mini-card__badge">${receta.categoria}</span>
         </div>
         <div class="recipe-mini-card__body">
-          <h3>${data.titulo}</h3>
+          <h3>${receta.titulo}</h3>
           <div class="recipe-mini-card__meta">
-            <span>⏱ ${data.tiempo}</span>
-            <span>📊 ${data.dificultad}</span>
+            <span>⏱ ${receta.tiempo}</span>
+            <span>📊 ${receta.dificultad}</span>
           </div>
         </div>
       </article>
     `).join("");
 
-  // Animación de entrada escalonada para las tarjetas
+  // Animación (sin cambios)
   const cards = grid.querySelectorAll(".recipe-mini-card");
   if (window.gsap) {
     gsap.killTweensOf(cards);
@@ -401,7 +781,6 @@ function renderGrid(filtro = "Todas") {
     );
   }
 
-  // Listeners para abrir la receta seleccionada en el modal flotante
   grid.querySelectorAll(".recipe-mini-card").forEach(card => {
     const open = () => {
       const key = card.getAttribute("data-key");
@@ -413,7 +792,27 @@ function renderGrid(filtro = "Todas") {
   });
 }
 
-// ===== Modal flotante de receta con animaciones GSAP =====
+function renderFilters(langOverride = null) {
+  const wrap = document.getElementById("recipe-filters");
+  if (!wrap) return;
+  const lang = langOverride || (window.SRi18n ? window.SRi18n.getLang() : 'es');
+  const cats = getCategorias(lang);
+  wrap.innerHTML = cats.map((c, i) => `<button class="filter-chip${i === 0 ? ' active' : ''}" data-filter="${c}">${c}</button>`).join("");
+
+  wrap.querySelectorAll(".filter-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      // Al hacer clic en un filtro, usar el idioma actual
+      const currentLang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+      renderGrid(btn.getAttribute("data-filter"), currentLang);
+    });
+  });
+}
+
+// ============================================================
+// Modal y renderizado de receta activa
+// ============================================================
 let modalScrollLocked = false;
 
 function openRecipeModal() {
@@ -435,7 +834,6 @@ function openRecipeModal() {
     gsap.to(overlay, { opacity: 1, duration: 0.3, ease: "power2.out" });
     gsap.to(modal, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(1.6)" });
 
-    // Animar entrada del contenido de la receta
     const card = modal.querySelector(".recipe-card");
     if (card) {
       gsap.fromTo(card, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.15, ease: "power2.out" });
@@ -465,26 +863,11 @@ function closeRecipeModal() {
   }
 }
 
-// Renderiza los botones de filtro por categoría
-function renderFilters() {
-  const wrap = document.getElementById("recipe-filters");
-  if (!wrap) return;
-  const cats = getCategorias();
-  wrap.innerHTML = cats.map((c, i) => `<button class="filter-chip${i === 0 ? ' active' : ''}" data-filter="${c}">${c}</button>`).join("");
-
-  wrap.querySelectorAll(".filter-chip").forEach(btn => {
-    btn.addEventListener("click", () => {
-      wrap.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderGrid(btn.getAttribute("data-filter"));
-    });
-  });
-}
-
-// Función para inyectar la receta activa dinámicamente
 function renderRecipe(key) {
-  const data = recetasData[key];
-  if (!data) return;
+  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+  const data = getRecetasData(lang);
+  const receta = data[key];
+  if (!receta) return;
 
   const container = document.getElementById("recipe-dynamic-content");
   if (!container) return;
@@ -492,29 +875,29 @@ function renderRecipe(key) {
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
       <div class="recipe-image-container">
-        <img src="${data.imagen}" alt="${data.titulo}" class="recipe-image" />
-        <span class="recipe-card__badge">${data.categoria}</span>
+        <img src="${receta.imagen}" alt="${receta.titulo}" class="recipe-image" />
+        <span class="recipe-card__badge">${receta.categoria}</span>
       </div>
       <div class="recipe-content-wrapper">
         <div class="recipe-header">
-          <h2 class="recipe-title">${data.titulo}</h2>
+          <h2 class="recipe-title">${receta.titulo}</h2>
           <div class="recipe-meta">
-            <span><strong>Porciones:</strong> ${data.porciones}</span>
-            <span><strong>Tiempo:</strong> ${data.tiempo}</span>
-            <span><strong>Dificultad:</strong> ${data.dificultad}</span>
+            <span><strong>${lang === 'en' ? 'Servings' : 'Porciones'}:</strong> ${receta.porciones}</span>
+            <span><strong>${lang === 'en' ? 'Time' : 'Tiempo'}:</strong> ${receta.tiempo}</span>
+            <span><strong>${lang === 'en' ? 'Difficulty' : 'Dificultad'}:</strong> ${receta.dificultad}</span>
           </div>
         </div>
         <div class="recipe-grid">
           <div class="recipe-section ingredients-section">
-            <h3>📋 Ingredientes</h3>
+            <h3>${lang === 'en' ? '📋 Ingredients' : '📋 Ingredientes'}</h3>
             <ul class="ingredients-list">
-              ${data.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+              ${receta.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
             </ul>
           </div>
           <div class="recipe-section steps-section">
-            <h3>👨‍🍳 Preparación</h3>
+            <h3>${lang === 'en' ? '👨‍🍳 Preparation' : '👨‍🍳 Preparación'}</h3>
             <ol class="steps-list">
-              ${data.pasos.map(paso => `<li>${paso}</li>`).join('')}
+              ${receta.pasos.map(paso => `<li>${paso}</li>`).join('')}
             </ol>
           </div>
         </div>
@@ -522,53 +905,51 @@ function renderRecipe(key) {
     </div>
   `;
 
-  // Sincronizar tarjeta activa en el grid
   document.querySelectorAll(".recipe-mini-card").forEach(c => {
     c.classList.toggle("is-active", c.getAttribute("data-key") === key);
   });
 
-  // Actualizar el video tutorial según la receta activa (ver recetas-videos.js)
   if (typeof actualizarVideoReceta === "function") {
     actualizarVideoReceta(key, document.getElementById("recipe-video-block"));
   }
 }
 
-// Función para generar y descargar PDF con previsualización de Chrome
+// ============================================================
+// Descarga de PDF (traducido)
+// ============================================================
 function generateAndDownloadPDF() {
   const btn = document.getElementById('download-pdf-btn');
   if (!btn) return;
 
   const originalText = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = '⏳ Abriendo previsualización...';
+  btn.textContent = '⏳ Opening preview...';
 
   try {
-    // Obtener contenedor y receta actual
     const container = document.getElementById("recipe-dynamic-content");
     const activeCard = container ? container.querySelector(".recipe-card") : null;
     const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
-    const data = recetasData[recipeKey];
+    const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+    const data = getRecetasData(lang);
+    const receta = data[recipeKey];
 
-    if (!data) {
-      throw new Error('Receta no encontrada');
+    if (!receta) {
+      throw new Error('Recipe not found');
     }
 
-    // Convertir la imagen relativa a absoluta para que html2pdf la cargue
     const tempImg = new Image();
-    tempImg.src = data.imagen;
+    tempImg.src = receta.imagen;
     const absoluteImgSrc = tempImg.src;
 
-    // Crear HTML limpio para impresión/PDF
     const printHTML = `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${data.titulo} - Salvadorean Roots</title>
+  <title>${receta.titulo} - Salvadorean Roots</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Lato', Arial, sans-serif;
       color: #1a1a1a;
@@ -577,12 +958,7 @@ function generateAndDownloadPDF() {
       padding: 10mm;
       font-size: 12px;
     }
-
-    .pdf-container {
-      max-width: 210mm; /* A4 width */
-      margin: 0 auto;
-    }
-
+    .pdf-container { max-width: 210mm; margin: 0 auto; }
     .recipe-header {
       border-bottom: 3px solid #be8e56;
       padding-bottom: 10px;
@@ -591,11 +967,7 @@ function generateAndDownloadPDF() {
       align-items: center;
       gap: 15px;
     }
-
-    .recipe-title-group {
-      flex: 1;
-    }
-
+    .recipe-title-group { flex: 1; }
     .recipe-title {
       color: #113068;
       font-size: 24px;
@@ -603,45 +975,28 @@ function generateAndDownloadPDF() {
       margin-bottom: 5px;
       font-family: 'Playfair Display', serif;
     }
-
     .recipe-meta {
       display: flex;
       gap: 15px;
       font-size: 11px;
       color: #555;
     }
-
-    .recipe-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .recipe-meta-item strong {
-      color: #113068;
-    }
-
+    .recipe-meta-item { display: flex; align-items: center; gap: 4px; }
+    .recipe-meta-item strong { color: #113068; }
     .main-image-container {
       width: 100%;
-      height: 180px; /* Reducido para que quepa todo */
+      height: 180px;
       overflow: hidden;
       border-radius: 8px;
       margin-bottom: 15px;
       border: 2px solid #be8e56;
     }
-
-    .main-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
+    .main-image { width: 100%; height: 100%; object-fit: cover; }
     .recipe-grid {
       display: grid;
       grid-template-columns: 1fr 1.6fr;
       gap: 20px;
     }
-
     .recipe-section h3 {
       color: #be8e56;
       font-size: 14px;
@@ -653,25 +1008,14 @@ function generateAndDownloadPDF() {
       align-items: center;
       gap: 6px;
     }
-
-    .ingredients-list, .steps-list {
-      padding-left: 18px;
-    }
-
+    .ingredients-list, .steps-list { padding-left: 18px; }
     .ingredients-list li, .steps-list li {
       margin-bottom: 5px;
       font-size: 11px;
       color: #333;
     }
-
-    .ingredients-list li {
-      list-style: disc;
-    }
-
-    .steps-list li {
-      list-style: decimal;
-    }
-
+    .ingredients-list li { list-style: disc; }
+    .steps-list li { list-style: decimal; }
     .recipe-footer {
       border-top: 1px solid #e5dccb;
       padding-top: 10px;
@@ -680,82 +1024,68 @@ function generateAndDownloadPDF() {
       color: #999;
       text-align: center;
     }
-
-    .recipe-footer strong {
-      color: #be8e56;
-      font-weight: 700;
-    }
-
+    .recipe-footer strong { color: #be8e56; font-weight: 700; }
     @media print {
       body { padding: 10mm; }
       .main-image-container { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
-
-    @page {
-      size: A4;
-      margin: 10mm;
-    }
+    @page { size: A4; margin: 10mm; }
   </style>
 </head>
 <body>
   <div class="pdf-container">
     <div class="recipe-header">
       <div class="recipe-title-group">
-        <h1 class="recipe-title">${data.titulo}</h1>
+        <h1 class="recipe-title">${receta.titulo}</h1>
         <div class="recipe-meta">
           <div class="recipe-meta-item">
-            <strong>👥 Porciones:</strong> ${data.porciones}
+            <strong>${lang === 'en' ? '👥 Servings:' : '👥 Porciones:'}</strong> ${receta.porciones}
           </div>
           <div class="recipe-meta-item">
-            <strong>⏱️ Tiempo:</strong> ${data.tiempo}
+            <strong>⏱️ ${lang === 'en' ? 'Time:' : 'Tiempo:'}</strong> ${receta.tiempo}
           </div>
           <div class="recipe-meta-item">
-            <strong>📊 Dificultad:</strong> ${data.dificultad}
+            <strong>📊 ${lang === 'en' ? 'Difficulty:' : 'Dificultad:'}</strong> ${receta.dificultad}
           </div>
         </div>
       </div>
     </div>
 
     <div class="main-image-container">
-      <img src="${absoluteImgSrc}" alt="${data.titulo}" class="main-image" />
+      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="main-image" />
     </div>
 
     <div class="recipe-grid">
       <div class="recipe-section">
-        <h3>📋 Ingredientes</h3>
+        <h3>${lang === 'en' ? '📋 Ingredients' : '📋 Ingredientes'}</h3>
         <ul class="ingredients-list">
-          ${data.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
+          ${receta.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
         </ul>
       </div>
 
       <div class="recipe-section">
-        <h3>👨‍🍳 Preparación</h3>
+        <h3>${lang === 'en' ? '👨‍🍳 Preparation' : '👨‍🍳 Preparación'}</h3>
         <ol class="steps-list">
-          ${data.pasos.map(paso => `<li>${paso}</li>`).join('')}
+          ${receta.pasos.map(paso => `<li>${paso}</li>`).join('')}
         </ol>
       </div>
     </div>
 
     <div class="recipe-footer">
-      <strong>Salvadorean Roots</strong> — Nuestra herencia, nuestro orgullo<br>
-      <small>Receta de la cocina salvadoreña tradicional</small>
+      <strong>Salvadorean Roots</strong> — ${lang === 'en' ? 'Our heritage, our pride.' : 'Nuestra herencia, nuestro orgullo.'}<br>
+      <small>${lang === 'en' ? 'Recipe from traditional Salvadoran cuisine' : 'Receta de la cocina salvadoreña tradicional'}</small>
     </div>
   </div>
 
   <script>
-    // Esperar a que la imagen se cargue completamente antes de imprimir
     window.addEventListener('load', () => {
-      // Un pequeño retraso adicional asegura que todo esté renderizado
-      setTimeout(() => {
-        window.print();
-      }, 500);
+      setTimeout(() => { window.print(); }, 500);
     });
   </script>
 </body>
 </html>
     `;
 
-    // Abrir ventana nueva con el contenido
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       throw new Error('No se pudo abrir la ventana de impresión. Por favor, permite los pop-ups para este sitio.');
@@ -763,15 +1093,12 @@ function generateAndDownloadPDF() {
     printWindow.document.write(printHTML);
     printWindow.document.close();
 
-    // Cuando se cierre el diálogo de impresión/descarga (o si se cancela)
     printWindow.addEventListener('afterprint', () => {
       printWindow.close();
       btn.disabled = false;
       btn.innerHTML = originalText;
     });
 
-    // Fallback por si afterprint no funciona (algunos navegadores)
-    // Usamos focus para detectar cuando el usuario vuelve a la pestaña original
     window.addEventListener('focus', function windowFocusHandler() {
       if (printWindow.closed || !printWindow.document) {
         btn.disabled = false;
@@ -790,21 +1117,28 @@ function generateAndDownloadPDF() {
   }
 }
 
-// Inicialización cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
-  // Construir filtros y grilla dinámica
-  renderFilters();
-  renderGrid("Todas");
+  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+  
+  renderFilters(lang);
+  const initialFilter = lang === 'en' ? 'All' : 'Todas';
+  renderGrid(initialFilter, lang);
+  
+  // Marcar el botón "All" o "Todas" como activo
+  const allBtn = document.querySelector(`.filter-chip[data-filter="${initialFilter}"]`);
+  if (allBtn) {
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    allBtn.classList.add('active');
+  }
 
-  // Event listener para botón descargar PDF
+  // Botón de descarga PDF
   const downloadBtn = document.getElementById("download-pdf-btn");
   if (downloadBtn) {
     downloadBtn.addEventListener("click", generateAndDownloadPDF);
   }
 
-  // Cerrar modal: botón X, click en overlay, tecla Escape
+  // Cerrar modal
   const overlay = document.getElementById("recipeModalOverlay");
-  const modal = document.getElementById("recipeModal");
   const closeBtn = document.getElementById("recipeModalClose");
 
   if (closeBtn) closeBtn.addEventListener("click", closeRecipeModal);
@@ -821,12 +1155,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Abrir automáticamente una receta si se llega desde gastronomia.html
-  // con el enlace "Ver la receta" (?receta=slug)
+  // Abrir receta desde URL (?receta=slug)
   const params = new URLSearchParams(window.location.search);
   const slugDesdeURL = params.get("receta");
-  if (slugDesdeURL && recetasData[slugDesdeURL]) {
-    renderRecipe(slugDesdeURL);
-    openRecipeModal();
+  if (slugDesdeURL) {
+    const data = getRecetasData(lang);
+    if (data[slugDesdeURL]) {
+      setTimeout(() => {
+        renderRecipe(slugDesdeURL);
+        openRecipeModal();
+      }, 200);
+    }
+  }
+});
+
+// ============================================================
+// Escuchar cambios de idioma (CORREGIDO)
+// ============================================================
+document.addEventListener('langchange', (event) => {
+  const newLang = event.detail ? event.detail.lang : 'es';
+  
+  // Obtener el filtro actual
+  const currentFilterBtn = document.querySelector('.filter-chip.active');
+  let currentFilter = currentFilterBtn ? currentFilterBtn.getAttribute('data-filter') : null;
+  
+  // Convertir filtro al equivalente en el nuevo idioma
+  if (newLang === 'en' && currentFilter === 'Todas') {
+    currentFilter = 'All';
+  } else if (newLang === 'es' && currentFilter === 'All') {
+    currentFilter = 'Todas';
+  }
+  
+  // Validar que el filtro exista en el nuevo idioma
+  const data = getRecetasData(newLang);
+  const validCategories = Object.values(data).map(r => r.categoria);
+  if (!currentFilter || (currentFilter !== 'All' && currentFilter !== 'Todas' && !validCategories.includes(currentFilter))) {
+    currentFilter = newLang === 'en' ? 'All' : 'Todas';
+  }
+  
+  // Re-renderizar filtros con el nuevo idioma
+  renderFilters(newLang);
+  
+  // Marcar el botón correspondiente como activo
+  const newFilterBtn = document.querySelector(`.filter-chip[data-filter="${currentFilter}"]`);
+  if (newFilterBtn) {
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    newFilterBtn.classList.add('active');
+  }
+  
+  // Renderizar el grid con el filtro y el idioma forzado
+  renderGrid(currentFilter, newLang);
+  
+  // Si el modal está abierto, actualizar su contenido
+  const overlayModal = document.getElementById("recipeModalOverlay");
+  if (overlayModal && overlayModal.classList.contains('is-open')) {
+    const activeCard = document.querySelector('.recipe-mini-card.is-active');
+    if (activeCard) {
+      const key = activeCard.getAttribute('data-key');
+      renderRecipe(key);
+    }
   }
 });
