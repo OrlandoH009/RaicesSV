@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const userRepository = require('../data/repositories/user.repository');
-const { sendMail } = require('../data/config/mailer.config');
+const { sendMail, buildStyledEmailHtml, escapeHtml } = require('../data/config/mailer.config');
 const {domainHasMailServer} = require('../data/config/emailVerifier.config');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -294,14 +294,20 @@ const requestPasswordReset = async (email, appBaseUrl) => {
     await userRepository.createPasswordReset(user.id_user, tokenHash, expiresAtSql);
 
     const resetLink = `${appBaseUrl}/restablecer.html?token=${rawToken}`;
+    const userName = escapeHtml(user.name || '');
 
-    const html = `
-        <p>Hola ${user.name || ''},</p>
-        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Salvadorean Roots.</p>
-        <p>Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos:</p>
-        <p><a href="${resetLink}">${resetLink}</a></p>
-        <p>Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.</p>
-    `;
+    const html = buildStyledEmailHtml({
+        title: 'Recupera tu contraseña',
+        preheader: 'Haz clic aquí para crear una nueva contraseña y recuperar el acceso a tu cuenta.',
+        greeting: `Hola ${userName}`,
+        content: `
+            <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Salvadorean Roots.</p>
+            <p>Para continuar, usa el botón que aparece a continuación. Este enlace es válido por ${RESET_TOKEN_TTL_MINUTES} minutos.</p>
+        `,
+        ctaText: 'Restablecer contraseña',
+        ctaUrl: resetLink,
+        footerText: 'Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña seguirá siendo la misma.'
+    });
 
     await sendMail({
         to: user.email,

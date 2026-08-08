@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const adminRepository = require('../data/repositories/admin.repository');
 const userRepository = require('../data/repositories/user.repository');
-const { sendMail } = require('../data/config/mailer.config');
+const { sendMail, buildStyledEmailHtml, escapeHtml } = require('../data/config/mailer.config');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
@@ -111,14 +111,22 @@ const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseU
     try {
         if (status === 'suspendido') {
             const appealLink = `${appBaseUrl}/apelar.html`;
+            const userName = escapeHtml(target.name || '');
+            const safeReason = escapeHtml(reason.trim());
 
-            const html = `
-                <p>Hola ${target.name || ''},</p>
-                <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
-                <p><strong>Motivo:</strong> ${reason.trim()}</p>
-                <p>Si consideras que esto es un error, puedes apelar esta decisión aquí:</p>
-                <p><a href="${appealLink}">${appealLink}</a></p>
-            `;
+            const html = buildStyledEmailHtml({
+                title: 'Tu cuenta ha sido suspendida',
+                preheader: 'Conoce el motivo de la suspensión y cómo apelar la decisión.',
+                greeting: `Hola ${userName}`,
+                content: `
+                    <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
+                    <p><strong>Motivo:</strong> ${safeReason}</p>
+                    <p>Si consideras que esto es un error, puedes apelar esta decisión aquí:</p>
+                `,
+                ctaText: 'Apelar decisión',
+                ctaUrl: appealLink,
+                footerText: 'Si no realizaste esta acción, puedes ignorar este mensaje.'
+            });
 
             await sendMail({
                 to: target.email,
@@ -127,10 +135,14 @@ const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseU
                 text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}. Puedes apelar aquí: ${appealLink}`
             });
         } else {
-            const html = `
-                <p>Hola ${target.name || ''},</p>
-                <p>Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.</p>
-            `;
+            const userName = escapeHtml(target.name || '');
+            const html = buildStyledEmailHtml({
+                title: 'Tu cuenta ha sido reactivada',
+                preheader: 'Ya puedes volver a iniciar sesión y disfrutar de la plataforma.',
+                greeting: `Hola ${userName}`,
+                content: '<p>Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.</p>',
+                footerText: 'Gracias por seguir formando parte de la comunidad.'
+            });
 
             await sendMail({
                 to: target.email,
@@ -187,14 +199,21 @@ const promoteToAdmin = async (id_user, requestingUser, { appBaseUrl } = {}) => {
     await adminRepository.createAdminInvitation(idUserNum, requestingUser.id, tokenHash, expiresAtSql);
 
     const invitationLink = `${appBaseUrl}/aceptar-invitacion.html?token=${rawToken}`;
+    const targetName = escapeHtml(target.name || '');
+    const requesterName = escapeHtml(requestingUser.name || 'Un administrador');
 
-    const html = `
-        <p>Hola ${target.name || ''},</p>
-        <p>${requestingUser.name || 'Un administrador'} te invitó a ser administrador de Salvadorean Roots.</p>
-        <p>Para completar el proceso, establece una contraseña para tu cuenta:</p>
-        <p><a href="${invitationLink}">${invitationLink}</a></p>
-        <p>Este enlace es válido por 24 horas. Si no esperabas esta invitación, puedes ignorar este correo.</p>
-    `;
+    const html = buildStyledEmailHtml({
+        title: 'Invitación a administrador',
+        preheader: 'Completa tu registro y define una contraseña para acceder como administrador.',
+        greeting: `Hola ${targetName}`,
+        content: `
+            <p>${requesterName} te invitó a ser administrador de Salvadorean Roots.</p>
+            <p>Para completar el proceso, establece una contraseña para tu cuenta:</p>
+        `,
+        ctaText: 'Aceptar invitación',
+        ctaUrl: invitationLink,
+        footerText: 'Este enlace es válido por 24 horas. Si no esperabas esta invitación, puedes ignorar este correo.'
+    });
 
     await sendMail({
         to: target.email,
