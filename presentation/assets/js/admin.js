@@ -607,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateUserInState(result.user);
       showToast('Estado actualizado.', 'success');
       showListView('usuarios');
+      refreshAll();
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -620,6 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         updateUserInState(result.user);
         showToast('Usuario ascendido a administrador.', 'success');
+        refreshAll();
       }
       showListView('usuarios');
     } catch (error) {
@@ -633,18 +635,20 @@ document.addEventListener('DOMContentLoaded', () => {
       updateUserInState(result.user);
       showToast('Se quitó el rol de administrador.', 'success');
       showListView('usuarios');
+      refreshAll();
     } catch (error) {
       showToast(error.message, 'error');
     }
   }
 
-  async function deleteAdminUser(userId) {
+   async function deleteAdminUser(userId) {
     try {
       await apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
       state.users = state.users.filter((u) => u.id !== userId);
       applyUserFilters();
       showToast('Administrador eliminado.', 'success');
       showListView('usuarios');
+      refreshAll();
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -990,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTeamGrid();
       showToast('Administrador creado.', 'success');
       closeCreateAdminDrawer();
+      refreshAll();
     } catch (error) {
       if (createAdminStatus) {
         createAdminStatus.textContent = error.message;
@@ -1180,10 +1185,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  loadMetrics();
-  loadUsers();
-  loadPublications();
-  loadAppeals();
+  async function refreshAll() {
+    await Promise.all([
+      loadMetrics(),
+      loadUsers(),
+      loadPublications(),
+      loadAppeals()
+    ]);
+  }
+
+  refreshAll();
   loadCurrentUser();
 
 });
