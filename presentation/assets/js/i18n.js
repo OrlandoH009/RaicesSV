@@ -53,6 +53,8 @@
       "nav.conectado": "Conectado",
       "nav.miPerfil": "Mi perfil",
       "nav.cerrarSesion": "Cerrar sesión",
+      "nav.modoOscuro": "Modo oscuro",
+      "nav.modoClaro": "Modo claro",
 
       "hero.title": "Bienvenid@ a Salvadorean Roots",
       "hero.subtitle": "Nuestra herencia, nuestro orgullo.",
@@ -856,7 +858,7 @@
           "desc": "Centenaria festividad religiosa y cultural donde se encuentran las imágenes de los santos patronos de los pueblos vecinos, acompañada de danzas tradicionales como el Chinchintora."
         },
         "calabiuza_2026": {
-          "title": "Día de la Calabiuza 2026",
+          "title": "Día de la Calabiuza",
           "desc": "Desfile tradicional nocturno en Tonacatepeque donde cobran vida los personajes de las leyendas salvadoreñas como la Siguanaba."
         },
         "difuntos_2026": {
@@ -1195,7 +1197,35 @@
       "lock.text": "Perdona, debes registrarte para poder seguir disfrutando de nuestra información. Es rápido y gratis.",
       "lock.register": "Registrarme",
       "lock.login": "Ya tengo cuenta",
-      "lock.close": "Cerrar"
+      "lock.close": "Cerrar",
+
+      "recetas.pageTitle": "Recetario de Nuestra Tierra",
+      "recetas.intro": "Explora <strong>14 platillos típicos</strong> de la cocina salvadoreña. Toca una tarjeta para ver ingredientes y preparación paso a paso.",
+      "recetas.downloadPDF": "Descargar Receta en PDF",
+      "recetas.videoLabel": "🎥 Video Tutorial",
+      "recetas.videoCaption": "Aprende a preparar esta receta paso a paso con nuestro video.",
+      "recetas.modalClose": "Cerrar receta",
+
+      "ev.suchitotoFestival.title": "Festival de Suchitoto",
+      "ev.suchitotoFestival.desc": "Festival internacional de arte y cultura que reúne cine, música y teatro en escenarios coloniales históricos.",
+      "ev.balsam.title": "Tradición del Bálsamo",
+      "ev.balsam.desc": "Encuentro cultural y religioso enfocado en la extracción ancestral del bálsamo y hermandad entre pueblos.",
+      "ev.esquipulas.title": "Romería de Esquipulas",
+      "ev.esquipulas.desc": "Peregrinación tradicional y religiosa de fe en devoción al milagroso Cristo Negro de Esquipulas.",
+      "ev.guajactial.title": "Fiestas del Rey Guajactial",
+      "ev.guajactial.desc": "Conmemoración histórica e indígena que rescata la dignidad y liderazgo de los caciques nahua-pipiles.",
+      "ev.juventudes.title": "Festival de las Juventudes",
+      "ev.juventudes.desc": "Encuentro cultural por la paz y la memoria histórica a través de expresiones artísticas juveniles.",
+      "ev.primicia.title": "Primicia de la Cosecha",
+      "ev.primicia.desc": "Tradición agrícola de agradecimiento por las primeras cosechas de granos básicos de la temporada de lluvias.",
+      "ev.semanaSanta.title": "Semana Santa Nacional",
+      "ev.semanaSanta.desc": "Solemnes conmemoraciones de pasión caracterizadas por las alfombras artísticas de sal en las calles.",
+      "ev.independencia.title": "Día de la Independencia",
+      "ev.independencia.desc": "Gran desfile nacional cívico y militar con bandas de paz conmemorando la emancipación patria.",
+      "ev.floresPalmas.title": "Festival de las Flores y Palmas",
+      "ev.floresPalmas.desc": "Colorida festividad mariana donde los habitantes decoran palmas con flores de temporada en un hermoso desfile.",
+
+      "map.search.placeholder": "Buscar lugar...",
     },
 
     en: {
@@ -1226,6 +1256,8 @@
       "nav.conectado": "Signed in",
       "nav.miPerfil": "My profile",
       "nav.cerrarSesion": "Log out",
+      "nav.modoOscuro": "Dark mode",
+      "nav.modoClaro": "Light mode",
 
       "hero.title": "Welcome to Salvadorean Roots",
       "hero.subtitle": "Our heritage, our pride.",
@@ -2115,36 +2147,36 @@
         18: { nombre: "El Rosario Church", lugar: "San Salvador", desc: "Modern architectural masterpiece with a unique stained-glass design creating an impressive light spectrum.", chips: ["Architecture", "Modern Art"] },
         19: { nombre: "Coatepeque Lake", lugar: "Santa Ana", desc: "Beautiful volcanic lake surrounded by myths about El Tabudo, the guardian spirit of its waters.", chips: ["Myths", "Legends", "Nature"] },
         20: { nombre: "El Imposible Forest", lugar: "Ahuachapán", desc: "National park boasting immense biodiversity and magical trails shrouded in ancient ghost legends.", chips: ["Nature", "Mystery"] },
-        21: { nombre: "August Festivities", lugar: "San Salvador, El Salvador", desc: "Patron saint celebrations honoring the Divine Savior of the World, marked by the traditional Mail Parade.", chips: ["Tradition", "Fair"] },
-        22: { nombre: "Day of the Lanterns", lugar: "Ahuachapán, El Salvador", desc: "Centuries-old tradition where streets light up with thousands of handmade lanterns honoring the Virgin Mary.", chips: ["Lights", "Heritage"] },
-        23: { nombre: "Fiestas Julias", lugar: "Santa Ana, El Salvador", desc: "Celebration honoring Patron Saint Anne featuring fairs, traditional floats, and solemn religious activities.", chips: ["Fair", "Culture"] },
-        24: { nombre: "San Vicente Patron Saint Fiestas", lugar: "San Vicente, El Salvador", desc: "Festivity celebrated in honor of Saint Vincent Abbot and Martyr, with parades and local traditional dances.", chips: ["Tradition", "Town"] },
+        21: { nombre: "Agostinas Festivities", lugar: "San Salvador, El Salvador", desc: "Patron saint celebrations honoring the Divine Savior of the World, marked by the traditional Mail Parade.", chips: ["Tradition", "Fair"] },
+        22: { nombre: "Little Lanterns Day", lugar: "Ahuachapán, El Salvador", desc: "Centuries-old tradition where streets light up with thousands of handmade lanterns honoring the Virgin Mary.", chips: ["Lights", "Heritage"] },
+        23: { nombre: "Julias Festivities", lugar: "Santa Ana, El Salvador", desc: "Celebration honoring Patron Saint Anne featuring fairs, traditional floats, and solemn religious activities.", chips: ["Fair", "Culture"] },
+        24: { nombre: "San Vicente Patronal Festivities", lugar: "San Vicente, El Salvador", desc: "Festivity celebrated in honor of Saint Vincent Abbot and Martyr, with parades and local traditional dances.", chips: ["Tradition", "Town"] },
         25: { nombre: "Flowers and Palms Festival", lugar: "La Libertad, El Salvador", desc: "Colorful Marian festivity where locals decorate palms with seasonal flowers in a beautiful parade.", chips: ["Flowers", "Religion"] },
-        26: { nombre: "San Miguel Great Carnival", lugar: "San Miguel, El Salvador", desc: "The largest popular party in Central America, filled with live orchestras, float parades, and street music.", chips: ["Carnival", "Music"] },
-        27: { nombre: "Historiantes Festivities", lugar: "Cuisnahuat, Sonsonate", desc: "Ancestral folk dance recreating historical battles between Moors and Christians in colorful costumes.", chips: ["Traditional Dance", "Culture"] },
+        26: { nombre: "San Miguel Carnival", lugar: "San Miguel, El Salvador", desc: "The largest popular party in Central America, filled with live orchestras, float parades, and street music.", chips: ["Carnival", "Music"] },
+        27: { nombre: "Cuisnahuat Historantes Festivities", lugar: "Cuisnahuat, Sonsonate", desc: "Ancestral folk dance recreating historical battles between Moors and Christians in colorful costumes.", chips: ["Traditional Dance", "Culture"] },
         28: { nombre: "Jocote Corona Festival", lugar: "Santa Ana, El Salvador", desc: "Agricultural celebration at Cerro Verde dedicated to this iconic fruit, offering culinary innovations.", chips: ["Gastronomy", "Fruits"] },
-        29: { nombre: "Calabiuza Day", lugar: "Cuscatlán, El Salvador", desc: "Tonacatepeque tradition where youth dress as Salvadoran legend characters asking for sweetened squash.", chips: ["Myths", "Identity"] },
+        29: { nombre: "La Calabiuza", lugar: "Cuscatlán, El Salvador", desc: "Tonacatepeque tradition where youth dress as Salvadoran legend characters asking for sweetened squash.", chips: ["Myths", "Identity"] },
         30: { nombre: "Canchules Day", lugar: "Sensuntepeque, Cabañas", desc: "Unique Day of the Dead tradition featuring alters where food is requested shouting 'We are angels!'", chips: ["Tradition", "Altars"] },
         31: { nombre: "Day of the Cross", lugar: "San Salvador, El Salvador", desc: "Religious syncretic festivity where a jiote cross is decorated with seasonal fruits to ward off the devil.", chips: ["Religion", "Fruits"] },
-        32: { nombre: "Maize Festival", lugar: "Chalatenango, El Salvador", desc: "Fair paying tribute to the sacred American grain with atoles, tamales, rigüitas, and handmade typical outfits.", chips: ["Gastronomy", "Corn"] },
+        32: { nombre: "Corn Festival", lugar: "Chalatenango, El Salvador", desc: "Fair paying tribute to the sacred American grain with atoles, tamales, rigüitas, and handmade typical outfits.", chips: ["Gastronomy", "Corn"] },
         33: { nombre: "Balsam Tradition", lugar: "Jayaque, La Libertad", desc: "Cultural and religious gathering focused on ancestral balsam extraction and sisterhood between towns.", chips: ["Ancestral", "Culture"] },
-        34: { nombre: "Encounters Tradition", lugar: "San Antonio del Monte, Sonsonate", desc: "Act of religious sisterhood between saint images from neighboring towns, with deep colonial roots.", chips: ["Religion", "Sisterhood"] },
-        35: { nombre: "La Unión Patron Saint Fiestas", lugar: "La Unión, El Salvador", desc: "Coastal celebration honoring the Immaculate Conception with maritime activities and traditional parades.", chips: ["Fair", "Coast"] },
+        34: { nombre: "Tradition of the Encounters", lugar: "San Antonio del Monte, Sonsonate", desc: "Act of religious sisterhood between saint images from neighboring towns, with deep colonial roots.", chips: ["Religion", "Sisterhood"] },
+        35: { nombre: "La Unión Patronal Festivities", lugar: "La Unión, El Salvador", desc: "Coastal celebration honoring the Immaculate Conception with maritime activities and traditional parades.", chips: ["Fair", "Coast"] },
         36: { nombre: "Lanterns Festival in Ataco", lugar: "Ahuachapán, El Salvador", desc: "Concepción de Ataco dresses up, illuminating its cobblestone streets with spectacular light designs.", chips: ["Lights", "Tourism"] },
         37: { nombre: "Panela Festival", lugar: "Cuscatlán, El Salvador", desc: "Fair at the traditional sugar mills of San Lorenzo dedicated to sugarcane derivatives.", chips: ["Sweets", "Tradition"] },
         38: { nombre: "King Guajactial Fiestas", lugar: "Sonsonate, El Salvador", desc: "Historical and indigenous commemoration rescuing the dignity and leadership of Nahua-Pipil chiefs.", chips: ["Indigenous", "History"] },
         39: { nombre: "Crab Festival", lugar: "La Paz, El Salvador", desc: "Marine gastronomic celebration focused on crab dishes and mangrove conservation.", chips: ["Seafood", "Gastronomy"] },
         40: { nombre: "Esquipulas Pilgrimage", lugar: "Chalatenango, El Salvador", desc: "Traditional and religious pilgrimage of faith devoted to the miraculous Black Christ of Esquipulas.", chips: ["Faith", "Pilgrimage"] },
         41: { nombre: "Clay Festival", lugar: "Cabañas, El Salvador", desc: "Craft fair in Ilobasco celebrating clay modeling mastery and the famous miniature pottery surprises.", chips: ["Crafts", "Clay"] },
-        42: { nombre: "Rice Fiestas", lugar: "San Vicente, El Salvador", desc: "El Tránsito celebration dedicated to rice production featuring machinery parades and typical dishes.", chips: ["Harvest", "Tradition"] },
+        42: { nombre: "Rice Festivities", lugar: "San Vicente, El Salvador", desc: "El Tránsito celebration dedicated to rice production featuring machinery parades and typical dishes.", chips: ["Harvest", "Tradition"] },
         43: { nombre: "Youths Festival", lugar: "El Mozote, Morazán", desc: "Cultural gathering for peace and historical memory through youth artistic expressions.", chips: ["Peace", "Youth"] },
         44: { nombre: "Seafood Fair", lugar: "Usulután, El Salvador", desc: "Grand culinary exhibition in Puerto El Triunfo featuring the finest fresh catch from Jiquilisco Bay.", chips: ["Seafood", "Coast"] },
         45: { nombre: "First Fruits Harvest", lugar: "La Unión, El Salvador", desc: "Agricultural tradition thanking for the season's first basic grain harvests during the rainy period.", chips: ["Agriculture", "Tradition"] },
-        46: { nombre: "Panela Carnival", lugar: "Verapaz, San Vicente", desc: "Colorful festival dedicated to cane grinding in traditional mills on the volcano's slopes.", chips: ["Fair", "Sweets"] },
-        47: { nombre: "Cojutepeque Fiestas", lugar: "Cuscatlán, El Salvador", desc: "Famous sugar and sausage fair with parades of traditional floats and local beauty queens.", chips: ["Fair", "Sausages"] },
+        46: { nombre: "Panela Fair", lugar: "Verapaz, San Vicente", desc: "Colorful festival dedicated to cane grinding in traditional mills on the volcano's slopes.", chips: ["Fair", "Sweets"] },
+        47: { nombre: "Pumpkin Festivities", lugar: "Cuscatlán, El Salvador", desc: "Famous sugar and sausage fair with parades of traditional floats and local beauty queens.", chips: ["Fair", "Sausages"] },
         48: { nombre: "Indigo Festival", lugar: "Cuscatlán, El Salvador", desc: "Suchitoto celebration dedicated to the 'blue gold' plant and ancestral dyeing techniques.", chips: ["Crafts", "History"] },
-        49: { nombre: "Gotera Patron Saint Fiestas", lugar: "Morazán, El Salvador", desc: "San Francisco Gotera celebration featuring horse riding, rodeos, and cultural nights from eastern El Salvador.", chips: ["Fair", "Tradition"] },
-        50: { nombre: "Chicharrón Festival", lugar: "La Libertad, El Salvador", desc: "Gastronomic fair in Antiguo Cuscatlán dedicated to the finest dishes derived from pork cracklings.", chips: ["Gastronomy", "Food"] },
+        49: { nombre: "Gotera Patronal Festivities", lugar: "Morazán, El Salvador", desc: "San Francisco Gotera celebration featuring horse riding, rodeos, and cultural nights from eastern El Salvador.", chips: ["Fair", "Tradition"] },
+        50: { nombre: "International Pork Rind Festival", lugar: "La Libertad, El Salvador", desc: "Gastronomic fair in Antiguo Cuscatlán dedicated to the finest dishes derived from pork cracklings.", chips: ["Gastronomy", "Food"] },
         51: { nombre: "El Boquerón", lugar: "San Salvador Volcano", desc: "National park in the volcano's crater, a natural viewpoint with legends about ancient eruptions.", chips: ["Nature", "Views"] },
         52: { nombre: "Devil's Door", lugar: "Los Planes de Renderos", desc: "Iconic rock formation wrapped in a colonial legend involving a landowner and the devil himself.", chips: ["Myths", "Legends"] },
         53: { nombre: "Casa Blanca", lugar: "Chalchuapa, Santa Ana", desc: "Archaeological site with pyramid structures and an interactive workshop for natural indigo dyeing.", chips: ["Archaeology", "Indigo"] },
@@ -2153,7 +2185,7 @@
         56: { nombre: "El Rosario Church", lugar: "Historic Center, San Salvador", desc: "Unique column-less avant-garde architecture, a jewel of modern Latin American sacred art.", chips: ["Architecture", "Avant-garde"] },
         57: { nombre: "National Holy Week", lugar: "Metropolitan Cathedral", desc: "Solemn passion commemorations characterized by artistic colored salt carpets on the streets.", chips: ["Religion", "Carpets"] },
         58: { nombre: "Independence Day", lugar: "Plaza Cívica, San Salvador", desc: "Grand civic and military national parade featuring peace bands commemorating homeland emancipation.", chips: ["Civic", "Parade"] },
-        59: { nombre: "All Souls' Day", lugar: "General Cemetery, San Salvador", desc: "Popular tradition of decorating and painting the graves of loved ones every November second.", chips: ["Tradition", "Identity"] },
+        59: { nombre: "Day of the Dead", lugar: "General Cemetery, San Salvador", desc: "Popular tradition of decorating and painting the graves of loved ones every November second.", chips: ["Tradition", "Identity"] },
         60: { nombre: "Christmas and Posadas", lugar: "San Salvador", desc: "December celebrations full of lights, traditional fireworks, and posadas in historic neighborhoods.", chips: ["Christmas", "Lights"] },
         61: { nombre: "Proceres Monument", lugar: "Plaza Libertad, San Salvador", desc: "Central structure commemorating Central America's First Cry of Independence in 1811.", chips: ["History", "Monument"] },
         62: { nombre: "Metro Cinema", lugar: "Historic Center, San Salvador", desc: "Icon of 20th-century urban entertainment, now a key piece of the capital's architectural memory.", chips: ["Urban Memory", "Cinema"] },
@@ -2366,7 +2398,35 @@
       "lock.text": "Sorry, you must register to keep enjoying our information. It's quick and free.",
       "lock.register": "Sign up",
       "lock.login": "I already have an account",
-      "lock.close": "Close"
+      "lock.close": "Close",
+
+      "recetas.pageTitle": "Recipe Book of Our Land",
+      "recetas.intro": "Explore <strong>14 typical dishes</strong> of Salvadoran cuisine. Tap a card to see ingredients and step-by-step instructions.",
+      "recetas.downloadPDF": "Download Recipe as PDF",
+      "recetas.videoLabel": "🎥 Video Tutorial",
+      "recetas.videoCaption": "Learn how to prepare this recipe step by step with our video.",
+      "recetas.modalClose": "Close recipe",
+
+      "ev.suchitotoFestival.title": "Suchitoto Festival",
+      "ev.suchitotoFestival.desc": "International art and culture festival featuring cinema, music, and theater in historic colonial settings.",
+      "ev.balsam.title": "Balsam Tradition",
+      "ev.balsam.desc": "Cultural and religious gathering focused on ancestral balsam extraction and sisterhood between towns.",
+      "ev.esquipulas.title": "Esquipulas Pilgrimage",
+      "ev.esquipulas.desc": "Traditional religious pilgrimage of faith devoted to the miraculous Black Christ of Esquipulas.",
+      "ev.guajactial.title": "King Guajactial Festivities",
+      "ev.guajactial.desc": "Historical and indigenous commemoration rescuing the dignity and leadership of Nahua-Pipil chiefs.",
+      "ev.juventudes.title": "Youth Festival",
+      "ev.juventudes.desc": "Cultural gathering for peace and historical memory through youth artistic expressions.",
+      "ev.primicia.title": "First Fruits Harvest",
+      "ev.primicia.desc": "Agricultural tradition thanking for the season's first basic grain harvests during the rainy period.",
+      "ev.semanaSanta.title": "National Holy Week",
+      "ev.semanaSanta.desc": "Solemn passion commemorations characterized by artistic colored salt carpets on the streets.",
+      "ev.independencia.title": "Independence Day",
+      "ev.independencia.desc": "Grand civic and military national parade featuring peace bands commemorating homeland emancipation.",
+      "ev.floresPalmas.title": "Festival of Flowers and Palms",
+      "ev.floresPalmas.desc": "Colorful Marian festivity where locals decorate palms with seasonal flowers in a beautiful parade.",
+
+      "map.search.placeholder": "Search place...",
     }
   };
 
@@ -2406,12 +2466,11 @@
   function applyTranslations(lang) {
     document.documentElement.setAttribute("lang", lang === "en" ? "en" : "es");
 
-    // Texto interno
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
-      el.textContent = t(key, lang);
+      // Usamos innerHTML para permitir etiquetas HTML en las traducciones
+      el.innerHTML = t(key, lang);
     });
-
     // Atributos (alt, placeholder, title, aria-label, content, etc.)
     document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
       const pairs = el.getAttribute("data-i18n-attr").split(",");
@@ -2457,13 +2516,14 @@
       setLang(next);
       applyTranslations(next);
       document.body.classList.remove("i18n-fading");
-    }, 160); // coincide con la transición de opacidad definida en CSS
+      
+      // 📌 Disparar el evento DESPUÉS de actualizar el idioma
+      document.dispatchEvent(new CustomEvent("langchange", { detail: { lang: next } }));
+    }, 160);
 
     window.setTimeout(() => {
       toggles.forEach((btn) => btn.classList.remove("is-switching"));
     }, 550);
-
-    document.dispatchEvent(new CustomEvent("langchange", { detail: { lang: next } }));
   }
 
   /* ── Inicialización ── */

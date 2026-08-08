@@ -440,8 +440,8 @@ L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
   maxZoom: 16.5,
-  updateWhenZooming: false, 
-  keepBuffer: 8,           
+  updateWhenZooming: false,
+  keepBuffer: 8,
 }).addTo(mapa);
 
 /* ── Crear ícono personalizado con emoji ── */
@@ -449,9 +449,9 @@ function crearIcono(emoji, color) {
   return L.divIcon({
     className: '',
     html: `<div class="custom-marker" style="background:${color};">${emoji}</div>`,
-    iconSize: [34, 34],       
-    iconAnchor: [17, 17],     
-    popupAnchor: [0, -20]     
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+    popupAnchor: [0, -20]
   });
 }
 
@@ -501,17 +501,20 @@ const sbCenter      = document.getElementById('sbCenter');
 let activeMarker = null;
 let activeLandmark = null;
 
+/* ══════════════════════════════════════════════════════════
+   ABRIR / CERRAR SIDEBAR CON ANIMACIÓN Y PULSO GSAP
+   ══════════════════════════════════════════════════════════ */
 function abrirSidebar(lm, marker, forcedLang = null) {
   const lang = forcedLang || (window.SRi18n ? window.SRi18n.getLang() : 'es');
-  
+
+  // Contenido instantáneo
   sbImage.src = getImgUrl(lm);
   sbImage.alt = lm.nombre;
   sbEmojiBadge.textContent = lm.emoji;
   sbEmojiBadge.style.background = lm.color;
-  
   sbCat.textContent = `${lm.emoji} ${obtenerEtiquetaCategoria(lm.cat, lang)}`;
   sbCat.style.color = CAT_COLORS[lm.cat];
-  
+
   let tituloTraducido = lm.nombre;
   if (window.SRi18n && lm.id) {
     const tradNombre = window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang);
@@ -529,12 +532,11 @@ function abrirSidebar(lm, marker, forcedLang = null) {
     }
   }
   sbPlace.textContent = lugarTraducido;
-  
+
   let descFinal = '';
   if (window.SRi18n && lm.id) {
     const tradEv = window.SRi18n.t(`ev.${lm.id}.desc`, lang);
     const tradMapa = window.SRi18n.t(`mapa.puntos.${lm.id}.desc`, lang);
-    
     if (tradEv && tradEv !== `ev.${lm.id}.desc`) {
       descFinal = tradEv;
     } else if (tradMapa && tradMapa !== `mapa.puntos.${lm.id}.desc`) {
@@ -542,7 +544,7 @@ function abrirSidebar(lm, marker, forcedLang = null) {
     }
   }
   sbDesc.textContent = descFinal || lm.desc || (lang === 'en' ? 'Description available soon.' : 'Descripción disponible próximamente.');
-  
+
   let chipsFinales = lm.chips || [];
   if (window.SRi18n && lm.id) {
     const chipsTraducidos = window.SRi18n.t(`mapa.puntos.${lm.id}.chips`, lang);
@@ -550,44 +552,119 @@ function abrirSidebar(lm, marker, forcedLang = null) {
       chipsFinales = chipsTraducidos;
     }
   }
-  
   if (chipsFinales.length === 0) {
     chipsFinales = [obtenerEtiquetaCategoria(lm.cat, lang)];
   }
-  
   sbChips.innerHTML = chipsFinales.map(c => `<span class="popup-chip">${c}</span>`).join('');
 
+  // Manejar marcador activo y pulso
   if (activeMarker && activeMarker !== marker) {
+    if (activeMarker._pulseAnim) {
+      activeMarker._pulseAnim.kill();
+      activeMarker._pulseAnim = null;
+      const oldIcon = activeMarker._icon?.querySelector('.custom-marker');
+      if (oldIcon && window.gsap) {
+        gsap.set(oldIcon, { scale: 1, boxShadow: '0 4px 12px rgba(0,0,0,0.6)' });
+      }
+    }
     activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
   }
   activeMarker = marker;
   activeLandmark = lm;
-  marker._icon?.querySelector('.custom-marker')?.classList.add('custom-marker--active');
+  const iconEl = marker._icon?.querySelector('.custom-marker');
+  if (iconEl) {
+    iconEl.classList.add('custom-marker--active');
+    // Iniciar pulso con GSAP
+    if (window.gsap) {
+      if (marker._pulseAnim) {
+        marker._pulseAnim.kill();
+        marker._pulseAnim = null;
+      }
+      gsap.set(iconEl, { scale: 1, boxShadow: '0 4px 12px rgba(0,0,0,0.6)' });
+      marker._pulseAnim = gsap.to(iconEl, {
+        scale: 1.15,
+        boxShadow: '0 0 25px rgba(190,142,86,0.6), 0 0 50px rgba(190,142,86,0.3)',
+        duration: 0.8,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut'
+      });
+    }
+  }
 
+  // Abrir sidebar con animación
   mapaSidebar.classList.add('open');
   mapaSidebar.setAttribute('aria-hidden', 'false');
   mapaSection.classList.add('sidebar-open');
+
+  if (window.gsap) {
+    gsap.killTweensOf(mapaSidebar);
+    gsap.to(mapaSidebar, {
+      translateX: 0,
+      duration: 0.5,
+      ease: 'power3.out'
+    });
+    const innerContent = mapaSidebar.querySelector('.mapa-sidebar__hero, .mapa-sidebar__body');
+    if (innerContent) {
+      gsap.fromTo(innerContent,
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.4, delay: 0.15, ease: 'power2.out' }
+      );
+    }
+  } else {
+    mapaSidebar.style.transform = 'translateX(0)';
+  }
 
   setTimeout(() => mapa.invalidateSize(), 380);
 }
 
 function cerrarSidebar() {
-  mapaSidebar.classList.remove('open');
-  mapaSidebar.setAttribute('aria-hidden', 'true');
-  mapaSection.classList.remove('sidebar-open');
-  if (activeMarker) {
-    activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+  // Detener pulso del marcador activo
+  if (activeMarker && activeMarker._pulseAnim) {
+    activeMarker._pulseAnim.kill();
+    activeMarker._pulseAnim = null;
+    const iconEl = activeMarker._icon?.querySelector('.custom-marker');
+    if (iconEl && window.gsap) {
+      gsap.set(iconEl, { scale: 1, boxShadow: '0 4px 12px rgba(0,0,0,0.6)' });
+    }
   }
-  activeMarker = null;
-  activeLandmark = null;
-  setTimeout(() => mapa.invalidateSize(), 380);
+
+  if (window.gsap) {
+    gsap.killTweensOf(mapaSidebar);
+    gsap.to(mapaSidebar, {
+      translateX: '-100%',
+      duration: 0.4,
+      ease: 'power3.in',
+      onComplete: () => {
+        mapaSidebar.classList.remove('open');
+        mapaSidebar.setAttribute('aria-hidden', 'true');
+        mapaSection.classList.remove('sidebar-open');
+        if (activeMarker) {
+          activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+        }
+        activeMarker = null;
+        activeLandmark = null;
+        setTimeout(() => mapa.invalidateSize(), 380);
+      }
+    });
+  } else {
+    mapaSidebar.classList.remove('open');
+    mapaSidebar.setAttribute('aria-hidden', 'true');
+    mapaSection.classList.remove('sidebar-open');
+    if (activeMarker) {
+      activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+    }
+    activeMarker = null;
+    activeLandmark = null;
+    setTimeout(() => mapa.invalidateSize(), 380);
+  }
 }
 
 sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
   if (activeMarker) {
-    mapa.setView(activeMarker.getLatLng(), 13.4, { animate: true });
+    mapa.flyTo(activeMarker.getLatLng(), 14, { animate: true, duration: 1 });
   }
 });
 
@@ -632,17 +709,17 @@ LANDMARKS.forEach(lm => {
   const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
   const htmlInicial = generarHtmlTooltip(lm, lang);
 
-  marker.bindTooltip(htmlInicial, { 
-    direction: 'top', 
-    offset: [0, -16], 
-    opacity: 1, 
-    className: 'marker-tooltip-wrap', 
-    sticky: false 
+  marker.bindTooltip(htmlInicial, {
+    direction: 'top',
+    offset: [0, -16],
+    opacity: 1,
+    className: 'marker-tooltip-wrap',
+    sticky: false
   });
 
   marker.on('click', () => {
     abrirSidebar(lm, marker);
-    mapa.setView(marker.getLatLng(), 13.4, { animate: true });
+    mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
   });
   markers.push(marker);
 });
@@ -652,7 +729,6 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     if (window.SRi18n) {
       const idiomaDefinitivo = window.SRi18n.getLang();
-      
       if (idiomaDefinitivo !== 'es') {
         markers.forEach(m => {
           const lm = LANDMARKS.find(l => l.id === m._landmarkId);
@@ -660,13 +736,12 @@ window.addEventListener('DOMContentLoaded', () => {
             m.setTooltipContent(generarHtmlTooltip(lm, idiomaDefinitivo));
           }
         });
-        
         if (activeLandmark) {
           abrirSidebar(activeLandmark, activeMarker, idiomaDefinitivo);
         }
       }
     }
-  }, 100); 
+  }, 100);
 });
 
 /* ── Escuchador global de cambio de idioma (i18n.js Sync) ── */
@@ -699,17 +774,20 @@ document.addEventListener("langchange", (e) => {
              <span class="marker-tooltip__name">${nombreTooltip}</span>
            </div>
          </div>`;
-
       m.setTooltipContent(nuevoContenido);
-
       if (m.isTooltipOpen && m.isTooltipOpen()) {
         const tooltip = m.getTooltip();
-        if (tooltip) {
-          tooltip.update();
-        }
+        if (tooltip) tooltip.update();
       }
     }
   });
+
+  const searchInput = document.getElementById('mapSearchInput');
+  if (searchInput && searchInput.value.trim().length > 0) {
+    const activeCatBtn = document.querySelector('.filter-btn.active');
+    const cat = activeCatBtn ? activeCatBtn.dataset.cat : 'todas';
+    actualizarFiltro(cat);
+  }
 });
 
 (function manejarPublicacionDesdeURL() {
@@ -717,18 +795,13 @@ document.addEventListener("langchange", (e) => {
   const location = params.get('location');
   const latParam = params.get('lat');
   const lngParam = params.get('lng');
-
   if (!location || !latParam || !lngParam) return;
-
   const lat = parseFloat(latParam);
   const lng = parseFloat(lngParam);
-
   if (Number.isNaN(lat) || Number.isNaN(lng)) return;
-
   const marker = L.marker([lat, lng], {
     icon: crearIcono('📍', '#be8e56')
   }).addTo(mapa);
-
   marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
   mapa.setView([lat, lng], 13.9, { animate: true });
 })();
@@ -742,10 +815,8 @@ document.addEventListener("langchange", (e) => {
   const backBtn = document.getElementById('mapaBackBtn');
   const backBtnLabel = document.getElementById('mapaBackBtnLabel');
   if (!from || !backBtn) return;
-
   const esRutaSegura = /^[a-zA-Z0-9_\-]+\.html$/.test(from);
   if (!esRutaSegura) return;
-
   const etiquetas = {
     'calendario.html': 'Volver al calendario',
     'sitios-culturales.html': 'Volver a sitios culturales',
@@ -756,7 +827,6 @@ document.addEventListener("langchange", (e) => {
   };
   backBtnLabel.textContent = etiquetas[from] || 'Volver';
   backBtn.style.display = 'flex';
-
   backBtn.addEventListener('click', () => {
     window.location.href = from;
   });
@@ -766,10 +836,35 @@ document.addEventListener("langchange", (e) => {
    TABLA DE TRADUCCIÓN: EVENTO DEL CALENDARIO → LANDMARK REAL
    ══════════════════════════════════════════════════════════ */
 const TRADUCTOR_A_LANDMARK = {
-  3: 46, 5: 31, 8: 23, 9: 32, 10: 21, 12: 28, 13: 47, 14: 30, 
-  16: 59, 17: 48, 18: 26, 20: 60, 21: 30, 22: 22, 23: 29, 24: 48, 
-  25: 28, 26: 34, 27: 29, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26, 
-  33: 30, 34: 50, 35: 35, 36: 60, 37: 42, 38: 24
+  3: 46,  // Panela -> Carnaval de la Panela
+  5: 31,  // Día de la Cruz -> Día de la Cruz
+  8: 23,  // Fiestas Julias -> Fiestas Julias
+  10: 21, // Fiestas Agostinas -> Fiestas Agostinas
+  12: 28, // Jocote Corona -> Jocote Corona
+  13: 47, // Calabaza -> Cojutepeque
+  16: 59, // Día de los Difuntos -> Día de los Difuntos
+  17: 48, // Festival del Añil -> Festival del Añil
+  22: 22, // Día de los Farolitos -> Día de los Farolitos
+  24: 48, // Añil Octubre -> Festival del Añil
+  25: 28, // Jocote 2026 -> Jocote Corona
+  26: 34, // Tradición de los Encuentros -> Tradición de los Encuentros
+  28: 59, // Difuntos 2026 -> Día de los Difuntos
+  29: 41, // Festival del Barro -> Festival del Barro
+  30: 49, // Fiestas de Gotera -> Fiestas Patronales de Gotera
+  31: 27, // Cuisnahuat -> Fiestas de los Historiantes
+  32: 26, // Carnaval 2026 -> Gran Carnaval de San Miguel
+  34: 50, // Chicharrón -> Festival del Chicharrón
+  35: 35, // La Unión -> Fiestas Patronales de La Unión
+  36: 60, // Navidad y Posadas -> Navidad y Posadas
+  39: 4,  // Festival de Suchitoto -> Suchitoto
+  40: 33, // Tradición del Bálsamo -> Tradición del Bálsamo
+  41: 40, // Romería de Esquipulas -> Romería de Esquipulas
+  42: 38, // Fiestas del Rey Guajactial -> Fiestas del Rey Guajactial
+  43: 43, // Festival de las Juventudes -> Festival de las Juventudes
+  44: 45, // Primicia de la Cosecha -> Primicia de la Cosecha
+  45: 57, // Semana Santa Nacional -> Semana Santa Nacional
+  46: 58, // Día de la Independencia -> Día de la Independencia
+  47: 25  // Festival de las Flores y Palmas -> Festival de las Flores y Palmas
 };
 
 (function resaltarLandmarkDesdeURL() {
@@ -787,21 +882,19 @@ const TRADUCTOR_A_LANDMARK = {
       const lat = parseFloat(latParam);
       const lng = parseFloat(lngParam);
       const idEvento = eventoIdParam ? parseInt(eventoIdParam, 10) : null;
+      const nombreMostrar = nombreEventoParam ? decodeURIComponent(nombreEventoParam) : 'Evento del calendario';
+      const descMostrar = descParam ? decodeURIComponent(descParam) : 'Festividad cultural del calendario de RaicesSV.';
+      const deptoMostrar = deptoParam ? decodeURIComponent(deptoParam) : 'El Salvador';
 
       if (!isNaN(lat) && !isNaN(lng)) {
         const idLandmarkReal = idEvento ? TRADUCTOR_A_LANDMARK[idEvento] : null;
         const landmarkReal = idLandmarkReal ? LANDMARKS.find(l => l.id === idLandmarkReal) : null;
-
         let lmEvento;
         if (landmarkReal) {
           lmEvento = landmarkReal;
         } else {
-          const nombreMostrar = nombreEventoParam ? decodeURIComponent(nombreEventoParam) : 'Evento del calendario';
-          const descMostrar = descParam ? decodeURIComponent(descParam) : 'Festividad cultural del calendario de RaicesSV.';
-          const deptoMostrar = deptoParam ? decodeURIComponent(deptoParam) : 'El Salvador';
-
           lmEvento = {
-            id: idEvento,
+            id: idEvento || Date.now(),
             cat: 'evento',
             emoji: '🎉',
             color: CAT_COLORS.evento,
@@ -814,7 +907,6 @@ const TRADUCTOR_A_LANDMARK = {
         }
 
         let targetMarker = markers.find(m => m._landmarkId === lmEvento.id && lmEvento.id !== null);
-
         if (!targetMarker) {
           const iconoNuevo = L.divIcon({
             className: '',
@@ -827,11 +919,9 @@ const TRADUCTOR_A_LANDMARK = {
             iconAnchor: [17, 17],
             popupAnchor: [0, -20]
           });
-
           targetMarker = L.marker(lmEvento.coords, { icon: iconoNuevo }).addTo(mapa);
           targetMarker._landmarkCat = lmEvento.cat;
           targetMarker._landmarkId  = lmEvento.id;
-
           targetMarker.bindTooltip(
             `<div class="marker-tooltip">
                <img src="${getImgUrl(lmEvento)}" alt="${lmEvento.nombre}" loading="lazy" />
@@ -842,12 +932,10 @@ const TRADUCTOR_A_LANDMARK = {
              </div>`,
             { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
           );
-
           targetMarker.on('click', () => {
             abrirSidebar(lmEvento, targetMarker);
             mapa.panTo(targetMarker.getLatLng(), { animate: true, duration: 0.8 });
           });
-
           markers.push(targetMarker);
         } else {
           const iconoDestacado = L.divIcon({
@@ -863,7 +951,6 @@ const TRADUCTOR_A_LANDMARK = {
           });
           targetMarker.setIcon(iconoDestacado);
         }
-
         targetMarker.setZIndexOffset(1000);
         mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
         abrirSidebar(lmEvento, targetMarker);
@@ -874,13 +961,10 @@ const TRADUCTOR_A_LANDMARK = {
     if (sitioParam && typeof SLUG_TO_LANDMARK_ID !== 'undefined') {
       const idDestinoMapa = SLUG_TO_LANDMARK_ID[sitioParam];
       if (!idDestinoMapa) return;
-
       const lm = LANDMARKS.find(l => l.id === idDestinoMapa);
       if (!lm) return;
-
       const targetMarker = markers.find(m => m._landmarkId === lm.id);
       if (!targetMarker) return;
-
       const iconoDestacado = L.divIcon({
         className: '',
         html: `
@@ -892,10 +976,8 @@ const TRADUCTOR_A_LANDMARK = {
         iconAnchor: [17, 17],
         popupAnchor: [0, -20]
       });
-
       targetMarker.setIcon(iconoDestacado);
       targetMarker.setZIndexOffset(1000);
-
       mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
       abrirSidebar(lm, targetMarker);
     }
@@ -907,7 +989,6 @@ const TRADUCTOR_A_LANDMARK = {
    ══════════════════════════════════════════════════════════ */
 const filtersToggle = document.getElementById('filtersToggle');
 const mapaFiltersFloat = document.getElementById('mapaFiltersFloat');
-
 if (filtersToggle && mapaFiltersFloat) {
   filtersToggle.addEventListener('click', () => {
     const isCollapsed = mapaFiltersFloat.classList.toggle('collapsed');
@@ -917,33 +998,184 @@ if (filtersToggle && mapaFiltersFloat) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   FILTROS INTERACTIVOS
+   FILTROS INTERACTIVOS + BUSCADOR CON LISTA DE RESULTADOS
    ══════════════════════════════════════════════════════════ */
 let catActiva = 'todas';
 const countEl = document.getElementById('visibleCount');
 
 function actualizarFiltro(cat) {
   catActiva = cat;
-  let visible = 0;
+  const searchQuery = document.getElementById('mapSearchInput')?.value?.toLowerCase().trim() || '';
+  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+  const container = document.getElementById('searchResultsContainer');
+  const list = document.getElementById('searchResultsList');
+  let results = [];
 
-  markers.forEach(m => {
-    if (cat === 'todas' || m._landmarkCat === cat) {
-      m.addTo(mapa);
-      visible++;
-    } else {
-      mapa.removeLayer(m);
+  LANDMARKS.forEach(lm => {
+    let nombre = lm.nombre;
+    if (window.SRi18n && lm.id) {
+      const trad = window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang);
+      if (trad && trad !== `mapa.puntos.${lm.id}.nombre`) {
+        nombre = trad;
+      }
+    }
+    let catLabel = obtenerEtiquetaCategoria(lm.cat, lang);
+    const matchCat = cat === 'todas' || lm.cat === cat;
+    const matchSearch = !searchQuery || nombre.toLowerCase().includes(searchQuery);
+    if (matchCat && matchSearch) {
+      const marker = markers.find(m => m._landmarkId === lm.id);
+      results.push({ landmark: lm, marker, nombre, catLabel });
     }
   });
 
-  if (countEl) countEl.textContent = visible;
+  if (container && list) {
+    if (searchQuery && results.length > 0) {
+      container.style.display = 'block';
+      if (window.gsap) {
+        gsap.killTweensOf(container);
+        gsap.fromTo(container,
+          { opacity: 0, y: -10 },
+          { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+        );
+      }
+      list.innerHTML = results.map(r => `
+        <li data-landmark-id="${r.landmark.id}">
+          <span class="result-emoji">${r.landmark.emoji}</span>
+          <span class="result-name">${r.nombre}</span>
+          <span class="result-category">${r.catLabel}</span>
+        </li>
+      `).join('');
+      list.querySelectorAll('li').forEach(li => {
+        li.addEventListener('click', function() {
+          const id = parseInt(this.dataset.landmarkId);
+          const lm = LANDMARKS.find(l => l.id === id);
+          const marker = markers.find(m => m._landmarkId === id);
+          if (lm && marker) {
+            if (window.gsap) {
+              gsap.to(container, {
+                opacity: 0,
+                duration: 0.2,
+                ease: 'power2.in',
+                onComplete: () => { container.style.display = 'none'; }
+              });
+            } else {
+              container.style.display = 'none';
+            }
+            mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
+            abrirSidebar(lm, marker);
+            if (window.gsap && marker._icon) {
+              const iconEl = marker._icon.querySelector('.custom-marker');
+              if (iconEl) {
+                gsap.killTweensOf(iconEl);
+                gsap.fromTo(iconEl,
+                  { scale: 0.8, boxShadow: '0 0 0 rgba(190,142,86,0)' },
+                  { scale: 1.3, boxShadow: '0 0 30px rgba(190,142,86,0.8)', duration: 0.3, ease: 'back.out(2.5)', yoyo: true, repeat: 1 }
+                );
+              }
+            }
+          }
+        });
+      });
+    } else if (searchQuery && results.length === 0) {
+      container.style.display = 'block';
+      if (window.gsap) {
+        gsap.killTweensOf(container);
+        gsap.fromTo(container,
+          { opacity: 0, y: -10 },
+          { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
+        );
+      }
+      list.innerHTML = `<li class="search-results-empty">No se encontraron lugares con "${searchQuery}"</li>`;
+    } else {
+      if (window.gsap) {
+        gsap.killTweensOf(container);
+        gsap.to(container, {
+          opacity: 0,
+          duration: 0.2,
+          ease: 'power2.in',
+          onComplete: () => { container.style.display = 'none'; }
+        });
+      } else {
+        container.style.display = 'none';
+      }
+    }
+  }
+  if (countEl) countEl.textContent = results.length;
 }
 
+// Eventos de filtros
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     actualizarFiltro(btn.dataset.cat);
   });
+});
+
+/* ══════════════════════════════════════════════════════════
+   BUSCADOR EN EL MAPA (input)
+   ══════════════════════════════════════════════════════════ */
+(function initSearch() {
+  const searchInput = document.getElementById('mapSearchInput');
+  const searchClear = document.getElementById('mapSearchClear');
+  if (!searchInput) {
+    console.warn('No se encontró #mapSearchInput');
+    return;
+  }
+
+  let searchTimeout = null;
+
+  function filterMarkersBySearch() {
+    const query = searchInput.value;
+    const q = query.toLowerCase().trim();
+    if (searchClear) {
+      searchClear.style.display = q.length > 0 ? 'block' : 'none';
+    }
+    const activeCatBtn = document.querySelector('.filter-btn.active');
+    const cat = activeCatBtn ? activeCatBtn.dataset.cat : 'todas';
+    actualizarFiltro(cat);
+  }
+
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(filterMarkersBySearch, 300);
+  });
+
+  if (searchClear) {
+    searchClear.addEventListener('click', function() {
+      searchInput.value = '';
+      filterMarkersBySearch();
+      searchInput.focus();
+    });
+  }
+
+  setTimeout(filterMarkersBySearch, 500);
+
+  document.addEventListener('langchange', () => {
+    if (searchInput.value.trim().length > 0) {
+      filterMarkersBySearch();
+    }
+  });
+})();
+
+// Cerrar la lista de resultados al hacer clic fuera
+document.addEventListener('click', function(e) {
+  const container = document.getElementById('searchResultsContainer');
+  const searchWrapper = document.querySelector('.search-wrapper');
+  const filtersFloat = document.getElementById('mapaFiltersFloat');
+  if (!container) return;
+  if (!container.contains(e.target) && !searchWrapper.contains(e.target) && !filtersFloat.contains(e.target)) {
+    container.style.display = 'none';
+  }
+});
+
+// Cerrar la lista con Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const container = document.getElementById('searchResultsContainer');
+    if (container) container.style.display = 'none';
+    document.getElementById('mapSearchInput')?.blur();
+  }
 });
 
 /* ══════════════════════════════════════════════════════════
@@ -954,7 +1186,6 @@ let miUbicacionActual = null;
 function mostrarToastGeo(mensaje, tipo = 'info') {
   const existente = document.querySelector('.geo-toast');
   if (existente) existente.remove();
-
   const toast = document.createElement('div');
   toast.className = `geo-toast geo-toast--${tipo}`;
   toast.innerHTML = `
@@ -962,9 +1193,7 @@ function mostrarToastGeo(mensaje, tipo = 'info') {
     <span class="geo-toast__msg">${mensaje}</span>
   `;
   document.body.appendChild(toast);
-
   requestAnimationFrame(() => toast.classList.add('geo-toast--visible'));
-
   setTimeout(() => {
     toast.classList.remove('geo-toast--visible');
     setTimeout(() => toast.remove(), 300);
@@ -1008,7 +1237,6 @@ function obtenerYCentrarUbicacion(debeCentrar = false) {
         if (error.code === error.PERMISSION_DENIED) {
           mensaje = 'No se pudo acceder a tu ubicación porque el permiso fue denegado.';
         }
-        
         if (!tieneDestino || debeCentrar) {
           mostrarToastGeo(mensaje, 'error');
         }
@@ -1020,7 +1248,6 @@ function obtenerYCentrarUbicacion(debeCentrar = false) {
   }
 }
 
-// Inicialización
 obtenerYCentrarUbicacion(false);
 
 const btnMiUbicacion = document.getElementById('btn-mi-ubicacion');
@@ -1068,7 +1295,6 @@ if (btnMiUbicacion) {
       marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
       marker._landmarkCat = lm.cat;
       marker._landmarkId = lm.id;
-      
       const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
       marker.bindTooltip(
         `<div class="marker-tooltip">
@@ -1079,12 +1305,10 @@ if (btnMiUbicacion) {
          </div>`,
         { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
       );
-      
       marker.on('click', () => {
         abrirSidebar(lm, marker);
         mapa.setView(marker.getLatLng(), 13.4, { animate: true });
       });
-      
       markers.push(marker);
     }
     
@@ -1100,3 +1324,5 @@ if (btnMiUbicacion) {
     }
   });
 })();
+
+console.log('✅ mapa.js cargado correctamente - Buscador, lista de resultados y pulso GSAP activos');
