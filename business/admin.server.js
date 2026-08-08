@@ -323,6 +323,75 @@ const createAdmin = async (name, email, password) => {
     return sanitizeUserRow(created);
 };
 
+const MAX_APPEAL_MESSAGE_LENGTH = 1000;
+
+const sanitizeAppealRow = (row) => ({
+    id: row.id_appeal,
+    userId: row.id_user,
+    userName: row.user_name || null,
+    userAvatarUrl: row.user_avatar_url || null,
+    email: row.email,
+    message: row.message,
+    isValid: Boolean(row.is_valid),
+    reviewedAt: row.reviewed_at,
+    createdAt: row.created_at
+});
+
+const submitAppeal = async (email, message) => {
+    if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+        const err = new Error('El correo electrónico no es válido.'); err.expose = true; throw err;
+    }
+
+    if (typeof message !== 'string' || !message.trim()) {
+        const err = new Error('Debes escribir tu apelación.'); err.expose = true; throw err;
+    }
+
+    if (message.trim().length > MAX_APPEAL_MESSAGE_LENGTH) {
+        const err = new Error(`La apelación no puede superar los ${MAX_APPEAL_MESSAGE_LENGTH} caracteres.`); err.expose = true; throw err;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const suspendedUser = await adminRepository.findSuspendedUserByEmail(normalizedEmail);
+
+    const isValid = Boolean(suspendedUser);
+    const idUser = suspendedUser ? suspendedUser.id_user : null;
+
+    await adminRepository.createAppeal(idUser, normalizedEmail, message.trim(), isValid);
+};
+
+const getAppeals = async () => {
+    const [validRows, invalidRows] = await Promise.all([
+        adminRepository.findValidAppeals(),
+        adminRepository.findInvalidAppeals()
+    ]);
+
+    return {
+        valid: validRows.map(sanitizeAppealRow),
+        invalid: invalidRows.map(sanitizeAppealRow)
+    };
+};
+
+const getUnreviewedAppealsCount = async () => {
+    return adminRepository.countUnreviewedAppeals();
+};
+
+const markAppealAsReviewed = async (id_appeal) => {
+    const idAppealNum = Number(id_appeal);
+    if (!Number.isInteger(idAppealNum)) {
+        const err = new Error('Apelación inválida.'); err.expose = true; throw err;
+    }
+
+    const appeal = await adminRepository.findAppealById(idAppealNum);
+    if (!appeal) {
+        const err = new Error('Apelación no encontrada.'); err.expose = true; throw err;
+    }
+
+    await adminRepository.markAppealReviewed(idAppealNum);
+
+    const updated = await adminRepository.findAppealById(idAppealNum);
+    return sanitizeAppealRow(updated);
+};
+
 module.exports = {
     listUsers,
     getDashboardMetrics,
@@ -331,5 +400,9 @@ module.exports = {
     completeAdminInvitation,
     demoteAdminToUser,
     deleteAdmin,
-    createAdmin
+    createAdmin,
+    submitAppeal,
+    getAppeals,
+    getUnreviewedAppealsCount,
+    markAppealAsReviewed
 };
