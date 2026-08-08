@@ -43,6 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return data;
   }
 
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const toastContainer = document.getElementById('admin-toast');
   function showToast(message, kind = 'info') {
     if (!toastContainer) return;
@@ -463,10 +473,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             <div class="admin-user-cell">
               <div class="admin-user-cell__avatar">${avatarCellHtml(user)}</div>
-              <span class="admin-user-cell__name">${user.name}</span>
+              <span class="admin-user-cell__name">${escapeHtml(user.name)}</span>
             </div>
           </td>
-          <td>${user.email}</td>
+          <td>${escapeHtml(user.email)}</td>
           <td><span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span></td>
           <td><span class="admin-badge ${statusBadgeClass(user.status)}">${user.status}</span></td>
           <td>${formatDate(user.createdAt)}</td>
@@ -519,8 +529,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="admin-detail-head">
         <div class="admin-detail-head__avatar">${avatarCellHtml(user)}</div>
         <div>
-          <h2>${user.name}</h2>
-          <p>${user.email}</p>
+          <h2>${escapeHtml(user.name)}</h2>
+          <p>${escapeHtml(user.email)}</p>
         </div>
       </div>
       <div class="admin-detail-rows">
@@ -701,11 +711,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'admin-pub-card';
         card.innerHTML = `
-          <img class="admin-pub-card__image" src="${pub.image}" alt="${pub.title}" />
+          <img class="admin-pub-card__image" src="${pub.image}" alt="${escapeHtml(pub.title)}" />
           <div class="admin-pub-card__body">
-            <div class="admin-pub-card__title">${pub.title}</div>
-            <div class="admin-pub-card__location">${pub.location}</div>
-            <div class="admin-pub-card__author">Por ${pub.author.name}</div>
+            <div class="admin-pub-card__title">${escapeHtml(pub.title)}</div>
+            <div class="admin-pub-card__location">${escapeHtml(pub.location)}</div>
+            <div class="admin-pub-card__author">Por ${escapeHtml(pub.author.name)}</div>
           </div>
         `;
         card.addEventListener('click', () => openPublicationDetail(pub.id));
@@ -738,14 +748,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${pub.image}" alt="" style="width:100%;height:100%;object-fit:cover;" />
         </div>
         <div>
-          <h2>${pub.title}</h2>
-          <p>Por ${pub.author.name}</p>
+          <h2>${escapeHtml(pub.title)}</h2>
+          <p>Por ${escapeHtml(pub.author.name)}</p>
         </div>
       </div>
       <div class="admin-detail-rows">
         <div class="admin-detail-row">
           <span class="admin-detail-row__label">Ubicación</span>
-          <span class="admin-detail-row__value">${pub.location}</span>
+          <span class="admin-detail-row__value">${escapeHtml(pub.location)}</span>
         </div>
         <div class="admin-detail-row">
           <span class="admin-detail-row__label">Publicado</span>
@@ -753,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="admin-detail-row">
           <span class="admin-detail-row__label">Descripción</span>
-          <span class="admin-detail-row__value">${pub.description}</span>
+          <span class="admin-detail-row__value">${escapeHtml(pub.description)}</span>
         </div>
       </div>
       <div class="admin-detail-actions">
@@ -838,8 +848,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = 'admin-team-card';
       card.innerHTML = `
         <div class="admin-team-card__avatar">${avatarCellHtml(user)}</div>
-        <div class="admin-team-card__name">${user.name}</div>
-        <div class="admin-team-card__email">${user.email}</div>
+        <div class="admin-team-card__name">${escapeHtml(user.name)}</div>
+        <div class="admin-team-card__email">${escapeHtml(user.email)}</div>
         <span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span>
       `;
       card.addEventListener('click', () => openTeamDetail(user.id));
@@ -857,8 +867,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="admin-detail-head">
         <div class="admin-detail-head__avatar">${avatarCellHtml(user)}</div>
         <div>
-          <h2>${user.name}</h2>
-          <p>${user.email}</p>
+          <h2>${escapeHtml(user.name)}</h2>
+          <p>${escapeHtml(user.email)}</p>
         </div>
       </div>
       <div class="admin-detail-rows">
@@ -1085,8 +1095,8 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
           <div class="admin-appeal-card__avatar">${appealInitials(appeal.userName || appeal.email)}</div>
           <div class="admin-appeal-card__body">
-            <div class="admin-appeal-card__email">${appeal.userName || appeal.email}</div>
-            <div class="admin-appeal-card__excerpt">${appeal.message}</div>
+            <div class="admin-appeal-card__email">${escapeHtml(appeal.userName || appeal.email)}</div>
+            <div class="admin-appeal-card__excerpt">${escapeHtml(appeal.message)}</div>
           </div>
           <div class="admin-appeal-card__meta">
             <span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? 'Válida' : 'Sin resolver'}</span>
@@ -1125,8 +1135,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="admin-detail-head">
         <div class="admin-detail-head__avatar">${appealInitials(appeal.userName || appeal.email)}</div>
         <div>
-          <h2>${appeal.userName || appeal.email}</h2>
-          <p>${appeal.email}</p>
+          <h2>${escapeHtml(appeal.userName || appeal.email)}</h2>
+          <p>${escapeHtml(appeal.email)}</p>
         </div>
       </div>
       <div class="admin-detail-rows">
@@ -1139,7 +1149,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="admin-detail-row__value">${formatDateTime(appeal.createdAt)}</span>
         </div>
       </div>
-      <div class="admin-appeal-detail__message">${appeal.message}</div>
+      <div class="admin-appeal-detail__message">${escapeHtml(appeal.message)}</div>
       <div class="admin-detail-actions" style="margin-top:1.4rem;">
         ${(isValid && relatedUser && relatedUser.status === 'Suspendido') ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">Reactivar cuenta</button>` : ''}
       </div>
