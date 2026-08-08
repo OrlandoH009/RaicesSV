@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     users: [],
     publications: [],
     metrics: null,
+    appeals: null,
     activeSection: 'resumen'
   };
 
@@ -96,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resumen: 'Resumen',
     usuarios: 'Usuarios',
     publicaciones: 'Publicaciones',
-    equipo: 'Equipo'
+    equipo: 'Equipo',
+    apelaciones: 'Apelaciones'
   };
 
   function moveIndicatorTo(button) {
@@ -392,6 +394,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return date.toLocaleDateString('es-SV', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
+  function formatDateTime(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('es-SV', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
   function roleBadgeClass(role) {
     if (role === 'Fundador') return 'admin-badge--role-fundador';
     if (role === 'Admin') return 'admin-badge--role-admin';
@@ -407,6 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return `<img src="${user.avatarUrl}" alt="" />`;
     }
     return initialsFrom(user.name);
+  }
+
+  function appealInitials(text) {
+    if (!text) return '?';
+    return text.trim()[0].toUpperCase();
   }
 
   function applyUserFilters() {
@@ -540,8 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmAction({
         title: nextStatus === 'suspendido' ? 'Suspender usuario' : 'Reactivar usuario',
         text: nextStatus === 'suspendido'
-        ? `${user.name} no podrá acceder al sitio hasta que lo reactives.`
-        : `${user.name} podrá volver a acceder al sitio.`,
+          ? `${user.name} no podrá acceder al sitio hasta que lo reactives.`
+          : `${user.name} podrá volver a acceder al sitio.`,
         requireReason: nextStatus === 'suspendido',
         onConfirm: (reason) => setUserStatus(user.id, nextStatus, reason)
       });
@@ -914,7 +928,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminConfirmText = document.getElementById('adminConfirmText');
   const adminConfirmCancel = document.getElementById('adminConfirmCancel');
   const adminConfirmAccept = document.getElementById('adminConfirmAccept');
-
   const adminConfirmReasonGroup = document.getElementById('adminConfirmReasonGroup');
   const adminConfirmReasonInput = document.getElementById('adminConfirmReasonInput');
 
@@ -928,8 +941,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminConfirmReasonInput) adminConfirmReasonInput.value = '';
 
     pendingConfirmAction = requireReason
-    ? (reason) => onConfirm(reason)
-    : onConfirm;
+      ? (reason) => onConfirm(reason)
+      : onConfirm;
 
     adminConfirmOverlay.classList.add('is-visible');
   }
@@ -963,9 +976,139 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  const appealsBadge = document.getElementById('appealsBadge');
+  const appealsFilter = document.getElementById('appealsFilter');
+  const appealsListBody = document.getElementById('appealsListBody');
+  const appealsEmptyState = document.getElementById('appealsEmptyState');
+  const appealDetailCard = document.getElementById('appealDetailCard');
+
+  function renderAppealsBadge() {
+    if (!appealsBadge) return;
+    const count = state.appeals ? state.appeals.valid.filter((a) => !a.reviewedAt).length : 0;
+    if (count > 0) {
+      appealsBadge.textContent = count > 99 ? '99+' : String(count);
+      appealsBadge.hidden = false;
+    } else {
+      appealsBadge.hidden = true;
+    }
+  }
+
+  function getFilteredAppeals() {
+    const filter = appealsFilter?.value || 'unreviewed';
+    if (!state.appeals) return [];
+
+    if (filter === 'unresolved') return state.appeals.invalid;
+    if (filter === 'reviewed') return state.appeals.valid.filter((a) => a.reviewedAt);
+    if (filter === 'all') return state.appeals.valid;
+    return state.appeals.valid.filter((a) => !a.reviewedAt);
+  }
+
+  function renderAppealsList() {
+    if (!appealsListBody) return;
+
+    const items = getFilteredAppeals();
+    appealsListBody.innerHTML = '';
+
+    if (items.length === 0) {
+      if (appealsEmptyState) appealsEmptyState.hidden = false;
+    } else {
+      if (appealsEmptyState) appealsEmptyState.hidden = true;
+
+      items.forEach((appeal) => {
+        const card = document.createElement('div');
+        card.className = 'admin-appeal-card' + (!appeal.reviewedAt && appeal.isValid ? ' admin-appeal-card--unreviewed' : '');
+        card.innerHTML = `
+          <div class="admin-appeal-card__avatar">${appealInitials(appeal.userName || appeal.email)}</div>
+          <div class="admin-appeal-card__body">
+            <div class="admin-appeal-card__email">${appeal.userName || appeal.email}</div>
+            <div class="admin-appeal-card__excerpt">${appeal.message}</div>
+          </div>
+          <div class="admin-appeal-card__meta">
+            <span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? 'Válida' : 'Sin resolver'}</span>
+            <span class="admin-appeal-card__date">${formatDateTime(appeal.createdAt)}</span>
+          </div>
+        `;
+        card.addEventListener('click', () => openAppealDetail(appeal.id, appeal.isValid));
+        appealsListBody.appendChild(card);
+      });
+    }
+  }
+
+  appealsFilter?.addEventListener('change', renderAppealsList);
+
+  async function openAppealDetail(appealId, isValid) {
+    if (!appealDetailCard) return;
+
+    let appeal = state.appeals.valid.find((a) => a.id === appealId) || state.appeals.invalid.find((a) => a.id === appealId);
+    if (!appeal) return;
+
+    if (isValid && !appeal.reviewedAt) {
+      try {
+        const result = await apiFetch(`/api/admin/appeals/${appealId}/review`, { method: 'PATCH' });
+        const idx = state.appeals.valid.findIndex((a) => a.id === appealId);
+        if (idx !== -1) state.appeals.valid[idx] = result.appeal;
+        appeal = result.appeal;
+        renderAppealsBadge();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    const relatedUser = isValid ? state.users.find((u) => u.id === appeal.userId) : null;
+
+    appealDetailCard.innerHTML = `
+      <div class="admin-detail-head">
+        <div class="admin-detail-head__avatar">${appealInitials(appeal.userName || appeal.email)}</div>
+        <div>
+          <h2>${appeal.userName || appeal.email}</h2>
+          <p>${appeal.email}</p>
+        </div>
+      </div>
+      <div class="admin-detail-rows">
+        <div class="admin-detail-row">
+          <span class="admin-detail-row__label">Estado</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? 'Válida' : 'Sin resolver'}</span></span>
+        </div>
+        <div class="admin-detail-row">
+          <span class="admin-detail-row__label">Enviada</span>
+          <span class="admin-detail-row__value">${formatDateTime(appeal.createdAt)}</span>
+        </div>
+      </div>
+      <div class="admin-appeal-detail__message">${appeal.message}</div>
+      <div class="admin-detail-actions" style="margin-top:1.4rem;">
+        ${(isValid && relatedUser && relatedUser.status === 'Suspendido') ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">Reactivar cuenta</button>` : ''}
+      </div>
+    `;
+
+    document.getElementById('appealReactivateBtn')?.addEventListener('click', () => {
+      confirmAction({
+        title: 'Reactivar usuario',
+        text: `${relatedUser.name} podrá volver a acceder al sitio.`,
+        onConfirm: async () => {
+          await setUserStatus(relatedUser.id, 'activo');
+          showListView('apelaciones');
+        }
+      });
+    });
+
+    showDetailView('apelaciones');
+  }
+
+  async function loadAppeals() {
+    try {
+      const data = await apiFetch('/api/admin/appeals');
+      state.appeals = data;
+      renderAppealsBadge();
+      renderAppealsList();
+    } catch (error) {
+      showToast('No se pudieron cargar las apelaciones.', 'error');
+    }
+  }
+
   loadMetrics();
   loadUsers();
   loadPublications();
+  loadAppeals();
   loadCurrentUser();
 
 });
