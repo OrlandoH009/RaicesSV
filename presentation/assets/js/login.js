@@ -15,13 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let toggleButtonRef = null;
 
+  const getLang = () => (window.SRi18n ? window.SRi18n.getLang() : 'es');
+  const tt = (key, fallback) => (window.SRi18n ? window.SRi18n.t(key, getLang()) : fallback);
+
   if (passwordInput) {
     const formGroup = passwordInput.closest('.form-group');
     if (formGroup) {
       const toggleButton = document.createElement('button');
       toggleButton.type = 'button';
       toggleButton.className = 'password-toggle';
-      toggleButton.setAttribute('aria-label', 'Mostrar contraseña');
+      toggleButton.setAttribute('aria-label', tt('login.password_show', 'Mostrar contraseña'));
       toggleButton.innerHTML = EYE_ICON;
       formGroup.appendChild(toggleButton);
       toggleButtonRef = toggleButton;
@@ -31,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const swap = () => {
           passwordInput.type = isHidden ? 'text' : 'password';
           toggleButton.innerHTML = isHidden ? EYE_OFF_ICON : EYE_ICON;
-          toggleButton.setAttribute('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+          toggleButton.setAttribute('aria-label', isHidden ? tt('login.password_hide', 'Ocultar contraseña') : tt('login.password_show', 'Mostrar contraseña'));
         };
 
         if (window.gsap) {
@@ -46,6 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Mantener el aria-label del botón de mostrar/ocultar contraseña
+  // sincronizado si el usuario cambia el idioma después de que el botón ya existe.
+  document.addEventListener('langchange', () => {
+    if (!toggleButtonRef || !passwordInput) return;
+    const isPasswordHidden = passwordInput.type === 'password';
+    toggleButtonRef.setAttribute(
+      'aria-label',
+      isPasswordHidden ? tt('login.password_show', 'Mostrar contraseña') : tt('login.password_hide', 'Ocultar contraseña')
+    );
+  });
+
   /* ── Animaciones GSAP ── */
   if (window.gsap) {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,7 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
         'h1, .auth-card__sub, .form-group, .auth-submit, .auth-divider, .auth-google-btn, .auth-footer-link'
       ));
 
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const tl = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => {
+          // Red de seguridad: GSAP usa .from() para animar estos elementos,
+          // lo que les deja opacity:0 inline como estado de partida. Si por
+          // cualquier motivo la timeline no llega a completar del todo
+          // (pestaña en segundo plano, timing de red, etc.), esa opacidad
+          // inline se queda congelada y el contenido desaparece aunque su
+          // color/tamaño/fuente estén perfectamente bien. Al terminar,
+          // limpiamos cualquier opacity inline que GSAP haya dejado.
+          gsap.set([card, logoImg, ...rest].filter(Boolean), { clearProps: 'opacity,transform' });
+        }
+      });
 
       tl.from(card, { opacity: 0, y: 55, scale: 0.92, duration: 0.85 });
 
@@ -69,11 +95,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tl.from(rest, { opacity: 0, y: 22, duration: 0.55, stagger: 0.08 }, '-=0.35');
 
+      // Red de seguridad independiente de GSAP: si por cualquier motivo la
+      // timeline de entrada no llega a disparar onComplete (pestaña en
+      // segundo plano, timing de red al cargar, o cualquier otro corte),
+      // este timeout garantiza que el título, subtítulo y demás contenido
+      // de la tarjeta terminen visibles sí o sí, sin depender de GSAP.
+      window.setTimeout(() => {
+        [card, logoImg, ...rest].filter(Boolean).forEach((el) => {
+          el.style.opacity = '';
+          el.style.transform = '';
+        });
+      }, 1500);
+
       if (logoImg && !reduceMotion) {
         tl.add(() => {
           gsap.to(logoImg, {
             y: -6,
-            duration: 2.2,
+            duration: 2.5,
             repeat: -1,
             yoyo: true,
             ease: 'sine.inOut'
@@ -194,10 +232,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const text = await response.text();
-      showMessage(text || 'No se pudo iniciar sesión.');
+      showMessage(text || window.SRi18n.t('login.error_generic', window.SRi18n.getLang()));
       
     } catch (error) {
-      showMessage('No se pudo conectar con el servidor.');
+      showMessage(window.SRi18n.t('login.error_server', window.SRi18n.getLang()));
     }
   });
+
+  // Pasada final de traducción: garantiza que el botón de mostrar/ocultar
+  // contraseña y cualquier otro nodo creado dinámicamente en este handler
+  // queden traducidos, sin depender del orden de carga de otros scripts.
+  if (window.SRi18n) {
+    window.SRi18n.applyTranslations(window.SRi18n.getLang());
+  }
 });

@@ -1226,6 +1226,83 @@
       "ev.floresPalmas.desc": "Colorida festividad mariana donde los habitantes decoran palmas con flores de temporada en un hermoso desfile.",
 
       "map.search.placeholder": "Buscar lugar...",
+
+      // ——— Registro ———
+      "register.title": "Crear Cuenta",
+      "register.subtitle": "Únete a la comunidad de Salvadorean Roots",
+      "register.label_name": "Nombre",
+      "register.label_lastname": "Apellido",
+      "register.label_email": "Correo electrónico",
+      "register.label_password": "Contraseña",
+      "register.label_confirm": "Confirmar contraseña",
+      "register.placeholder_name": "Tu nombre",
+      "register.placeholder_lastname": "Tu apellido",
+      "register.placeholder_email": "tucorreo@ejemplo.com",
+      "register.placeholder_password": "Mínimo 8 caracteres",
+      "register.placeholder_confirm": "Repite tu contraseña",
+      "register.submit_btn": "Crear mi cuenta",
+      "register.google_btn": "Regístrate con Google",
+      "register.footer_text": "¿Ya tienes cuenta? <a href='../views/login.html'>Inicia sesión</a>",
+      "register.footer_link": "Inicia sesión",
+
+      // ——— Recuperar ———
+      "forgot.title": "Recuperar contraseña",
+      "forgot.subtitle": "Te enviaremos un enlace a tu correo para restablecerla.",
+      "forgot.label_email": "Correo electrónico",
+      "forgot.placeholder_email": "tucorreo@ejemplo.com",
+      "forgot.submit_btn": "Enviar enlace",
+      "forgot.back_link": "Volver a iniciar sesión",
+
+      // ——— Restablecer ———
+      "reset.title": "Nueva contraseña",
+      "reset.subtitle": "Elige una contraseña nueva para tu cuenta.",
+      "reset.label_new": "Nueva contraseña",
+      "reset.label_confirm": "Confirmar contraseña",
+      "reset.placeholder_new": "••••••••",
+      "reset.placeholder_confirm": "••••••••",
+      "reset.submit_btn": "Guardar nueva contraseña",
+      "reset.back_link": "Volver a iniciar sesión",
+
+      // ——— Registro (mensajes) ———
+      "register.error_passwords_match": "Las contraseñas no coinciden.",
+      "register.error_name_required": "Debes indicar tu nombre.",
+      "register.error_generic": "No se pudo crear la cuenta.",
+      "register.error_server": "No se pudo conectar con el servidor.",
+      "register.submitting": "Creando cuenta...",
+
+      // ——— Login (textos de página) ———
+      "login.title": "Iniciar Sesión",
+      "login.subtitle": "Nuestra herencia, nuestro orgullo.",
+      "login.label_email": "Correo electrónico",
+      "login.label_password": "Contraseña",
+      "login.placeholder_email": "tucorreo@ejemplo.com",
+      "login.placeholder_password": "••••••••",
+      "login.forgot_link": "¿Olvidaste tu contraseña?",
+      "login.submit_btn": "Entrar",
+      "login.google_btn": "Inicia sesión con Google",
+      "login.google_text": "Inicia sesión con Google",
+      "login.footer_text": "¿Aún no tienes cuenta? <a href='../views/registro.html'>Regístrate gratis</a>",
+      "login.footer_link": "Regístrate gratis",
+
+      // ——— Login (mensajes JS de error, ya mencionados antes) ———
+      "login.error_generic": "No se pudo iniciar sesión.",
+      "login.error_server": "No se pudo conectar con el servidor.",
+
+      // ——— Recuperar (mensajes) ———
+      "forgot.success_message": "Si el correo existe en nuestro sistema, te hemos enviado un enlace para restablecer tu contraseña.",
+      "forgot.error_server": "No se pudo conectar con el servidor.",
+
+      // ——— Restablecer (mensajes) ———
+      "reset.error_passwords_match": "Las contraseñas no coinciden.",
+      "reset.error_length": "La contraseña debe tener al menos 8 caracteres.",
+      "reset.error_generic": "No se pudo restablecer la contraseña.",
+      "reset.error_server": "No se pudo conectar con el servidor.",
+
+      "login.password_reset_success": "Tu contraseña se actualizó correctamente. Ya puedes iniciar sesión.",
+
+      // ——— Toggle mostrar/ocultar contraseña ———
+      "login.password_show": "Mostrar contraseña",
+      "login.password_hide": "Ocultar contraseña",
     },
 
     en: {
@@ -2427,6 +2504,78 @@
       "ev.floresPalmas.desc": "Colorful Marian festivity where locals decorate palms with seasonal flowers in a beautiful parade.",
 
       "map.search.placeholder": "Search place...",
+
+      // ——— Registration ———
+      "register.title": "Create Account",
+      "register.subtitle": "Join the Salvadorean Roots community",
+      "register.label_name": "First name",
+      "register.label_lastname": "Last name",
+      "register.label_email": "Email address",
+      "register.label_password": "Password",
+      "register.label_confirm": "Confirm password",
+      "register.placeholder_name": "Your first name",
+      "register.placeholder_lastname": "Your last name",
+      "register.placeholder_email": "you@example.com",
+      "register.placeholder_password": "Minimum 8 characters",
+      "register.placeholder_confirm": "Repeat your password",
+      "register.submit_btn": "Create my account",
+      "register.google_btn": "Sign up with Google",
+      "register.footer_text": "Already have an account? <a href='../views/login.html'>Log in</a>",
+      "register.footer_link": "Log in",
+
+      // ——— Forgot ———
+      "forgot.title": "Reset password",
+      "forgot.subtitle": "We will send you a link to reset your password.",
+      "forgot.label_email": "Email address",
+      "forgot.placeholder_email": "you@example.com",
+      "forgot.submit_btn": "Send link",
+      "forgot.back_link": "Back to login",
+
+      // ——— Reset ———
+      "reset.title": "New password",
+      "reset.subtitle": "Choose a new password for your account.",
+      "reset.label_new": "New password",
+      "reset.label_confirm": "Confirm password",
+      "reset.placeholder_new": "••••••••",
+      "reset.placeholder_confirm": "••••••••",
+      "reset.submit_btn": "Save new password",
+      "reset.back_link": "Back to login",
+
+      "register.error_passwords_match": "Passwords do not match.",
+      "register.error_name_required": "You must provide your name.",
+      "register.error_generic": "Could not create account.",
+      "register.error_server": "Could not connect to the server.",
+      "register.submitting": "Creating account...",
+
+      // ——— Login (page texts) ———
+      "login.title": "Log In",
+      "login.subtitle": "Our heritage, our pride.",
+      "login.label_email": "Email address",
+      "login.label_password": "Password",
+      "login.placeholder_email": "you@example.com",
+      "login.placeholder_password": "••••••••",
+      "login.forgot_link": "Forgot your password?",
+      "login.submit_btn": "Log In",
+      "login.google_btn": "Log in with Google",
+      "login.google_text": "Log in with Google",
+      "login.footer_text": "Don't have an account yet? <a href='../views/registro.html'>Sign up for free</a>",
+      "login.footer_link": "Sign up for free",
+      "login.error_generic": "Could not log in.",
+      "login.error_server": "Could not connect to the server.",
+
+      "forgot.success_message": "If the email exists in our system, we have sent you a link to reset your password.",
+      "forgot.error_server": "Could not connect to the server.",
+
+      "reset.error_passwords_match": "Passwords do not match.",
+      "reset.error_length": "Password must be at least 8 characters long.",
+      "reset.error_generic": "Could not reset password.",
+      "reset.error_server": "Could not connect to the server.",
+
+      "login.password_reset_success": "Your password was updated successfully. You can now log in.",
+
+      // ——— Password show/hide toggle ———
+      "login.password_show": "Show password",
+      "login.password_hide": "Hide password",
     }
   };
 
@@ -2463,41 +2612,69 @@
 
   /* ── Aplica las traducciones (contenido) al DOM, sin animación.
      Usada en la carga inicial de la página. ── */
-  function applyTranslations(lang) {
-    document.documentElement.setAttribute("lang", lang === "en" ? "en" : "es");
-
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      // Usamos innerHTML para permitir etiquetas HTML en las traducciones
-      el.innerHTML = t(key, lang);
-    });
-    // Atributos (alt, placeholder, title, aria-label, content, etc.)
-    document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
-      const pairs = el.getAttribute("data-i18n-attr").split(",");
-      pairs.forEach((pair) => {
-        const [attr, key] = pair.split(":").map((s) => s.trim());
-        if (attr && key) el.setAttribute(attr, t(key, lang));
-      });
-    });
-
-    // <title> y <meta name="description">
-    const titleKey = document.body.getAttribute("data-i18n-title");
-    if (titleKey) document.title = t(titleKey, lang);
-
-    const descKey = document.body.getAttribute("data-i18n-desc");
-    if (descKey) {
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute("content", t(descKey, lang));
-    }
-
-    // Botón(es) de idioma: solo muestra la bandera del idioma ACTIVO
-    document.querySelectorAll("[data-lang-toggle]").forEach((btn) => {
-      const flagEl = btn.querySelector("[data-lang-toggle-flag]");
-      if (flagEl) flagEl.textContent = FLAGS[lang] || FLAGS.es;
-      btn.setAttribute("aria-label", t("lang.label", lang));
-      btn.setAttribute("data-current-lang", lang);
-    });
+function applyTranslations(lang) {
+  // Forzar lang a es o en
+  if (lang !== 'es' && lang !== 'en') {
+    lang = 'es';
   }
+  document.documentElement.setAttribute("lang", lang === "en" ? "en" : "es");
+
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    const translation = t(key, lang);
+    // Solo reemplazar si la traducción existe y no es la misma clave (fallback)
+    if (translation && translation !== key) {
+      el.innerHTML = translation;
+    }
+    // Si no, mantener el contenido original
+  });
+
+  document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+    const pairs = el.getAttribute("data-i18n-attr").split(",");
+    pairs.forEach((pair) => {
+      const [attr, key] = pair.split(":").map((s) => s.trim());
+      if (attr && key) {
+        const translation = t(key, lang);
+        if (translation && translation !== key) {
+          el.setAttribute(attr, translation);
+        }
+      }
+    });
+  });
+
+  // <title> y <meta name="description">
+  const titleKey = document.body.getAttribute("data-i18n-title");
+  if (titleKey) {
+    const translation = t(titleKey, lang);
+    if (translation && translation !== titleKey) {
+      document.title = translation;
+    }
+  }
+
+  const descKey = document.body.getAttribute("data-i18n-desc");
+  if (descKey) {
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      const translation = t(descKey, lang);
+      if (translation && translation !== descKey) {
+        metaDesc.setAttribute("content", translation);
+      }
+    }
+  }
+
+  // Botón(es) de idioma
+  document.querySelectorAll("[data-lang-toggle]").forEach((btn) => {
+    const flagEl = btn.querySelector("[data-lang-toggle-flag]");
+    if (flagEl) flagEl.textContent = FLAGS[lang] || FLAGS.es;
+    btn.setAttribute("aria-label", t("lang.label", lang) || "Idioma");
+    btn.setAttribute("data-current-lang", lang);
+  });
+
+  // Actualizar el label del botón de idioma (ES/EN)
+  document.querySelectorAll("[data-lang-toggle-label]").forEach((labelEl) => {
+    labelEl.textContent = lang.toUpperCase();
+  });
+}
 
   /* ── Cambia el idioma con una transición suave:
      1) fade-out del texto de la página

@@ -70,8 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="drawer-auth"></div>
     `;
 
-    // El drawer se acaba de reconstruir por completo, así que hay que
-    // volver a aplicarle la traducción activa (si i18n.js ya cargó).
+    // El drawer se acaba de reconstruir por completo. En vez de traducir
+    // solo el drawer, se vuelve a aplicar la traducción a TODO el documento:
+    // así se cubre también cualquier nodo dinámico creado por otros scripts
+    // (por ejemplo, el botón de mostrar/ocultar contraseña en login.js y
+    // registro.js) sin importar el orden de carga entre scripts.
     if (window.SRi18n) {
       window.SRi18n.applyTranslations(window.SRi18n.getLang());
     }
@@ -381,17 +384,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.SRi18n.applyTranslations(window.SRi18n.getLang());
   }
 
-// Actualizar el texto del modo oscuro/claro cuando cambia el idioma
-document.addEventListener('langchange', (event) => {
-  const themeText = document.getElementById('themeSwitchText');
-  if (themeText && window.SRi18n) {
-    const newLang = event.detail ? event.detail.lang : window.SRi18n.getLang();
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    const key = isLight ? 'nav.modoClaro' : 'nav.modoOscuro';
-    themeText.textContent = window.SRi18n.t(key, newLang);
-  }
-});
-});
+  // Actualizar el texto del modo oscuro/claro cuando cambia el idioma
+  document.addEventListener('langchange', (event) => {
+    const themeText = document.getElementById('themeSwitchText');
+    if (themeText && window.SRi18n) {
+      const newLang = event.detail ? event.detail.lang : window.SRi18n.getLang();
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const key = isLight ? 'nav.modoClaro' : 'nav.modoOscuro';
+      themeText.textContent = window.SRi18n.t(key, newLang);
+    }
+  });
 
   const lockOverlay = document.getElementById('lockModalOverlay');
   const lockClose = document.getElementById('lockModalClose');
@@ -446,6 +448,7 @@ document.addEventListener('langchange', (event) => {
         window.location.href = link.href;
       });
   });
+});
 
 /* ============================================================
    Blindaje contra el botón "atrás/adelante" del navegador
