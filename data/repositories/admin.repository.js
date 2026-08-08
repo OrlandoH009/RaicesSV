@@ -250,6 +250,24 @@ const countUnreviewedAppeals = () => {
     });
 };
 
+const findSuspendedUserByEmail = (email) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT u.*
+            FROM users u
+            INNER JOIN user_status s ON s.id_status = u.id_status
+            WHERE u.email = ? AND s.status = 'Suspendido'`,
+            [email],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+
+
 const createAdminInvitation = (id_user, invited_by, tokenHash, expiresAt) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -351,6 +369,7 @@ module.exports = {
     findAppealById,
     markAppealReviewed,
     countUnreviewedAppeals,
+    findSuspendedUserByEmail,
     createAdminInvitation,
     findValidAdminInvitation,
     markAdminInvitationUsed,
