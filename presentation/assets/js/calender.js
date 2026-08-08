@@ -68,8 +68,6 @@ function t(clave, textoPorDefecto = "") {
   return textoPorDefecto || clave;
 }
 
-// 2. BASE DE DATOS DE FESTIVIDADES ACTUALIZADA
-// Nota: Se han cambiado los meses al índice base 0 estándar de JavaScript para evitar desfases (+1 / -1)
 const EVENTOS_CALENDARIO = [
   { id: 3, keyNombre: "ev.panela.title", keyDesc: "ev.panela.desc", dia: 15, mes: 2, depto: "San Vicente", tipo: "Feria Gastronómica", lat: 13.6167, lng: -88.85 },
   { id: 5, keyNombre: "ev.cruz.title", keyDesc: "ev.cruz.desc", dia: 3, mes: 4, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6929, lng: -89.2182 },
@@ -77,30 +75,32 @@ const EVENTOS_CALENDARIO = [
   { id: 9, keyNombre: "ev.maiz.title", keyDesc: "ev.maiz.desc", dia: 1, mes: 7, depto: "La Libertad", tipo: "Feria Gastronómica", lat: 13.8167, lng: -89.55 },
   { id: 10, keyNombre: "ev.agostinas.title", keyDesc: "ev.agostinas.desc", dia: 5, mes: 7, depto: "San Salvador", tipo: "Fiesta Patronal", lat: 13.6984, lng: -89.1915 },
   { id: 12, keyNombre: "ev.jocote.title", keyDesc: "ev.jocote.desc", dia: 15, mes: 9, depto: "Santa Ana", tipo: "Feria Gastronómica", lat: 13.8494, lng: -89.6314 },
-  { id: 13, keyNombre: "ev.calabaza.title", keyDesc: "ev.calabaza.desc", dia: 1, mes: 10, depto: "Cuscatlán", tipo: "Tradición Popular", lat: 13.7167, lng: -88.9333 },
-  { id: 14, keyNombre: "ev.canchules.title", keyDesc: "ev.canchules.desc", dia: 1, mes: 10, depto: "Ahuachapán", tipo: "Tradición Popular", lat: 13.7739, lng: -89.7256 },
+  { id: 13, keyNombre: "ev.calabaza.title", keyDesc: "ev.calabaza.desc", dia: 1, mes: 10, depto: "Cuscatlán", tipo: "Tradición Popular", lat: 13.7167, lng: -88.9333 }, // Cojutepeque
   { id: 16, keyNombre: "ev.difuntos.title", keyDesc: "ev.difuntos.desc", dia: 2, mes: 10, depto: "Todos", tipo: "Conmemoración", lat: 13.6929, lng: -89.2182 },
   { id: 17, keyNombre: "ev.anil.title", keyDesc: "ev.anil.desc", dia: 4, mes: 10, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
-  { id: 18, keyNombre: "ev.carnaval.title", keyDesc: "ev.carnaval.desc", dia: 28, mes: 10, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.4833, lng: -88.1833 },
-  { id: 20, keyNombre: "ev.guadalupe.title", keyDesc: "ev.guadalupe.desc", dia: 12, mes: 11, depto: "San Salvador", tipo: "Celebración Religiosa", lat: 13.7008, lng: -89.2100 },
-  { id: 21, keyNombre: "ev.canchules_nahu.title", keyDesc: "ev.canchules_nahu.desc", dia: 1, mes: 10, depto: "Sonsonate", tipo: "Tradición Popular", lat: 13.7739, lng: -89.7256 },
+  { id: 20, keyNombre: "ev.guadalupe.title", keyDesc: "ev.guadalupe.desc", dia: 12, mes: 11, depto: "San Salvador", tipo: "Celebración Religiosa", lat: 13.7008, lng: -89.2100 }, // San Salvador
+  { id: 21, keyNombre: "ev.canchules_nahu.title", keyDesc: "ev.canchules_nahu.desc", dia: 1, mes: 10, depto: "Sonsonate", tipo: "Tradición Popular", lat: 13.7739, lng: -89.7256 }, // Nahuizalco
   { id: 22, keyNombre: "ev.farolitos.title", keyDesc: "ev.farolitos.desc", dia: 7, mes: 8, depto: "Ahuachapán", tipo: "Celebración Tradicional", lat: 13.9214, lng: -89.845 },
-  { id: 23, keyNombre: "ev.calabiuza.title", keyDesc: "ev.calabiuza.desc", dia: 1, mes: 10, depto: "Cuscatlán", tipo: "Desfile Tradicional", lat: 13.7089, lng: -89.0958 },
-  { id: 24, keyNombre: "ev.anil_oct.title", keyDesc: "ev.anil_oct.desc", dia: 4, mes: 9, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
-  { id: 25, keyNombre: "ev.jocote_2026.title", keyDesc: "ev.jocote_2026.desc", dia: 18, mes: 9, anio: 2026, depto: "Santa Ana", tipo: "Feria Municipal", lat: 13.8494, lng: -89.6314 },
   { id: 26, keyNombre: "ev.encuentros.title", keyDesc: "ev.encuentros.desc", dia: 24, mes: 9, anio: 2026, depto: "Sonsonate", tipo: "Danza Ancestral", lat: 13.7186, lng: -89.7244 },
   { id: 27, keyNombre: "ev.calabiuza_2026.title", keyDesc: "ev.calabiuza_2026.desc", dia: 1, mes: 10, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 13.7089, lng: -89.0958 },
-  { id: 28, keyNombre: "ev.difuntos_2026.title", keyDesc: "ev.difuntos_2026.desc", dia: 1, mes: 10, anio: 2026, depto: "San Salvador", tipo: "Festival Cultural", lat: 13.6929, lng: -89.2182 },
   { id: 29, keyNombre: "ev.barro.title", keyDesc: "ev.barro.desc", dia: 8, mes: 10, anio: 2026, depto: "Cabañas", tipo: "Festival Cultural", lat: 13.8422, lng: -88.8508 },
   { id: 30, keyNombre: "ev.gotera.title", keyDesc: "ev.gotera.desc", dia: 15, mes: 10, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.7, lng: -88.1 },
   { id: 31, keyNombre: "ev.cuisnahuat.title", keyDesc: "ev.cuisnahuat.desc", dia: 24, mes: 10, anio: 2026, depto: "Sonsonate", tipo: "Celebración Religiosa", lat: 13.6167, lng: -89.6667 },
   { id: 32, keyNombre: "ev.carnaval_2026.title", keyDesc: "ev.carnaval_2026.desc", dia: 28, mes: 10, anio: 2026, depto: "San Miguel", tipo: "Festividad Nacional", lat: 13.4833, lng: -88.1833 },
-  { id: 33, keyNombre: "ev.canchules_cab.title", keyDesc: "ev.canchules_cab.desc", dia: 4, mes: 11, anio: 2026, depto: "Cabañas", tipo: "Tradición Oral", lat: 13.8422, lng: -88.8508 },
+  { id: 33, keyNombre: "ev.canchules_cab.title", keyDesc: "ev.canchules_cab.desc", dia: 4, mes: 11, anio: 2026, depto: "Cabañas", tipo: "Tradición Oral", lat: 13.8422, lng: -88.8508 }, // Sensuntepeque,
   { id: 34, keyNombre: "ev.chicharron.title", keyDesc: "ev.chicharron.desc", dia: 12, mes: 11, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", lat: 13.6769, lng: -89.2797 },
   { id: 35, keyNombre: "ev.launion.title", keyDesc: "ev.launion.desc", dia: 12, mes: 11, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.3369, lng: -87.8442 },
   { id: 36, keyNombre: "ev.navidad.title", keyDesc: "ev.navidad.desc", dia: 16, mes: 11, anio: 2026, depto: "San Salvador", tipo: "Evento Cultural", lat: 13.6929, lng: -89.2182 },
   { id: 37, keyNombre: "ev.arroz.title", keyDesc: "ev.arroz.desc", dia: 19, mes: 11, anio: 2026, depto: "San Vicente", tipo: "Feria Municipal", lat: 13.6167, lng: -88.85 },
-  { id: 38, keyNombre: "ev.svicente.title", keyDesc: "ev.svicente.desc", dia: 25, mes: 11, anio: 2026, depto: "San Vicente", tipo: "Fiesta Patronal", lat: 13.6411, lng: -88.7856 }
+  { id: 39, keyNombre: "ev.suchitotoFestival.title", keyDesc: "ev.suchitotoFestival.desc", dia: 15, mes: 1, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
+  { id: 40, keyNombre: "ev.balsam.title", keyDesc: "ev.balsam.desc", dia: 15, mes: 9, depto: "La Libertad", tipo: "Tradición Popular", lat: 13.6738, lng: -89.4420 },
+  { id: 41, keyNombre: "ev.esquipulas.title", keyDesc: "ev.esquipulas.desc", dia: 15, mes: 0, depto: "Chalatenango", tipo: "Celebración Religiosa", lat: 14.1167, lng: -88.9333 },
+  { id: 42, keyNombre: "ev.guajactial.title", keyDesc: "ev.guajactial.desc", dia: 15, mes: 8, depto: "Sonsonate", tipo: "Fiesta Patronal", lat: 13.7512, lng: -89.6678 },
+  { id: 43, keyNombre: "ev.juventudes.title", keyDesc: "ev.juventudes.desc", dia: 15, mes: 6, depto: "Morazán", tipo: "Festival Cultural", lat: 13.7833, lng: -88.15 },
+  { id: 44, keyNombre: "ev.primicia.title", keyDesc: "ev.primicia.desc", dia: 15, mes: 7, depto: "La Unión", tipo: "Tradición Popular", lat: 13.3, lng: -87.85 },
+  { id: 45, keyNombre: "ev.semanaSanta.title", keyDesc: "ev.semanaSanta.desc", dia: 3, mes: 3, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6980, lng: -89.1901 },
+  { id: 46, keyNombre: "ev.independencia.title", keyDesc: "ev.independencia.desc", dia: 15, mes: 8, depto: "Todos", tipo: "Festividad Nacional", lat: 13.7005, lng: -89.1898 },
+  { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 4, depto: "La Libertad", tipo: "Celebración Tradicional", lat: 13.6769, lng: -89.2797 }
 ];
 
 // 3. ESCUCHA ACTIVA DEL CAMBIO DE IDIOMA GLOBAL
@@ -450,6 +450,20 @@ function initCatalogAndFilters() {
     listaEventosFiltrados = [...EVENTOS_CALENDARIO];
   }
   renderCatalogo(listaEventosFiltrados);
+
+  const searchInput = document.getElementById("f-search");
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    // Pequeño debounce para no recargar en cada tecla
+    clearTimeout(searchInput._timer);
+    searchInput._timer = setTimeout(() => {
+      currentLimit = 6;
+      const loadMoreBtn = document.getElementById("loadMoreBtn");
+      if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+      filtrarFestividades();
+    }, 300);
+  });
+}
 }
 
 function renderCatalogo(eventos) {
@@ -524,7 +538,7 @@ function filtrarFestividades() {
   const deptVal = document.getElementById("f-dept").value;
   const monthVal = document.getElementById("f-month").value;
   const typeVal = document.getElementById("f-type").value;
-  const searchVal = document.getElementById("f-search").value.toLowerCase();
+  const searchVal = document.getElementById("f-search").value.toLowerCase().trim();
   const origen = (window.calendarState && calendarState.festividades.length > 0) ? calendarState.festividades : EVENTOS_CALENDARIO;
 
   listaEventosFiltrados = origen.filter(evento => {
@@ -532,8 +546,24 @@ function filtrarFestividades() {
     const matchMonth = monthVal === "" || evento.mes.toString() === monthVal;
     const matchType = typeVal === "" || evento.tipo === typeVal;
     
-    const nombreTraducido = t(evento.keyNombre, "").toLowerCase();
-    const descTraducida = t(evento.keyDesc, "").toLowerCase();
+    // Obtener nombre y descripción traducidos
+    let nombreTraducido = t(evento.keyNombre, "").toLowerCase();
+    let descTraducida = t(evento.keyDesc, "").toLowerCase();
+
+    // Si la traducción devolvió la clave (ej: "ev.panela.title"), extraer un nombre legible
+    if (nombreTraducido === evento.keyNombre.toLowerCase()) {
+      // Intentar obtener el nombre de la clave (parte después del último punto)
+      const partes = evento.keyNombre.split('.');
+      if (partes.length > 1) {
+        nombreTraducido = partes[partes.length - 1].replace('title', '').replace(/[^a-z0-9]/g, ' ').trim().toLowerCase();
+      } else {
+        nombreTraducido = evento.keyNombre.toLowerCase();
+      }
+    }
+    if (descTraducida === evento.keyDesc.toLowerCase()) {
+      descTraducida = ''; // si no hay traducción, no buscar en descripción
+    }
+
     const matchSearch = searchVal === "" || nombreTraducido.includes(searchVal) || descTraducida.includes(searchVal);
 
     return matchDept && matchMonth && matchType && matchSearch;
