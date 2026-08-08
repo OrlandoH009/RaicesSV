@@ -10,7 +10,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = false;
 
   const state = {
     currentUser: null,
