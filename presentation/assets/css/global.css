@@ -102,7 +102,7 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; }
-body  { font-family: var(--font-body); background: var(--bg-body); color: var(--text-main); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); transition: background .35s ease, color .35s ease; }
+body  { font-family: var(--font-body); background: var(--bg-body); color: var(--text-main); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); transition: background .6s ease, color .6s ease; }
 a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
@@ -203,7 +203,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   padding: 0 clamp(1rem, 3vw, 2.5rem);
   z-index: 5000;
   box-shadow: 0 2px 20px rgba(0,0,0,.45);
-  transition: background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  transition: background .6s ease, border-color .6s ease, box-shadow .6s ease;
 }
 [data-theme="light"] .navbar {
   box-shadow: 0 2px 18px rgba(17,48,104,.08);
@@ -316,17 +316,21 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   top: 0; right: -290px;
   width: 270px;
   height: 100vh;
-  background: var(--navy);
+  background: var(--drawer-bg);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
   z-index: 4999;
   border-left: 3px solid var(--gold);
   box-shadow: -4px 0 25px rgba(0,0,0,.6);
-  transition: right .35s cubic-bezier(.4,0,.2,1);
+  transition: right .35s cubic-bezier(.4,0,.2,1), background .6s ease, border-color .6s ease, box-shadow .6s ease;
   overflow-y: auto;
 }
 .nav-drawer.open { right: 0; }
+
+[data-theme="light"] .nav-drawer {
+  box-shadow: -4px 0 25px rgba(17,48,104,.18);
+}
 
 .nav-drawer__head {
   display: flex;
@@ -345,6 +349,10 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   letter-spacing: .08em;
 }
 
+[data-theme="light"] .nav-drawer__head {
+  border-bottom-color: rgba(190,142,86,.35);
+}
+
 /* ── Interruptor de tema (claro / oscuro) ── */
 .theme-switch-row {
   display: flex;
@@ -356,6 +364,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   border-radius: 12px;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
+  transition: background .35s ease, border-color .35s ease;
 }
 .theme-switch-label {
   display: flex;
@@ -364,9 +373,15 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-family: var(--font-body);
   font-weight: 700;
   font-size: .85rem;
-  color: var(--white);
+  color: var(--text-main);
+  transition: color .35s ease;
 }
 .theme-switch-label svg { width: 16px; height: 16px; flex: 0 0 16px; }
+
+[data-theme="light"] .theme-switch-row {
+  background: rgba(17,48,104,.05);
+  border-color: rgba(17,48,104,.12);
+}
 
 .theme-switch {
   position: relative;
@@ -407,6 +422,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   text-transform: uppercase;
   letter-spacing: .1em;
   padding: .6rem .5rem .3rem;
+  transition: color .35s ease;
 }
 
 .drawer-group--principales,
@@ -418,11 +434,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--white);
+  color: var(--text-main);
   padding: .8rem .5rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
   display: block;
-  transition: color .2s, padding-left .2s;
+  transition: color .35s ease, padding-left .2s, border-color .35s ease;
 }
 .nav-drawer a.drawer-link:hover { color: var(--gold); padding-left: .75rem; }
 
@@ -444,6 +460,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   color: rgba(255,255,255,.45);
   text-transform: uppercase;
   letter-spacing: .1em;
+  transition: color .35s ease;
 }
 
 .drawer-profile {
@@ -455,12 +472,35 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   border-radius: 14px;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
-  transition: background .25s ease, border-color .25s ease, transform .2s ease;
+  transition: background .35s ease, border-color .35s ease, transform .2s ease;
 }
 .drawer-profile:hover {
   background: rgba(190, 142, 86, .1);
   border-color: rgba(190, 142, 86, .35);
   transform: translateX(2px);
+}
+
+/* ── Ajustes específicos de modo claro para el contenido del drawer ── */
+[data-theme="light"] .drawer-section-label,
+[data-theme="light"] .drawer-auth-label {
+  color: rgba(17,48,104,.45);
+}
+[data-theme="light"] .nav-drawer a.drawer-link {
+  border-bottom-color: rgba(17,48,104,.1);
+}
+[data-theme="light"] .drawer-profile {
+  background: rgba(17,48,104,.04);
+  border-color: rgba(17,48,104,.1);
+}
+[data-theme="light"] .drawer-profile:hover {
+  background: rgba(190, 142, 86, .12);
+  border-color: rgba(190, 142, 86, .4);
+}
+[data-theme="light"] .drawer-username {
+  color: var(--text-main);
+}
+[data-theme="light"] .drawer-profile-caption {
+  color: rgba(17,48,104,.55);
 }
 .drawer-avatar {
   width: 46px; height: 46px;
@@ -477,9 +517,10 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .drawer-username {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-main);
   font-size: 1rem;
   line-height: 1.3;
+  transition: color .35s ease;
 }
 .drawer-profile-caption {
   display: block;
@@ -490,6 +531,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   text-transform: uppercase;
   color: rgba(255,255,255,.4);
   margin-top: .1rem;
+  transition: color .35s ease;
 }
 
 .btn-login {
@@ -498,11 +540,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
-  color: var(--white);
+  color: var(--text-main);
   border: 2px solid rgba(255,255,255,.5);
   border-radius: var(--r-sm);
   padding: .65rem 1rem;
-  transition: border-color .2s, background .2s;
+  transition: border-color .35s ease, background .35s ease, color .35s ease;
 }
 .btn-login:hover { border-color: var(--white); background: rgba(255,255,255,.1); }
 
@@ -528,13 +570,30 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-weight: 700;
   font-size: 1rem;
   background: rgba(255,255,255,.08);
-  color: var(--white);
+  color: var(--text-main);
   border: 2px solid rgba(255,255,255,.5);
   border-radius: var(--r-sm);
   padding: .65rem 1rem;
-  transition: border-color .2s, background .2s;
+  transition: border-color .35s ease, background .35s ease, color .35s ease;
 }
 .btn-logout:hover { border-color: var(--white); background: rgba(255,255,255,.14); }
+
+/* ── Modo claro: botones e info del drawer con contraste correcto ── */
+[data-theme="light"] .btn-login {
+  border-color: rgba(17,48,104,.35);
+}
+[data-theme="light"] .btn-login:hover {
+  border-color: var(--navy);
+  background: rgba(17,48,104,.06);
+}
+[data-theme="light"] .btn-logout {
+  background: rgba(17,48,104,.05);
+  border-color: rgba(17,48,104,.35);
+}
+[data-theme="light"] .btn-logout:hover {
+  border-color: var(--navy);
+  background: rgba(17,48,104,.1);
+}
 
 /* ── FOOTER ── */
 .footer {
@@ -542,7 +601,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   color: var(--text-on-surface);
   padding: clamp(1.2rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem);
   border-top: 3px solid var(--gold);
-  transition: background .35s ease, color .35s ease;
+  transition: background .6s ease, color .6s ease;
 }
 .footer__inner {
   max-width: 1100px;
