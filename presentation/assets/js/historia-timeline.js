@@ -9,11 +9,17 @@
 
   let leafletMap = null;
   let leafletMarker = null;
+  let currentFilter = 'all';
+  let currentOpenId = null; // id del evento actualmente abierto en el modal (si hay uno)
+
+  const tt = (key, fallback) => (window.SRi18n ? window.SRi18n.t(key, window.SRi18n.getLang()) : fallback);
 
   // ---------- Construir nodos de la línea de tiempo ----------
   function buildTimeline(filter) {
+    currentFilter = filter;
+    const eventos = typeof getHistoriaEventos === 'function' ? getHistoriaEventos() : HISTORIA_EVENTOS_ES;
     listEl.innerHTML = '';
-    HISTORIA_EVENTOS.forEach((ev, i) => {
+    eventos.forEach((ev, i) => {
       if (filter !== 'all' && ev.era !== filter) return;
 
       const li = document.createElement('li');
@@ -21,9 +27,12 @@
       li.dataset.id = ev.id;
       li.style.setProperty('--delay', (i % 8) * 0.06 + 's');
 
+      const detailLabel = tt('hist.node.viewDetail', 'Ver detalle') + ': ' + ev.title;
+      const hintLabel = tt('hist.node.hint', 'Toca para leer más');
+
       li.innerHTML = `
         <div class="tl-node__connector" aria-hidden="true"></div>
-        <button class="tl-node__dot" aria-label="Ver detalle: ${ev.title}">
+        <button class="tl-node__dot" aria-label="${detailLabel}">
           <span class="tl-node__ring"></span>
           <span class="tl-node__core"></span>
         </button>
@@ -31,7 +40,7 @@
           <span class="tl-node__era-tag">${ev.eraLabel}</span>
           <p class="tl-node__date">${ev.date}</p>
           <h3 class="tl-node__title">${ev.title}</h3>
-          <span class="tl-node__hint">Toca para leer más</span>
+          <span class="tl-node__hint">${hintLabel}</span>
         </div>
       `;
 
@@ -66,6 +75,7 @@
   const backdrop = document.getElementById('eventBackdrop');
 
   function openModal(ev) {
+    currentOpenId = ev.id;
     modalImg.src = ev.img;
     modalImg.alt = ev.title;
     modalEra.textContent = ev.eraLabel;
@@ -83,6 +93,7 @@
   }
 
   function closeModal() {
+    currentOpenId = null;
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
@@ -120,6 +131,19 @@
     }
     setTimeout(() => leafletMap.invalidateSize(), 100);
   }
+
+  // ---------- Reconstrucción al cambiar idioma ----------
+  // Al cambiar de idioma, reconstruye la lista respetando el filtro activo
+  // y, si el modal está abierto, actualiza también su contenido usando el
+  // mismo id (los ids son iguales en ES y EN, ver historia-data.js).
+  document.addEventListener('langchange', () => {
+    buildTimeline(currentFilter);
+    if (currentOpenId) {
+      const eventos = typeof getHistoriaEventos === 'function' ? getHistoriaEventos() : HISTORIA_EVENTOS_ES;
+      const ev = eventos.find(e => e.id === currentOpenId);
+      if (ev) openModal(ev);
+    }
+  });
 
   // ---------- Init ----------
   buildTimeline('all');
