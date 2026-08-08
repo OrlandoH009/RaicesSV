@@ -64,7 +64,7 @@ const getDashboardMetrics = async () => {
 
 //Banear o desbanear un usuario
 
-const setUserStatus = async (id_user, requestingUser, { status, reason }) => {
+const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseUrl }) => {
     const idUserNum = Number(id_user);
 
     if (!Number.isInteger(idUserNum)) {
@@ -104,18 +104,21 @@ const setUserStatus = async (id_user, requestingUser, { status, reason }) => {
 
         await adminRepository.createSuspensionRecord(idUserNum, requestingUser.id, reason.trim());
 
+        const appealLink = `${appBaseUrl}/apelar.html`;
+
         const html = `
             <p>Hola ${target.name || ''},</p>
             <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
             <p><strong>Motivo:</strong> ${reason.trim()}</p>
-            <p>Si consideras que esto es un error, puedes contactar a un administrador del sitio.</p>
+            <p>Si consideras que esto es un error, puedes apelar esta decisión aquí:</p>
+            <p><a href="${appealLink}">${appealLink}</a></p>
         `;
 
         await sendMail({
             to: target.email,
             subject: 'Tu cuenta ha sido suspendida — Salvadorean Roots',
             html,
-            text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}`
+            text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}. Puedes apelar aquí: ${appealLink}`
         });
     } else {
         const html = `
@@ -371,9 +374,6 @@ const getAppeals = async () => {
     };
 };
 
-const getUnreviewedAppealsCount = async () => {
-    return adminRepository.countUnreviewedAppeals();
-};
 
 const markAppealAsReviewed = async (id_appeal) => {
     const idAppealNum = Number(id_appeal);
@@ -403,6 +403,5 @@ module.exports = {
     createAdmin,
     submitAppeal,
     getAppeals,
-    getUnreviewedAppealsCount,
     markAppealAsReviewed
 };

@@ -205,6 +205,7 @@
   cursor: pointer;
   transition: background .2s ease, transform .2s ease;
 }
+.admin-back[hidden] { display: none; }
 .admin-back:hover { background: var(--admin-surface-hover); transform: translateX(-2px); }
 .admin-back svg { width: 16px; height: 16px; }
 
