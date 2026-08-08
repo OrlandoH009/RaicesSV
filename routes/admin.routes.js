@@ -67,11 +67,35 @@ router.post('/api/admin/users', requireAdminApiAuth, handle(async (req) => {
 
 router.post(
     '/api/admin/invitations/accept',
-    rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.'}),
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' }),
     handle(async (req) => {
         const user = await adminService.completeAdminInvitation(req.body.token, req.body.password);
         return { user };
     })
 );
+
+router.post(
+    '/api/appeals',
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' }),
+    handle(async (req) => {
+        await adminService.submitAppeal(req.body.email, req.body.message);
+        return { ok: true };
+    })
+);
+
+router.get('/api/admin/appeals', requireAdminApiAuth, handle(async () => {
+    const appeals = await adminService.getAppeals();
+    return appeals;
+}));
+
+router.get('/api/admin/appeals/unreviewed-count', requireAdminApiAuth, handle(async () => {
+    const count = await adminService.getUnreviewedAppealsCount();
+    return { count };
+}));
+
+router.patch('/api/admin/appeals/:id/review', requireAdminApiAuth, handle(async (req) => {
+    const appeal = await adminService.markAppealAsReviewed(req.params.id);
+    return { appeal };
+}));
 
 module.exports = router;
