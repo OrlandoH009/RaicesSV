@@ -88,11 +88,6 @@ router.get('/api/admin/appeals', requireAdminApiAuth, handle(async () => {
     return appeals;
 }));
 
-router.get('/api/admin/appeals/unreviewed-count', requireAdminApiAuth, handle(async () => {
-    const count = await adminService.getUnreviewedAppealsCount();
-    return { count };
-}));
-
 router.patch('/api/admin/appeals/:id/review', requireAdminApiAuth, handle(async (req) => {
     const appeal = await adminService.markAppealAsReviewed(req.params.id);
     return { appeal };
