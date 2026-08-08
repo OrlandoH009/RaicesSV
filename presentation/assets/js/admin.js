@@ -907,19 +907,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openCreateAdminDrawer() {
-    if (createAdminOverlay) createAdminOverlay.classList.add('is-visible');
+    if (!createAdminOverlay) return;
+    createAdminOverlay.classList.add('is-visible');
+
+    const drawerPanel = createAdminOverlay.querySelector('.admin-drawer');
+    const fields = createAdminOverlay.querySelectorAll('.admin-drawer__head, .admin-input-group, .admin-drawer__footer');
+
+    if (!window.gsap || reduceMotion) {
+      if (createAdminOverlay) createAdminOverlay.style.opacity = '1';
+      if (drawerPanel) drawerPanel.style.transform = 'translateX(0)';
+      return;
+    }
+
+    gsap.set(drawerPanel, { x: '100%' });
+    gsap.set(fields, { opacity: 0, y: 14 });
+
+    const tl = gsap.timeline();
+    tl.to(createAdminOverlay, { opacity: 1, duration: .25, ease: 'power1.out' }, 0);
+    tl.to(drawerPanel, { x: '0%', duration: .5, ease: 'power3.out' }, 0);
+    tl.to(fields, { opacity: 1, y: 0, duration: .4, stagger: .06, ease: 'power2.out' }, .15);
   }
 
   function closeCreateAdminDrawer() {
-    if (createAdminOverlay) createAdminOverlay.classList.remove('is-visible');
-    createAdminForm?.reset();
-    if (createAdminStatus) { createAdminStatus.textContent = ''; createAdminStatus.removeAttribute('data-kind'); }
-    if (adminPasswordStrengthEl) {
-      adminPasswordStrengthEl.removeAttribute('data-strength');
-      adminPasswordStrengthEl.querySelectorAll('span').forEach((bar) => {
-        if (window.gsap) gsap.set(bar, { scaleX: .3 });
-      });
+    if (!createAdminOverlay) return;
+
+    const drawerPanel = createAdminOverlay.querySelector('.admin-drawer');
+
+    const finish = () => {
+      createAdminOverlay.classList.remove('is-visible');
+      createAdminForm?.reset();
+      if (createAdminStatus) { createAdminStatus.textContent = ''; createAdminStatus.removeAttribute('data-kind'); }
+      if (adminPasswordStrengthEl) {
+        adminPasswordStrengthEl.removeAttribute('data-strength');
+        adminPasswordStrengthEl.querySelectorAll('span').forEach((bar) => {
+          if (window.gsap) gsap.set(bar, { scaleX: .3 });
+        });
+      }
+    };
+
+    if (!window.gsap || reduceMotion) {
+      finish();
+      return;
     }
+
+    const tl = gsap.timeline({ onComplete: finish });
+    tl.to(drawerPanel, { x: '100%', duration: .35, ease: 'power2.in' }, 0);
+    tl.to(createAdminOverlay, { opacity: 0, duration: .25, ease: 'power1.in' }, .1);
   }
 
   openCreateAdminBtn?.addEventListener('click', openCreateAdminDrawer);
