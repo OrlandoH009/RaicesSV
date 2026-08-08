@@ -778,9 +778,8 @@
   justify-content: flex-end;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .3s ease;
 }
-.admin-drawer-overlay.is-visible { opacity: 1; pointer-events: auto; }
+.admin-drawer-overlay.is-visible { pointer-events: auto; }
 
 .admin-drawer {
   width: min(420px, 92vw);
@@ -790,11 +789,8 @@
   padding: 1.8rem;
   display: flex;
   flex-direction: column;
-  transform: translateX(100%);
-  transition: transform .35s ease;
   overflow-y: auto;
 }
-.admin-drawer-overlay.is-visible .admin-drawer { transform: translateX(0); }
 
 .admin-drawer__head {
   display: flex;
