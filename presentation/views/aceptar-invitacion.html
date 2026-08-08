@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salvadorean Roots — Invitación a administrador</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/aceptar-invitacion.css" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0f2f66" />
+</head>
+<body class="invite-body" data-gsap-reveal>
+
+  <div class="invite-page">
+    <div class="invite-page__bg"></div>
+
+    <main class="invite-card">
+
+      <div class="invite-seal" id="inviteSeal">
+        <svg viewBox="0 0 120 120" class="invite-seal__ring">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 6" />
+        </svg>
+        <svg viewBox="0 0 24 24" class="invite-seal__icon" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l2.6 6.6L21 9.3l-5 4.6 1.4 6.7L12 17.3 6.6 20.6 8 13.9 3 9.3l6.4-.7L12 2z" />
+        </svg>
+      </div>
+
+      <span class="invite-eyebrow">Invitación al equipo</span>
+      <h1 id="inviteTitle">Fuiste invitado a ser administrador</h1>
+      <p class="invite-sub" id="inviteSub">Establece tu contraseña para completar el proceso.</p>
+
+      <div id="invite-toast"></div>
+
+      <form class="invite-form" id="inviteForm">
+        <div class="form-group">
+          <label for="newPassword">Nueva contraseña</label>
+          <input type="password" id="newPassword" name="newPassword" required minlength="8" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirma tu contraseña</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required minlength="8" autocomplete="new-password" />
+        </div>
+
+        <button type="submit" class="invite-submit" id="inviteSubmitBtn">Aceptar y entrar al panel</button>
+        <span class="invite-status" id="inviteStatus"></span>
+      </form>
+
+      <div class="invite-expired" id="inviteExpired" hidden>
+        <p>Este enlace de invitación ya no es válido. Puede haber expirado o ya haber sido usado.</p>
+        <a href="/login.html" class="invite-link">Ir a iniciar sesión</a>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="../assets/js/aceptar-invitacion.js"></script>
+</body>
+</html>

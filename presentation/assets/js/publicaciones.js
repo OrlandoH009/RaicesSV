@@ -225,9 +225,9 @@ function checkGuestFormAccess() {
       loginBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        window.location.href = 'login.html';
+        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
       });
-    }
+    } 
 
     const originalForm = document.getElementById('publicationForm');
     if (originalForm) {

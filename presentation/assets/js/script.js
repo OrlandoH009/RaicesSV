@@ -173,9 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
             : defaultAvatarSVG;
         }
 
+        const isAdminRole = user?.role === 'Admin' || user?.role === 'Fundador';
+        const adminLinkHtml = isAdminRole
+          ? `<a href="/admin" class="btn-login">Panel de administración</a>`
+          : '';
+
         authContainer.innerHTML = `
           <p class="drawer-auth-label" data-i18n="nav.conectado">Conectado</p>
           <a href="../views/perfil.html" class="btn-login" data-i18n="nav.miPerfil">Mi perfil</a>
+          ${adminLinkHtml}
           <button type="button" class="btn-logout" id="logout-link" data-i18n="nav.cerrarSesion">Cerrar sesión</button>
         `;
       } else {
@@ -213,10 +219,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!link) return;
     if (link.href.includes('redirect=')) return;
 
+    event.preventDefault();
+
     const url = new URL(link.href, window.location.origin);
     url.searchParams.set('redirect', window.location.pathname);
-    link.href= url.toString();
-  })
+    window.location.href = url.toString();
+  });
 
   // Permite que otras páginas (ej. perfil.js tras guardar cambios) actualicen
   // el nombre/avatar del menú hamburguesa al instante, sin recargar la página.
@@ -250,6 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (params.get('cuentaEliminada') === '1') {
     showNotice('Tu cuenta fue eliminada correctamente');
+  }
+  if (params.get('suspendido') === '1') {
+    showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.');
   }
 
   /* ── Verificar protección de rutas ── */

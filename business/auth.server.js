@@ -29,6 +29,10 @@ const login = async (email, password) => {
         const err = new Error(INVALID_CREDENTIALS_MSG); err.expose = true; throw err;
     }
 
+    if (user.status_name === 'Suspendido') {
+        const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+    }
+
     let valid = false;
 
     if (user.password && typeof user.password === 'string') {
@@ -112,6 +116,9 @@ const loginOrRegisterWithGoogle = async (name, email, googleId, googlePhotoUrl) 
     const existingByGoogle = await userRepository.findByGoogleId(googleId);
 
     if (existingByGoogle) {
+        if (existingByGoogle.status_name === 'Suspendido') {
+            const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+        }
         if (googlePhotoUrl) {
             await userRepository.updateGoogleAvatarCache(existingByGoogle.id_user, googlePhotoUrl);
         }
@@ -120,6 +127,9 @@ const loginOrRegisterWithGoogle = async (name, email, googleId, googlePhotoUrl) 
     const normalizedEmail = email.trim().toLowerCase();
     const existingByEmail = await userRepository.findByEmail(normalizedEmail);
     if (existingByEmail) {
+        if (existingByEmail.status_name === 'Suspendido') {
+            const err = new Error('Tu cuenta ha sido suspendida. Contacta a un administrador.'); err.expose = true; throw err;
+        }
         await userRepository.linkGoogleId(existingByEmail.id_user, googleId);
         if (googlePhotoUrl) {
             await userRepository.updateGoogleAvatarCache(existingByEmail.id_user, googlePhotoUrl);

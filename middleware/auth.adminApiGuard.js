@@ -1,11 +1,14 @@
-// A diferencia de auth.protectedRoutes.js (que redirige a /login.html porque
-// protege VISTAS HTML), este middleware protege endpoints de API: si no hay
-// sesión, responde 401 en JSON para que el fetch del frontend lo maneje.
 const userRepository = require('../data/repositories/user.repository');
 
-const requireApiAuth = async(req, res, next) => {
+const requireAdminApiAuth = async (req, res, next) => {
     if (!req.session || !req.session.user) {
-        return res.status(401).json({ message: 'Debes iniciar sesión.' });
+        return res.status(401).json({ message: 'Debes iniciar sesión' });
+    }
+
+    const role = req.session.user.role;
+
+    if (role !== 'Admin' && role !== 'Fundador') {
+        return res.status(403).json({ message: 'No tienes permisos para acceder a esta sección.' });
     }
 
     try {
@@ -25,8 +28,9 @@ const requireApiAuth = async(req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('Error verificando estado de usuario en requireApiAuth:', error);
+        console.error('Error verificando estado de usuario en requireAdminApiAuth:', error);
         next();
     }
 };
-module.exports = requireApiAuth;
+
+module.exports = requireAdminApiAuth;
