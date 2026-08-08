@@ -19,7 +19,7 @@ const LEYENDAS_DATA = [
     tag: "Espíritu · Ríos",
     chips: ["Espíritu femenino", "Aparece de noche", "Ríos y quebradas", "Enloquece a hombres"],
     origen: "Tradición náhuat-pipil, extendida por todo El Salvador. Recogida por Miguel Ángel Espino en \"Mitología de Cuscatlán\".",
-    img: null,
+    img: "../assets/media/leyenda/siguanaba.png",
     relato: `Cuentan los abuelos que hace muchísimo tiempo, cuando los dioses todavía caminaban cerca de los hombres, vivía una mujer llamada Sihuehuet, cuyo nombre en náhuat significa "mujer hermosa". Era, en efecto, la más bella de su pueblo: piel dorada, cabellera negra y larga como la noche, y una risa que hacía voltear a cualquiera. Estaba casada, pero su corazón inquieto la llevó a enamorarse del Lucero de la Mañana, un dios que bajaba del cielo para verla junto al río.
 
 Cuando Tlaloc, el poderoso dios de las aguas y de las lluvias, descubrió la traición, no perdonó. La maldijo para siempre: le arrebató su nombre y su belleza verdadera, y la condenó a vagar eternamente por ríos, quebradas y caminos oscuros, convertida ahora en la Siguanaba, que quiere decir "mujer horrible". Desde entonces solo puede mostrar su hermosura como un engaño, una trampa que tiende a los hombres que, como ella hizo, traicionan a quien los ama.

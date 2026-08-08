@@ -484,9 +484,15 @@
 
 .recipe-meta span {
   background: rgba(17, 48, 104, 0.6);
+  color: #eef2ff;
   padding: 0.3rem 0.8rem; /* Padding reducido */
   border-radius: var(--r-sm);
   border: 1px solid rgba(190, 142, 86, 0.3);
+}
+[data-theme="light"] .recipe-meta span {
+  background: var(--navy);
+  color: #ffffff;
+  border-color: rgba(190,142,86,.4);
 }
 
 /* Columnas de ingredientes y preparación */
