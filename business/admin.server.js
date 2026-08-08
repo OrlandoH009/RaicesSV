@@ -97,46 +97,51 @@ const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseU
         const err = new Error(status === 'suspendido' ? 'Este usuario ya está suspendido.' : 'Este usuario ya está activo.'); err.expose = true; throw err;
     }
 
-    if (status === 'suspendido') {
-        if (typeof reason !== 'string' || !reason.trim()) {
-            const err = new Error('Debes indicar el motivo de la suspensión.'); err.expose = true; throw err;
-        }
-
-        await adminRepository.createSuspensionRecord(idUserNum, requestingUser.id, reason.trim());
-
-        const appealLink = `${appBaseUrl}/apelar.html`;
-
-        const html = `
-            <p>Hola ${target.name || ''},</p>
-            <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
-            <p><strong>Motivo:</strong> ${reason.trim()}</p>
-            <p>Si consideras que esto es un error, puedes apelar esta decisión aquí:</p>
-            <p><a href="${appealLink}">${appealLink}</a></p>
-        `;
-
-        await sendMail({
-            to: target.email,
-            subject: 'Tu cuenta ha sido suspendida — Salvadorean Roots',
-            html,
-            text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}. Puedes apelar aquí: ${appealLink}`
-        });
-    } else {
-        const html = `
-            <p>Hola ${target.name || ''},</p>
-            <p>Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.</p>
-        `;
-
-        await sendMail({
-            to: target.email,
-            subject: 'Tu cuenta ha sido reactivada — Salvadorean Roots',
-            html,
-            text: 'Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.'
-        });
+    if (status === 'suspendido' && (typeof reason !== 'string' || !reason.trim())) {
+        const err = new Error('Debes indicar el motivo de la suspensión.'); err.expose = true; throw err;
     }
 
+    if (status === 'suspendido') {
+        await adminRepository.createSuspensionRecord(idUserNum, requestingUser.id, reason.trim());
+    }
+    
     const id_status = status === 'activo' ? ID_STATUS_ACTIVO : ID_STATUS_SUSPENDIDO;
-
     await adminRepository.updateUserStatus(idUserNum, id_status);
+
+    try {
+        if (status === 'suspendido') {
+            const appealLink = `${appBaseUrl}/apelar.html`;
+
+            const html = `
+                <p>Hola ${target.name || ''},</p>
+                <p>Tu cuenta en Salvadorean Roots ha sido suspendida por un administrador.</p>
+                <p><strong>Motivo:</strong> ${reason.trim()}</p>
+                <p>Si consideras que esto es un error, puedes apelar esta decisión aquí:</p>
+                <p><a href="${appealLink}">${appealLink}</a></p>
+            `;
+
+            await sendMail({
+                to: target.email,
+                subject: 'Tu cuenta ha sido suspendida — Salvadorean Roots',
+                html,
+                text: `Tu cuenta en Salvadorean Roots ha sido suspendida. Motivo: ${reason.trim()}. Puedes apelar aquí: ${appealLink}`
+            });
+        } else {
+            const html = `
+                <p>Hola ${target.name || ''},</p>
+                <p>Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.</p>
+            `;
+
+            await sendMail({
+                to: target.email,
+                subject: 'Tu cuenta ha sido reactivada — Salvadorean Roots',
+                html,
+                text: 'Tu cuenta en Salvadorean Roots ha sido reactivada. Ya puedes volver a iniciar sesión con normalidad.'
+            });
+        }
+    } catch (mailError) {
+        console.error('No se pudo enviar el correo de aviso de cambio de estado:', mailError);
+    }
 
     const updated = await userRepository.findById(idUserNum);
     return sanitizeUserRow(updated);
