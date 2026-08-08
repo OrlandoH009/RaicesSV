@@ -12,43 +12,49 @@
 </head>
 <body>
 
-<nav class="navbar" id="navbar">
+  <nav class="navbar" id="navbar">
     <div class="navbar__logo">
-      <a href="../views/index.html">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
+      <a href="index.html">
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" data-i18n-attr="alt:home.logoAlt" />
       </a>
     </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" class="active" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link active" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
-    <div class="drawer-section-label">Explorar</div>
-    <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
-    <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
-    <a href="../views/recetas.html" class="drawer-link">Recetario</a>
-    <a href="../views/eventos.html" class="drawer-link">Eventos Culturales</a>
-    <a href="../views/historia.html" class="drawer-link">Historia</a>
-    <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <div class="drawer-divider"></div>
+
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -57,41 +63,41 @@
   <main class="auth-page">
     <div class="auth-card reveal">
       <div class="auth-card__logo">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots">
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
       </div>
-      <h1>Crear Cuenta</h1>
-      <p class="auth-card__sub">Únete a la comunidad de Salvadorean Roots</p>
+      <h1 data-i18n="register.title">Crear Cuenta</h1>
+      <p class="auth-card__sub" data-i18n="register.subtitle">Únete a la comunidad de Salvadorean Roots</p>
 
       <form id="register-form" action="/register" method="post">
         <div id="form-message" class="auth-message" role="alert" style="display:none; margin-bottom: 1rem;"></div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="nombre">Nombre</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
+            <label for="nombre" data-i18n="register.label_name">Nombre</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required data-i18n-attr="placeholder:register.placeholder_name" />
           </div>
           <div class="form-group">
-            <label for="apellido">Apellido</label>
-            <input type="text" id="apellido" name="apellido" placeholder="Tu apellido" required />
+            <label for="apellido" data-i18n="register.label_lastname">Apellido</label>
+            <input type="text" id="apellido" name="apellido" placeholder="Tu apellido" required data-i18n-attr="placeholder:register.placeholder_lastname" />
           </div>
         </div>
 
         <div class="form-group">
-          <label for="email">Correo electrónico</label>
-          <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email" />
+          <label for="email" data-i18n="register.label_email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required autocomplete="email" data-i18n-attr="placeholder:register.placeholder_email" />
         </div>
 
         <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password" />
+          <label for="password" data-i18n="register.label_password">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password" data-i18n-attr="placeholder:register.placeholder_password" />
         </div>
 
         <div class="form-group">
-          <label for="password2">Confirmar contraseña</label>
-          <input type="password" id="password2" name="password2" placeholder="Repite tu contraseña" required autocomplete="new-password" />
+          <label for="password2" data-i18n="register.label_confirm">Confirmar contraseña</label>
+          <input type="password" id="password2" name="password2" placeholder="Repite tu contraseña" required autocomplete="new-password" data-i18n-attr="placeholder:register.placeholder_confirm" />
         </div>
 
-        <button type="submit" class="auth-submit">Crear mi cuenta</button>
+        <button type="submit" class="auth-submit" data-i18n="register.submit_btn">Crear mi cuenta</button>
       </form>
 
       <a href="/auth/google" class="auth-google-btn-full">
@@ -103,17 +109,18 @@
             <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"/>
           </svg>
         </span>
-        <span class="google-text">Regístrate con Google</span>
+        <span class="google-text" data-i18n="register.google_btn">Regístrate con Google</span>
       </a>
 
-      <p class="auth-footer-link">
-        ¿Ya tienes cuenta? <a href="../views/login.html">Inicia sesión</a>
+      <p class="auth-footer-link" data-i18n="register.footer_text">
+        ¿Ya tienes cuenta? <a href="../views/login.html" data-i18n="register.footer_link">Inicia sesión</a>
       </p>
     </div>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/i18n.js"></script>   <!-- ← i18n ANTES de registro.js -->
   <script src="../assets/js/registro.js"></script>
   <script src="../assets/js/script.js"></script>
 </body>

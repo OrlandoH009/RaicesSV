@@ -4,37 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Salvadorean Roots — Restablecer contraseña</title>
-  <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/login.css" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
 </head>
 <body>
 
+   <!-- ══ NAVBAR ══ -->
   <nav class="navbar" id="navbar">
-    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" /></a></div>
+    <div class="navbar__logo">
+      <a href="index.html">
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
+      </a>
+    </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" class="active" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+
+    <!-- Botón de traducción (escritorio) -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link active" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <div class="drawer-divider"></div>
+
+    <!-- Botón de traducción (móvil / drawer) -->
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
+    </button>
+
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
 
@@ -45,25 +68,25 @@
       <div class="auth-card__logo">
         <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
       </div>
-      <h1>Nueva contraseña</h1>
-      <p class="auth-card__sub">Elige una contraseña nueva para tu cuenta.</p>
+      <h1 data-i18n="reset.title">Nueva contraseña</h1>
+      <p class="auth-card__sub" data-i18n="reset.subtitle">Elige una contraseña nueva para tu cuenta.</p>
 
       <form id="reset-form">
         <input type="hidden" id="token-input" name="token" value="" />
         <div id="form-message" class="auth-message" role="alert" style="display:none; margin-bottom: 1rem;"></div>
         <div class="form-group">
-          <label for="password">Nueva contraseña</label>
-          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password" minlength="8" />
+          <label for="password" data-i18n="reset.label_new">Nueva contraseña</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password" minlength="8" data-i18n-attr="placeholder:reset.placeholder_new" />
         </div>
         <div class="form-group">
-          <label for="password2">Confirmar contraseña</label>
-          <input type="password" id="password2" name="password2" placeholder="••••••••" required autocomplete="new-password" minlength="8" />
+          <label for="password2" data-i18n="reset.label_confirm">Confirmar contraseña</label>
+          <input type="password" id="password2" name="password2" placeholder="••••••••" required autocomplete="new-password" minlength="8" data-i18n-attr="placeholder:reset.placeholder_confirm" />
         </div>
-        <button type="submit" class="auth-submit">Guardar nueva contraseña</button>
+        <button type="submit" class="auth-submit" data-i18n="reset.submit_btn">Guardar nueva contraseña</button>
       </form>
 
       <p class="auth-footer-link">
-        <a href="../views/login.html">Volver a iniciar sesión</a>
+        <a href="../views/login.html" data-i18n="reset.back_link">Volver a iniciar sesión</a>
       </p>
     </div>
   </main>
@@ -72,5 +95,6 @@
   <script src="../assets/js/theme-blobs.js"></script>
   <script src="../assets/js/restablecer.js"></script>
   <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/i18n.js"></script>
 </body>
 </html>
