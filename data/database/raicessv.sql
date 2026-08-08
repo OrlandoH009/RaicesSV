@@ -101,6 +101,19 @@ CREATE TABLE IF NOT EXISTS user_suspensions(
     INDEX idx_user_suspensions_user (id_user)
 );
 
+CREATE TABLE IF NOT EXISTS appeals (
+    id_appeal INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NULL,
+    email VARCHAR(125) NOT NULL,
+    message VARCHAR(1000) NOT NULL,
+    is_valid BOOLEAN NOT NULL DEFAULT TRUE,
+    reviewed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_appeals_user (id_user),
+    INDEX idx_appeals_reviewed (reviewed_at)
+);
+
 INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
 INSERT IGNORE INTO rols(rol) VALUES ('Usuario');
