@@ -24,6 +24,44 @@ function jt(key, fallback) {
   return fallback;
 }
 
+/* ══════════════════════════════════════════════════════════
+   GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
+   ══════════════════════════════════════════════════════════
+   Mismo patrón que quiz.js: game_name combina el identificador del juego
+   con su dificultad/modo/distancia (ej. "pupusa-easy", "trompos-pvp"),
+   ya que la tabla scores no tiene una columna separada para eso. juegos.html
+   es una vista protegida, así que siempre debería haber un usuario logueado
+   cuando se llama a esto. */
+async function guardarPuntajeJuego(gameName, puntaje) {
+  try {
+    const response = await fetch('/api/scores/game', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameName, puntaje })
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      console.error('No se pudo guardar el puntaje:', data.message || response.statusText);
+    }
+  } catch (error) {
+    console.error('No se pudo guardar el puntaje:', error);
+  }
+}
+
+// Devuelve el mejor puntaje histórico del usuario para un game_name exacto
+// (ej. "pupusa-hard"). Devuelve null si no hay registro previo o si falla.
+async function obtenerMejorPuntajeJuego(gameName) {
+  try {
+    const response = await fetch(`/api/scores/game/best?gameName=${encodeURIComponent(gameName)}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.best || null;
+  } catch (error) {
+    console.error('No se pudo obtener el récord personal:', error);
+    return null;
+  }
+}
+
 /* Reveal on scroll */
 (function initReveal(){
   const items = document.querySelectorAll('.reveal');
@@ -430,14 +468,23 @@ function jt(key, fallback) {
                jt('jue.card1.end.low', '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!');
     
     const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
-    
+    const gameName = `pupusa-${gameDifficulty}`;
+
     showOverlay(`
       <span class="overlay-tag">${difficultyLabel}</span>
       <h3>${jt('jue.end.title', '¡Fin del juego!')}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${text}</p>
+      <p class="overlay-best-score" id="p-best-score"></p>
       <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('p-restart').onclick = showDifficultySelector;
+
+    guardarPuntajeJuego(gameName, score).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('p-best-score');
+        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
+      });
+    });
   }
 
   function start(){
@@ -508,6 +555,10 @@ function jt(key, fallback) {
     if(e.detail.gameId === 'pupusa') {
       isGameVisible = true;
       resizeCanvas();
+      // La música arranca apenas se abre la ventana del juego (aunque el
+      // jugador todavía esté en el menú de intro/dificultad), en loop, y
+      // se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      playMusic();
       if(paused && running) {
         resumeGame();
       } else if(running) {
@@ -1061,13 +1112,26 @@ function jt(key, fallback) {
         ? jt('jue.card2.end.losePvp', '🔴 ¡Jugador 2 gana el duelo! ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins)
         : jt('jue.card2.end.loseNpc', '🔴 El NPC salvadoreño te ha ganado ({r} - {p})').replace('{r}', rivalWins).replace('{p}', playerWins);
 
+    const gameName = `trompos-${gameMode}`;
+
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.end.tag', 'Fin de la Batalla')}</span>
       <h3>${message}</h3>
       <p>${jt('jue.card2.end.rematch', '¿Listo para una revancha?')}</p>
+      <p class="overlay-best-score" id="p-best-score-trompos"></p>
       <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain2', 'Volver a Jugar')}</button>`);
     
     document.getElementById('p-restart').onclick = showModeSelector;
+
+    // Se guardan las rondas ganadas por el jugador como "score", ya que
+    // trompos no tiene un puntaje numérico propio (es un duelo al mejor
+    // de N rondas).
+    guardarPuntajeJuego(gameName, playerWins).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('p-best-score-trompos');
+        if (el && best) el.textContent = `${jt('jue.bestScore.rounds', 'Tu récord de rondas ganadas')}: ${best.score}`;
+      });
+    });
   }
 
   const pauseBtn = document.getElementById('pauseBtn-trompos');
@@ -1259,6 +1323,9 @@ function jt(key, fallback) {
       isGameVisible = true;
       resizeCanvas();
       setupWalls();
+      // La música arranca apenas se abre la ventana del juego, en loop,
+      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      playMusic();
       if(paused && running) {
         resumeGame();
       } else if(running) {
@@ -1326,6 +1393,21 @@ function jt(key, fallback) {
 
         // Activa el estado visible para el motor del juego y ajusta canvas
         modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
+
+        // Red de seguridad: en algunos navegadores el primer play() disparado
+        // por gameVisible puede quedar bloqueado por la política de autoplay
+        // aunque ya hubo un click de usuario (por timing de carga del audio).
+        // Si el <audio> del juego sigue en pausa, reintentamos en el próximo
+        // click dentro del modal (ya con gesto de usuario garantizado).
+        const audioEl = modal.querySelector('audio');
+        if (audioEl) {
+          const retryPlay = () => {
+            if (audioEl.paused && window.gameStates?.[gameId]?.running?.() === false && window.gameStates?.[gameId]?.paused?.() === false) {
+              audioEl.play().catch(() => {});
+            }
+          };
+          content?.addEventListener('click', retryPlay, { once: true });
+        }
 
         // Red de seguridad: si el menú inicial del juego se generó antes de que
         // el idioma estuviera listo (por ejemplo, apenas cargó la página), lo
@@ -1594,6 +1676,15 @@ function jt(key, fallback) {
     }
     if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
   });
+
+  function playMusic(){
+    if(!bgMusic) return;
+    bgMusic.muted = false;
+    bgMusic.volume = volume;
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(()=>{});
+  }
+  function stopMusic(){ bgMusic?.pause(); }
 
   function flashDamage(){
     if(!damageOverlay) return;
@@ -1887,13 +1978,28 @@ function jt(key, fallback) {
       msg = jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
     }
 
+    // Coasters no tiene puntaje ni dificultad easy/hard: se identifica por
+    // la distancia elegida (Express/Normal/Costa a Costa), y se guarda 1
+    // si el jugador ganó la carrera o 0 si perdió.
+    const distanciaId = targetDistance <= 1000 ? 'express' : targetDistance <= 2500 ? 'normal' : 'costaacosta';
+    const gameName = `coasters-${distanciaId}`;
+    const gano = winner === 'player' ? 1 : 0;
+
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card3.end.tag', 'Fin de la Carrera')}</span>
       <h3>${title}</h3>
       <p>${msg}</p>
+      <p class="overlay-best-score" id="p-best-score-coasters"></p>
       <button class="btn-primary" id="btn-restart-coasters">${jt('jue.rematch', 'Revancha')}</button>
     `);
     document.getElementById('btn-restart-coasters').onclick = showModeSelector;
+
+    guardarPuntajeJuego(gameName, gano).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('p-best-score-coasters');
+        if (el && best && best.score >= 1) el.textContent = jt('jue.bestScore.won', '¡Ya ganaste esta ruta antes!');
+      });
+    });
   }
 
   function showDistanceSelector() {
@@ -1950,10 +2056,7 @@ function jt(key, fallback) {
     
     running = true;
     paused = false;
-    if(bgMusic) {
-      bgMusic.currentTime = 0;
-      bgMusic.play().catch(()=>{});
-    }
+    playMusic();
 
     rafId = requestAnimationFrame(step);
   }
@@ -2026,6 +2129,9 @@ function jt(key, fallback) {
     if(e.detail.gameId === 'coasters') {
       isGameVisible = true;
       resizeCanvas();
+      // La música arranca apenas se abre la ventana del juego, en loop,
+      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      playMusic();
       if(paused && running) resumeGame();
       else if(running) rafId = requestAnimationFrame(step);
     }
@@ -2034,7 +2140,7 @@ function jt(key, fallback) {
   window.switchGameState('coasters', {
     pause: pauseGame,
     resume: resumeGame,
-    stop: () => bgMusic?.pause(),
+    stop: stopMusic,
     running: () => running,
     paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; },
@@ -2302,13 +2408,23 @@ function jt(key, fallback) {
                score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
                jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
 
+    const gameName = `encantados-${difficulty}`;
+
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.end.tag', 'Fin del Juego')}</span>
       <h3>${title}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${jt('jue.card4.end.caughtOf', 'Atrapaste {c} de {t} amigos.').replace('{c}', caught).replace('{t}', gameConfig[difficulty].kidsToWin)} ${text}</p>
+      <p class="overlay-best-score" id="e-best-score"></p>
       <button class="btn-primary" id="e-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('e-restart').onclick = showDifficultySelector;
+
+    guardarPuntajeJuego(gameName, score).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('e-best-score');
+        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
+      });
+    });
   }
 
   function step(timestamp){
@@ -2551,6 +2667,9 @@ function jt(key, fallback) {
     if(e.detail.gameId === 'encantados') {
       isGameVisible = true;
       resizeCanvas();
+      // La música arranca apenas se abre la ventana del juego, en loop,
+      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      playMusic();
       if(paused && running) resumeGame();
       else if(running) rafId = requestAnimationFrame(step);
     }
@@ -2559,7 +2678,7 @@ function jt(key, fallback) {
   window.switchGameState('encantados', {
     pause: pauseGame,
     resume: resumeGame,
-    stop: () => bgMusic?.pause(),
+    stop: stopMusic,
     running: () => running,
     paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; },
@@ -2952,13 +3071,23 @@ function jt(key, fallback) {
                score >= 80 ? jt('jue.card5.end.mid', '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.') :
                jt('jue.card5.end.low', '👍 Buen intento, ¡seguí practicando para el próximo recreo!');
 
+    const gameName = `elotes-${difficulty}`;
+
     showOverlay(`
       <span class="overlay-tag">${difficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil')}</span>
       <h3>${jt('jue.card5.end.title', '¡Sonó la campana!')}</h3>
       <div class="overlay-score">${score} pts</div>
       <p>${text}</p>
+      <p class="overlay-best-score" id="el-best-score"></p>
       <button class="btn-primary" id="el-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
     document.getElementById('el-restart').onclick = showDifficultySelector;
+
+    guardarPuntajeJuego(gameName, score).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('el-best-score');
+        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
+      });
+    });
   }
 
   function start(){
@@ -3031,6 +3160,9 @@ function jt(key, fallback) {
     if(e.detail.gameId === 'elotes') {
       isGameVisible = true;
       resizeCanvas();
+      // La música arranca apenas se abre la ventana del juego, en loop,
+      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      playMusic();
       if(paused && running) resumeGame();
       else if(running) rafId = requestAnimationFrame(step);
     }
@@ -3039,11 +3171,805 @@ function jt(key, fallback) {
   window.switchGameState('elotes', {
     pause: pauseGame,
     resume: resumeGame,
-    stop: () => bgMusic?.pause(),
+    stop: stopMusic,
     running: () => running,
     paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; },
     reloadMenu: showDifficultySelector
+  });
+})();
+
+/* ---------------------------------------------------------
+   JUEGO 6: TORITO PINTO (carrera de distancia por carriles,
+   ambientado en una calle empedrada de pueblo mágico con gente
+   comprando, puestos y obstáculos — mismo patrón que Coasters
+   pero con barra de energía en vez de bus rival)
+--------------------------------------------------------- */
+(function initGameTorito(){
+  const canvas = document.getElementById('canvas-torito');
+  if(!canvas || typeof Matter === 'undefined') return;
+
+  const canvasWrap = document.getElementById('torito-canvas-wrap');
+  const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+  const ctx = canvas.getContext('2d');
+
+  const hud = document.getElementById('hud-torito');
+  const overlay = document.getElementById('overlay-torito');
+  const overlayCard = document.getElementById('overlay-card-torito');
+  const gameContent = document.getElementById('modal-torito');
+
+  let isGameVisible = false;
+  let running = false;
+  let paused = false;
+  let rafId = null;
+
+  // Parámetros de juego
+  let gameDifficulty = 'easy';
+  let targetDistance = 1000;
+
+  const gameConfig = {
+    easy: { fallSpeed: 2.6, obstacleChance: 0.008, peopleChance: 0.010, energyDrainOnHit: 14, energyRegen: 6 },
+    hard: { fallSpeed: 3.6, obstacleChance: 0.014, peopleChance: 0.016, energyDrainOnHit: 22, energyRegen: 4 }
+  };
+
+  const lanesCount = 3;
+  let laneWidth = 0;
+  let streetLeft = 0, streetRight = 0; // límites de la calle libre (entre las fachadas)
+  let stallLeftX = 0, stallRightX = 0; // posición fija de los puestos, sobre la acera
+  const lanePositions = [];
+
+  let toritoLane = 1;
+  let toritoY = 0;
+  let distance = 0, energy = 100;
+  let stalls = []; // decorativos, sin física, pegados a la acera
+
+  // AJUSTE ANTI-BLUR: resolución lógica del canvas fija, el CSS la estira en pantalla completa.
+  let baseWidth = 0, baseHeight = 0;
+  function resizeCanvas() {
+    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+    if(isFS && baseWidth && baseHeight){
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+    } else {
+      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      baseWidth = canvas.width;
+      baseHeight = canvas.height;
+    }
+
+    // La calle libre es el área entre las dos franjas de fachada/acera
+    // (14% del ancho a cada lado). Los 3 carriles del torito viven solo
+    // dentro de esa franja central, dejando siempre espacio para pasar.
+    const sideW = canvas.width * 0.14;
+    streetLeft = sideW;
+    streetRight = canvas.width - sideW;
+    const streetWidth = streetRight - streetLeft;
+
+    laneWidth = streetWidth / lanesCount;
+    for(let i = 0; i < lanesCount; i++){
+      lanePositions[i] = streetLeft + (i * laneWidth) + (laneWidth / 2);
+    }
+
+    stallLeftX = sideW * 0.55;
+    stallRightX = canvas.width - sideW * 0.55;
+
+    toritoY = canvas.height - 110;
+
+    // Paredes invisibles a los lados de la calle (no de todo el canvas),
+    // para que los objetos con física reboten dentro del área jugable
+    // en vez de escaparse hacia los puestos decorativos.
+    if(engine){
+      Composite.remove(world, wallLeft);
+      Composite.remove(world, wallRight);
+      wallLeft = Bodies.rectangle(streetLeft - 10, canvas.height/2, 20, canvas.height * 2, { isStatic: true, label: 'wall' });
+      wallRight = Bodies.rectangle(streetRight + 10, canvas.height/2, 20, canvas.height * 2, { isStatic: true, label: 'wall' });
+      World.add(world, [wallLeft, wallRight]);
+
+      if(toritoBody) Body.setPosition(toritoBody, { x: lanePositions[toritoLane], y: toritoY });
+    }
+  }
+
+  // ── Motor de física ──
+  const engine = Engine.create();
+  engine.gravity.y = 0; // sin gravedad vertical: los objetos "caen" hacia el jugador por velocidad propia, no por gravedad de mundo
+  const world = engine.world;
+
+  let wallLeft = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
+  let wallRight = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
+  World.add(world, [wallLeft, wallRight]);
+
+  // El torito: cuerpo estático que se reposiciona según el carril elegido,
+  // igual que el comal de Atrapa la Pupusa. Al ser estático pero con
+  // colisiones activas, los objetos dinámicos rebotan realmente contra él.
+  const toritoBody = Bodies.rectangle(0, 0, 46, 30, { isStatic: true, label: 'torito' });
+  World.add(world, toritoBody);
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => { setTimeout(resizeCanvas, 100); });
+  document.addEventListener('webkitfullscreenchange', () => { setTimeout(resizeCanvas, 100); });
+
+  const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
+  if (fsBtn) {
+    fsBtn.addEventListener('click', () => {
+      const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
+      if (!isCurrent) {
+        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+        req?.call(canvasWrap);
+      } else {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        exit?.call(document);
+      }
+    });
+  }
+
+  // Controles: A/D o flechas para cambiar de carril
+  let keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if(running && !paused) {
+      if(e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
+      if(e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
+    }
+  });
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  canvas.addEventListener('touchstart', e => {
+    if(!running || paused) return;
+    const r = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - r.left;
+    moveLane(touchX < r.width / 2 ? -1 : 1);
+  }, { passive: true });
+
+  function moveLane(direction) {
+    const nextLane = toritoLane + direction;
+    if(nextLane >= 0 && nextLane < lanesCount) toritoLane = nextLane;
+  }
+
+  function updateHud(){
+    const prog = document.getElementById('t-prog');
+    const dist = document.getElementById('t-dist');
+    const energyFill = document.getElementById('t-energy-fill');
+
+    if(prog) prog.style.width = Math.min(100, (distance / targetDistance) * 100) + '%';
+    if(dist) dist.textContent = Math.round(distance) + 'm / ' + targetDistance + 'm';
+    if(energyFill) {
+      energyFill.style.width = Math.max(0, energy) + '%';
+      energyFill.style.background = energy > 50 ? '#3ae080' : energy > 20 ? '#ffb300' : '#e53935';
+    }
+  }
+
+  if(hud) {
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>${jt('jue.card6.routeLabel', '🐂 Recorrido')}</span>
+        <div class="coasters-progress-bar"><div id="t-prog" class="coasters-progress-fill"></div></div>
+        <b id="t-dist">0m</b>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.card6.energyLabel', '🧨 Energía')}</span>
+        <div class="coasters-progress-bar"><div id="t-energy-fill" class="coasters-progress-fill" style="background:#3ae080;"></div></div>
+      </div>`;
+  }
+
+  // Audio
+  const bgMusic = document.getElementById('bgMusic-torito');
+  const volumeSlider = document.getElementById('volumeSlider-torito');
+  const volumeIcon = document.getElementById('volumeIcon-torito');
+  const damageOverlay = document.getElementById('damageOverlay-torito');
+  let volume = Number(volumeSlider?.value || 0.45);
+
+  if(bgMusic){
+    bgMusic.volume = volume;
+    bgMusic.muted = false;
+  }
+
+  volumeSlider?.addEventListener('input', (event)=>{
+    volume = Number(event.target.value);
+    if(bgMusic){
+      bgMusic.volume = volume;
+      bgMusic.muted = volume <= 0;
+    }
+    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+
+  function playMusic(){
+    if(!bgMusic) return;
+    bgMusic.muted = false;
+    bgMusic.volume = volume;
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(()=>{});
+  }
+  function stopMusic(){ bgMusic?.pause(); }
+
+  function flashDamage(){
+    if(!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  }
+
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if(window.gsap){
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+  function hideOverlay(){
+    if(window.gsap){
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  function resetGame() {
+    resizeCanvas();
+    toritoLane = 1;
+    Body.setPosition(toritoBody, { x: lanePositions[1], y: toritoY });
+    distance = 0;
+    energy = 100;
+    stalls = [];
+
+    // Limpiar todos los cuerpos dinámicos (carretas, gente, cohetillos) que
+    // hayan quedado de una partida anterior.
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
+        World.remove(world, b);
+      }
+    });
+  }
+
+  // ── Spawns con física real ──
+  function spawnCarreta(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const body = Bodies.rectangle(lanePositions[lane], -40, 40, 20, {
+      restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
+    });
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.04);
+    World.add(world, body);
+  }
+
+  function spawnPersona(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+      restitution: 0.5, friction: 0.3, frictionAir: 0.015, label: 'persona'
+    });
+    body.outfitColor = ['#e63946', '#3a86c8', '#2fbf9f', '#f2c744', '#7d3ac1'][Math.floor(Math.random() * 5)];
+    World.add(world, body);
+  }
+
+  function spawnCohetillo(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const body = Bodies.circle(lanePositions[lane], -40, 9, {
+      restitution: 0.6, friction: 0.2, frictionAir: 0.012, isSensor: true, label: 'cohetillo'
+    });
+    World.add(world, body);
+  }
+
+  function spawnStall(){
+    const side = Math.random() > 0.5 ? 'left' : 'right';
+    stalls.push({ x: side === 'left' ? stallLeftX : stallRightX, y: -50, side });
+  }
+
+  function countBodies(label){
+    return Composite.allBodies(world).filter(b => b.label === label).length;
+  }
+
+  function spawnEntities() {
+    const config = gameConfig[gameDifficulty];
+    if(Math.random() < config.obstacleChance && countBodies('carreta') < 3) spawnCarreta();
+    if(Math.random() < 0.01 && stalls.length < 3) spawnStall();
+    if(Math.random() < config.peopleChance && countBodies('persona') < 5) spawnPersona();
+    if(Math.random() < 0.008 && countBodies('cohetillo') < 2) spawnCohetillo();
+  }
+
+  // ── Colisiones: al chocar con el torito, el objeto sale despedido con
+  // física real (impulso + giro) en vez de simplemente desaparecer ──
+  const toRemove = new Set();
+
+  Events.on(engine, 'collisionStart', (evt) => {
+    const config = gameConfig[gameDifficulty];
+    for(const pair of evt.pairs){
+      const bodies = [pair.bodyA, pair.bodyB];
+      const toritoHit = bodies.find(b => b.label === 'torito');
+      const other = bodies.find(b => b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo');
+      if(!toritoHit || !other || other.hit) continue;
+
+      other.hit = true;
+
+      if(other.label === 'cohetillo') {
+        energy = Math.min(100, energy + config.energyRegen);
+        toRemove.add(other);
+        continue;
+      }
+
+      // Impulso realista: el objeto sale despedido hacia un lado al azar y
+      // gira, en vez de desaparecer al instante.
+      const kickX = (Math.random() - 0.5) * 0.045;
+      Body.applyForce(other, other.position, { x: kickX, y: -0.02 });
+      Body.setAngularVelocity(other, (Math.random() - 0.5) * 0.5);
+
+      const penalty = other.label === 'carreta' ? config.energyDrainOnHit : config.energyDrainOnHit * 0.5;
+      energy = Math.max(0, energy - penalty);
+      flashDamage();
+
+      // Se remueve un instante después para que se alcance a ver el
+      // rebote/giro antes de desaparecer del carril.
+      setTimeout(() => toRemove.add(other), 220);
+    }
+  });
+
+  function step(){
+    if(!running || !isGameVisible) return;
+
+    const config = gameConfig[gameDifficulty];
+
+    distance += config.fallSpeed * 0.4;
+    energy = Math.max(0, energy - 0.045);
+
+    spawnEntities();
+
+    // Mover el torito al carril elegido (suavizado)
+    const targetX = lanePositions[toritoLane];
+    const nextX = toritoBody.position.x + (targetX - toritoBody.position.x) * 0.22;
+    Body.setPosition(toritoBody, { x: nextX, y: toritoY });
+
+    // Los objetos avanzan hacia el jugador empujándolos con velocidad propia
+    // (no gravedad de mundo), así el "carril" se respeta salvo cuando la
+    // física del rebote los saca de su trayectoria tras un choque.
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
+        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: config.fallSpeed });
+        if(b.position.y > canvas.height + 60) World.remove(world, b);
+      }
+    });
+
+    stalls.forEach((s, idx) => {
+      s.y += config.fallSpeed;
+      if(s.y > canvas.height) stalls.splice(idx, 1);
+    });
+
+    Engine.update(engine, 16.667);
+
+    // Remover cuerpos marcados tras su animación de rebote
+    if(toRemove.size){
+      toRemove.forEach(b => World.remove(world, b));
+      toRemove.clear();
+    }
+
+    if(energy <= 0) { endRun('sinEnergia'); return; }
+    if(distance >= targetDistance) { endRun('completo'); return; }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawStreet();
+    stalls.forEach(drawStall);
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'carreta') drawCarreta(b);
+      else if(b.label === 'persona') drawPersona(b);
+      else if(b.label === 'cohetillo') drawCohetillo(b);
+    });
+    drawTorito(toritoBody.position.x, toritoY);
+
+    updateHud();
+    rafId = requestAnimationFrame(step);
+  }
+
+  // ── Arte: calle empedrada de pueblo mágico (tipo Ataco) con casas de colores ──
+  function drawStreet(){
+    ctx.fillStyle = '#9c8f7e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = 'rgba(0,0,0,.10)';
+    ctx.lineWidth = 1;
+    const stoneSize = 26;
+    const offsetY = distance % stoneSize;
+    for(let row = -1; row * stoneSize - offsetY < canvas.height; row++) {
+      const rowY = row * stoneSize - offsetY;
+      const shift = (row % 2 === 0) ? 0 : stoneSize / 2;
+      for(let col = -1; col * stoneSize + shift < canvas.width; col++) {
+        const sx = col * stoneSize + shift;
+        ctx.strokeRect(sx, rowY, stoneSize, stoneSize);
+      }
+    }
+
+    const facadeColors = ['#f2b134', '#3a7d6b', '#7d3ac1', '#e8622c'];
+    const colorIdx = Math.floor(distance / 260);
+    const sideW = canvas.width * 0.14;
+
+    drawFacade(0, sideW, facadeColors[colorIdx % facadeColors.length]);
+    drawFacade(canvas.width - sideW, sideW, facadeColors[(colorIdx + 2) % facadeColors.length]);
+
+    ctx.fillStyle = 'rgba(0,0,0,.15)';
+    ctx.fillRect(sideW - 4, 0, 4, canvas.height);
+    ctx.fillRect(canvas.width - sideW, 0, 4, canvas.height);
+  }
+
+  function drawFacade(startX, width, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(startX, 0, width, canvas.height);
+
+    ctx.fillStyle = '#a8432f';
+    const tejaX = startX < canvas.width / 2 ? startX + width - 6 : startX;
+    ctx.fillRect(tejaX, 0, 6, canvas.height);
+
+    const doorSpacing = 130;
+    const offsetY = (distance * 0.4) % doorSpacing;
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    for(let y = -offsetY; y < canvas.height; y += doorSpacing) {
+      const cx = startX + width / 2;
+      ctx.beginPath();
+      ctx.roundRect(cx - width * 0.22, y + 20, width * 0.44, width * 0.6, 3);
+      ctx.fill();
+    }
+  }
+
+  function drawTorito(x, y){
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.beginPath();
+    ctx.ellipse(0, 46, 24, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const bob = Math.sin(Date.now() / 160) * 2;
+    const legSwing = Math.sin(Date.now() / 110) * 6;
+    ctx.fillStyle = '#1c1c1c';
+    ctx.beginPath();
+    ctx.roundRect(-7, 30 + bob, 5, 16 + legSwing * 0.3, 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(2, 30 + bob, 5, 16 - legSwing * 0.3, 2);
+    ctx.fill();
+    ctx.fillStyle = '#2b2b2b';
+    ctx.beginPath();
+    ctx.roundRect(-10, 8 + bob, 20, 26, 6);
+    ctx.fill();
+
+    ctx.translate(0, bob);
+
+    ctx.strokeStyle = '#8a6238';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-20, 6); ctx.lineTo(-22, -22);
+    ctx.moveTo(20, 6); ctx.lineTo(22, -22);
+    ctx.moveTo(-22, -22); ctx.lineTo(22, -22);
+    ctx.moveTo(-22, -6); ctx.lineTo(22, -6);
+    ctx.moveTo(-20, 6); ctx.lineTo(20, 6);
+    ctx.stroke();
+
+    const panos = [
+      { x: -14, y: -16, w: 12, h: 12, color: '#e63946' },
+      { x: -1,  y: -18, w: 11, h: 11, color: '#f2c744' },
+      { x: 10,  y: -15, w: 12, h: 12, color: '#3a86c8' },
+      { x: -16, y: -3,  w: 11, h: 11, color: '#2fbf9f' },
+      { x: -3,  y: -3,  w: 11, h: 12, color: '#7d3ac1' },
+      { x: 10,  y: -2,  w: 11, h: 11, color: '#e63946' },
+      { x: -14, y: 9,   w: 11, h: 10, color: '#3a86c8' },
+      { x: 10,  y: 9,   w: 11, h: 10, color: '#f2c744' }
+    ];
+    panos.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.roundRect(p.x, p.y, p.w, p.h, 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.18)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    ctx.fillStyle = '#3d2a1e';
+    ctx.beginPath();
+    ctx.ellipse(0, -30, 11, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(0, -38, 6, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#c9c2b0';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-8, -34); ctx.quadraticCurveTo(-18, -40, -14, -48);
+    ctx.moveTo(8, -34); ctx.quadraticCurveTo(18, -40, 14, -48);
+    ctx.stroke();
+    ctx.fillStyle = '#ffd54f';
+    ctx.beginPath();
+    ctx.arc(-4, -31, 1.6, 0, Math.PI * 2);
+    ctx.arc(4, -31, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if(Math.random() > 0.55){
+      ctx.fillStyle = '#ffd54f';
+      ctx.beginPath();
+      ctx.arc(-20 + Math.random()*40, -20 + Math.random()*20, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawCarreta(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = '#5c3a21';
+    ctx.fillRect(-18, -8, 36, 16);
+    ctx.strokeStyle = '#2b1a0f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(-10, 10, 6, 0, Math.PI * 2);
+    ctx.arc(10, 10, 6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  const stallColors = ['#e8622c', '#3a86c8', '#2fbf9f', '#f2c744'];
+  function drawStall(s){
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    const facingRight = s.side === 'left';
+    const dir = facingRight ? 1 : -1;
+    const color = stallColors[Math.abs(Math.round(s.y / 90)) % stallColors.length];
+
+    ctx.fillStyle = '#6b4226';
+    ctx.fillRect(-14, -2, 28, 14);
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-16 * dir, -2);
+    ctx.lineTo(16 * dir, -2);
+    ctx.lineTo(26 * dir, -20);
+    ctx.lineTo(-6 * dir, -20);
+    ctx.closePath();
+    ctx.fill();
+
+    const wares = ['#e63946', '#ffd54f', '#3a86c8'];
+    wares.forEach((c, i) => {
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.roundRect(-10 + i * 8, -1, 6, 8, 1);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawPersona(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.beginPath();
+    ctx.ellipse(0, 18, 10, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#3a352f';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-3, 10); ctx.lineTo(-3, 18);
+    ctx.moveTo(3, 10); ctx.lineTo(3, 18);
+    ctx.stroke();
+
+    ctx.fillStyle = b.outfitColor || '#3a86c8';
+    ctx.beginPath();
+    ctx.roundRect(-8, -6, 16, 18, 5);
+    ctx.fill();
+
+    ctx.fillStyle = '#e8b385';
+    ctx.beginPath();
+    ctx.arc(0, -12, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2b2018';
+    ctx.beginPath();
+    ctx.arc(0, -15, 7.2, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawCohetillo(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = '#ffd54f';
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.lineTo(5, 6);
+    ctx.lineTo(-5, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ff7043';
+    ctx.beginPath();
+    ctx.arc(0, -12, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function endRun(motivo){
+    running = false;
+    stopMusic();
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    const distanciaId = targetDistance <= 800 ? 'corta' : targetDistance <= 1600 ? 'media' : 'larga';
+    const gameName = `torito-${gameDifficulty}-${distanciaId}`;
+    const scoreFinal = Math.round(distance);
+
+    let title, msg;
+    if(motivo === 'completo') {
+      title = jt('jue.card6.end.winTitle', '🏆 ¡Recorriste toda la calle!');
+      msg = jt('jue.card6.end.winMsg', 'El torito llegó completo hasta el final de las fiestas. ¡Buena corrida!');
+    } else {
+      title = jt('jue.card6.end.tiredTitle', '🧨 ¡El torito se quedó sin cohetes!');
+      msg = jt('jue.card6.end.tiredMsg', 'Recorriste <b>{n}m</b> antes de quedarte sin energía. ¡Cuidado con los puestos y la gente la próxima vez!').replace('{n}', scoreFinal);
+    }
+
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.card6.end.tag', 'Fin de la Corrida')}</span>
+      <h3>${title}</h3>
+      <div class="overlay-score">${scoreFinal}m</div>
+      <p>${msg}</p>
+      <p class="overlay-best-score" id="t-best-score"></p>
+      <button class="btn-primary" id="btn-restart-torito">${jt('jue.rematch', 'Revancha')}</button>
+    `);
+    document.getElementById('btn-restart-torito').onclick = showModeSelector;
+
+    guardarPuntajeJuego(gameName, scoreFinal).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = document.getElementById('t-best-score');
+        if (el && best) el.textContent = `${jt('jue.bestScore.distance', 'Tu récord de distancia')}: ${best.score}m`;
+      });
+    });
+  }
+
+  function showDistanceSelector() {
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
+      <h3>${jt('jue.card6.distance.title', '🐂 Elige el Recorrido')}</h3>
+      <p>${jt('jue.card6.distance.sub', '¿Qué tan larga será la corrida por el pueblo?')}</p>
+      <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-primary" id="dist-corta-torito">${jt('jue.card6.distCorta', 'Corta (800m)')}</button>
+        <button class="btn-primary" id="dist-media-torito">${jt('jue.card6.distMedia', 'Media (1600m)')}</button>
+        <button class="btn-primary" id="dist-larga-torito">${jt('jue.card6.distLarga', 'Larga (3000m)')}</button>
+      </div>
+    `);
+
+    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(800); };
+    document.getElementById('dist-media-torito').onclick = () => { selectDistance(1600); };
+    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3000); };
+  }
+
+  function selectDistance(dist) {
+    targetDistance = dist;
+    showDifficultySelector();
+  }
+
+  function showDifficultySelector() {
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
+      <h3>${jt('jue.card6.diff.title', '🎮 Selecciona Nivel')}</h3>
+      <p>${jt('jue.card6.diff.sub', 'Elegí qué tan seguido aparecen puestos y gente en la calle.')}</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-torito">
+          ${jt('jue.diff.easy', '🟢 Fácil')}
+          <div class="difficulty-desc">${jt('jue.card6.diff.easyDesc', 'Calle más despejada')}</div>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-torito">
+          ${jt('jue.diff.hard', '🔴 Difícil')}
+          <div class="difficulty-desc">${jt('jue.card6.diff.hardDesc', 'Calle llena de gente y puestos')}</div>
+        </button>
+      </div>`);
+
+    document.getElementById('btn-easy-torito').onclick = () => { startGame('easy'); };
+    document.getElementById('btn-hard-torito').onclick = () => { startGame('hard'); };
+  }
+
+  function startGame(difficulty) {
+    gameDifficulty = difficulty;
+    resetGame();
+    hideOverlay();
+
+    running = true;
+    paused = false;
+    playMusic();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showModeSelector() {
+    showOverlay(`
+      <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
+      <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
+      <p>${jt('jue.card6.intro', 'Corré con el torito de cohetes por la calle empedrada del pueblo. Esquivá puestos, carretas y gente comprando, y recogé cohetillos para no quedarte sin energía.')}</p>
+      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️ (o toca la pantalla): cambiar de carril.')}</li>
+        <li class="rule-good"><span class="rule-icon">🧨</span> ${jt('jue.card6.controlsCohete', 'Recogé cohetillos para recuperar energía.')}</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.controlsObstacle', 'Chocar con puestos, carretas o gente te quita energía.')}</li>
+      </ul>
+      <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
+    `);
+    document.getElementById('btn-start-torito').onclick = showDistanceSelector;
+  }
+
+  // Eventos y pausa
+  const pauseBtn = document.getElementById('pauseBtn-torito');
+  const pauseIcon = document.getElementById('pauseIcon-torito');
+  const pauseOverlay = document.getElementById('pauseOverlay-torito');
+  const resumeBtn = document.getElementById('resumeBtn-torito');
+  const menuBtn = document.getElementById('menuBtn-torito');
+
+  function pauseGame() {
+    if(!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if(pauseIcon) pauseIcon.textContent = '▶️';
+  }
+
+  function resumeGame() {
+    if(!paused) return;
+    paused = false;
+    running = true;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    bgMusic?.play().catch(()=>{});
+    rafId = requestAnimationFrame(step);
+  }
+
+  function returnToMenu() {
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    bgMusic?.pause();
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    showModeSelector();
+  }
+
+  pauseBtn?.addEventListener('click', () => {
+    if(paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  showModeSelector();
+
+  gameContent?.addEventListener('gameVisible', (e) => {
+    if(e.detail.gameId === 'torito') {
+      isGameVisible = true;
+      resizeCanvas();
+      playMusic();
+      if(paused && running) resumeGame();
+      else if(running) rafId = requestAnimationFrame(step);
+    }
+  });
+
+  window.switchGameState('torito', {
+    pause: pauseGame,
+    resume: resumeGame,
+    stop: stopMusic,
+    running: () => running,
+    paused: () => paused,
+    setVisible: (visible) => { isGameVisible = visible; },
+    reloadMenu: () => { if(!running && !paused) showModeSelector(); }
   });
 })();
 

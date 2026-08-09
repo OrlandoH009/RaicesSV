@@ -58,7 +58,6 @@
     <!-- Botón de traducción (móvil / drawer) -->
     <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
-      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
     </button>
 
     <div class="drawer-divider"></div>
@@ -155,6 +154,19 @@
           </div>
         </div>
 
+        <!-- Tarjeta Juego 6 -->
+        <div class="game-card">
+          <div class="game-card__media" style="background: linear-gradient(135deg, #C21807 0%, #7A0C00 100%);">
+            <span class="game-card__emoji">🐂</span>
+          </div>
+          <div class="game-card__body">
+            <span class="game-card__tag" data-i18n="jue.card6.tag">Ruta 06 — Fiestas Patronales</span>
+            <h3 class="game-card__title" data-i18n="jue.card6.title">Torito Pinto</h3>
+            <p class="game-card__desc" data-i18n="jue.card6.desc">Corré con el torito de cohetes por la calle empedrada del pueblo, esquivando puestos, gente comprando y obstáculos. ¡Cuidá tu energía y llegá lo más lejos posible!</p>
+            <button class="btn-play-trigger" data-open-modal="torito" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
+          </div>
+        </div>
+
       </div>
 
       <!-- ══════════════════════════════════════════
@@ -187,7 +199,7 @@
               </div>
               <canvas id="canvas-pupusa"></canvas>
               <div class="damage-overlay" id="damageOverlay-pupusa"></div>
-              <audio id="bgMusic" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic" src="../assets/media/juegos/musica-salvadorena.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-pupusa">
                 <div class="overlay-card" id="overlay-card-pupusa"></div>
               </div>
@@ -234,7 +246,7 @@
               </div>
               <canvas id="canvas-trompos"></canvas>
               <div class="damage-overlay" id="damageOverlay-trompos"></div>
-              <audio id="bgMusic-trompos" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic-trompos" src="../assets/media/juegos/Sabrosa Cumbia.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-trompos">
                 <div class="overlay-card" id="overlay-card-trompos"></div>
               </div>
@@ -285,7 +297,7 @@
               <canvas id="canvas-coasters"></canvas>
               <div class="damage-overlay" id="damageOverlay-coasters"></div>
               <!-- Si tienes música de fondo norteña o cumbia de coaster, puedes cambiar el src -->
-              <audio id="bgMusic-coasters" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic-coasters" src="../assets/media/juegos/La Bala.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-coasters">
                 <div class="overlay-card" id="overlay-card-coasters"></div>
               </div>
@@ -335,7 +347,7 @@
               </div>
               <canvas id="canvas-encantados"></canvas>
               <div class="damage-overlay" id="damageOverlay-encantados"></div>
-              <audio id="bgMusic-encantados" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic-encantados" src="../assets/media/juegos/Arriba El Salvador - Marimba Salvadoreña.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-encantados">
                 <div class="overlay-card" id="overlay-card-encantados"></div>
               </div>
@@ -385,7 +397,7 @@
               </div>
               <canvas id="canvas-elotes"></canvas>
               <div class="damage-overlay" id="damageOverlay-elotes"></div>
-              <audio id="bgMusic-elotes" src="../assets/media/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic-elotes" src="../assets/media/juegos/Mi Pais - Los Hermanos Flores.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-elotes">
                 <div class="overlay-card" id="overlay-card-elotes"></div>
               </div>
@@ -395,6 +407,56 @@
                   <h3 data-i18n="jue.card5.pauseTitle">Recreo en pausa</h3>
                   <p data-i18n="jue.card5.pauseText">Presioná reanudar para seguir la carrera de sabores.</p>
                   <button class="btn-primary" id="resumeBtn-elotes" data-i18n="jue.pause.resume">Reanudar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           VENTANA FLOTANTE (MODAL JUEGO 6: TORITO PINTO)
+           ══════════════════════════════════════════ -->
+      <div class="game-modal" id="modal-torito">
+        <div class="game-modal__overlay"></div>
+        <div class="game-modal__content">
+          <button class="game-modal__close" data-close-modal="torito" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+
+          <div class="game-panel">
+            <div class="game-panel__head">
+              <div>
+                <span class="game-panel__tag" data-i18n="jue.card6.tagModal">Ruta 06 — Fiestas Patronales</span>
+                <h2>🐂 <span data-i18n="jue.card6.title">Torito Pinto</span></h2>
+              </div>
+            </div>
+
+            <div class="canvas-wrap" id="torito-canvas-wrap">
+              <div class="hud hud--overlay" id="hud-torito"></div>
+              <div class="canvas-controls">
+                <button class="icon-btn" id="pauseBtn-torito">
+                  <span id="pauseIcon-torito">⏸️</span>
+                </button>
+                <button class="icon-btn fullscreen-btn">⛶</button>
+                <div class="volume-group">
+                  <span class="volume-icon" id="volumeIcon-torito">🔊</span>
+                  <input type="range" id="volumeSlider-torito" min="0" max="1" step="0.05" value="0.45" />
+                </div>
+              </div>
+              <canvas id="canvas-torito"></canvas>
+              <div class="damage-overlay" id="damageOverlay-torito"></div>
+              <audio id="bgMusic-torito" src="../assets/media/juegos/El torito pinto - Folklore Salvadoreño.mp3" loop preload="auto"></audio>
+              <div class="overlay" id="overlay-torito">
+                <div class="overlay-card" id="overlay-card-torito"></div>
+              </div>
+              <div class="overlay hidden" id="pauseOverlay-torito">
+                <div class="overlay-card overlay-card--pause">
+                  <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
+                  <h3 data-i18n="jue.card6.pauseTitle">Corrida en pausa</h3>
+                  <p data-i18n="jue.card6.pauseText">Presioná reanudar para seguir corriendo por las calles del pueblo.</p>
+                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="btn-primary" id="resumeBtn-torito" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-torito" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
+                  </div>
                 </div>
               </div>
             </div>

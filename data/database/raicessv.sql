@@ -48,8 +48,9 @@ CREATE TABLE IF NOT EXISTS coments(
 CREATE TABLE IF NOT EXISTS scores(
     id_score INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,
-    id_test INT NOT NULL,
     score INT NOT NULL,
+    game_name VARCHAR(125) NOT NULL,
+    game_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES users(id_user)
 );
 

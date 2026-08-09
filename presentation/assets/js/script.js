@@ -12,6 +12,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ═══════════════════════════════════════════════════════════
+     MÚSICA DE FONDO GLOBAL (persiste entre páginas, en loop)
+     ═══════════════════════════════════════════════════════════
+     El sitio es multi-página tradicional (no SPA), así que cada
+     navegación recarga el DOM por completo y con él cualquier
+     <audio>. Para que suene como una sola reproducción continua,
+     en vez de intentar "no perder" el elemento (imposible entre
+     cargas de página), se guarda el estado de reproducción
+     (posición, silenciado, volumen) en localStorage justo antes
+     de perder la pestaña/navegar, y cada página nueva retoma el
+     audio exactamente en esa posición al cargar. */
+  (function initBackgroundMusic() {
+    const MUSIC_SRC = '../assets/media/El Carbonero.mp3';
+    const STORAGE_KEY = 'raices-bgmusic-state';
+
+    const readState = () => {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    };
+    const writeState = (partial) => {
+      try {
+        const current = readState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...partial }));
+      } catch {
+        /* localStorage no disponible (modo privado, etc.): la música
+           simplemente no persistirá entre páginas, pero seguirá sonando
+           con normalidad dentro de la página actual. */
+      }
+    };
+
+    const audio = new Audio(MUSIC_SRC);
+    audio.loop = true;
+    audio.preload = 'auto';
+
+    const state = readState();
+    const muted = state.muted === true; // por defecto: sonando
+    const volume = typeof state.volume === 'number' ? state.volume : 0.35;
+    const savedTime = typeof state.time === 'number' ? state.time : 0;
+
+    audio.volume = volume;
+    audio.muted = muted;
+
+    const musicToggle = document.createElement('button');
+    musicToggle.type = 'button';
+    musicToggle.className = 'music-toggle';
+    musicToggle.id = 'musicToggle';
+    const iconOn = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+    const iconOff = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
+    musicToggle.innerHTML = muted ? iconOff : iconOn;
+    musicToggle.setAttribute('aria-label', muted ? 'Activar música de fondo' : 'Silenciar música de fondo');
+    musicToggle.setAttribute('aria-pressed', muted ? 'false' : 'true');
+
+    const burgerBtn = document.getElementById('burger');
+    if (burgerBtn && burgerBtn.parentNode) {
+      burgerBtn.parentNode.insertBefore(musicToggle, burgerBtn);
+    } else if (navbar) {
+      navbar.appendChild(musicToggle);
+    }
+
+    function setMuted(next) {
+      audio.muted = next;
+      musicToggle.innerHTML = next ? iconOff : iconOn;
+      musicToggle.setAttribute('aria-label', next ? 'Activar música de fondo' : 'Silenciar música de fondo');
+      musicToggle.setAttribute('aria-pressed', next ? 'false' : 'true');
+      writeState({ muted: next });
+    }
+
+    musicToggle.addEventListener('click', () => setMuted(!audio.muted));
+
+    // Retomar exactamente donde quedó la reproducción en la página anterior.
+    // Se hace en 'loadedmetadata' porque asignar currentTime antes de que el
+    // navegador conozca la duración del archivo puede ser ignorado.
+    audio.addEventListener('loadedmetadata', () => {
+      if (savedTime > 0 && savedTime < audio.duration) {
+        audio.currentTime = savedTime;
+      }
+    });
+
+    // Intentar reproducir. Si el navegador bloquea el autoplay por no haber
+    // interacción de usuario todavía (por ejemplo la primerísima carga del
+    // sitio), quedará pausado hasta el primer click en cualquier parte de
+    // la página, momento en que se reintenta una sola vez.
+    if (!muted) {
+      audio.play().catch(() => {
+        const resumeOnce = () => {
+          audio.play().catch(() => {});
+          document.removeEventListener('click', resumeOnce);
+        };
+        document.addEventListener('click', resumeOnce, { once: true });
+      });
+    }
+
+    // Guardar la posición periódicamente, y también justo antes de salir
+    // de la página, para que la siguiente página retome desde ahí.
+    setInterval(() => {
+      if (!audio.paused) writeState({ time: audio.currentTime, volume: audio.volume });
+    }, 2000);
+    window.addEventListener('pagehide', () => {
+      writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
+    });
+
+    window.SRbgMusic = audio;
+  })();
+
   /* ── Drawer (menú hamburguesa lateral) ── */
   const burger   = document.getElementById('burger');
   const drawer   = document.getElementById('navDrawer');
