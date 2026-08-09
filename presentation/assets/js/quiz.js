@@ -349,33 +349,44 @@ const PREGUNTAS = [
 ];
 
 /* ══════════════════════════════════════════════════════════
-   SISTEMA DE GUARDADO Y LEADERBOARD
+   SISTEMA DE GUARDADO DE PUNTAJES (backend real, tabla scores)
    ══════════════════════════════════════════════════════════ */
 
-const STORAGE_KEY = 'raices-quiz-scores';
-const MAX_SCORES = 50;
-
-function guardarPuntaje(nivel, categoria, puntaje, maximo) {
-  const ahora = new Date().toISOString();
-  const score = { nivel, categoria, puntaje, maximo, fecha: ahora };
-  
-  let scores = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  scores.push(score);
-  
-  // Mantener solo últimos 50
-  if (scores.length > MAX_SCORES) {
-    scores = scores.slice(-MAX_SCORES);
+// Guarda el puntaje de la partida recién terminada en la base de datos,
+// asociado al usuario logueado (quiz.html es una vista protegida, así que
+// siempre debería haber sesión activa). game_name guarda la categoría jugada.
+async function guardarPuntaje(categoria, nivel, puntaje) {
+  try {
+    const response = await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categoria, nivel, puntaje })
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      console.error('No se pudo guardar el puntaje:', data.message || response.statusText);
+    }
+  } catch (error) {
+    console.error('No se pudo guardar el puntaje:', error);
   }
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
 }
 
-function obtenerLeaderboard(nivel) {
-  const scores = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  return scores
-    .filter(s => s.nivel === nivel)
-    .sort((a, b) => (b.puntaje / b.maximo) - (a.puntaje / a.maximo))
-    .slice(0, 10);
+// Obtiene el mejor puntaje histórico del usuario para la combinación exacta
+// de categoría + nivel jugada (los puntos por respuesta correcta varían
+// mucho según el nivel, así que el récord solo tiene sentido comparado
+// dentro de la misma dificultad). Devuelve null si no hay ningún registro
+// previo o si falla la petición.
+async function obtenerMejorPuntaje(categoria, nivel) {
+  try {
+    const params = new URLSearchParams({ categoria, nivel });
+    const response = await fetch(`/api/scores/best?${params.toString()}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.best || null;
+  } catch (error) {
+    console.error('No se pudo obtener el récord personal:', error);
+    return null;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -384,16 +395,20 @@ function obtenerLeaderboard(nivel) {
 
 let nivelSeleccionado = null;
 let categoriaSeleccionada = null;
+let cantidadSeleccionada = null; // 'express' | 'normal' | 'extenso'
 let preguntasActivas = [];
 let indice = 0;
 let puntaje = 0;
 let respondida = false;
 
+const CANTIDAD_PREGUNTAS = { express: 8, normal: 15, extenso: Infinity };
+
 const quizSetup    = document.getElementById('quizSetup');
 const quizZone     = document.getElementById('quizZone');
 const quizWelcome  = document.getElementById('quizWelcome');
-const startQuizBtn = document.getElementById('startQuizBtn');
+const scrollHint   = document.getElementById('quizScrollHint');
 const levelCards   = document.querySelectorAll('.level-card');
+const amountBtns   = document.querySelectorAll('.amount-btn');
 const catBtns      = document.querySelectorAll('.cat-btn');
 const startBtn     = document.getElementById('startBtn');
 const qCategory    = document.getElementById('qCategory');
@@ -414,6 +429,50 @@ const quizConfirmOverlay = document.getElementById('quizConfirmOverlay');
 const confirmExitBtn = document.getElementById('confirmExitBtn');
 const cancelExitBtn  = document.getElementById('cancelExitBtn');
 
+/* ══════════════════════════════════════════════════════════
+   INDICADOR "DESLIZA ↓" DE LA BIENVENIDA
+   ══════════════════════════════════════════════════════════ */
+if (scrollHint && typeof gsap !== 'undefined') {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduceMotion) {
+    // Rebote vertical continuo invitando a desplazarse hacia abajo
+    gsap.to(scrollHint, {
+      y: 10,
+      duration: 0.9,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+  }
+
+  // Al hacer click, desplaza suavemente hasta el selector de nivel
+  scrollHint.addEventListener('click', () => {
+    quizSetup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // Una vez que el usuario ya llegó al selector (hizo scroll o eligió algo),
+  // el indicador se desvanece para no seguir distrayendo.
+  let hintOculto = false;
+  const ocultarHint = () => {
+    if (hintOculto) return;
+    hintOculto = true;
+    gsap.to(scrollHint, { opacity: 0, duration: 0.4, ease: 'power1.out' });
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          ocultarHint();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(quizSetup);
+  }
+}
+
 // Movemos el modal (fondo, ventana y confirmación) directamente al <body>.
 // Esto evita que un contenedor padre (por ejemplo, uno con transform aplicado
 // para animaciones de scroll) rompa el position:fixed y lo deje "flotando"
@@ -430,6 +489,21 @@ let scrollAntesDelModal = 0;
 
 function abrirModalQuiz() {
   scrollAntesDelModal = window.scrollY;
+
+  // Red de seguridad: si una apertura/cierre anterior dejó opacity/scale
+  // inline colgados en quizZone o quizBackdrop (por ejemplo, por una
+  // animación GSAP interrumpida o un cierre desde "Jugar de nuevo" que no
+  // pasa por cerrarModalQuiz), los limpiamos antes de abrir. Así el modal
+  // y su fondo oscuro siempre arrancan visibles, sin depender de que la
+  // animación anterior haya llegado a completarse.
+  if (typeof gsap !== 'undefined') {
+    gsap.set([quizZone, quizBackdrop], { clearProps: 'opacity,scale,transform' });
+  } else {
+    quizZone.style.opacity = '';
+    quizZone.style.transform = '';
+    quizBackdrop.style.opacity = '';
+  }
+
   quizBackdrop.classList.add('show');
   quizZone.classList.add('active');
   document.body.classList.add('quiz-modal-open');
@@ -455,7 +529,7 @@ function cerrarModalQuiz() {
   if (typeof gsap !== 'undefined') {
     gsap.to(quizZone, { opacity: 0, scale: 0.95, duration: 0.25, ease: 'power1.in' });
     gsap.to(quizBackdrop, { opacity: 0, duration: 0.25, onComplete: () => {
-      gsap.set(quizZone, { clearProps: 'opacity,scale' });
+      gsap.set([quizZone, quizBackdrop], { clearProps: 'opacity,scale' });
       limpiar();
     }});
   } else {
@@ -493,27 +567,9 @@ document.addEventListener('keydown', (e) => {
    EVENT LISTENERS Y LÓGICA
    ══════════════════════════════════════════════════════════ */
 
-// Mostrar pantalla de setup al hacer click en botón de bienvenida
-if (startQuizBtn) {
-  startQuizBtn.addEventListener('click', () => {
-    if (typeof gsap !== 'undefined') {
-      gsap.to(quizWelcome, {
-        opacity: 0, y: -20, scale: 0.97, duration: 0.4, ease: 'power2.in',
-        onComplete: () => {
-          quizWelcome.style.display = 'none';
-          quizSetup.style.display = 'block';
-          gsap.fromTo(quizSetup,
-            { opacity: 0, y: 25 },
-            { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }
-          );
-        }
-      });
-    } else {
-      quizWelcome.style.display = 'none';
-      quizSetup.style.display = 'block';
-    }
-  });
-}
+// La bienvenida y el setup ahora están siempre visibles en una sola
+// pantalla continua (#quizHome), así que ya no hace falta ningún botón
+// ni animación para "pasar" de una a otra.
 function pulso(el) {
   if (typeof gsap === 'undefined') return;
   gsap.fromTo(el, { scale: 0.94 }, {
@@ -521,55 +577,6 @@ function pulso(el) {
     onComplete: () => gsap.set(el, { clearProps: 'transform' })
   });
 }
-
-document.querySelectorAll('.quiz-back-to-welcome-btn').forEach(boton => {
-  boton.addEventListener('click', () => {
-    // 1. Identificar ambas pantallas
-    const seccionActual = boton.closest('.quiz-setup'); // El contenedor de niveles/categorías[cite: 8]
-    const pantallaWelcome = document.getElementById('quizWelcome'); // La pantalla principal[cite: 8]
-    
-    if (!seccionActual || !pantallaWelcome) return;
-
-    // Verificar si GSAP está disponible para ejecutar la animación fluida
-    if (typeof gsap !== 'undefined') {
-      
-      // A. Animación de SALIDA para la sección actual
-      gsap.to(seccionActual, {
-        opacity: 0,
-        y: 20, // Se desliza ligeramente hacia abajo
-        duration: 0.25,
-        onComplete: () => {
-          // Cuando termina de salir, la ocultamos por completo del layout
-          seccionActual.classList.remove('active');
-          seccionActual.style.display = 'none';
-          
-          // B. Configuración y preparación de la pantalla de BIENVENIDA
-          pantallaWelcome.style.display = 'block';
-          pantallaWelcome.classList.add('active'); // Mantiene consistencia con tus clases de CSS[cite: 8]
-          
-          // C. Animación de ENTRADA limpia para la bienvenida
-          gsap.fromTo(pantallaWelcome, 
-            { opacity: 0, y: -20 }, // Viene sutilmente desde arriba
-            { 
-              opacity: 1, 
-              y: 0, 
-              duration: 0.35, 
-              ease: "power2.out", // Suavizado de desaceleración natural
-              clearProps: "all"   // Limpia los estilos en línea al terminar
-            }
-          );
-        }
-      });
-
-    } else {
-      // Alternativa (Fallback) en caso de que falle GSAP: Cambio inmediato sin romper el flujo
-      seccionActual.classList.remove('active');
-      seccionActual.style.display = 'none';
-      pantallaWelcome.classList.add('active');
-      pantallaWelcome.style.display = 'block';
-    }
-  });
-});
 
 levelCards.forEach(card => {
   card.addEventListener('click', () => {
@@ -591,8 +598,18 @@ catBtns.forEach(btn => {
   });
 });
 
+amountBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    amountBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    cantidadSeleccionada = btn.dataset.amount;
+    pulso(btn);
+    verificarListo();
+  });
+});
+
 function verificarListo() {
-  if (nivelSeleccionado && categoriaSeleccionada) {
+  if (nivelSeleccionado && categoriaSeleccionada && cantidadSeleccionada) {
     startBtn.classList.add('visible');
   }
 }
@@ -608,7 +625,8 @@ startBtn.addEventListener('click', () => {
     return;
   }
 
-  pool = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(28, pool.length));
+  const limite = CANTIDAD_PREGUNTAS[cantidadSeleccionada] ?? pool.length;
+  pool = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(limite, pool.length));
   preguntasActivas = pool;
   indice = 0;
   puntaje = 0;
@@ -718,7 +736,10 @@ nextBtn.addEventListener('click', () => {
   if (typeof gsap !== 'undefined') {
     gsap.to([quizCardEl, optionsDiv, feedback], {
       opacity: 0, y: -12, duration: 0.25, ease: 'power1.in',
-      onComplete: avanzar
+      onComplete: () => {
+        gsap.set([quizCardEl, optionsDiv, feedback], { clearProps: 'opacity,transform' });
+        avanzar();
+      }
     });
   } else {
     avanzar();
@@ -736,8 +757,24 @@ function mostrarResultados() {
   const maximo = total * nivelPuntos();
   const porcentaje = Math.round((puntaje / maximo) * 100);
 
-  // Guardar puntaje
-  guardarPuntaje(nivelSeleccionado, categoriaSeleccionada, puntaje, maximo);
+  // Guardar puntaje en la base de datos y, una vez guardado, refrescar
+  // el récord personal mostrado (así el resultado recién jugado ya
+  // puede reflejarse como el nuevo mejor puntaje si corresponde). El
+  // récord se compara dentro de la misma categoría Y el mismo nivel de
+  // dificultad, ya que los puntos por respuesta varían según el nivel.
+  const bestScoreEl = document.getElementById('resultsBestScore');
+  if (bestScoreEl) bestScoreEl.textContent = '';
+
+  guardarPuntaje(categoriaSeleccionada, nivelSeleccionado, puntaje).then(() => {
+    obtenerMejorPuntaje(categoriaSeleccionada, nivelSeleccionado).then((best) => {
+      if (!bestScoreEl) return;
+      if (best) {
+        bestScoreEl.textContent = `Tu récord en esta categoría y nivel: ${best.score} pts`;
+      } else {
+        bestScoreEl.textContent = '';
+      }
+    });
+  });
 
   const MENSAJES = [
     { min: 100, titulo: 'Perfecto', msg: 'Dominio absoluto de Salvadorean Roots. Eres un referente de la cultura salvadoreña.' },
@@ -842,86 +879,35 @@ retryBtn.addEventListener('click', () => {
   nextBtn.style.display = '';
   results.classList.remove('show');
 
-  quizSetup.style.display = '';
   quizZone.classList.remove('active');
   quizBackdrop.classList.remove('show');
+
+  // Limpiar cualquier opacity/scale inline que GSAP haya dejado en el
+  // modal o su fondo, para que la próxima apertura no herede un estado
+  // invisible (mismo motivo que en abrirModalQuiz/cerrarModalQuiz).
+  if (typeof gsap !== 'undefined') {
+    gsap.set([quizZone, quizBackdrop], { clearProps: 'opacity,scale,transform' });
+  } else {
+    quizZone.style.opacity = '';
+    quizZone.style.transform = '';
+    quizBackdrop.style.opacity = '';
+  }
+
   document.body.classList.remove('quiz-modal-open');
   document.documentElement.classList.remove('quiz-modal-open');
   window.scrollTo({ top: scrollAntesDelModal });
 
-  // Mostrar bienvenida de nuevo
-  if (quizWelcome) {
-    quizWelcome.style.display = 'block';
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo(quizWelcome, 
-        { opacity: 0, y: 20 }, 
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
-      );
-    }
-  }
-
+  // Limpiar la selección para que el usuario elija de nuevo nivel,
+  // cantidad y categoría antes de poder iniciar otra partida. La pantalla
+  // de selección (#quizSetup) ya está siempre visible, no hace falta
+  // mostrarla ni ocultar la bienvenida.
   levelCards.forEach(c => c.classList.remove('selected'));
   catBtns.forEach(b => b.classList.remove('selected'));
+  amountBtns.forEach(b => b.classList.remove('selected'));
   startBtn.classList.remove('visible');
   nivelSeleccionado = null;
   categoriaSeleccionada = null;
-});
-
-document.getElementById('startQuizBtn').addEventListener('click', () => {
-  // Oculta la descripción de bienvenida
-  document.getElementById('quizWelcome').classList.remove('active');
-  
-  // Muestra la selección de niveles y categorías en la parte superior
-  document.getElementById('quizSetup').classList.add('active');
-  
-  // Desplaza suavemente hacia arriba para centrar la vista
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-// ==========================================
-// LÓGICA PARA VOLVER A LA PANTALLA DE BIENVENIDA
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-  const backToWelcomeBtn = document.querySelector(".quiz-back-to-welcome-btn");
-  const quizSetup = document.getElementById("quizSetup");
-  const quizWelcome = document.getElementById("quizWelcome");
-
-  if (backToWelcomeBtn && quizSetup && quizWelcome) {
-    backToWelcomeBtn.addEventListener("click", () => {
-      
-      // Animación de salida exagerada para #quizSetup
-      gsap.to(quizSetup, {
-        duration: 0.6,          // Más tiempo para que se aprecie
-        opacity: 0,
-        y: 50,                  // Desplazamiento más largo hacia abajo
-        ease: "back.in(1.5)",   // Efecto de "impulso" antes de caer
-        onComplete: () => {
-          quizSetup.classList.remove("active");
-          quizSetup.style.display = "none";
-
-          // Preparar y mostrar #quizWelcome
-          quizWelcome.style.display = "block";
-          quizWelcome.classList.add("active");
-          
-          // Animación de entrada espectacular para #quizWelcome
-          gsap.fromTo(quizWelcome, 
-            { 
-              opacity: 0, 
-              y: -70,           // Viene desde más arriba
-              scale: 0.95       // Empieza ligeramente más pequeño
-            }, 
-            { 
-              duration: 1, 
-              opacity: 1, 
-              y: 0, 
-              scale: 1,
-              ease: "back.out(1.7)" // Efecto de rebote elástico al llegar
-            }
-          );
-        }
-      });
-
-    });
-  }
+  cantidadSeleccionada = null;
 });
 /* ============================================================
   Salvadorean Roots — quiz-mejorado.js (v2.0)
@@ -932,164 +918,35 @@ document.addEventListener("DOMContentLoaded", () => {
   Salvadorean Roots — quiz-mejorado.js (v3.0 - GSAP & Clean Board)
    ============================================================ */
 
-// Inicializar el almacenamiento vacío (sin registros quemados)
-if (!localStorage.getItem(STORAGE_KEY)) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-}
-
-function traducirLabel(tipo, valor) {
-  const diccionario = {
-    'historia': '📜 Historia',
-    'gastronomia': '🫓 Gastronomía',
-    'sitios': '🗿 Sitios Culturales',
-    'leyendas': '🗣️ Leyendas',
-    'facil': '🟢 Fácil',
-    'medio': '🟡 Medio',
-    'dificil': '🔴 Difícil',
-    'guanaco': '🔥 100% Guanaco'
-  };
-  return diccionario[valor] || valor;
-}
-
-function renderizarLeaderboardOpciones() {
-  let leaderboardSeccion = document.getElementById('quizLeaderboardSection');
-  
-  if (!leaderboardSeccion) {
-    leaderboardSeccion = document.createElement('section');
-    leaderboardSeccion.id = 'quizLeaderboardSection';
-    leaderboardSeccion.className = 'leaderboard-container'; // Aplica el CSS nativo
-    
-    leaderboardSeccion.style.opacity = '0';
-    leaderboardSeccion.style.transform = 'translateY(25px)';
-    
-    const contenedorPadre = document.querySelector('main') || document.body;
-    contenedorPadre.appendChild(leaderboardSeccion);
-  }
-
-  const todosLosPuntajes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  const puntajesOrdenados = todosLosPuntajes.sort((a, b) => (b.puntaje / b.maximo) - (a.puntaje / a.maximo));
-
-  let tablaFilasHTML = '';
-  const hayRegistros = puntajesOrdenados.length > 0;
-  
-  if (!hayRegistros) {
-    tablaFilasHTML = `
-      <tr class="no-records-row">
-        <td colspan="5" class="col-center text-empty">
-          <div class="empty-state">
-            <span>📭</span>
-            <p>No hay récords locales registrados todavía. ¡Sé el primero en jugar!</p>
-          </div>
-        </td>
-      </tr>
-    `;
-  } else {
-    puntajesOrdenados.forEach((record, index) => {
-      const medalla = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
-      const nombreUsuario = record.nombre || 'Cuscatleco Anónimo';
-      const porcentaje = Math.round((record.puntaje / record.maximo) * 100);
-      const idCategoria = record.categoria || record.cat; 
-
-      tablaFilasHTML += `
-        <tr class="leaderboard-row" style="opacity: 0; transform: translateY(10px);">
-          <td class="col-center text-gold">${medalla}</td>
-          <td class="text-player">${nombreUsuario}</td>
-          <td>${traducirLabel('cat', idCategoria)}</td>
-          <td>${traducirLabel('nivel', record.nivel)}</td>
-          <td class="col-right text-score">
-            ${record.puntaje}/${record.maximo} <span class="text-percent">(${porcentaje}%)</span>
-          </td>
-        </tr>
-      `;
-    });
-  }
-
-  leaderboardSeccion.innerHTML = `
-    <div class="leaderboard-header">
-      <div>
-        <h2 class="leaderboard-title">🏆 Récords Locales</h2>
-        <p class="leaderboard-subtitle">Clasificación en tiempo real de los mejores puntajes en este dispositivo.</p>
-      </div>
-    </div>
-
-    <div class="leaderboard-wrapper">
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th class="col-center" style="width: 50px;">Pos</th>
-            <th>Guanaco / Jugador</th>
-            <th>Categoría</th>
-            <th>Dificultad</th>
-            <th class="col-right">Puntaje</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${tablaFilasHTML}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  // Ejecución limpia de GSAP
-  if (typeof gsap !== 'undefined') {
-    gsap.to(leaderboardSeccion, {
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-      onComplete: () => {
-        if (hayRegistros) {
-          gsap.to('.leaderboard-row', {
-            opacity: 1,
-            y: 0,
-            duration: 0.35,
-            stagger: 0.06,
-            ease: 'power1.out'
-          });
-        }
-      }
-    });
-  } else {
-    leaderboardSeccion.style.opacity = '1';
-    leaderboardSeccion.style.transform = 'none';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', renderizarLeaderboardOpciones);
 /* ══════════════════════════════════════════════════════════
-   BOTÓN REGRESAR AL MENÚ DE BIENVENIDA (POR CLASE)
-   ══════════════════════════════════════════════════════════ */
+   RED DE SEGURIDAD GLOBAL CONTRA OPACITY/TRANSFORM COLGADOS
+   ══════════════════════════════════════════════════════════
+   Varias animaciones GSAP a lo largo del quiz (cerrar modal, avanzar de
+   pregunta, "jugar de nuevo", volver al menú) dejan opacity/transform
+   inline como estado de partida (.to()/.fromTo() sin clearProps). Si
+   alguna de esas timelines se interrumpe (pestaña en segundo plano,
+   click rápido mientras anima, etc.), el elemento puede quedar invisible
+   de forma permanente aunque su contenido y clases estén correctos.
+   Este chequeo periódico limpia cualquier opacity atascada en 0 en los
+   elementos clave del modal, sin afectar animaciones en curso normales
+   (solo actúa si el elemento debería estar visible por sus propias clases
+   pero quedó con opacity inline en 0). */
+setInterval(() => {
+  const candidatos = [quizZone, quizBackdrop, quizCardEl, optionsDiv, feedback, results];
+  candidatos.forEach((el) => {
+    if (!el) return;
+    const debeEstarVisible =
+      (el === quizZone && quizZone.classList.contains('active')) ||
+      (el === quizBackdrop && quizBackdrop.classList.contains('show')) ||
+      (el === results && results.classList.contains('show')) ||
+      (el !== quizZone && el !== quizBackdrop && el !== results && el.style.display !== 'none');
 
-// REEMPLAZA '.tu-clase-aqui' por la clase real de tu botón (ej. '.btn-back', '.btn-menu')
-const backToMenuBtn = document.querySelector('.quiz-back-to-welcome-btn'); 
+    if (!debeEstarVisible) return;
 
-if (backToMenuBtn) {
-  backToMenuBtn.addEventListener('click', () => {
-    // Determinamos qué pantalla está visible actualmente para animarla hacia afuera
-    const pantallaActual = quizSetup.style.display !== 'none' ? quizSetup : results;
-
-    if (typeof gsap !== 'undefined') {
-      gsap.to(pantallaActual, {
-        opacity: 0, y: 20, duration: 0.4, ease: 'power2.in',
-        onComplete: () => {
-          // Ocultamos la pantalla actual y limpiamos estados de resultados
-          quizSetup.style.display = 'none';
-          results.classList.remove('show');
-          results.style.display = 'none'; 
-          
-          // Mostramos el menú de bienvenida con animación GSAP
-          quizWelcome.style.display = 'block';
-          gsap.fromTo(quizWelcome,
-            { opacity: 0, y: -20, scale: 0.97 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' }
-          );
-        }
-      });
-    } else {
-      // Alternativa en caso de que GSAP no esté cargado
-      quizSetup.style.display = 'none';
-      results.classList.remove('show');
-      quizWelcome.style.display = 'block';
+    const opacity = window.getComputedStyle(el).opacity;
+    if (parseFloat(opacity) < 0.05) {
+      el.style.opacity = '';
+      el.style.transform = '';
     }
   });
-}
+}, 1000);

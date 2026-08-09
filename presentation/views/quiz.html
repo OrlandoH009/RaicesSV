@@ -45,46 +45,51 @@
   </nav>
 <main>
 
-  <!-- 1. TÍTULO PERSISTENTE -->
-  <h1 class="quiz-global-title">Quiz de Salvadorean Roots</h1>
+  <!-- 1. HERO: mismo patrón estructural que juegos.html (badge/eyebrow +
+       título + subtítulo + breadcrumb), con la paleta propia del quiz. -->
+  <section class="page-hero quiz-page-hero">
+    <span class="page-hero__eyebrow">Aprender jugando</span>
+    <h1 class="page-hero__title">Quiz de Salvadorean Roots</h1>
+    <p class="page-hero__subtitle">Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.</p>
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+      <a href="../views/index.html">Inicio</a>
+      <span>/</span>
+      <span>Quiz Cultural</span>
+    </nav>
+  </section>
 
-  <!-- 2. SECCIÓN DE BIENVENIDA (Ahora empieza con la clase active y sin el h1 dentro) -->
-  <div id="quizWelcome" class="quiz-welcome quiz-setup-section active">
-    <div class="quiz-welcome__waves" id="quizWelcomeWaves" aria-hidden="true"></div>
+  <!-- 2. PANTALLA ÚNICA: bienvenida + selección de nivel/cantidad/categoría,
+       todo visible de una sola vez, sin cambiar de "página". -->
+  <div id="quizHome" class="quiz-home">
 
-    <p class="quiz-welcome__subtitle">
-      Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.
-      Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.
-    </p>
+    <!-- Bienvenida -->
+    <div id="quizWelcome" class="quiz-welcome">
+      <div class="quiz-welcome__waves" id="quizWelcomeWaves" aria-hidden="true"></div>
 
-    <div class="quiz-welcome__divider"></div>
+      <p class="quiz-welcome__subtitle">
+        Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.
+      </p>
 
-    <div class="quiz-welcome__stats">
-      <div class="quiz-stat">
-        <div class="quiz-stat__number">448+</div>
-        <div class="quiz-stat__label">Preguntas</div>
-      </div>
-      <div class="quiz-stat">
-        <div class="quiz-stat__number">4</div>
-        <div class="quiz-stat__label">Categorías</div>
-      </div>
-      <div class="quiz-stat">
-        <div class="quiz-stat__number">4</div>
-        <div class="quiz-stat__label">Niveles</div>
+      <div class="quiz-welcome__divider"></div>
+
+      <div class="quiz-welcome__stats">
+        <div class="quiz-stat">
+          <div class="quiz-stat__number">448+</div>
+          <div class="quiz-stat__label">Preguntas</div>
+        </div>
+        <div class="quiz-stat">
+          <div class="quiz-stat__number">4</div>
+          <div class="quiz-stat__label">Categorías</div>
+        </div>
+        <div class="quiz-stat">
+          <div class="quiz-stat__number">4</div>
+          <div class="quiz-stat__label">Niveles</div>
+        </div>
       </div>
     </div>
 
-    <button id="startQuizBtn" class="quiz-welcome__btn">
-      Comenzar Quiz
-    </button>
-
-  </div>
-
-  <div class="quiz-setup reveal quiz-setup-section" id="quizSetup">
-    <!-- Agrega este botón dentro de tu contenedor .quiz-setup -->
-    <button type="button" class="quiz-back-to-welcome-btn">
-      <span class="btn-icon">←</span> Volver al Inicio
-    </button>
+    <!-- Selección de nivel, cantidad y categoría -->
+    <div class="quiz-setup reveal" id="quizSetup">
       <!-- Niveles -->
       <p class="quiz-setup__label">Selecciona un nivel</p>
       <div class="quiz-levels">
@@ -112,6 +117,25 @@
 
       <div class="quiz-setup__divider"></div>
 
+      <!-- Cantidad de preguntas -->
+      <p class="quiz-setup__label">¿Cuántas preguntas?</p>
+      <div class="quiz-amounts" id="quizAmounts">
+        <button class="amount-btn" data-amount="express">
+          <p class="amount-btn__name">Express</p>
+          <p class="amount-btn__sub">8 preguntas</p>
+        </button>
+        <button class="amount-btn" data-amount="normal">
+          <p class="amount-btn__name">Normal</p>
+          <p class="amount-btn__sub">15 preguntas</p>
+        </button>
+        <button class="amount-btn" data-amount="extenso">
+          <p class="amount-btn__name">Extenso</p>
+          <p class="amount-btn__sub">Todas las preguntas</p>
+        </button>
+      </div>
+
+      <div class="quiz-setup__divider"></div>
+
       <!-- Categorías -->
       <p class="quiz-setup__label">Elige una categoría</p>
       <div class="quiz-cats">
@@ -127,12 +151,16 @@
       </div>
 
     </div>
+    <!-- cierre de #quizSetup -->
 
-    <!-- ══ FONDO OSCURO DEL MODAL ══ -->
-    <div class="quiz-backdrop" id="quizBackdrop"></div>
+  </div>
+  <!-- cierre de #quizHome -->
 
-    <!-- ══ ZONA DE JUEGO (VENTANA FLOTANTE) ══ -->
-    <div class="quiz-zone" id="quizZone">
+  <!-- ══ FONDO OSCURO DEL MODAL ══ -->
+  <div class="quiz-backdrop" id="quizBackdrop"></div>
+
+  <!-- ══ ZONA DE JUEGO (VENTANA FLOTANTE) ══ -->
+  <div class="quiz-zone" id="quizZone">
 
       <button class="quiz-close-btn" id="closeQuizBtn" aria-label="Cerrar quiz">&times;</button>
 
@@ -173,6 +201,7 @@
           <div class="quiz-results__pct-fill" id="resultsPctFill" style="width:0%"></div>
         </div>
         <p class="quiz-results__message" id="resultsMessage"></p>
+        <p class="quiz-results__best-score" id="resultsBestScore"></p>
         <div class="quiz-results__actions">
           <button class="btn-retry" id="retryBtn">Jugar de nuevo</button>
           <a href="../views/index.html" class="btn-explore">Volver al Inicio</a>
