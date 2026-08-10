@@ -427,6 +427,24 @@ const LANDMARKS = [
 ];
 
 /* ══════════════════════════════════════════════════════════
+   TABLA DE TRADUCCIÓN: SLUG DE SITIO CULTURAL → ID DE LANDMARK
+   (usada por los botones "Ver en mapa" de sitios-culturales.html)
+   ══════════════════════════════════════════════════════════ */
+const SLUG_TO_LANDMARK_ID = {
+  tazumal: 1,
+  joya: 2,
+  salvador: 3,
+  suchitoto: 4,
+  catedral: 5,
+  muna: 6,
+  sanandres: 7,
+  casablanca: 53,
+  palacionacional: 54,
+  teatronacional: 55,
+  elrosario: 56
+};
+
+/* ══════════════════════════════════════════════════════════
    INICIALIZACIÓN DEL MAPA CON LEAFLET
    ══════════════════════════════════════════════════════════ */
 const mapa = L.map('mapa-leaflet', {
@@ -877,6 +895,35 @@ const TRADUCTOR_A_LANDMARK = {
     const descParam = params.get('desc');
     const deptoParam = params.get('depto');
     const sitioParam = params.get('sitio');
+    // 'evento' es el parámetro que usan los botones "Ver en mapa" de eventos.html
+    // (contiene directamente el id del landmark, ej. mapa.html?evento=21)
+    const eventoParam = params.get('evento');
+
+    if (eventoParam && !latParam) {
+      const idLandmarkDirecto = parseInt(eventoParam, 10);
+      const lmDirecto = LANDMARKS.find(l => l.id === idLandmarkDirecto);
+      if (lmDirecto) {
+        const targetMarker = markers.find(m => m._landmarkId === lmDirecto.id);
+        if (targetMarker) {
+          const iconoDestacado = L.divIcon({
+            className: '',
+            html: `
+              <div class="custom-marker custom-marker--highlight" style="background:${lmDirecto.color};">
+                ${lmDirecto.emoji}
+                <span class="marker-pulse-ring"></span>
+              </div>`,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
+            popupAnchor: [0, -20]
+          });
+          targetMarker.setIcon(iconoDestacado);
+          targetMarker.setZIndexOffset(1000);
+          mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+          abrirSidebar(lmDirecto, targetMarker);
+        }
+      }
+      return;
+    }
 
     if (latParam && lngParam) {
       const lat = parseFloat(latParam);
@@ -1325,4 +1372,4 @@ if (btnMiUbicacion) {
   });
 })();
 
-console.log('✅ mapa.js cargado correctamente - Buscador, lista de resultados y pulso GSAP activos');
+console.log('mapa.js cargado correctamente - Buscador, lista de resultados y pulso GSAP activos');

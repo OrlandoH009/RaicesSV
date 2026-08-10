@@ -301,37 +301,10 @@ function renderTodayEvent() {
   }
 }
 
-window.abrirDetallesEvento = function(evento) {
-  let modal = document.getElementById("calEventModal");
-  if (!modal) {
-    modal = document.createElement("div");
-    modal.id = "calEventModal";
-    modal.className = "cal-modal-overlay"; 
-    document.body.appendChild(modal);
-  }
-
-  const nombreTraducido = t(evento.keyNombre, "Evento");
-  const descTraducida = t(evento.keyDesc, "Sin descripción.");
-  const mesTexto = t(CLAVES_MESES[evento.mes - 1], nombresMeses[evento.mes - 1]);
-  const urlMapa = `mapa.html?lat=${evento.lat}&lng=${evento.lng}&nombreEvento=${encodeURIComponent(nombreTraducido)}&from=calendario.html`;
-
-  modal.innerHTML = `
-    <div class="cal-modal-content">
-      <button class="cal-modal-close" onclick="document.getElementById('calEventModal').remove()">&times;</button>
-      <span class="cal-modal-badge">${t(evento.tipo, evento.tipo)}</span>
-      <h2 class="cal-modal-title">${nombreTraducido}</h2>
-      <div class="cal-modal-meta">
-        <p><strong>📍 ${t("cal.modal.dept", "Departamento")}:</strong> ${evento.depto}</p>
-        <p><strong>📅 ${t("cal.modal.date", "Fecha")}:</strong> ${evento.dia} de ${mesTexto} de ${evento.anio}</p>
-      </div>
-      <p class="cal-modal-desc">${descTraducida}</p>
-      <div class="cal-modal-actions">
-        <a href="${urlMapa}" class="btn-ver-mapa">🗺️ ${t("cal.modal.viewMap", "Ver en mapa interactivo")}</a>
-      </div>
-    </div>
-  `;
-  modal.classList.add("is-active");
-  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+window.abrirDetallesEvento = window.abrirDetallesEvento || function(evento) {
+  // Fallback temporal: la implementación real se define en setupModalEvents(),
+  // usando el modal #modalOverlay que ya tiene estilos en calendario.css.
+  console.warn("abrirDetallesEvento llamado antes de setupModalEvents()", evento);
 };
 
 /**
@@ -368,7 +341,31 @@ function abrirEventoDesdeURL() {
   if (!idParam) return;
 
   const evento = calendarState.festividades.find(f => f.id === Number(idParam));
-  if (evento && typeof window.abrirDetallesEvento === "function") {
+  if (!evento) return;
+
+  // Navega el calendario visual al mes/año del evento y re-renderiza la grilla
+  calendarState.currentMonth = evento.mes - 1;
+  calendarState.currentYear = evento.anio || calendarState.currentYear;
+  if (typeof renderYearTitle === "function") renderYearTitle();
+  if (typeof renderMonthPills === "function") renderMonthPills();
+  if (typeof renderCalendarGrid === "function") renderCalendarGrid();
+
+  // Resalta el día del evento en la grilla recién renderizada
+  const calGrid = document.getElementById("calGrid");
+  if (calGrid) {
+    const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
+    const celdaEvento = diasCelda.find(d => {
+      const numEl = d.querySelector(".day-num");
+      return numEl && Number(numEl.textContent) === evento.dia;
+    });
+    if (celdaEvento) {
+      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
+      celdaEvento.classList.add("selected");
+      celdaEvento.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  if (typeof window.abrirDetallesEvento === "function") {
     window.abrirDetallesEvento(evento);
   }
 }
