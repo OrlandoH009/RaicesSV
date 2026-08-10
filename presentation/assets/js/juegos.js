@@ -18,7 +18,6 @@ function jt(key, fallback) {
   if (window.SRi18n && typeof window.SRi18n.t === 'function') {
     const lang = window.SRi18n.getLang ? window.SRi18n.getLang() : 'es';
     const val = window.SRi18n.t(key, lang);
-    // Si la clave no existe, t() devuelve la clave tal cual: en ese caso usamos el fallback
     return (val && val !== key) ? val : fallback;
   }
   return fallback;
@@ -26,12 +25,7 @@ function jt(key, fallback) {
 
 /* ══════════════════════════════════════════════════════════
    GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
-   ══════════════════════════════════════════════════════════
-   Mismo patrón que quiz.js: game_name combina el identificador del juego
-   con su dificultad/modo/distancia (ej. "pupusa-easy", "trompos-pvp"),
-   ya que la tabla scores no tiene una columna separada para eso. juegos.html
-   es una vista protegida, así que siempre debería haber un usuario logueado
-   cuando se llama a esto. */
+   ══════════════════════════════════════════════════════════ */
 async function guardarPuntajeJuego(gameName, puntaje) {
   try {
     const response = await fetch('/api/scores/game', {
@@ -48,8 +42,6 @@ async function guardarPuntajeJuego(gameName, puntaje) {
   }
 }
 
-// Devuelve el mejor puntaje histórico del usuario para un game_name exacto
-// (ej. "pupusa-hard"). Devuelve null si no hay registro previo o si falla.
 async function obtenerMejorPuntajeJuego(gameName) {
   try {
     const response = await fetch(`/api/scores/game/best?gameName=${encodeURIComponent(gameName)}`);
@@ -81,15 +73,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   const canvasWrap = canvas.closest('.canvas-wrap');
 
-  // AJUSTE CLAVE ANTI-BLUR: Inicializamos la resolución nativa interna para que coincida con el renderizado CSS
-  // El tamaño LÓGICO del juego (resolución interna del canvas) se mantiene fijo siempre.
-  // En pantalla completa, el CSS estira ese mismo contenido más grande (efecto zoom),
-  // pero las coordenadas, distancias y velocidades del juego no cambian.
   let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     if(isFS && baseWidth && baseHeight){
-      // No recalculamos contra el tamaño de pantalla completa: conservamos la resolución lógica normal
       canvas.width = baseWidth;
       canvas.height = baseHeight;
       return;
@@ -103,11 +90,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Escuchar cambios de pantalla completa del contenedor
   document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
   document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
 
-  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
   const fsBtnPupusa = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtnPupusa) {
     fsBtnPupusa.addEventListener('click', () => {
@@ -131,16 +116,15 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
-  // DIFICULTAD INCREMENTADA: Se aumentó la gravedad y se acortaron los intervalos de aparición (más rápidos y difíciles)
   let gameConfig = {
-    easy: { gravity: 0.55, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 40, initialLives: 4 },
-    hard: { gravity: 0.95, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
+    easy: { gravity: 0.6, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 4 },
+    hard: { gravity: 0.9, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
   };
 
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
-    overlay.style.backdropFilter = 'none'; // Quitar filtros de borrosidad para claridad máxima
+    overlay.style.backdropFilter = 'none';
     overlay.style.webkitBackdropFilter = 'none';
 
     if(window.gsap){
@@ -219,10 +203,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   const engine = Engine.create();
-  engine.gravity.y = 0.55;
+  engine.gravity.y = 0.6;
   const world = engine.world;
 
-  // El comal se autoubica y adapta a la altura exacta
   const paddleY = canvas.height - 60;
   const paddle = Bodies.rectangle(canvas.width/2, paddleY, 150, 22, { isStatic:true, label:'comal' });
   World.add(world, paddle);
@@ -262,7 +245,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const volumeSlider = document.getElementById('volumeSlider');
   const volumeIcon = document.getElementById('volumeIcon');
   const damageOverlay = document.getElementById('damageOverlay-pupusa');
-  let volume = Number(volumeSlider?.value || 0.45);
+  let volume = Number(volumeSlider?.value || 0.3);
+  let savedVolume = volume;
 
   function updateVolumeIcon(value){
     if(!volumeIcon) return;
@@ -289,13 +273,13 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(!bgMusic) return;
     bgMusic.muted = false;
     bgMusic.volume = volume;
-    bgMusic.currentTime = 0;
     bgMusic.play().catch(()=>{});
   }
 
   function stopMusic(){
     if(!bgMusic) return;
     bgMusic.pause();
+    bgMusic.currentTime = 0;
   }
 
   function flashDamage(){
@@ -319,7 +303,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    if (bgMusic) {
+      savedVolume = bgMusic.volume;
+      bgMusic.volume = 0.1;
+    }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
@@ -334,7 +321,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    if(volume > 0) bgMusic?.play().catch(()=>{});
+    if (bgMusic) {
+      bgMusic.volume = savedVolume || volume;
+      if (volume > 0) bgMusic.play().catch(()=>{});
+    }
     rafId = requestAnimationFrame(step);
   }
 
@@ -342,7 +332,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    stopMusic();
+    // stopMusic();  // ELIMINADO para que la música no se detenga
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -359,7 +349,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   menuBtn?.addEventListener('click', returnToMenu);
 
   function spawn(){
-    const isBad = Math.random() < 0.32; // Un poco más de probabilidad de obstáculos
+    const isBad = Math.random() < 0.32;
     const set = isBad ? BAD : GOOD;
     const item = set[Math.floor(Math.random()*set.length)];
     const x = 40 + Math.random()*(canvas.width-80);
@@ -457,7 +447,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   function endGame(){
-    stopMusic();
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
@@ -488,7 +477,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   function start(){
-    resizeCanvas(); // Nos aseguramos de que el lienzo se ajuste perfectamente antes de renderizar
+    resizeCanvas();
     for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
     score=0; lives=totalLives; timeLeft=gameConfig[gameDifficulty].timeLimit; running=true; paused=false;
     canvasWrap?.classList.remove('is-paused');
@@ -555,9 +544,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(e.detail.gameId === 'pupusa') {
       isGameVisible = true;
       resizeCanvas();
-      // La música arranca apenas se abre la ventana del juego (aunque el
-      // jugador todavía esté en el menú de intro/dificultad), en loop, y
-      // se corta al cerrar el modal (ver stop: stopMusic más abajo).
       playMusic();
       if(paused && running) {
         resumeGame();
@@ -589,6 +575,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
 /* ---------------------------------------------------------
    JUEGO 2: BATALLA DE TROMPOS (SELECCIÓN DE RONDAS Y BALANCES)
+   - Tamaño reducido (radio 24)
+   - Velocidades reducidas (jugador 4, IA 0.9/1.6/2.6)
+   - Pausa solo baja el volumen (no detiene la música)
 --------------------------------------------------------- */
 
 (function initGameTrompos(){
@@ -614,11 +603,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Escuchar cambios de pantalla completa del contenedor
   document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
   document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
 
-  // Vincular botón de pantalla completa (funciona aunque el juego no haya iniciado)
   const fsBtnTrompos = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtnTrompos) {
     fsBtnTrompos.addEventListener('click', () => {
@@ -645,18 +632,16 @@ async function obtenerMejorPuntajeJuego(gameName) {
   let npcDifficulty = null;
   let isGameVisible = true;
   
-  // Rondas del juego
   let maxRounds = 3;
   let currentRound = 1;
   let playerWins = 0;
   let rivalWins = 0;
 
-  // DIFICULTAD REDUCIDA (Bot más amigable y lento)
   let gameConfig = {
     npc: {
-      easy: { speed: 1.2, precision: 0.15, reaction: 850, moveChance: 0.3 },
-      medium: { speed: 2.2, precision: 0.35, reaction: 550, moveChance: 0.5 },
-      hard: { speed: 3.5, precision: 0.6, reaction: 350, moveChance: 0.75 }
+      easy: { speed: 0.9, precision: 0.15, reaction: 850, moveChance: 0.3 },
+      medium: { speed: 1.6, precision: 0.35, reaction: 550, moveChance: 0.5 },
+      hard: { speed: 2.6, precision: 0.6, reaction: 350, moveChance: 0.75 }
     }
   };
 
@@ -713,13 +698,12 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(roundEl) roundEl.textContent = `${currentRound}/${maxRounds} (${jt('jue.card2.p1Short', 'J1')}: ${playerWins} - ${jt('jue.card2.rivalShort', 'Riv')}: ${rivalWins})`;
   }
 
-  // Animación del HUD al recibir daño
   function triggerHudDamageFlash(playerKey) {
     const elId = playerKey === 'top' ? 'p1-energy' : 'p2-energy';
     const element = document.getElementById(elId);
     if (element) {
       element.classList.remove('damage-flash');
-      void element.offsetWidth; // Dispara reflow para reiniciar animación
+      void element.offsetWidth;
       element.classList.add('damage-flash');
       setTimeout(() => element.classList.remove('damage-flash'), 500);
     }
@@ -730,7 +714,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
   engine.enableSleeping = false;
   const world = engine.world;
 
-  // RING MÁS GRANDE (Se amplía al 85% de la pantalla)
   let walls = [];
   function setupWalls() {
     if(walls.length) World.remove(world, walls);
@@ -750,9 +733,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
     World.add(world, walls);
   }
 
-  // TROMPOS MÁS GRANDES (Aumentado de 18 a 32 de radio)
   const top = {
-    body: Bodies.circle(150, 240, 32, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
+    body: Bodies.circle(150, 240, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
@@ -760,7 +742,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   };
   
   const bottom = {
-    body: Bodies.circle(550, 240, 32, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
+    body: Bodies.circle(550, 240, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
@@ -782,6 +764,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const volumeIconTrompos = document.getElementById('volumeIcon-trompos');
   const damageOverlay = document.getElementById('damageOverlay-trompos');
   let volume = Number(volumeSliderTrompos?.value || 0.45);
+  let savedVolume = volume;
 
   function updateVolumeIcon(value){
     if(!volumeIconTrompos) return;
@@ -808,13 +791,13 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(!bgMusicTrompos) return;
     bgMusicTrompos.muted = false;
     bgMusicTrompos.volume = volume;
-    bgMusicTrompos.currentTime = 0;
     bgMusicTrompos.play().catch(()=>{});
   }
 
   function stopMusic(){
     if(!bgMusicTrompos) return;
     bgMusicTrompos.pause();
+    bgMusicTrompos.currentTime = 0;
   }
 
   function flashDamage(){
@@ -860,7 +843,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     }
   }
 
-  // DETECCION DE COLISIONES Y ASIGNACIÓN DE DAÑOS CON ANIMACIÓN DE HUD
   Events.on(engine, 'collisionStart', (evt)=>{
     const now = Date.now();
     for(const pair of evt.pairs){
@@ -884,10 +866,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
           if (speed1 > speed2 + 0.3) {
             bottom.energy = Math.max(0, bottom.energy - damage);
-            triggerHudDamageFlash('bottom'); // Anima barra de vida oponente
+            triggerHudDamageFlash('bottom');
           } else if (speed2 > speed1 + 0.3) {
             top.energy = Math.max(0, top.energy - damage);
-            triggerHudDamageFlash('top');    // Anima tu barra de vida
+            triggerHudDamageFlash('top');
           } else {
             const splitDamage = Math.round(damage / 1.6);
             top.energy = Math.max(0, top.energy - splitDamage);
@@ -905,18 +887,17 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
     Engine.update(engine, 1000/60);
 
-    // Movimiento
     const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
-      Body.setVelocity(top.body, { x: moveX1 * 5, y: moveY1 * 5 });
+      Body.setVelocity(top.body, { x: moveX1 * 4, y: moveY1 * 4 });
     }
     
     if(gameMode === 'pvp'){
       const moveX2 = (keys['arrowright'] ? 1 : 0) - (keys['arrowleft'] ? 1 : 0);
       const moveY2 = (keys['arrowdown'] ? 1 : 0) - (keys['arrowup'] ? 1 : 0);
       if(moveX2 !== 0 || moveY2 !== 0){
-        Body.setVelocity(bottom.body, { x: moveX2 * 5, y: moveY2 * 5 });
+        Body.setVelocity(bottom.body, { x: moveX2 * 4, y: moveY2 * 4 });
       }
     } else {
       updateNPC(timestamp);
@@ -956,7 +937,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     updateHud();
     clearCanvas();
     
-    // Dibujar el Ring Ampliado
     ctx.fillStyle = '#E4D5C3'; 
     ctx.fillRect(offsetX, offsetY, mapWidth, mapHeight);
     
@@ -973,12 +953,11 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Trompos tradicionales realistas
     drawTrompo(top.body, top.angle, top.color, '#2D6A4F');
     drawTrompo(bottom.body, bottom.angle, bottom.color, '#9B2226');
 
-    drawEnergyBar(top.body.position.x, top.body.position.y - 45, top.energy, '#2D6A4F');
-    drawEnergyBar(bottom.body.position.x, bottom.body.position.y - 45, bottom.energy, '#9B2226');
+    drawEnergyBar(top.body.position.x, top.body.position.y - 38, top.energy, '#2D6A4F');
+    drawEnergyBar(bottom.body.position.x, bottom.body.position.y - 38, bottom.energy, '#9B2226');
 
     rafId = requestAnimationFrame(step);
   }
@@ -988,7 +967,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.translate(body.position.x, body.position.y);
     ctx.rotate(angle);
 
-    const radius = 32; // Ajustado a la física
+    const radius = 24;
 
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.beginPath();
@@ -1046,9 +1025,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.fillRect(x - barWidth/2, y, (barWidth * energy) / 100, barHeight);
   }
 
-  // MANEJO DE RONDAS Y FIN DE COMBATE
   function handleRoundEnd(winner) {
-    stopMusic();
     if (winner === 'top') {
       playerWins++;
     } else {
@@ -1058,11 +1035,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
     const neededToWin = Math.ceil(maxRounds / 2);
 
     if (playerWins >= neededToWin || rivalWins >= neededToWin || currentRound >= maxRounds) {
-      // Fin del Juego Completo
       const finalWinner = playerWins > rivalWins ? 'top' : 'bottom';
       endGame(finalWinner);
     } else {
-      // Siguiente ronda
       currentRound++;
       showOverlay(`
         <span class="overlay-tag">${jt('jue.card2.roundEndTag', 'Fin de Ronda')}</span>
@@ -1100,7 +1075,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   function endGame(winner){
-    stopMusic();
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
@@ -1123,9 +1097,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     
     document.getElementById('p-restart').onclick = showModeSelector;
 
-    // Se guardan las rondas ganadas por el jugador como "score", ya que
-    // trompos no tiene un puntaje numérico propio (es un duelo al mejor
-    // de N rondas).
     guardarPuntajeJuego(gameName, playerWins).then(() => {
       obtenerMejorPuntajeJuego(gameName).then((best) => {
         const el = document.getElementById('p-best-score-trompos');
@@ -1147,7 +1118,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    bgMusicTrompos?.pause();
+    if (bgMusicTrompos) {
+      savedVolume = bgMusicTrompos.volume;
+      bgMusicTrompos.volume = 0.1;
+    }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
@@ -1160,7 +1134,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    if(volume > 0) bgMusicTrompos?.play().catch(()=>{});
+    if (bgMusicTrompos) {
+      bgMusicTrompos.volume = savedVolume || volume;
+      if (volume > 0) bgMusicTrompos.play().catch(()=>{});
+    }
     rafId = requestAnimationFrame(step);
   }
 
@@ -1168,7 +1145,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    stopMusic();
+    // stopMusic();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -1246,7 +1223,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     };
   }
 
-  // NUEVO SELECTOR DE RONDAS
   function showRoundSelector(){
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
@@ -1323,8 +1299,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
       isGameVisible = true;
       resizeCanvas();
       setupWalls();
-      // La música arranca apenas se abre la ventana del juego, en loop,
-      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
       playMusic();
       if(paused && running) {
         resumeGame();
@@ -1365,12 +1339,46 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const closeButtons = document.querySelectorAll('[data-close-modal]');
   const hasGsap = !!window.gsap;
 
-  // Si GSAP está disponible, dejamos que controle transform/opacity por completo
-  // y desactivamos las transiciones CSS del modal para evitar animaciones dobles.
   if(hasGsap){
     document.querySelectorAll('.game-modal, .game-modal__content').forEach(el => {
       el.style.transition = 'none';
     });
+  }
+
+  function closeModal(gameId) {
+    const modal = document.getElementById(`modal-${gameId}`);
+    if (!modal) return;
+
+    // Detener música del juego
+    if (window.gameStates && window.gameStates[gameId]) {
+      if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
+      if (window.gameStates[gameId].pause) window.gameStates[gameId].pause();
+      if (window.gameStates[gameId].setVisible) window.gameStates[gameId].setVisible(false);
+    }
+
+    // Forzar detención de audios dentro del modal
+    const audioElements = modal.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 0;
+    });
+
+    const content = modal.querySelector('.game-modal__content');
+    if (hasGsap && content) {
+      gsap.to(content, {
+        scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
+        onComplete: () => {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+          gsap.set(modal, { clearProps: 'opacity,visibility' });
+          gsap.set(content, { clearProps: 'all' });
+        }
+      });
+    } else {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
   }
 
   triggers.forEach(btn => {
@@ -1379,9 +1387,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
       const modal = document.getElementById(`modal-${gameId}`);
       if (modal) {
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Evita scroll de fondo
+        document.body.style.overflow = 'hidden';
 
-        // Animación de entrada más fluida con GSAP (con fallback a la transición CSS existente)
         const content = modal.querySelector('.game-modal__content');
         if(hasGsap && content){
           gsap.set(modal, { autoAlpha: 1 });
@@ -1391,14 +1398,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
           );
         }
 
-        // Activa el estado visible para el motor del juego y ajusta canvas
         modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
 
-        // Red de seguridad: en algunos navegadores el primer play() disparado
-        // por gameVisible puede quedar bloqueado por la política de autoplay
-        // aunque ya hubo un click de usuario (por timing de carga del audio).
-        // Si el <audio> del juego sigue en pausa, reintentamos en el próximo
-        // click dentro del modal (ya con gesto de usuario garantizado).
         const audioEl = modal.querySelector('audio');
         if (audioEl) {
           const retryPlay = () => {
@@ -1409,9 +1410,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
           content?.addEventListener('click', retryPlay, { once: true });
         }
 
-        // Red de seguridad: si el menú inicial del juego se generó antes de que
-        // el idioma estuviera listo (por ejemplo, apenas cargó la página), lo
-        // regeneramos ahora que el modal se abre, para asegurar el idioma correcto.
         const state = window.gameStates && window.gameStates[gameId];
         if (state) {
           const isRunning = state.running ? state.running() : false;
@@ -1427,62 +1425,55 @@ async function obtenerMejorPuntajeJuego(gameName) {
   closeButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const gameId = btn.dataset.closeModal;
-      const modal = document.getElementById(`modal-${gameId}`);
-      if (modal) {
-        // Pausa automática y detención de música al cerrar la ventana flotante
-        if (window.gameStates && window.gameStates[gameId]) {
-          if (window.gameStates[gameId].pause) window.gameStates[gameId].pause();
-          if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
-          if (window.gameStates[gameId].setVisible) window.gameStates[gameId].setVisible(false);
-        }
+      closeModal(gameId);
+    });
+  });
 
-        const content = modal.querySelector('.game-modal__content');
-        if(hasGsap && content){
-          gsap.to(content, {
-            scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
-            onComplete: () => {
-              modal.classList.remove('active');
-              document.body.style.overflow = '';
-              gsap.set(modal, { clearProps: 'opacity,visibility' });
-              gsap.set(content, { clearProps: 'all' });
-            }
-          });
-        } else {
-          modal.classList.remove('active');
-          document.body.style.overflow = '';
-        }
+  document.querySelectorAll('.game-modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        const gameId = modal.id.replace('modal-', '');
+        closeModal(gameId);
       }
     });
   });
 
-  // Atajos de teclado globales para el modal de juego actualmente abierto:
-  // "P" pausa/reanuda (solo si el juego ya inició) y "F" alterna pantalla completa
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const activeModal = document.querySelector('.game-modal.active');
+      if (activeModal) {
+        const gameId = activeModal.id.replace('modal-', '');
+        closeModal(gameId);
+      }
+    }
+  });
+
   window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
-    if(key !== 'p' && key !== 'f') return;
+    if (key !== 'p' && key !== 'f') return;
 
     const activeModal = document.querySelector('.game-modal.active');
-    if(!activeModal) return;
+    if (!activeModal) return;
     const gameId = activeModal.id.replace('modal-', '');
 
-    if(key === 'p'){
+    if (key === 'p') {
       const state = window.gameStates && window.gameStates[gameId];
-      if(!state) return;
+      if (!state) return;
       const isRunning = state.running ? state.running() : false;
       const isPaused = state.paused ? state.paused() : false;
-      if(!isRunning && !isPaused) return; // el juego todavía no ha iniciado
-      if(isPaused){
-        if(state.resume) state.resume();
-      } else if(isRunning){
-        if(state.pause) state.pause();
+      if (!isRunning && !isPaused) return;
+      if (isPaused) {
+        if (state.resume) state.resume();
+      } else if (isRunning) {
+        if (state.pause) state.pause();
       }
     }
 
-    if(key === 'f'){
+    if (key === 'f') {
       const canvasWrap = document.getElementById(`${gameId}-canvas-wrap`) || activeModal.querySelector('.canvas-wrap');
-      if(!canvasWrap) return;
+      if (!canvasWrap) return;
       const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
-      if(!isCurrent){
+      if (!isCurrent) {
         const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
         req?.call(canvasWrap);
       } else {
@@ -1492,20 +1483,16 @@ async function obtenerMejorPuntajeJuego(gameName) {
     }
   });
 
-  // Si el usuario cambia de idioma mientras un juego está abierto y todavía no ha
-  // iniciado (está en un menú/selector), recargamos esa pantalla para que se
-  // muestre en el idioma nuevo. Si el juego ya está corriendo, no lo interrumpimos:
-  // el HUD y los textos ya visibles seguirán en el idioma con el que se inició esa partida.
   document.addEventListener('langchange', () => {
     const activeModal = document.querySelector('.game-modal.active');
-    if(!activeModal) return;
+    if (!activeModal) return;
     const gameId = activeModal.id.replace('modal-', '');
     const state = window.gameStates && window.gameStates[gameId];
-    if(!state) return;
+    if (!state) return;
     const isRunning = state.running ? state.running() : false;
     const isPaused = state.paused ? state.paused() : false;
-    if(isRunning || isPaused) return; // partida en curso: no la interrumpimos
-    if(state.reloadMenu) state.reloadMenu();
+    if (isRunning || isPaused) return;
+    if (state.reloadMenu) state.reloadMenu();
   });
 })();
 
@@ -1514,42 +1501,46 @@ async function obtenerMejorPuntajeJuego(gameName) {
 --------------------------------------------------------- */
 (function initGameCoasters(){
   const canvas = document.getElementById('canvas-coasters');
-  if(!canvas) return;
+  if(!canvas || typeof Matter === 'undefined') return;
 
   const ctx = canvas.getContext('2d');
   const hud = document.getElementById('hud-coasters');
   const overlay = document.getElementById('overlay-coasters');
   const overlayCard = document.getElementById('overlay-card-coasters');
-  const gameContent = document.getElementById('modal-coasters'); 
+  const gameContent = document.getElementById('modal-coasters');
   const canvasWrap = document.getElementById('coasters-canvas-wrap');
-  
+  const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+
   let isGameVisible = false;
   let running = false;
   let paused = false;
   let rafId = null;
 
-  // Parámetros de Juego
   let botDifficulty = 'easy';
-  let targetDistance = 2000; 
-  
-  // Jugador y Bot
+  let targetDistance = 2000;
+
   let player = { x: 0, y: 0, speed: 0, maxSpeed: 8, lane: 1, targetX: 0, distance: 0, passengers: 0 };
   let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5, lane: 2, targetX: 0, distance: 0 };
-  
-  // Configuración de la carretera
+
   const lanesCount = 4;
   let laneWidth = 0;
-  let roadY = 0; 
-
-  // Obstáculos, Pasajeros y Tráfico
-  let obstacles = [];
-  let passengers = [];
-  let trafficCars = [];
+  let roadY = 0;
   const lanePositions = [];
 
-  // Redimensionamiento dinámico compatible con Pantalla Completa.
-  // El tamaño LÓGICO del canvas se mantiene fijo siempre; en pantalla completa
-  // el CSS estira ese mismo contenido (efecto zoom) sin cambiar posiciones ni velocidades.
+  let passengers = [];
+
+  const engine = Engine.create();
+  engine.gravity.y = 0;
+  const world = engine.world;
+
+  let wallLeft = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
+  let wallRight = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
+  World.add(world, [wallLeft, wallRight]);
+
+  const playerBody = Bodies.rectangle(0, 0, 26, 60, { isStatic: true, label: 'busPlayer' });
+  const botBody = Bodies.rectangle(0, 0, 26, 60, { isStatic: true, label: 'busBot' });
+  World.add(world, [playerBody, botBody]);
+
   let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -1566,31 +1557,33 @@ async function obtenerMejorPuntajeJuego(gameName) {
       baseHeight = canvas.height;
     }
 
-    // Recalcular el ancho de los carriles con el tamaño lógico del canvas
     laneWidth = canvas.width / lanesCount;
     for(let i = 0; i < lanesCount; i++){
       lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
     }
 
-    // Ajusta la posición de los buses al nuevo fondo (para que no queden flotando o enterrados)
     player.y = canvas.height - 120;
     bot.y = canvas.height - 120;
     player.targetX = lanePositions[player.lane];
     bot.targetX = lanePositions[bot.lane];
+
+    Composite.remove(world, wallLeft);
+    Composite.remove(world, wallRight);
+    wallLeft = Bodies.rectangle(-10, canvas.height/2, 20, canvas.height * 2, { isStatic: true, label: 'wall' });
+    wallRight = Bodies.rectangle(canvas.width + 10, canvas.height/2, 20, canvas.height * 2, { isStatic: true, label: 'wall' });
+    World.add(world, [wallLeft, wallRight]);
   }
-  
+
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Escuchar cambios de pantalla completa del contenedor
   document.addEventListener('fullscreenchange', () => {
-    setTimeout(resizeCanvas, 100); // Pequeño delay para esperar al layout del navegador
+    setTimeout(resizeCanvas, 100);
   });
   document.addEventListener('webkitfullscreenchange', () => {
     setTimeout(resizeCanvas, 100);
   });
 
-  // Vincular botón de pantalla completa si existe en el envoltorio del juego
   const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtn) {
     fsBtn.addEventListener('click', () => {
@@ -1605,7 +1598,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  // Controles
   let keys = {};
   window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
@@ -1623,7 +1615,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     }
   }
 
-  // Generar HUD dinámicamente
   if(hud) {
     hud.innerHTML = `
       <div class="hud-item">
@@ -1656,12 +1647,12 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(pPass) pPass.textContent = player.passengers;
   }
 
-  // Audio
   const bgMusic = document.getElementById('bgMusic-coasters');
   const volumeSlider = document.getElementById('volumeSlider-coasters');
   const volumeIcon = document.getElementById('volumeIcon-coasters');
   const damageOverlay = document.getElementById('damageOverlay-coasters');
   let volume = Number(volumeSlider?.value || 0.45);
+  let savedVolume = volume;
 
   if(bgMusic){
     bgMusic.volume = volume;
@@ -1681,10 +1672,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(!bgMusic) return;
     bgMusic.muted = false;
     bgMusic.volume = volume;
-    bgMusic.currentTime = 0;
     bgMusic.play().catch(()=>{});
   }
-  function stopMusic(){ bgMusic?.pause(); }
+  function stopMusic(){ 
+    if(bgMusic) {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    }
+  }
 
   function flashDamage(){
     if(!damageOverlay) return;
@@ -1732,23 +1727,54 @@ async function obtenerMejorPuntajeJuego(gameName) {
     } else if (botDifficulty === 'medium') {
       bot.maxSpeed = 7.2;
     } else {
-      bot.maxSpeed = 8.8; 
+      bot.maxSpeed = 8.8;
     }
 
-    obstacles = [];
     passengers = [];
-    trafficCars = [];
     roadY = 0;
+
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic') World.remove(world, b);
+    });
+
+    Body.setPosition(playerBody, { x: player.x, y: player.y });
+    Body.setPosition(botBody, { x: bot.x, y: bot.y });
   }
 
-  function spawnEntities() {
-    if(Math.random() < 0.012 && obstacles.length < 5) {
-      obstacles.push({
-        x: lanePositions[Math.floor(Math.random() * lanesCount)],
-        y: -50,
-        type: Math.random() > 0.5 ? 'bache' : 'tumulo',
-        lane: Math.floor(Math.random() * lanesCount)
-      });
+  function spawnBache(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const body = Bodies.circle(lanePositions[lane], -50, 16, {
+      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache'
+    });
+    World.add(world, body);
+  }
+
+  function spawnTumulo(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const body = Bodies.rectangle(lanePositions[lane], -50, 44, 10, {
+      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo'
+    });
+    World.add(world, body);
+  }
+
+  function spawnTraffic(){
+    const lane = Math.floor(Math.random() * lanesCount);
+    const color = ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)];
+    const body = Bodies.rectangle(lanePositions[lane], -100, 24, 44, {
+      restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic'
+    });
+    body.trafficColor = color;
+    body.trafficSpeed = 2 + Math.random() * 2;
+    World.add(world, body);
+  }
+
+  function countBodies(label){
+    return Composite.allBodies(world).filter(b => b.label === label).length;
+  }
+
+function spawnEntities() {
+    if(Math.random() < 0.005 && (countBodies('bache') + countBodies('tumulo')) < 5) {
+      if(Math.random() > 0.5) spawnBache(); else spawnTumulo();
     }
 
     if(Math.random() < 0.015 && passengers.length < 4) {
@@ -1759,29 +1785,50 @@ async function obtenerMejorPuntajeJuego(gameName) {
       });
     }
 
-    if(Math.random() < 0.006 && trafficCars.length < 2) {
-      const lane = Math.floor(Math.random() * lanesCount);
-      trafficCars.push({
-        x: lanePositions[lane],
-        y: -100,
-        lane: lane,
-        speed: 2 + Math.random() * 2,
-        color: ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)]
-      });
+    if(Math.random() < 0.003 && countBodies('traffic') < 2) {
+      spawnTraffic();
     }
   }
 
-  function step(timestamp){
+  const hitCooldown = new WeakMap();
+
+  Events.on(engine, 'collisionStart', (evt) => {
+    for(const pair of evt.pairs){
+      const bodies = [pair.bodyA, pair.bodyB];
+      const busHit = bodies.find(b => b.label === 'busPlayer' || b.label === 'busBot');
+      const obstacle = bodies.find(b => b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic');
+      if(!busHit || !obstacle) continue;
+
+      const now = Date.now();
+      if(hitCooldown.get(obstacle) && now - hitCooldown.get(obstacle) < 300) continue;
+      hitCooldown.set(obstacle, now);
+
+      const kickX = (Math.random() - 0.5) * 0.05;
+      Body.applyForce(obstacle, obstacle.position, { x: kickX, y: -0.015 });
+      Body.setAngularVelocity(obstacle, (Math.random() - 0.5) * 0.45);
+
+      const isTraffic = obstacle.label === 'traffic';
+      if(busHit === playerBody) {
+        player.speed = isTraffic ? 1.5 : Math.max(1, player.speed - 3);
+        flashDamage();
+      } else {
+        bot.speed = isTraffic ? 1.5 : Math.max(1, bot.speed - 2.5);
+      }
+    }
+  });
+
+ function step(timestamp){
     if(!running || !isGameVisible) return;
 
     const speedMultiplier = player.speed;
-    roadY += speedMultiplier;
+    const visualSpeed = speedMultiplier * 0.5;
+
+    roadY += visualSpeed;
     player.distance += speedMultiplier * 0.1;
     bot.distance += bot.speed * 0.1;
 
     spawnEntities();
 
-    // Movimiento jugador
     if(keys['w'] || keys['arrowup']) {
       player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
     } else if(keys['s'] || keys['arrowdown']) {
@@ -1793,57 +1840,40 @@ async function obtenerMejorPuntajeJuego(gameName) {
     player.targetX = lanePositions[player.lane];
     player.x += (player.targetX - player.x) * 0.22;
 
-    // Movimiento Bot (IA)
     if(bot.distance < targetDistance){
       bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.06);
     }
 
-    // Esquivar obstáculos automáticamente
     let botTargetLane = bot.lane;
-    obstacles.concat(trafficCars).forEach(item => {
-      if(item.lane === bot.lane && Math.abs(item.y - bot.y) < 220) {
-        if(bot.lane === 0) botTargetLane = 1;
-        else if(bot.lane === lanesCount - 1) botTargetLane = lanesCount - 2;
-        else botTargetLane = bot.lane + (Math.random() > 0.5 ? 1 : -1);
+    Composite.allBodies(world).forEach(item => {
+      if((item.label === 'bache' || item.label === 'tumulo' || item.label === 'traffic')) {
+        const itemLane = Math.round((item.position.x - laneWidth/2) / laneWidth);
+        if(itemLane === bot.lane && Math.abs(item.position.y - bot.y) < 220) {
+          if(bot.lane === 0) botTargetLane = 1;
+          else if(bot.lane === lanesCount - 1) botTargetLane = lanesCount - 2;
+          else botTargetLane = bot.lane + (Math.random() > 0.5 ? 1 : -1);
+        }
       }
     });
     bot.lane = botTargetLane;
     bot.targetX = lanePositions[bot.lane];
     bot.x += (bot.targetX - bot.x) * 0.15;
 
-    // Actualizar obstáculos
-    obstacles.forEach((obs, idx) => {
-      obs.y += speedMultiplier;
-      if(Math.abs(obs.x - player.x) < 25 && Math.abs(obs.y - player.y) < 40) {
-        player.speed = Math.max(1, player.speed - 3);
-        flashDamage();
-        obstacles.splice(idx, 1);
+    Body.setPosition(playerBody, { x: player.x, y: player.y });
+    Body.setPosition(botBody, { x: bot.x, y: bot.y });
+
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'bache' || b.label === 'tumulo') {
+        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed });
+        if(b.position.y > canvas.height + 60) World.remove(world, b);
+      } else if(b.label === 'traffic') {
+        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed - (b.trafficSpeed * 0.5) });
+        if(b.position.y > canvas.height + 60 || b.position.y < -250) World.remove(world, b);
       }
-      if(Math.abs(obs.x - bot.x) < 25 && Math.abs(obs.y - bot.y) < 40) {
-        bot.speed = Math.max(1, bot.speed - 2.5);
-        obstacles.splice(idx, 1);
-      }
-      if(obs.y > canvas.height) obstacles.splice(idx, 1);
     });
 
-    // Actualizar particulares
-    trafficCars.forEach((car, idx) => {
-      car.y += (speedMultiplier - car.speed);
-      if(Math.abs(car.x - player.x) < 32 && Math.abs(car.y - player.y) < 60) {
-        player.speed = 1.5;
-        flashDamage();
-        trafficCars.splice(idx, 1);
-      }
-      if(Math.abs(car.x - bot.x) < 32 && Math.abs(car.y - bot.y) < 60) {
-        bot.speed = 1.5;
-        trafficCars.splice(idx, 1);
-      }
-      if(car.y > canvas.height || car.y < -200) trafficCars.splice(idx, 1);
-    });
-
-    // Recoger pasajeros
     passengers.forEach((p, idx) => {
-      p.y += speedMultiplier;
+      p.y += visualSpeed;
       if(!p.collected && Math.abs(p.y - player.y) < 55) {
         if((p.x < 50 && player.lane === 0) || (p.x > canvas.width - 50 && player.lane === lanesCount - 1)) {
           p.collected = true;
@@ -1855,7 +1885,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
       if(p.y > canvas.height) passengers.splice(idx, 1);
     });
 
-    // Validar final
+    Engine.update(engine, 16.667);
+
     if(player.distance >= targetDistance) {
       endRace('player');
       return;
@@ -1864,16 +1895,18 @@ async function obtenerMejorPuntajeJuego(gameName) {
       return;
     }
 
-    // Renderizar
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawRoad();
-    
-    obstacles.forEach(drawObstacle);
-    passengers.forEach(drawPassenger);
-    trafficCars.forEach(drawTrafficCar);
 
-    drawBus(player.x, player.y, '#d62828', 'R-44'); 
-    drawBus(bot.x, bot.y, '#003049', 'R-101D'); 
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'bache') drawBache(b);
+      else if(b.label === 'tumulo') drawTumulo(b);
+      else if(b.label === 'traffic') drawTrafficCar(b);
+    });
+    passengers.forEach(drawPassenger);
+
+    drawBus(player.x, player.y, '#d62828', 'R-44');
+    drawBus(bot.x, bot.y, '#003049', 'R-101D');
 
     updateHud();
     rafId = requestAnimationFrame(step);
@@ -1925,20 +1958,26 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.restore();
   }
 
-  function drawObstacle(obs) {
+  function drawBache(b) {
     ctx.save();
-    if(obs.type === 'bache') {
-      ctx.fillStyle = '#222222';
-      ctx.beginPath();
-      ctx.ellipse(obs.x, obs.y, 18, 10, 0, 0, Math.PI*2);
-      ctx.fill();
-    } else {
-      ctx.fillStyle = '#ffb300';
-      ctx.fillRect(obs.x - 22, obs.y - 4, 44, 8);
-      ctx.fillStyle = '#000000';
-      for(let i = -18; i <= 18; i += 10) {
-        ctx.fillRect(obs.x + i, obs.y - 4, 4, 8);
-      }
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = '#222222';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTumulo(b) {
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(-22, -4, 44, 8);
+    ctx.fillStyle = '#000000';
+    for(let i = -18; i <= 18; i += 10) {
+      ctx.fillRect(i, -4, 4, 8);
     }
     ctx.restore();
   }
@@ -1954,10 +1993,11 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.fill();
   }
 
-  function drawTrafficCar(car) {
+  function drawTrafficCar(b) {
     ctx.save();
-    ctx.translate(car.x, car.y);
-    ctx.fillStyle = car.color;
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = b.trafficColor || '#3a86c8';
     ctx.beginPath();
     ctx.roundRect(-12, -22, 24, 44, 3);
     ctx.fill();
@@ -1967,7 +2007,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
   function endRace(winner) {
     running = false;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
 
     let title, msg;
     if(winner === 'player') {
@@ -1978,9 +2017,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
       msg = jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
     }
 
-    // Coasters no tiene puntaje ni dificultad easy/hard: se identifica por
-    // la distancia elegida (Express/Normal/Costa a Costa), y se guarda 1
-    // si el jugador ganó la carrera o 0 si perdió.
     const distanciaId = targetDistance <= 1000 ? 'express' : targetDistance <= 2500 ? 'normal' : 'costaacosta';
     const gameName = `coasters-${distanciaId}`;
     const gano = winner === 'player' ? 1 : 0;
@@ -2050,10 +2086,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   function startGame(difficulty) {
-    botDifficulty = difficulty; 
-    resetGame();                
+    botDifficulty = difficulty;
+    resetGame();
     hideOverlay();
-    
+
     running = true;
     paused = false;
     playMusic();
@@ -2076,7 +2112,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
   }
 
-  // Eventos y Pausa
   const pauseBtn = document.getElementById('pauseBtn-coasters');
   const pauseIcon = document.getElementById('pauseIcon-coasters');
   const pauseOverlay = document.getElementById('pauseOverlay-coasters');
@@ -2088,7 +2123,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    if (bgMusic) {
+      savedVolume = bgMusic.volume;
+      bgMusic.volume = 0.1;
+    }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
@@ -2101,7 +2139,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    bgMusic?.play().catch(()=>{});
+    if (bgMusic) {
+      bgMusic.volume = savedVolume || volume;
+      if (volume > 0) bgMusic.play().catch(()=>{});
+    }
     rafId = requestAnimationFrame(step);
   }
 
@@ -2109,7 +2150,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    // bgMusic?.pause();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -2129,8 +2170,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(e.detail.gameId === 'coasters') {
       isGameVisible = true;
       resizeCanvas();
-      // La música arranca apenas se abre la ventana del juego, en loop,
-      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
       playMusic();
       if(paused && running) resumeGame();
       else if(running) rafId = requestAnimationFrame(step);
@@ -2149,11 +2188,11 @@ async function obtenerMejorPuntajeJuego(gameName) {
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 4: ESCONDELERO (PERSECUCIÓN — ATRAPÁ ANTES DEL BOTE)
+   JUEGO 4: ESCONDELERO (CON MATTER.JS, FONDO DE CIUDAD Y NIÑOS BONITOS)
 --------------------------------------------------------- */
-(function initGameEncantados(){
+(function initGameEncantados() {
   const canvas = document.getElementById('canvas-encantados');
-  if(!canvas) return;
+  if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
   const hud = document.getElementById('hud-encantados');
@@ -2162,37 +2201,32 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const gameContent = document.getElementById('modal-encantados');
   const canvasWrap = document.getElementById('encantados-canvas-wrap');
 
+  const { Engine, World, Bodies, Body, Events } = Matter;
+
   let isGameVisible = false;
   let running = false;
   let paused = false;
   let rafId = null;
+  let lastTime = null;
 
-  let baseWidth = 0, baseHeight = 0;
+  let baseWidth = 0,
+    baseHeight = 0;
+
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    const prevWidth = canvas.width, prevHeight = canvas.height;
-
-    if(isFS && baseWidth && baseHeight){
+    if (isFS && baseWidth && baseHeight) {
       canvas.width = baseWidth;
       canvas.height = baseHeight;
-    } else {
-      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      baseWidth = canvas.width;
-      baseHeight = canvas.height;
+      return;
     }
-
-    bote.x = canvas.width / 2;
-    bote.y = 62;
-
-    // Solo recalcular los escondites si el tamaño lógico realmente cambió,
-    // para no reposicionarlos de golpe al entrar/salir de pantalla completa.
-    if(canvas.width !== prevWidth || canvas.height !== prevHeight){
-      layoutHideSpots();
-    }
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
+  resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
   document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
@@ -2211,202 +2245,750 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  // Dificultad: cuántos amigos hay que atrapar, qué tan seguido y rápido se escapan al bote
   let gameConfig = {
-    easy:   { kidsToWin: 6, escapeMin: 2200, escapeMax: 3600, fleeSpeed: 2.6, catcherSpeed: 2.6, maxEscapes: 5, timeLimit: 45 },
-    medium: { kidsToWin: 8, escapeMin: 1700, escapeMax: 2800, fleeSpeed: 3.3, catcherSpeed: 2.6, maxEscapes: 4, timeLimit: 42 },
-    hard:   { kidsToWin: 10, escapeMin: 1200, escapeMax: 2200, fleeSpeed: 4.0, catcherSpeed: 2.6, maxEscapes: 3, timeLimit: 38 }
+    easy: { kidsToWin: 6, escapeMin: 2200, escapeMax: 3600, fleeSpeed: 2.6, catcherSpeed: 4, maxEscapes: 5, timeLimit: 45 },
+    medium: { kidsToWin: 8, escapeMin: 1700, escapeMax: 2800, fleeSpeed: 3.3, catcherSpeed: 5, maxEscapes: 4, timeLimit: 42 },
+    hard: { kidsToWin: 10, escapeMin: 1200, escapeMax: 2200, fleeSpeed: 4.0, catcherSpeed: 6, maxEscapes: 3, timeLimit: 38 }
   };
   let difficulty = 'easy';
 
-  const KID_EMOJIS = ['🧒','👧','👦','🧑'];
-  const HIDE_SPOTS_EMOJI = ['🌳','🛢️','🧺','🪴','🧱','⛲','📦','🪵'];
+  let score = 0,
+    caught = 0,
+    escaped = 0,
+    timeLeft = 0;
+  let nextEscapeIn = 0,
+    escapeAccum = 0;
 
-  // El "bote" es el punto seguro al que corren los amigos escondidos
-  const bote = { x: 0, y: 62, radius: 34 };
+  hud.innerHTML = `
+    <div class="hud-item">
+      <span>${jt('jue.hud.points', 'Puntos')}</span>
+      <b id="e-score">0</b>
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.card4.caught', 'Atrapados')}</span>
+      <span class="encantados-round-dots" id="e-dots"></span>
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.card4.escaped', 'Se salvaron')}</span>
+      <b id="e-escaped">0/${gameConfig.easy.maxEscapes}</b>
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.hud.time', 'Tiempo')}</span>
+      <b id="e-time">-</b>
+    </div>`;
 
-  // El catcher (jugador) — "el que la trae"
-  const catcher = { x: 0, y: 0, radius: 22 };
-
-  let hideSpots = []; // {x,y,emoji}
-  let kids = []; // {x,y,spotIndex,state:'hidden'|'fleeing'|'caught'|'escaped', targetTimer}
-
-  let score = 0, caught = 0, escaped = 0, timeLeft = 0;
-  let nextEscapeIn = 0, escapeAccum = 0;
-  let lastTime = null;
-  let keys = {};
-
-  function showOverlay(html){
-    overlayCard.innerHTML = html;
-    overlay.classList.remove('hidden');
-    overlay.style.backdropFilter = 'none';
-    overlay.style.webkitBackdropFilter = 'none';
-    if(window.gsap){
-      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
-      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
-    }
-  }
-  function hideOverlay(){
-    if(window.gsap){
-      overlay.style.pointerEvents = 'none';
-      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
-      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
-    } else {
-      overlay.classList.add('hidden');
-    }
-  }
-
-  if(hud){
-    hud.innerHTML = `
-      <div class="hud-item">
-        <span>${jt('jue.hud.points', 'Puntos')}</span>
-        <b id="e-score">0</b>
-      </div>
-      <div class="hud-item">
-        <span>${jt('jue.card4.caught', 'Atrapados')}</span>
-        <span class="encantados-round-dots" id="e-dots"></span>
-      </div>
-      <div class="hud-item">
-        <span>${jt('jue.card4.escaped', 'Se salvaron')}</span>
-        <b id="e-escaped">0</b>
-      </div>
-      <div class="hud-item">
-        <span>${jt('jue.hud.time', 'Tiempo')}</span>
-        <b id="e-time">-</b>
-      </div>`;
-  }
-
-  function renderDots(){
+  function renderDots() {
     const dotsEl = document.getElementById('e-dots');
-    if(!dotsEl) return;
+    if (!dotsEl) return;
     const total = gameConfig[difficulty].kidsToWin;
     let html = '';
-    for(let i=0;i<total;i++){
+    for (let i = 0; i < total; i++) {
       html += `<span class="dot${i < caught ? ' found' : ''}"></span>`;
     }
     dotsEl.innerHTML = html;
   }
 
-  function updateHud(){
+  function updateHud() {
     const scoreEl = document.getElementById('e-score');
     const escapedEl = document.getElementById('e-escaped');
     const timeEl = document.getElementById('e-time');
-    if(scoreEl) scoreEl.textContent = score;
-    if(escapedEl) escapedEl.textContent = `${escaped}/${gameConfig[difficulty].maxEscapes}`;
-    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+    if (scoreEl) scoreEl.textContent = score;
+    if (escapedEl) escapedEl.textContent = `${escaped}/${gameConfig[difficulty].maxEscapes}`;
+    if (timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
     renderDots();
   }
 
-  // Audio
-  const bgMusic = document.getElementById('bgMusic-encantados');
-  const volumeSlider = document.getElementById('volumeSlider-encantados');
-  const volumeIcon = document.getElementById('volumeIcon-encantados');
-  const damageOverlay = document.getElementById('damageOverlay-encantados');
-  let volume = Number(volumeSlider?.value || 0.45);
-  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
-  volumeSlider?.addEventListener('input', (event)=>{
-    volume = Number(event.target.value);
-    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
-    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
-  });
-  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
-  function stopMusic(){ bgMusic?.pause(); }
-  function flashEscape(){
-    if(!damageOverlay) return;
-    damageOverlay.style.opacity = '1';
-    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
+  const engine = Engine.create();
+  engine.gravity.y = 0;
+  const world = engine.world;
+
+  const wallThickness = 40;
+  let walls = [];
+
+  function setupWalls() {
+    if (walls.length) World.remove(world, walls);
+    const w = canvas.width,
+      h = canvas.height;
+    walls = [
+      Bodies.rectangle(w / 2, -wallThickness / 2, w + wallThickness * 2, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(w / 2, h + wallThickness / 2, w + wallThickness * 2, wallThickness, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(-wallThickness / 2, h / 2, wallThickness, h + wallThickness * 2, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(w + wallThickness / 2, h / 2, wallThickness, h + wallThickness * 2, { isStatic: true, label: 'wall' })
+    ];
+    World.add(world, walls);
   }
 
-  function layoutHideSpots(){
-    if(!canvas.width || !canvas.height) return;
+  const catcherRadius = 24;
+  const kidRadius = 18;
+  const boteRadius = 38;
+
+  const bote = Bodies.circle(canvas.width / 2, 70, boteRadius, { isStatic: true, label: 'bote', friction: 0.1 });
+  World.add(world, bote);
+
+  const catcher = Bodies.circle(canvas.width / 2, canvas.height - 100, catcherRadius, {
+    label: 'catcher',
+    friction: 0.05,
+    frictionAir: 0.02,
+    restitution: 0.5
+  });
+  World.add(world, catcher);
+
+  let kids = [];
+  let hideSpots = [];
+
+  function createHideSpots() {
     const count = 10;
     const cols = 5;
     const rows = Math.ceil(count / cols);
     const marginX = canvas.width * 0.08;
-    const marginY = canvas.height * 0.28;
-    const usableW = canvas.width - marginX*2;
-    const usableH = canvas.height - marginY*2 - 40;
+    const marginY = canvas.height * 0.25;
+    const usableW = canvas.width - marginX * 2;
+    const usableH = canvas.height - marginY * 2 - 60;
     const cellW = usableW / cols;
     const cellH = usableH / rows;
 
     const spots = [];
     let i = 0;
-    for(let r=0;r<rows;r++){
-      for(let c=0;c<cols;c++){
-        if(i >= count) break;
-        const jitterX = (Math.random()-0.5) * cellW * 0.25;
-        const jitterY = (Math.random()-0.5) * cellH * 0.25;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (i >= count) break;
+        const jitterX = (Math.random() - 0.5) * cellW * 0.3;
+        const jitterY = (Math.random() - 0.5) * cellH * 0.3;
         spots.push({
-          x: marginX + c*cellW + cellW/2 + jitterX,
-          y: marginY + 40 + r*cellH + cellH/2 + jitterY,
-          emoji: HIDE_SPOTS_EMOJI[i % HIDE_SPOTS_EMOJI.length]
+          x: marginX + c * cellW + cellW / 2 + jitterX,
+          y: marginY + 40 + r * cellH + cellH / 2 + jitterY,
         });
         i++;
       }
     }
-    hideSpots = spots;
+    return spots;
   }
 
-  function randomEscapeInterval(){
-    const config = gameConfig[difficulty];
-    return config.escapeMin + Math.random()*(config.escapeMax - config.escapeMin);
+  function initKids() {
+    kids.forEach(k => World.remove(world, k.body));
+    kids = [];
+    hideSpots = createHideSpots();
+    const colors = ['#e63946', '#3a86c8', '#2fbf9f', '#f2c744', '#7d3ac1', '#f4a261', '#e76f51', '#a8dadc', '#457b9d', '#1d3557'];
+    hideSpots.forEach((spot, idx) => {
+      const body = Bodies.circle(spot.x, spot.y, kidRadius, {
+        label: 'kid',
+        friction: 0.1,
+        restitution: 0.3,
+        frictionAir: 0.01,
+        isSensor: false,
+        state: 'hidden',
+        color: colors[idx % colors.length],
+        spotIndex: idx
+      });
+      World.add(world, body);
+      kids.push({
+        body: body,
+        state: 'hidden',
+        color: colors[idx % colors.length],
+        spotIndex: idx
+      });
+    });
   }
 
-  function setupGame(){
+  let keys = {};
+  window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+  const bgMusic = document.getElementById('bgMusic-encantados');
+  const volumeSlider = document.getElementById('volumeSlider-encantados');
+  const volumeIcon = document.getElementById('volumeIcon-encantados');
+  const damageOverlay = document.getElementById('damageOverlay-encantados');
+  let volume = Number(volumeSlider?.value || 0.45);
+  let savedVolume = volume;
+
+  if (bgMusic) { bgMusic.volume = volume;
+    bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event) => {
+    volume = Number(event.target.value);
+    if (bgMusic) { bgMusic.volume = volume;
+      bgMusic.muted = volume <= 0; }
+    if (volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+
+  function playMusic() { if (!bgMusic) return;
+    bgMusic.muted = false;
+    bgMusic.volume = volume;
+    bgMusic.play().catch(() => {}); }
+
+  function stopMusic() { if (bgMusic) { bgMusic.pause();
+      bgMusic.currentTime = 0; } }
+
+  function showOverlay(html) {
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if (window.gsap) {
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+
+  function hideOverlay() {
+    if (window.gsap) {
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden');
+          overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  function randomEscapeInterval() {
     const config = gameConfig[difficulty];
-    layoutHideSpots();
-    kids = hideSpots.map((spot, idx) => ({
-      x: spot.x, y: spot.y,
-      spotIndex: idx,
-      emoji: KID_EMOJIS[idx % KID_EMOJIS.length],
-      state: 'hidden',
-      vx: 0, vy: 0
-    }));
+    return config.escapeMin + Math.random() * (config.escapeMax - config.escapeMin);
+  }
 
-    catcher.x = canvas.width / 2;
-    catcher.y = canvas.height - 70;
+  function triggerEscape() {
+    const hiddenKids = kids.filter(k => k.state === 'hidden');
+    if (!hiddenKids.length) return;
+    const kid = hiddenKids[Math.floor(Math.random() * hiddenKids.length)];
+    kid.state = 'fleeing';
+    const angle = Math.random() * Math.PI * 2;
+    Body.setVelocity(kid.body, {
+      x: Math.cos(angle) * 0.5,
+      y: -0.5
+    });
+  }
 
-    score = 0; caught = 0; escaped = 0;
-    timeLeft = config.timeLimit;
-    escapeAccum = 0;
-    nextEscapeIn = randomEscapeInterval();
-    lastTime = null;
+  Events.on(engine, 'collisionStart', (event) => {
+    for (const pair of event.pairs) {
+      const { bodyA, bodyB } = pair;
+      if ((bodyA.label === 'catcher' && bodyB.label === 'kid') || (bodyA.label === 'kid' && bodyB.label === 'catcher')) {
+        const kidBody = bodyA.label === 'kid' ? bodyA : bodyB;
+        const kid = kids.find(k => k.body === kidBody);
+        if (kid && kid.state === 'fleeing') {
+          kid.state = 'caught';
+          caught++;
+          score += 25;
+          flashEffect(kidBody.position.x, kidBody.position.y, '#ffd700');
+          World.remove(world, kidBody);
+          updateHud();
+        }
+      }
+      if ((bodyA.label === 'bote' && bodyB.label === 'kid') || (bodyA.label === 'kid' && bodyB.label === 'bote')) {
+        const kidBody = bodyA.label === 'kid' ? bodyA : bodyB;
+        const kid = kids.find(k => k.body === kidBody);
+        if (kid && kid.state === 'fleeing') {
+          kid.state = 'escaped';
+          escaped++;
+          score = Math.max(0, score - 10);
+          flashEffect(kidBody.position.x, kidBody.position.y, '#ff4444');
+          World.remove(world, kidBody);
+          updateHud();
+        }
+      }
+    }
+  });
 
-    hideOverlay();
+  let particles = [];
+
+  function flashEffect(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 4;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.5,
+        radius: 3 + Math.random() * 6,
+        life: 1,
+        color: color
+      });
+    }
+  }
+
+  // --- FONDO DE CIUDAD ---
+  let cityOffset = 0;
+  let cars = [];
+
+  function initCars() {
+    cars = [];
+    for (let i = 0; i < 6; i++) {
+      cars.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height * 0.55 + Math.random() * 30,
+        speed: 0.5 + Math.random() * 1.5,
+        color: ['#e63946', '#3a86c8', '#f4a261', '#2fbf9f', '#e9c46a', '#9b5de5'][Math.floor(Math.random() * 6)],
+        size: 12 + Math.random() * 10,
+        dir: Math.random() > 0.5 ? 1 : -1
+      });
+    }
+  }
+  initCars();
+
+  function drawCityBackground() {
+    const w = canvas.width,
+      h = canvas.height;
+
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
+    skyGrad.addColorStop(0, '#1a237e');
+    skyGrad.addColorStop(0.4, '#4a148c');
+    skyGrad.addColorStop(0.7, '#e65100');
+    skyGrad.addColorStop(1, '#ffb300');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, w, h * 0.6);
+
+    const buildings = [
+      { x: 0, w: 60, h: 100, color: '#3e2723' },
+      { x: 70, w: 45, h: 140, color: '#4e342e' },
+      { x: 125, w: 70, h: 80, color: '#5d4037' },
+      { x: 205, w: 50, h: 160, color: '#3e2723' },
+      { x: 265, w: 80, h: 110, color: '#4e342e' },
+      { x: 355, w: 55, h: 130, color: '#5d4037' },
+      { x: 420, w: 65, h: 90, color: '#3e2723' },
+      { x: 495, w: 50, h: 150, color: '#4e342e' },
+      { x: 555, w: 70, h: 100, color: '#5d4037' },
+      { x: 635, w: 60, h: 120, color: '#3e2723' },
+      { x: 705, w: 45, h: 80, color: '#4e342e' },
+      { x: 760, w: 80, h: 140, color: '#5d4037' },
+    ];
+
+    buildings.forEach(b => {
+      ctx.fillStyle = b.color;
+      ctx.fillRect(b.x, h * 0.6 - b.h, b.w, b.h);
+      ctx.fillStyle = '#ffd54f';
+      for (let row = 0; row < Math.floor(b.h / 25); row++) {
+        for (let col = 0; col < Math.floor(b.w / 20); col++) {
+          if (Math.random() > 0.3) {
+            ctx.fillRect(b.x + 5 + col * 20, h * 0.6 - b.h + 10 + row * 25, 8, 12);
+          }
+        }
+      }
+    });
+
+    ctx.fillStyle = '#424242';
+    ctx.fillRect(0, h * 0.6, w, h * 0.4);
+
+    ctx.strokeStyle = '#ffeb3b';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([30, 20]);
+    cityOffset = (cityOffset + 1.5) % 50;
+    ctx.lineDashOffset = -cityOffset;
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.7);
+    ctx.lineTo(w, h * 0.7);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#9e9e9e';
+    ctx.fillRect(0, h * 0.6 - 6, w, 8);
+    ctx.fillRect(0, h * 0.85, w, 8);
+
+    for (let x = 50; x < w; x += 120) {
+      ctx.fillStyle = '#616161';
+      ctx.fillRect(x, h * 0.6 - 60, 4, 60);
+      ctx.fillStyle = '#ffd54f';
+      ctx.beginPath();
+      ctx.arc(x + 2, h * 0.6 - 62, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffecb3';
+      ctx.beginPath();
+      ctx.arc(x + 2, h * 0.6 - 62, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (let x = 30; x < w; x += 150) {
+      ctx.fillStyle = '#5d4037';
+      ctx.fillRect(x - 3, h * 0.6 - 30, 6, 30);
+      ctx.fillStyle = '#2e7d32';
+      ctx.beginPath();
+      ctx.arc(x, h * 0.6 - 40, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#388e3c';
+      ctx.beginPath();
+      ctx.arc(x - 6, h * 0.6 - 44, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + 6, h * 0.6 - 44, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    cars.forEach(car => {
+      car.x += car.speed * car.dir;
+      if (car.x > w + 20) car.x = -20;
+      if (car.x < -20) car.x = w + 20;
+      ctx.fillStyle = car.color;
+      ctx.beginPath();
+      ctx.roundRect(car.x, car.y - car.size / 2, car.size * 1.8, car.size, 4);
+      ctx.fill();
+      ctx.fillStyle = '#212121';
+      ctx.beginPath();
+      ctx.roundRect(car.x + car.size * 0.2, car.y - car.size / 2 - 3, car.size * 0.3, car.size * 0.3, 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(car.x + car.size * 1.0, car.y - car.size / 2 - 3, car.size * 0.3, car.size * 0.3, 2);
+      ctx.fill();
+    });
+  }
+
+  function drawCatcher(body) {
+    const x = body.position.x,
+      y = body.position.y;
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#2196F3';
+    ctx.beginPath();
+    ctx.roundRect(-14, -20, 28, 30, 6);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFCCBC';
+    ctx.beginPath();
+    ctx.arc(0, -26, 16, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-6, -30, 5, 0, Math.PI * 2);
+    ctx.arc(6, -30, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a237e';
+    ctx.beginPath();
+    ctx.arc(-6, -30, 3, 0, Math.PI * 2);
+    ctx.arc(6, -30, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-4, -32, 1.5, 0, Math.PI * 2);
+    ctx.arc(8, -32, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,150,150,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(-12, -22, 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(12, -22, 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#212121';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -20, 6, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+
+    ctx.fillStyle = '#5D4037';
+    ctx.beginPath();
+    ctx.arc(0, -34, 16, Math.PI, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = '#4E342E';
+    ctx.beginPath();
+    ctx.arc(-6, -38, 6, 0, Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(6, -38, 6, 0, Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = '#FFCCBC';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(-14, -8);
+    ctx.lineTo(-24, 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(14, -8);
+    ctx.lineTo(24, 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#795548';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(24, 2, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(18, 2);
+    ctx.lineTo(30, 2);
+    ctx.moveTo(24, -4);
+    ctx.lineTo(24, 8);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawKid(body, color, state) {
+    const x = body.position.x,
+      y = body.position.y;
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(-12, -8, 24, 20, 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFCCBC';
+    ctx.beginPath();
+    ctx.arc(0, -16, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-4, -18, 4, 0, Math.PI * 2);
+    ctx.arc(4, -18, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a237e';
+    ctx.beginPath();
+    ctx.arc(-4, -18, 2.5, 0, Math.PI * 2);
+    ctx.arc(4, -18, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-3, -19, 1, 0, Math.PI * 2);
+    ctx.arc(5, -19, 1, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,150,150,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(-8, -14, 3, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(8, -14, 3, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#212121';
+    ctx.lineWidth = 1.5;
+    if (state === 'fleeing') {
+      ctx.beginPath();
+      ctx.arc(0, -12, 5, 0.1, Math.PI - 0.1);
+      ctx.stroke();
+      ctx.fillStyle = 'white';
+      ctx.fillRect(-3, -8, 2, 2);
+      ctx.fillRect(1, -8, 2, 2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, -12, 3.5, 0.1, Math.PI - 0.1);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#5D4037';
+    ctx.beginPath();
+    ctx.arc(0, -24, 12, Math.PI, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = '#FFCCBC';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(-6, 12);
+    ctx.lineTo(-8, 22);
+    ctx.moveTo(6, 12);
+    ctx.lineTo(8, 22);
+    ctx.stroke();
+    ctx.fillStyle = '#37474f';
+    ctx.beginPath();
+    ctx.ellipse(-8, 23, 5, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(8, 23, 5, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (state === 'fleeing') {
+      ctx.strokeStyle = 'rgba(255,200,0,0.4)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) {
+        const lx = -22 - i * 6;
+        const ly = -4 + i * 4;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly);
+        ctx.lineTo(lx - 10, ly - 5);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawBote(body) {
+    const x = body.position.x,
+      y = body.position.y;
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 4;
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#8D6E63';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, boteRadius, boteRadius * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#4E342E';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#4E342E';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, -6, boteRadius * 0.85, boteRadius * 0.35, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(0, 6, boteRadius * 0.85, boteRadius * 0.35, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = '#A1887F';
+    ctx.beginPath();
+    ctx.ellipse(0, -boteRadius * 0.5, boteRadius * 0.5, boteRadius * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#4E342E';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFD54F';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('¡BOTE!', 0, 4);
+
+    ctx.restore();
+  }
+
+  function step(timestamp) {
+    if (!running || !isGameVisible) return;
+    if (lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    const dtSec = dt / 1000;
+
+    const config = gameConfig[difficulty];
+    timeLeft -= dtSec;
+
+    let moveX = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+    let moveY = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
+    if (moveX !== 0 || moveY !== 0) {
+      const len = Math.hypot(moveX, moveY) || 1;
+      Body.setVelocity(catcher, {
+        x: (moveX / len) * config.catcherSpeed,
+        y: (moveY / len) * config.catcherSpeed
+      });
+    } else {
+      Body.setVelocity(catcher, {
+        x: catcher.velocity.x * 0.92,
+        y: catcher.velocity.y * 0.92
+      });
+    }
+
+    const maxSpeed = config.catcherSpeed * 1.2;
+    const v = catcher.velocity;
+    const speed = Math.hypot(v.x, v.y);
+    if (speed > maxSpeed) {
+      Body.setVelocity(catcher, {
+        x: (v.x / speed) * maxSpeed,
+        y: (v.y / speed) * maxSpeed
+      });
+    }
+
+    escapeAccum += dt;
+    if (escapeAccum >= nextEscapeIn) {
+      escapeAccum = 0;
+      nextEscapeIn = randomEscapeInterval();
+      triggerEscape();
+    }
+
+    for (const kid of kids) {
+      if (kid.state !== 'fleeing') continue;
+      const dx = bote.position.x - kid.body.position.x;
+      const dy = bote.position.y - kid.body.position.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 5) {
+        const speed = config.fleeSpeed * (0.8 + Math.random() * 0.4);
+        Body.setVelocity(kid.body, {
+          x: (dx / dist) * speed,
+          y: (dy / dist) * speed
+        });
+      }
+    }
+
+    Engine.update(engine, dt);
+
+    if (caught >= config.kidsToWin) { endGame(true); return; }
+    if (escaped >= config.maxEscapes) { endGame(false); return; }
+    if (timeLeft <= 0) { endGame(caught >= Math.ceil(config.kidsToWin * 0.6)); return; }
+
     updateHud();
-    cancelAnimationFrame(rafId);
-    playMusic();
-    running = true;
-    paused = false;
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCityBackground();
+
+    for (const spot of hideSpots) {
+      ctx.save();
+      ctx.translate(spot.x, spot.y);
+      ctx.fillStyle = '#2e7d32';
+      ctx.beginPath();
+      ctx.arc(0, 10, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#388e3c';
+      ctx.beginPath();
+      ctx.arc(-10, 14, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(10, 14, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    drawBote(bote);
+
+    for (const kid of kids) {
+      if (kid.state === 'hidden' || kid.state === 'caught' || kid.state === 'escaped') continue;
+      drawKid(kid.body, kid.color, kid.state);
+    }
+
+    drawCatcher(catcher);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= 0.015;
+      p.radius *= 0.98;
+      if (p.life <= 0 || p.radius < 0.5) {
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
     rafId = requestAnimationFrame(step);
   }
 
-  // Controles de teclado (WASD / flechas) — único método de control
-  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-
-  function triggerEscape(){
-    const hidden = kids.filter(k => k.state === 'hidden');
-    if(!hidden.length) return;
-    const kid = hidden[Math.floor(Math.random()*hidden.length)];
-    kid.state = 'fleeing';
-  }
-
-  function endGame(win){
+  function endGame(win) {
     running = false;
-    stopMusic();
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
 
-    let title = win ? jt('jue.card4.end.win', '🏆 ¡Los atrapaste a todos antes del bote!') : (timeLeft <= 0 ? jt('jue.card4.end.timeUp', '⏰ ¡Se acabó el tiempo!') : jt('jue.card4.end.tooMany', '🏁 ¡Se te escaparon demasiados!'));
+    let title = win ? jt('jue.card4.end.win', '🏆 ¡Los atrapaste a todos antes del bote!') :
+      (timeLeft <= 0 ? jt('jue.card4.end.timeUp', '⏰ ¡Se acabó el tiempo!') :
+        jt('jue.card4.end.tooMany', '🏁 ¡Se te escaparon demasiados!'));
     let text = score >= 150 ? jt('jue.card4.end.high', '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.') :
-               score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
-               jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
+      score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
+      jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
 
     const gameName = `encantados-${difficulty}`;
 
@@ -2427,202 +3009,84 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  function step(timestamp){
-    if(!running || !isGameVisible) return;
-    if(lastTime === null) lastTime = timestamp;
-    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    lastTime = timestamp;
-    const dtSec = dt / 1000;
-
-    const config = gameConfig[difficulty];
-
-    timeLeft -= dtSec;
-
-    // Mover al catcher (jugador) con teclado o siguiendo el puntero
-    let moveX = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
-    let moveY = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
-    if(moveX !== 0 || moveY !== 0){
-      const len = Math.hypot(moveX, moveY) || 1;
-      catcher.x += (moveX/len) * config.catcherSpeed;
-      catcher.y += (moveY/len) * config.catcherSpeed;
-    }
-    catcher.x = Math.max(catcher.radius, Math.min(canvas.width - catcher.radius, catcher.x));
-    catcher.y = Math.max(catcher.radius, Math.min(canvas.height - catcher.radius, catcher.y));
-
-    // Disparar nuevas fugas periódicamente
-    escapeAccum += dt;
-    if(escapeAccum >= nextEscapeIn){
-      escapeAccum = 0;
-      nextEscapeIn = randomEscapeInterval();
-      triggerEscape();
-    }
-
-    // Actualizar amigos que están huyendo hacia el bote
-    for(const kid of kids){
-      if(kid.state !== 'fleeing') continue;
-      const dx = bote.x - kid.x;
-      const dy = bote.y - kid.y;
-      const dist = Math.hypot(dx, dy);
-      if(dist > 2){
-        kid.x += (dx/dist) * config.fleeSpeed * (dt/16.6);
-        kid.y += (dy/dist) * config.fleeSpeed * (dt/16.6);
-      }
-
-      // ¿Lo atrapó el catcher?
-      const catchDist = Math.hypot(kid.x - catcher.x, kid.y - catcher.y);
-      if(catchDist < catcher.radius + 16){
-        kid.state = 'caught';
-        caught++;
-        score += 25;
-        updateHud();
-        continue;
-      }
-
-      // ¿Llegó al bote?
-      if(dist < bote.radius){
-        kid.state = 'escaped';
-        escaped++;
-        score = Math.max(0, score - 10);
-        flashEscape();
-        updateHud();
-      }
-    }
-
-    // Condiciones de fin
-    if(caught >= config.kidsToWin){ endGame(true); return; }
-    if(escaped >= config.maxEscapes){ endGame(false); return; }
-    if(timeLeft <= 0){ endGame(caught >= Math.ceil(config.kidsToWin*0.6)); return; }
-
-    updateHud();
-
-    // ---- Render ----
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    ctx.globalAlpha = 1;
-    const grad = ctx.createLinearGradient(0,0,0,canvas.height);
-    grad.addColorStop(0, '#cdb98a');
-    grad.addColorStop(1, '#b89b6a');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,canvas.width, canvas.height);
-    ctx.fillStyle = '#bfe3ff';
-    ctx.fillRect(0,0,canvas.width, canvas.height*0.12);
-
-    // Bote (meta)
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.translate(bote.x, bote.y);
-    ctx.fillStyle = '#5c4a30';
-    ctx.beginPath();
-    ctx.ellipse(0, bote.radius*0.8, bote.radius, bote.radius*0.35, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.font = (bote.radius*1.8)+'px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🛢️', 0, 0);
-    ctx.font = 'bold 13px sans-serif';
-    ctx.fillStyle = '#113068';
-    ctx.fillText(jt('jue.card4.baseLabel', '¡BOTE!'), 0, bote.radius + 16);
-    ctx.restore();
-
-    // Escondites (objetos)
-    for(const spot of hideSpots){
-      ctx.save();
-      ctx.globalAlpha = 1;
-      ctx.translate(spot.x, spot.y);
-      ctx.fillStyle = '#5c4a30';
-      ctx.beginPath();
-      ctx.ellipse(0, 24, 26, 10, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.font = '46px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = '#2c1f0e';
-      ctx.lineJoin = 'round';
-      ctx.strokeText(spot.emoji, 0, 0);
-      ctx.fillText(spot.emoji, 0, 0);
-      ctx.restore();
-    }
-
-    // Amigos huyendo
-    for(const kid of kids){
-      if(kid.state !== 'fleeing') continue;
-      ctx.save();
-      ctx.globalAlpha = 1;
-      ctx.translate(kid.x, kid.y);
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.beginPath();
-      ctx.ellipse(0, 16, 14, 6, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.font = '30px sans-serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = '#2c1f0e';
-      ctx.lineJoin = 'round';
-      ctx.strokeText(kid.emoji, 0, 0);
-      ctx.fillText(kid.emoji, 0, 0);
-      ctx.restore();
-    }
-
-    // Catcher (jugador)
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.translate(catcher.x, catcher.y);
-    ctx.fillStyle = '#5c4a30';
-    ctx.beginPath();
-    ctx.ellipse(0, catcher.radius*0.9, catcher.radius*0.9, catcher.radius*0.3, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.font = (catcher.radius*1.7)+'px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🏃', 0, 1);
-    ctx.restore();
-
-    rafId = requestAnimationFrame(step);
-  }
-
   const pauseBtn = document.getElementById('pauseBtn-encantados');
   const pauseIcon = document.getElementById('pauseIcon-encantados');
   const pauseOverlay = document.getElementById('pauseOverlay-encantados');
   const resumeBtn = document.getElementById('resumeBtn-encantados');
   const menuBtn = document.getElementById('menuBtn-encantados');
 
-  function pauseGame(){
-    if(!running) return;
+  function pauseGame() {
+    if (!running) return;
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    if (bgMusic) { savedVolume = bgMusic.volume;
+      bgMusic.volume = 0.1; }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
-    if(pauseIcon) pauseIcon.textContent = '▶️';
+    if (pauseIcon) pauseIcon.textContent = '▶️';
   }
-  function resumeGame(){
-    if(!paused) return;
+
+  function resumeGame() {
+    if (!paused) return;
     paused = false;
     running = true;
     lastTime = null;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
-    if(volume > 0) bgMusic?.play().catch(()=>{});
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
+    if (bgMusic) { bgMusic.volume = savedVolume || volume; if (volume > 0) bgMusic.play().catch(() => {}); }
     rafId = requestAnimationFrame(step);
   }
+
   function returnToMenu(){
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    stopMusic();
+    // stopMusic();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     showModeSelector();
   }
-  pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) return;
-    if(paused) resumeGame();
+
+  pauseBtn?.addEventListener('click', () => {
+    if (!running && !paused) return;
+    if (paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
   menuBtn?.addEventListener('click', returnToMenu);
 
-  function showDifficultySelector(){
+  function setupGame() {
+    kids.forEach(k => World.remove(world, k.body));
+    kids = [];
+    initKids();
+    Body.setPosition(catcher, { x: canvas.width / 2, y: canvas.height - 100 });
+    Body.setVelocity(catcher, { x: 0, y: 0 });
+    const config = gameConfig[difficulty];
+    score = 0;
+    caught = 0;
+    escaped = 0;
+    timeLeft = config.timeLimit;
+    escapeAccum = 0;
+    nextEscapeIn = randomEscapeInterval();
+    lastTime = null;
+    particles = [];
+    initCars();
+    updateHud();
+    hideOverlay();
+    running = true;
+    paused = false;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
+    playMusic();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showDifficultySelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
       <h3>${jt('jue.card4.diff.title', '🏃 ¿Qué tan rápidos son tus amigos?')}</h3>
@@ -2641,12 +3105,21 @@ async function obtenerMejorPuntajeJuego(gameName) {
           <div class="difficulty-desc">${jt('jue.card4.diff.hardDesc', 'Atrapá 10 amigos, casi no hay respiro')}</div>
         </button>
       </div>`);
-    document.getElementById('btn-easy-encantados').onclick = () => { difficulty='easy'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
-    document.getElementById('btn-medium-encantados').onclick = () => { difficulty='medium'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
-    document.getElementById('btn-hard-encantados').onclick = () => { difficulty='hard'; setTimeout(()=>{ resizeCanvas(); setupGame(); }, 100); };
+    document.getElementById('btn-easy-encantados').onclick = () => { difficulty = 'easy';
+      setTimeout(() => { resizeCanvas();
+        setupWalls();
+        setupGame(); }, 100); };
+    document.getElementById('btn-medium-encantados').onclick = () => { difficulty = 'medium';
+      setTimeout(() => { resizeCanvas();
+        setupWalls();
+        setupGame(); }, 100); };
+    document.getElementById('btn-hard-encantados').onclick = () => { difficulty = 'hard';
+      setTimeout(() => { resizeCanvas();
+        setupWalls();
+        setupGame(); }, 100); };
   }
 
-  function showModeSelector(){
+  function showModeSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.tagModal', 'Ruta 04')}</span>
       <h3>🏃 ${jt('jue.card4.title', 'Escondelero')}</h3>
@@ -2661,17 +3134,18 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   resizeCanvas();
+  setupWalls();
+  initKids();
   showModeSelector();
 
   gameContent?.addEventListener('gameVisible', (e) => {
-    if(e.detail.gameId === 'encantados') {
+    if (e.detail.gameId === 'encantados') {
       isGameVisible = true;
       resizeCanvas();
-      // La música arranca apenas se abre la ventana del juego, en loop,
-      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      setupWalls();
       playMusic();
-      if(paused && running) resumeGame();
-      else if(running) rafId = requestAnimationFrame(step);
+      if (paused && running) resumeGame();
+      else if (running) rafId = requestAnimationFrame(step);
     }
   });
 
@@ -2687,11 +3161,12 @@ async function obtenerMejorPuntajeJuego(gameName) {
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 5: ELOTES Y OLÉ (RECOLECCIÓN EN CARRILES DEL RECREO)
+   JUEGO 5: EL RECREO (antes Elotes y Olé)
+   - Con Matter.js, gráficos mejorados y nombre actualizado
 --------------------------------------------------------- */
-(function initGameElotes(){
+(function initGameElotes() {
   const canvas = document.getElementById('canvas-elotes');
-  if(!canvas) return;
+  if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
   const hud = document.getElementById('hud-elotes');
@@ -2700,40 +3175,30 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const gameContent = document.getElementById('modal-elotes');
   const canvasWrap = document.getElementById('elotes-canvas-wrap');
 
+  const { Engine, World, Bodies, Body, Events } = Matter;
+
   let isGameVisible = false;
   let running = false;
   let paused = false;
   let rafId = null;
+  let lastTime = null;
 
   let baseWidth = 0, baseHeight = 0;
+
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-
-    if(isFS && baseWidth && baseHeight){
+    if (isFS && baseWidth && baseHeight) {
       canvas.width = baseWidth;
       canvas.height = baseHeight;
-    } else {
-      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      baseWidth = canvas.width;
-      baseHeight = canvas.height;
+      return;
     }
-    laneWidth = canvas.width / lanesCount;
-    for(let i=0;i<lanesCount;i++){ lanePositions[i] = (i*laneWidth) + (laneWidth/2); }
-    player.y = canvas.height - 90;
-    player.targetX = lanePositions[player.lane];
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    baseWidth = canvas.width;
+    baseHeight = canvas.height;
   }
-
-  const lanesCount = 3;
-  let laneWidth = 0;
-  const lanePositions = [];
-
-  let player = { x:0, y:0, lane:1, targetX:0 };
-  let items = []; // {x,y,lane,type,emoji,points,speed}
-  let obstacles = []; // {x,y,lane,emoji,speed}
-
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
@@ -2753,319 +3218,569 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  let keys = {};
-  window.addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-    if(running && !paused){
-      if(e.key.toLowerCase()==='a' || e.key==='ArrowLeft') moveLane(-1);
-      if(e.key.toLowerCase()==='d' || e.key==='ArrowRight') moveLane(1);
-    }
-  });
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-  function moveLane(dir){
-    const next = player.lane + dir;
-    if(next >= 0 && next < lanesCount) player.lane = next;
-  }
-  // Soporte táctil: tap en mitad izquierda/derecha del canvas mueve de carril
-  canvas.addEventListener('touchstart', (e)=>{
-    if(!running || paused) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.touches[0].clientX - rect.left;
-    if(x < rect.width/2) moveLane(-1); else moveLane(1);
-  }, {passive:true});
-
-  const GOOD_ITEMS = [
-    {emoji:'🌽', pts:10, label:'elote loco'},
-    {emoji:'🥭', pts:8, label:'mango'},
-    {emoji:'🍧', pts:12, label:'minuta'},
-    {emoji:'🍬', pts:6, label:'dulce'}
-  ];
-  const BAD_ITEMS = [
-    {emoji:'🪑', label:'pupitre'},
-    {emoji:'⚽', label:'pelota perdida'},
-    {emoji:'🧹', label:'escoba del conserje'}
-  ];
-
   let gameConfig = {
-    easy:   { timeLimit: 40, itemMinGap: 900, itemMaxGap: 1400, obstacleMinGap: 1600, obstacleMaxGap: 2400, speed: 3.2, initialLives: 4 },
-    hard:   { timeLimit: 35, itemMinGap: 650, itemMaxGap: 1050, obstacleMinGap: 1100, obstacleMaxGap: 1700, speed: 4.4, initialLives: 3 }
+    easy: { timeLimit: 40, itemMinGap: 900, itemMaxGap: 1400, obstacleMinGap: 1600, obstacleMaxGap: 2400, speed: 3.2, initialLives: 4 },
+    hard: { timeLimit: 35, itemMinGap: 650, itemMaxGap: 1050, obstacleMinGap: 1100, obstacleMaxGap: 1700, speed: 4.4, initialLives: 3 }
   };
   let difficulty = null;
   let score = 0, lives = 3, totalLives = 3, combo = 0, timeLeft = 30;
-  let clockAccum = 0, lastTime = null;
+  let clockAccum = 0;
   let itemSpawnAccum = 0, nextItemSpawnIn = 1000;
   let obstacleSpawnAccum = 0, nextObstacleSpawnIn = 1800;
-  const MIN_LANE_GAP = 90; // separación mínima vertical entre entidades del mismo carril
 
-  function randomItemGap(){
-    const c = gameConfig[difficulty];
-    return c.itemMinGap + Math.random()*(c.itemMaxGap - c.itemMinGap);
-  }
-  function randomObstacleGap(){
-    const c = gameConfig[difficulty];
-    return c.obstacleMinGap + Math.random()*(c.obstacleMaxGap - c.obstacleMinGap);
-  }
+  hud.innerHTML = `
+    <div class="hud-item" style="grid-column: span 2; text-align:center; font-weight:bold; font-size:1.2rem; color:#4CAF50;">
+      🌽 El Recreo
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.hud.points', 'Puntos')}</span>
+      <b id="el-score">0</b>
+    </div>
+    <div class="hud-item lives">
+      <span>${jt('jue.hud.lives', 'Vidas')}</span>
+      <b id="el-lives">❤️❤️❤️</b>
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.hud.combo', 'Combo')}</span>
+      <span class="elotes-combo" id="el-combo">x1</span>
+    </div>
+    <div class="hud-item">
+      <span>${jt('jue.hud.time', 'Tiempo')}</span>
+      <b id="el-time">30</b>
+    </div>`;
 
-  function showOverlay(html){
-    overlayCard.innerHTML = html;
-    overlay.classList.remove('hidden');
-    overlay.style.backdropFilter = 'none';
-    overlay.style.webkitBackdropFilter = 'none';
-    if(window.gsap){
-      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
-      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
-    }
-  }
-  function hideOverlay(){
-    if(window.gsap){
-      overlay.style.pointerEvents = 'none';
-      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
-      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
-    } else {
-      overlay.classList.add('hidden');
-    }
-  }
-
-  function renderLives(count){
+  function renderLives(count) {
     const hearts = [];
-    for(let i=0;i<totalLives;i++){
+    for (let i = 0; i < totalLives; i++) {
       const active = i < count;
-      hearts.push(`<span class="heart${active?'':' broken'}">${active?'❤️':'💔'}</span>`);
+      hearts.push(`<span class="heart${active ? '' : ' broken'}">${active ? '❤️' : '💔'}</span>`);
     }
     return hearts.join('');
   }
 
-  if(hud){
-    hud.innerHTML = `
-      <div class="hud-item">
-        <span>${jt('jue.hud.points', 'Puntos')}</span>
-        <b id="el-score">0</b>
-      </div>
-      <div class="hud-item lives">
-        <span>${jt('jue.hud.lives', 'Vidas')}</span>
-        <b id="el-lives">${renderLives(3)}</b>
-      </div>
-      <div class="hud-item">
-        <span>${jt('jue.hud.combo', 'Combo')}</span>
-        <span class="elotes-combo" id="el-combo">x1</span>
-      </div>
-      <div class="hud-item">
-        <span>${jt('jue.hud.time', 'Tiempo')}</span>
-        <b id="el-time">30</b>
-      </div>`;
-  }
-
-  function updateHud(){
+  function updateHud() {
     const scoreEl = document.getElementById('el-score');
     const livesEl = document.getElementById('el-lives');
     const comboEl = document.getElementById('el-combo');
     const timeEl = document.getElementById('el-time');
-    if(scoreEl) scoreEl.textContent = score;
-    if(livesEl) livesEl.innerHTML = renderLives(lives);
-    if(comboEl) comboEl.textContent = 'x' + Math.max(1, 1 + Math.floor(combo/5));
-    if(timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+    if (scoreEl) scoreEl.textContent = score;
+    if (livesEl) livesEl.innerHTML = renderLives(lives);
+    if (comboEl) comboEl.textContent = 'x' + Math.max(1, 1 + Math.floor(combo / 5));
+    if (timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
   }
 
-  // Audio
-  const bgMusic = document.getElementById('bgMusic-elotes');
-  const volumeSlider = document.getElementById('volumeSlider-elotes');
-  const volumeIcon = document.getElementById('volumeIcon-elotes');
-  const damageOverlay = document.getElementById('damageOverlay-elotes');
-  let volume = Number(volumeSlider?.value || 0.45);
-  if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = false; }
-  volumeSlider?.addEventListener('input', (event)=>{
-    volume = Number(event.target.value);
-    if(bgMusic){ bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
-    if(volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  const engine = Engine.create();
+  engine.gravity.y = 0.5;
+  const world = engine.world;
+
+  const wallThickness = 30;
+  let walls = [];
+
+  function setupWalls() {
+    if (walls.length) World.remove(world, walls);
+    const w = canvas.width, h = canvas.height;
+    walls = [
+      Bodies.rectangle(-wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(w + wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(w/2, h + wallThickness/2, w + wallThickness*2, wallThickness, { isStatic: true, label: 'floor' })
+    ];
+    World.add(world, walls);
+  }
+
+  const playerRadius = 22;
+  const player = Bodies.circle(canvas.width/2, canvas.height - 90, playerRadius, {
+    label: 'player',
+    friction: 0.05,
+    frictionAir: 0.01,
+    restitution: 0.1,
+    isStatic: false
   });
-  function playMusic(){ if(!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(()=>{}); }
-  function stopMusic(){ bgMusic?.pause(); }
-  function flashDamage(){
-    if(!damageOverlay) return;
-    damageOverlay.style.opacity = '1';
-    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
-  }
+  World.add(world, player);
 
-  const pauseBtn = document.getElementById('pauseBtn-elotes');
-  const pauseIcon = document.getElementById('pauseIcon-elotes');
-  const pauseOverlay = document.getElementById('pauseOverlay-elotes');
-  const resumeBtn = document.getElementById('resumeBtn-elotes');
-  const menuBtn = document.getElementById('menuBtn-elotes');
-
-  function pauseGame(){
-    if(!running) return;
-    running = false;
-    paused = true;
-    cancelAnimationFrame(rafId);
-    bgMusic?.pause();
-    canvasWrap?.classList.add('is-paused');
-    pauseOverlay?.classList.remove('hidden');
-    if(pauseIcon) pauseIcon.textContent = '▶️';
-  }
-  function resumeGame(){
-    if(!paused) return;
-    paused = false;
-    running = true;
-    lastTime = null;
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
-    if(volume > 0) bgMusic?.play().catch(()=>{});
-    rafId = requestAnimationFrame(step);
-  }
-  function returnToMenu(){
-    running = false;
-    paused = false;
-    cancelAnimationFrame(rafId);
-    stopMusic();
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
-    items = [];
-    obstacles = [];
-    showDifficultySelector();
-  }
-  pauseBtn?.addEventListener('click', ()=>{
-    if(!running && !paused) return;
-    if(paused) resumeGame();
-    else pauseGame();
+  let keys = {};
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (running && !paused) {
+      if (e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
+      if (e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
+    }
   });
-  resumeBtn?.addEventListener('click', resumeGame);
-  menuBtn?.addEventListener('click', returnToMenu);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-  function spawnEntities(dt){
+  let targetLane = 1;
+  const lanesCount = 3;
+  let lanePositions = [];
+
+  function updateLanePositions() {
+    const laneWidth = canvas.width / lanesCount;
+    lanePositions = [];
+    for (let i = 0; i < lanesCount; i++) {
+      lanePositions.push((i * laneWidth) + (laneWidth / 2));
+    }
+  }
+  updateLanePositions();
+
+  function moveLane(dir) {
+    const next = targetLane + dir;
+    if (next >= 0 && next < lanesCount) targetLane = next;
+  }
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (!running || paused) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    if (x < rect.width / 2) moveLane(-1);
+    else moveLane(1);
+  }, { passive: true });
+
+  let goodItems = [];
+  let badItems = [];
+
+  const GOOD_TYPES = [
+    { emoji: '🌽', pts: 10, label: 'elote', color: '#f9a825', draw: drawElote },
+    { emoji: '🥭', pts: 8, label: 'mango', color: '#ff8f00', draw: drawMango },
+    { emoji: '🍧', pts: 12, label: 'minuta', color: '#b3e5fc', draw: drawMinuta },
+    { emoji: '🍬', pts: 6, label: 'dulce', color: '#ffab00', draw: drawDulce }
+  ];
+  const BAD_TYPES = [
+    { emoji: '🪑', label: 'pupitre', color: '#5d4037', draw: drawPupitre },
+    { emoji: '⚽', label: 'pelota', color: '#212121', draw: drawPelota },
+    { emoji: '🧹', label: 'escoba', color: '#8d6e63', draw: drawEscoba }
+  ];
+
+  function drawElote(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#f9a825';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 20, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#f57f17';
+    ctx.beginPath();
+    ctx.ellipse(0, -4, 8, 12, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#2e7d32';
+    ctx.beginPath();
+    ctx.ellipse(-12, -2, 6, 14, -0.3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(12, -2, 6, 14, 0.3, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawMango(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#ff8f00';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#e65100';
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 4, 6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#33691e';
+    ctx.beginPath();
+    ctx.ellipse(-8, -6, 4, 8, -0.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawMinuta(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#b3e5fc';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 16, 20, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#81d4fa';
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 10, 14, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#8d6e63';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(8, 8);
+    ctx.lineTo(18, 18);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawDulce(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#ffab00';
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#ff6f00';
+    ctx.beginPath();
+    ctx.arc(0, 0, 8, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#e040fb';
+    ctx.beginPath();
+    ctx.ellipse(-14, -4, 6, 10, -0.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(14, -4, 6, 10, 0.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPupitre(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#5d4037';
+    ctx.fillRect(-18, -12, 36, 24);
+    ctx.fillStyle = '#3e2723';
+    ctx.fillRect(-14, -4, 28, 8);
+    ctx.fillStyle = '#795548';
+    ctx.fillRect(-16, -16, 4, 32);
+    ctx.fillRect(12, -16, 4, 32);
+    ctx.restore();
+  }
+
+  function drawPelota(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#212121';
+    ctx.beginPath();
+    ctx.arc(0, 0, 18, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-18, 0);
+    ctx.lineTo(18, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -18);
+    ctx.lineTo(0, 18);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawEscoba(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#8d6e63';
+    ctx.fillRect(-4, -20, 8, 40);
+    ctx.fillStyle = '#6d4c41';
+    ctx.beginPath();
+    ctx.ellipse(0, -24, 16, 6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#a1887f';
+    for (let i = -12; i <= 12; i += 4) {
+      ctx.fillRect(i, -22, 2, 8);
+    }
+    ctx.restore();
+  }
+
+  function spawnGoodItem() {
+    const lane = Math.floor(Math.random() * lanesCount);
+    const x = lanePositions[lane];
+    const type = GOOD_TYPES[Math.floor(Math.random() * GOOD_TYPES.length)];
+    const body = Bodies.circle(x, -30, 20, {
+      label: 'good',
+      isStatic: false,
+      restitution: 0.3,
+      friction: 0.2,
+      frictionAir: 0.01,
+      type: type
+    });
+    Body.setVelocity(body, { x: (Math.random() - 0.5) * 0.5, y: 1 });
+    World.add(world, body);
+    goodItems.push({ body: body, type: type });
+  }
+
+  function spawnBadItem() {
+    const lane = Math.floor(Math.random() * lanesCount);
+    const x = lanePositions[lane];
+    const type = BAD_TYPES[Math.floor(Math.random() * BAD_TYPES.length)];
+    const body = Bodies.rectangle(x, -30, 30, 30, {
+      label: 'bad',
+      isStatic: false,
+      restitution: 0.2,
+      friction: 0.3,
+      frictionAir: 0.01,
+      type: type
+    });
+    Body.setVelocity(body, { x: (Math.random() - 0.5) * 0.5, y: 1 });
+    World.add(world, body);
+    badItems.push({ body: body, type: type });
+  }
+
+  Events.on(engine, 'collisionStart', (event) => {
+    for (const pair of event.pairs) {
+      const { bodyA, bodyB } = pair;
+      if ((bodyA.label === 'player' && bodyB.label === 'good') || (bodyA.label === 'good' && bodyB.label === 'player')) {
+        const goodBody = bodyA.label === 'good' ? bodyA : bodyB;
+        const item = goodItems.find(it => it.body === goodBody);
+        if (item) {
+          const multiplier = Math.max(1, 1 + Math.floor(combo / 5));
+          score += item.type.pts * multiplier;
+          combo++;
+          flashEffect(goodBody.position.x, goodBody.position.y, '#ffd700');
+          World.remove(world, goodBody);
+          goodItems = goodItems.filter(it => it.body !== goodBody);
+          updateHud();
+        }
+      }
+      if ((bodyA.label === 'player' && bodyB.label === 'bad') || (bodyA.label === 'bad' && bodyB.label === 'player')) {
+        const badBody = bodyA.label === 'bad' ? bodyA : bodyB;
+        const item = badItems.find(it => it.body === badBody);
+        if (item) {
+          lives--;
+          combo = 0;
+          flashEffect(badBody.position.x, badBody.position.y, '#ff1744');
+          World.remove(world, badBody);
+          badItems = badItems.filter(it => it.body !== badBody);
+          playerFlash = 1;
+          updateHud();
+        }
+      }
+    }
+  });
+
+  let playerFlash = 0;
+  let particles = [];
+
+  function flashEffect(x, y, color) {
+    for (let i = 0; i < 10; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1 + Math.random() * 4;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1,
+        radius: 3 + Math.random() * 5,
+        life: 1,
+        color: color
+      });
+    }
+  }
+
+  function drawPlayer(body) {
+    const x = body.position.x, y = body.position.y;
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#42a5f5';
+    ctx.beginPath();
+    ctx.roundRect(-16, -10, 32, 24, 6);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffccbc';
+    ctx.beginPath();
+    ctx.arc(0, -18, 14, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-5, -21, 4.5, 0, Math.PI*2);
+    ctx.arc(5, -21, 4.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#1a237e';
+    ctx.beginPath();
+    ctx.arc(-5, -21, 2.5, 0, Math.PI*2);
+    ctx.arc(5, -21, 2.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(-4, -22, 1, 0, Math.PI*2);
+    ctx.arc(6, -22, 1, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,150,150,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(-9, -17, 3, 2.5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(9, -17, 3, 2.5, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#212121';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, -14, 4.5, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+
+    ctx.fillStyle = '#5d4037';
+    ctx.beginPath();
+    ctx.arc(0, -26, 14, Math.PI, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#ef6c00';
+    ctx.fillRect(10, -4, 12, 16);
+
+    ctx.strokeStyle = '#ffccbc';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(-6, 14);
+    ctx.lineTo(-8, 26);
+    ctx.moveTo(6, 14);
+    ctx.lineTo(8, 26);
+    ctx.stroke();
+
+    ctx.fillStyle = '#37474f';
+    ctx.beginPath();
+    ctx.ellipse(-8, 27, 6, 3, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(8, 27, 6, 3, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    if (playerFlash > 0) {
+      ctx.fillStyle = 'rgba(255,0,0,0.2)';
+      ctx.beginPath();
+      ctx.arc(0, 0, playerRadius + 4, 0, Math.PI*2);
+      ctx.fill();
+      playerFlash -= 0.02;
+    }
+
+    ctx.restore();
+  }
+
+  function step(timestamp) {
+    if (!running || !isGameVisible) return;
+    if (lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+
+    const targetX = lanePositions[targetLane];
+    const diff = targetX - player.position.x;
+    Body.setVelocity(player, {
+      x: diff * 0.12,
+      y: player.velocity.y * 0.95
+    });
+    if (Math.abs(player.velocity.x) > 6) {
+      Body.setVelocity(player, {
+        x: Math.sign(player.velocity.x) * 6,
+        y: player.velocity.y
+      });
+    }
+
     const config = gameConfig[difficulty];
 
     itemSpawnAccum += dt;
-    if(itemSpawnAccum >= nextItemSpawnIn){
-      const lane = Math.floor(Math.random()*lanesCount);
-      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
-      if(!blocked){
-        itemSpawnAccum = 0;
-        nextItemSpawnIn = randomItemGap();
-        const good = GOOD_ITEMS[Math.floor(Math.random()*GOOD_ITEMS.length)];
-        items.push({ x: lanePositions[lane], y: -30, lane, emoji: good.emoji, pts: good.pts, speed: config.speed });
-      }
+    if (itemSpawnAccum >= nextItemSpawnIn) {
+      itemSpawnAccum = 0;
+      nextItemSpawnIn = config.itemMinGap + Math.random() * (config.itemMaxGap - config.itemMinGap);
+      spawnGoodItem();
     }
 
     obstacleSpawnAccum += dt;
-    if(obstacleSpawnAccum >= nextObstacleSpawnIn){
-      const lane = Math.floor(Math.random()*lanesCount);
-      const blocked = [...items, ...obstacles].some(e => e.lane === lane && e.y < MIN_LANE_GAP);
-      if(!blocked){
-        obstacleSpawnAccum = 0;
-        nextObstacleSpawnIn = randomObstacleGap();
-        const bad = BAD_ITEMS[Math.floor(Math.random()*BAD_ITEMS.length)];
-        obstacles.push({ x: lanePositions[lane], y: -30, lane, emoji: bad.emoji, speed: config.speed });
-      }
+    if (obstacleSpawnAccum >= nextObstacleSpawnIn) {
+      obstacleSpawnAccum = 0;
+      nextObstacleSpawnIn = config.obstacleMinGap + Math.random() * (config.obstacleMaxGap - config.obstacleMinGap);
+      spawnBadItem();
     }
-  }
 
-  function step(timestamp){
-    if(!running || !isGameVisible) return;
-    if(lastTime === null) lastTime = timestamp;
-    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    lastTime = timestamp;
-    const timeScale = dt / 16.67; // normaliza el movimiento a ~60fps sin importar la tasa real de refresco
-
-    spawnEntities(dt);
-
-    player.targetX = lanePositions[player.lane];
-    player.x += (player.targetX - player.x) * Math.min(1, 0.28 * timeScale);
-
-    items.forEach((it, idx) => {
-      it.y += it.speed * timeScale;
-      if(Math.abs(it.x - player.x) < 34 && Math.abs(it.y - player.y) < 42 && it.lane === player.lane){
-        const multiplier = Math.max(1, 1 + Math.floor(combo/5));
-        score += it.pts * multiplier;
-        combo++;
-        items.splice(idx,1);
-        updateHud();
-        return;
-      }
-      if(it.y > canvas.height + 40) items.splice(idx,1);
-    });
-
-    obstacles.forEach((obs, idx) => {
-      obs.y += obs.speed * timeScale;
-      if(Math.abs(obs.x - player.x) < 30 && Math.abs(obs.y - player.y) < 40 && obs.lane === player.lane){
-        lives -= 1;
-        combo = 0;
-        flashDamage();
-        obstacles.splice(idx,1);
-        updateHud();
-        return;
-      }
-      if(obs.y > canvas.height + 40) obstacles.splice(idx,1);
-    });
+    Engine.update(engine, dt);
 
     clockAccum += dt;
-    while(clockAccum >= 1000 && timeLeft > 0){
+    while (clockAccum >= 1000 && timeLeft > 0) {
       clockAccum -= 1000;
-      timeLeft -= 1;
+      timeLeft--;
     }
     updateHud();
 
-    if(lives <= 0 || timeLeft <= 0){
+    goodItems = goodItems.filter(it => {
+      if (it.body.position.y > canvas.height + 60) {
+        World.remove(world, it.body);
+        return false;
+      }
+      return true;
+    });
+    badItems = badItems.filter(it => {
+      if (it.body.position.y > canvas.height + 60) {
+        World.remove(world, it.body);
+        return false;
+      }
+      return true;
+    });
+
+    if (lives <= 0 || timeLeft <= 0) {
       running = false;
       endGame();
       return;
     }
 
-    // Render
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    drawYard();
-    obstacles.forEach(drawEmojiEntity);
-    items.forEach(drawEmojiEntity);
-    drawPlayer();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#e8f5e9');
+    grad.addColorStop(0.5, '#c8e6c9');
+    grad.addColorStop(1, '#a5d6a7');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([12, 16]);
+    for (let i = 1; i < lanesCount; i++) {
+      const x = (i / lanesCount) * canvas.width;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    for (const item of goodItems) {
+      item.type.draw(item.body.position.x, item.body.position.y);
+      ctx.save();
+      ctx.translate(item.body.position.x, item.body.position.y - 20);
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    for (const item of badItems) {
+      item.type.draw(item.body.position.x, item.body.position.y);
+    }
+
+    drawPlayer(player);
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= 0.015;
+      p.radius *= 0.98;
+      if (p.life <= 0 || p.radius < 0.5) {
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
 
     rafId = requestAnimationFrame(step);
   }
 
-  function drawYard(){
-    ctx.fillStyle = '#e8d9a8';
-    ctx.fillRect(0,0,canvas.width, canvas.height);
-    ctx.strokeStyle = 'rgba(120,90,40,0.35)';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([16,20]);
-    for(let i=1;i<lanesCount;i++){
-      ctx.beginPath();
-      ctx.moveTo(i*laneWidth, 0);
-      ctx.lineTo(i*laneWidth, canvas.height);
-      ctx.stroke();
-    }
-    ctx.setLineDash([]);
-  }
-
-  function drawEmojiEntity(entity){
-    ctx.save();
-    ctx.font = '32px sans-serif';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText(entity.emoji, entity.x, entity.y);
-    ctx.restore();
-  }
-
-  function drawPlayer(){
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    ctx.beginPath();
-    ctx.ellipse(0, 22, 22, 8, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.font = '40px sans-serif';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText('🧒', 0, 0);
-    ctx.restore();
-  }
-
-  function endGame(){
-    stopMusic();
+  function endGame() {
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
 
     let text = score >= 150 ? jt('jue.card5.end.high', '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!') :
                score >= 80 ? jt('jue.card5.end.mid', '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.') :
@@ -3090,36 +3805,128 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  function start(){
-    resizeCanvas();
-    items = [];
-    obstacles = [];
-    player.lane = 1;
-    player.x = lanePositions[1];
-    player.targetX = lanePositions[1];
+  const pauseBtn = document.getElementById('pauseBtn-elotes');
+  const pauseIcon = document.getElementById('pauseIcon-elotes');
+  const pauseOverlay = document.getElementById('pauseOverlay-elotes');
+  const resumeBtn = document.getElementById('resumeBtn-elotes');
+  const menuBtn = document.getElementById('menuBtn-elotes');
+
+  function pauseGame() {
+    if (!running) return;
+    running = false;
+    paused = true;
+    cancelAnimationFrame(rafId);
+    if (bgMusic) { savedVolume = bgMusic.volume; bgMusic.volume = 0.1; }
+    canvasWrap?.classList.add('is-paused');
+    pauseOverlay?.classList.remove('hidden');
+    if (pauseIcon) pauseIcon.textContent = '▶️';
+  }
+
+  function resumeGame() {
+    if (!paused) return;
+    paused = false;
+    running = true;
+    lastTime = null;
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
+    if (bgMusic) { bgMusic.volume = savedVolume || volume; if (volume > 0) bgMusic.play().catch(() => {}); }
+    rafId = requestAnimationFrame(step);
+  }
+
+  function returnToMenu(){
+    running = false;
+    paused = false;
+    cancelAnimationFrame(rafId);
+    // stopMusic();  // ELIMINADO
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    goodItems.forEach(it => World.remove(world, it.body));
+    badItems.forEach(it => World.remove(world, it.body));
+    goodItems = [];
+    badItems = [];
+    showDifficultySelector();
+  }
+
+  pauseBtn?.addEventListener('click', () => {
+    if (!running && !paused) return;
+    if (paused) resumeGame();
+    else pauseGame();
+  });
+  resumeBtn?.addEventListener('click', resumeGame);
+  menuBtn?.addEventListener('click', returnToMenu);
+
+  const bgMusic = document.getElementById('bgMusic-elotes');
+  const volumeSlider = document.getElementById('volumeSlider-elotes');
+  const volumeIcon = document.getElementById('volumeIcon-elotes');
+  const damageOverlay = document.getElementById('damageOverlay-elotes');
+  let volume = Number(volumeSlider?.value || 0.45);
+  let savedVolume = volume;
+
+  if (bgMusic) { bgMusic.volume = volume; bgMusic.muted = false; }
+  volumeSlider?.addEventListener('input', (event) => {
+    volume = Number(event.target.value);
+    if (bgMusic) { bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
+    if (volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
+  });
+
+  function playMusic() { if (!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(() => {}); }
+  function stopMusic() { if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; } }
+
+  function showOverlay(html) {
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+    if (window.gsap) {
+      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
+      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
+    }
+  }
+
+  function hideOverlay() {
+    if (window.gsap) {
+      overlay.style.pointerEvents = 'none';
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  function startGame() {
+    goodItems.forEach(it => World.remove(world, it.body));
+    badItems.forEach(it => World.remove(world, it.body));
+    goodItems = [];
+    badItems = [];
     score = 0;
     combo = 0;
     lives = totalLives;
     timeLeft = gameConfig[difficulty].timeLimit;
     clockAccum = 0;
-    lastTime = null;
     itemSpawnAccum = 0;
-    nextItemSpawnIn = randomItemGap();
+    nextItemSpawnIn = gameConfig[difficulty].itemMinGap + Math.random() * (gameConfig[difficulty].itemMaxGap - gameConfig[difficulty].itemMinGap);
     obstacleSpawnAccum = 0;
-    nextObstacleSpawnIn = randomObstacleGap();
+    nextObstacleSpawnIn = gameConfig[difficulty].obstacleMinGap + Math.random() * (gameConfig[difficulty].obstacleMaxGap - gameConfig[difficulty].obstacleMinGap);
+    targetLane = 1;
+    Body.setPosition(player, { x: lanePositions[1], y: canvas.height - 90 });
+    Body.setVelocity(player, { x: 0, y: 0 });
+    lastTime = null;
+    particles = [];
+    updateHud();
+    hideOverlay();
     running = true;
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
-    updateHud();
-    hideOverlay();
-    cancelAnimationFrame(rafId);
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
     playMusic();
+    cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(step);
   }
 
-  function showDifficultySelector(){
+  function showDifficultySelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
       <h3>🌽 ${jt('jue.card5.diff.title', 'Selecciona Nivel')}</h3>
@@ -3135,18 +3942,23 @@ async function obtenerMejorPuntajeJuego(gameName) {
         </button>
       </div>`);
     document.getElementById('btn-easy-elotes').onclick = () => {
-      difficulty='easy'; totalLives = gameConfig.easy.initialLives;
-      setTimeout(()=>{ start(); }, 100);
+      difficulty = 'easy';
+      totalLives = gameConfig.easy.initialLives;
+      setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); startGame(); }, 100);
     };
     document.getElementById('btn-hard-elotes').onclick = () => {
-      difficulty='hard'; totalLives = gameConfig.hard.initialLives;
-      setTimeout(()=>{ start(); }, 100);
+      difficulty = 'hard';
+      totalLives = gameConfig.hard.initialLives;
+      setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); startGame(); }, 100);
     };
   }
 
+  resizeCanvas();
+  setupWalls();
+  updateLanePositions();
   showOverlay(`
-    <span class="overlay-tag">${jt('jue.card5.tagModal', 'Ruta 05')}</span>
-    <h3>🌽 ${jt('jue.card5.title', 'Elotes y Olé')}</h3>
+    <span class="overlay-tag">${jt('jue.card5.tagModal', 'El Recreo')}</span>
+    <h3>🌽 ${jt('jue.card5.title', 'El Recreo')}</h3>
     <p>${jt('jue.card5.intro', 'Movete entre los 3 carriles del patio con las teclas <strong>A</strong>/<strong>D</strong>, las flechas ⬅️➡️, o tocando a los lados de la pantalla en el celular. Recogé lo rico del recreo y esquivá lo que te estorba.')}</p>
     <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
@@ -3157,14 +3969,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
   document.getElementById('el-start').onclick = showDifficultySelector;
 
   gameContent?.addEventListener('gameVisible', (e) => {
-    if(e.detail.gameId === 'elotes') {
+    if (e.detail.gameId === 'elotes') {
       isGameVisible = true;
       resizeCanvas();
-      // La música arranca apenas se abre la ventana del juego, en loop,
-      // y se corta al cerrar el modal (ver stop: stopMusic más abajo).
+      setupWalls();
+      updateLanePositions();
       playMusic();
-      if(paused && running) resumeGame();
-      else if(running) rafId = requestAnimationFrame(step);
+      if (paused && running) resumeGame();
+      else if (running) rafId = requestAnimationFrame(step);
     }
   });
 
@@ -3203,27 +4015,25 @@ async function obtenerMejorPuntajeJuego(gameName) {
   let paused = false;
   let rafId = null;
 
-  // Parámetros de juego
   let gameDifficulty = 'easy';
-  let targetDistance = 1000;
+  let targetDistance = 1200;
 
   const gameConfig = {
-    easy: { fallSpeed: 2.6, obstacleChance: 0.008, peopleChance: 0.010, energyDrainOnHit: 14, energyRegen: 6 },
-    hard: { fallSpeed: 3.6, obstacleChance: 0.014, peopleChance: 0.016, energyDrainOnHit: 22, energyRegen: 4 }
+    easy: { fallSpeed: 1.2, energyDrainOnHit: 14, energyRegen: 10 },
+    hard: { fallSpeed: 1.8, energyDrainOnHit: 22, energyRegen: 6 }
   };
 
   const lanesCount = 3;
   let laneWidth = 0;
-  let streetLeft = 0, streetRight = 0; // límites de la calle libre (entre las fachadas)
-  let stallLeftX = 0, stallRightX = 0; // posición fija de los puestos, sobre la acera
+  let streetLeft = 0, streetRight = 0;
+  let stallLeftX = 0, stallRightX = 0;
   const lanePositions = [];
 
   let toritoLane = 1;
   let toritoY = 0;
   let distance = 0, energy = 100;
-  let stalls = []; // decorativos, sin física, pegados a la acera
+  let stalls = [];
 
-  // AJUSTE ANTI-BLUR: resolución lógica del canvas fija, el CSS la estira en pantalla completa.
   let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -3240,9 +4050,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
       baseHeight = canvas.height;
     }
 
-    // La calle libre es el área entre las dos franjas de fachada/acera
-    // (14% del ancho a cada lado). Los 3 carriles del torito viven solo
-    // dentro de esa franja central, dejando siempre espacio para pasar.
     const sideW = canvas.width * 0.14;
     streetLeft = sideW;
     streetRight = canvas.width - sideW;
@@ -3258,9 +4065,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
     toritoY = canvas.height - 110;
 
-    // Paredes invisibles a los lados de la calle (no de todo el canvas),
-    // para que los objetos con física reboten dentro del área jugable
-    // en vez de escaparse hacia los puestos decorativos.
     if(engine){
       Composite.remove(world, wallLeft);
       Composite.remove(world, wallRight);
@@ -3272,18 +4076,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
     }
   }
 
-  // ── Motor de física ──
   const engine = Engine.create();
-  engine.gravity.y = 0; // sin gravedad vertical: los objetos "caen" hacia el jugador por velocidad propia, no por gravedad de mundo
+  engine.gravity.y = 0;
   const world = engine.world;
 
   let wallLeft = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
   let wallRight = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
   World.add(world, [wallLeft, wallRight]);
 
-  // El torito: cuerpo estático que se reposiciona según el carril elegido,
-  // igual que el comal de Atrapa la Pupusa. Al ser estático pero con
-  // colisiones activas, los objetos dinámicos rebotan realmente contra él.
   const toritoBody = Bodies.rectangle(0, 0, 46, 30, { isStatic: true, label: 'torito' });
   World.add(world, toritoBody);
 
@@ -3306,7 +4106,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  // Controles: A/D o flechas para cambiar de carril
   let keys = {};
   window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
@@ -3331,11 +4130,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function updateHud(){
     const prog = document.getElementById('t-prog');
-    const dist = document.getElementById('t-dist');
     const energyFill = document.getElementById('t-energy-fill');
 
     if(prog) prog.style.width = Math.min(100, (distance / targetDistance) * 100) + '%';
-    if(dist) dist.textContent = Math.round(distance) + 'm / ' + targetDistance + 'm';
     if(energyFill) {
       energyFill.style.width = Math.max(0, energy) + '%';
       energyFill.style.background = energy > 50 ? '#3ae080' : energy > 20 ? '#ffb300' : '#e53935';
@@ -3345,9 +4142,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
   if(hud) {
     hud.innerHTML = `
       <div class="hud-item">
-        <span>${jt('jue.card6.routeLabel', '🐂 Recorrido')}</span>
+        <span>${jt('jue.card6.routeLabel', '🐂 Progreso')}</span>
         <div class="coasters-progress-bar"><div id="t-prog" class="coasters-progress-fill"></div></div>
-        <b id="t-dist">0m</b>
       </div>
       <div class="hud-item">
         <span>${jt('jue.card6.energyLabel', '🧨 Energía')}</span>
@@ -3355,12 +4151,12 @@ async function obtenerMejorPuntajeJuego(gameName) {
       </div>`;
   }
 
-  // Audio
   const bgMusic = document.getElementById('bgMusic-torito');
   const volumeSlider = document.getElementById('volumeSlider-torito');
   const volumeIcon = document.getElementById('volumeIcon-torito');
   const damageOverlay = document.getElementById('damageOverlay-torito');
   let volume = Number(volumeSlider?.value || 0.45);
+  let savedVolume = volume;
 
   if(bgMusic){
     bgMusic.volume = volume;
@@ -3380,10 +4176,9 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(!bgMusic) return;
     bgMusic.muted = false;
     bgMusic.volume = volume;
-    bgMusic.currentTime = 0;
     bgMusic.play().catch(()=>{});
   }
-  function stopMusic(){ bgMusic?.pause(); }
+  function stopMusic(){ if(bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; } }
 
   function flashDamage(){
     if(!damageOverlay) return;
@@ -3419,8 +4214,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     energy = 100;
     stalls = [];
 
-    // Limpiar todos los cuerpos dinámicos (carretas, gente, cohetillos) que
-    // hayan quedado de una partida anterior.
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
         World.remove(world, b);
@@ -3428,9 +4221,21 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
   }
 
-  // ── Spawns con física real ──
-  function spawnCarreta(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  function isLaneOccupied(lane) {
+    const threshold = 180;
+    const laneX = lanePositions[lane];
+    const bodies = Composite.allBodies(world);
+    for (const b of bodies) {
+      if (b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
+        if (Math.abs(b.position.x - laneX) < 30 && b.position.y < threshold) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function spawnCarreta(lane){
     const body = Bodies.rectangle(lanePositions[lane], -40, 40, 20, {
       restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
     });
@@ -3438,8 +4243,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     World.add(world, body);
   }
 
-  function spawnPersona(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  function spawnPersona(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 12, {
       restitution: 0.5, friction: 0.3, frictionAir: 0.015, label: 'persona'
     });
@@ -3447,8 +4251,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     World.add(world, body);
   }
 
-  function spawnCohetillo(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  function spawnCohetillo(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 9, {
       restitution: 0.6, friction: 0.2, frictionAir: 0.012, isSensor: true, label: 'cohetillo'
     });
@@ -3466,14 +4269,18 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function spawnEntities() {
     const config = gameConfig[gameDifficulty];
-    if(Math.random() < config.obstacleChance && countBodies('carreta') < 3) spawnCarreta();
-    if(Math.random() < 0.01 && stalls.length < 3) spawnStall();
-    if(Math.random() < config.peopleChance && countBodies('persona') < 5) spawnPersona();
-    if(Math.random() < 0.008 && countBodies('cohetillo') < 2) spawnCohetillo();
+    let lane = Math.floor(Math.random() * lanesCount);
+    if (!isLaneOccupied(lane) && Math.random() < 0.006 && countBodies('carreta') < 2) spawnCarreta(lane);
+    
+    lane = Math.floor(Math.random() * lanesCount);
+    if (!isLaneOccupied(lane) && Math.random() < 0.008 && countBodies('persona') < 4) spawnPersona(lane);
+    
+    lane = Math.floor(Math.random() * lanesCount);
+    if (!isLaneOccupied(lane) && Math.random() < 0.006 && countBodies('cohetillo') < 2) spawnCohetillo(lane);
+
+    if(Math.random() < 0.008 && stalls.length < 3) spawnStall();
   }
 
-  // ── Colisiones: al chocar con el torito, el objeto sale despedido con
-  // física real (impulso + giro) en vez de simplemente desaparecer ──
   const toRemove = new Set();
 
   Events.on(engine, 'collisionStart', (evt) => {
@@ -3492,8 +4299,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
         continue;
       }
 
-      // Impulso realista: el objeto sale despedido hacia un lado al azar y
-      // gira, en vez de desaparecer al instante.
       const kickX = (Math.random() - 0.5) * 0.045;
       Body.applyForce(other, other.position, { x: kickX, y: -0.02 });
       Body.setAngularVelocity(other, (Math.random() - 0.5) * 0.5);
@@ -3502,8 +4307,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
       energy = Math.max(0, energy - penalty);
       flashDamage();
 
-      // Se remueve un instante después para que se alcance a ver el
-      // rebote/giro antes de desaparecer del carril.
       setTimeout(() => toRemove.add(other), 220);
     }
   });
@@ -3513,19 +4316,15 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
     const config = gameConfig[gameDifficulty];
 
-    distance += config.fallSpeed * 0.4;
-    energy = Math.max(0, energy - 0.045);
+    distance += config.fallSpeed * 0.15;
+    energy = Math.max(0, energy - 0.02);
 
     spawnEntities();
 
-    // Mover el torito al carril elegido (suavizado)
     const targetX = lanePositions[toritoLane];
     const nextX = toritoBody.position.x + (targetX - toritoBody.position.x) * 0.22;
     Body.setPosition(toritoBody, { x: nextX, y: toritoY });
 
-    // Los objetos avanzan hacia el jugador empujándolos con velocidad propia
-    // (no gravedad de mundo), así el "carril" se respeta salvo cuando la
-    // física del rebote los saca de su trayectoria tras un choque.
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
         Body.setVelocity(b, { x: b.velocity.x * 0.96, y: config.fallSpeed });
@@ -3540,7 +4339,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
     Engine.update(engine, 16.667);
 
-    // Remover cuerpos marcados tras su animación de rebote
     if(toRemove.size){
       toRemove.forEach(b => World.remove(world, b));
       toRemove.clear();
@@ -3563,7 +4361,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
     rafId = requestAnimationFrame(step);
   }
 
-  // ── Arte: calle empedrada de pueblo mágico (tipo Ataco) con casas de colores ──
+  // ---- Dibujado ----
+
   function drawStreet(){
     ctx.fillStyle = '#9c8f7e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3585,31 +4384,66 @@ async function obtenerMejorPuntajeJuego(gameName) {
     const colorIdx = Math.floor(distance / 260);
     const sideW = canvas.width * 0.14;
 
-    drawFacade(0, sideW, facadeColors[colorIdx % facadeColors.length]);
-    drawFacade(canvas.width - sideW, sideW, facadeColors[(colorIdx + 2) % facadeColors.length]);
+    drawHouse(0, sideW, facadeColors[colorIdx % facadeColors.length]);
+    drawHouse(canvas.width - sideW, sideW, facadeColors[(colorIdx + 2) % facadeColors.length]);
 
     ctx.fillStyle = 'rgba(0,0,0,.15)';
     ctx.fillRect(sideW - 4, 0, 4, canvas.height);
     ctx.fillRect(canvas.width - sideW, 0, 4, canvas.height);
   }
 
-  function drawFacade(startX, width, color) {
+  function drawHouse(x, width, color) {
+    const roofHeight = width * 0.5;
     ctx.fillStyle = color;
-    ctx.fillRect(startX, 0, width, canvas.height);
+    ctx.fillRect(x, 0, width, canvas.height);
 
-    ctx.fillStyle = '#a8432f';
-    const tejaX = startX < canvas.width / 2 ? startX + width - 6 : startX;
-    ctx.fillRect(tejaX, 0, 6, canvas.height);
-
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
     const doorSpacing = 130;
     const offsetY = (distance * 0.4) % doorSpacing;
-    ctx.fillStyle = 'rgba(255,255,255,.85)';
-    for(let y = -offsetY; y < canvas.height; y += doorSpacing) {
-      const cx = startX + width / 2;
+    for (let y = -offsetY; y < canvas.height; y += doorSpacing) {
+      const cx = x + width / 2;
       ctx.beginPath();
-      ctx.roundRect(cx - width * 0.22, y + 20, width * 0.44, width * 0.6, 3);
+      ctx.roundRect(cx - width * 0.2, y + 20, width * 0.4, width * 0.5, 3);
       ctx.fill();
     }
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x - width * 0.15, 0);
+    ctx.lineTo(x + width / 2, -roofHeight);
+    ctx.lineTo(x + width + width * 0.15, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#b54b3a';
+    ctx.fill();
+    ctx.strokeStyle = '#7a3428';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#8a3f2e';
+    ctx.lineWidth = 1.5;
+    const steps = 6;
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps;
+      const yPos = -roofHeight * t;
+      const xLeft = x + width * 0.15 * t;
+      const xRight = x + width - width * 0.15 * t;
+      ctx.beginPath();
+      ctx.moveTo(xLeft, yPos);
+      ctx.lineTo(xRight, yPos);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#7a3428';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < steps * 2; i++) {
+      const t = i / (steps * 2);
+      const yPos = -roofHeight * t;
+      const xPos = x + width * 0.15 + (width - width * 0.3) * t;
+      ctx.beginPath();
+      ctx.moveTo(xPos, yPos);
+      ctx.lineTo(xPos + width * 0.08, yPos - roofHeight * 0.05);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   function drawTorito(x, y){
@@ -3712,6 +4546,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   }
 
   const stallColors = ['#e8622c', '#3a86c8', '#2fbf9f', '#f2c744'];
+
   function drawStall(s){
     ctx.save();
     ctx.translate(s.x, s.y);
@@ -3720,14 +4555,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
     const color = stallColors[Math.abs(Math.round(s.y / 90)) % stallColors.length];
 
     ctx.fillStyle = '#6b4226';
-    ctx.fillRect(-14, -2, 28, 14);
+    ctx.fillRect(-22, -4, 44, 20);
 
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.moveTo(-16 * dir, -2);
-    ctx.lineTo(16 * dir, -2);
-    ctx.lineTo(26 * dir, -20);
-    ctx.lineTo(-6 * dir, -20);
+    ctx.moveTo(-24 * dir, -4);
+    ctx.lineTo(24 * dir, -4);
+    ctx.lineTo(36 * dir, -28);
+    ctx.lineTo(-10 * dir, -28);
     ctx.closePath();
     ctx.fill();
 
@@ -3735,7 +4570,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     wares.forEach((c, i) => {
       ctx.fillStyle = c;
       ctx.beginPath();
-      ctx.roundRect(-10 + i * 8, -1, 6, 8, 1);
+      ctx.roundRect(-14 + i * 12, -2, 8, 12, 2);
       ctx.fill();
     });
     ctx.restore();
@@ -3782,27 +4617,30 @@ async function obtenerMejorPuntajeJuego(gameName) {
     ctx.rotate(b.angle);
     ctx.fillStyle = '#ffd54f';
     ctx.beginPath();
-    ctx.moveTo(0, -10);
-    ctx.lineTo(5, 6);
-    ctx.lineTo(-5, 6);
+    ctx.moveTo(0, -18);
+    ctx.lineTo(9, 10);
+    ctx.lineTo(-9, 10);
     ctx.closePath();
     ctx.fill();
     ctx.fillStyle = '#ff7043';
     ctx.beginPath();
-    ctx.arc(0, -12, 3, 0, Math.PI * 2);
+    ctx.arc(0, -22, 5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
   function endRun(motivo){
     running = false;
-    stopMusic();
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
-    const distanciaId = targetDistance <= 800 ? 'corta' : targetDistance <= 1600 ? 'media' : 'larga';
+    let distanciaId;
+    if (targetDistance <= 1200) distanciaId = 'corta';
+    else if (targetDistance <= 2400) distanciaId = 'media';
+    else distanciaId = 'larga';
+
     const gameName = `torito-${gameDifficulty}-${distanciaId}`;
     const scoreFinal = Math.round(distance);
 
@@ -3839,15 +4677,15 @@ async function obtenerMejorPuntajeJuego(gameName) {
       <h3>${jt('jue.card6.distance.title', '🐂 Elige el Recorrido')}</h3>
       <p>${jt('jue.card6.distance.sub', '¿Qué tan larga será la corrida por el pueblo?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-primary" id="dist-corta-torito">${jt('jue.card6.distCorta', 'Corta (800m)')}</button>
-        <button class="btn-primary" id="dist-media-torito">${jt('jue.card6.distMedia', 'Media (1600m)')}</button>
-        <button class="btn-primary" id="dist-larga-torito">${jt('jue.card6.distLarga', 'Larga (3000m)')}</button>
+        <button class="btn-primary" id="dist-corta-torito">${jt('jue.card6.distCorta', 'Corta (1200m)')}</button>
+        <button class="btn-primary" id="dist-media-torito">${jt('jue.card6.distMedia', 'Media (2400m)')}</button>
+        <button class="btn-primary" id="dist-larga-torito">${jt('jue.card6.distLarga', 'Larga (3600m)')}</button>
       </div>
     `);
 
-    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(800); };
-    document.getElementById('dist-media-torito').onclick = () => { selectDistance(1600); };
-    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3000); };
+    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(1200); };
+    document.getElementById('dist-media-torito').onclick = () => { selectDistance(2400); };
+    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3600); };
   }
 
   function selectDistance(dist) {
@@ -3903,7 +4741,6 @@ async function obtenerMejorPuntajeJuego(gameName) {
     document.getElementById('btn-start-torito').onclick = showDistanceSelector;
   }
 
-  // Eventos y pausa
   const pauseBtn = document.getElementById('pauseBtn-torito');
   const pauseIcon = document.getElementById('pauseIcon-torito');
   const pauseOverlay = document.getElementById('pauseOverlay-torito');
@@ -3915,7 +4752,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    if (bgMusic) {
+      savedVolume = bgMusic.volume;
+      bgMusic.volume = 0.1;
+    }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
@@ -3928,7 +4768,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    bgMusic?.play().catch(()=>{});
+    if (bgMusic) {
+      bgMusic.volume = savedVolume || volume;
+      if (volume > 0) bgMusic.play().catch(()=>{});
+    }
     rafId = requestAnimationFrame(step);
   }
 
@@ -3936,7 +4779,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    bgMusic?.pause();
+    // bgMusic?.pause();  // ELIMINADO
+    // stopMusic();       // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -3982,27 +4826,23 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    // 1. Entrada del Hero
     tl.fromTo(".hero-fade", 
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.15 }
     );
 
-    // 2. Fondos ambientales
     tl.fromTo(".ambient-blob",
       { scale: 0.5, opacity: 0 },
       { scale: 1, opacity: 0.4, duration: 1.5, stagger: 0.3 },
       "-=0.6"
     );
 
-    // 3. Entrada de las tarjetas (Animamos la tarjeta completa, no el emoji)
     tl.fromTo(".reveal-grid .game-card",
       { opacity: 0, y: 50, scale: 0.95 },
       { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.2, ease: "back.out(1)" },
       "-=0.8"
     );
 
-    // 4. Animación de hover en boton (solo si no es móvil)
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     if(!isMobile) {
       const buttons = document.querySelectorAll('.btn-play-trigger, .btn-primary, .mode-btn, .difficulty-btn');
