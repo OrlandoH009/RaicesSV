@@ -1,0 +1,101 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "slots": [],
+          "name": "IdiomaSpanishIntent",
+          "samples": [
+            "español",
+            "spanish"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "IdiomaEnglishIntent",
+          "samples": [
+            "inglés",
+            "english"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "FreeModeIntent",
+          "samples": [
+            "I want to ask",
+            "free",
+            "free query",
+            "free mode"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "consulta",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "FreeQueryIntent",
+          "samples": [
+            "tell me about {consulta}",
+            "my query is {consulta}",
+            "my question is {consulta}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "PlannerModeIntent",
+          "samples": [
+            "plan",
+            "planner mode",
+            "plan my trip"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "texto",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "PlannerResponseIntent",
+          "samples": [
+            "let\u0027s say {texto}",
+            "the plan will be {texto}",
+            "my answer is {texto}"
+          ]
+        }
+      ],
+      "types": [],
+      "invocationName": "pupusita cultural"
+    }
+  }
+}
