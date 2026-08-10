@@ -6,12 +6,13 @@
   <title>Salvadorean Roots — Sitios Culturales</title>
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/info-shared.css" />
-  <link rel="stylesheet" href="../assets/css/sitios-culturales.css?v=2" />
+  <link rel="stylesheet" href="../assets/css/sitios-culturales.css" />
   <link rel="icon" type="image/x-icon" href="../assets/favicon_io/favicon-32x32.png" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/back-nav.js" defer></script>
 </head>
 <body>
  
@@ -195,7 +196,12 @@
       <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
   </nav>
- 
+
+  <a href="../views/categorias.html" class="info-back-btn" id="infoBackBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+    <span id="infoBackBtnLabel">Volver a categorías</span>
+  </a>
+
   <main>
     <section class="page-badge">
       <div class="page-badge__inner reveal"><h1 data-i18n="cards.sitios">Sitios Culturales</h1></div>
@@ -251,7 +257,7 @@
           <p data-i18n="sit.salvador.p5">La Plaza Salvador del Mundo se encuentra en San Salvador, en la intersección del Paseo General Escalón, avenida Manuel Enrique Araujo, Alameda Roosevelt y bulevar Constitución. Es uno de los principales puntos de referencia de la capital y adquiere especial importancia durante las Fiestas Agostinas, cuando se desarrollan diversas actividades tradicionales en sus alrededores.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=salvador&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=salvador" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=salvador&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -280,7 +286,7 @@
           <p data-i18n="sit.tazumal.p3">Tazumal está ubicado en el corazón de Chalchuapa, departamento de Santa Ana, aproximadamente a 80 kilómetros al occidente de San Salvador. El Parque Arqueológico cuenta con un espacio museográfico y recorridos guiados para conocer la historia y las estructuras del sitio. Actualmente, el Ministerio de Cultura informa que está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., con entrada diferenciada según el tipo de visitante.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=tazumal&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=tazumal" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=tazumal&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -309,7 +315,7 @@
           <p data-i18n="sit.joya.p3">Joya de Cerén se encuentra en el Valle de Zapotitán, en el departamento de La Libertad, aproximadamente a 36 km al noroeste de San Salvador y a unos 6 km al sur de San Juan Opico. El parque cuenta con un área de visita, servicio de guías gratuitos y espacios destinados a la conservación y difusión del patrimonio arqueológico. Actualmente, el Ministerio de Cultura indica un horario de martes a domingo, de 9:00 a. m. a 4:00 p. m.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=joya&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=joya" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=joya&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -338,7 +344,7 @@
           <p data-i18n="sit.suchitoto.p3">El Lago Suchitlán es un lago artificial creado entre 1973 y 1976 como resultado de la construcción de la Central Hidroeléctrica Cerrón Grande. Se extiende entre los departamentos de Cuscatlán, Chalatenango y Cabañas, y actualmente es uno de los principales atractivos naturales de la zona. Desde el Puerto Turístico San Juan se pueden realizar paseos en lancha, practicar pesca y recorrer algunas de sus islas, entre ellas la Isla de los Pájaros y la Isla del Ermitaño.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=suchitoto&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=suchitoto" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=suchitoto&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -367,7 +373,7 @@
           <p data-i18n="sit.catedral.p3">La Catedral Metropolitana también destaca por su valor artístico y cultural. Entre sus elementos más reconocidos se encuentran los mosaicos diseñados por el artista salvadoreño Fernando Llort, cuyo estilo naíf incorpora colores y formas inspiradas en elementos de la cultura y la vida salvadoreña. La catedral es además un importante espacio para celebraciones religiosas y actividades tradicionales de la capital.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=catedral&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=catedral" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=catedral&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -396,7 +402,7 @@
           <p data-i18n="sit.muna.p3">Además de sus exposiciones permanentes, el MUNA ofrece exposiciones temporales e itinerantes, visitas guiadas, talleres y actividades ludo-educativas, conferencias y otras actividades académicas. También cuenta con una biblioteca especializada, hemeroteca y auditorio, convirtiéndose en un espacio dedicado a la conservación, investigación y difusión del patrimonio cultural salvadoreño.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=muna&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=muna" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=muna&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -425,7 +431,7 @@
           <p data-i18n="sit.sanandres.p3">El Parque Arqueológico San Andrés se encuentra en el valle de Zapotitán, en el departamento de La Libertad, a unos 5 kilómetros de Joya de Cerén. Cuenta con museo, áreas de picnic y un cafetín para los visitantes. El horario publicado por El Salvador Travel es de martes a domingo, de 9:00 a. m. a 4:00 p. m., aunque algunas publicaciones institucionales han manejado horarios especiales según la temporada.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=sanandres&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=sanandres" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=sanandres&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -454,7 +460,7 @@
           <p data-i18n="sit.casablanca.p3">El Parque Arqueológico Casa Blanca se encuentra en el kilómetro 78 de la carretera que conduce de Santa Ana a Chalchuapa. Está abierto de martes a domingo, de 9:00 a. m. a 4:00 p. m., y cuenta con recorridos guiados de aproximadamente 35 a 45 minutos. La entrada para salvadoreños es de $1.00, mientras que existen tarifas diferenciadas para visitantes extranjeros.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=casablanca&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=casablanca" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=casablanca&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -483,7 +489,7 @@
           <p data-i18n="sit.palacio.p3">Actualmente el Palacio Nacional es un espacio cultural y patrimonial abierto al público mediante recorridos guiados. Se encuentra frente a la Plaza Cívica, en el Centro Histórico de San Salvador, muy cerca de la Catedral Metropolitana. El Ministerio de Cultura publica horarios y tarifas que pueden variar según la programación y la temporada.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=palacionacional&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=palacionacional" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=palacionacional&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -512,7 +518,7 @@
           <p data-i18n="sit.teatro.p3">El Teatro Nacional se encuentra en el Centro Histórico de San Salvador, cerca del Parque Libertad. Además de asistir a las presentaciones de su programación artística, es posible participar en recorridos y actividades especiales organizadas por el Ministerio de Cultura. El horario de atención publicado por la institución es de miércoles a domingo, aunque puede variar según las actividades programadas.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=teatronacional&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=teatronacional" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=teatronacional&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
@@ -541,7 +547,7 @@
           <p data-i18n="sit.rosario.p3">La Iglesia El Rosario se encuentra entre la 6.ª y 8.ª avenida sur y entre la 2.ª y 4.ª calle oriente, en el Centro Histórico de San Salvador. El inmueble fue declarado Bien Cultural en 2015 y forma parte de un espacio de gran importancia histórica, ya que en este lugar se construyó la primera catedral de El Salvador. También conserva los restos de importantes figuras religiosas y posee el Escudo Azul para la protección de bienes culturales.</p>
           <div class="sitio-actions">
             <a href="../views/mapa.html?sitio=elrosario&from=sitios-culturales.html" class="sitio-map-link" data-i18n="evp.verMapa">Ver en mapa</a>
-            <a href="../views/publicaciones.html?sitio=elrosario" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
+            <a href="../views/publicaciones.html?sitio=elrosario&from=sitios-culturales.html" class="sitio-pub-link" data-i18n="evp.verPublicaciones">Ver publicaciones</a>
           </div>
         </div>
       </div>
