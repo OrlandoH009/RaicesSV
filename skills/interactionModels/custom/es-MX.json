@@ -1,0 +1,137 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "slots": [],
+          "name": "ModoLibreIntent",
+          "samples": [
+            "modo libre",
+            "libre",
+            "consulta libre"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "consulta",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "ConsultaLibreIntent",
+          "samples": [
+            "mí pregunta es {consulta}",
+            "mí consulta es {consulta}",
+            "mi pregunta es {consulta}",
+            "mi consulta es {consulta}",
+            "cuéntame acerca {consulta}",
+            "cuentame acerca {consulta}",
+            "platícame sobre {consulta}",
+            "platicame sobre {consulta}",
+            "me puedes decir {consulta}",
+            "sabes algo sobre {consulta}",
+            "que significa {consulta}",
+            "qué significa {consulta}",
+            "cuáles son {consulta}",
+            "cuales son {consulta}",
+            "cual es {consulta}",
+            "cuál es {consulta}",
+            "quien fue {consulta}",
+            "quién fue {consulta}",
+            "quien es {consulta}",
+            "quién es {consulta}",
+            "que son {consulta}",
+            "qué son {consulta}",
+            "quiero saber {consulta}",
+            "dime sobre {consulta}",
+            "cuéntame sobre {consulta}",
+            "cuentame sobre {consulta}",
+            "qué es {consulta}",
+            "que es {consulta}",
+            "qué sabes de {consulta}",
+            "que sabes de {consulta}",
+            "cuéntame de {consulta}",
+            "informacion sobre {consulta}",
+            "información sobre {consulta}",
+            "informame sobre {consulta}",
+            "informa sobre {consulta}",
+            "explicame {consulta}",
+            "explícame {consulta}",
+            "explica {consulta}",
+            "hablame sobre {consulta}",
+            "habla sobre {consulta}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ModoPlanificadorIntent",
+          "samples": [
+            "planificar viaje",
+            "modo planificador",
+            "planificar"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "texto",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "name": "RespuestaPlanificadorIntent",
+          "samples": [
+            "digamos {texto}",
+            "mi respuesta es {texto}",
+            "la planificación será {texto}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "IdiomaEspanolIntent",
+          "samples": [
+            "spanish",
+            "español"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "IdiomaInglesIntent",
+          "samples": [
+            "english",
+            "inglés"
+          ]
+        }
+      ],
+      "types": [],
+      "invocationName": "pupusita cultural"
+    }
+  }
+}
