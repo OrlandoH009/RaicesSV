@@ -924,3 +924,79 @@ body.i18n-fading [data-i18n] {
   transform: none;
 }
 .nav-drawer .lang-toggle:hover { transform: translateY(-2px); }
+
+/* Contenedor de controles de música en el navbar */
+.music-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+/* Botón de silencio (ya existente) */
+.music-toggle {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.music-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Slider de volumen */
+.volume-slider {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1f4d3f;
+  cursor: pointer;
+  border: 2px solid white;
+}
+.volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1f4d3f;
+  cursor: pointer;
+  border: 2px solid white;
+}
+.volume-slider:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* En modo oscuro (por defecto) ya funciona, pero si tienes modo claro, ajusta */
+[data-theme="light"] .volume-slider {
+  background: rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .volume-slider:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+[data-theme="light"] .volume-slider::-webkit-slider-thumb {
+  background: #1f4d3f;
+  border-color: #fff;
+}
+[data-theme="light"] .volume-slider::-moz-range-thumb {
+  background: #1f4d3f;
+  border-color: #fff;
+}

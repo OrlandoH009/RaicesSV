@@ -12,113 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     MÚSICA DE FONDO GLOBAL (persiste entre páginas, en loop)
-     ═══════════════════════════════════════════════════════════
-     El sitio es multi-página tradicional (no SPA), así que cada
-     navegación recarga el DOM por completo y con él cualquier
-     <audio>. Para que suene como una sola reproducción continua,
-     en vez de intentar "no perder" el elemento (imposible entre
-     cargas de página), se guarda el estado de reproducción
-     (posición, silenciado, volumen) en localStorage justo antes
-     de perder la pestaña/navegar, y cada página nueva retoma el
-     audio exactamente en esa posición al cargar. */
-  (function initBackgroundMusic() {
-    const MUSIC_SRC = '../assets/media/El Carbonero.mp3';
-    const STORAGE_KEY = 'raices-bgmusic-state';
-
-    const readState = () => {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-      } catch {
-        return {};
-      }
-    };
-    const writeState = (partial) => {
-      try {
-        const current = readState();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...partial }));
-      } catch {
-        /* localStorage no disponible (modo privado, etc.): la música
-           simplemente no persistirá entre páginas, pero seguirá sonando
-           con normalidad dentro de la página actual. */
-      }
-    };
-
-    const audio = new Audio(MUSIC_SRC);
-    audio.loop = true;
-    audio.preload = 'auto';
-
-    const state = readState();
-    const muted = state.muted === true; // por defecto: sonando
-    const volume = typeof state.volume === 'number' ? state.volume : 0.35;
-    const savedTime = typeof state.time === 'number' ? state.time : 0;
-
-    audio.volume = volume;
-    audio.muted = muted;
-
-    const musicToggle = document.createElement('button');
-    musicToggle.type = 'button';
-    musicToggle.className = 'music-toggle';
-    musicToggle.id = 'musicToggle';
-    const iconOn = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-    const iconOff = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
-    musicToggle.innerHTML = muted ? iconOff : iconOn;
-    musicToggle.setAttribute('aria-label', muted ? 'Activar música de fondo' : 'Silenciar música de fondo');
-    musicToggle.setAttribute('aria-pressed', muted ? 'false' : 'true');
-
-    const burgerBtn = document.getElementById('burger');
-    if (burgerBtn && burgerBtn.parentNode) {
-      burgerBtn.parentNode.insertBefore(musicToggle, burgerBtn);
-    } else if (navbar) {
-      navbar.appendChild(musicToggle);
-    }
-
-    function setMuted(next) {
-      audio.muted = next;
-      musicToggle.innerHTML = next ? iconOff : iconOn;
-      musicToggle.setAttribute('aria-label', next ? 'Activar música de fondo' : 'Silenciar música de fondo');
-      musicToggle.setAttribute('aria-pressed', next ? 'false' : 'true');
-      writeState({ muted: next });
-    }
-
-    musicToggle.addEventListener('click', () => setMuted(!audio.muted));
-
-    // Retomar exactamente donde quedó la reproducción en la página anterior.
-    // Se hace en 'loadedmetadata' porque asignar currentTime antes de que el
-    // navegador conozca la duración del archivo puede ser ignorado.
-    audio.addEventListener('loadedmetadata', () => {
-      if (savedTime > 0 && savedTime < audio.duration) {
-        audio.currentTime = savedTime;
-      }
-    });
-
-    // Intentar reproducir. Si el navegador bloquea el autoplay por no haber
-    // interacción de usuario todavía (por ejemplo la primerísima carga del
-    // sitio), quedará pausado hasta el primer click en cualquier parte de
-    // la página, momento en que se reintenta una sola vez.
-    if (!muted) {
-      audio.play().catch(() => {
-        const resumeOnce = () => {
-          audio.play().catch(() => {});
-          document.removeEventListener('click', resumeOnce);
-        };
-        document.addEventListener('click', resumeOnce, { once: true });
-      });
-    }
-
-    // Guardar la posición periódicamente, y también justo antes de salir
-    // de la página, para que la siguiente página retome desde ahí.
-    setInterval(() => {
-      if (!audio.paused) writeState({ time: audio.currentTime, volume: audio.volume });
-    }, 2000);
-    window.addEventListener('pagehide', () => {
-      writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
-    });
-
-    window.SRbgMusic = audio;
-  })();
-
   /* ── Drawer (menú hamburguesa lateral) ── */
   const burger   = document.getElementById('burger');
   const drawer   = document.getElementById('navDrawer');
@@ -132,11 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </svg>
   `;
 
-  // Reconstruir el contenido del drawer para mantenerlo consistente
-  // en todas las vistas. El grupo "Principales" (los mismos links del
-  // navbar) solo se muestra en pantallas móviles vía CSS, ya que en
-  // escritorio esos links ya están visibles en el navbar de arriba.
-  // El bloque de perfil/autoridad lo rellena renderAuthMenu().
+  // Reconstruir el contenido del drawer (sin slider, porque lo ponemos en el navbar)
   if (drawer) {
     drawer.innerHTML = `
       <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
@@ -177,16 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="drawer-auth"></div>
     `;
 
-    // El drawer se acaba de reconstruir por completo. En vez de traducir
-    // solo el drawer, se vuelve a aplicar la traducción a TODO el documento:
-    // así se cubre también cualquier nodo dinámico creado por otros scripts
-    // (por ejemplo, el botón de mostrar/ocultar contraseña en login.js y
-    // registro.js) sin importar el orden de carga entre scripts.
     if (window.SRi18n) {
       window.SRi18n.applyTranslations(window.SRi18n.getLang());
     }
   }
-  // Sincroniza el interruptor visual con el tema guardado, ya que el drawer se reconstruye por JS en cada carga de página.
+
+  // Sincroniza el interruptor visual con el tema guardado
   const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   applyTheme(currentTheme);
 
@@ -256,8 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let loggedIn = true;
       let user = overrideUser;
 
-      // Si no nos pasan datos ya frescos (ej. justo tras guardar el perfil),
-      // se consulta el estado de sesión como antes.
       if (!user) {
         const response = await fetch('/auth/status', { credentials: 'same-origin' });
         const data = await response.json();
@@ -266,9 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (loggedIn) {
-        // Mostrar nombre en el área de perfil y remover la clave de traducción de "Invitado"
         if (drawerUsername) {
-          drawerUsername.removeAttribute('data-i18n'); // <-- AGREGAR ESTA LÍNEA
+          drawerUsername.removeAttribute('data-i18n');
           drawerUsername.textContent = user?.name || user?.email || 'Usuario';
         }
         if (drawerProfileCaption) drawerProfileCaption.setAttribute('data-i18n', 'nav.verPerfil');
@@ -316,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(error);
     }
 
-    // Este bloque también se reconstruyó; reaplicar traducción activa.
     if (window.SRi18n) {
       window.SRi18n.applyTranslations(window.SRi18n.getLang());
     }
@@ -336,10 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = url.toString();
   });
 
-  // Permite que otras páginas (ej. perfil.js tras guardar cambios) actualicen
-  // el nombre/avatar del menú hamburguesa al instante, sin recargar la página.
-  // Se usa un evento en window porque script.js y perfil.js son módulos
-  // independientes y no comparten estado directamente.
   window.addEventListener('raices:profile-updated', (event) => {
     renderAuthMenu(event.detail);
   });
@@ -423,13 +300,139 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
-});
+  /* ═══════════════════════════════════════════════════════════
+     MÚSICA DE FONDO GLOBAL (persiste entre páginas, en loop)
+     ═══════════════════════════════════════════════════════════
+     AHORA con control de volumen en el navbar (slider visible siempre)
+  */
+  (function initBackgroundMusic() {
+    const MUSIC_SRC = '../assets/media/El Carbonero.mp3';
+    const STORAGE_KEY = 'raices-bgmusic-state';
+
+    const readState = () => {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    };
+    const writeState = (partial) => {
+      try {
+        const current = readState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...current, ...partial }));
+      } catch {}
+    };
+
+    const audio = new Audio(MUSIC_SRC);
+    audio.loop = true;
+    audio.preload = 'auto';
+
+    const state = readState();
+    const muted = state.muted === true;
+    const volume = typeof state.volume === 'number' ? state.volume : 0.35;
+    const savedTime = typeof state.time === 'number' ? state.time : 0;
+
+    audio.volume = volume;
+    audio.muted = muted;
+
+    // ── Crear contenedor para controles de música en el navbar ──
+    let musicControls = document.getElementById('musicControls');
+    if (!musicControls) {
+      musicControls = document.createElement('div');
+      musicControls.id = 'musicControls';
+      musicControls.className = 'music-controls';
+      // Buscar donde insertarlo: al lado del botón hamburguesa o al final del navbar
+      const burgerBtn = document.getElementById('burger');
+      if (burgerBtn && burgerBtn.parentNode) {
+        burgerBtn.parentNode.insertBefore(musicControls, burgerBtn);
+      } else if (navbar) {
+        navbar.appendChild(musicControls);
+      }
+    }
+
+    // Limpiar controles previos (para evitar duplicados)
+    musicControls.innerHTML = '';
+
+    // Botón de silencio
+    const musicToggle = document.createElement('button');
+    musicToggle.type = 'button';
+    musicToggle.className = 'music-toggle';
+    musicToggle.id = 'musicToggle';
+    const iconOn = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+    const iconOff = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
+    musicToggle.innerHTML = muted ? iconOff : iconOn;
+    musicToggle.setAttribute('aria-label', muted ? 'Activar música de fondo' : 'Silenciar música de fondo');
+    musicToggle.setAttribute('aria-pressed', muted ? 'false' : 'true');
+    musicControls.appendChild(musicToggle);
+
+    // Slider de volumen
+    const volumeSlider = document.createElement('input');
+    volumeSlider.type = 'range';
+    volumeSlider.id = 'volumeSlider';
+    volumeSlider.min = '0';
+    volumeSlider.max = '1';
+    volumeSlider.step = '0.01';
+    volumeSlider.value = volume;
+    volumeSlider.setAttribute('aria-label', 'Volumen de la música de fondo');
+    volumeSlider.className = 'volume-slider';
+    musicControls.appendChild(volumeSlider);
+
+    function setMuted(next) {
+      audio.muted = next;
+      musicToggle.innerHTML = next ? iconOff : iconOn;
+      musicToggle.setAttribute('aria-label', next ? 'Activar música de fondo' : 'Silenciar música de fondo');
+      musicToggle.setAttribute('aria-pressed', next ? 'false' : 'true');
+      writeState({ muted: next });
+
+      // CORRECCIÓN: si se des-silencia y el audio está pausado, lo reanudamos
+      if (!next && audio.paused) {
+        audio.play().catch(() => {});
+      }
+    }
+
+    musicToggle.addEventListener('click', () => setMuted(!audio.muted));
+
+    // Evento del slider
+    volumeSlider.addEventListener('input', () => {
+      const val = parseFloat(volumeSlider.value);
+      audio.volume = val;
+      writeState({ volume: val });
+    });
+
+    // Retomar posición guardada
+    audio.addEventListener('loadedmetadata', () => {
+      if (savedTime > 0 && savedTime < audio.duration) {
+        audio.currentTime = savedTime;
+      }
+    });
+
+    // Autoplay (solo si no está silenciado)
+    if (!muted) {
+      audio.play().catch(() => {
+        const resumeOnce = () => {
+          audio.play().catch(() => {});
+          document.removeEventListener('click', resumeOnce);
+        };
+        document.addEventListener('click', resumeOnce, { once: true });
+      });
+    }
+
+    // Guardar estado periódicamente y al salir
+    setInterval(() => {
+      if (!audio.paused) writeState({ time: audio.currentTime, volume: audio.volume });
+    }, 2000);
+    window.addEventListener('pagehide', () => {
+      writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
+    });
+
+    window.SRbgMusic = audio;
+  })();
+
+}); // Fin DOMContentLoaded
 
 /* ============================================================
    MODAL DE BLOQUEO — contenido exclusivo para usuarios registrados
-   (Bloque agregado, no modifica nada existente)
    ============================================================ */
-/* ── Tema claro / oscuro ── */
 (function initTheme() {
   const THEME_KEY = 'raices-theme';
   const saved = localStorage.getItem(THEME_KEY);
@@ -456,9 +459,7 @@ function applyTheme(theme) {
   }
 
   if (themeText) {
-    // Obtener la clave de traducción según el tema
     const key = theme === 'light' ? 'nav.modoClaro' : 'nav.modoOscuro';
-    // Usar la traducción si está disponible, o un fallback en español
     if (window.SRi18n) {
       themeText.textContent = window.SRi18n.t(key, window.SRi18n.getLang());
     } else {
@@ -468,7 +469,7 @@ function applyTheme(theme) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  /* ── Navbar scroll effect ── */
+  /* ── Modal de bloqueo ── */
   const lockPages = ['mapa.html', 'calendario.html', 'eventos.html', 'gastronomia.html', 'historia.html', 'leyendas.html', 'quiz.html', 'recetas.html', 'sitios-culturales.html', 'juegos.html'];
 
   const lockModalHTML = `
@@ -497,12 +498,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('lockModalOverlay')) {
     document.body.insertAdjacentHTML('beforeend', lockModalHTML);
   }
-  // Aplicar traducciones al modal recién insertado
   if (window.SRi18n) {
     window.SRi18n.applyTranslations(window.SRi18n.getLang());
   }
 
-  // Actualizar el texto del modo oscuro/claro cuando cambia el idioma
   document.addEventListener('langchange', (event) => {
     const themeText = document.getElementById('themeSwitchText');
     if (themeText && window.SRi18n) {
@@ -540,7 +539,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.key === 'Escape' && lockOverlay?.classList.contains('is-visible')) closeLockModal();
   });
 
-  // Interceptar cualquier click sobre un enlace que apunte a una vista protegida.
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[href]');
     if (!link) return;
@@ -569,19 +567,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============================================================
-   Blindaje contra el botón "atrás/adelante" del navegador
-   (BFCache) tras iniciar o cerrar sesión.
-   ============================================================
-   El servidor ya envía Cache-Control: no-store en las vistas, pero
-   algunos navegadores igual restauran una versión visual desde el
-   BFCache al navegar con las flechas. El evento "pageshow" con
-   event.persisted === true detecta justamente ese caso: se vuelve
-   a verificar el estado real de sesión contra el servidor y, si no
-   coincide con lo que se ve en pantalla, se fuerza una recarga para
-   que el usuario nunca vea una vista protegida "fantasma" después de
-   cerrar sesión, ni una página de login ya autenticada. */
+   Blindaje contra el botón "atrás/adelante" del navegador (BFCache)
+   ============================================================ */
 window.addEventListener('pageshow', (event) => {
-  if (!event.persisted) return; // navegación normal, no vino del BFCache
+  if (!event.persisted) return;
 
   const path = window.location.pathname;
   const isAuthPage = /\/(login|registro|recuperar|restablecer)\.html$/.test(path);
@@ -590,20 +579,12 @@ window.addEventListener('pageshow', (event) => {
     .then((r) => r.json())
     .then((data) => {
       if (isAuthPage && data.loggedIn) {
-        // El usuario ya inició sesión pero el navegador restauró la
-        // pantalla de login/registro desde caché: recargamos para que
-        // el servidor lo redirija a donde corresponde.
         window.location.reload();
       } else if (!isAuthPage && !data.loggedIn) {
-        // El usuario cerró sesión pero el navegador restauró una vista
-        // protegida desde caché: recargamos para que el servidor la
-        // bloquee y mande a login.
         window.location.reload();
       }
     })
     .catch(() => {
-      // Ante la duda (p. ej. sin red), recargar es más seguro que
-      // dejar una vista potencialmente desactualizada en pantalla.
       window.location.reload();
     });
 });

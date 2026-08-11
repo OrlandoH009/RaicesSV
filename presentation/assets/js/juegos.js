@@ -1651,7 +1651,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const volumeSlider = document.getElementById('volumeSlider-coasters');
   const volumeIcon = document.getElementById('volumeIcon-coasters');
   const damageOverlay = document.getElementById('damageOverlay-coasters');
-  let volume = Number(volumeSlider?.value || 0.45);
+  let volume = Number(volumeSlider?.value || 0.35);
   let savedVolume = volume;
 
   if(bgMusic){
@@ -1723,11 +1723,11 @@ async function obtenerMejorPuntajeJuego(gameName) {
     bot.distance = 0;
 
     if (botDifficulty === 'easy') {
-      bot.maxSpeed = 5.5;
+      bot.maxSpeed = 5.2;
     } else if (botDifficulty === 'medium') {
-      bot.maxSpeed = 7.2;
+      bot.maxSpeed = 6.3;
     } else {
-      bot.maxSpeed = 8.8;
+      bot.maxSpeed = 7.2;
     }
 
     passengers = [];
@@ -4020,7 +4020,7 @@ function spawnEntities() {
 
   const gameConfig = {
     easy: { fallSpeed: 1.2, energyDrainOnHit: 14, energyRegen: 10 },
-    hard: { fallSpeed: 1.8, energyDrainOnHit: 22, energyRegen: 6 }
+    hard: { fallSpeed: 1.8, energyDrainOnHit: 20, energyRegen: 8 }
   };
 
   const lanesCount = 3;
@@ -4155,7 +4155,7 @@ function spawnEntities() {
   const volumeSlider = document.getElementById('volumeSlider-torito');
   const volumeIcon = document.getElementById('volumeIcon-torito');
   const damageOverlay = document.getElementById('damageOverlay-torito');
-  let volume = Number(volumeSlider?.value || 0.45);
+  let volume = Number(volumeSlider?.value || 0.4);
   let savedVolume = volume;
 
   if(bgMusic){

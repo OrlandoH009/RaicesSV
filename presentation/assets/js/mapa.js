@@ -428,7 +428,6 @@ const LANDMARKS = [
 
 /* ══════════════════════════════════════════════════════════
    TABLA DE TRADUCCIÓN: SLUG DE SITIO CULTURAL → ID DE LANDMARK
-   (usada por los botones "Ver en mapa" de sitios-culturales.html)
    ══════════════════════════════════════════════════════════ */
 const SLUG_TO_LANDMARK_ID = {
   tazumal: 1,
@@ -445,22 +444,85 @@ const SLUG_TO_LANDMARK_ID = {
 };
 
 /* ══════════════════════════════════════════════════════════
-   INICIALIZACIÓN DEL MAPA CON LEAFLET
+   INICIALIZACIÓN DEL MAPA CON LEAFLET (OPTIMIZADO)
    ══════════════════════════════════════════════════════════ */
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
   zoom: 10.45,
   zoomControl: false,
-  attributionControl: true
+  attributionControl: true,
+  fadeAnimation: true,
+  zoomAnimation: true,
+  markerZoomAnimation: true,
+  inertia: true,
+  inertiaDeceleration: 3000,
+  inertiaMaxSpeed: 1500
 });
 
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
-L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
+// Capa de tiles optimizada
+const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
   maxZoom: 16.5,
   updateWhenZooming: false,
-  keepBuffer: 8,
+  updateWhenIdle: true,
+  keepBuffer: 4,
+  crossOrigin: true,
+  errorTileUrl: '',
+  opacity: 1,
+  zIndex: 1
 }).addTo(mapa);
+
+// ── Preloader y optimización de carga ──
+(function initMapOptimizations() {
+  const mapContainer = document.getElementById('mapa-leaflet');
+  if (!mapContainer) return;
+
+  // Crear indicador de carga
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'mapa-loading';
+  loadingDiv.textContent = 'Cargando mapa...';
+  mapContainer.appendChild(loadingDiv);
+
+  // Ocultar cuando los tiles estén listos
+  let tileLoadCount = 0;
+  const totalTilesExpected = 20; // Aproximado, se disparará varias veces
+
+  tileLayer.on('loading', () => {
+    loadingDiv.style.display = 'flex';
+  });
+
+  tileLayer.on('load', () => {
+    tileLoadCount++;
+    if (tileLoadCount > 1) {
+      loadingDiv.style.display = 'none';
+    }
+  });
+
+  // Fallback: ocultar después de 5 segundos si no se dispara 'load'
+  setTimeout(() => {
+    loadingDiv.style.display = 'none';
+  }, 5000);
+
+  // También ocultar al hacer zoom o mover (para que no se vea)
+  mapa.on('zoomend moveend', () => {
+    loadingDiv.style.display = 'none';
+  });
+
+  // Invalidar tamaño al cargar completamente
+  mapa.whenReady(() => {
+    setTimeout(() => invalidateMapSize(), 300);
+  });
+})();
+
+// Función para invalidar tamaño correctamente
+function invalidateMapSize() {
+  if (mapa) {
+    requestAnimationFrame(() => {
+      mapa.invalidateSize({ animate: true, duration: 0.3 });
+    });
+  }
+}
 
 /* ── Crear ícono personalizado con emoji ── */
 function crearIcono(emoji, color) {
@@ -525,7 +587,6 @@ let activeLandmark = null;
 function abrirSidebar(lm, marker, forcedLang = null) {
   const lang = forcedLang || (window.SRi18n ? window.SRi18n.getLang() : 'es');
 
-  // Contenido instantáneo
   sbImage.src = getImgUrl(lm);
   sbImage.alt = lm.nombre;
   sbEmojiBadge.textContent = lm.emoji;
@@ -575,7 +636,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   sbChips.innerHTML = chipsFinales.map(c => `<span class="popup-chip">${c}</span>`).join('');
 
-  // Manejar marcador activo y pulso
   if (activeMarker && activeMarker !== marker) {
     if (activeMarker._pulseAnim) {
       activeMarker._pulseAnim.kill();
@@ -592,7 +652,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   const iconEl = marker._icon?.querySelector('.custom-marker');
   if (iconEl) {
     iconEl.classList.add('custom-marker--active');
-    // Iniciar pulso con GSAP
     if (window.gsap) {
       if (marker._pulseAnim) {
         marker._pulseAnim.kill();
@@ -610,7 +669,6 @@ function abrirSidebar(lm, marker, forcedLang = null) {
     }
   }
 
-  // Abrir sidebar con animación
   mapaSidebar.classList.add('open');
   mapaSidebar.setAttribute('aria-hidden', 'false');
   mapaSection.classList.add('sidebar-open');
@@ -620,7 +678,8 @@ function abrirSidebar(lm, marker, forcedLang = null) {
     gsap.to(mapaSidebar, {
       translateX: 0,
       duration: 0.5,
-      ease: 'power3.out'
+      ease: 'power3.out',
+      onComplete: () => invalidateMapSize()
     });
     const innerContent = mapaSidebar.querySelector('.mapa-sidebar__hero, .mapa-sidebar__body');
     if (innerContent) {
@@ -631,13 +690,11 @@ function abrirSidebar(lm, marker, forcedLang = null) {
     }
   } else {
     mapaSidebar.style.transform = 'translateX(0)';
+    setTimeout(invalidateMapSize, 350);
   }
-
-  setTimeout(() => mapa.invalidateSize(), 380);
 }
 
 function cerrarSidebar() {
-  // Detener pulso del marcador activo
   if (activeMarker && activeMarker._pulseAnim) {
     activeMarker._pulseAnim.kill();
     activeMarker._pulseAnim = null;
@@ -662,7 +719,7 @@ function cerrarSidebar() {
         }
         activeMarker = null;
         activeLandmark = null;
-        setTimeout(() => mapa.invalidateSize(), 380);
+        setTimeout(invalidateMapSize, 350);
       }
     });
   } else {
@@ -674,7 +731,7 @@ function cerrarSidebar() {
     }
     activeMarker = null;
     activeLandmark = null;
-    setTimeout(() => mapa.invalidateSize(), 380);
+    setTimeout(invalidateMapSize, 350);
   }
 }
 
@@ -682,18 +739,38 @@ sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
   if (activeMarker) {
-    mapa.flyTo(activeMarker.getLatLng(), 14, { animate: true, duration: 1 });
+    mapa.flyTo(activeMarker.getLatLng(), 13.6, { animate: true, duration: 1 });
+    setTimeout(invalidateMapSize, 500);
   }
 });
 
+/* ── Botón "Cómo llegar" usa la ubicación actual ── */
 sbDirections.addEventListener('click', () => {
   if (!activeLandmark) return;
   const [lat, lng] = activeLandmark.coords;
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+  let url = 'https://www.google.com/maps/dir/?api=1';
+  if (miUbicacionActual) {
+    const [latOrigen, lngOrigen] = miUbicacionActual;
+    url += `&origin=${latOrigen},${lngOrigen}`;
+  } else {
+    url += '&origin=current';
+  }
+  url += `&destination=${lat},${lng}`;
+  url += '&travelmode=driving';
+  window.open(url, '_blank');
 });
 
-/* ── Renderizar markers ── */
+/* ══════════════════════════════════════════════════════════
+   RENDERIZAR MARKERS CON LAYERGROUPS POR CATEGORÍA
+   ══════════════════════════════════════════════════════════ */
 const markers = [];
+const gruposCategoria = {
+  cultural: L.layerGroup().addTo(mapa),
+  gastronomia: L.layerGroup().addTo(mapa),
+  evento: L.layerGroup().addTo(mapa),
+  historia: L.layerGroup().addTo(mapa),
+  leyenda: L.layerGroup().addTo(mapa)
+};
 
 function generarHtmlTooltip(lm, lang) {
   const nameTrad = window.SRi18n ? window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang) : lm.nombre;
@@ -719,7 +796,7 @@ function generarHtmlTooltip(lm, lang) {
 
 LANDMARKS.forEach(lm => {
   const icono = crearIcono(lm.emoji, lm.color);
-  const marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
+  const marker = L.marker(lm.coords, { icon: icono });
 
   marker._landmarkCat = lm.cat;
   marker._landmarkId  = lm.id;
@@ -737,12 +814,195 @@ LANDMARKS.forEach(lm => {
 
   marker.on('click', () => {
     abrirSidebar(lm, marker);
-    mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
+    mapa.flyTo(marker.getLatLng(), 13.6, { animate: true, duration: 1 });
+    setTimeout(invalidateMapSize, 500);
   });
+
+  if (gruposCategoria[lm.cat]) {
+    gruposCategoria[lm.cat].addLayer(marker);
+  } else {
+    mapa.addLayer(marker);
+  }
+
   markers.push(marker);
 });
 
-/* ── Corrección de carga inicial asíncrona para i18n ── */
+let categoriaActiva = 'todas';
+
+function aplicarFiltro(categoria) {
+  categoriaActiva = categoria;
+  Object.values(gruposCategoria).forEach(grupo => {
+    if (mapa.hasLayer(grupo)) {
+      mapa.removeLayer(grupo);
+    }
+  });
+
+  if (categoria === 'todas') {
+    Object.values(gruposCategoria).forEach(grupo => {
+      mapa.addLayer(grupo);
+    });
+  } else {
+    if (gruposCategoria[categoria]) {
+      mapa.addLayer(gruposCategoria[categoria]);
+    }
+  }
+
+  const searchQuery = document.getElementById('mapSearchInput')?.value?.toLowerCase().trim() || '';
+  if (searchQuery) {
+    actualizarListaResultados(categoria, searchQuery);
+  } else {
+    const container = document.getElementById('searchResultsContainer');
+    if (container) container.style.display = 'none';
+  }
+  actualizarContador(categoria);
+  setTimeout(invalidateMapSize, 200);
+}
+
+function actualizarListaResultados(categoria, query) {
+  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+  const container = document.getElementById('searchResultsContainer');
+  const list = document.getElementById('searchResultsList');
+  if (!container || !list) return;
+
+  let resultados = [];
+  LANDMARKS.forEach(lm => {
+    let nombre = lm.nombre;
+    if (window.SRi18n && lm.id) {
+      const trad = window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang);
+      if (trad && trad !== `mapa.puntos.${lm.id}.nombre`) {
+        nombre = trad;
+      }
+    }
+    const matchCat = categoria === 'todas' || lm.cat === categoria;
+    const matchSearch = !query || nombre.toLowerCase().includes(query);
+    if (matchCat && matchSearch) {
+      const marker = markers.find(m => m._landmarkId === lm.id);
+      resultados.push({ landmark: lm, marker, nombre });
+    }
+  });
+
+  if (query && resultados.length > 0) {
+    container.style.display = 'block';
+    list.innerHTML = resultados.map(r => `
+      <li data-landmark-id="${r.landmark.id}">
+        <span class="result-emoji">${r.landmark.emoji}</span>
+        <span class="result-name">${r.nombre}</span>
+        <span class="result-category">${obtenerEtiquetaCategoria(r.landmark.cat, lang)}</span>
+      </li>
+    `).join('');
+    list.querySelectorAll('li').forEach(li => {
+      li.addEventListener('click', function() {
+        const id = parseInt(this.dataset.landmarkId);
+        const lm = LANDMARKS.find(l => l.id === id);
+        const marker = markers.find(m => m._landmarkId === id);
+        if (lm && marker) {
+          container.style.display = 'none';
+          mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
+          abrirSidebar(lm, marker);
+          setTimeout(invalidateMapSize, 500);
+        }
+      });
+    });
+  } else if (query && resultados.length === 0) {
+    container.style.display = 'block';
+    list.innerHTML = `<li class="search-results-empty">No se encontraron lugares con "${query}"</li>`;
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+function actualizarContador(categoria) {
+  const countEl = document.getElementById('visibleCount');
+  if (!countEl) return;
+  let total = 0;
+  if (categoria === 'todas') {
+    total = LANDMARKS.length;
+  } else {
+    total = LANDMARKS.filter(lm => lm.cat === categoria).length;
+  }
+  countEl.textContent = total;
+}
+
+function actualizarFiltro(cat) {
+  aplicarFiltro(cat);
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    actualizarFiltro(btn.dataset.cat);
+  });
+});
+
+/* ══════════════════════════════════════════════════════════
+   BUSCADOR
+   ══════════════════════════════════════════════════════════ */
+(function initSearch() {
+  const searchInput = document.getElementById('mapSearchInput');
+  const searchClear = document.getElementById('mapSearchClear');
+  if (!searchInput) return;
+
+  let searchTimeout = null;
+
+  function onSearch() {
+    const query = searchInput.value.trim().toLowerCase();
+    if (searchClear) {
+      searchClear.style.display = query.length > 0 ? 'block' : 'none';
+    }
+    const activeCatBtn = document.querySelector('.filter-btn.active');
+    const cat = activeCatBtn ? activeCatBtn.dataset.cat : 'todas';
+    if (query) {
+      actualizarListaResultados(cat, query);
+    } else {
+      const container = document.getElementById('searchResultsContainer');
+      if (container) container.style.display = 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(onSearch, 300);
+  });
+
+  if (searchClear) {
+    searchClear.addEventListener('click', function() {
+      searchInput.value = '';
+      onSearch();
+      searchInput.focus();
+    });
+  }
+
+  document.addEventListener('langchange', () => {
+    if (searchInput.value.trim().length > 0) {
+      onSearch();
+    }
+  });
+
+  actualizarContador('todas');
+})();
+
+document.addEventListener('click', function(e) {
+  const container = document.getElementById('searchResultsContainer');
+  const searchWrapper = document.querySelector('.search-wrapper');
+  const filtersFloat = document.getElementById('mapaFiltersFloat');
+  if (!container) return;
+  if (!container.contains(e.target) && !searchWrapper?.contains(e.target) && !filtersFloat?.contains(e.target)) {
+    container.style.display = 'none';
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const container = document.getElementById('searchResultsContainer');
+    if (container) container.style.display = 'none';
+    document.getElementById('mapSearchInput')?.blur();
+  }
+});
+
+/* ══════════════════════════════════════════════════════════
+   CORRECCIÓN DE CARGA INICIAL ASÍNCRONA PARA I18N
+   ══════════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     if (window.SRi18n) {
@@ -759,13 +1019,12 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
-  }, 100);
+    invalidateMapSize();
+  }, 200);
 });
 
-/* ── Escuchador global de cambio de idioma (i18n.js Sync) ── */
 document.addEventListener("langchange", (e) => {
   const idiomaActual = e.detail.lang;
-
   if (activeLandmark) {
     abrirSidebar(activeLandmark, activeMarker, idiomaActual);
   }
@@ -773,25 +1032,7 @@ document.addEventListener("langchange", (e) => {
   markers.forEach(m => {
     const lm = LANDMARKS.find(l => l.id === m._landmarkId);
     if (lm) {
-      const nameTrad = window.SRi18n ? window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, idiomaActual) : lm.nombre;
-      const nombreTooltip = (nameTrad && nameTrad !== `mapa.puntos.${lm.id}.nombre`) ? nameTrad : lm.nombre;
-
-      let catTraducida = obtenerEtiquetaCategoria(lm.cat, idiomaActual);
-      if (window.SRi18n) {
-        const tradCat = window.SRi18n.t(`mapa.categorias.${lm.cat}`, idiomaActual);
-        if (tradCat && tradCat !== `mapa.categorias.${lm.cat}`) {
-          catTraducida = tradCat;
-        }
-      }
-
-      const nuevoContenido = `
-        <div class="marker-tooltip">
-           <img src="${getImgUrl(lm)}" alt="${nombreTooltip}" loading="lazy" />
-           <div class="marker-tooltip__info">
-             <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${catTraducida}</span>
-             <span class="marker-tooltip__name">${nombreTooltip}</span>
-           </div>
-         </div>`;
+      const nuevoContenido = generarHtmlTooltip(lm, idiomaActual);
       m.setTooltipContent(nuevoContenido);
       if (m.isTooltipOpen && m.isTooltipOpen()) {
         const tooltip = m.getTooltip();
@@ -804,10 +1045,14 @@ document.addEventListener("langchange", (e) => {
   if (searchInput && searchInput.value.trim().length > 0) {
     const activeCatBtn = document.querySelector('.filter-btn.active');
     const cat = activeCatBtn ? activeCatBtn.dataset.cat : 'todas';
-    actualizarFiltro(cat);
+    actualizarListaResultados(cat, searchInput.value.trim().toLowerCase());
   }
+  setTimeout(invalidateMapSize, 300);
 });
 
+/* ══════════════════════════════════════════════════════════
+   MANEJAR PUBLICACIÓN DESDE URL
+   ══════════════════════════════════════════════════════════ */
 (function manejarPublicacionDesdeURL() {
   const params = new URLSearchParams(window.location.search);
   const location = params.get('location');
@@ -822,6 +1067,7 @@ document.addEventListener("langchange", (e) => {
   }).addTo(mapa);
   marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
   mapa.setView([lat, lng], 13.9, { animate: true });
+  setTimeout(invalidateMapSize, 500);
 })();
 
 /* ══════════════════════════════════════════════════════════
@@ -854,50 +1100,22 @@ document.addEventListener("langchange", (e) => {
    TABLA DE TRADUCCIÓN: EVENTO DEL CALENDARIO → LANDMARK REAL
    ══════════════════════════════════════════════════════════ */
 const TRADUCTOR_A_LANDMARK = {
-  3: 46,  // Panela -> Carnaval de la Panela
-  5: 31,  // Día de la Cruz -> Día de la Cruz
-  8: 23,  // Fiestas Julias -> Fiestas Julias
-  10: 21, // Fiestas Agostinas -> Fiestas Agostinas
-  12: 28, // Jocote Corona -> Jocote Corona
-  13: 47, // Calabaza -> Cojutepeque
-  16: 59, // Día de los Difuntos -> Día de los Difuntos
-  17: 48, // Festival del Añil -> Festival del Añil
-  22: 22, // Día de los Farolitos -> Día de los Farolitos
-  24: 48, // Añil Octubre -> Festival del Añil
-  25: 28, // Jocote 2026 -> Jocote Corona
-  26: 34, // Tradición de los Encuentros -> Tradición de los Encuentros
-  28: 59, // Difuntos 2026 -> Día de los Difuntos
-  29: 41, // Festival del Barro -> Festival del Barro
-  30: 49, // Fiestas de Gotera -> Fiestas Patronales de Gotera
-  31: 27, // Cuisnahuat -> Fiestas de los Historiantes
-  32: 26, // Carnaval 2026 -> Gran Carnaval de San Miguel
-  34: 50, // Chicharrón -> Festival del Chicharrón
-  35: 35, // La Unión -> Fiestas Patronales de La Unión
-  36: 60, // Navidad y Posadas -> Navidad y Posadas
-  39: 4,  // Festival de Suchitoto -> Suchitoto
-  40: 33, // Tradición del Bálsamo -> Tradición del Bálsamo
-  41: 40, // Romería de Esquipulas -> Romería de Esquipulas
-  42: 38, // Fiestas del Rey Guajactial -> Fiestas del Rey Guajactial
-  43: 43, // Festival de las Juventudes -> Festival de las Juventudes
-  44: 45, // Primicia de la Cosecha -> Primicia de la Cosecha
-  45: 57, // Semana Santa Nacional -> Semana Santa Nacional
-  46: 58, // Día de la Independencia -> Día de la Independencia
-  47: 25  // Festival de las Flores y Palmas -> Festival de las Flores y Palmas
+  3: 46, 5: 31, 8: 23, 10: 21, 12: 28, 13: 47, 16: 59, 17: 48, 22: 22,
+  24: 48, 25: 28, 26: 34, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26,
+  34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
+  44: 45, 45: 57, 46: 58, 47: 25
 };
 
+/* ══════════════════════════════════════════════════════════
+   RESALTAR LANDMARK DESDE URL
+   ══════════════════════════════════════════════════════════ */
 (function resaltarLandmarkDesdeURL() {
   window.addEventListener('load', () => {
     const params = new URLSearchParams(window.location.search);
     const latParam = params.get('lat');
     const lngParam = params.get('lng');
-    const nombreEventoParam = params.get('nombreEvento');
-    const eventoIdParam = params.get('eventoId');
-    const descParam = params.get('desc');
-    const deptoParam = params.get('depto');
-    const sitioParam = params.get('sitio');
-    // 'evento' es el parámetro que usan los botones "Ver en mapa" de eventos.html
-    // (contiene directamente el id del landmark, ej. mapa.html?evento=21)
     const eventoParam = params.get('evento');
+    const sitioParam = params.get('sitio');
 
     if (eventoParam && !latParam) {
       const idLandmarkDirecto = parseInt(eventoParam, 10);
@@ -920,6 +1138,7 @@ const TRADUCTOR_A_LANDMARK = {
           targetMarker.setZIndexOffset(1000);
           mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
           abrirSidebar(lmDirecto, targetMarker);
+          setTimeout(invalidateMapSize, 500);
         }
       }
       return;
@@ -928,105 +1147,66 @@ const TRADUCTOR_A_LANDMARK = {
     if (latParam && lngParam) {
       const lat = parseFloat(latParam);
       const lng = parseFloat(lngParam);
-      const idEvento = eventoIdParam ? parseInt(eventoIdParam, 10) : null;
-      const nombreMostrar = nombreEventoParam ? decodeURIComponent(nombreEventoParam) : 'Evento del calendario';
-      const descMostrar = descParam ? decodeURIComponent(descParam) : 'Festividad cultural del calendario de RaicesSV.';
-      const deptoMostrar = deptoParam ? decodeURIComponent(deptoParam) : 'El Salvador';
-
       if (!isNaN(lat) && !isNaN(lng)) {
-        const idLandmarkReal = idEvento ? TRADUCTOR_A_LANDMARK[idEvento] : null;
-        const landmarkReal = idLandmarkReal ? LANDMARKS.find(l => l.id === idLandmarkReal) : null;
-        let lmEvento;
-        if (landmarkReal) {
-          lmEvento = landmarkReal;
-        } else {
-          lmEvento = {
-            id: idEvento || Date.now(),
-            cat: 'evento',
-            emoji: '🎉',
-            color: CAT_COLORS.evento,
-            nombre: nombreMostrar,
-            lugar: deptoMostrar,
-            desc: descMostrar,
-            chips: ['Evento del calendario'],
-            coords: [lat, lng]
-          };
+        let lmCercano = null;
+        let minDist = 0.02;
+        LANDMARKS.forEach(l => {
+          const dist = Math.sqrt(Math.pow(l.coords[0] - lat, 2) + Math.pow(l.coords[1] - lng, 2));
+          if (dist < minDist) {
+            minDist = dist;
+            lmCercano = l;
+          }
+        });
+        if (lmCercano) {
+          const targetMarker = markers.find(m => m._landmarkId === lmCercano.id);
+          if (targetMarker) {
+            const iconoDestacado = L.divIcon({
+              className: '',
+              html: `
+                <div class="custom-marker custom-marker--highlight" style="background:${lmCercano.color};">
+                  ${lmCercano.emoji}
+                  <span class="marker-pulse-ring"></span>
+                </div>`,
+              iconSize: [34, 34],
+              iconAnchor: [17, 17],
+              popupAnchor: [0, -20]
+            });
+            targetMarker.setIcon(iconoDestacado);
+            targetMarker.setZIndexOffset(1000);
+            mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+            abrirSidebar(lmCercano, targetMarker);
+            setTimeout(invalidateMapSize, 500);
+          }
         }
-
-        let targetMarker = markers.find(m => m._landmarkId === lmEvento.id && lmEvento.id !== null);
-        if (!targetMarker) {
-          const iconoNuevo = L.divIcon({
-            className: '',
-            html: `
-              <div class="custom-marker custom-marker--highlight" style="background:${lmEvento.color};">
-                ${lmEvento.emoji}
-                <span class="marker-pulse-ring"></span>
-              </div>`,
-            iconSize: [34, 34],
-            iconAnchor: [17, 17],
-            popupAnchor: [0, -20]
-          });
-          targetMarker = L.marker(lmEvento.coords, { icon: iconoNuevo }).addTo(mapa);
-          targetMarker._landmarkCat = lmEvento.cat;
-          targetMarker._landmarkId  = lmEvento.id;
-          targetMarker.bindTooltip(
-            `<div class="marker-tooltip">
-               <img src="${getImgUrl(lmEvento)}" alt="${lmEvento.nombre}" loading="lazy" />
-               <div class="marker-tooltip__info">
-                 <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lmEvento.cat]}">${lmEvento.emoji} ${obtenerEtiquetaCategoria(lmEvento.cat)}</span>
-                 <span class="marker-tooltip__name">${lmEvento.nombre}</span>
-               </div>
-             </div>`,
-            { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
-          );
-          targetMarker.on('click', () => {
-            abrirSidebar(lmEvento, targetMarker);
-            mapa.panTo(targetMarker.getLatLng(), { animate: true, duration: 0.8 });
-          });
-          markers.push(targetMarker);
-        } else {
-          const iconoDestacado = L.divIcon({
-            className: '',
-            html: `
-              <div class="custom-marker custom-marker--highlight" style="background:${lmEvento.color};">
-                ${lmEvento.emoji}
-                <span class="marker-pulse-ring"></span>
-              </div>`,
-            iconSize: [34, 34],
-            iconAnchor: [17, 17],
-            popupAnchor: [0, -20]
-          });
-          targetMarker.setIcon(iconoDestacado);
-        }
-        targetMarker.setZIndexOffset(1000);
-        mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
-        abrirSidebar(lmEvento, targetMarker);
       }
-      return;
     }
 
     if (sitioParam && typeof SLUG_TO_LANDMARK_ID !== 'undefined') {
-      const idDestinoMapa = SLUG_TO_LANDMARK_ID[sitioParam];
-      if (!idDestinoMapa) return;
-      const lm = LANDMARKS.find(l => l.id === idDestinoMapa);
-      if (!lm) return;
-      const targetMarker = markers.find(m => m._landmarkId === lm.id);
-      if (!targetMarker) return;
-      const iconoDestacado = L.divIcon({
-        className: '',
-        html: `
-          <div class="custom-marker custom-marker--highlight" style="background:${lm.color};">
-            ${lm.emoji}
-            <span class="marker-pulse-ring"></span>
-          </div>`,
-        iconSize: [34, 34],
-        iconAnchor: [17, 17],
-        popupAnchor: [0, -20]
-      });
-      targetMarker.setIcon(iconoDestacado);
-      targetMarker.setZIndexOffset(1000);
-      mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
-      abrirSidebar(lm, targetMarker);
+      const idDestino = SLUG_TO_LANDMARK_ID[sitioParam];
+      if (idDestino) {
+        const lm = LANDMARKS.find(l => l.id === idDestino);
+        if (lm) {
+          const targetMarker = markers.find(m => m._landmarkId === lm.id);
+          if (targetMarker) {
+            const iconoDestacado = L.divIcon({
+              className: '',
+              html: `
+                <div class="custom-marker custom-marker--highlight" style="background:${lm.color};">
+                  ${lm.emoji}
+                  <span class="marker-pulse-ring"></span>
+                </div>`,
+              iconSize: [34, 34],
+              iconAnchor: [17, 17],
+              popupAnchor: [0, -20]
+            });
+            targetMarker.setIcon(iconoDestacado);
+            targetMarker.setZIndexOffset(1000);
+            mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+            abrirSidebar(lm, targetMarker);
+            setTimeout(invalidateMapSize, 500);
+          }
+        }
+      }
     }
   });
 })();
@@ -1041,335 +1221,400 @@ if (filtersToggle && mapaFiltersFloat) {
     const isCollapsed = mapaFiltersFloat.classList.toggle('collapsed');
     filtersToggle.setAttribute('aria-expanded', String(!isCollapsed));
     filtersToggle.setAttribute('aria-label', isCollapsed ? 'Mostrar filtros' : 'Ocultar filtros');
+    setTimeout(invalidateMapSize, 300);
   });
 }
 
 /* ══════════════════════════════════════════════════════════
-   FILTROS INTERACTIVOS + BUSCADOR CON LISTA DE RESULTADOS
+   GEOLOCALIZACIÓN CON TOAST DE ACTIVACIÓN (CORREGIDO)
    ══════════════════════════════════════════════════════════ */
-let catActiva = 'todas';
-const countEl = document.getElementById('visibleCount');
+let miUbicacionActual = null;
+let marcadorUbicacion = null;
+let geoActivado = false;
+let watchId = null;
+let toastTimeout = null;
 
-function actualizarFiltro(cat) {
-  catActiva = cat;
-  const searchQuery = document.getElementById('mapSearchInput')?.value?.toLowerCase().trim() || '';
-  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
-  const container = document.getElementById('searchResultsContainer');
-  const list = document.getElementById('searchResultsList');
-  let results = [];
+const GEO_CONSENT_KEY = 'raices-geo-consent';
+const btnCentrar = document.getElementById('btn-mi-ubicacion');
 
-  LANDMARKS.forEach(lm => {
-    let nombre = lm.nombre;
-    if (window.SRi18n && lm.id) {
-      const trad = window.SRi18n.t(`mapa.puntos.${lm.id}.nombre`, lang);
-      if (trad && trad !== `mapa.puntos.${lm.id}.nombre`) {
-        nombre = trad;
-      }
-    }
-    let catLabel = obtenerEtiquetaCategoria(lm.cat, lang);
-    const matchCat = cat === 'todas' || lm.cat === cat;
-    const matchSearch = !searchQuery || nombre.toLowerCase().includes(searchQuery);
-    if (matchCat && matchSearch) {
-      const marker = markers.find(m => m._landmarkId === lm.id);
-      results.push({ landmark: lm, marker, nombre, catLabel });
-    }
-  });
-
-  if (container && list) {
-    if (searchQuery && results.length > 0) {
-      container.style.display = 'block';
-      if (window.gsap) {
-        gsap.killTweensOf(container);
-        gsap.fromTo(container,
-          { opacity: 0, y: -10 },
-          { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
-        );
-      }
-      list.innerHTML = results.map(r => `
-        <li data-landmark-id="${r.landmark.id}">
-          <span class="result-emoji">${r.landmark.emoji}</span>
-          <span class="result-name">${r.nombre}</span>
-          <span class="result-category">${r.catLabel}</span>
-        </li>
-      `).join('');
-      list.querySelectorAll('li').forEach(li => {
-        li.addEventListener('click', function() {
-          const id = parseInt(this.dataset.landmarkId);
-          const lm = LANDMARKS.find(l => l.id === id);
-          const marker = markers.find(m => m._landmarkId === id);
-          if (lm && marker) {
-            if (window.gsap) {
-              gsap.to(container, {
-                opacity: 0,
-                duration: 0.2,
-                ease: 'power2.in',
-                onComplete: () => { container.style.display = 'none'; }
-              });
-            } else {
-              container.style.display = 'none';
-            }
-            mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
-            abrirSidebar(lm, marker);
-            if (window.gsap && marker._icon) {
-              const iconEl = marker._icon.querySelector('.custom-marker');
-              if (iconEl) {
-                gsap.killTweensOf(iconEl);
-                gsap.fromTo(iconEl,
-                  { scale: 0.8, boxShadow: '0 0 0 rgba(190,142,86,0)' },
-                  { scale: 1.3, boxShadow: '0 0 30px rgba(190,142,86,0.8)', duration: 0.3, ease: 'back.out(2.5)', yoyo: true, repeat: 1 }
-                );
-              }
-            }
-          }
-        });
-      });
-    } else if (searchQuery && results.length === 0) {
-      container.style.display = 'block';
-      if (window.gsap) {
-        gsap.killTweensOf(container);
-        gsap.fromTo(container,
-          { opacity: 0, y: -10 },
-          { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
-        );
-      }
-      list.innerHTML = `<li class="search-results-empty">No se encontraron lugares con "${searchQuery}"</li>`;
-    } else {
-      if (window.gsap) {
-        gsap.killTweensOf(container);
-        gsap.to(container, {
-          opacity: 0,
-          duration: 0.2,
-          ease: 'power2.in',
-          onComplete: () => { container.style.display = 'none'; }
-        });
-      } else {
-        container.style.display = 'none';
-      }
-    }
-  }
-  if (countEl) countEl.textContent = results.length;
-}
-
-// Eventos de filtros
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    actualizarFiltro(btn.dataset.cat);
-  });
-});
-
-/* ══════════════════════════════════════════════════════════
-   BUSCADOR EN EL MAPA (input)
-   ══════════════════════════════════════════════════════════ */
-(function initSearch() {
-  const searchInput = document.getElementById('mapSearchInput');
-  const searchClear = document.getElementById('mapSearchClear');
-  if (!searchInput) {
-    console.warn('No se encontró #mapSearchInput');
+// ── Toast de activación (solo si no está denegado) ──
+function mostrarToastActivacion() {
+  const consent = localStorage.getItem(GEO_CONSENT_KEY);
+  if (consent === 'denied') {
+    mostrarToast(
+      'Permiso de ubicación denegado. Para activarlo, cambia los permisos en la configuración de tu navegador y recarga la página.',
+      'error'
+    );
     return;
   }
 
-  let searchTimeout = null;
+  const existente = document.querySelector('.geo-activate-toast');
+  if (existente) existente.remove();
 
-  function filterMarkersBySearch() {
-    const query = searchInput.value;
-    const q = query.toLowerCase().trim();
-    if (searchClear) {
-      searchClear.style.display = q.length > 0 ? 'block' : 'none';
-    }
-    const activeCatBtn = document.querySelector('.filter-btn.active');
-    const cat = activeCatBtn ? activeCatBtn.dataset.cat : 'todas';
-    actualizarFiltro(cat);
+  const toast = document.createElement('div');
+  toast.className = 'geo-activate-toast';
+  toast.innerHTML = `
+    <span class="geo-activate-toast__icon">📍</span>
+    <span class="geo-activate-toast__msg">Activa tu ubicación para una mejor experiencia</span>
+    <button class="geo-activate-toast__btn" id="geoActivateBtn">Activar</button>
+    <button class="geo-activate-toast__close" id="geoActivateClose">✕</button>
+  `;
+  document.body.appendChild(toast);
+
+  const styleId = 'geo-toast-styles';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .geo-activate-toast {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(30, 30, 42, 0.92);
+        backdrop-filter: blur(8px);
+        color: #f0e6d3;
+        padding: 0.8rem 1.2rem;
+        border-radius: 40px;
+        border: 1px solid rgba(190, 142, 86, 0.3);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        z-index: 9999;
+        font-size: 0.9rem;
+        max-width: 90%;
+        animation: slideUp 0.4s ease;
+        white-space: nowrap;
+      }
+      .geo-activate-toast__icon { font-size: 1.3rem; }
+      .geo-activate-toast__msg { flex: 1; }
+      .geo-activate-toast__btn {
+        background: #be8e56;
+        border: none;
+        color: #fff;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        font-size: 0.85rem;
+      }
+      .geo-activate-toast__btn:hover {
+        background: #a67848;
+        transform: scale(1.05);
+      }
+      .geo-activate-toast__close {
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0 0.2rem;
+        transition: color 0.2s;
+        line-height: 1;
+      }
+      .geo-activate-toast__close:hover { color: #fff; }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+      @media (max-width: 600px) {
+        .geo-activate-toast {
+          flex-wrap: wrap;
+          justify-content: center;
+          white-space: normal;
+          padding: 0.8rem 1rem;
+          bottom: 80px;
+        }
+        .geo-activate-toast__msg { flex: 0 0 100%; text-align: center; }
+      }
+    `;
+    document.head.appendChild(style);
   }
 
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(filterMarkersBySearch, 300);
+  const activateBtn = document.getElementById('geoActivateBtn');
+  const closeBtn = document.getElementById('geoActivateClose');
+
+  activateBtn.addEventListener('click', () => {
+    toast.remove();
+    iniciarGeolocalizacion(true);
   });
 
-  if (searchClear) {
-    searchClear.addEventListener('click', function() {
-      searchInput.value = '';
-      filterMarkersBySearch();
-      searchInput.focus();
-    });
-  }
-
-  setTimeout(filterMarkersBySearch, 500);
-
-  document.addEventListener('langchange', () => {
-    if (searchInput.value.trim().length > 0) {
-      filterMarkersBySearch();
-    }
+  closeBtn.addEventListener('click', () => {
+    toast.remove();
+    localStorage.setItem('raices-geo-toast-dismissed', 'true');
   });
-})();
 
-// Cerrar la lista de resultados al hacer clic fuera
-document.addEventListener('click', function(e) {
-  const container = document.getElementById('searchResultsContainer');
-  const searchWrapper = document.querySelector('.search-wrapper');
-  const filtersFloat = document.getElementById('mapaFiltersFloat');
-  if (!container) return;
-  if (!container.contains(e.target) && !searchWrapper.contains(e.target) && !filtersFloat.contains(e.target)) {
-    container.style.display = 'none';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    if (document.body.contains(toast)) toast.remove();
+  }, 15000);
+}
+
+// ── Funciones de geolocalización ──
+function eliminarMarcadorUbicacion() {
+  if (marcadorUbicacion) {
+    mapa.removeLayer(marcadorUbicacion);
+    marcadorUbicacion = null;
   }
-});
+}
 
-// Cerrar la lista con Escape
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const container = document.getElementById('searchResultsContainer');
-    if (container) container.style.display = 'none';
-    document.getElementById('mapSearchInput')?.blur();
-  }
-});
-
-/* ══════════════════════════════════════════════════════════
-   GEOLOCALIZACIÓN AUTOMÁTICA Y BOTÓN DE CENTRADO
-   ══════════════════════════════════════════════════════════ */
-let miUbicacionActual = null;
-
-function mostrarToastGeo(mensaje, tipo = 'info') {
+function mostrarToast(mensaje, tipo = 'info') {
   const existente = document.querySelector('.geo-toast');
   if (existente) existente.remove();
   const toast = document.createElement('div');
   toast.className = `geo-toast geo-toast--${tipo}`;
-  toast.innerHTML = `
-    <span class="geo-toast__icon">${tipo === 'error' ? '📍' : 'ℹ️'}</span>
-    <span class="geo-toast__msg">${mensaje}</span>
-  `;
+  toast.innerHTML = `<span class="geo-toast__icon">${tipo === 'error' ? '📍' : 'ℹ️'}</span><span class="geo-toast__msg">${mensaje}</span>`;
   document.body.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('geo-toast--visible'));
-  setTimeout(() => {
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
     toast.classList.remove('geo-toast--visible');
     setTimeout(() => toast.remove(), 300);
   }, 5000);
 }
 
-function obtenerYCentrarUbicacion(debeCentrar = false) {
-  const params = new URLSearchParams(window.location.search);
-  const tieneDestino = params.has('evento') || params.has('sitio') || params.has('nombre')
-    || params.has('eventoId') || (params.has('lat') && params.has('lng'));
-
-  if (tieneDestino && !debeCentrar) {
-    console.log("Geolocalización en segundo plano: Omitiendo centrado para preservar destino URL.");
+function detenerGeolocalizacion() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
   }
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        miUbicacionActual = [userLat, userLng];
-
-        const userMarkerIcon = L.divIcon({
-          className: 'user-location-marker',
-          html: '<div class="user-pulse"></div>',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10]
-        });
-
-        L.marker(miUbicacionActual, { icon: userMarkerIcon })
-          .addTo(mapa)
-          .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
-
-        if (debeCentrar || !tieneDestino) {
-          mapa.flyTo(miUbicacionActual, 13.9, { animate: true, duration: 1.5 });
-        }
-      },
-      (error) => {
-        console.warn("Geolocalización no disponible.", error);
-        let mensaje = 'No pudimos obtener tu ubicación.';
-        if (error.code === error.PERMISSION_DENIED) {
-          mensaje = 'No se pudo acceder a tu ubicación porque el permiso fue denegado.';
-        }
-        if (!tieneDestino || debeCentrar) {
-          mostrarToastGeo(mensaje, 'error');
-        }
-      },
-      { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
-    );
-  } else if (!tieneDestino || debeCentrar) {
-    mostrarToastGeo('Tu navegador no soporta geolocalización.', 'error');
-  }
+  eliminarMarcadorUbicacion();
+  miUbicacionActual = null;
+  geoActivado = false;
 }
 
-obtenerYCentrarUbicacion(false);
+function iniciarGeolocalizacion(centrar = true) {
+  if (!navigator.geolocation) {
+    mostrarToast('Tu navegador no soporta geolocalización.', 'error');
+    return;
+  }
+  if (geoActivado) return;
 
-const btnMiUbicacion = document.getElementById('btn-mi-ubicacion');
-if (btnMiUbicacion) {
-  btnMiUbicacion.addEventListener('click', () => {
+  const consent = localStorage.getItem(GEO_CONSENT_KEY);
+  if (consent === 'denied') {
+    mostrarToast(
+      'Permiso de ubicación denegado. Por favor, habilítalo en la configuración de tu navegador y recarga la página.',
+      'error'
+    );
+    return;
+  }
+  if (consent === null) {
+    mostrarModalGeo(() => {
+      iniciarGeolocalizacion(centrar);
+    });
+    return;
+  }
+
+  geoActivado = true;
+
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+
+  const success = (position) => {
+    const userLat = position.coords.latitude;
+    const userLng = position.coords.longitude;
+    miUbicacionActual = [userLat, userLng];
+
+    eliminarMarcadorUbicacion();
+
+    const userMarkerIcon = L.divIcon({
+      className: 'user-location-marker',
+      html: '<div class="user-pulse"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
+    });
+
+    marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
+      .addTo(mapa)
+      .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
+
+    if (centrar) {
+      mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.5 });
+      setTimeout(invalidateMapSize, 600);
+    }
+    mostrarToast('Ubicación obtenida correctamente.', 'info');
+  };
+
+  const error = (err) => {
+    console.warn('Error de geolocalización:', err);
+    let mensaje = 'No pudimos obtener tu ubicación.';
+    if (err.code === err.PERMISSION_DENIED) {
+      mensaje = 'Permiso denegado. Cambia la configuración de tu navegador.';
+      localStorage.setItem(GEO_CONSENT_KEY, 'denied');
+    }
+    mostrarToast(mensaje, 'error');
+    detenerGeolocalizacion();
+  };
+
+  watchId = navigator.geolocation.watchPosition(success, error, {
+    enableHighAccuracy: true,
+    timeout: 6000,
+    maximumAge: 0
+  });
+}
+
+// ── Modal de consentimiento ──
+function mostrarModalGeo(callback) {
+  let modal = document.getElementById('geoConsentModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'geoConsentModal';
+    modal.className = 'geo-consent-modal';
+    modal.innerHTML = `
+      <div class="geo-consent-modal-content">
+        <h3>📍 Mejor experiencia con tu ubicación</h3>
+        <p>Permítenos acceder a tu ubicación para mostrarte lugares cercanos y mejorar tu experiencia en el mapa.</p>
+        <div class="geo-consent-buttons">
+          <button id="geoConsentAllow" class="geo-consent-btn allow">Habilitar</button>
+          <button id="geoConsentDeny" class="geo-consent-btn deny">No, gracias</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const styleId = 'geo-modal-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        .geo-consent-modal {
+          position: fixed;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.7);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 99999;
+          animation: fadeIn 0.3s ease;
+          backdrop-filter: blur(4px);
+        }
+        .geo-consent-modal-content {
+          background: #1e1e2a;
+          color: #fff;
+          padding: 2rem;
+          border-radius: 16px;
+          max-width: 400px;
+          width: 90%;
+          text-align: center;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+        .geo-consent-modal-content h3 {
+          margin-top: 0;
+          font-size: 1.4rem;
+          color: #f0e6d3;
+        }
+        .geo-consent-modal-content p {
+          margin: 1rem 0 1.5rem;
+          line-height: 1.5;
+          opacity: 0.85;
+          color: #d0c8b8;
+        }
+        .geo-consent-buttons {
+          display: flex;
+          gap: 0.8rem;
+          justify-content: center;
+        }
+        .geo-consent-btn {
+          padding: 0.6rem 1.8rem;
+          border: none;
+          border-radius: 40px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.2s, background 0.2s;
+        }
+        .geo-consent-btn.allow {
+          background: #be8e56;
+          color: #fff;
+        }
+        .geo-consent-btn.allow:hover {
+          background: #a67848;
+          transform: scale(1.05);
+        }
+        .geo-consent-btn.deny {
+          background: #3a3a4a;
+          color: #ccc;
+        }
+        .geo-consent-btn.deny:hover {
+          background: #4a4a5a;
+          transform: scale(1.05);
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+  modal.style.display = 'flex';
+
+  const allowBtn = document.getElementById('geoConsentAllow');
+  const denyBtn = document.getElementById('geoConsentDeny');
+  allowBtn.replaceWith(allowBtn.cloneNode(true));
+  denyBtn.replaceWith(denyBtn.cloneNode(true));
+
+  document.getElementById('geoConsentAllow').addEventListener('click', () => {
+    localStorage.setItem(GEO_CONSENT_KEY, 'granted');
+    modal.style.display = 'none';
+    if (typeof callback === 'function') callback();
+  });
+
+  document.getElementById('geoConsentDeny').addEventListener('click', () => {
+    localStorage.setItem(GEO_CONSENT_KEY, 'denied');
+    modal.style.display = 'none';
+    detenerGeolocalizacion();
+  });
+}
+
+// ── Evento del botón de la diana ──
+if (btnCentrar) {
+  btnCentrar.addEventListener('click', () => {
     if (miUbicacionActual) {
       mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.2 });
+      setTimeout(invalidateMapSize, 500);
     } else {
-      mostrarToastGeo('Buscando tu ubicación exacta...', 'info');
-      obtenerYCentrarUbicacion(true);
+      mostrarToastActivacion();
     }
   });
 }
 
-/* ══════════════════════════════════════════════════════════
-   INTEGRACIÓN CON CHATBOT
-   ══════════════════════════════════════════════════════════ */
-(function integrarConChatbot() {
-  document.addEventListener('rs-chat-location', (e) => {
-    const { lat, lng, nombre } = e.detail;
-    if (!lat || !lng) return;
-    
-    let lm = LANDMARKS.find(l => 
-      Math.abs(l.coords[0] - lat) < 0.01 && 
-      Math.abs(l.coords[1] - lng) < 0.01
-    );
-    
-    if (!lm) {
-      lm = {
-        id: Date.now(),
-        cat: 'cultural',
-        emoji: '📍',
-        color: '#be8e56',
-        nombre: nombre || 'Lugar destacado',
-        lugar: 'El Salvador',
-        coords: [lat, lng],
-        desc: 'Lugar recomendado por Pupusita.',
-        chips: ['Recomendado por Pupusita']
-      };
-    }
-    
-    let marker = markers.find(m => m._landmarkId === lm.id);
-    if (!marker) {
-      const icono = crearIcono(lm.emoji, lm.color);
-      marker = L.marker(lm.coords, { icon: icono }).addTo(mapa);
-      marker._landmarkCat = lm.cat;
-      marker._landmarkId = lm.id;
-      const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
-      marker.bindTooltip(
-        `<div class="marker-tooltip">
-           <div class="marker-tooltip__info">
-             <span class="marker-tooltip__cat" style="color:${lm.color}">${lm.emoji} ${lm.cat}</span>
-             <span class="marker-tooltip__name">${lm.nombre}</span>
-           </div>
-         </div>`,
-        { direction: 'top', offset: [0, -16], opacity: 1, className: 'marker-tooltip-wrap', sticky: false }
-      );
-      marker.on('click', () => {
-        abrirSidebar(lm, marker);
-        mapa.setView(marker.getLatLng(), 13.4, { animate: true });
-      });
-      markers.push(marker);
-    }
-    
-    if (marker) {
-      mapa.setView([lat, lng], 13.4, { animate: true, duration: 1 });
-      setTimeout(() => {
-        abrirSidebar(lm, marker);
-        marker._icon?.querySelector('.custom-marker')?.classList.add('custom-marker--highlight');
-        setTimeout(() => {
-          marker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--highlight');
-        }, 3000);
-      }, 500);
-    }
-  });
-})();
+// ── Inicialización al cargar ──
+const consentInicial = localStorage.getItem(GEO_CONSENT_KEY);
+const paramsURL = new URLSearchParams(window.location.search);
+const tieneDestino = paramsURL.has('evento') || paramsURL.has('sitio') || paramsURL.has('lat') || paramsURL.has('lng');
 
-console.log('mapa.js cargado correctamente - Buscador, lista de resultados y pulso GSAP activos');
+if (consentInicial === 'granted') {
+  iniciarGeolocalizacion(false);
+} else if (consentInicial === 'denied') {
+  // No hacer nada
+} else {
+  if (!tieneDestino) {
+    setTimeout(() => {
+      mostrarModalGeo(() => {
+        iniciarGeolocalizacion(true);
+      });
+    }, 500);
+  }
+}
+
+if (tieneDestino && !miUbicacionActual && consentInicial !== 'denied') {
+  setTimeout(() => {
+    mostrarToastActivacion();
+  }, 1000);
+}
+
+// ── Redimensionar correctamente al cambiar tamaño de ventana ──
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    invalidateMapSize();
+  }, 200);
+});
+
+console.log('mapa.js cargado correctamente - Optimizado con preloader y invalidación de tamaño');
