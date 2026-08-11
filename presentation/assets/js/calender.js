@@ -5,6 +5,11 @@ const calendarState = {
   selectedDay: null,
   festividades: []
 };
+// Se expone explícitamente en window: al cargarse como <script> normal (no
+// type="module"), las declaraciones `const` de nivel superior NO cuelgan de
+// `window`, así que los `if (window.calendarState)` repartidos en este mismo
+// archivo nunca se cumplían y `festividades` se quedaba vacío para siempre.
+window.calendarState = calendarState;
 
 // Claves de traducción para los meses
 const CLAVES_MESES = [
@@ -474,8 +479,62 @@ function renderTodayEvent() {
 // CATÁLOGO
 // ============================================================
 let listaEventosFiltrados = [];
-let currentLimit = 6;
-let eventoActivoModalId = null;
+let currentLimit = 6; 
+let eventoActivoModalId = null; 
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Retrasamos levemente el render inicial para dar tiempo a la carga del DOM de traducción
+  setTimeout(() => {
+    initCatalogAndFilters();
+    setupModalEvents();
+    restaurarEstadoCalendario();
+    abrirEventoDesdeURL();
+  }, 100);
+
+  // Escucha el evento global i18n
+  document.addEventListener("langchange", () => {
+    setTimeout(() => { 
+      if (typeof renderCatalogo === "function") {
+        renderCatalogo(listaEventosFiltrados);
+      }
+    }, 100);
+  });
+});
+
+function abrirEventoDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const idParam = params.get("id");
+  if (!idParam) return;
+
+  const evento = calendarState.festividades.find(f => f.id === Number(idParam));
+  if (!evento) return;
+
+  // Navega el calendario visual al mes/año del evento y re-renderiza la grilla
+  calendarState.currentMonth = evento.mes - 1;
+  calendarState.currentYear = evento.anio || calendarState.currentYear;
+  if (typeof renderYearTitle === "function") renderYearTitle();
+  if (typeof renderMonthPills === "function") renderMonthPills();
+  if (typeof renderCalendarGrid === "function") renderCalendarGrid();
+
+  // Resalta el día del evento en la grilla recién renderizada
+  const calGrid = document.getElementById("calGrid");
+  if (calGrid) {
+    const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
+    const celdaEvento = diasCelda.find(d => {
+      const numEl = d.querySelector(".day-num");
+      return numEl && Number(numEl.textContent) === evento.dia;
+    });
+    if (celdaEvento) {
+      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
+      celdaEvento.classList.add("selected");
+      celdaEvento.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  if (typeof window.abrirDetallesEvento === "function") {
+    window.abrirDetallesEvento(evento);
+  }
+}
 
 function initCatalogAndFilters() {
   const gridViewBtn = document.getElementById("gridViewBtn");
