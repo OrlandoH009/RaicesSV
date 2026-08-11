@@ -5,6 +5,11 @@ const calendarState = {
   selectedDay: null,
   festividades: [] 
 };
+// Se expone explícitamente en window: al cargarse como <script> normal (no
+// type="module"), las declaraciones `const` de nivel superior NO cuelgan de
+// `window`, así que los `if (window.calendarState)` repartidos en este mismo
+// archivo nunca se cumplían y `festividades` se quedaba vacío para siempre.
+window.calendarState = calendarState;
 
 // Claves de traducción para los meses
 const CLAVES_MESES = [
@@ -351,18 +356,24 @@ function abrirEventoDesdeURL() {
   if (typeof renderCalendarGrid === "function") renderCalendarGrid();
 
   // Resalta el día del evento en la grilla recién renderizada
-  const calGrid = document.getElementById("calGrid");
-  if (calGrid) {
-    const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
-    const celdaEvento = diasCelda.find(d => {
-      const numEl = d.querySelector(".day-num");
-      return numEl && Number(numEl.textContent) === evento.dia;
-    });
-    if (celdaEvento) {
-      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
-      celdaEvento.classList.add("selected");
-      celdaEvento.scrollIntoView({ behavior: "smooth", block: "center" });
+  try {
+    const calGrid = document.getElementById("calGrid");
+    if (calGrid) {
+      const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
+      const celdaEvento = diasCelda.find(d => {
+        const numEl = d.querySelector(".day-num");
+        return numEl && Number(numEl.textContent) === evento.dia;
+      });
+      if (celdaEvento) {
+        document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
+        celdaEvento.classList.add("selected");
+        if (typeof celdaEvento.scrollIntoView === "function") {
+          celdaEvento.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
     }
+  } catch (e) {
+    console.warn("No se pudo resaltar el día del evento en la grilla:", e);
   }
 
   if (typeof window.abrirDetallesEvento === "function") {
