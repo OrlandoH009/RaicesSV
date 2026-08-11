@@ -32,7 +32,7 @@
 
   const PROXY_URL = '/chat-proxy';
   const STORAGE_KEY = 'rs_chat_history';
-  const MAX_HISTORY = 4;
+  const MAX_HISTORY = 6;
 
   // ==========================================
   // 2. DETECCIÓN DE IDIOMA
