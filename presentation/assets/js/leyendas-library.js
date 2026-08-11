@@ -15,20 +15,22 @@ const LEYENDAS_DATA = [
     origenKey: "ley.data.siguanaba.origin",
     relatoKey: "ley.data.siguanaba.relato",
     titulo: "La Siguanaba",
-    sub: "El espíritu que extravía a los infieles",
-    tag: "Espíritu · Ríos",
-    chips: ["Espíritu femenino", "Aparece de noche", "Ríos y quebradas", "Enloquece a hombres"],
-    origen: "Tradición náhuat-pipil, extendida por todo El Salvador. Recogida por Miguel Ángel Espino en \"Mitología de Cuscatlán\".",
+    sub: "La mujer misteriosa que aparece en los caminos nocturnos",
+    tag: "Mito · Tradición oral",
+    chips: ["Mujer misteriosa", "Aparece de noche", "Ríos y quebradas", "Extravía caminantes"],
+    origen: "Figura de la tradición oral salvadoreña vinculada con la mitología de los pueblos nahuas o pipiles. Su historia aparece en distintas versiones y fue retomada por Miguel Ángel Espino en \"Mitología de Cuscatlán\".",
     img: "../assets/media/leyenda/siguanaba.png",
-    relato: `Cuentan los abuelos que hace muchísimo tiempo, cuando los dioses todavía caminaban cerca de los hombres, vivía una mujer llamada Sihuehuet, cuyo nombre en náhuat significa "mujer hermosa". Era, en efecto, la más bella de su pueblo: piel dorada, cabellera negra y larga como la noche, y una risa que hacía voltear a cualquiera. Estaba casada, pero su corazón inquieto la llevó a enamorarse del Lucero de la Mañana, un dios que bajaba del cielo para verla junto al río.
+    relato: `La Siguanaba es una de las figuras más conocidas de la tradición oral salvadoreña. Su historia aparece en diferentes versiones, algunas relacionadas con la antigua tradición nahua-pipil y con el personaje de Sihuehuet. Por eso, no existe un único relato que pueda considerarse la versión definitiva de la historia.
 
-Cuando Tlaloc, el poderoso dios de las aguas y de las lluvias, descubrió la traición, no perdonó. La maldijo para siempre: le arrebató su nombre y su belleza verdadera, y la condenó a vagar eternamente por ríos, quebradas y caminos oscuros, convertida ahora en la Siguanaba, que quiere decir "mujer horrible". Desde entonces solo puede mostrar su hermosura como un engaño, una trampa que tiende a los hombres que, como ella hizo, traicionan a quien los ama.
+    Según una de las versiones más difundidas, Sihuehuet era una mujer relacionada con el mundo de los dioses y con el Lucero de la Mañana. Después de cometer faltas que provocaron la ira de los dioses, recibió un castigo que la condenó a vagar por la tierra. Desde entonces quedó convertida en la figura sobrenatural que los salvadoreños conocen como la Siguanaba.
 
-Así, cualquier noche, un hombre que camina solo por un paraje solitario —de vuelta de una cantina, escapando de su casa para ver a otra mujer, o simplemente por no hacer caso a los consejos de los mayores— puede toparse con ella. Aparece bañándose en el río o lavando ropa con un guacal de oro, y lo llama con dulzura, con una voz que promete todo lo que ese hombre ha estado buscando en otros brazos. Él la sigue, hipnotizado, internándose cada vez más en el monte, sin darse cuenta de que se aleja del camino de regreso.
+    La tradición cuenta que suele aparecer durante la noche en caminos solitarios, cerca de ríos, quebradas y otros lugares apartados. A la distancia puede parecer una mujer hermosa, de larga cabellera, que se encuentra bañándose o realizando alguna tarea junto al agua. Su apariencia atrae especialmente a los hombres que pasan solos por esos lugares.
 
-Y entonces, cuando ya está bien lejos de cualquier ayuda, ella voltea el rostro. Donde había una sonrisa, ahora hay una calavera; donde había ojos brillantes, hay cuencas vacías, o el hocico alargado y los dientes de una yegua. El grito del hombre se pierde en la noche mientras la Siguanaba ríe y desaparece, dejándolo perdido, temblando, muchas veces con fiebre durante días, y para siempre marcado por el miedo.
+    Cuando el hombre se acerca, la apariencia de la mujer cambia y descubre su verdadero aspecto. Una de las características más conocidas de la Siguanaba es su rostro semejante al de una yegua, acompañado de una apariencia aterradora. El encuentro provoca miedo y desconcierto en quien la observa.
 
-Los viejos del pueblo dicen que hay formas de librarse de ella si uno la encuentra: morder con fuerza el filo de un machete, rezar en voz alta sin detenerse, cruzar unas tijeras o llevar agujas de coser en la bolsa, o gritar tres veces el nombre de la propia madre —porque dicen que eso le recuerda su propia traición y la hace huir. Algunos aseguran que si el hombre logra mirarle el rostro antes de que ella se lo muestre, queda libre para siempre de su maldición. Pero la lección de fondo, la que toda madre le repite a su hijo antes de dejarlo salir de noche, es siempre la misma: cuídate de seguir a la belleza que aparece sola en la oscuridad, porque detrás de ella puede estar esperándote la Siguanaba.`
+    En muchas versiones, la Siguanaba hace que su víctima pierda el rumbo y se aleje del camino, pudiendo terminar cerca de barrancos o lugares peligrosos. Por eso, además del elemento sobrenatural, la historia funciona como una advertencia contra andar solo de noche y contra ciertos comportamientos considerados inapropiados por la comunidad.
+
+    Aunque existen diferentes versiones sobre su origen y sobre las razones de su castigo, la imagen de una mujer misteriosa que atrae a los caminantes y finalmente revela un rostro monstruoso se ha mantenido como uno de los elementos más reconocibles de esta tradición salvadoreña.`
   },
   {
     id: "cipitio",
@@ -39,20 +41,22 @@ Los viejos del pueblo dicen que hay formas de librarse de ella si uno la encuent
     origenKey: "ley.data.cipitio.origin",
     relatoKey: "ley.data.cipitio.relato",
     titulo: "El Cipitío",
-    sub: "El niño eterno que nunca crece",
-    tag: "Espíritu · Bosques",
-    chips: ["Niño eterno", "Pies al revés", "Hijo de la Siguanaba", "Enamora doncellas"],
-    origen: "Mitología pipil-náhuat de todo el país; se le vincula con el mito de la Siguanaba como su hijo maldito.",
+    sub: "El niño eterno de la tradición salvadoreña",
+    tag: "Mito · Tradición oral",
+    chips: ["Niño eterno", "Pies al revés", "Sombrero de palma", "Travesuras"],
+    origen: "Personaje de la tradición oral salvadoreña relacionado con Sihuehuet y la mitología nahua-pipil. Es reconocido por el Ministerio de Cultura como uno de los personajes mitológicos más representativos del país.",
     img: "../assets/media/leyenda/cipitio.jpg",
-    relato: `Antes de convertirse en la Siguanaba, Sihuehuet tuvo un hijo con un dios: un niño de mejillas redondas y ombligo saltón al que llamaron Cipitío. Pero cuando ella se marchó siguiendo sus amoríos prohibidos, abandonó también a su pequeño, dejándolo solo en el monte. Los dioses, furiosos con la madre, decidieron castigar también al hijo, aunque él no tuviera culpa alguna: lo condenaron a quedarse para siempre con el cuerpo de un niño de unos diez años, sin poder crecer jamás, vagando eternamente entre los ríos y los cañaverales donde alguna vez vivió con ella.
+    relato: `El Cipitío es uno de los personajes más conocidos de la tradición oral salvadoreña. En las versiones que lo relacionan con la historia de Sihuehuet, es presentado como su hijo, condenado a permanecer eternamente con la apariencia de un niño. Su historia está vinculada al mismo universo mítico en el que aparece la Siguanaba.
 
-Desde entonces, el Cipitío es un espíritu pequeño, moreno, de panza redonda como un pequeño Buda, que usa un sombrero de petate tan grande que casi le tapa la cara. Lo más curioso es que sus pies están volteados al revés: los dedos apuntan hacia atrás, de modo que cualquiera que intente seguir sus huellas en la tierra terminará caminando exactamente en la dirección contraria a la que él realmente fue.
+    La tradición lo describe como un niño pequeño, de cuerpo rechoncho y apariencia particular. Uno de sus rasgos más conocidos son sus pies orientados hacia atrás, característica que permite que sus huellas confundan a quien intenta seguirlo. También suele representarse con un gran sombrero hecho de palma o de material vegetal.
 
-A diferencia de su madre, el Cipitío no busca hacer daño. Es juguetón, curioso y, sobre todo, enamoradizo: le encanta aparecerse cerca de los ríos donde las muchachas jóvenes van a lavar ropa, especialmente si son bonitas y de ojos claros. Se esconde entre los matorrales y les lanza piedritas pequeñas para llamar su atención, o les silba desde lejos, aunque nunca se deja ver del todo. Cuando una joven se enoja o se asusta, él se ríe entre dientes y desaparece corriendo, dejando solo el eco de sus pasos.
+    A diferencia de otras figuras consideradas peligrosas, el Cipitío suele aparecer como un personaje travieso y juguetón. Se cuenta que frecuenta los campos, ríos, quebradas y zonas rurales, donde puede esconderse entre la vegetación, lanzar pequeñas piedras o hacer bromas a quienes encuentra.
 
-Otra de sus travesuras favoritas es meterse en las cocinas de las casas rurales durante la noche para revolcarse en la ceniza tibia de los fogones apagados, dejando huellas pequeñas y desordenadas por todo el piso a la mañana siguiente. Las abuelas, al encontrar esas marcas, sonríen y dicen sin sorpresa: "otra vez vino el Cipitío a jugar con la ceniza."
+    Otra de las características tradicionales del personaje es su gusto por la ceniza. En algunas versiones se cuenta que visita los lugares donde se cocina y se revuelca o juega entre las cenizas, dejando pequeñas huellas que delatan su presencia.
 
-Con el tiempo, el Cipitío se ha convertido en uno de los personajes más queridos del folclore salvadoreño, no como una amenaza sino como un recordatorio tierno y un poco travieso: el de un niño que nunca tuvo la oportunidad de crecer, condenado por un error que no cometió, y que a pesar de todo sigue buscando, entre risas y travesuras, un poco de cariño y compañía en los ríos donde una vez vivió junto a su madre.`
+    También existen relatos en los que se acerca a muchachas jóvenes y trata de llamar su atención mediante silbidos o pequeñas travesuras. Sin embargo, generalmente no se le presenta como una criatura que busca causar un daño grave.
+
+    Con el paso del tiempo, el Cipitío se convirtió en una figura querida dentro del imaginario salvadoreño. Su aspecto peculiar, sus travesuras y su relación con la tradición oral lo han convertido en uno de los personajes más representativos de los mitos y relatos populares de El Salvador.`
   },
   {
     id: "cadejo",
@@ -63,20 +67,22 @@ Con el tiempo, el Cipitío se ha convertido en uno de los personajes más querid
     origenKey: "ley.data.cadejo.origin",
     relatoKey: "ley.data.cadejo.relato",
     titulo: "El Cadejo",
-    sub: "El guardián de dos caras: blanco y negro",
-    tag: "Criatura · Caminos",
-    chips: ["Cadejo blanco", "Cadejo negro", "Ojos brillantes", "Lucha eterna"],
-    origen: "Difundida en toda Centroamérica; en El Salvador se cuenta especialmente en caminos rurales y veredas nocturnas.",
+    sub: "Los perros misteriosos de los caminos nocturnos",
+    tag: "Mito · Tradición oral",
+    chips: ["Cadejo blanco", "Cadejo negro", "Perro sobrenatural", "Caminos nocturnos"],
+    origen: "Figura de la tradición oral salvadoreña y centroamericana. En El Salvador se conocen principalmente las versiones del Cadejo Blanco y el Cadejo Negro, asociadas con los caminos y las noches.",
     img: "../assets/media/leyenda/cadejo.png",
-    relato: `Se cuenta que hace generaciones, en algún cañaveral o vereda olvidada, nacieron dos hermanos con forma de perro grande, de pelaje largo y enredado, pero con un destino completamente distinto el uno del otro. Uno de ellos creció bueno y protector: se convirtió en el Cadejo blanco, guardián de los caminantes nocturnos que van de vuelta a casa con el corazón limpio. El otro se entregó a la oscuridad, y se transformó en el Cadejo negro, una bestia que ronda los caminos buscando a quienes salen de noche con malas intenciones —a robar, a engañar a su esposa, o a hacer daño a alguien.
+    relato: `El Cadejo es una de las criaturas más conocidas del folclore salvadoreño y centroamericano. La tradición habla principalmente de dos figuras: un Cadejo Blanco y un Cadejo Negro. Aunque existen diferentes versiones sobre su origen y sus características, ambos están relacionados con las personas que recorren los caminos durante la noche.
 
-Quien camina solo por un sendero rural después de cierta hora puede sentir, de pronto, un olor a incienso y flores frescas mezclándose con el aire de la noche: es señal de que el Cadejo blanco camina cerca, silencioso, cuidando sus pasos desde la sombra de los árboles, con sus ojos azules brillando apenas entre la maleza. Su presencia trae calma, y muchos aseguran haber llegado sanos y salvos a casa gracias a que él los acompañó sin que se dieran cuenta.
+    El Cadejo suele describirse como un perro de gran tamaño, con abundante pelo y una apariencia sobrenatural. Sus ojos pueden brillar en la oscuridad y su presencia suele anunciarse antes de que la persona consiga verlo claramente.
 
-Pero si en cambio el aire se llena de un olor pesado, como a azufre quemado, y se escucha un ruido de cadenas o el golpe seco de pezuñas contra la tierra, hay que empezar a rezar: es el Cadejo negro que se acerca, con sus ojos rojos encendidos como brasas, buscando a alguien a quien asustar hasta la locura, o algo peor.
+    Según la tradición popular, el Cadejo Blanco cumple una función protectora. Puede acompañar silenciosamente a los viajeros que regresan a sus hogares durante la noche, permaneciendo cerca de ellos hasta que llegan a un lugar seguro.
 
-La leyenda cuenta que, de vez en cuando, los dos hermanos se encuentran en la oscuridad y libran una batalla feroz, una lucha eterna entre el bien y el mal que ninguno de los dos puede ganar del todo. Quien tiene la desgracia de escuchar esa pelea —gruñidos, cadenas arrastrándose, aullidos que parecen desgarrar la noche— debe quedarse quieto, sin moverse, y esperar en silencio a que termine. Meterse en medio de esa batalla, aunque sea sin querer, puede significar quedar atrapado entre las dos fuerzas: y de ahí, aseguran los que cuentan la historia, pocos salen con la cabeza en su sitio.
+    El Cadejo Negro, en cambio, suele representar una presencia amenazante. Algunas versiones cuentan que se aparece ante personas que transitan de noche o que llevan una conducta considerada negativa, provocándoles miedo o persiguiéndolas por los caminos.
 
-Por eso, en los pueblos donde esta historia se transmite de generación en generación, los padres advierten a sus hijos que eviten salir solos de noche, y sobre todo que eviten hacerlo con malas intenciones, porque nunca se sabe cuál de los dos hermanos anda cerca esa noche, esperando para acompañar... o para castigar.`
+    No todas las versiones coinciden en que ambos sean hermanos ni en que exista una batalla permanente entre ellos. Esos detalles pertenecen a determinadas narraciones y no deben presentarse como características universales de la tradición.
+
+    La fuerza de la leyenda está precisamente en esa dualidad: dos criaturas semejantes que representan protección y peligro. Durante generaciones, el Cadejo ha formado parte de las historias que se contaban para advertir a las personas sobre los peligros de caminar solas durante la noche.`
   },
   {
     id: "llorona",
@@ -87,20 +93,22 @@ Por eso, en los pueblos donde esta historia se transmite de generación en gener
     origenKey: "ley.data.llorona.origin",
     relatoKey: "ley.data.llorona.relato",
     titulo: "La Llorona",
-    sub: "El lamento eterno de una madre",
-    tag: "Espíritu · Aguas",
-    chips: ["Llanto eterno", "Ríos y lagunas", "Medianoche", "Busca a sus hijos"],
-    origen: "Presente en toda Latinoamérica; la versión salvadoreña se asocia con el Río Lempa y el Lago de Coatepeque.",
+    sub: "El lamento de una mujer que vaga junto al agua",
+    tag: "Leyenda · Tradición popular",
+    chips: ["Mujer de blanco", "Llanto nocturno", "Ríos y aguas", "Alma en pena"],
+    origen: "Leyenda ampliamente difundida en México, Centroamérica y otras regiones de Latinoamérica. En El Salvador forma parte de la tradición popular y presenta diversas versiones locales.",
     img: "../assets/media/leyenda/llorona.png",
-    relato: `Dicen que hace muchos años vivía, cerca del Río Lempa, una mujer joven y bella que se enamoró perdidamente de un hombre que nunca le correspondió del todo. Tuvieron hijos juntos, pero él la abandonó, dejándola sola con la vergüenza y el dolor de una promesa rota. Cuentan que, cegada por la desesperación y la locura de sentirse traicionada, una noche llevó a sus propios hijos hasta la orilla del río y los ahogó en sus aguas oscuras, para arrepentirse al instante siguiente, cuando ya era demasiado tarde.
+    relato: `La Llorona es una leyenda ampliamente difundida por diferentes países de Latinoamérica y también forma parte de la tradición oral salvadoreña. Por esta razón, no existe una única versión salvadoreña de su historia ni un solo lugar del país que pueda considerarse su origen.
 
-Desde ese momento, su alma no encontró descanso. Fue condenada a vagar eternamente por ríos y lagunas, buscando entre la niebla a los hijos que ella misma se llevó, lanzando al viento un llanto desgarrador que se puede escuchar hasta hoy en las noches más silenciosas: "¡Ay, mis hijos! ¡Ay, mis hijos!", un lamento que parece venir de todas partes y de ninguna a la vez, que eriza la piel y detiene el corazón de quien lo escucha.
+    La versión más conocida habla de una mujer que, después de una tragedia relacionada con sus hijos, quedó condenada a vagar durante la noche. Desde entonces recorre lugares cercanos al agua mientras busca o lamenta la pérdida de sus hijos.
 
-En El Salvador se le ha visto —o mejor dicho, se le ha escuchado— especialmente cerca del Río Lempa, del Lago de Coatepeque y del Río Grande de San Miguel, siempre después de la medianoche, siempre vestida de blanco, con el cabello suelto y mojado cayéndole sobre un rostro que algunos describen hermoso todavía, y que otros aseguran que es un rostro deforme, marcado para siempre por el dolor y el arrepentimiento eterno.
+    Su presencia suele anunciarse mediante un llanto profundo y prolongado. En los relatos populares, el sonido puede escucharse cerca de ríos, quebradas, lagunas y otros lugares donde el agua corre durante la noche.
 
-Los que dicen haberla visto de cerca cuentan que camina despacio por la orilla del agua, mirando hacia la corriente, como si aún esperara encontrar a sus hijos flotando entre las piedras. Si alguien se acerca demasiado, ella voltea de golpe, y quien la mira a los ojos queda paralizado de terror, incapaz de moverse durante largos minutos, mientras su llanto retumba cada vez más cerca.
+    En algunas versiones salvadoreñas se cuenta que la aparición viste de blanco, lleva el cabello suelto y puede verse caminando cerca de las orillas. Otras narraciones se concentran principalmente en su llanto y ni siquiera describen claramente su rostro.
 
-Por generaciones, esta ha sido una de las advertencias más poderosas para los niños salvadoreños: no acercarse solos a los ríos de noche, no jugar cerca del agua después de cierta hora, porque ahí, entre la neblina y el sonido de la corriente, puede estar esperando la Llorona, cargando para siempre el peso de una tragedia que ella misma provocó y que ahora no puede deshacer.`
+    La historia ha funcionado durante generaciones como una advertencia, especialmente para los niños y jóvenes, para que no se acerquen solos a los ríos o lugares peligrosos durante la noche.
+
+    Aunque la historia cambia de una región a otra, su elemento central permanece: una mujer asociada con una tragedia familiar que vaga durante la noche y cuyo lamento se convierte en la señal más reconocible de su presencia.`
   },
   {
     id: "descarnada",
@@ -111,20 +119,22 @@ Por generaciones, esta ha sido una de las advertencias más poderosas para los n
     origenKey: "ley.data.descarnada.origin",
     relatoKey: "ley.data.descarnada.relato",
     titulo: "La Descarnada",
-    sub: "La muerte que camina entre los vivos",
-    tag: "Presagio · Pueblos",
-    chips: ["Esqueleto viviente", "Calles nocturnas", "Presagio de muerte", "Camina entre humanos"],
-    origen: "Frecuente en los pueblos del interior del país, sobre todo en zonas con cementerios y caminos rurales solitarios.",
+    sub: "La mujer que revela su verdadero rostro en la carretera",
+    tag: "Leyenda urbana · Santa Ana",
+    chips: ["Carretera nocturna", "Mujer misteriosa", "Apariencia esquelética", "Aventón"],
+    origen: "Mito o leyenda urbana salvadoreña difundida especialmente desde la década de 1980 y asociada con la carretera entre Santa Ana y Chalchuapa.",
     img: "../assets/media/leyenda/descarnada.png",
-    relato: `En los pueblos más antiguos del interior de El Salvador, donde las calles todavía son de tierra y el cementerio queda apenas a las afueras, se cuenta la historia de una figura que no persigue, no grita, ni asusta con intención: simplemente camina. Le llaman la Descarnada, y quien la ve sabe, sin que nadie se lo tenga que explicar, que la muerte anda cerca.
+    relato: `La Descarnada pertenece a una generación más reciente de relatos de miedo salvadoreños. A diferencia de los personajes vinculados con la mitología indígena, esta historia se desarrolló como una leyenda urbana y se hizo conocida especialmente en el occidente del país.
 
-Se le describe como una mujer altísima y delgada hasta los huesos, cubierta apenas por una sábana blanca deshilachada o un vestido raído que el viento nocturno mueve de un lado a otro. Cuando la tela se agita, se alcanzan a ver, entre los pliegues, los huesos desnudos de su cuerpo, como si no le quedara ni un gramo de carne. Camina despacio, sin prisa, por las calles solitarias de los pueblos, por los caminos que bordean los cementerios, o por los senderos rurales que casi nadie transita después de cierta hora.
+    Según el relato popular, durante la noche una mujer joven y de apariencia atractiva podía aparecer a la orilla de la carretera que comunica Santa Ana con Chalchuapa. La mujer hacía señales a los conductores que viajaban solos y les pedía que la llevaran a algún lugar cercano.
 
-A diferencia de otras figuras del folclore salvadoreño, la Descarnada no busca engañar a nadie, ni seducir, ni hacer travesuras. No corre detrás de quien la ve, no habla, no amenaza. Solamente sigue su camino, con un sonido seco y hueco de huesos entrechocando a cada paso, como si caminara con el esqueleto suelto bajo la tela raída. Y esa indiferencia, esa calma inquietante, es quizás lo más aterrador de todo: uno sabe que ella no viene por ti directamente, pero verla significa que la muerte, de alguna forma, ha puesto su mirada sobre tu casa, tu familia o tú mismo.
+    El conductor que aceptaba darle aventón podía comenzar a conversar con ella durante el trayecto. En algunas versiones, la mujer se mostraba especialmente cercana o provocadora con el hombre, quien terminaba sintiéndose atraído por ella.
 
-Numerosas personas en distintos pueblos del país aseguran haberla visto, casi siempre de madrugada, caminando lentamente por calles empedradas o por veredas que llevan al panteón local. Algunos dicen haberla encontrado de frente en una esquina oscura, quedándose paralizados mientras ella pasaba de largo sin siquiera voltear a verlos, dejando tras de sí un frío que tardaba horas en desaparecer del cuerpo.
+    Entonces ocurría la transformación. Cuando el conductor intentaba acercarse demasiado, la apariencia de la mujer comenzaba a cambiar: su piel parecía desprenderse y debajo de ella aparecía un cuerpo descarnado, dejando al descubierto huesos y músculos.
 
-La creencia popular asegura que quien se topa con la Descarnada, o alguien de su familia cercana, no tardará en enfrentar una muerte próxima. Por eso, en las noches donde se rumora que ha sido vista rondando, los pueblos enteros se quedan más callados de lo normal, con las puertas bien cerradas, mientras los mayores recuerdan a los más jóvenes que la muerte, en El Salvador, no siempre llega de improviso: a veces, antes, se deja ver caminando entre los vivos.`
+    El encuentro terminaba provocando un enorme susto en la persona que la había recogido. Algunas versiones cuentan que la víctima quedaba paralizada por el miedo o sufría consecuencias físicas y emocionales después del encuentro.
+
+    La Descarnada se diferencia de la Siguanaba porque pertenece a un contexto más moderno y urbano: una carretera, un automóvil y una mujer que pide aventón. Su historia funciona como una advertencia sobre los peligros de detenerse ante desconocidos durante la noche y, al mismo tiempo, como un relato de terror propio de la tradición oral contemporánea de El Salvador.`
   },
   {
     id: "duende",
@@ -135,68 +145,76 @@ La creencia popular asegura que quien se topa con la Descarnada, o alguien de su
     origenKey: "ley.data.duende.origin",
     relatoKey: "ley.data.duende.relato",
     titulo: "El Duende",
-    sub: "El pequeño guardián de los bosques",
-    tag: "Criatura · Bosques",
-    chips: ["Guardián del bosque", "Toca música", "Sombrero grande", "Travieso pero inofensivo"],
-    origen: "Zonas rurales y boscosas de todo el país; muy popular en cantones alejados de los cascos urbanos.",
+    sub: "El pequeño ser de las historias populares",
+    tag: "Tradición · Personaje folclórico",
+    chips: ["Ser pequeño", "Travesuras", "Aparición nocturna", "Tradición rural"],
+    origen: "Personaje presente en distintas tradiciones populares de El Salvador y de otros países de Centroamérica. Sus características varían según la región y la familia que transmite el relato.",
     img: "../assets/media/leyenda/duende.png",
-    relato: `En los cantones más alejados, donde el bosque todavía es espeso y las quebradas corren escondidas entre la maleza, los campesinos hablan de un pequeño ser que vive entre los árboles desde tiempos que nadie recuerda con exactitud: el Duende. No mide más de sesenta centímetros de alto, pero tiene la cara arrugada de un anciano sabio o, según quien lo cuente, el rostro travieso de un niño eterno. Viste ropa colorida y luce siempre un sombrero de paja tan grande que parece flotar solo sobre sus hombros diminutos.
+    relato: `El Duende es un personaje presente en numerosas tradiciones populares de El Salvador. A diferencia de personajes como la Siguanaba o el Cipitío, no existe una única historia salvadoreña que establezca de manera definitiva su origen, apariencia o comportamiento.
 
-A diferencia de otras criaturas del folclore salvadoreño que inspiran verdadero terror, el Duende no es maligno por naturaleza. Es curioso, juguetón y, sobre todo, un maestro del engaño inofensivo: le encanta esconder las herramientas de trabajo de los campesinos justo cuando más las necesitan, cambiar de lugar los objetos de la casa durante la noche, o asustar sin motivo a las gallinas y a los animales domésticos, solo para divertirse con el alboroto que provoca.
+    En los relatos familiares puede aparecer como un ser pequeño que habita cerca de casas, campos, bosques o caminos. Su aspecto también cambia según quien cuenta la historia: algunas personas lo describen como un hombre pequeño con sombrero, mientras que otras simplemente hablan de una criatura misteriosa que aparece durante la noche.
 
-Su fama más grande, sin embargo, viene de la música. Por las noches, quien se adentra en el monte puede escuchar el sonido lejano de una marimba, una guitarra o una flauta tocando melodías que nadie reconoce, melodías que parecen venir de todas direcciones a la vez. Es el Duende, tocando para sí mismo entre los árboles. Algunos, atraídos por esa música misteriosa, se han internado en el bosque siguiendo el sonido, solo para descubrir, horas después, que estaban completamente perdidos: el Duende también puede imitar voces humanas, llamando por su nombre a quienes busca confundir, guiándolos cada vez más lejos del camino de regreso.
+    Sus acciones suelen estar relacionadas con las travesuras. Puede esconder objetos, mover cosas de lugar, producir ruidos o llamar la atención de las personas que se encuentran cerca de su supuesto escondite.
 
-Existe además una variante muy conocida de esta leyenda, quizás la más repetida entre las familias rurales: se dice que el Duende se enamora perdidamente de las niñas pequeñas de ojos claros y trenzas largas. Cuando esto sucede, comienza a aparecerse por las noches cerca de la casa de la niña, jalándole suavemente las trenzas mientras duerme, escondiéndole sus juguetes favoritos, o siguiéndola de manera brought insistente cuando camina sola. Por generaciones, muchas madres y abuelas optaron por cortarle el cabello a sus hijas pequeñas específicamente para alejar al Duende y evitar que se encariñara demasiado con ellas.
+    En algunas variantes centroamericanas, el Duende también aparece relacionado con jóvenes o mujeres y con historias de enamoramiento. Sin embargo, estas características no son iguales en todas las versiones y por eso no deben presentarse como una regla de la tradición salvadoreña.
 
-Con el paso del tiempo, esta leyenda ha cumplido, sin proponérselo, una función que va más allá del simple susto: el miedo a toparse con el Duende ha hecho que generaciones de niños y adultos eviten adentrarse innecesariamente en los bosques y quebradas más profundos, ayudando —de manera indirecta pero real— a proteger estos ecosistemas de la deforestación y el abandono.`
+    Su importancia dentro del folclore no depende de una sola historia, sino de la manera en que generaciones de familias han utilizado la figura del Duende para explicar sucesos extraños y alimentar las historias de misterio.
+
+    Por ello, es más apropiado entenderlo como un personaje de tradición popular que como una leyenda salvadoreña con una única versión establecida.`
   },
-  {
-    id: "carreta-bruja",
-    tituloKey: "ley.data.carreta_bruja.title",
-    subKey: "ley.data.carreta_bruja.sub",
-    tagKey: "ley.data.carreta_bruja.tag",
-    chipsKeys: ["ley.data.carreta_bruja.chip1", "ley.data.carreta_bruja.chip2", "ley.data.carreta_bruja.chip3", "ley.data.carreta_bruja.chip4"],
-    origenKey: "ley.data.carreta_bruja.origin",
-    relatoKey: "ley.data.carreta_bruja.relato",
-    titulo: "La Carreta Bruja",
-    sub: "El carruaje sin bueyes que recoge almas",
-    tag: "Presagio · Caminos rurales",
-    chips: ["Carreta fantasma", "Ruido de cadenas", "Recoge almas", "Viernes de noche"],
-    origen: "Tradición oral de zonas rurales, especialmente relatada en pueblos del oriente y centro del país.",
-    img: "../assets/media/leyenda/carreta-bruja.png",
-    relato: `Hace ya muchos años, cuentan los más viejos del pueblo, vivía un hombre que se había entregado en cuerpo y alma al diablo, cambiando su vida por riquezas y poder. Una noche, cegado por la maldad que llevaba dentro, intentó obligar a sus propios bueyes a entrar por la fuerza a la iglesia del pueblo, con intenciones oscuras que nadie se atrevió jamás a repetir en voz alta. Pero los bueyes, sintiendo el mal que los rodeaba, se resistieron con todas sus fuerzas: reventaron las coyundas que los ataban a la carreta y escaparon despavoridos hacia el monte, dejando al hombre maldito y a su carreta solos, en medio de la noche.
+    {
+      id: "carreta-bruja",
+      tituloKey: "ley.data.carreta_bruja.title",
+      subKey: "ley.data.carreta_bruja.sub",
+      tagKey: "ley.data.carreta_bruja.tag",
+      chipsKeys: ["ley.data.carreta_bruja.chip1", "ley.data.carreta_bruja.chip2", "ley.data.carreta_bruja.chip3", "ley.data.carreta_bruja.chip4"],
+      origenKey: "ley.data.carreta_bruja.origin",
+      relatoKey: "ley.data.carreta_bruja.relato",
+      titulo: "La Carreta Bruja",
+      sub: "La carreta espectral que recorre los caminos",
+      tag: "Leyenda · Caminos",
+      chips: ["Carreta fantasma", "Ruido nocturno", "Caminos rurales", "Aparición espectral"],
+      origen: "Tradición oral salvadoreña relacionada con la conocida Carreta Chillona, una aparición nocturna que forma parte del imaginario popular del país.",
+      img: "../assets/media/leyenda/carreta-bruja.png",
+      relato: `La Carreta Bruja, también relacionada en la tradición popular con la Carreta Chillona, es una de las apariciones nocturnas más conocidas de El Salvador. Su historia se desarrolla principalmente en caminos rurales, calles solitarias y lugares donde durante la noche cualquier sonido puede parecer provenir de una presencia sobrenatural.
 
-Desde entonces, dicen que esa misma carreta rueda sola por los caminos rurales, sin ningún animal que la jale, advancing lentamente entre chirridos de madera vieja y el tintineo metálico de cadenas oxidadas. En la punta de sus trinquetes cuelgan calaveras que se balancean con cada movimiento, y quienes se atreven a mirar dentro de ella aseguran haber visto los cuerpos de personas que ya no reconocían, apilados en un silencio que da más miedo que cualquier grito.
+      La aparición se describe como una carreta que avanza por sí sola, sin que nadie parezca conducirla o tirar de ella. Lo más característico no siempre es su aspecto, sino el sonido que anuncia su llegada: el chirrido de las ruedas, el crujido de la madera y, en algunas versiones, el ruido de cadenas que se arrastran por el suelo.
 
-Detrás de la carreta, cuentan algunos testigos, avanzan seres extraños con cabeza de zacate seco, como espantapájaros vivientes, siguiendo el mismo camino sin apartarse jamás de su ruta fija. Nadie sabe bien a dónde se dirigen, pero todos coinciden en algo: hay que apartarse del camino y quedarse muy quieto cuando se escucha acercarse el sonido inconfundible de sus ruedas de madera contra la tierra.
+      Los relatos cambian según la región. Algunas versiones hablan de huesos, calaveras o restos humanos dentro de la carreta, mientras que otras se concentran únicamente en la carreta vacía que atraviesa los caminos durante la noche.
 
-Uno de los relatos más recordados es el de un hombre que, volviendo tarde a su casa, sintió que algo se aproximaba en la oscuridad. Al voltear, vio la carreta desvencijada avanzando hacia él lentamente, sin bueyes, cargada de calaveras y de aquellos seres de zacate que la seguían de cerca. El miedo lo paralizó por completo; no recuerda cómo llegó esa noche a su casa, solo que pasó los siguientes tres días con una fiebre altísima, y que desde entonces nunca más se dejó sorprender por la noche, mucho menos si era viernes.
+      También existen historias en las que la aparición está relacionada con castigos y advertencias contra las malas acciones. Sin embargo, no todas las versiones coinciden en que la carreta recoja almas ni en que tenga un origen directamente relacionado con el diablo.
 
-Porque según cuenta la tradición, es precisamente los viernes de noche cuando la Carreta Bruja sale con más fuerza a recorrer los caminos, recogiendo —dicen algunos— las almas de quienes han llevado una vida de maldad, mientras que otros aseguran que simplemente arrastra su condena eterna, sin un destino claro, como recordatorio permanente de lo que puede pasar cuando alguien decide entregarse al mal.`
-  },
-  {
-    id: "cuyancua",
-    tituloKey: "ley.data.cuyancua.title",
-    subKey: "ley.data.cuyancua.sub",
-    tagKey: "ley.data.cuyancua.tag",
-    chipsKeys: ["ley.data.cuyancua.chip1", "ley.data.cuyancua.chip2", "ley.data.cuyancua.chip3", "ley.data.cuyancua.chip4"],
-    origenKey: "ley.data.cuyancua.origin",
-    relatoKey: "ley.data.cuyancua.relato",
-    titulo: "La Cuyancúa",
-    sub: "La bestia mitad serpiente, mitad cerdo",
-    tag: "Criatura · Sonsonate",
-    chips: ["Mitad culebra", "Mitad cerdo", "Anuncia temporales", "Cañales de Izalco"],
-    origen: "Zona de Izalco, departamento de Sonsonate; documentada por Leonhard Schultze-Jena en sus estudios sobre los pipiles de Izalco.",
-    img: "../assets/media/leyenda/cuyancua.png",
-    relato: `En los extensos cañaverales que rodean Izalco, en el departamento de Sonsonate, los pobladores más antiguos hablan con respeto y algo de temor de una criatura que pocos han visto de cerca, pero que muchos aseguran haber escuchado: la Cuyancúa. Es descrita como un ser híbrido y perturbador, con el cuerpo de una serpiente enroscada en su parte trasera, y la cabeza, las patas y el gruñido de un cerdo en su parte delantera. Su tamaño, dicen quienes la han visto de lejos entre la maleza, es similar al de una vaca pequeña, lo suficientemente grande como para hacer temblar los cañales a su paso.
+      La tradición funciona principalmente como una historia de advertencia para quienes salen de noche o recorren caminos solitarios. Escuchar el ruido de una carreta cuando no debería haber ninguna cerca se convierte, dentro del relato, en una señal de que algo sobrenatural está pasando.
 
-Lo que más ha alimentado esta leyenda a través de los años no es tanto su apariencia, sino el sonido que emite: un chillido agudo y penetrante, muy parecido al de un cerdo asustado, que se escucha especialmente en horas de la madrugada o justo antes de que se aproxime un temporal fuerte. Algunos ancianos de la zona explican que ese chillido lo produce cuando se le eriza todo el pelaje del lomo, como si presintiera la tormenta antes que nadie más en el pueblo.
+      Por su presencia constante en el imaginario popular salvadoreño, la Carreta Chillona o Carreta Bruja continúa siendo una de las figuras más reconocibles de las historias de miedo que se cuentan durante la noche.`
+    },
+   {
+      id: "cuyancua",
+      tituloKey: "ley.data.cuyancua.title",
+      subKey: "ley.data.cuyancua.sub",
+      tagKey: "ley.data.cuyancua.tag",
+      chipsKeys: ["ley.data.cuyancua.chip1", "ley.data.cuyancua.chip2", "ley.data.cuyancua.chip3", "ley.data.cuyancua.chip4"],
+      origenKey: "ley.data.cuyancua.origin",
+      relatoKey: "ley.data.cuyancua.relato",
+      titulo: "La Cuyancúa",
+      sub: "La criatura misteriosa de las aguas y la lluvia",
+      tag: "Mito · Izalco",
+      chips: ["Ser híbrido", "Izalco", "Ríos y quebradas", "Anuncia la lluvia"],
+      origen: "Relato de tradición oral asociado principalmente con Izalco, Sonsonate, y relacionado con la tradición nahua-pipil de la región. Fue recopilado en estudios etnográficos sobre los pipiles de Izalco.",
+      img: "../assets/media/leyenda/cuyancua.png",
+      relato: `La Cuyancúa, también conocida como Cuyancuat en algunas transcripciones, es un ser de la tradición oral asociado especialmente con Izalco, en el departamento de Sonsonate. Su historia forma parte de los relatos vinculados con las antiguas tradiciones nahuas de la región.
 
-Los lugareños de los cañales de San Ramón, cerca de Izalco, cuentan que no se trata de una sola Cuyancúa, sino de varias, que emergen de tanto en tanto de entre los surcos de caña recién cortada, especialmente en las noches húmedas que anteceden a las lluvias más fuertes de la temporada. El propio investigador alemán Leonhard Schultze-Jena, que estudió a fondo la mitología de los pipiles de Izalco a inicios del siglo veinte, recogió y confirmó por escrito la existencia de este mito entre los pobladores de la región, dándole un lugar permanente dentro del folclore salvadoreño.
+        La criatura suele describirse como un ser híbrido: la parte inferior de su cuerpo tiene forma semejante a la de una serpiente, mientras que la parte superior presenta características relacionadas con un cerdo. Su aspecto extraño es uno de los elementos que han hecho que la historia permanezca en la memoria de los habitantes de la zona.
 
-Además de anunciar tormentas, a la Cuyancúa se le atribuye cierto dominio sobre los ríos y quebradas cercanas a los cañaverales, como si fuera una guardiana silenciosa de esas aguas. Por eso, cuando los agricultores escuchan su chillido característico resonando entre los cañales al anochecer, saben que es momento de asegurar bien sus casas, guardar los animales y prepararse: la lluvia, casi siempre, no tarda en llegar después de que la Cuyancúa se ha dejado escuchar.`
-  },
-  {
+        Más que por verla, la Cuyancúa es conocida por los sonidos que se le atribuyen. La tradición cuenta que puede escucharse cerca de ríos y quebradas, especialmente durante la noche, produciendo un ruido o chillido que causa temor entre quienes se encuentran cerca.
+
+        El relato también la relaciona con las aguas y con la llegada de la lluvia. En algunas versiones, escuchar a la Cuyancúa puede ser una señal de que se aproxima un temporal.
+
+        Su relación con el agua es importante dentro del relato, pues la criatura no es simplemente un monstruo que aparece al azar. Está vinculada con los ríos, las quebradas y los fenómenos naturales que forman parte de la vida de las comunidades.
+
+        La Cuyancúa representa así una parte particular de la tradición mítica de Izalco: una criatura sobrenatural relacionada con el agua, los sonidos de la noche y la llegada de las lluvias, cuya historia ha sobrevivido gracias a la transmisión oral.`
+    },
+{
     id: "tabudo",
     tituloKey: "ley.data.tabudo.title",
     subKey: "ley.data.tabudo.sub",
@@ -205,22 +223,24 @@ Además de anunciar tormentas, a la Cuyancúa se le atribuye cierto dominio sobr
     origenKey: "ley.data.tabudo.origin",
     relatoKey: "ley.data.tabudo.relato",
     titulo: "El Tabudo",
-    sub: "El lagarto gigante de los volcanes",
-    tag: "Criatura · Volcanes",
-    chips: ["Lagarto enorme", "Vive en volcanes activos", "Guardián del fuego", "Itzqueye"],
-    origen: "Asociado a las zonas volcánicas del país; vinculado en algunas versiones con Itzqueye, diosa pipil del agua dulce.",
+    sub: "El misterioso guardián del Lago de Coatepeque",
+    tag: "Leyenda · Lago de Coatepeque",
+    chips: ["Lago de Coatepeque", "Hombre transformado", "Itzqueyé", "Espíritu del lago"],
+    origen: "Leyenda popular asociada con el Lago de Coatepeque, en Santa Ana. La tradición relaciona al personaje con Itzqueyé, figura asociada al agua dulce.",
     img: "../../assets/media/leyenda/tabudo.jpg",
-    relato: `En las faldas de los volcanes activos de El Salvador, donde el vapor de azufre sube entre las rocas y el suelo a veces retumba con un calor que viene de muy adentro, se cuenta la existencia de una criatura tan antigua como las propias montañas de fuego: el Tabudo, un lagarto de proporciones descomunales que, según la tradición, habita en las entrañas mismas de los volcanes, custodiando los pasajes que llevan hacia el fuego interior de la tierra.
+    relato: `En el Lago de Coatepeque existe una de las leyendas más conocidas de El Salvador: la historia de El Tabudo. A diferencia de la imagen de un monstruo volcánico que algunas versiones modernas han difundido, el relato tradicional está directamente relacionado con el lago y con un hombre que vivía en sus alrededores.
 
-Nadie ha podido describir con exactitud su tamaño real, porque casi nadie que se ha acercado demasiado ha regresado para contarlo con detalle. Se dice que su piel es tan oscura y áspera como la roca volcánica, y que se mueve despacio entre las cuevas y pozas de aguas termales que rodean los cráteres, como si el calor no le afectara en absoluto, como si él mismo fuera parte del volcán.
+Según la leyenda, aquel hombre era una persona adinerada que poseía una hermosa propiedad junto al lago. Un día salió a navegar en una canoa y, mientras recorría las aguas, una corriente misteriosa lo arrastró hacia una zona de la que no pudo regresar.
 
-Uno de los relatos más conocidos sobre el Tabudo habla de un hombre que, por curiosidad o por descuido, se acercó demasiado a una de las pozas volcánicas cercanas a un cráter activo. De pronto, sin ninguna advertencia, una corriente subacuática sorpresiva y misteriosa lo arrastró hacia el fondo, llevándolo —según cuenta la leyenda— directamente hasta los dominios de Itzqueye, la diosa pipil del agua dulce, guardiana de esas aguas ocultas bajo la montaña. El hombre desapareció por completo, y nadie volvió a saber de él.
+La tradición cuenta que aquella corriente lo llevó hasta los dominios de Itzqueyé, asociada en el relato con las aguas dulces. Después de aquel encuentro, el hombre desapareció y durante un tiempo nadie supo qué había ocurrido con él.
 
-Algunas versiones de la historia relacionan directamente al Tabudo con Itzqueye, sugiriendo que el lagarto gigante es en realidad su guardián personal, encargado de proteger sus dominios acuáticos escondidos entre el fuego del volcán, castigando con la desaparición a quien se atreve a curiosear demasiado cerca de sus aguas sagradas.
+Meses después, según la leyenda, volvió a aparecer transformado. Las personas que lo reconocieron observaron que su cuerpo había cambiado y que sus rodillas eran extraordinariamente grandes. Debido a esa característica recibió el sobrenombre de El Tabudo.
 
-Por generaciones, esta leyenda ha servido como una advertencia práctica y muy necesaria: los volcanes de El Salvador son hermosos, pero también peligrosos, llenos de pozas ocultas, corrientes traicioneras y terreno inestable. El miedo a toparse con el Tabudo ha mantenido a muchas personas alejadas de zonas volcánicas realmente riesgosas, recordándoles que algunas cosas, en las profundidades de la montaña, es mejor no ir a buscarlas.`
-  },
-  {
+A partir de entonces, la figura quedó vinculada al Lago de Coatepeque. Algunas versiones lo presentan como una criatura misteriosa relacionada con las aguas, mientras que otras lo consideran un espíritu protector que continúa vigilando el lugar.
+
+La leyenda de El Tabudo está estrechamente ligada a la identidad cultural del Lago de Coatepeque. Su historia combina el misterio de las aguas profundas con la antigua creencia en seres sobrenaturales relacionados con la naturaleza.`
+},
+{
     id: "giganta-jocoro",
     tituloKey: "ley.data.giganta_jocoro.title",
     subKey: "ley.data.giganta_jocoro.sub",
@@ -229,20 +249,24 @@ Por generaciones, esta leyenda ha servido como una advertencia práctica y muy n
     origenKey: "ley.data.giganta_jocoro.origin",
     relatoKey: "ley.data.giganta_jocoro.relato",
     titulo: "La Giganta de Jocoro",
-    sub: "El icono gigante de las fiestas patronales",
+    sub: "La figura gigante que se convirtió en símbolo de Jocoro",
     tag: "Tradición · Morazán",
-    chips: ["Figura gigante", "Fiestas patronales", "Tradición Lenca", "Icono de Jocoro"],
-    origen: "Municipio de Jocoro, departamento de Morazán; vinculada a la tradición Lenca y a los megalitos de Corinto.",
+    chips: ["Figura gigante", "Jocoro", "Fiestas patronales", "Tradición local"],
+    origen: "Tradición festiva de Jocoro, Morazán. Su historia popular se relaciona con un supuesto hallazgo de restos humanos de gran tamaño ocurrido en 1908 y con la posterior creación de la figura festiva.",
     img: "../assets/media/leyenda/gigante-jocoro.png",
-    relato: `En el municipio de Jocoro, en el departamento de Morazán, se cuenta una historia distinta a la mayoría de las leyendas salvadoreñas: no habla de un espíritu vengativo ni de una criatura temida en la oscuridad, sino de una figura gigante que, lejos de asustar, se ha convertido en el orgullo más grande de todo el pueblo. Le llaman la Giganta de Jocoro, y cada año, durante las fiestas patronales, sale a recorrer las calles acompañada de toda su familia gigante y de una alegre corte de personajes enmascarados que bailan a su alrededor.
+    relato: `En Jocoro, departamento de Morazán, existe una tradición que se diferencia de muchas de las historias de miedo del folclore salvadoreño. Se trata de la Giganta de Jocoro, una enorme figura que participa en las celebraciones y que con el paso del tiempo se convirtió en uno de los símbolos culturales más reconocibles del municipio.
 
-El origen de esta tradición se remonta a las creencias ancestrales del pueblo Lenca, que habitó gran parte del oriente de El Salvador desde tiempos muy antiguos. Según esa cosmovisión, existieron efectivamente gigantes en el territorio, seres de gran tamaño y fuerza sobrehumana que, según cuentan algunos, fueron los verdaderos autores de la formación y la decoración de los enormes megalitos que todavía hoy se pueden encontrar en Corinto, también en el departamento de Morazán, como testimonio de piedra de un pasado que se resiste a desaparecer del todo.
+La historia popular de la Giganta está relacionada con un supuesto hallazgo ocurrido en 1908, cuando se habrían encontrado en las minas de Jocoro restos que algunas personas interpretaron como pertenecientes a un ser humano de gran tamaño. Aunque aquel hallazgo no constituye una prueba de que hayan existido gigantes, sí alimentó la imaginación y las historias de la comunidad.
 
-Con el paso de los siglos, esa creencia ancestral se transformó poco a poco en una celebración comunitaria: la Giganta dejó de ser solo un recuerdo mitológico para convertirse en un personaje central de las fiestas patronales de Jocoro, con su propia familia de gigantes y su comitiva de acompañantes enmascarados, todos ellos construidos con gran cuidado por artesanos locales que mantienen viva esta tradición año tras año.
+La tradición también se ha relacionado con relatos indígenas sobre gigantes y con las antiguas historias de la región oriental. Estas asociaciones forman parte del imaginario local, pero no deben presentarse como una demostración histórica de que los gigantes existieron realmente.
 
-Hoy, ver desfilar a la Giganta de Jocoro por las calles del pueblo es, para muchos morazánicos, un motivo de identidad tan fuerte como puede serlo la Siguanaba o el Cipitío para el resto del país. Niños y adultos se agolpan en las aceras para verla pasar, celebrando no un miedo ancestral, sino un vínculo directo con sus raíces Lencas, recordando que en algún momento de la historia, en esa misma tierra oriental, se habló en serio de la existencia de gigantes.`
-  },
-  {
+Décadas después, la figura que actualmente conocemos como la Gigantona fue incorporada a las celebraciones de Jocoro. Su presencia se convirtió en parte de las fiestas patronales, acompañada por música, baile y personajes tradicionales.
+
+Con el paso del tiempo, la Giganta dejó de ser solamente un personaje de una historia y pasó a convertirse en una expresión viva de la identidad cultural de Jocoro.
+
+Actualmente representa una tradición festiva que reúne a la comunidad y mantiene vivo un relato local que combina memoria, imaginación, celebración y orgullo por las raíces de Morazán.`
+},
+{
     id: "sisimite",
     tituloKey: "ley.data.sisimite.title",
     subKey: "ley.data.sisimite.sub",
@@ -251,22 +275,24 @@ Hoy, ver desfilar a la Giganta de Jocoro por las calles del pueblo es, para much
     origenKey: "ley.data.sisimite.origin",
     relatoKey: "ley.data.sisimite.relato",
     titulo: "El Sisimite",
-    sub: "El hombre salvaje de los cerros",
-    tag: "Criatura · Montañas",
-    chips: ["Cubierto de pelo", "Pies al revés", "Vive en cuevas", "Rapta viajeros"],
-    origen: "Zonas montañosas y boscosas de El Salvador y otros países centroamericanos; comparte raíces con relatos mesoamericanos del hombre salvaje.",
+    sub: "El ser salvaje de las montañas",
+    tag: "Mito · Tradición centroamericana",
+    chips: ["Ser salvaje", "Montañas", "Cubierto de pelo", "Huella misteriosa"],
+    origen: "Personaje de relatos míticos y populares presentes en diferentes regiones de Centroamérica, incluida la tradición salvadoreña. Sus características varían según la región.",
     img: "../assets/media/leyenda/sisimite.png",
-    relato: `En los cerros más apartados de El Salvador, donde la neblina cubre las cuevas y los senderos apenas son visibles entre la vegetación cerrada, se habla desde hace generaciones de un ser que habita en lo más profundo de la montaña: el Sisimite, un humanoide gigantesco, cubierto de pies a cabeza por un pelaje espeso y enmarañado, que vive completamente aislado de los pueblos, en cuevas que muy pocos se atreven a buscar.
+    relato: `El Sisimite es una figura presente en diferentes tradiciones de Centroamérica. En los relatos que circulan en El Salvador aparece como un ser salvaje relacionado con las montañas, los bosques y los lugares alejados de las comunidades.
 
-Al igual que el Cipitío, el Sisimite tiene una particularidad que lo hace todavía más temido: sus pies están colocados al revés, con los dedos apuntando hacia atrás. Esto significa que cualquier cazador o viajero que se pierda en la montaña y trate de seguir sus huellas para encontrar el camino de regreso, terminará caminando exactamente en la dirección opuesta a la que el Sisimite realmente tomó, adentrándose todavía más en terreno desconocido en lugar de salir de él.
+Suele describirse como una criatura de apariencia humana, pero de gran tamaño y cubierta de abundante pelo. Algunas versiones también le atribuyen los pies orientados hacia atrás, una característica que comparte con otros personajes de las tradiciones mesoamericanas y centroamericanas.
 
-Los relatos más antiguos hablan de su fuerza sobrehumana, capaz de arrancar árboles de raíz y mover rocas enormes como si no pesaran nada. Se dice que ronda los senderos más solitarios durante la noche, y que ha llegado a raptar a viajeros descuidados —sobre todo mujeres jóvenes que se aventuran solas por la montaña— llevándoselos a sus cuevas profundas, de las cuales muy pocos, según cuenta la tradición oral, han logrado escapar con vida para contarlo.
+Los relatos cuentan que habita en lugares montañosos y difíciles de alcanzar, lejos de los caminos más transitados. Su presencia suele asociarse con sonidos extraños, huellas misteriosas y encuentros inesperados en zonas boscosas.
 
-Su presencia se siente antes de verlo: un silencio extraño se apodera del bosque, los pájaros dejan de cantar de golpe, y un olor fuerte a tierra húmeda y animal salvaje se cuela entre los árboles. Quienes aseguran haberlo visto de lejos describen una silueta enorme, encorvada, moviéndose entre las sombras con una agilidad que no debería ser posible para un ser de ese tamaño.
+En algunas versiones se le presenta como una criatura peligrosa que puede perseguir o llevarse a personas que se internan demasiado en la montaña. Otras narraciones lo describen simplemente como un ser salvaje que evita el contacto con los humanos.
 
-Esta leyenda, compartida con matices similares en otros países de Centroamérica, ha cumplido durante generaciones una función muy práctica: mantener alejadas a las personas, especialmente a las mujeres y los niños, de las zonas montañosas más remotas y peligrosas del país, donde los verdaderos riesgos —despeñaderos, animales salvajes, y la posibilidad real de perderse sin remedio— son tan grandes como los que se le atribuyen al propio Sisimite.`
-  },
-  {
+Es importante señalar que el Sisimite no es una figura exclusivamente salvadoreña. Su presencia en distintos países de Centroamérica demuestra que forma parte de un conjunto de relatos regionales que comparten características y que han adoptado variantes locales.
+
+Dentro de la tradición oral, la historia también funciona como advertencia para no internarse sin precaución en montañas y lugares desconocidos. Así, el Sisimite representa el misterio de aquellos espacios naturales que, para las comunidades tradicionales, podían esconder seres desconocidos.`
+},
+{
     id: "justo-juez",
     tituloKey: "ley.data.justo_juez.title",
     subKey: "ley.data.justo_juez.sub",
@@ -275,22 +301,24 @@ Esta leyenda, compartida con matices similares en otros países de Centroaméric
     origenKey: "ley.data.justo_juez.origin",
     relatoKey: "ley.data.justo_juez.relato",
     titulo: "El Justo Juez de la Noche",
-    sub: "El jinete que juzga a los pecadores",
-    tag: "Presagio · Caminos",
-    chips: ["Jinete nocturno", "Reza el Justo Juez", "Persigue infieles", "Oración protectora"],
-    origen: "Tradición oral extendida en pueblos rurales; se relaciona con la oración popular católica conocida como \"el Justo Juez\".",
+    sub: "La misteriosa figura que aparece en los caminos",
+    tag: "Leyenda · Tradición religiosa",
+    chips: ["Aparición nocturna", "Caballo oscuro", "Caminos solitarios", "Oración"],
+    origen: "Figura de la tradición oral salvadoreña relacionada con la devoción popular al Justo Juez y con relatos de apariciones nocturnas.",
     img: "../assets/media/leyenda/juez-noche.png",
-    relato: `En los caminos rurales de El Salvador, donde la fe católica se mezcla con el miedo ancestral a la oscuridad, se cuenta la historia de un jinete que aparece únicamente ante quienes llevan sobre su conciencia el peso de una vida deshonesta: hombres infieles, borrachos que maltratan a su familia, o personas que han hecho daño sin arrepentimiento. Le llaman el Justo Juez de la Noche, y su sola aparición se siente como una sentencia silenciosa que cae sobre quien la merece.
+    relato: `El Justo Juez de la Noche es una figura de la tradición oral salvadoreña relacionada con la religiosidad popular. Su nombre está vinculado con la imagen del Justo Juez presente en las oraciones y creencias católicas, pero el relato popular lo transforma en una misteriosa aparición nocturna.
 
-Nadie describe con claridad su rostro, oculto siempre bajo la sombra de un sombrero o entre la oscuridad de la noche cerrada. Monta un caballo negro que no hace ruido al galopar, como si sus cascos apenas rozaran el suelo, y avanza por los caminos solitarios sin decir una sola palabra, sin necesidad de gritar ni amenazar: su presencia por sí sola basta para desatar el pánico.
+Según las historias transmitidas en diferentes comunidades, puede aparecer en caminos solitarios durante la noche, especialmente cuando una persona viaja sola. Algunas versiones lo describen como un jinete vestido de oscuro que avanza silenciosamente sobre un caballo.
 
-Quienes lo han encontrado en su camino cuentan que, apenas se acerca, los caballos propios se agitan nerviosos, relinchando sin motivo aparente, mientras los perros del vecindario aúllan al unísono como si percibieran algo que los humanos apenas alcanzan a sentir: una opresión pesada en el pecho, un frío que sube desde los pies, la certeza absoluta de que ese jinete sabe exactamente quién es uno y qué ha hecho mal en la vida.
+Su apariencia no es completamente igual en todos los relatos. Algunas personas lo describen con un rostro poco visible, mientras que otras resaltan principalmente su vestimenta oscura y la presencia del caballo.
 
-La tradición asegura que existe una única forma de librarse de su presencia: rezar en voz alta, con fe verdadera, la oración popular conocida como "el Justo Juez", una plegaria transmitida de generación en generación precisamente para estos momentos de peligro nocturno. Se dice que en cuanto las primeras palabras de la oración salen de la boca del viajero asustado, el jinete se detiene, observa un instante más, y luego se aleja despacio hacia la oscuridad de donde vino, sin insistir, como si su única misión hubiera sido recordarle a esa persona que la noche también puede traer justicia.
+La aparición suele provocar miedo y una sensación de amenaza. Dentro de la tradición popular, la oración ocupa un lugar importante, pues se considera una forma de protección frente a las apariciones y otros peligros sobrenaturales.
 
-Más que un simple espanto, esta figura cumple una función moral muy clara dentro de la tradición salvadoreña: recuerda a quien anda por caminos oscuros —literal y metafóricamente— que una vida de vicios, infidelidades y maltratos tiene consecuencias, y que la fe, representada en esa oración protectora, sigue siendo el refugio más seguro frente al miedo de la noche.`
-  },
-  {
+El relato también posee una dimensión moral. Como ocurre con muchas historias tradicionales, la aparición puede funcionar como una advertencia para quienes llevan una conducta considerada incorrecta o para quienes se aventuran por caminos solitarios durante la noche.
+
+El Justo Juez de la Noche forma así parte de ese conjunto de relatos salvadoreños en los que la fe religiosa, el miedo nocturno y las creencias populares se mezclan para crear una figura misteriosa que continúa formando parte del imaginario cultural.`
+},
+{
     id: "padre-sin-cabeza",
     tituloKey: "ley.data.padre_sin_cabeza.title",
     subKey: "ley.data.padre_sin_cabeza.sub",
@@ -299,22 +327,24 @@ Más que un simple espanto, esta figura cumple una función moral muy clara dent
     origenKey: "ley.data.padre_sin_cabeza.origin",
     relatoKey: "ley.data.padre_sin_cabeza.relato",
     titulo: "El Padre sin Cabeza",
-    sub: "El sacerdote que vaga sin descanso",
-    tag: "Espíritu · Pueblos coloniales",
-    chips: ["Sacerdote decapitado", "Monta un caballo negro", "Cascos coloniales", "Penitencia eterna"],
-    origen: "Pueblos con fuerte herencia colonial, como Suchitoto y otros cascos históricos del país.",
+    sub: "El sacerdote que vaga como alma en pena",
+    tag: "Leyenda · Tradición religiosa",
+    chips: ["Sacerdote sin cabeza", "Sotana oscura", "Iglesias", "Aparición nocturna"],
+    origen: "Leyenda popular salvadoreña y centroamericana. En El Salvador existen distintas versiones transmitidas oralmente, generalmente relacionadas con iglesias y caminos durante la noche.",
     img: "../assets/media/leyenda/padre-cabeza.png",
-    relato: `En los pueblos con más historia colonial de El Salvador, como Suchitoto, donde las calles todavía conservan sus adoquines de piedra y las iglesias centenarias dominan la plaza principal, se cuenta la historia de un sacerdote que, hace siglos, cometió una falta tan grave que ni la muerte pudo darle descanso. Le conocen como el Padre sin Cabeza, y su condena es vagar eternamente, montado sobre un caballo negro que galopa sin hacer ningún ruido, por las mismas calles que una vez recorrió con vida.
+    relato: `El Padre sin Cabeza es una de las leyendas de aparecidos más conocidas de El Salvador. La historia presenta a un sacerdote que, después de morir en circunstancias relacionadas con una falta grave o un pecado, queda condenado a vagar como alma en pena.
 
-Nadie en el pueblo sabe con certeza qué fue exactamente lo que hizo aquel sacerdote para merecer semejante castigo: algunos hablan de un pecado imperdonable cometido dentro de la propia iglesia, otros de una traición a su fe o a alguien que confiaba en él. Lo que todos coinciden en contar es el castigo: perdió su cabeza para siempre, y desde entonces recorre las calles empedradas sin ella, vestido con su sotana oscura, mientras el caballo avanza silencioso bajo la luz de la luna.
+Existen diferentes versiones sobre la razón de su castigo. Algunas cuentan que fue un sacerdote que murió sin poder confesar un pecado relacionado con una relación amorosa. Otras versiones hablan de un sacerdote que murió violentamente durante tiempos de conflicto. Por ello, no existe un único origen histórico comprobado para el personaje.
 
-Su aparición trae consigo un frío intenso e inexplicable que se siente en el aire incluso en las noches más calurosas del verano salvadoreño. Los pocos que aseguran haberlo visto describen la silueta inconfundible de un jinete sin cabeza recorriendo la plaza principal o las callejuelas cercanas a la iglesia justo después de la medianoche, sin detenerse jamás, sin mirar a nadie, cumpliendo un recorrido que parece repetirse noche tras noche desde hace generaciones.
+La aparición suele describirse como un hombre alto vestido con una sotana oscura, pero sin cabeza. En algunas versiones lleva un rosario en la mano y camina en silencio por las calles durante la noche.
 
-Existen distintas versiones sobre el propósito de su eterno peregrinar: algunos cuentan que busca desesperadamente una confesión que nunca pudo hacer en vida, otros aseguran que simplemente cumple su penitencia en silencio, sin posibilidad alguna de comunicarse con los vivos que se cruzan en su camino, condenado a repetir el mismo trayecto sin final.
+Una característica muy conocida del relato es su relación con las iglesias. Se cuenta que puede salir de ellas durante las noches, incluso atravesando puertas cerradas, y que algunas veces desaparece cerca de los campanarios.
 
-Esta leyenda refleja algo muy propio de los pueblos coloniales salvadoreños: el peso enorme que tuvo la Iglesia en la vida cotidiana durante siglos, y sirve como un recordatorio simbólico muy directo: ninguna falta, ni siquiera la cometida por una autoridad religiosa respetada, queda sin consecuencia, aunque esa consecuencia tenga que perseguir a su culpable durante toda la eternidad.`
-  },
-  {
+Las personas que aseguran haberlo encontrado describen una sensación de frío intenso y miedo paralizante. La figura no necesariamente persigue a quienes la encuentran; muchas versiones simplemente cuentan que pasa en silencio y continúa su camino.
+
+La leyenda refleja la influencia de la religión católica en la tradición popular salvadoreña y utiliza la figura de un sacerdote condenado a vagar para transmitir una advertencia moral sobre el pecado, la culpa y las consecuencias de las malas acciones.`
+},
+{
     id: "sombreron",
     tituloKey: "ley.data.sombreron.title",
     subKey: "ley.data.sombreron.sub",
@@ -323,22 +353,24 @@ Esta leyenda refleja algo muy propio de los pueblos coloniales salvadoreños: el
     origenKey: "ley.data.sombreron.origin",
     relatoKey: "ley.data.sombreron.relato",
     titulo: "El Sombrerón",
-    sub: "El pequeño jinete de sombrero enorme",
-    tag: "Criatura · Caminos nocturnos",
-    chips: ["Sombrero descomunal", "Trenza los caballos", "Ronda las calles", "Asusta animales"],
-    origen: "Leyenda compartida con otros países de Centroamérica, adaptada en la tradición oral salvadoreña de pueblos y caseríos.",
+    sub: "El pequeño personaje del sombrero enorme",
+    tag: "Leyenda · Tradición centroamericana",
+    chips: ["Sombrero grande", "Caballos", "Crines trenzadas", "Aparición nocturna"],
+    origen: "Personaje de tradición popular compartido por diferentes países de Centroamérica. En El Salvador existen versiones relacionadas principalmente con los caminos, los caballos y las zonas rurales.",
     img: "../assets/media/leyenda/sombreron.png",
-    relato: `En los caseríos y pueblos pequeños de El Salvador, donde todavía hay corrales con caballos y las calles se quedan completamente a oscuras después de cierta hora, se cuenta la historia de un hombre pequeño y silencioso, vestido enteramente de negro, cuyo sombrero de ala tan ancha le cubre casi todo el rostro, dejando ver apenas la sombra de sus ojos. Le llaman el Sombrerón, y su presencia se asocia siempre con la noche y, sobre todo, con los caballos.
+    relato: `El Sombrerón es un personaje presente en distintas tradiciones de Centroamérica, por lo que no puede considerarse una figura exclusivamente salvadoreña. Su historia ha adquirido diferentes características según la región donde se cuenta.
 
-Los dueños de fincas y corrales cuentan que, de vez en cuando, amanecen sus caballos con las crines completamente trenzadas, en nudos tan complicados y perfectos que parecen imposibles de hacer con prisa o en la oscuridad. Nadie ha visto directamente al Sombrerón haciendo este trabajo minucioso durante la noche, pero todos en el pueblo saben perfectamente a quién atribuirle esas trenzas imposibles de deshacer al día siguiente.
+En las versiones populares suele aparecer como un hombre pequeño o una figura misteriosa que lleva un sombrero muy grande. Su presencia se relaciona principalmente con la noche y con lugares donde existen caballos y otros animales.
 
-Más inquietante todavía resulta lo que cuentan los viajeros nocturnos que caminan solos por las calles del caserío: aseguran sentir, de pronto, unos pasos detrás de ellos, siempre a la misma distancia, sin acercarse ni alejarse. Al voltear, encuentran la figura silenciosa del Sombrerón, siguiéndolos de cerca sin decir una palabra, sin hacer ademán de atacar, únicamente observando desde la sombra de su enorme sombrero. Esa persecución silenciosa, sin motivo aparente ni final claro, es quizás lo que más terror provoca entre quienes se topan con él.
+Una de las características más conocidas del personaje es su relación con las crines de los caballos. Se cuenta que algunos animales amanecen con el pelo trenzado o lleno de nudos difíciles de explicar, y que estas marcas son atribuidas al Sombrerón.
 
-Aunque comparte similitudes con leyendas parecidas de otros países centroamericanos, en El Salvador el Sombrerón se ha adaptado a la vida rural y ganadera de los pueblos pequeños, convirtiéndose en la explicación popular perfecta para esos nudos extraños en las crines de los caballos y para el comportamiento nervioso que a veces muestran los animales de las fincas sin ninguna razón visible.
+En algunas variantes también se dice que el personaje puede seguir a las personas o aparecerse en los caminos durante la noche. Sin embargo, no todas las versiones coinciden en su comportamiento ni en su apariencia.
 
-Con el tiempo, esta figura ha servido también como una advertencia más para no caminar solo por las calles oscuras del caserío después de cierta hora: porque nunca se sabe si esos pasos silenciosos que uno cree escuchar detrás son solo el eco de los propios, o si en realidad el Sombrerón ha decidido seguirte esa noche, con su sombrero enorme y su silencio inquietante, hasta la puerta misma de tu casa.`
-  },
-  {
+La historia se ha transmitido principalmente como relato de misterio y como explicación sobrenatural de sucesos extraños relacionados con los animales.
+
+En El Salvador, su presencia forma parte de un conjunto más amplio de personajes populares que han llegado desde tradiciones compartidas de la región y que, con el tiempo, han adquirido características propias dentro de las comunidades que los cuentan.`
+},
+{
     id: "cuco-de-los-suenos",
     tituloKey: "ley.data.cuco_de_los_suenos.title",
     subKey: "ley.data.cuco_de_los_suenos.sub",
@@ -347,22 +379,25 @@ Con el tiempo, esta figura ha servido también como una advertencia más para no
     origenKey: "ley.data.cuco_de_los_suenos.origin",
     relatoKey: "ley.data.cuco_de_los_suenos.relato",
     titulo: "El Cuco de los Sueños",
-    sub: "El ser que se lleva a los niños desobedientes",
-    tag: "Advertencia · Hogar",
-    chips: ["Figura sin forma fija", "Aparece de noche", "Vigila a los niños", "Tradición oral familiar"],
-    origen: "Tradición doméstica transmitida de madres y abuelas a los niños en todo El Salvador, sin un origen geográfico único.",
-    img: "../assets/media/leyenda/el-cuco.png",
-    relato: `A diferencia de otras leyendas que se cuentan alrededor de un río, un volcán o un pueblo específico, el Cuco no tiene un lugar fijo donde vive, ni una historia de origen clara como la Siguanaba o el Cipitío. Vive, en realidad, en la imaginación de cada familia salvadoreña, y cada abuela, cada madre, lo describe un poco distinto según lo que ella misma escuchó de niña.
+    sub: "El personaje que asusta a los niños desobedientes",
+    tag: "Tradición oral · Hogar",
+    chips: ["Advertencia infantil", "Aparece de noche", "Tradición familiar", "Sin forma definida"],
+    origen: "Personaje de tradición oral utilizado por familias de El Salvador y de otros países hispanos para advertir a los niños y fomentar el buen comportamiento.",
+    img: "../assets/media/leyenda/.png",
+    relato: `El Cuco es diferente de personajes como la Siguanaba, el Cipitío o el Cadejo. No posee una única historia de origen ni una apariencia establecida. Es principalmente un personaje de tradición oral utilizado por madres, padres, abuelos y otros familiares para advertir a los niños.
 
-Para algunos es una sombra alargada que se estira por las paredes del cuarto justo cuando se apaga la luz. Para otros, es un anciano encorvado que ronda las casas de noche, mirando por las ventanas para ver qué niño sigue despierto pasada su hora de dormir. Hay quienes lo imaginan sin forma definida en absoluto, como una presencia que simplemente se siente, un frío repentino en la habitación, un crujido en el techo justo cuando el niño ha decidido no obedecer a sus padres.
+La frase "te va a llevar el Cuco" ha formado parte de muchas conversaciones familiares y sirve para representar una amenaza misteriosa que puede aparecer cuando un niño no obedece, no quiere dormir o se comporta mal.
 
-Lo único que se mantiene igual en cada versión de la historia es su propósito: el Cuco existe para que los niños se porten bien, se duerman a la hora que les corresponde, y no le hagan travesuras a sus padres. "Pórtate bien o te lleva el Cuco" es una frase que casi cualquier salvadoreño escuchó de pequeño, susurrada justo antes de apagar la luz, con esa mezcla exacta de cariño y advertencia que solo una madre o una abuela saben transmitir.
+Su apariencia cambia según quien cuenta la historia. Para algunas personas es una criatura pequeña; para otras puede ser una sombra, un hombre misterioso o simplemente una presencia que se encuentra escondida en algún lugar de la casa.
 
-A diferencia de figuras como la Siguanaba o el Cadejo, que castigan comportamientos de adultos —la infidelidad, la mala vida, los vicios—, el Cuco cumple una función exclusivamente dentro del hogar: es el guardián invisible del buen comportamiento infantil, el recordatorio nocturno de que hay reglas que cumplir y horarios que respetar, incluso cuando los padres ya no están repitiéndolo en voz alta.
+La falta de una forma fija es precisamente una de sus características más importantes. El Cuco puede convertirse en aquello que la imaginación del niño considera más aterrador.
 
-Aunque ha perdido fuerza frente a otras historias más elaboradas del folclore salvadoreño, el Cuco sigue vivo en el anecdotario familiar de muchísimas casas del país. Todavía hoy, en noches donde un niño se resiste a dormir, alguna abuela sonríe con complicidad y repite la misma advertencia que ella escuchó de pequeña: que ahí afuera, en la oscuridad del cuarto, el Cuco anda esperando a los que no se portan bien.`
-  }
+Su función no consiste necesariamente en aparecer físicamente, sino en provocar la imaginación y el temor suficiente para que el niño obedezca. Por eso forma parte de las llamadas historias de advertencia o personajes de tradición oral.
+
+En El Salvador, como en otros lugares de Latinoamérica, esta figura ha sobrevivido principalmente dentro de las familias. Aunque no tenga una historia única ni un origen geográfico determinado, el Cuco representa una parte importante de la manera en que generaciones de salvadoreños transmitieron consejos y reglas a través de relatos de miedo.`
+}
 ];
+
 
 let currentLeyendaIndex = -1;
 let ttsUtterance = null;
