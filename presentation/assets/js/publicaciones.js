@@ -40,6 +40,20 @@ let isUserLoggedIn = false;
 let currentUserId = null;
 let editingPublicationId = null;
 
+// ── Función de traducción (i18n) ──
+function t(key, replacements = {}) {
+  if (typeof window.SRi18n === 'undefined') {
+    console.warn('i18n no cargado, usando fallback');
+    return key;
+  }
+  const lang = window.SRi18n.getLang();
+  let text = window.SRi18n.t(key, lang) || key;
+  for (const [k, v] of Object.entries(replacements)) {
+    text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+  }
+  return text;
+}
+
 // ════════════════════════════════════
 // MANEJO DEL SELECT "OTRO" DE UBICACIÓN
 // ════════════════════════════════════
@@ -93,10 +107,18 @@ async function fetchPublications() {
 function renderPublications(publications) {
   const grid = document.getElementById('publicationsGrid');
   const emptyState = document.getElementById('emptyState');
+  const emptyTitle = document.getElementById('emptyStateTitle');
 
   if (publications.length === 0) {
     emptyState.style.display = 'block';
     grid.innerHTML = '';
+    // Actualizar texto del empty state según filtro
+    if (activeSiteSlug && SITE_SLUG_TO_LOCATION[activeSiteSlug]) {
+      const name = SITE_SLUG_TO_LOCATION[activeSiteSlug];
+      emptyTitle.textContent = t('pub.emptyTitleFiltered', { name });
+    } else {
+      emptyTitle.textContent = t('pub.emptyTitle');
+    }
     return;
   }
 
@@ -114,12 +136,12 @@ function renderPublications(publications) {
           <div class="publication-location-text">${pub.location}</div>
         </div>
         <div class="publication-author">
-          <span>Por ${pub.author.name}</span>
+          <span>${t('pub.authorBy', { name: pub.author.name })}</span>
         </div>
         ${(pub.canEdit || pub.canDelete) ? `
           <div class="publication-owner-actions">
-            ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${pub.id}">Editar</button>` : ''}
-            ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${pub.id}">Eliminar</button>` : ''}
+            ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${pub.id}">${t('pub.editBtn')}</button>` : ''}
+            ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${pub.id}">${t('pub.deleteBtn')}</button>` : ''}
           </div>
         ` : ''}
       </div>
@@ -146,8 +168,8 @@ function showGuestModal() {
     const modalTitle = modal.querySelector('.guest-modal__title');
     const modalText = modal.querySelector('.guest-modal__text');
 
-    if (modalTitle) modalTitle.textContent = "¡Únete a Salvadorean Roots! 🗺️";
-    if (modalText) modalText.textContent = "Necesitas una cuenta registrada para poder explorar nuestro mapa interactivo y descubrir la ubicación exacta de estos lugares increíbles.";
+    if (modalTitle) modalTitle.textContent = t('pub.modalTitle');
+    if (modalText) modalText.textContent = t('pub.modalText');
 
     overlay.classList.add('is-visible');
 
@@ -213,9 +235,9 @@ function checkGuestFormAccess() {
     overlay.innerHTML = `
       <div class="blocker-content" style="position: relative; z-index: 20;">
         <div class="blocker-icon">🔒</div>
-        <h3 class="blocker-title">¿Quieres compartir un lugar?</h3>
-        <p class="blocker-text">Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.</p>
-        <button class="blocker-btn" id="goToLoginBtn" type="button" style="pointer-events: auto; cursor: pointer;">Iniciar Sesión / Registrarse</button>
+        <h3 class="blocker-title">${t('pub.guestBlockerTitle')}</h3>
+        <p class="blocker-text">${t('pub.guestBlockerText')}</p>
+        <button class="blocker-btn" id="goToLoginBtn" type="button" style="pointer-events: auto; cursor: pointer;">${t('pub.guestBlockerBtn')}</button>
       </div>
     `;
     formSection.appendChild(overlay);
@@ -227,7 +249,7 @@ function checkGuestFormAccess() {
         e.stopPropagation();
         window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
       });
-    } 
+    }
 
     const originalForm = document.getElementById('publicationForm');
     if (originalForm) {
@@ -259,12 +281,12 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   const imageFile = document.getElementById('pubImage').files[0];
 
   if (!location) {
-    alert('Por favor indica una ubicación.');
+    alert(t('pub.alertNoLocation'));
     return;
   }
 
   if (!editingPublicationId && !imageFile) {
-    alert('Por favor sube una imagen.');
+    alert(t('pub.alertNoImage'));
     return;
   }
 
@@ -285,17 +307,17 @@ document.getElementById('publicationForm').addEventListener('submit', async func
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || 'No se pudo generar la publicación.');
+      throw new Error(errorText || t('pub.alertError'));
     }
 
     resetPublicationForm();
     await fetchPublications();
 
     document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
-    alert(isEditing ? 'Publicación actualizada correctamente.' : 'Publicación creada correctamente.');
+    alert(isEditing ? t('pub.alertUpdateSuccess') : t('pub.alertCreateSuccess'));
   } catch (error) {
     console.error(error);
-    alert(error.message || 'Ocurrió un error al guardar la publicación.');
+    alert(error.message || t('pub.alertError'));
   }
 });
 
@@ -305,8 +327,8 @@ function resetPublicationForm() {
   document.getElementById('imagePreview').classList.remove('show');
   locationOtherInput.style.display = 'none';
   editingPublicationId = null;
-  document.getElementById('publicationFormTitle').textContent = 'Comparte tu Experiencia';
-  document.getElementById('publicationSubmitBtn').textContent = 'Publicar';
+  document.getElementById('publicationFormTitle').textContent = t('pub.formTitle');
+  document.getElementById('publicationSubmitBtn').textContent = t('pub.submitBtn');
   document.getElementById('publicationCancelEditBtn').style.display = 'none';
 }
 
@@ -323,7 +345,7 @@ async function startEditPublication(id) {
     const response = await fetch(`/api/publications/${id}`);
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || 'No se pudo cargar la publicación.');
+      throw new Error(errorText || t('pub.alertErrorLoad'));
     }
 
     const data = await response.json();
@@ -349,14 +371,14 @@ async function startEditPublication(id) {
     document.getElementById('previewImg').src = pub.image;
     document.getElementById('imagePreview').classList.add('show');
 
-    document.getElementById('publicationFormTitle').textContent = 'Editar tu Publicación';
-    document.getElementById('publicationSubmitBtn').textContent = 'Guardar cambios';
+    document.getElementById('publicationFormTitle').textContent = t('pub.formTitleEdit');
+    document.getElementById('publicationSubmitBtn').textContent = t('pub.submitBtn');
     document.getElementById('publicationCancelEditBtn').style.display = 'inline-block';
 
     document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
   } catch (error) {
     console.error(error);
-    alert(error.message || 'No se pudo cargar la publicación para editar.');
+    alert(error.message || t('pub.alertErrorLoad'));
   }
 }
 
@@ -365,7 +387,7 @@ async function startEditPublication(id) {
 // ════════════════════════════════════
 
 async function confirmDeletePublication(id) {
-  const confirmed = window.confirm('¿Seguro que quieres eliminar esta publicación? Esta acción no se puede deshacer.');
+  const confirmed = window.confirm(t('pub.alertDeleteConfirm'));
   if (!confirmed) return;
 
   try {
@@ -373,7 +395,7 @@ async function confirmDeletePublication(id) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || 'No se pudo eliminar la publicación.');
+      throw new Error(errorText || t('pub.alertErrorDelete'));
     }
 
     if (editingPublicationId === id) {
@@ -381,10 +403,10 @@ async function confirmDeletePublication(id) {
     }
 
     await fetchPublications();
-    alert('Publicación eliminada correctamente.');
+    alert(t('pub.alertDeleteSuccess'));
   } catch (error) {
     console.error(error);
-    alert(error.message || 'No se pudo eliminar esta publicación.');
+    alert(error.message || t('pub.alertErrorDelete'));
   }
 }
 
@@ -395,6 +417,17 @@ document.getElementById('pubImage').addEventListener('change', function(e) {
   if (!isUserLoggedIn) return;
   const file = e.target.files[0];
   if (file) {
+    // Validaciones básicas (opcional, pero se pueden mostrar mensajes traducidos)
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      alert(t('pub.alertImageFormat'));
+      this.value = '';
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      alert(t('pub.alertImageSize'));
+      this.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(event) {
       document.getElementById('previewImg').src = event.target.result;
@@ -459,13 +492,13 @@ if (fileLabel) {
 function actualizarEmptyStateTexto() {
   const emptyState = document.getElementById('emptyState');
   if (!emptyState) return;
-  const titulo = emptyState.querySelector('p');
+  const titulo = emptyState.querySelector('#emptyStateTitle');
   if (!titulo) return;
   if (activeSiteSlug) {
     const nombre = SITE_SLUG_TO_LOCATION[activeSiteSlug];
-    titulo.textContent = `Aún no hay publicaciones de ${nombre}`;
+    titulo.textContent = t('pub.emptyTitleFiltered', { name: nombre });
   } else {
-    titulo.textContent = 'No hay publicaciones aún';
+    titulo.textContent = t('pub.emptyTitle');
   }
 }
 
@@ -512,6 +545,20 @@ fetch('/auth/status')
     isUserLoggedIn = !!data.loggedIn;
     currentUserId = data.user ? data.user.id : null;
     checkGuestFormAccess();
+    // Si el usuario está logueado, quitar el bloqueo y habilitar el formulario
+    if (isUserLoggedIn) {
+      const formSection = document.querySelector('.create-publication-section');
+      const blocker = formSection?.querySelector('.guest-blocker-overlay');
+      if (blocker) blocker.remove();
+      const form = document.getElementById('publicationForm');
+      if (form) {
+        const inputs = form.querySelectorAll('input, textarea, select, button');
+        inputs.forEach(input => {
+          input.disabled = false;
+          input.tabIndex = 0;
+        });
+      }
+    }
   })
   .catch(() => {
     isUserLoggedIn = false;

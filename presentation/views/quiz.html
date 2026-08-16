@@ -10,63 +10,74 @@
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
 </head>
-<body>
+<body data-i18n-title="quiz.heroTitle" data-i18n-desc="meta.description">
 
   <nav class="navbar" id="navbar">
     <div class="navbar__logo">
       <a href="../views/index.html">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
       </a>
     </div>
+        <!-- Botón de idioma -->
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+
+    <!-- Botón de idioma -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+    
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
+    <!-- Botón de idioma en el drawer -->
+    <div class="drawer-divider"></div>
+    <button class="lang-toggle lang-toggle--drawer" data-lang-toggle aria-label="Idioma" data-i18n-attr="aria-label:lang.label">
+      <span data-lang-toggle-flag>🇸🇻</span>
+    </button>
   </nav>
+
 <main>
 
-  <!-- 1. HERO: mismo patrón estructural que juegos.html (badge/eyebrow +
-       título + subtítulo + breadcrumb), con la paleta propia del quiz. -->
+  <!-- 1. HERO -->
   <section class="page-hero quiz-page-hero">
-    <span class="page-hero__eyebrow">Aprender jugando</span>
-    <h1 class="page-hero__title">Quiz de Salvadorean Roots</h1>
-    <p class="page-hero__subtitle">Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.</p>
+    <span class="page-hero__eyebrow" data-i18n="quiz.heroEyebrow">Aprender jugando</span>
+    <h1 class="page-hero__title" data-i18n="quiz.heroTitle">Quiz de Salvadorean Roots</h1>
+    <p class="page-hero__subtitle" data-i18n="quiz.heroSubtitle">Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.</p>
     <nav class="breadcrumb" aria-label="Ruta de navegación">
-      <a href="../views/index.html">Inicio</a>
+      <a href="../views/index.html" data-i18n="nav.inicio">Inicio</a>
       <span>/</span>
-      <span>Quiz Cultural</span>
+      <span data-i18n="quiz.heroTitle">Quiz Cultural</span>
     </nav>
   </section>
 
-  <!-- 2. PANTALLA ÚNICA: bienvenida + selección de nivel/cantidad/categoría,
-       todo visible de una sola vez, sin cambiar de "página". -->
+  <!-- 2. PANTALLA ÚNICA -->
   <div id="quizHome" class="quiz-home">
 
     <!-- Bienvenida -->
     <div id="quizWelcome" class="quiz-welcome">
       <div class="quiz-welcome__waves" id="quizWelcomeWaves" aria-hidden="true"></div>
 
-      <p class="quiz-welcome__subtitle">
+      <p class="quiz-welcome__subtitle" data-i18n="quiz.welcomeSubtitle">
         Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.
       </p>
 
@@ -75,79 +86,79 @@
       <div class="quiz-welcome__stats">
         <div class="quiz-stat">
           <div class="quiz-stat__number">448+</div>
-          <div class="quiz-stat__label">Preguntas</div>
+          <div class="quiz-stat__label" data-i18n="quiz.statQuestions">Preguntas</div>
         </div>
         <div class="quiz-stat">
           <div class="quiz-stat__number">4</div>
-          <div class="quiz-stat__label">Categorías</div>
+          <div class="quiz-stat__label" data-i18n="quiz.statCategories">Categorías</div>
         </div>
         <div class="quiz-stat">
           <div class="quiz-stat__number">4</div>
-          <div class="quiz-stat__label">Niveles</div>
+          <div class="quiz-stat__label" data-i18n="quiz.statLevels">Niveles</div>
         </div>
       </div>
     </div>
 
-    <!-- Selección de nivel, cantidad y categoría -->
+    <!-- Selección -->
     <div class="quiz-setup reveal" id="quizSetup">
       <!-- Niveles -->
-      <p class="quiz-setup__label">Selecciona un nivel</p>
+      <p class="quiz-setup__label" data-i18n="quiz.selectLevel">Selecciona un nivel</p>
       <div class="quiz-levels">
         <div class="level-card" data-level="facil">
           <div class="level-card__bar"></div>
-          <p class="level-card__name">Fácil</p>
-          <p class="level-card__sub">Cultura general. 5 pts por respuesta.</p>
+          <p class="level-card__name" data-i18n="quiz.levelFacil">Fácil</p>
+          <p class="level-card__sub" data-i18n="quiz.levelFacilSub">Cultura general. 5 pts por respuesta.</p>
         </div>
         <div class="level-card" data-level="medio">
           <div class="level-card__bar"></div>
-          <p class="level-card__name">Medio</p>
-          <p class="level-card__sub">Conocimiento detallado. 10 pts.</p>
+          <p class="level-card__name" data-i18n="quiz.levelMedio">Medio</p>
+          <p class="level-card__sub" data-i18n="quiz.levelMedioSub">Conocimiento detallado. 10 pts.</p>
         </div>
         <div class="level-card" data-level="dificil">
           <div class="level-card__bar"></div>
-          <p class="level-card__name">Difícil</p>
-          <p class="level-card__sub">Para expertos en historia. 15 pts.</p>
+          <p class="level-card__name" data-i18n="quiz.levelDificil">Difícil</p>
+          <p class="level-card__sub" data-i18n="quiz.levelDificilSub">Para expertos en historia. 15 pts.</p>
         </div>
         <div class="level-card" data-level="guanaco">
           <div class="level-card__bar"></div>
-          <p class="level-card__name">100% Guanaco</p>
-          <p class="level-card__sub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
+          <p class="level-card__name" data-i18n="quiz.levelGuanaco">100% Guanaco</p>
+          <p class="level-card__sub" data-i18n="quiz.levelGuanacoSub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
         </div>
       </div>
 
       <div class="quiz-setup__divider"></div>
 
-      <!-- Cantidad de preguntas -->
-      <p class="quiz-setup__label">¿Cuántas preguntas?</p>
+      <!-- Cantidad -->
+      <p class="quiz-setup__label" data-i18n="quiz.selectAmount">¿Cuántas preguntas?</p>
       <div class="quiz-amounts" id="quizAmounts">
         <button class="amount-btn" data-amount="express">
-          <p class="amount-btn__name">Express</p>
-          <p class="amount-btn__sub">8 preguntas</p>
+          <p class="amount-btn__name" data-i18n="quiz.amountExpress">Express</p>
+          <p class="amount-btn__sub" data-i18n="quiz.amountExpressSub">8 preguntas</p>
         </button>
         <button class="amount-btn" data-amount="normal">
-          <p class="amount-btn__name">Normal</p>
-          <p class="amount-btn__sub">15 preguntas</p>
+          <p class="amount-btn__name" data-i18n="quiz.amountNormal">Normal</p>
+          <p class="amount-btn__sub" data-i18n="quiz.amountNormalSub">15 preguntas</p>
         </button>
         <button class="amount-btn" data-amount="extenso">
-          <p class="amount-btn__name">Extenso</p>
-          <p class="amount-btn__sub">Todas las preguntas</p>
+          <p class="amount-btn__name" data-i18n="quiz.amountExtenso">Extenso</p>
+          <p class="amount-btn__sub" data-i18n="quiz.amountExtensoSub">Todas las preguntas</p>
         </button>
       </div>
 
       <div class="quiz-setup__divider"></div>
 
       <!-- Categorías -->
-      <p class="quiz-setup__label">Elige una categoría</p>
+      <p class="quiz-setup__label" data-i18n="quiz.selectCategory">Elige una categoría</p>
       <div class="quiz-cats">
-        <button class="cat-btn" data-cat="todas">Todas</button>
-        <button class="cat-btn" data-cat="historia">Historia</button>
-        <button class="cat-btn" data-cat="gastronomia">Gastronomía</button>
-        <button class="cat-btn" data-cat="sitios">Sitios Culturales</button>
-        <button class="cat-btn" data-cat="leyendas">Leyendas</button>
+        <button class="cat-btn" data-cat="todas" data-i18n="quiz.catTodas">Todas</button>
+        <button class="cat-btn" data-cat="historia" data-i18n="quiz.catHistoria">Historia</button>
+        <button class="cat-btn" data-cat="gastronomia" data-i18n="quiz.catGastronomia">Gastronomía</button>
+        <button class="cat-btn" data-cat="sitios" data-i18n="quiz.catSitios">Sitios Culturales</button>
+        <button class="cat-btn" data-cat="leyendas" data-i18n="quiz.catLeyendas">Leyendas</button>
       </div>
 
       <div class="quiz-start-wrap">
-        <button class="quiz-start-btn" id="startBtn">Comenzar Quiz</button>
+        <button class="quiz-start-btn" id="startBtn" data-i18n="quiz.startBtn">Comenzar Quiz</button>
       </div>
 
     </div>
@@ -162,9 +173,9 @@
   <!-- ══ ZONA DE JUEGO (VENTANA FLOTANTE) ══ -->
   <div class="quiz-zone" id="quizZone">
 
-      <button class="quiz-close-btn" id="closeQuizBtn" aria-label="Cerrar quiz">&times;</button>
+      <button class="quiz-close-btn" id="closeQuizBtn" aria-label="Cerrar quiz" data-i18n-attr="aria-label:quiz.closeQuiz">&times;</button>
 
-      <!-- Cabecera: nivel + barra de progreso -->
+      <!-- Cabecera -->
       <div class="quiz-header">
         <span class="quiz-level-badge" id="levelBadge">Fácil</span>
         <div class="quiz-progress-bar">
@@ -190,7 +201,7 @@
       <div class="quiz-feedback" id="quizFeedback"></div>
 
       <!-- Botón siguiente -->
-      <button class="quiz-next-btn" id="nextBtn">Siguiente pregunta</button>
+      <button class="quiz-next-btn" id="nextBtn" data-i18n="quiz.nextBtn">Siguiente pregunta</button>
 
       <!-- Resultados -->
       <div class="quiz-results" id="quizResults">
@@ -203,8 +214,8 @@
         <p class="quiz-results__message" id="resultsMessage"></p>
         <p class="quiz-results__best-score" id="resultsBestScore"></p>
         <div class="quiz-results__actions">
-          <button class="btn-retry" id="retryBtn">Jugar de nuevo</button>
-          <a href="../views/index.html" class="btn-explore">Volver al Inicio</a>
+          <button class="btn-retry" id="retryBtn" data-i18n="quiz.retryBtn">Jugar de nuevo</button>
+          <a href="../views/index.html" class="btn-explore" data-i18n="quiz.exploreBtn">Volver al Inicio</a>
         </div>
       </div>
     </div>
@@ -212,11 +223,11 @@
     <!-- ══ CONFIRMACIÓN DE SALIDA ══ -->
     <div class="quiz-confirm-overlay" id="quizConfirmOverlay">
       <div class="quiz-confirm-box">
-        <p class="quiz-confirm-title">¿Seguro que deseas salir?</p>
-        <p class="quiz-confirm-text">Perderás el progreso de esta partida.</p>
+        <p class="quiz-confirm-title" data-i18n="quiz.confirmTitle">¿Seguro que deseas salir?</p>
+        <p class="quiz-confirm-text" data-i18n="quiz.confirmText">Perderás el progreso de esta partida.</p>
         <div class="quiz-confirm-actions">
-          <button class="btn-cancel-exit" id="cancelExitBtn">Seguir jugando</button>
-          <button class="btn-confirm-exit" id="confirmExitBtn">Sí, salir</button>
+          <button class="btn-cancel-exit" id="cancelExitBtn" data-i18n="quiz.confirmCancel">Seguir jugando</button>
+          <button class="btn-confirm-exit" id="confirmExitBtn" data-i18n="quiz.confirmExit">Sí, salir</button>
         </div>
       </div>
     </div>
@@ -224,19 +235,19 @@
 
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
-      <p class="footer__name">Salvadorean Roots</p>
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
+      <p class="footer__name" data-i18n="home.logoAlt">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/leyendas.html">Leyendas</a></li>
-        <li><a href="../views/quiz.html">Quiz</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="nav.leyendas">Leyendas</a></li>
+        <li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
 
@@ -244,6 +255,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
   <script src="../assets/js/quiz-waves.js"></script>
+  <!-- Cargar i18n antes de quiz.js para que estén las traducciones -->
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/quiz.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>
