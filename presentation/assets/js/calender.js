@@ -5,10 +5,6 @@ const calendarState = {
   selectedDay: null,
   festividades: []
 };
-// Se expone explícitamente en window: al cargarse como <script> normal (no
-// type="module"), las declaraciones `const` de nivel superior NO cuelgan de
-// `window`, así que los `if (window.calendarState)` repartidos en este mismo
-// archivo nunca se cumplían y `festividades` se quedaba vacío para siempre.
 window.calendarState = calendarState;
 
 // Claves de traducción para los meses
@@ -23,7 +19,7 @@ const nombresMeses = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
-// Diccionario de fallback (solo los que faltan)
+// Diccionario de fallback
 const DICCIONARIO_FALLBACK = {
   "ev.panela.title": "Feria de la Panela",
   "ev.panela.desc": "Disfruta de la producción artesanal de dulce de panela, derivados de la caña de azúcar y gastronomía local típica salvadoreña.",
@@ -113,7 +109,7 @@ const TRADUCTOR_A_LANDMARK = {
   24: 48, 25: 28, 26: 34, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26,
   34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
   44: 45, 45: 57, 46: 58, 47: 25,
-  100: 60, 101: 60  // Navidad y Posadas (ambos apuntan al mismo landmark)
+  100: 60, 101: 60
 };
 
 // ============================================================
@@ -122,21 +118,21 @@ const TRADUCTOR_A_LANDMARK = {
 const EVENTOS_CALENDARIO_ORIGINAL = [
   // Feria de la Panela - 15 de febrero
   { id: 3, keyNombre: "ev.panela.title", keyDesc: "ev.panela.desc", dia: 15, mes: 2, depto: "San Vicente", tipo: "Feria Gastronómica", lat: 13.6167, lng: -88.85 },
-  // Día de la Cruz - 3 de mayo (corregido: 5)
+  // Día de la Cruz - 3 de mayo
   { id: 5, keyNombre: "ev.cruz.title", keyDesc: "ev.cruz.desc", dia: 3, mes: 5, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6929, lng: -89.2182 },
-  // Fiestas Julias - 26 de julio (corregido: 7)
+  // Fiestas Julias - 26 de julio
   { id: 8, keyNombre: "ev.julias.title", keyDesc: "ev.julias.desc", dia: 26, mes: 7, depto: "Santa Ana", tipo: "Fiesta Patronal", lat: 13.9942, lng: -89.5597 },
-  // Fiestas Agostinas - 5 de agosto (corregido: 8)
+  // Fiestas Agostinas - 5 de agosto
   { id: 10, keyNombre: "ev.agostinas.title", keyDesc: "ev.agostinas.desc", dia: 5, mes: 8, depto: "San Salvador", tipo: "Fiesta Patronal", lat: 13.6984, lng: -89.1915 },
   // Feria del Jocote Corona - 15 de septiembre
   { id: 12, keyNombre: "ev.jocote.title", keyDesc: "ev.jocote.desc", dia: 15, mes: 9, depto: "Santa Ana", tipo: "Feria Gastronómica", lat: 13.8494, lng: -89.6314 },
   // Fiesta de la Calabaza - 1 de octubre
   { id: 13, keyNombre: "ev.calabaza.title", keyDesc: "ev.calabaza.desc", dia: 1, mes: 10, depto: "Cuscatlán", tipo: "Tradición Popular", lat: 13.7167, lng: -88.9333 },
-  // Día de los Difuntos - 2 de noviembre (corregido: 11)
+  // Día de los Difuntos - 2 de noviembre
   { id: 16, keyNombre: "ev.difuntos.title", keyDesc: "ev.difuntos.desc", dia: 2, mes: 11, depto: "Todos", tipo: "Conmemoración", lat: 13.6929, lng: -89.2182 },
   // Festival del Añil - 4 de octubre
   { id: 17, keyNombre: "ev.anil.title", keyDesc: "ev.anil.desc", dia: 4, mes: 10, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
-  // Día de los Farolitos - 7 de septiembre (corregido: 9)
+  // Día de los Farolitos - 7 de septiembre
   { id: 22, keyNombre: "ev.farolitos.title", keyDesc: "ev.farolitos.desc", dia: 7, mes: 9, depto: "Ahuachapán", tipo: "Celebración Tradicional", lat: 13.9214, lng: -89.845 },
   // Danza de los Encuentros - 24 de septiembre
   { id: 26, keyNombre: "ev.encuentros.title", keyDesc: "ev.encuentros.desc", dia: 24, mes: 9, depto: "Sonsonate", tipo: "Danza Ancestral", lat: 13.7186, lng: -89.7244 },
@@ -154,13 +150,13 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   { id: 35, keyNombre: "ev.launion.title", keyDesc: "ev.launion.desc", dia: 12, mes: 11, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.3369, lng: -87.8442 },
   // Navidad - 24 de diciembre
   { id: 36, keyNombre: "ev.navidad.title", keyDesc: "ev.navidad.desc", dia: 24, mes: 12, depto: "San Salvador", tipo: "Celebración Religiosa", lat: 13.6929, lng: -89.2182 },
-  // Posadas - 16 de noviembre (corregido: 11)
+  // Posadas - 16 de noviembre
   { id: 101, keyNombre: "ev.posadas.title", keyDesc: "ev.posadas.desc", dia: 16, mes: 11, depto: "San Salvador", tipo: "Celebración Religiosa", lat: 13.6929, lng: -89.2182 },
   // Festival de Suchitoto - 15 de enero
   { id: 39, keyNombre: "ev.suchitotoFestival.title", keyDesc: "ev.suchitotoFestival.desc", dia: 15, mes: 1, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
   // Tradición del Bálsamo - 15 de septiembre
   { id: 40, keyNombre: "ev.balsam.title", keyDesc: "ev.balsam.desc", dia: 15, mes: 9, depto: "La Libertad", tipo: "Tradición Popular", lat: 13.6738, lng: -89.4420 },
-  // Romería de Esquipulas - 15 de enero (corregido: 1)
+  // Romería de Esquipulas - 15 de enero
   { id: 41, keyNombre: "ev.esquipulas.title", keyDesc: "ev.esquipulas.desc", dia: 15, mes: 1, depto: "Chalatenango", tipo: "Celebración Religiosa", lat: 14.1167, lng: -88.9333 },
   // Fiestas del Rey Guajactial - 15 de agosto
   { id: 42, keyNombre: "ev.guajactial.title", keyDesc: "ev.guajactial.desc", dia: 15, mes: 8, depto: "Sonsonate", tipo: "Fiesta Patronal", lat: 13.7512, lng: -89.6678 },
@@ -168,9 +164,9 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   { id: 43, keyNombre: "ev.juventudes.title", keyDesc: "ev.juventudes.desc", dia: 15, mes: 6, depto: "Morazán", tipo: "Festival Cultural", lat: 13.7833, lng: -88.15 },
   // Primicia de la Cosecha - 15 de julio
   { id: 44, keyNombre: "ev.primicia.title", keyDesc: "ev.primicia.desc", dia: 15, mes: 7, depto: "La Unión", tipo: "Tradición Popular", lat: 13.3, lng: -87.85 },
-  // Semana Santa Nacional - 3 de abril (corregido: 4)
+  // Semana Santa Nacional - 3 de abril
   { id: 45, keyNombre: "ev.semanaSanta.title", keyDesc: "ev.semanaSanta.desc", dia: 3, mes: 4, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6980, lng: -89.1901 },
-  // Día de la Independencia - 15 de septiembre (corregido: 9)
+  // Día de la Independencia - 15 de septiembre
   { id: 46, keyNombre: "ev.independencia.title", keyDesc: "ev.independencia.desc", dia: 15, mes: 9, depto: "Todos", tipo: "Festividad Nacional", lat: 13.7005, lng: -89.1898 },
   // Festival de las Flores y Palmas - 10 de abril
   { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 4, depto: "La Libertad", tipo: "Celebración Tradicional", lat: 13.6769, lng: -89.2797 }
@@ -183,6 +179,10 @@ const EVENTOS_CALENDARIO = EVENTOS_CALENDARIO_ORIGINAL
     ...e,
     landmarkId: TRADUCTOR_A_LANDMARK[e.id]
   }));
+
+// Variables para controlar el modal y su contenido actual
+let eventoActualModal = null;
+let eventosSelectorActual = null;
 
 // ============================================================
 // INICIALIZACIÓN
@@ -202,6 +202,12 @@ document.addEventListener("DOMContentLoaded", () => {
       initCalendar();
       if (typeof renderCatalogo === "function") {
         renderCatalogo(listaEventosFiltrados);
+      }
+      // Actualizar modales abiertos
+      if (eventoActualModal) {
+        window.abrirDetallesEvento(eventoActualModal);
+      } else if (eventosSelectorActual) {
+        mostrarSelectorEventos(eventosSelectorActual);
       }
     }, 150);
   });
@@ -352,12 +358,13 @@ function renderCalendarGrid() {
 
 // ── Selector de eventos (modal) ──
 function mostrarSelectorEventos(eventos) {
+  eventosSelectorActual = eventos;
   const modalOverlay = document.getElementById("modalOverlay");
   const modalTitle = document.getElementById("modalTitle");
   const modalBody = document.getElementById("modalBody");
   if (!modalOverlay || !modalTitle || !modalBody) return;
 
-  const titulo = t("Selecciona un evento", "Selecciona un evento");
+  const titulo = t("cal.selectEvent", "Selecciona un evento");
   modalTitle.textContent = titulo;
 
   let html = `<ul class="event-selector-list">`;
@@ -479,11 +486,9 @@ function renderTodayEvent() {
 // CATÁLOGO
 // ============================================================
 let listaEventosFiltrados = [];
-let currentLimit = 6; 
-let eventoActivoModalId = null; 
+let currentLimit = 6;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Retrasamos levemente el render inicial para dar tiempo a la carga del DOM de traducción
   setTimeout(() => {
     initCatalogAndFilters();
     setupModalEvents();
@@ -491,7 +496,6 @@ document.addEventListener("DOMContentLoaded", () => {
     abrirEventoDesdeURL();
   }, 100);
 
-  // Escucha el evento global i18n
   document.addEventListener("langchange", () => {
     setTimeout(() => { 
       if (typeof renderCatalogo === "function") {
@@ -509,14 +513,12 @@ function abrirEventoDesdeURL() {
   const evento = calendarState.festividades.find(f => f.id === Number(idParam));
   if (!evento) return;
 
-  // Navega el calendario visual al mes/año del evento y re-renderiza la grilla
   calendarState.currentMonth = evento.mes - 1;
   calendarState.currentYear = evento.anio || calendarState.currentYear;
   if (typeof renderYearTitle === "function") renderYearTitle();
   if (typeof renderMonthPills === "function") renderMonthPills();
   if (typeof renderCalendarGrid === "function") renderCalendarGrid();
 
-  // Resalta el día del evento en la grilla recién renderizada
   const calGrid = document.getElementById("calGrid");
   if (calGrid) {
     const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
@@ -635,7 +637,8 @@ function renderCatalogo(eventos) {
   catalogGrid.innerHTML = "";
 
   if (resultsCount) {
-    resultsCount.innerHTML = `<strong>${eventos.length}</strong> ${t("cal.catalog.foundText", "festividades encontradas")}`;
+    const foundText = t("cal.catalog.foundText", "festividades encontradas");
+    resultsCount.innerHTML = `<strong>${eventos.length}</strong> ${foundText}`;
   }
 
   if (eventos.length === 0) {
@@ -746,13 +749,23 @@ function setupModalEvents() {
   const modalClose = document.getElementById("modalClose");
 
   if (modalClose && modalOverlay) {
-    modalClose.addEventListener("click", () => modalOverlay.classList.remove("open"));
+    modalClose.addEventListener("click", () => {
+      modalOverlay.classList.remove("open");
+      eventoActualModal = null;
+      eventosSelectorActual = null;
+    });
     modalOverlay.addEventListener("click", (e) => {
-      if (e.target === modalOverlay) modalOverlay.classList.remove("open");
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove("open");
+        eventoActualModal = null;
+        eventosSelectorActual = null;
+      }
     });
   }
 
   window.abrirDetallesEvento = (evento) => {
+    eventoActualModal = evento;
+    eventosSelectorActual = null;
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
     if (!modalOverlay || !modalTitle || !modalBody) return;
@@ -801,53 +814,15 @@ function setupModalEvents() {
       </a>
     `;
 
-    eventoActivoModalId = evento.id;
     modalOverlay.classList.add("open");
   };
 }
 
 // ============================================================
-// URL (abrir evento desde parámetro ?id=)
+// RESTAURAR ESTADO (placeholder)
 // ============================================================
-function abrirEventoDesdeURL() {
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get("id");
-  if (!idParam) return;
-
-  const evento = calendarState.festividades.find(f => f.id === Number(idParam));
-  if (!evento) return;
-
-  if (evento.landmarkId) {
-    window.location.href = `mapa.html?evento=${evento.landmarkId}&from=calendario.html`;
-    return;
-  }
-
-  calendarState.currentMonth = evento.mes - 1;
-  if (evento.anio) {
-    calendarState.currentYear = evento.anio;
-  }
-
-  if (typeof renderYearTitle === "function") renderYearTitle();
-  if (typeof renderMonthPills === "function") renderMonthPills();
-  if (typeof renderCalendarGrid === "function") renderCalendarGrid();
-
-  const calGrid = document.getElementById("calGrid");
-  if (calGrid) {
-    const diasCelda = Array.from(calGrid.querySelectorAll(".cal-day:not(.other-month)"));
-    const celdaEvento = diasCelda.find(d => {
-      const numEl = d.querySelector(".day-num");
-      return numEl && Number(numEl.textContent) === evento.dia;
-    });
-    if (celdaEvento) {
-      document.querySelectorAll(".cal-day").forEach(d => d.classList.remove("selected"));
-      celdaEvento.classList.add("selected");
-      celdaEvento.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }
-
-  if (typeof window.abrirDetallesEvento === "function") {
-    window.abrirDetallesEvento(evento);
-  }
+function restaurarEstadoCalendario() {
+  // No es necesario para la funcionalidad, se mantiene por compatibilidad
 }
 
 // Exponer funciones globales

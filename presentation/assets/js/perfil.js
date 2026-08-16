@@ -1,11 +1,26 @@
 /* ============================================================
-  Salvadorean Roots — perfil.js
+  Salvadorean Roots — perfil.js (con i18n)
    ============================================================ */
+
+// Función de traducción con idioma actual
+function t(key, replacements = {}) {
+  if (typeof window.SRi18n === 'undefined') {
+    console.warn('i18n no cargado, usando fallback');
+    return key;
+  }
+  const lang = window.SRi18n.getLang();
+  let text = window.SRi18n.t(key, lang) || key;
+  for (const [k, v] of Object.entries(replacements)) {
+    text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+  }
+  return text;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
 
   const toast = document.getElementById('perfil-toast');
-  const showToast = (message, type = 'success') => {
+  const showToast = (messageKey, type = 'success', replacements = {}) => {
+    const message = t(messageKey, replacements);
     toast.textContent = message;
     toast.className = type;
     requestAnimationFrame(() => toast.classList.add('show'));
@@ -13,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast.timeout = setTimeout(() => toast.classList.remove('show'), 3200);
   };
 
-  const setStatus = (el, message, type) => {
+  const setStatus = (el, messageKey, type = 'success', replacements = {}) => {
+    const message = t(messageKey, replacements);
     el.textContent = message;
     el.className = `save-status show save-status--${type}`;
     clearTimeout(setStatus[el.id]);
@@ -37,8 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let profileState = null;
 
-  // Avisa al menú hamburguesa (script.js) que el nombre/avatar cambiaron,
-  // para que se actualice al instante sin necesidad de recargar la página.
   const notifyDrawer = () => {
     window.dispatchEvent(new CustomEvent('raices:profile-updated', { detail: profileState }));
   };
@@ -77,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
       nameInput.value = profileState.name || '';
       emailInput.value = profileState.email || '';
       descriptionInput.value = profileState.description || '';
-      charCount.textContent = `${descriptionInput.value.length} / 300`;
+      charCount.textContent = t('perfil.datos.charCount', { current: descriptionInput.value.length, max: 300 });
 
       avatarPlaceholder.textContent = (profileState.name || '?').trim().charAt(0).toUpperCase();
       renderAvatar(profileState.avatarUrl);
@@ -87,20 +101,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!profileState.hasPassword) {
-        // Cuenta creada solo con Google: no pide contraseña actual todavía.
         currentPasswordGroup.style.display = 'none';
-        passwordDesc.textContent = 'Aún no tienes una contraseña (ingresaste con Google). Crea una para poder iniciar sesión también con correo.';
+        passwordDesc.textContent = t('perfil.security.descGoogle');
+        passwordDesc.dataset.i18n = 'perfil.security.descGoogle';
+      } else {
+        passwordDesc.textContent = t('perfil.security.desc');
+        passwordDesc.dataset.i18n = 'perfil.security.desc';
       }
 
     } catch (err) {
       console.error(err);
-      showToast('No se pudo cargar tu perfil.', 'error');
+      showToast('perfil.toast.loadError', 'error');
     }
   };
 
   descriptionInput.addEventListener('input', () => {
     const len = descriptionInput.value.length;
-    charCount.textContent = `${len} / 300`;
+    charCount.textContent = t('perfil.datos.charCount', { current: len, max: 300 });
     charCount.classList.toggle('limit-near', len > 270);
   });
 
@@ -123,19 +140,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) {
         const text = await res.text();
-        setStatus(statusEl, text || 'No se pudo guardar.', 'error');
+        setStatus(statusEl, 'perfil.status.saveError', 'error', { message: text || t('perfil.status.saveError') });
         return;
       }
 
       const data = await res.json();
       profileState = { ...profileState, ...data.user };
-      setStatus(statusEl, 'Cambios guardados', 'success');
-      showToast('Tu perfil se actualizó correctamente.');
+      setStatus(statusEl, 'perfil.status.changesSaved', 'success');
+      showToast('perfil.toast.saveSuccess');
       notifyDrawer();
 
     } catch (err) {
       console.error(err);
-      setStatus(statusEl, 'Error de conexión.', 'error');
+      setStatus(statusEl, 'perfil.status.connectionError', 'error');
     }
   });
 
@@ -147,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentPassword = document.getElementById('currentPassword').value;
 
     if (!newPassword) {
-      setStatus(statusEl, 'Escribe una nueva contraseña.', 'error');
+      setStatus(statusEl, 'perfil.status.enterNewPassword', 'error');
       return;
     }
 
@@ -167,22 +184,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) {
         const text = await res.text();
-        setStatus(statusEl, text || 'No se pudo actualizar.', 'error');
+        setStatus(statusEl, 'perfil.status.passwordError', 'error', { message: text || t('perfil.status.passwordError') });
         return;
       }
 
       document.getElementById('newPassword').value = '';
       document.getElementById('currentPassword').value = '';
-      setStatus(statusEl, 'Contraseña actualizada', 'success');
-      showToast('Tu contraseña se actualizó correctamente.');
+      setStatus(statusEl, 'perfil.status.passwordUpdated', 'success');
+      showToast('perfil.toast.passwordSuccess');
 
-      // Si antes no tenía contraseña (solo Google), ahora sí -> pedirla en el futuro.
       currentPasswordGroup.style.display = 'block';
-      passwordDesc.textContent = 'Cambia tu contraseña cuando quieras.';
+      passwordDesc.textContent = t('perfil.security.desc');
+      passwordDesc.dataset.i18n = 'perfil.security.desc';
 
     } catch (err) {
       console.error(err);
-      setStatus(statusEl, 'Error de conexión.', 'error');
+      setStatus(statusEl, 'perfil.status.connectionError', 'error');
     }
   });
 
@@ -198,15 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!file) return;
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      showToast('Formato no soportado. Usa JPG, PNG o WEBP.', 'error');
+      showToast('perfil.toast.formatError', 'error');
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      showToast('La imagen no puede pesar más de 3 MB.', 'error');
+      showToast('perfil.toast.sizeError', 'error');
       return;
     }
 
-    // Preview optimista
     const previewUrl = URL.createObjectURL(file);
     renderAvatar(previewUrl);
 
@@ -222,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) {
         const text = await res.text();
-        showToast(text || 'No se pudo subir la foto.', 'error');
+        showToast('perfil.toast.avatarError', 'error', { message: text || t('perfil.toast.avatarError') });
         renderAvatar(profileState?.avatarUrl || null);
         return;
       }
@@ -230,12 +246,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       profileState = { ...profileState, ...data.user };
       renderAvatar(profileState.avatarUrl);
-      showToast('Foto de perfil actualizada.');
+      showToast('perfil.toast.avatarSuccess');
       notifyDrawer();
 
     } catch (err) {
       console.error(err);
-      showToast('Error de conexión al subir la foto.', 'error');
+      showToast('perfil.toast.connectionError', 'error');
       renderAvatar(profileState?.avatarUrl || null);
     } finally {
       URL.revokeObjectURL(previewUrl);
@@ -274,19 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) {
         const text = await res.text();
-        showToast(text || 'No se pudo usar la foto de Google.', 'error');
+        showToast('perfil.toast.avatarError', 'error', { message: text || t('perfil.toast.avatarError') });
         return;
       }
 
       const data = await res.json();
       profileState = { ...profileState, ...data.user };
       renderAvatar(profileState.avatarUrl);
-      showToast('Ahora usas tu foto de Google.');
+      showToast('perfil.toast.avatarGoogleSuccess');
       notifyDrawer();
 
     } catch (err) {
       console.error(err);
-      showToast('Error de conexión.', 'error');
+      showToast('perfil.toast.connectionError', 'error');
     }
   });
 
@@ -320,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) {
         const text = await res.text();
-        showToast(text || 'No se pudo eliminar la cuenta.', 'error');
+        showToast('perfil.toast.deleteError', 'error', { message: text || t('perfil.toast.deleteError') });
         return;
       }
 
@@ -329,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (err) {
       console.error(err);
-      showToast('Error de conexión.', 'error');
+      showToast('perfil.toast.connectionError', 'error');
     }
   });
 

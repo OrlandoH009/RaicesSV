@@ -1495,6 +1495,213 @@
       // ——— Toggle mostrar/ocultar contraseña ———
       "login.password_show": "Mostrar contraseña",
       "login.password_hide": "Ocultar contraseña",
+
+      // ——— Página: Quiz Cultural ———
+      "quiz.heroEyebrow": "Aprender jugando",
+      "quiz.heroTitle": "Quiz de Salvadorean Roots",
+      "quiz.heroSubtitle": "Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.",
+
+      "quiz.welcomeSubtitle": "Un viaje interactivo por nuestras raíces, costumbres y tradiciones que nos hacen únicos.",
+      "quiz.statQuestions": "Preguntas",
+      "quiz.statCategories": "Categorías",
+      "quiz.statLevels": "Niveles",
+
+      "quiz.selectLevel": "Selecciona un nivel",
+      "quiz.levelFacil": "Fácil",
+      "quiz.levelFacilSub": "Cultura general. 5 pts por respuesta.",
+      "quiz.levelMedio": "Medio",
+      "quiz.levelMedioSub": "Conocimiento detallado. 10 pts.",
+      "quiz.levelDificil": "Difícil",
+      "quiz.levelDificilSub": "Para expertos en historia. 15 pts.",
+      "quiz.levelGuanaco": "100% Guanaco",
+      "quiz.levelGuanacoSub": "Solo lo sabe un verdadero cuscatleco. 20 pts.",
+
+      "quiz.selectAmount": "¿Cuántas preguntas?",
+      "quiz.amountExpress": "Express",
+      "quiz.amountExpressSub": "8 preguntas",
+      "quiz.amountNormal": "Normal",
+      "quiz.amountNormalSub": "15 preguntas",
+      "quiz.amountExtenso": "Extenso",
+      "quiz.amountExtensoSub": "Todas las preguntas",
+
+      "quiz.selectCategory": "Elige una categoría",
+      "quiz.catTodas": "Todas",
+      "quiz.catHistoria": "Historia",
+      "quiz.catGastronomia": "Gastronomía",
+      "quiz.catSitios": "Sitios Culturales",
+      "quiz.catLeyendas": "Leyendas",
+
+      "quiz.startBtn": "Comenzar Quiz",
+
+      "quiz.questionCounter": "Pregunta {current} de {total}",
+      "quiz.scoreLive": "Puntos: {points}",
+
+      "quiz.correct": "Correcto",
+      "quiz.incorrect": "Incorrecto",
+      "quiz.correctPoints": "Correcto — +{points} puntos",
+      "quiz.explanation": "Explicación",
+
+      "quiz.nextBtn": "Siguiente pregunta",
+      "quiz.resultsBtn": "Ver resultados",
+      "quiz.retryBtn": "Jugar de nuevo",
+      "quiz.exploreBtn": "Volver al Inicio",
+
+      "quiz.resultsRank": "Nivel — {level}",
+      "quiz.resultsPerfect": "Perfecto",
+      "quiz.resultsExcellent": "Excelente",
+      "quiz.resultsGood": "Buen trabajo",
+      "quiz.resultsKeepLearning": "Sigue aprendiendo",
+      "quiz.resultsStarting": "Comenzando",
+      "quiz.resultsPerfectMsg": "Dominio absoluto de Salvadorean Roots. Eres un referente de la cultura salvadoreña.",
+      "quiz.resultsExcellentMsg": "Conoces muy bien la cultura de El Salvador. Estás al nivel de un guanaco de corazón.",
+      "quiz.resultsGoodMsg": "Buen conocimiento de Salvadorean Roots. Repasa para mejorar tu desempeño.",
+      "quiz.resultsKeepLearningMsg": "Hay mucho por descubrir. Explora las secciones informativas y vuelve a intentarlo.",
+      "quiz.resultsStartingMsg": "El Salvador tiene una cultura riquísima. Explora y vuelve a intentarlo.",
+      "quiz.resultsScore": "{score} / {max} pts",
+      "quiz.resultsBestScore": "Tu récord en esta categoría y nivel: {best} pts",
+
+      "quiz.confirmTitle": "¿Seguro que deseas salir?",
+      "quiz.confirmText": "Perderás el progreso de esta partida.",
+      "quiz.confirmCancel": "Seguir jugando",
+      "quiz.confirmExit": "Sí, salir",
+
+      "quiz.badgeFacil": "Fácil",
+      "quiz.badgeMedio": "Medio",
+      "quiz.badgeDificil": "Difícil",
+      "quiz.badgeGuanaco": "100% Guanaco",
+
+      "quiz.catLabelHistoria": "Historia",
+      "quiz.catLabelGastronomia": "Gastronomía",
+      "quiz.catLabelSitios": "Sitios Culturales",
+      "quiz.catLabelLeyendas": "Leyendas",
+
+      // ——— Página: Perfil ———
+      "perfil.meta.title": "Salvadorean Roots — Mi perfil",
+      "perfil.meta.description": "Gestiona tu perfil en Salvadorean Roots.",
+
+      "perfil.eyebrow": "Mi cuenta",
+      "perfil.title": "Mi perfil",
+      "perfil.subtitle": "Nuestra herencia, nuestro orgullo.",
+
+      "perfil.avatar.aria": "Cambiar foto de perfil",
+      "perfil.avatar.placeholder": "?",
+      "perfil.avatar.overlay": "Cambiar foto",
+      "perfil.avatar.uploadBtn": "Subir foto",
+      "perfil.avatar.googleBtn": "Usar foto de Google",
+
+      "perfil.datos.title": "Datos personales",
+      "perfil.datos.desc": "Así te verán en Salvadorean Roots.",
+      "perfil.datos.name": "Nombre completo",
+      "perfil.datos.email": "Correo electrónico",
+      "perfil.datos.description": "Sobre ti",
+      "perfil.datos.descriptionPlaceholder": "Cuéntanos algo sobre ti...",
+      "perfil.datos.charCount": "{current} / {max}",
+      "perfil.datos.saveBtn": "Guardar cambios",
+
+      "perfil.security.title": "Seguridad",
+      "perfil.security.desc": "Cambia tu contraseña cuando quieras.",
+      "perfil.security.descGoogle": "Aún no tienes una contraseña (ingresaste con Google). Crea una para poder iniciar sesión también con correo.",
+      "perfil.security.currentPassword": "Contraseña actual",
+      "perfil.security.newPassword": "Nueva contraseña",
+      "perfil.security.newPasswordPlaceholder": "Dejar en blanco para no cambiarla",
+      "perfil.security.updateBtn": "Actualizar contraseña",
+
+      "perfil.session.title": "Sesión",
+      "perfil.session.desc": "Cierra tu sesión en este dispositivo.",
+      "perfil.session.logoutBtn": "Cerrar sesión",
+
+      "perfil.danger.title": "Eliminar cuenta",
+      "perfil.danger.desc": "Esta acción es permanente. Se borrarán tus datos, comentarios y puntajes.",
+      "perfil.danger.btn": "Eliminar mi cuenta",
+
+      "perfil.deleteModal.title": "¿Eliminar tu cuenta?",
+      "perfil.deleteModal.desc": "Esta acción no se puede deshacer. Perderás tu perfil, comentarios y puntajes en Salvadorean Roots.",
+      "perfil.deleteModal.confirmPassword": "Confirma tu contraseña",
+      "perfil.deleteModal.cancelBtn": "Cancelar",
+      "perfil.deleteModal.confirmBtn": "Sí, eliminar",
+
+      // Toasts y mensajes dinámicos
+      "perfil.toast.loadError": "No se pudo cargar tu perfil.",
+      "perfil.toast.saveSuccess": "Tu perfil se actualizó correctamente.",
+      "perfil.toast.saveError": "No se pudo guardar.",
+      "perfil.toast.avatarSuccess": "Foto de perfil actualizada.",
+      "perfil.toast.avatarError": "No se pudo subir la foto.",
+      "perfil.toast.avatarGoogleSuccess": "Ahora usas tu foto de Google.",
+      "perfil.toast.passwordSuccess": "Tu contraseña se actualizó correctamente.",
+      "perfil.toast.passwordError": "No se pudo actualizar.",
+      "perfil.toast.deleteSuccess": "Cuenta eliminada.",
+      "perfil.toast.deleteError": "No se pudo eliminar la cuenta.",
+      "perfil.toast.connectionError": "Error de conexión.",
+      "perfil.toast.formatError": "Formato no soportado. Usa JPG, PNG o WEBP.",
+      "perfil.toast.sizeError": "La imagen no puede pesar más de 3 MB.",
+
+      "perfil.status.changesSaved": "Cambios guardados",
+      "perfil.status.saveError": "No se pudo guardar.",
+      "perfil.status.passwordUpdated": "Contraseña actualizada",
+      "perfil.status.passwordError": "No se pudo actualizar.",
+      "perfil.status.enterNewPassword": "Escribe una nueva contraseña.",
+      "perfil.status.connectionError": "Error de conexión.",
+
+      // ——— Página: Publicaciones ———
+      "pub.meta.title": "Publicaciones – Salvadorean Roots",
+      "pub.meta.description": "Descubre fotografías y historias de lugares increíbles de El Salvador compartidas por nuestra comunidad.",
+
+      "pub.backLabel": "Volver a categorías",
+      "pub.sectionTitle": "Comparte la Magia de El Salvador",
+      "pub.sectionSub": "Descubre fotografías y historias de lugares increíbles compartidas por nuestra comunidad",
+
+      "pub.filterLabel": "📍 Mostrando:",
+      "pub.filterClear": "Ver todas las publicaciones ✕",
+      "pub.filterName": "Ver todas las publicaciones ✕", // solo placeholder
+
+      "pub.emptyTitle": "No hay publicaciones aún",
+      "pub.emptySub": "Sé el primero en compartir una publicación",
+
+      "pub.formTitle": "Comparte tu Experiencia",
+      "pub.formSub": "Sube una foto y cuéntanos dónde capturaste la magia",
+      "pub.formTitleEdit": "Editar tu Publicación",
+
+      "pub.fieldTitle": "Título del Lugar",
+      "pub.fieldTitlePlaceholder": "Ej: Cascada de Siete Pozos",
+      "pub.fieldDescription": "Descripción",
+      "pub.fieldDescriptionPlaceholder": "Describe tu experiencia en este lugar...",
+      "pub.fieldLocation": "Ubicación",
+      "pub.fieldLocationPlaceholder": "Selecciona un lugar...",
+      "pub.fieldLocationOptionOther": "Otro (especificar)",
+      "pub.fieldLocationOtherPlaceholder": "Escribe el nombre del lugar",
+      "pub.fieldImageLabel": "Sube una foto",
+      "pub.fieldImageSub": "Arrastra o haz clic para seleccionar",
+      "pub.fieldImageRemove": "Eliminar imagen",
+
+      "pub.submitBtn": "Publicar",
+      "pub.cancelEditBtn": "Cancelar edición",
+      "pub.clearBtn": "Limpiar",
+
+      "pub.guestBlockerTitle": "¿Quieres compartir un lugar?",
+      "pub.guestBlockerText": "Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.",
+      "pub.guestBlockerBtn": "Iniciar Sesión / Registrarse",
+
+      "pub.modalTitle": "¡Qué bueno tenerte por aquí! 👋",
+      "pub.modalText": "Puedes seguir explorando las categorías con toda libertad, pero si te registras vas a disfrutar mucho más de todo lo que Salvadorean Roots tiene para ti.",
+      "pub.modalCreate": "Crear mi cuenta",
+      "pub.modalLogin": "Ya tengo cuenta",
+      "pub.modalSkip": "Seguir explorando sin cuenta",
+
+      "pub.alertNoLocation": "Por favor indica una ubicación.",
+      "pub.alertNoImage": "Por favor sube una imagen.",
+      "pub.alertCreateSuccess": "Publicación creada correctamente.",
+      "pub.alertUpdateSuccess": "Publicación actualizada correctamente.",
+      "pub.alertDeleteConfirm": "¿Seguro que quieres eliminar esta publicación? Esta acción no se puede deshacer.",
+      "pub.alertDeleteSuccess": "Publicación eliminada correctamente.",
+      "pub.alertError": "Ocurrió un error al guardar la publicación.",
+      "pub.alertErrorLoad": "No se pudo cargar la publicación para editar.",
+      "pub.alertErrorDelete": "No se pudo eliminar esta publicación.",
+      "pub.alertImageFormat": "Formato no soportado. Usa JPG, PNG o WEBP.",
+      "pub.alertImageSize": "La imagen no puede pesar más de 3 MB.",
+
+      "pub.emptyTitleFiltered": "Aún no hay publicaciones de {name}",
+
+      "cal.selectEvent": "Selecciona un evento",
     },
 
     en: {
@@ -2960,6 +3167,213 @@
       // ——— Password show/hide toggle ———
       "login.password_show": "Show password",
       "login.password_hide": "Hide password",
+
+      // ——— Quiz page ———
+        "quiz.heroEyebrow": "Learn while playing",
+        "quiz.heroTitle": "Salvadorean Roots Quiz",
+        "quiz.heroSubtitle": "Test your knowledge about Salvadoran culture, history and gastronomy.",
+
+        "quiz.welcomeSubtitle": "An interactive journey through our roots, customs and traditions that make us unique.",
+        "quiz.statQuestions": "Questions",
+        "quiz.statCategories": "Categories",
+        "quiz.statLevels": "Levels",
+
+        "quiz.selectLevel": "Select a level",
+        "quiz.levelFacil": "Easy",
+        "quiz.levelFacilSub": "General culture. 5 pts per answer.",
+        "quiz.levelMedio": "Medium",
+        "quiz.levelMedioSub": "Detailed knowledge. 10 pts.",
+        "quiz.levelDificil": "Hard",
+        "quiz.levelDificilSub": "For history experts. 15 pts.",
+        "quiz.levelGuanaco": "100% Guanaco",
+        "quiz.levelGuanacoSub": "Only a true cuscatleco knows it. 20 pts.",
+
+        "quiz.selectAmount": "How many questions?",
+        "quiz.amountExpress": "Express",
+        "quiz.amountExpressSub": "8 questions",
+        "quiz.amountNormal": "Normal",
+        "quiz.amountNormalSub": "15 questions",
+        "quiz.amountExtenso": "Extended",
+        "quiz.amountExtensoSub": "All questions",
+
+        "quiz.selectCategory": "Choose a category",
+        "quiz.catTodas": "All",
+        "quiz.catHistoria": "History",
+        "quiz.catGastronomia": "Gastronomy",
+        "quiz.catSitios": "Cultural Sites",
+        "quiz.catLeyendas": "Legends",
+
+        "quiz.startBtn": "Start Quiz",
+
+        "quiz.questionCounter": "Question {current} of {total}",
+        "quiz.scoreLive": "Score: {points}",
+
+        "quiz.correct": "Correct",
+        "quiz.incorrect": "Incorrect",
+        "quiz.correctPoints": "Correct — +{points} points",
+        "quiz.explanation": "Explanation",
+
+        "quiz.nextBtn": "Next question",
+        "quiz.resultsBtn": "See results",
+        "quiz.retryBtn": "Play again",
+        "quiz.exploreBtn": "Go Home",
+
+        "quiz.resultsRank": "Level — {level}",
+        "quiz.resultsPerfect": "Perfect",
+        "quiz.resultsExcellent": "Excellent",
+        "quiz.resultsGood": "Good job",
+        "quiz.resultsKeepLearning": "Keep learning",
+        "quiz.resultsStarting": "Getting started",
+        "quiz.resultsPerfectMsg": "Absolute mastery of Salvadorean Roots. You are a benchmark of Salvadoran culture.",
+        "quiz.resultsExcellentMsg": "You know Salvadoran culture very well. You are at the level of a true guanaco.",
+        "quiz.resultsGoodMsg": "Good knowledge of Salvadorean Roots. Review to improve your performance.",
+        "quiz.resultsKeepLearningMsg": "There is much to discover. Explore the informational sections and try again.",
+        "quiz.resultsStartingMsg": "El Salvador has a rich culture. Explore and try again.",
+        "quiz.resultsScore": "{score} / {max} pts",
+        "quiz.resultsBestScore": "Your record in this category and level: {best} pts",
+
+        "quiz.confirmTitle": "Are you sure you want to leave?",
+        "quiz.confirmText": "You will lose your progress in this game.",
+        "quiz.confirmCancel": "Keep playing",
+        "quiz.confirmExit": "Yes, exit",
+
+        "quiz.badgeFacil": "Easy",
+        "quiz.badgeMedio": "Medium",
+        "quiz.badgeDificil": "Hard",
+        "quiz.badgeGuanaco": "100% Guanaco",
+
+        "quiz.catLabelHistoria": "History",
+        "quiz.catLabelGastronomia": "Gastronomy",
+        "quiz.catLabelSitios": "Cultural Sites",
+        "quiz.catLabelLeyendas": "Legends",
+
+        // ——— Profile page ———
+        "perfil.meta.title": "Salvadorean Roots — My profile",
+        "perfil.meta.description": "Manage your profile on Salvadorean Roots.",
+
+        "perfil.eyebrow": "My account",
+        "perfil.title": "My profile",
+        "perfil.subtitle": "Our heritage, our pride.",
+
+        "perfil.avatar.aria": "Change profile picture",
+        "perfil.avatar.placeholder": "?",
+        "perfil.avatar.overlay": "Change photo",
+        "perfil.avatar.uploadBtn": "Upload photo",
+        "perfil.avatar.googleBtn": "Use Google photo",
+
+        "perfil.datos.title": "Personal information",
+        "perfil.datos.desc": "This is how you'll be seen on Salvadorean Roots.",
+        "perfil.datos.name": "Full name",
+        "perfil.datos.email": "Email address",
+        "perfil.datos.description": "About you",
+        "perfil.datos.descriptionPlaceholder": "Tell us something about you...",
+        "perfil.datos.charCount": "{current} / {max}",
+        "perfil.datos.saveBtn": "Save changes",
+
+        "perfil.security.title": "Security",
+        "perfil.security.desc": "Change your password whenever you want.",
+        "perfil.security.descGoogle": "You don't have a password yet (you signed in with Google). Create one to also log in with email.",
+        "perfil.security.currentPassword": "Current password",
+        "perfil.security.newPassword": "New password",
+        "perfil.security.newPasswordPlaceholder": "Leave blank to keep current",
+        "perfil.security.updateBtn": "Update password",
+
+        "perfil.session.title": "Session",
+        "perfil.session.desc": "Log out of this device.",
+        "perfil.session.logoutBtn": "Log out",
+
+        "perfil.danger.title": "Delete account",
+        "perfil.danger.desc": "This action is permanent. Your data, comments and scores will be deleted.",
+        "perfil.danger.btn": "Delete my account",
+
+        "perfil.deleteModal.title": "Delete your account?",
+        "perfil.deleteModal.desc": "This action cannot be undone. You will lose your profile, comments and scores on Salvadorean Roots.",
+        "perfil.deleteModal.confirmPassword": "Confirm your password",
+        "perfil.deleteModal.cancelBtn": "Cancel",
+        "perfil.deleteModal.confirmBtn": "Yes, delete",
+
+        // Toasts and dynamic messages
+        "perfil.toast.loadError": "Could not load your profile.",
+        "perfil.toast.saveSuccess": "Your profile was updated successfully.",
+        "perfil.toast.saveError": "Could not save.",
+        "perfil.toast.avatarSuccess": "Profile picture updated.",
+        "perfil.toast.avatarError": "Could not upload photo.",
+        "perfil.toast.avatarGoogleSuccess": "You are now using your Google photo.",
+        "perfil.toast.passwordSuccess": "Your password was updated successfully.",
+        "perfil.toast.passwordError": "Could not update.",
+        "perfil.toast.deleteSuccess": "Account deleted.",
+        "perfil.toast.deleteError": "Could not delete account.",
+        "perfil.toast.connectionError": "Connection error.",
+        "perfil.toast.formatError": "Unsupported format. Use JPG, PNG or WEBP.",
+        "perfil.toast.sizeError": "The image cannot exceed 3 MB.",
+
+        "perfil.status.changesSaved": "Changes saved",
+        "perfil.status.saveError": "Could not save.",
+        "perfil.status.passwordUpdated": "Password updated",
+        "perfil.status.passwordError": "Could not update.",
+        "perfil.status.enterNewPassword": "Enter a new password.",
+        "perfil.status.connectionError": "Connection error.",
+
+        // ——— Publications page ———
+        "pub.meta.title": "Publications – Salvadorean Roots",
+        "pub.meta.description": "Discover photos and stories of amazing places in El Salvador shared by our community.",
+
+        "pub.backLabel": "Back to categories",
+        "pub.sectionTitle": "Share the Magic of El Salvador",
+        "pub.sectionSub": "Discover photos and stories of incredible places shared by our community",
+
+        "pub.filterLabel": "📍 Showing:",
+        "pub.filterClear": "View all publications ✕",
+        "pub.filterName": "View all publications ✕",
+
+        "pub.emptyTitle": "No publications yet",
+        "pub.emptySub": "Be the first to share a publication",
+
+        "pub.formTitle": "Share Your Experience",
+        "pub.formSub": "Upload a photo and tell us where you captured the magic",
+        "pub.formTitleEdit": "Edit Your Publication",
+
+        "pub.fieldTitle": "Place Title",
+        "pub.fieldTitlePlaceholder": "e.g., Seven Pools Waterfall",
+        "pub.fieldDescription": "Description",
+        "pub.fieldDescriptionPlaceholder": "Describe your experience at this place...",
+        "pub.fieldLocation": "Location",
+        "pub.fieldLocationPlaceholder": "Select a place...",
+        "pub.fieldLocationOptionOther": "Other (specify)",
+        "pub.fieldLocationOtherPlaceholder": "Enter the place name",
+        "pub.fieldImageLabel": "Upload a photo",
+        "pub.fieldImageSub": "Drag or click to select",
+        "pub.fieldImageRemove": "Remove image",
+
+        "pub.submitBtn": "Publish",
+        "pub.cancelEditBtn": "Cancel editing",
+        "pub.clearBtn": "Clear",
+
+        "pub.guestBlockerTitle": "Want to share a place?",
+        "pub.guestBlockerText": "Log in or sign up to upload your own photos of El Salvador.",
+        "pub.guestBlockerBtn": "Log In / Sign Up",
+
+        "pub.modalTitle": "Great to have you here! 👋",
+        "pub.modalText": "You can keep exploring the categories freely, but if you sign up you'll enjoy everything Salvadorean Roots has for you even more.",
+        "pub.modalCreate": "Create my account",
+        "pub.modalLogin": "I already have an account",
+        "pub.modalSkip": "Keep exploring without an account",
+
+        "pub.alertNoLocation": "Please specify a location.",
+        "pub.alertNoImage": "Please upload an image.",
+        "pub.alertCreateSuccess": "Publication created successfully.",
+        "pub.alertUpdateSuccess": "Publication updated successfully.",
+        "pub.alertDeleteConfirm": "Are you sure you want to delete this publication? This action cannot be undone.",
+        "pub.alertDeleteSuccess": "Publication deleted successfully.",
+        "pub.alertError": "An error occurred while saving the publication.",
+        "pub.alertErrorLoad": "Could not load the publication for editing.",
+        "pub.alertErrorDelete": "Could not delete this publication.",
+        "pub.alertImageFormat": "Unsupported format. Use JPG, PNG or WEBP.",
+        "pub.alertImageSize": "The image cannot exceed 3 MB.",
+
+        "pub.emptyTitleFiltered": "No publications of {name} yet",
+
+        "cal.selectEvent": "Select an event",
     }
   };
 

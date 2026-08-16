@@ -14,65 +14,74 @@
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#113068" />
 </head>
-<body>
+<body data-i18n-title="pub.meta.title" data-i18n-desc="pub.meta.description">
 
   <nav class="navbar" id="navbar">
     <div class="navbar__logo">
       <a href="../views/index.html">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" />
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" data-i18n-attr="alt:home.logoAlt" />
       </a>
     </div>
     <ul class="navbar__links">
-      <li><a href="../views/index.html">Inicio</a></li>
-      <li><a href="../views/categorias.html">Categorías</a></li>
-      <li><a href="../views/mapa.html">Mapa</a></li>
-      <li><a href="../views/calendario.html">Calendario</a></li>
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
     </ul>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú">
+    <!-- Botón de idioma -->
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
 
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
-    <div class="nav-drawer__head"><span>Menú</span></div>
-    <div class="drawer-section-label">Principal</div>
-    <a href="../views/index.html" class="drawer-link">Inicio</a>
-    <a href="../views/categorias.html" class="drawer-link">Categorías</a>
-    <a href="../views/mapa.html" class="drawer-link">Mapa</a>
-    <a href="../views/calendario.html" class="drawer-link">Calendario</a>
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
     <div class="drawer-divider"></div>
-    <div class="drawer-section-label">Explorar</div>
-    <a href="../views/sitios-culturales.html" class="drawer-link">Sitios Culturales</a>
-    <a href="../views/gastronomia.html" class="drawer-link">Gastronomía</a>
-    <a href="../views/recetas.html" class="drawer-link">Recetario</a>
-    <a href="../views/eventos.html" class="drawer-link">Eventos Culturales</a>
-    <a href="../views/historia.html" class="drawer-link">Historia</a>
-    <a href="../views/quiz.html" class="drawer-link">Quiz Cultural</a>
-    <a href="../views/leyendas.html" class="drawer-link">Leyendas</a>
+    <div class="drawer-section-label" data-i18n="nav.explorar">Explorar</div>
+    <a href="../views/sitios-culturales.html" class="drawer-link" data-i18n="nav.sitios">Sitios Culturales</a>
+    <a href="../views/gastronomia.html" class="drawer-link" data-i18n="nav.gastronomia">Gastronomía</a>
+    <a href="../views/recetas.html" class="drawer-link" data-i18n="nav.recetario">Recetario</a>
+    <a href="../views/eventos.html" class="drawer-link" data-i18n="nav.eventos">Eventos Culturales</a>
+    <a href="../views/historia.html" class="drawer-link" data-i18n="nav.historia">Historia</a>
+    <a href="../views/quiz.html" class="drawer-link" data-i18n="nav.quiz">Quiz Cultural</a>
+    <a href="../views/leyendas.html" class="drawer-link" data-i18n="nav.leyendas">Leyendas</a>
     <div class="drawer-divider"></div>
     <div class="drawer-auth">
-      <p class="drawer-auth-label">Mi cuenta</p>
-      <a href="../views/login.html" class="btn-login">Iniciar Sesión</a>
-      <a href="../views/registro.html" class="btn-register">Registrarse</a>
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
     </div>
+    <!-- Botón de idioma en drawer -->
+    <div class="drawer-divider"></div>
+    <button class="lang-toggle lang-toggle--drawer" data-lang-toggle aria-label="Idioma" data-i18n-attr="aria-label:lang.label">
+      <span data-lang-toggle-flag>🇸🇻</span>
+    </button>
   </nav>
 
   <a href="../views/categorias.html" class="info-back-btn" id="infoBackBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
-    <span id="infoBackBtnLabel">Volver a categorías</span>
+    <span id="infoBackBtnLabel" data-i18n="pub.backLabel">Volver a categorías</span>
   </a>
 
   <section class="publications-section">
     <div class="publications-container">
       <div class="publications-header">
-        <h1>Comparte la Magia de El Salvador</h1>
-        <p>Descubre fotografías y historias de lugares increíbles compartidas por nuestra comunidad</p>
+        <h1 data-i18n="pub.sectionTitle">Comparte la Magia de El Salvador</h1>
+        <p data-i18n="pub.sectionSub">Descubre fotografías y historias de lugares increíbles compartidas por nuestra comunidad</p>
       </div>
 
       <div class="publications-filter" id="publicationsFilter">
-        <span class="publications-filter__label" id="publicationsFilterLabel">📍 Mostrando: <span id="publicationsFilterName"></span></span>
-        <button type="button" class="publications-filter__clear" id="publicationsFilterClear">Ver todas las publicaciones ✕</button>
+        <span class="publications-filter__label" id="publicationsFilterLabel" data-i18n="pub.filterLabel">📍 Mostrando: <span id="publicationsFilterName"></span></span>
+        <button type="button" class="publications-filter__clear" id="publicationsFilterClear" data-i18n="pub.filterClear">Ver todas las publicaciones ✕</button>
       </div>
 
       <div class="publications-grid" id="publicationsGrid">
@@ -80,8 +89,8 @@
 
       <div class="publications-empty" id="emptyState" style="display: none;">
         <div class="publications-empty-icon">📸</div>
-        <p>No hay publicaciones aún</p>
-        <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.3);">Sé el primero en compartir una publicación</p>
+        <p id="emptyStateTitle" data-i18n="pub.emptyTitle">No hay publicaciones aún</p>
+        <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.3);" data-i18n="pub.emptySub">Sé el primero en compartir una publicación</p>
       </div>
     </div>
   </section>
@@ -89,27 +98,27 @@
   <section class="create-publication-section">
     <div class="create-publication-container">
       <div class="create-publication-header">
-        <h2 id="publicationFormTitle">Comparte tu Experiencia</h2>
-        <p>Sube una foto y cuéntanos dónde capturaste la magia</p>
+        <h2 id="publicationFormTitle" data-i18n="pub.formTitle">Comparte tu Experiencia</h2>
+        <p data-i18n="pub.formSub">Sube una foto y cuéntanos dónde capturaste la magia</p>
       </div>
 
       <form class="publication-form" id="publicationForm">
         <input type="hidden" id="pubEditId" value="">
 
         <div class="form-group">
-          <label for="pubTitle">Título del Lugar</label>
-          <input type="text" id="pubTitle" placeholder="Ej: Cascada de Siete Pozos" required>
+          <label for="pubTitle" data-i18n="pub.fieldTitle">Título del Lugar</label>
+          <input type="text" id="pubTitle" placeholder="Ej: Cascada de Siete Pozos" required data-i18n-attr="placeholder:pub.fieldTitlePlaceholder">
         </div>
 
         <div class="form-group">
-          <label for="pubDescription">Descripción</label>
-          <textarea id="pubDescription" placeholder="Describe tu experiencia en este lugar..." required></textarea>
+          <label for="pubDescription" data-i18n="pub.fieldDescription">Descripción</label>
+          <textarea id="pubDescription" placeholder="Describe tu experiencia en este lugar..." required data-i18n-attr="placeholder:pub.fieldDescriptionPlaceholder"></textarea>
         </div>
 
         <div class="form-group">
-          <label for="pubLocation">Ubicación</label>
+          <label for="pubLocation" data-i18n="pub.fieldLocation">Ubicación</label>
           <select id="pubLocation" required>
-            <option value="">Selecciona un lugar...</option>
+            <option value="" data-i18n="pub.fieldLocationPlaceholder">Selecciona un lugar...</option>
             <option value="Tazumal">Tazumal (Chalchuapa, Santa Ana)</option>
             <option value="Joya de Cerén">Joya de Cerén (San Juan Opico, La Libertad)</option>
             <option value="Salvador del Mundo">Salvador del Mundo (San Salvador)</option>
@@ -125,28 +134,28 @@
             <option value="Lago de Coatepeque">Lago de Coatepeque (Santa Ana)</option>
             <option value="Bosque El Imposible">Bosque El Imposible (Ahuachapán)</option>
             <option value="Puerta del Diablo">Puerta del Diablo (Los Planes de Renderos, Panchimalco)</option>
-            <option value="__otro__">Otro (especificar)</option>
+            <option value="__otro__" data-i18n="pub.fieldLocationOptionOther">Otro (especificar)</option>
           </select>
-          <input type="text" id="pubLocationOther" placeholder="Escribe el nombre del lugar" style="display: none; margin-top: 0.6rem;">
+          <input type="text" id="pubLocationOther" placeholder="Escribe el nombre del lugar" style="display: none; margin-top: 0.6rem;" data-i18n-attr="placeholder:pub.fieldLocationOtherPlaceholder">
         </div>
 
         <div class="form-group form-file-input">
           <label for="pubImage" class="form-file-label">
             <div class="form-file-icon">📷</div>
-            <div class="form-file-text">Sube una foto</div>
-            <div class="form-file-subtext">Arrastra o haz clic para seleccionar</div>
+            <div class="form-file-text" data-i18n="pub.fieldImageLabel">Sube una foto</div>
+            <div class="form-file-subtext" data-i18n="pub.fieldImageSub">Arrastra o haz clic para seleccionar</div>
           </label>
           <input type="file" id="pubImage" accept="image/*">
           <div class="form-file-preview" id="imagePreview">
             <img id="previewImg" src="" alt="Preview">
-            <button type="button" class="form-file-remove" id="removeImage">Eliminar imagen</button>
+            <button type="button" class="form-file-remove" id="removeImage" data-i18n="pub.fieldImageRemove">Eliminar imagen</button>
           </div>
         </div>
 
         <div class="form-submit-group">
-          <button type="submit" class="form-submit-btn" id="publicationSubmitBtn">Publicar</button>
-          <button type="button" class="form-cancel-btn" id="publicationCancelEditBtn" style="display: none;">Cancelar edición</button>
-          <button type="reset" class="form-cancel-btn">Limpiar</button>
+          <button type="submit" class="form-submit-btn" id="publicationSubmitBtn" data-i18n="pub.submitBtn">Publicar</button>
+          <button type="button" class="form-cancel-btn" id="publicationCancelEditBtn" style="display: none;" data-i18n="pub.cancelEditBtn">Cancelar edición</button>
+          <button type="reset" class="form-cancel-btn" data-i18n="pub.clearBtn">Limpiar</button>
         </div>
       </form>
     </div>
@@ -154,42 +163,41 @@
 
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" />
-      <p class="footer__name">Salvadorean Roots</p>
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
+      <p class="footer__name" data-i18n="home.logoAlt">Salvadorean Roots</p>
       <ul class="footer__links">
-        <li><a href="../views/index.html">Inicio</a></li>
-        <li><a href="../views/mapa.html">Mapa</a></li>
-        <li><a href="../views/sitios-culturales.html">Sitios Culturales</a></li>
-        <li><a href="../views/gastronomia.html">Gastronomía</a></li>
-        <li><a href="../views/eventos.html">Eventos</a></li>
-        <li><a href="../views/historia.html">Historia</a></li>
-        <li><a href="../views/juegos.html">Juegos</a></li>
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+        <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li>
+        <li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/juegos.html" data-i18n="nav.juegos">Juegos</a></li>
       </ul>
-      <p class="footer__copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
     </div>
   </footer>
 
   <!-- Modal de invitación para visitantes sin cuenta -->
   <div class="guest-modal-overlay" id="guestModalOverlay">
     <div class="guest-modal" id="guestModal">
-      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar">&times;</button>
+      <button class="guest-modal__close" id="guestModalClose" aria-label="Cerrar" data-i18n-attr="aria-label:nav.cerrar">&times;</button>
       <div class="guest-modal__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
       </div>
-      <h3 class="guest-modal__title">¡Qué bueno tenerte por aquí! 👋</h3>
-      <p class="guest-modal__text">
+      <h3 class="guest-modal__title" data-i18n="pub.modalTitle">¡Qué bueno tenerte por aquí! 👋</h3>
+      <p class="guest-modal__text" data-i18n="pub.modalText">
         Puedes seguir explorando las categorías con toda libertad, pero si te registras vas a
         disfrutar mucho más de todo lo que Salvadorean Roots tiene para ti.
       </p>
       <div class="guest-modal__actions">
-        <div class="guest-modal__actions">
-          <a href="registro.html" class="guest-modal__btn guest-modal__btn--primary">Crear mi cuenta</a>
-          <a href="login.html" class="guest-modal__btn guest-modal__btn--secondary">Ya tengo cuenta</a>
-        </div>
-      <button class="guest-modal__skip" id="guestModalSkip">Seguir explorando sin cuenta</button>
+        <a href="registro.html" class="guest-modal__btn guest-modal__btn--primary" data-i18n="pub.modalCreate">Crear mi cuenta</a>
+        <a href="login.html" class="guest-modal__btn guest-modal__btn--secondary" data-i18n="pub.modalLogin">Ya tengo cuenta</a>
+      </div>
+      <button class="guest-modal__skip" id="guestModalSkip" data-i18n="pub.modalSkip">Seguir explorando sin cuenta</button>
     </div>
   </div>
 
@@ -197,6 +205,7 @@
   <script src="../assets/js/theme-blobs.js"></script>
   <script src="../assets/js/back-nav.js" defer></script>
   <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/chatbot.js"></script>
   <script src="../assets/js/publicaciones.js"></script>
 
