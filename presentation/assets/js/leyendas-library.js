@@ -214,188 +214,188 @@ const LEYENDAS_DATA = [
 
         La Cuyancúa representa así una parte particular de la tradición mítica de Izalco: una criatura sobrenatural relacionada con el agua, los sonidos de la noche y la llegada de las lluvias, cuya historia ha sobrevivido gracias a la transmisión oral.`
     },
-{
-    id: "tabudo",
-    tituloKey: "ley.data.tabudo.title",
-    subKey: "ley.data.tabudo.sub",
-    tagKey: "ley.data.tabudo.tag",
-    chipsKeys: ["ley.data.tabudo.chip1", "ley.data.tabudo.chip2", "ley.data.tabudo.chip3", "ley.data.tabudo.chip4"],
-    origenKey: "ley.data.tabudo.origin",
-    relatoKey: "ley.data.tabudo.relato",
-    titulo: "El Tabudo",
-    sub: "El misterioso guardián del Lago de Coatepeque",
-    tag: "Leyenda · Lago de Coatepeque",
-    chips: ["Lago de Coatepeque", "Hombre transformado", "Itzqueyé", "Espíritu del lago"],
-    origen: "Leyenda popular asociada con el Lago de Coatepeque, en Santa Ana. La tradición relaciona al personaje con Itzqueyé, figura asociada al agua dulce.",
-    img: "../../assets/media/leyenda/tabudo.jpg",
-    relato: `En el Lago de Coatepeque existe una de las leyendas más conocidas de El Salvador: la historia de El Tabudo. A diferencia de la imagen de un monstruo volcánico que algunas versiones modernas han difundido, el relato tradicional está directamente relacionado con el lago y con un hombre que vivía en sus alrededores.
+    {
+        id: "tabudo",
+        tituloKey: "ley.data.tabudo.title",
+        subKey: "ley.data.tabudo.sub",
+        tagKey: "ley.data.tabudo.tag",
+        chipsKeys: ["ley.data.tabudo.chip1", "ley.data.tabudo.chip2", "ley.data.tabudo.chip3", "ley.data.tabudo.chip4"],
+        origenKey: "ley.data.tabudo.origin",
+        relatoKey: "ley.data.tabudo.relato",
+        titulo: "El Tabudo",
+        sub: "El misterioso guardián del Lago de Coatepeque",
+        tag: "Leyenda · Lago de Coatepeque",
+        chips: ["Lago de Coatepeque", "Hombre transformado", "Itzqueyé", "Espíritu del lago"],
+        origen: "Leyenda popular asociada con el Lago de Coatepeque, en Santa Ana. La tradición relaciona al personaje con Itzqueyé, figura asociada al agua dulce.",
+        img: "../../assets/media/leyenda/tabudo.jpg",
+        relato: `En el Lago de Coatepeque existe una de las leyendas más conocidas de El Salvador: la historia de El Tabudo. A diferencia de la imagen de un monstruo volcánico que algunas versiones modernas han difundido, el relato tradicional está directamente relacionado con el lago y con un hombre que vivía en sus alrededores.
 
-Según la leyenda, aquel hombre era una persona adinerada que poseía una hermosa propiedad junto al lago. Un día salió a navegar en una canoa y, mientras recorría las aguas, una corriente misteriosa lo arrastró hacia una zona de la que no pudo regresar.
+    Según la leyenda, aquel hombre era una persona adinerada que poseía una hermosa propiedad junto al lago. Un día salió a navegar en una canoa y, mientras recorría las aguas, una corriente misteriosa lo arrastró hacia una zona de la que no pudo regresar.
 
-La tradición cuenta que aquella corriente lo llevó hasta los dominios de Itzqueyé, asociada en el relato con las aguas dulces. Después de aquel encuentro, el hombre desapareció y durante un tiempo nadie supo qué había ocurrido con él.
+    La tradición cuenta que aquella corriente lo llevó hasta los dominios de Itzqueyé, asociada en el relato con las aguas dulces. Después de aquel encuentro, el hombre desapareció y durante un tiempo nadie supo qué había ocurrido con él.
 
-Meses después, según la leyenda, volvió a aparecer transformado. Las personas que lo reconocieron observaron que su cuerpo había cambiado y que sus rodillas eran extraordinariamente grandes. Debido a esa característica recibió el sobrenombre de El Tabudo.
+    Meses después, según la leyenda, volvió a aparecer transformado. Las personas que lo reconocieron observaron que su cuerpo había cambiado y que sus rodillas eran extraordinariamente grandes. Debido a esa característica recibió el sobrenombre de El Tabudo.
 
-A partir de entonces, la figura quedó vinculada al Lago de Coatepeque. Algunas versiones lo presentan como una criatura misteriosa relacionada con las aguas, mientras que otras lo consideran un espíritu protector que continúa vigilando el lugar.
+    A partir de entonces, la figura quedó vinculada al Lago de Coatepeque. Algunas versiones lo presentan como una criatura misteriosa relacionada con las aguas, mientras que otras lo consideran un espíritu protector que continúa vigilando el lugar.
 
-La leyenda de El Tabudo está estrechamente ligada a la identidad cultural del Lago de Coatepeque. Su historia combina el misterio de las aguas profundas con la antigua creencia en seres sobrenaturales relacionados con la naturaleza.`
-},
-{
-    id: "giganta-jocoro",
-    tituloKey: "ley.data.giganta_jocoro.title",
-    subKey: "ley.data.giganta_jocoro.sub",
-    tagKey: "ley.data.giganta_jocoro.tag",
-    chipsKeys: ["ley.data.giganta_jocoro.chip1", "ley.data.giganta_jocoro.chip2", "ley.data.giganta_jocoro.chip3", "ley.data.giganta_jocoro.chip4"],
-    origenKey: "ley.data.giganta_jocoro.origin",
-    relatoKey: "ley.data.giganta_jocoro.relato",
-    titulo: "La Giganta de Jocoro",
-    sub: "La figura gigante que se convirtió en símbolo de Jocoro",
-    tag: "Tradición · Morazán",
-    chips: ["Figura gigante", "Jocoro", "Fiestas patronales", "Tradición local"],
-    origen: "Tradición festiva de Jocoro, Morazán. Su historia popular se relaciona con un supuesto hallazgo de restos humanos de gran tamaño ocurrido en 1908 y con la posterior creación de la figura festiva.",
-    img: "../assets/media/leyenda/gigante-jocoro.png",
-    relato: `En Jocoro, departamento de Morazán, existe una tradición que se diferencia de muchas de las historias de miedo del folclore salvadoreño. Se trata de la Giganta de Jocoro, una enorme figura que participa en las celebraciones y que con el paso del tiempo se convirtió en uno de los símbolos culturales más reconocibles del municipio.
+    La leyenda de El Tabudo está estrechamente ligada a la identidad cultural del Lago de Coatepeque. Su historia combina el misterio de las aguas profundas con la antigua creencia en seres sobrenaturales relacionados con la naturaleza.`
+    },
+    {
+        id: "giganta-jocoro",
+        tituloKey: "ley.data.giganta_jocoro.title",
+        subKey: "ley.data.giganta_jocoro.sub",
+        tagKey: "ley.data.giganta_jocoro.tag",
+        chipsKeys: ["ley.data.giganta_jocoro.chip1", "ley.data.giganta_jocoro.chip2", "ley.data.giganta_jocoro.chip3", "ley.data.giganta_jocoro.chip4"],
+        origenKey: "ley.data.giganta_jocoro.origin",
+        relatoKey: "ley.data.giganta_jocoro.relato",
+        titulo: "La Giganta de Jocoro",
+        sub: "La figura gigante que se convirtió en símbolo de Jocoro",
+        tag: "Tradición · Morazán",
+        chips: ["Figura gigante", "Jocoro", "Fiestas patronales", "Tradición local"],
+        origen: "Tradición festiva de Jocoro, Morazán. Su historia popular se relaciona con un supuesto hallazgo de restos humanos de gran tamaño ocurrido en 1908 y con la posterior creación de la figura festiva.",
+        img: "../assets/media/leyenda/gigante-jocoro.png",
+        relato: `En Jocoro, departamento de Morazán, existe una tradición que se diferencia de muchas de las historias de miedo del folclore salvadoreño. Se trata de la Giganta de Jocoro, una enorme figura que participa en las celebraciones y que con el paso del tiempo se convirtió en uno de los símbolos culturales más reconocibles del municipio.
 
-La historia popular de la Giganta está relacionada con un supuesto hallazgo ocurrido en 1908, cuando se habrían encontrado en las minas de Jocoro restos que algunas personas interpretaron como pertenecientes a un ser humano de gran tamaño. Aunque aquel hallazgo no constituye una prueba de que hayan existido gigantes, sí alimentó la imaginación y las historias de la comunidad.
+    La historia popular de la Giganta está relacionada con un supuesto hallazgo ocurrido en 1908, cuando se habrían encontrado en las minas de Jocoro restos que algunas personas interpretaron como pertenecientes a un ser humano de gran tamaño. Aunque aquel hallazgo no constituye una prueba de que hayan existido gigantes, sí alimentó la imaginación y las historias de la comunidad.
 
-La tradición también se ha relacionado con relatos indígenas sobre gigantes y con las antiguas historias de la región oriental. Estas asociaciones forman parte del imaginario local, pero no deben presentarse como una demostración histórica de que los gigantes existieron realmente.
+    La tradición también se ha relacionado con relatos indígenas sobre gigantes y con las antiguas historias de la región oriental. Estas asociaciones forman parte del imaginario local, pero no deben presentarse como una demostración histórica de que los gigantes existieron realmente.
 
-Décadas después, la figura que actualmente conocemos como la Gigantona fue incorporada a las celebraciones de Jocoro. Su presencia se convirtió en parte de las fiestas patronales, acompañada por música, baile y personajes tradicionales.
+    Décadas después, la figura que actualmente conocemos como la Gigantona fue incorporada a las celebraciones de Jocoro. Su presencia se convirtió en parte de las fiestas patronales, acompañada por música, baile y personajes tradicionales.
 
-Con el paso del tiempo, la Giganta dejó de ser solamente un personaje de una historia y pasó a convertirse en una expresión viva de la identidad cultural de Jocoro.
+    Con el paso del tiempo, la Giganta dejó de ser solamente un personaje de una historia y pasó a convertirse en una expresión viva de la identidad cultural de Jocoro.
 
-Actualmente representa una tradición festiva que reúne a la comunidad y mantiene vivo un relato local que combina memoria, imaginación, celebración y orgullo por las raíces de Morazán.`
-},
-{
-    id: "sisimite",
-    tituloKey: "ley.data.sisimite.title",
-    subKey: "ley.data.sisimite.sub",
-    tagKey: "ley.data.sisimite.tag",
-    chipsKeys: ["ley.data.sisimite.chip1", "ley.data.sisimite.chip2", "ley.data.sisimite.chip3", "ley.data.sisimite.chip4"],
-    origenKey: "ley.data.sisimite.origin",
-    relatoKey: "ley.data.sisimite.relato",
-    titulo: "El Sisimite",
-    sub: "El ser salvaje de las montañas",
-    tag: "Mito · Tradición centroamericana",
-    chips: ["Ser salvaje", "Montañas", "Cubierto de pelo", "Huella misteriosa"],
-    origen: "Personaje de relatos míticos y populares presentes en diferentes regiones de Centroamérica, incluida la tradición salvadoreña. Sus características varían según la región.",
-    img: "../assets/media/leyenda/sisimite.png",
-    relato: `El Sisimite es una figura presente en diferentes tradiciones de Centroamérica. En los relatos que circulan en El Salvador aparece como un ser salvaje relacionado con las montañas, los bosques y los lugares alejados de las comunidades.
+    Actualmente representa una tradición festiva que reúne a la comunidad y mantiene vivo un relato local que combina memoria, imaginación, celebración y orgullo por las raíces de Morazán.`
+    },
+    {
+        id: "sisimite",
+        tituloKey: "ley.data.sisimite.title",
+        subKey: "ley.data.sisimite.sub",
+        tagKey: "ley.data.sisimite.tag",
+        chipsKeys: ["ley.data.sisimite.chip1", "ley.data.sisimite.chip2", "ley.data.sisimite.chip3", "ley.data.sisimite.chip4"],
+        origenKey: "ley.data.sisimite.origin",
+        relatoKey: "ley.data.sisimite.relato",
+        titulo: "El Sisimite",
+        sub: "El ser salvaje de las montañas",
+        tag: "Mito · Tradición centroamericana",
+        chips: ["Ser salvaje", "Montañas", "Cubierto de pelo", "Huella misteriosa"],
+        origen: "Personaje de relatos míticos y populares presentes en diferentes regiones de Centroamérica, incluida la tradición salvadoreña. Sus características varían según la región.",
+        img: "../assets/media/leyenda/sisimite.png",
+        relato: `El Sisimite es una figura presente en diferentes tradiciones de Centroamérica. En los relatos que circulan en El Salvador aparece como un ser salvaje relacionado con las montañas, los bosques y los lugares alejados de las comunidades.
 
-Suele describirse como una criatura de apariencia humana, pero de gran tamaño y cubierta de abundante pelo. Algunas versiones también le atribuyen los pies orientados hacia atrás, una característica que comparte con otros personajes de las tradiciones mesoamericanas y centroamericanas.
+    Suele describirse como una criatura de apariencia humana, pero de gran tamaño y cubierta de abundante pelo. Algunas versiones también le atribuyen los pies orientados hacia atrás, una característica que comparte con otros personajes de las tradiciones mesoamericanas y centroamericanas.
 
-Los relatos cuentan que habita en lugares montañosos y difíciles de alcanzar, lejos de los caminos más transitados. Su presencia suele asociarse con sonidos extraños, huellas misteriosas y encuentros inesperados en zonas boscosas.
+    Los relatos cuentan que habita en lugares montañosos y difíciles de alcanzar, lejos de los caminos más transitados. Su presencia suele asociarse con sonidos extraños, huellas misteriosas y encuentros inesperados en zonas boscosas.
 
-En algunas versiones se le presenta como una criatura peligrosa que puede perseguir o llevarse a personas que se internan demasiado en la montaña. Otras narraciones lo describen simplemente como un ser salvaje que evita el contacto con los humanos.
+    En algunas versiones se le presenta como una criatura peligrosa que puede perseguir o llevarse a personas que se internan demasiado en la montaña. Otras narraciones lo describen simplemente como un ser salvaje que evita el contacto con los humanos.
 
-Es importante señalar que el Sisimite no es una figura exclusivamente salvadoreña. Su presencia en distintos países de Centroamérica demuestra que forma parte de un conjunto de relatos regionales que comparten características y que han adoptado variantes locales.
+    Es importante señalar que el Sisimite no es una figura exclusivamente salvadoreña. Su presencia en distintos países de Centroamérica demuestra que forma parte de un conjunto de relatos regionales que comparten características y que han adoptado variantes locales.
 
-Dentro de la tradición oral, la historia también funciona como advertencia para no internarse sin precaución en montañas y lugares desconocidos. Así, el Sisimite representa el misterio de aquellos espacios naturales que, para las comunidades tradicionales, podían esconder seres desconocidos.`
-},
-{
-    id: "justo-juez",
-    tituloKey: "ley.data.justo_juez.title",
-    subKey: "ley.data.justo_juez.sub",
-    tagKey: "ley.data.justo_juez.tag",
-    chipsKeys: ["ley.data.justo_juez.chip1", "ley.data.justo_juez.chip2", "ley.data.justo_juez.chip3", "ley.data.justo_juez.chip4"],
-    origenKey: "ley.data.justo_juez.origin",
-    relatoKey: "ley.data.justo_juez.relato",
-    titulo: "El Justo Juez de la Noche",
-    sub: "La misteriosa figura que aparece en los caminos",
-    tag: "Leyenda · Tradición religiosa",
-    chips: ["Aparición nocturna", "Caballo oscuro", "Caminos solitarios", "Oración"],
-    origen: "Figura de la tradición oral salvadoreña relacionada con la devoción popular al Justo Juez y con relatos de apariciones nocturnas.",
-    img: "../assets/media/leyenda/juez-noche.png",
-    relato: `El Justo Juez de la Noche es una figura de la tradición oral salvadoreña relacionada con la religiosidad popular. Su nombre está vinculado con la imagen del Justo Juez presente en las oraciones y creencias católicas, pero el relato popular lo transforma en una misteriosa aparición nocturna.
+    Dentro de la tradición oral, la historia también funciona como advertencia para no internarse sin precaución en montañas y lugares desconocidos. Así, el Sisimite representa el misterio de aquellos espacios naturales que, para las comunidades tradicionales, podían esconder seres desconocidos.`
+    },
+    {
+        id: "justo-juez",
+        tituloKey: "ley.data.justo_juez.title",
+        subKey: "ley.data.justo_juez.sub",
+        tagKey: "ley.data.justo_juez.tag",
+        chipsKeys: ["ley.data.justo_juez.chip1", "ley.data.justo_juez.chip2", "ley.data.justo_juez.chip3", "ley.data.justo_juez.chip4"],
+        origenKey: "ley.data.justo_juez.origin",
+        relatoKey: "ley.data.justo_juez.relato",
+        titulo: "El Justo Juez de la Noche",
+        sub: "La misteriosa figura que aparece en los caminos",
+        tag: "Leyenda · Tradición religiosa",
+        chips: ["Aparición nocturna", "Caballo oscuro", "Caminos solitarios", "Oración"],
+        origen: "Figura de la tradición oral salvadoreña relacionada con la devoción popular al Justo Juez y con relatos de apariciones nocturnas.",
+        img: "../assets/media/leyenda/juez-noche.png",
+        relato: `El Justo Juez de la Noche es una figura de la tradición oral salvadoreña relacionada con la religiosidad popular. Su nombre está vinculado con la imagen del Justo Juez presente en las oraciones y creencias católicas, pero el relato popular lo transforma en una misteriosa aparición nocturna.
 
-Según las historias transmitidas en diferentes comunidades, puede aparecer en caminos solitarios durante la noche, especialmente cuando una persona viaja sola. Algunas versiones lo describen como un jinete vestido de oscuro que avanza silenciosamente sobre un caballo.
+    Según las historias transmitidas en diferentes comunidades, puede aparecer en caminos solitarios durante la noche, especialmente cuando una persona viaja sola. Algunas versiones lo describen como un jinete vestido de oscuro que avanza silenciosamente sobre un caballo.
 
-Su apariencia no es completamente igual en todos los relatos. Algunas personas lo describen con un rostro poco visible, mientras que otras resaltan principalmente su vestimenta oscura y la presencia del caballo.
+    Su apariencia no es completamente igual en todos los relatos. Algunas personas lo describen con un rostro poco visible, mientras que otras resaltan principalmente su vestimenta oscura y la presencia del caballo.
 
-La aparición suele provocar miedo y una sensación de amenaza. Dentro de la tradición popular, la oración ocupa un lugar importante, pues se considera una forma de protección frente a las apariciones y otros peligros sobrenaturales.
+    La aparición suele provocar miedo y una sensación de amenaza. Dentro de la tradición popular, la oración ocupa un lugar importante, pues se considera una forma de protección frente a las apariciones y otros peligros sobrenaturales.
 
-El relato también posee una dimensión moral. Como ocurre con muchas historias tradicionales, la aparición puede funcionar como una advertencia para quienes llevan una conducta considerada incorrecta o para quienes se aventuran por caminos solitarios durante la noche.
+    El relato también posee una dimensión moral. Como ocurre con muchas historias tradicionales, la aparición puede funcionar como una advertencia para quienes llevan una conducta considerada incorrecta o para quienes se aventuran por caminos solitarios durante la noche.
 
-El Justo Juez de la Noche forma así parte de ese conjunto de relatos salvadoreños en los que la fe religiosa, el miedo nocturno y las creencias populares se mezclan para crear una figura misteriosa que continúa formando parte del imaginario cultural.`
-},
-{
-    id: "padre-sin-cabeza",
-    tituloKey: "ley.data.padre_sin_cabeza.title",
-    subKey: "ley.data.padre_sin_cabeza.sub",
-    tagKey: "ley.data.padre_sin_cabeza.tag",
-    chipsKeys: ["ley.data.padre_sin_cabeza.chip1", "ley.data.padre_sin_cabeza.chip2", "ley.data.padre_sin_cabeza.chip3", "ley.data.padre_sin_cabeza.chip4"],
-    origenKey: "ley.data.padre_sin_cabeza.origin",
-    relatoKey: "ley.data.padre_sin_cabeza.relato",
-    titulo: "El Padre sin Cabeza",
-    sub: "El sacerdote que vaga como alma en pena",
-    tag: "Leyenda · Tradición religiosa",
-    chips: ["Sacerdote sin cabeza", "Sotana oscura", "Iglesias", "Aparición nocturna"],
-    origen: "Leyenda popular salvadoreña y centroamericana. En El Salvador existen distintas versiones transmitidas oralmente, generalmente relacionadas con iglesias y caminos durante la noche.",
-    img: "../assets/media/leyenda/padre-cabeza.png",
-    relato: `El Padre sin Cabeza es una de las leyendas de aparecidos más conocidas de El Salvador. La historia presenta a un sacerdote que, después de morir en circunstancias relacionadas con una falta grave o un pecado, queda condenado a vagar como alma en pena.
+    El Justo Juez de la Noche forma así parte de ese conjunto de relatos salvadoreños en los que la fe religiosa, el miedo nocturno y las creencias populares se mezclan para crear una figura misteriosa que continúa formando parte del imaginario cultural.`
+    },
+    {
+        id: "padre-sin-cabeza",
+        tituloKey: "ley.data.padre_sin_cabeza.title",
+        subKey: "ley.data.padre_sin_cabeza.sub",
+        tagKey: "ley.data.padre_sin_cabeza.tag",
+        chipsKeys: ["ley.data.padre_sin_cabeza.chip1", "ley.data.padre_sin_cabeza.chip2", "ley.data.padre_sin_cabeza.chip3", "ley.data.padre_sin_cabeza.chip4"],
+        origenKey: "ley.data.padre_sin_cabeza.origin",
+        relatoKey: "ley.data.padre_sin_cabeza.relato",
+        titulo: "El Padre sin Cabeza",
+        sub: "El sacerdote que vaga como alma en pena",
+        tag: "Leyenda · Tradición religiosa",
+        chips: ["Sacerdote sin cabeza", "Sotana oscura", "Iglesias", "Aparición nocturna"],
+        origen: "Leyenda popular salvadoreña y centroamericana. En El Salvador existen distintas versiones transmitidas oralmente, generalmente relacionadas con iglesias y caminos durante la noche.",
+        img: "../assets/media/leyenda/padre-cabeza.png",
+        relato: `El Padre sin Cabeza es una de las leyendas de aparecidos más conocidas de El Salvador. La historia presenta a un sacerdote que, después de morir en circunstancias relacionadas con una falta grave o un pecado, queda condenado a vagar como alma en pena.
 
-Existen diferentes versiones sobre la razón de su castigo. Algunas cuentan que fue un sacerdote que murió sin poder confesar un pecado relacionado con una relación amorosa. Otras versiones hablan de un sacerdote que murió violentamente durante tiempos de conflicto. Por ello, no existe un único origen histórico comprobado para el personaje.
+    Existen diferentes versiones sobre la razón de su castigo. Algunas cuentan que fue un sacerdote que murió sin poder confesar un pecado relacionado con una relación amorosa. Otras versiones hablan de un sacerdote que murió violentamente durante tiempos de conflicto. Por ello, no existe un único origen histórico comprobado para el personaje.
 
-La aparición suele describirse como un hombre alto vestido con una sotana oscura, pero sin cabeza. En algunas versiones lleva un rosario en la mano y camina en silencio por las calles durante la noche.
+    La aparición suele describirse como un hombre alto vestido con una sotana oscura, pero sin cabeza. En algunas versiones lleva un rosario en la mano y camina en silencio por las calles durante la noche.
 
-Una característica muy conocida del relato es su relación con las iglesias. Se cuenta que puede salir de ellas durante las noches, incluso atravesando puertas cerradas, y que algunas veces desaparece cerca de los campanarios.
+    Una característica muy conocida del relato es su relación con las iglesias. Se cuenta que puede salir de ellas durante las noches, incluso atravesando puertas cerradas, y que algunas veces desaparece cerca de los campanarios.
 
-Las personas que aseguran haberlo encontrado describen una sensación de frío intenso y miedo paralizante. La figura no necesariamente persigue a quienes la encuentran; muchas versiones simplemente cuentan que pasa en silencio y continúa su camino.
+    Las personas que aseguran haberlo encontrado describen una sensación de frío intenso y miedo paralizante. La figura no necesariamente persigue a quienes la encuentran; muchas versiones simplemente cuentan que pasa en silencio y continúa su camino.
 
-La leyenda refleja la influencia de la religión católica en la tradición popular salvadoreña y utiliza la figura de un sacerdote condenado a vagar para transmitir una advertencia moral sobre el pecado, la culpa y las consecuencias de las malas acciones.`
-},
-{
-    id: "sombreron",
-    tituloKey: "ley.data.sombreron.title",
-    subKey: "ley.data.sombreron.sub",
-    tagKey: "ley.data.sombreron.tag",
-    chipsKeys: ["ley.data.sombreron.chip1", "ley.data.sombreron.chip2", "ley.data.sombreron.chip3", "ley.data.sombreron.chip4"],
-    origenKey: "ley.data.sombreron.origin",
-    relatoKey: "ley.data.sombreron.relato",
-    titulo: "El Sombrerón",
-    sub: "El pequeño personaje del sombrero enorme",
-    tag: "Leyenda · Tradición centroamericana",
-    chips: ["Sombrero grande", "Caballos", "Crines trenzadas", "Aparición nocturna"],
-    origen: "Personaje de tradición popular compartido por diferentes países de Centroamérica. En El Salvador existen versiones relacionadas principalmente con los caminos, los caballos y las zonas rurales.",
-    img: "../assets/media/leyenda/sombreron.png",
-    relato: `El Sombrerón es un personaje presente en distintas tradiciones de Centroamérica, por lo que no puede considerarse una figura exclusivamente salvadoreña. Su historia ha adquirido diferentes características según la región donde se cuenta.
+    La leyenda refleja la influencia de la religión católica en la tradición popular salvadoreña y utiliza la figura de un sacerdote condenado a vagar para transmitir una advertencia moral sobre el pecado, la culpa y las consecuencias de las malas acciones.`
+    },
+    {
+        id: "sombreron",
+        tituloKey: "ley.data.sombreron.title",
+        subKey: "ley.data.sombreron.sub",
+        tagKey: "ley.data.sombreron.tag",
+        chipsKeys: ["ley.data.sombreron.chip1", "ley.data.sombreron.chip2", "ley.data.sombreron.chip3", "ley.data.sombreron.chip4"],
+        origenKey: "ley.data.sombreron.origin",
+        relatoKey: "ley.data.sombreron.relato",
+        titulo: "El Sombrerón",
+        sub: "El pequeño personaje del sombrero enorme",
+        tag: "Leyenda · Tradición centroamericana",
+        chips: ["Sombrero grande", "Caballos", "Crines trenzadas", "Aparición nocturna"],
+        origen: "Personaje de tradición popular compartido por diferentes países de Centroamérica. En El Salvador existen versiones relacionadas principalmente con los caminos, los caballos y las zonas rurales.",
+        img: "../assets/media/leyenda/sombreron.png",
+        relato: `El Sombrerón es un personaje presente en distintas tradiciones de Centroamérica, por lo que no puede considerarse una figura exclusivamente salvadoreña. Su historia ha adquirido diferentes características según la región donde se cuenta.
 
-En las versiones populares suele aparecer como un hombre pequeño o una figura misteriosa que lleva un sombrero muy grande. Su presencia se relaciona principalmente con la noche y con lugares donde existen caballos y otros animales.
+    En las versiones populares suele aparecer como un hombre pequeño o una figura misteriosa que lleva un sombrero muy grande. Su presencia se relaciona principalmente con la noche y con lugares donde existen caballos y otros animales.
 
-Una de las características más conocidas del personaje es su relación con las crines de los caballos. Se cuenta que algunos animales amanecen con el pelo trenzado o lleno de nudos difíciles de explicar, y que estas marcas son atribuidas al Sombrerón.
+    Una de las características más conocidas del personaje es su relación con las crines de los caballos. Se cuenta que algunos animales amanecen con el pelo trenzado o lleno de nudos difíciles de explicar, y que estas marcas son atribuidas al Sombrerón.
 
-En algunas variantes también se dice que el personaje puede seguir a las personas o aparecerse en los caminos durante la noche. Sin embargo, no todas las versiones coinciden en su comportamiento ni en su apariencia.
+    En algunas variantes también se dice que el personaje puede seguir a las personas o aparecerse en los caminos durante la noche. Sin embargo, no todas las versiones coinciden en su comportamiento ni en su apariencia.
 
-La historia se ha transmitido principalmente como relato de misterio y como explicación sobrenatural de sucesos extraños relacionados con los animales.
+    La historia se ha transmitido principalmente como relato de misterio y como explicación sobrenatural de sucesos extraños relacionados con los animales.
 
-En El Salvador, su presencia forma parte de un conjunto más amplio de personajes populares que han llegado desde tradiciones compartidas de la región y que, con el tiempo, han adquirido características propias dentro de las comunidades que los cuentan.`
-},
-{
-    id: "cuco-de-los-suenos",
-    tituloKey: "ley.data.cuco_de_los_suenos.title",
-    subKey: "ley.data.cuco_de_los_suenos.sub",
-    tagKey: "ley.data.cuco_de_los_suenos.tag",
-    chipsKeys: ["ley.data.cuco_de_los_suenos.chip1", "ley.data.cuco_de_los_suenos.chip2", "ley.data.cuco_de_los_suenos.chip3", "ley.data.cuco_de_los_suenos.chip4"],
-    origenKey: "ley.data.cuco_de_los_suenos.origin",
-    relatoKey: "ley.data.cuco_de_los_suenos.relato",
-    titulo: "El Cuco de los Sueños",
-    sub: "El personaje que asusta a los niños desobedientes",
-    tag: "Tradición oral · Hogar",
-    chips: ["Advertencia infantil", "Aparece de noche", "Tradición familiar", "Sin forma definida"],
-    origen: "Personaje de tradición oral utilizado por familias de El Salvador y de otros países hispanos para advertir a los niños y fomentar el buen comportamiento.",
-    img: "../assets/media/leyenda/.png",
-    relato: `El Cuco es diferente de personajes como la Siguanaba, el Cipitío o el Cadejo. No posee una única historia de origen ni una apariencia establecida. Es principalmente un personaje de tradición oral utilizado por madres, padres, abuelos y otros familiares para advertir a los niños.
+    En El Salvador, su presencia forma parte de un conjunto más amplio de personajes populares que han llegado desde tradiciones compartidas de la región y que, con el tiempo, han adquirido características propias dentro de las comunidades que los cuentan.`
+    },
+      {
+          id: "cuco-de-los-suenos",
+          tituloKey: "ley.data.cuco_de_los_suenos.title",
+          subKey: "ley.data.cuco_de_los_suenos.sub",
+          tagKey: "ley.data.cuco_de_los_suenos.tag",
+          chipsKeys: ["ley.data.cuco_de_los_suenos.chip1", "ley.data.cuco_de_los_suenos.chip2", "ley.data.cuco_de_los_suenos.chip3", "ley.data.cuco_de_los_suenos.chip4"],
+          origenKey: "ley.data.cuco_de_los_suenos.origin",
+          relatoKey: "ley.data.cuco_de_los_suenos.relato",
+          titulo: "El Cuco de los Sueños",
+          sub: "El personaje que asusta a los niños desobedientes",
+          tag: "Tradición oral · Hogar",
+          chips: ["Advertencia infantil", "Aparece de noche", "Tradición familiar", "Sin forma definida"],
+          origen: "Personaje de tradición oral utilizado por familias de El Salvador y de otros países hispanos para advertir a los niños y fomentar el buen comportamiento.",
+          img: "../assets/media/leyenda/.png",
+          relato: `El Cuco es diferente de personajes como la Siguanaba, el Cipitío o el Cadejo. No posee una única historia de origen ni una apariencia establecida. Es principalmente un personaje de tradición oral utilizado por madres, padres, abuelos y otros familiares para advertir a los niños.
 
-La frase "te va a llevar el Cuco" ha formado parte de muchas conversaciones familiares y sirve para representar una amenaza misteriosa que puede aparecer cuando un niño no obedece, no quiere dormir o se comporta mal.
+      La frase "te va a llevar el Cuco" ha formado parte de muchas conversaciones familiares y sirve para representar una amenaza misteriosa que puede aparecer cuando un niño no obedece, no quiere dormir o se comporta mal.
 
-Su apariencia cambia según quien cuenta la historia. Para algunas personas es una criatura pequeña; para otras puede ser una sombra, un hombre misterioso o simplemente una presencia que se encuentra escondida en algún lugar de la casa.
+      Su apariencia cambia según quien cuenta la historia. Para algunas personas es una criatura pequeña; para otras puede ser una sombra, un hombre misterioso o simplemente una presencia que se encuentra escondida en algún lugar de la casa.
 
-La falta de una forma fija es precisamente una de sus características más importantes. El Cuco puede convertirse en aquello que la imaginación del niño considera más aterrador.
+      La falta de una forma fija es precisamente una de sus características más importantes. El Cuco puede convertirse en aquello que la imaginación del niño considera más aterrador.
 
-Su función no consiste necesariamente en aparecer físicamente, sino en provocar la imaginación y el temor suficiente para que el niño obedezca. Por eso forma parte de las llamadas historias de advertencia o personajes de tradición oral.
+      Su función no consiste necesariamente en aparecer físicamente, sino en provocar la imaginación y el temor suficiente para que el niño obedezca. Por eso forma parte de las llamadas historias de advertencia o personajes de tradición oral.
 
-En El Salvador, como en otros lugares de Latinoamérica, esta figura ha sobrevivido principalmente dentro de las familias. Aunque no tenga una historia única ni un origen geográfico determinado, el Cuco representa una parte importante de la manera en que generaciones de salvadoreños transmitieron consejos y reglas a través de relatos de miedo.`
-}
+      En El Salvador, como en otros lugares de Latinoamérica, esta figura ha sobrevivido principalmente dentro de las familias. Aunque no tenga una historia única ni un origen geográfico determinado, el Cuco representa una parte importante de la manera en que generaciones de salvadoreños transmitieron consejos y reglas a través de relatos de miedo.`
+      }
 ];
 
 
