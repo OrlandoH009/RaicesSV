@@ -257,22 +257,22 @@
     const closeModal = () => {
       sessionStorage.setItem(DISMISS_KEY, '1');
 
+      // 🔥 1. Oculta el overlay inmediatamente (sin esperar animaciones)
+      overlay.classList.remove('is-visible');
+      overlay.style.display = 'none'; // fuerza el ocultamiento
+
+      // 2. Si hay GSAP, anima el modal de salida (pero ya no importa el onComplete)
       if (window.gsap) {
         gsap.to(modal, {
           opacity: 0,
           y: 20,
           scale: 0.94,
           duration: 0.25,
-          ease: 'power2.in',
-          onComplete: () => overlay.classList.remove('is-visible')
+          ease: 'power2.in'
+          // No usamos onComplete, porque ya ocultamos el overlay
         });
-        // Fuerza la eliminación después de 500 ms (más que la duración)
-        setTimeout(() => overlay.classList.remove('is-visible'), 500);
-      } else {
-        overlay.classList.remove('is-visible');
       }
     };
-
     closeBtn?.addEventListener('click', closeModal);
     skipBtn?.addEventListener('click', closeModal);
     overlay.addEventListener('click', (event) => {
