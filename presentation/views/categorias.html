@@ -266,6 +266,8 @@
           ease: 'power2.in',
           onComplete: () => overlay.classList.remove('is-visible')
         });
+        // Fuerza la eliminación después de 500 ms (más que la duración)
+        setTimeout(() => overlay.classList.remove('is-visible'), 500);
       } else {
         overlay.classList.remove('is-visible');
       }

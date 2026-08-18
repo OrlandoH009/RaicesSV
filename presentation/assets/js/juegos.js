@@ -1378,6 +1378,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
     } else {
       modal.classList.remove('active');
       document.body.style.overflow = '';
+      // Limpiar los estilos inline de respaldo que pusimos al abrir sin GSAP
+      modal.style.opacity = '';
+      modal.style.visibility = '';
+      if (content) {
+        content.style.opacity = '';
+        content.style.visibility = '';
+        content.style.transform = '';
+      }
     }
   }
 
@@ -1396,6 +1404,17 @@ async function obtenerMejorPuntajeJuego(gameName) {
             { scale: 0.85, y: 24, autoAlpha: 0 },
             { scale: 1, y: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(1.6)' }
           );
+        } else {
+          // Sin GSAP: forzamos visibilidad directa por estilos inline,
+          // ya que el CSS base deja el modal en opacity/visibility 0
+          // hasta que algo (normalmente GSAP) lo muestre.
+          modal.style.opacity = '1';
+          modal.style.visibility = 'visible';
+          if (content) {
+            content.style.opacity = '1';
+            content.style.visibility = 'visible';
+            content.style.transform = 'none';
+          }
         }
 
         modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
@@ -1613,6 +1632,12 @@ async function obtenerMejorPuntajeJuego(gameName) {
     if(nextLane >= 0 && nextLane < lanesCount) {
       player.lane = nextLane;
     }
+  }
+
+  function pushToFreeLane(currentLane) {
+    if (currentLane === 0) return 1;
+    if (currentLane === lanesCount - 1) return lanesCount - 2;
+    return currentLane + (Math.random() > 0.5 ? 1 : -1);
   }
 
   if(hud) {
@@ -1858,6 +1883,23 @@ function spawnEntities() {
     bot.lane = botTargetLane;
     bot.targetX = lanePositions[bot.lane];
     bot.x += (bot.targetX - bot.x) * 0.15;
+
+    // --- Colisión entre buses: si ambos coinciden en el mismo carril y se acercan
+    // demasiado, el que va más adelante (mayor distancia recorrida) empuja al otro
+    // hacia un carril libre. El que es empujado no pierde velocidad, solo cambia de carril.
+    const busMinGap = 30; // distancia horizontal mínima antes de considerarse "tocándose"
+    if (player.lane === bot.lane && Math.abs(player.x - bot.x) < busMinGap) {
+      const playerAhead = player.distance >= bot.distance;
+      if (playerAhead) {
+        // El jugador va adelante: empuja al bot a un carril libre
+        bot.lane = pushToFreeLane(bot.lane);
+        bot.targetX = lanePositions[bot.lane];
+      } else {
+        // El bot va adelante: empuja al jugador a un carril libre
+        player.lane = pushToFreeLane(player.lane);
+        player.targetX = lanePositions[player.lane];
+      }
+    }
 
     Body.setPosition(playerBody, { x: player.x, y: player.y });
     Body.setPosition(botBody, { x: bot.x, y: bot.y });
@@ -2225,12 +2267,11 @@ function spawnEntities() {
     canvas.height = rect.height;
     baseWidth = canvas.width;
     baseHeight = canvas.height;
-    if (typeof setupWalls === 'function') setupWalls();
   }
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
-  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+  window.addEventListener('resize', () => { resizeCanvas(); setupWalls(); });
+  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
 
   const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtn) {
@@ -2534,105 +2575,12 @@ function spawnEntities() {
     const w = canvas.width,
       h = canvas.height;
 
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
-    skyGrad.addColorStop(0, '#1a237e');
-    skyGrad.addColorStop(0.4, '#4a148c');
-    skyGrad.addColorStop(0.7, '#e65100');
-    skyGrad.addColorStop(1, '#ffb300');
+    // Fondo simple tipo patio, para no restar visibilidad a los niños y al catcher.
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+    skyGrad.addColorStop(0, '#a5d6a7');
+    skyGrad.addColorStop(1, '#81c784');
     ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h * 0.6);
-
-    const buildings = [
-      { x: 0, w: 60, h: 100, color: '#3e2723' },
-      { x: 70, w: 45, h: 140, color: '#4e342e' },
-      { x: 125, w: 70, h: 80, color: '#5d4037' },
-      { x: 205, w: 50, h: 160, color: '#3e2723' },
-      { x: 265, w: 80, h: 110, color: '#4e342e' },
-      { x: 355, w: 55, h: 130, color: '#5d4037' },
-      { x: 420, w: 65, h: 90, color: '#3e2723' },
-      { x: 495, w: 50, h: 150, color: '#4e342e' },
-      { x: 555, w: 70, h: 100, color: '#5d4037' },
-      { x: 635, w: 60, h: 120, color: '#3e2723' },
-      { x: 705, w: 45, h: 80, color: '#4e342e' },
-      { x: 760, w: 80, h: 140, color: '#5d4037' },
-    ];
-
-    buildings.forEach(b => {
-      ctx.fillStyle = b.color;
-      ctx.fillRect(b.x, h * 0.6 - b.h, b.w, b.h);
-      ctx.fillStyle = '#ffd54f';
-      for (let row = 0; row < Math.floor(b.h / 25); row++) {
-        for (let col = 0; col < Math.floor(b.w / 20); col++) {
-          if (Math.random() > 0.3) {
-            ctx.fillRect(b.x + 5 + col * 20, h * 0.6 - b.h + 10 + row * 25, 8, 12);
-          }
-        }
-      }
-    });
-
-    ctx.fillStyle = '#424242';
-    ctx.fillRect(0, h * 0.6, w, h * 0.4);
-
-    ctx.strokeStyle = '#ffeb3b';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([30, 20]);
-    cityOffset = (cityOffset + 1.5) % 50;
-    ctx.lineDashOffset = -cityOffset;
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.7);
-    ctx.lineTo(w, h * 0.7);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = '#9e9e9e';
-    ctx.fillRect(0, h * 0.6 - 6, w, 8);
-    ctx.fillRect(0, h * 0.85, w, 8);
-
-    for (let x = 50; x < w; x += 120) {
-      ctx.fillStyle = '#616161';
-      ctx.fillRect(x, h * 0.6 - 60, 4, 60);
-      ctx.fillStyle = '#ffd54f';
-      ctx.beginPath();
-      ctx.arc(x + 2, h * 0.6 - 62, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffecb3';
-      ctx.beginPath();
-      ctx.arc(x + 2, h * 0.6 - 62, 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    for (let x = 30; x < w; x += 150) {
-      ctx.fillStyle = '#5d4037';
-      ctx.fillRect(x - 3, h * 0.6 - 30, 6, 30);
-      ctx.fillStyle = '#2e7d32';
-      ctx.beginPath();
-      ctx.arc(x, h * 0.6 - 40, 18, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#388e3c';
-      ctx.beginPath();
-      ctx.arc(x - 6, h * 0.6 - 44, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(x + 6, h * 0.6 - 44, 12, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    cars.forEach(car => {
-      car.x += car.speed * car.dir;
-      if (car.x > w + 20) car.x = -20;
-      if (car.x < -20) car.x = w + 20;
-      ctx.fillStyle = car.color;
-      ctx.beginPath();
-      ctx.roundRect(car.x, car.y - car.size / 2, car.size * 1.8, car.size, 4);
-      ctx.fill();
-      ctx.fillStyle = '#212121';
-      ctx.beginPath();
-      ctx.roundRect(car.x + car.size * 0.2, car.y - car.size / 2 - 3, car.size * 0.3, car.size * 0.3, 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.roundRect(car.x + car.size * 1.0, car.y - car.size / 2 - 3, car.size * 0.3, car.size * 0.3, 2);
-      ctx.fill();
-    });
+    ctx.fillRect(0, 0, w, h);
   }
 
   function drawCatcher(body) {
@@ -2641,84 +2589,36 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(x, y);
 
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 3;
+    // Sombra simple
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(0, 20, 16, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-    ctx.shadowBlur = 0;
+    // Cuerpo (silueta simple)
     ctx.fillStyle = '#2196F3';
     ctx.beginPath();
-    ctx.roundRect(-14, -20, 28, 30, 6);
+    ctx.arc(0, 0, 22, 0, Math.PI * 2);
     ctx.fill();
 
+    // Cara simple
     ctx.fillStyle = '#FFCCBC';
     ctx.beginPath();
-    ctx.arc(0, -26, 16, 0, Math.PI * 2);
+    ctx.arc(0, -10, 14, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'white';
+    // Ojos
+    ctx.fillStyle = '#212121';
     ctx.beginPath();
-    ctx.arc(-6, -30, 5, 0, Math.PI * 2);
-    ctx.arc(6, -30, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1a237e';
-    ctx.beginPath();
-    ctx.arc(-6, -30, 3, 0, Math.PI * 2);
-    ctx.arc(6, -30, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(-4, -32, 1.5, 0, Math.PI * 2);
-    ctx.arc(8, -32, 1.5, 0, Math.PI * 2);
+    ctx.arc(-5, -11, 2.2, 0, Math.PI * 2);
+    ctx.arc(5, -11, 2.2, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(255,150,150,0.5)';
-    ctx.beginPath();
-    ctx.ellipse(-12, -22, 4, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(12, -22, 4, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
-
+    // Boca
     ctx.strokeStyle = '#212121';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, -20, 6, 0.1, Math.PI - 0.1);
-    ctx.stroke();
-
-    ctx.fillStyle = '#5D4037';
-    ctx.beginPath();
-    ctx.arc(0, -34, 16, Math.PI, 2 * Math.PI);
-    ctx.fill();
-    ctx.fillStyle = '#4E342E';
-    ctx.beginPath();
-    ctx.arc(-6, -38, 6, 0, Math.PI);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(6, -38, 6, 0, Math.PI);
-    ctx.fill();
-
-    ctx.strokeStyle = '#FFCCBC';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(-14, -8);
-    ctx.lineTo(-24, 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(14, -8);
-    ctx.lineTo(24, 2);
-    ctx.stroke();
-
-    ctx.strokeStyle = '#795548';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(24, 2, 12, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(18, 2);
-    ctx.lineTo(30, 2);
-    ctx.moveTo(24, -4);
-    ctx.lineTo(24, 8);
+    ctx.arc(0, -6, 5, 0.15, Math.PI - 0.15);
     ctx.stroke();
 
     ctx.restore();
@@ -2730,90 +2630,51 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(x, y);
 
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetY = 2;
-    ctx.shadowBlur = 0;
+    // Sombra simple
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(0, 16, 12, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
 
+    // Cuerpo (silueta simple, sin piernas ni brazos detallados)
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.roundRect(-12, -8, 24, 20, 4);
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
     ctx.fill();
 
+    // Cara simple
     ctx.fillStyle = '#FFCCBC';
     ctx.beginPath();
-    ctx.arc(0, -16, 12, 0, Math.PI * 2);
+    ctx.arc(0, -6, 10, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'white';
+    // Ojos
+    ctx.fillStyle = '#212121';
     ctx.beginPath();
-    ctx.arc(-4, -18, 4, 0, Math.PI * 2);
-    ctx.arc(4, -18, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1a237e';
-    ctx.beginPath();
-    ctx.arc(-4, -18, 2.5, 0, Math.PI * 2);
-    ctx.arc(4, -18, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(-3, -19, 1, 0, Math.PI * 2);
-    ctx.arc(5, -19, 1, 0, Math.PI * 2);
+    ctx.arc(-3.5, -7, 1.6, 0, Math.PI * 2);
+    ctx.arc(3.5, -7, 1.6, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(255,150,150,0.5)';
-    ctx.beginPath();
-    ctx.ellipse(-8, -14, 3, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(8, -14, 3, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
+    // Boca: sonrisa normal, o abierta si va corriendo
     ctx.strokeStyle = '#212121';
     ctx.lineWidth = 1.5;
+    ctx.beginPath();
     if (state === 'fleeing') {
-      ctx.beginPath();
-      ctx.arc(0, -12, 5, 0.1, Math.PI - 0.1);
-      ctx.stroke();
-      ctx.fillStyle = 'white';
-      ctx.fillRect(-3, -8, 2, 2);
-      ctx.fillRect(1, -8, 2, 2);
+      ctx.arc(0, -3, 3.5, 0.15, Math.PI - 0.15);
     } else {
-      ctx.beginPath();
-      ctx.arc(0, -12, 3.5, 0.1, Math.PI - 0.1);
-      ctx.stroke();
+      ctx.arc(0, -4, 2.5, 0.15, Math.PI - 0.15);
     }
-
-    ctx.fillStyle = '#5D4037';
-    ctx.beginPath();
-    ctx.arc(0, -24, 12, Math.PI, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.strokeStyle = '#FFCCBC';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(-6, 12);
-    ctx.lineTo(-8, 22);
-    ctx.moveTo(6, 12);
-    ctx.lineTo(8, 22);
     ctx.stroke();
-    ctx.fillStyle = '#37474f';
-    ctx.beginPath();
-    ctx.ellipse(-8, 23, 5, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(8, 23, 5, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
 
     if (state === 'fleeing') {
-      ctx.strokeStyle = 'rgba(255,200,0,0.4)';
+      ctx.strokeStyle = 'rgba(255,200,0,0.5)';
       ctx.lineWidth = 2;
-      for (let i = 0; i < 4; i++) {
-        const lx = -22 - i * 6;
-        const ly = -4 + i * 4;
+      for (let i = 0; i < 3; i++) {
+        const lx = -18 - i * 6;
+        const ly = -2 + i * 3;
         ctx.beginPath();
         ctx.moveTo(lx, ly);
-        ctx.lineTo(lx - 10, ly - 5);
+        ctx.lineTo(lx - 8, ly - 4);
         ctx.stroke();
       }
     }
@@ -2937,16 +2798,29 @@ function spawnEntities() {
     for (const spot of hideSpots) {
       ctx.save();
       ctx.translate(spot.x, spot.y);
+
+      // Marca circular en el suelo para que se note bien de dónde puede salir un niño
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.arc(0, 14, 28, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
       ctx.fillStyle = '#2e7d32';
+      ctx.strokeStyle = '#1b5e20';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(0, 10, 20, 0, Math.PI * 2);
+      ctx.arc(0, 8, 24, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#388e3c';
+      ctx.stroke();
+      ctx.fillStyle = '#43a047';
       ctx.beginPath();
-      ctx.arc(-10, 14, 14, 0, Math.PI * 2);
+      ctx.arc(-12, 12, 17, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(10, 14, 14, 0, Math.PI * 2);
+      ctx.arc(12, 12, 17, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -3204,13 +3078,11 @@ function spawnEntities() {
     canvas.height = rect.height;
     baseWidth = canvas.width;
     baseHeight = canvas.height;
-    if (typeof setupWalls === 'function') setupWalls();
-    if (typeof updateLanePositions === 'function') updateLanePositions();
   }
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
-  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+  window.addEventListener('resize', () => { resizeCanvas(); setupWalls(); updateLanePositions(); });
+  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); }, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); }, 100));
 
   const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtn) {
@@ -4039,8 +3911,8 @@ function spawnEntities() {
   let targetDistance = 1200;
 
   const gameConfig = {
-    easy: { fallSpeed: 1.2, energyDrainOnHit: 14, energyRegen: 10 },
-    hard: { fallSpeed: 1.8, energyDrainOnHit: 20, energyRegen: 8 }
+    easy: { fallSpeed: 1.7, energyDrainOnHit: 14, energyRegen: 10 },
+    hard: { fallSpeed: 2.5, energyDrainOnHit: 20, energyRegen: 8 }
   };
 
   const lanesCount = 3;
