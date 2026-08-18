@@ -1099,3 +1099,164 @@ section {
   }
 }
 }
+
+/* ═══════════════════════════════════════════════════
+   MODO CLARO: TEXTOS OSCUROS (CAFÉ / CARBÓN) Y MAPA
+   ═══════════════════════════════════════════════════ */
+
+/* ── 1. MAPA (Tiles invertidos, marcadores visibles) ── */
+[data-theme="light"] .leaflet-tile-pane {
+  filter: brightness(1.15) invert(1) contrast(0.95) hue-rotate(180deg);
+}
+
+/* ── 2. TÍTULOS PRINCIPALES (Azul añil profundo) ── */
+[data-theme="light"] .section-title,
+[data-theme="light"] .cal-month-title,
+[data-theme="light"] .today-event-panel__title,
+[data-theme="light"] .fest-card h3,
+[data-theme="light"] .modal-top h2 {
+  color: var(--añil-deep, #0a1d42) !important;
+}
+
+/* ── 3. TEXTOS DE CONTENIDO Y DETALLES (Café carbón super oscuro) ── */
+[data-theme="light"] .results-count,
+[data-theme="light"] .results-count strong,
+[data-theme="light"] .day-num,
+[data-theme="light"] .day-label,
+[data-theme="light"] .fest-card p,
+[data-theme="light"] .fest-location,
+[data-theme="light"] .fest-date,
+[data-theme="light"] .today-event-panel__label,
+[data-theme="light"] .modal-row .val,
+[data-theme="light"] .empty-state,
+[data-theme="light"] .filter-field label {
+  color: var(--carbon, #332d28) !important;
+}
+
+/* ── 4. GRID Y DÍAS DEL CALENDARIO ── */
+[data-theme="light"] .cal-controls,
+[data-theme="light"] .calendar-wrap {
+  background: #ffffff;
+  border-color: rgba(17, 48, 104, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cal-grid-header {
+  background: #f3ecdd;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .cal-grid-header span {
+  color: var(--carbon, #332d28) !important;
+  font-weight: 700;
+}
+
+[data-theme="light"] .cal-day {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .cal-day.other-month {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .cal-day.other-month .day-num {
+  color: #8c8275 !important; /* Tono atenuado para días fuera del mes */
+}
+
+/* ── 5. BOTONES, INPUTS Y PILLS EN MODO CLARO ── */
+[data-theme="light"] .month-pill {
+  background: #ffffff;
+  border-color: rgba(17, 48, 104, 0.2);
+  color: var(--carbon, #332d28);
+}
+
+[data-theme="light"] .filter-section {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f1e5 100%);
+  border-color: rgba(17, 48, 104, 0.2);
+}
+
+[data-theme="light"] .filter-field select,
+[data-theme="light"] .filter-field input {
+  background: #ffffff;
+  color: var(--carbon, #332d28) !important;
+  border-color: rgba(17, 48, 104, 0.3);
+}
+
+[data-theme="light"] .filter-field input::placeholder {
+  color: #756c63 !important;
+}
+
+[data-theme="light"] .filter-field select option {
+  background: #ffffff;
+  color: var(--carbon, #332d28);
+}
+
+/* ═══════════════════════════════════════════════════
+   MODO CLARO: VENTANA MODAL / DETALLE DE EVENTO
+   ═══════════════════════════════════════════════════ */
+
+/* ── 1. Contenedor principal de la ventana modal ── */
+[data-theme="light"] .modal-card,
+[data-theme="light"] .modal-content,
+[data-theme="light"] .event-modal,
+[data-theme="light"] .modal {
+  background: #ffffff !important;
+  border: 1px solid rgba(17, 48, 104, 0.2) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* ── 2. Cabecera y Título principal ── */
+[data-theme="light"] .modal-header,
+[data-theme="light"] .modal-top {
+  background: #f3ecdd !important; /* Fondo claro crema/dorado */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .modal-header h2,
+[data-theme="light"] .modal-header h3,
+[data-theme="light"] .modal-title,
+[data-theme="light"] .modal-top h2 {
+  color: #0a1d42 !important; /* Azul añil oscuro de alto contraste */
+}
+
+/* ── 3. Botón de cerrar (X) ── */
+[data-theme="light"] .modal-close,
+[data-theme="light"] .close-btn,
+[data-theme="light"] .modal-header .close {
+  background: rgba(10, 29, 66, 0.1) !important;
+  color: #0a1d42 !important;
+}
+
+/* ── 4. Etiquetas (UBICACIÓN, TIPO DE EVENTO, FECHA, DESCRIPCIÓN) ── */
+[data-theme="light"] .modal-body label,
+[data-theme="light"] .modal-label,
+[data-theme="light"] .modal-row .lbl,
+[data-theme="light"] .modal-field strong,
+[data-theme="light"] .modal-field span.label {
+  color: #8c580c !important; /* Dorado/bronce oscuro visible */
+  font-weight: 700 !important;
+}
+
+/* ── 5. Valores y descripciones internas ── */
+[data-theme="light"] .modal-body,
+[data-theme="light"] .modal-body p,
+[data-theme="light"] .modal-row .val,
+[data-theme="light"] .modal-description,
+[data-theme="light"] .modal-field p {
+  color: #221e1a !important; /* Café carbón oscuro legible */
+}
+
+/* ── 6. Botón de acción principal (Explorar en Mapa) ── */
+[data-theme="light"] .modal-body .btn,
+[data-theme="light"] .modal-btn,
+[data-theme="light"] .modal-footer .btn {
+  background: #0a1d42 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+[data-theme="light"] .modal-body .btn:hover,
+[data-theme="light"] .modal-btn:hover {
+  background: #113068 !important;
+}
