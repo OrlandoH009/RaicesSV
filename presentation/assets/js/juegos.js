@@ -2225,6 +2225,7 @@ function spawnEntities() {
     canvas.height = rect.height;
     baseWidth = canvas.width;
     baseHeight = canvas.height;
+    if (typeof setupWalls === 'function') setupWalls();
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -2322,14 +2323,16 @@ function spawnEntities() {
   const kidRadius = 18;
   const boteRadius = 38;
 
-  const bote = Bodies.circle(canvas.width / 2, 70, boteRadius, { isStatic: true, label: 'bote', friction: 0.1 });
+  // El bote es un sensor: solo detecta cuándo un niño llega, no debe frenarlo ni empujarlo.
+  const bote = Bodies.circle(canvas.width / 2, 70, boteRadius, { isStatic: true, label: 'bote', isSensor: true });
   World.add(world, bote);
 
   const catcher = Bodies.circle(canvas.width / 2, canvas.height - 100, catcherRadius, {
     label: 'catcher',
-    friction: 0.05,
+    friction: 0,
     frictionAir: 0.02,
-    restitution: 0.5
+    restitution: 0,
+    inertia: Infinity
   });
   World.add(world, catcher);
 
@@ -2370,12 +2373,15 @@ function spawnEntities() {
     hideSpots = createHideSpots();
     const colors = ['#e63946', '#3a86c8', '#2fbf9f', '#f2c744', '#7d3ac1', '#f4a261', '#e76f51', '#a8dadc', '#457b9d', '#1d3557'];
     hideSpots.forEach((spot, idx) => {
+      // isSensor: true evita que los niños se empujen físicamente entre sí, contra el
+      // catcher, o contra el bote — solo se usan para detectar colisiones (atrapada / llegada al bote).
       const body = Bodies.circle(spot.x, spot.y, kidRadius, {
         label: 'kid',
-        friction: 0.1,
-        restitution: 0.3,
+        friction: 0,
+        restitution: 0,
         frictionAir: 0.01,
-        isSensor: false,
+        isSensor: true,
+        inertia: Infinity,
         state: 'hidden',
         color: colors[idx % colors.length],
         spotIndex: idx
@@ -3198,6 +3204,8 @@ function spawnEntities() {
     canvas.height = rect.height;
     baseWidth = canvas.width;
     baseHeight = canvas.height;
+    if (typeof setupWalls === 'function') setupWalls();
+    if (typeof updateLanePositions === 'function') updateLanePositions();
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -3270,19 +3278,22 @@ function spawnEntities() {
   }
 
   const engine = Engine.create();
-  engine.gravity.y = 0.5;
+  // Sin gravedad real: este juego es de carriles (izq/der), no de caída libre.
+  // Los items "caen" de forma controlada manualmente en el step, no por física de Matter.
+  engine.gravity.y = 0;
   const world = engine.world;
 
   const wallThickness = 30;
   let walls = [];
+  let playerFixedY = 0;
 
   function setupWalls() {
     if (walls.length) World.remove(world, walls);
     const w = canvas.width, h = canvas.height;
+    playerFixedY = h - 90;
     walls = [
       Bodies.rectangle(-wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(w + wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(w/2, h + wallThickness/2, w + wallThickness*2, wallThickness, { isStatic: true, label: 'floor' })
+      Bodies.rectangle(w + wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' })
     ];
     World.add(world, walls);
   }
@@ -3290,9 +3301,10 @@ function spawnEntities() {
   const playerRadius = 22;
   const player = Bodies.circle(canvas.width/2, canvas.height - 90, playerRadius, {
     label: 'player',
-    friction: 0.05,
-    frictionAir: 0.01,
-    restitution: 0.1,
+    friction: 0,
+    frictionAir: 0,
+    restitution: 0,
+    inertia: Infinity, // no rotar por choques
     isStatic: false
   });
   World.add(world, player);
@@ -3487,12 +3499,12 @@ function spawnEntities() {
     const body = Bodies.circle(x, -30, 20, {
       label: 'good',
       isStatic: false,
-      restitution: 0.3,
-      friction: 0.2,
-      frictionAir: 0.01,
+      isSensor: true, // no debe empujar al jugador, solo detectar la recolección
+      inertia: Infinity,
+      frictionAir: 0,
       type: type
     });
-    Body.setVelocity(body, { x: (Math.random() - 0.5) * 0.5, y: 1 });
+    Body.setVelocity(body, { x: 0, y: currentConfig().speed });
     World.add(world, body);
     goodItems.push({ body: body, type: type });
   }
@@ -3504,14 +3516,18 @@ function spawnEntities() {
     const body = Bodies.rectangle(x, -30, 30, 30, {
       label: 'bad',
       isStatic: false,
-      restitution: 0.2,
-      friction: 0.3,
-      frictionAir: 0.01,
+      isSensor: true, // no debe empujar al jugador, solo detectar el impacto
+      inertia: Infinity,
+      frictionAir: 0,
       type: type
     });
-    Body.setVelocity(body, { x: (Math.random() - 0.5) * 0.5, y: 1 });
+    Body.setVelocity(body, { x: 0, y: currentConfig().speed });
     World.add(world, body);
     badItems.push({ body: body, type: type });
+  }
+
+  function currentConfig() {
+    return gameConfig[difficulty] || gameConfig.easy;
   }
 
   Events.on(engine, 'collisionStart', (event) => {
@@ -3661,13 +3677,17 @@ function spawnEntities() {
     const diff = targetX - player.position.x;
     Body.setVelocity(player, {
       x: diff * 0.12,
-      y: player.velocity.y * 0.95
+      y: 0
     });
     if (Math.abs(player.velocity.x) > 6) {
       Body.setVelocity(player, {
         x: Math.sign(player.velocity.x) * 6,
-        y: player.velocity.y
+        y: 0
       });
+    }
+    // El jugador siempre está anclado a su línea vertical fija (sin caer)
+    if (Math.abs(player.position.y - playerFixedY) > 0.01) {
+      Body.setPosition(player, { x: player.position.x, y: playerFixedY });
     }
 
     const config = gameConfig[difficulty];
