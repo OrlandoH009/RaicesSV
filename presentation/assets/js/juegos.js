@@ -1337,9 +1337,15 @@ async function obtenerMejorPuntajeJuego(gameName) {
 (function initGameModals() {
   const triggers = document.querySelectorAll('[data-open-modal]');
   const closeButtons = document.querySelectorAll('[data-close-modal]');
-  const hasGsap = !!window.gsap;
+  // Reemplaza el uso de la constante 'hasGsap' por 'window.gsap' directamente
+  function closeModal(gameId) {
+    /* ... */
+    if (window.gsap && content) {
+      gsap.to(content, { scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3 });
+    }
+  }
 
-  if(hasGsap){
+  if(window.gsap){
     document.querySelectorAll('.game-modal, .game-modal__content').forEach(el => {
       el.style.transition = 'none';
     });
@@ -1365,7 +1371,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     });
 
     const content = modal.querySelector('.game-modal__content');
-    if (hasGsap && content) {
+    if (window.gsap && content) {
       gsap.to(content, {
         scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
         onComplete: () => {
@@ -1398,7 +1404,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
         document.body.style.overflow = 'hidden';
 
         const content = modal.querySelector('.game-modal__content');
-        if(hasGsap && content){
+        if(window.gsap && content){
           gsap.set(modal, { autoAlpha: 1 });
           gsap.fromTo(content,
             { scale: 0.85, y: 24, autoAlpha: 0 },
@@ -2248,6 +2254,36 @@ function spawnEntities() {
   const canvasWrap = document.getElementById('encantados-canvas-wrap');
   const popupsLayer = document.getElementById('mica-popups');
 
+    function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.style.backdropFilter = 'none';
+    overlay.style.webkitBackdropFilter = 'none';
+
+    if(window.gsap){
+      gsap.fromTo(overlayCard,
+        { autoAlpha: 0, y: 18, scale: 0.96 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' }
+      );
+      gsap.fromTo(overlay,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.35, ease: 'power1.out' }
+      );
+    } else {
+      overlay.style.opacity = '1';
+      overlay.style.visibility = 'visible';
+    }
+  }
+
+  function hideOverlay(){
+    if(window.gsap){
+      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
+      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
+    } else {
+      overlay.classList.add('hidden');
+    }
+  }
+
   const { Engine, World, Bodies, Body, Events, Composite } = Matter;
 
   let isGameVisible = false;
@@ -2546,6 +2582,17 @@ function spawnEntities() {
     });
   }
 
+  // ================= VELOCITY CLAMP (evita bugueos y velocidades irreales) =================
+  function clampVelocity(body, maxSpeed) {
+    const vx = body.velocity.x;
+    const vy = body.velocity.y;
+    const speed = Math.sqrt(vx * vx + vy * vy);
+    if (speed > maxSpeed) {
+      const scale = maxSpeed / speed;
+      Body.setVelocity(body, { x: vx * scale, y: vy * scale });
+    }
+  }
+
   // ================= VISION & HEARING SENSING =================
 
   // Check if target is inside the observer's 75° Vision Cone
@@ -2597,7 +2644,11 @@ function spawnEntities() {
 
   // ================= MICA TRANSFER LOGIC =================
   function transferMica(fromIndex, toIndex) {
-    if (immunityTimer > 0 || fromIndex === toIndex) return;
+      if (immunityTimer > 0 || fromIndex === toIndex) return;
+      micaBearerIndex = toIndex;
+      immunityTimer = 60; // Tiempo de gracia
+      playSFX('tag');
+
 
     micaBearerIndex = toIndex;
     immunityTimer = 100; // ~1.6s grace period
@@ -2657,13 +2708,46 @@ function spawnEntities() {
         y: (dy / len) * 0.0035
       });
       player.angleFacing = Math.atan2(dy, dx);
+      clampVelocity(player, 3.0);
     }
   }, { passive: false });
+
+  // ================= MOUSE CONTROL =================
+  let mousePos = null;
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mousePos = { x: e.clientX - r.left, y: e.clientY - r.top };
+  });
+  canvas.addEventListener('mouseleave', () => { mousePos = null; });
+
+  function handleMouseMovement() {
+    if (!player || !mousePos) return false;
+    const dx = mousePos.x - player.position.x;
+    const dy = mousePos.y - player.position.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len > 12) {
+      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
+      Body.applyForce(player, player.position, {
+        x: (dx / len) * force,
+        y: (dy / len) * force
+      });
+      player.angleFacing = Math.atan2(dy, dx);
+      clampVelocity(player, (keys['shift'] || keys[' ']) ? 4.2 : 3.0);
+      return true;
+    }
+    return false;
+  }
 
   function handlePlayerMovement() {
     if (!player) return;
 
     let moveX = 0, moveY = 0;
+    if (keys['w'] || keys['a'] || keys['s'] || keys['d'] ||
+        keys['arrowup'] || keys['arrowdown'] || keys['arrowleft'] || keys['arrowright']) {
+      // teclado tiene prioridad
+    } else if (handleMouseMovement()) {
+      return;
+    }
     if (keys['w'] || keys['arrowup']) moveY -= 1;
     if (keys['s'] || keys['arrowdown']) moveY += 1;
     if (keys['a'] || keys['arrowleft']) moveX -= 1;
@@ -2682,6 +2766,7 @@ function spawnEntities() {
 
       player.angleFacing = Math.atan2(normY, normX);
     }
+    clampVelocity(player, (keys['shift'] || keys[' ']) ? 4.2 : 3.0);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -2719,11 +2804,12 @@ function spawnEntities() {
           const dy = target.position.y - npc.position.y;
           npc.angleFacing = Math.atan2(dy, dx);
 
-          const chaseForce = 0.0042;
+          const chaseForce = 0.0022;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * chaseForce,
             y: Math.sin(npc.angleFacing) * chaseForce
           });
+          clampVelocity(npc, 3.2);
         } else {
           // Not detected -> Wanders calmly looking around
           npc.state = 'WANDERING';
@@ -2733,11 +2819,12 @@ function spawnEntities() {
             npc.angleFacing += (Math.random() - 0.5) * 1.5;
           }
 
-          const walkForce = 0.0016;
+          const walkForce = 0.0009;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
+          clampVelocity(npc, 1.6);
         }
       } else {
         // NPC DOES NOT HAVE MICA -> Wanders, or flees if Mica bearer comes close
@@ -2751,11 +2838,12 @@ function spawnEntities() {
           const fleeAngle = Math.atan2(npc.position.y - micaBearer.position.y, npc.position.x - micaBearer.position.x);
           npc.angleFacing = fleeAngle;
 
-          const fleeForce = 0.0038;
+          const fleeForce = 0.0022;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(fleeAngle) * fleeForce,
             y: Math.sin(fleeAngle) * fleeForce
           });
+          clampVelocity(npc, 3.0);
         } else {
           // Wanders safely in the field
           npc.state = 'WANDERING';
@@ -2765,11 +2853,12 @@ function spawnEntities() {
             npc.angleFacing += (Math.random() - 0.5) * 1.2;
           }
 
-          const walkForce = 0.0015;
+          const walkForce = 0.0009;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
+          clampVelocity(npc, 1.6);
         }
       }
     });
@@ -3175,7 +3264,7 @@ function spawnEntities() {
   function showModeSelector() {
     showOverlay(`
       <span class="overlay-tag">Juego Tradicional</span>
-      <h2>🏃 ${jt('jue.card4.title', 'La Mica')}</h2>
+      <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
       <p>El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.</p>
       <p class="rules-title">Reglas del juego</p>
       <ul class="rules-list">
@@ -3268,8 +3357,11 @@ function spawnEntities() {
 
 
 /* ---------------------------------------------------------
-   JUEGO 5: EL RECREO (antes Elotes y Olé)
-   - Con Matter.js, gráficos mejorados y nombre actualizado
+   JUEGO 5: CANICAS
+   - Juego tradicional salvadoreño de canicas / pista
+   - Matter.js: física realista de colisiones entre esferas
+   - GSAP: animaciones de entrada, impacto, partículas, HUD
+   - Mecánica: disparar tirador → sacar canicas del círculo = puntos
 --------------------------------------------------------- */
 (function initGameElotes() {
   const canvas = document.getElementById('canvas-elotes');
@@ -3282,23 +3374,29 @@ function spawnEntities() {
   const gameContent = document.getElementById('modal-elotes');
   const canvasWrap = document.getElementById('elotes-canvas-wrap');
 
-  const { Engine, World, Bodies, Body, Events } = Matter;
+  // ── Matter.js aliases ──────────────────────────────────────────
+  const { Engine, Render: MRender, Runner, World, Bodies, Body, Events,
+          Mouse, MouseConstraint, Composite, Vector } = Matter;
 
+  // ── Estado global ─────────────────────────────────────────────
+  let engine, world;
+  let running = false, paused = false;
   let isGameVisible = false;
-  let running = false;
-  let paused = false;
   let rafId = null;
-  let lastTime = null;
 
+  let score = 0, round = 1, shotsLeft = 0, totalRounds = 3;
+  let difficulty = null;
+  let gamePhase = 'idle'; // idle | aiming | shooting | watching | roundEnd | gameOver
+  let gameConfig = {
+    easy: { marbles: 8,  shots: 5, circleRadiusFactor: 0.28 },
+    hard: { marbles: 14, shots: 4, circleRadiusFactor: 0.23 }
+  };
+
+  // ── Canvas sizing ─────────────────────────────────────────────
   let baseWidth = 0, baseHeight = 0;
-
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (isFS && baseWidth && baseHeight) {
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      return;
-    }
+    if (isFS && baseWidth && baseHeight) { canvas.width = baseWidth; canvas.height = baseHeight; return; }
     const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -3307,795 +3405,774 @@ function spawnEntities() {
     baseHeight = canvas.height;
   }
   resizeCanvas();
-  window.addEventListener('resize', () => { resizeCanvas(); setupWalls(); updateLanePositions(); });
-  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); }, 100));
-  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); }, 100));
+  window.addEventListener('resize', () => { resizeCanvas(); if (running) resetRoundLayout(); });
+  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); if (running) resetRoundLayout(); }, 100));
 
+  // ── Fullscreen ────────────────────────────────────────────────
   const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtn) {
     fsBtn.addEventListener('click', () => {
       const isCurrent = document.fullscreenElement === canvasWrap || document.webkitFullscreenElement === canvasWrap;
-      if (!isCurrent) {
-        const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
-        req?.call(canvasWrap);
-      } else {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-        exit?.call(document);
-      }
+      if (!isCurrent) { (canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen)?.call(canvasWrap); }
+      else { (document.exitFullscreen || document.webkitExitFullscreen)?.call(document); }
     });
   }
 
-  let gameConfig = {
-    easy: { timeLimit: 40, itemMinGap: 900, itemMaxGap: 1400, obstacleMinGap: 1600, obstacleMaxGap: 2400, speed: 3.2, initialLives: 4 },
-    hard: { timeLimit: 35, itemMinGap: 650, itemMaxGap: 1050, obstacleMinGap: 1100, obstacleMaxGap: 1700, speed: 4.4, initialLives: 3 }
-  };
-  let difficulty = null;
-  let score = 0, lives = 3, totalLives = 3, combo = 0, timeLeft = 30;
-  let clockAccum = 0;
-  let itemSpawnAccum = 0, nextItemSpawnIn = 1000;
-  let obstacleSpawnAccum = 0, nextObstacleSpawnIn = 1800;
+  // ── Música ────────────────────────────────────────────────────
+  const bgMusic = document.getElementById('bgMusic-elotes');
+  const volumeSlider = document.getElementById('volumeSlider-elotes');
+  const volumeIcon = document.getElementById('volumeIcon-elotes');
+  function playMusic() {
+    if (!bgMusic) return;
+    bgMusic.volume = volumeSlider ? +volumeSlider.value : 0.45;
+    bgMusic.play().catch(() => {});
+  }
+  function stopMusic() { bgMusic?.pause(); }
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', () => {
+      if (bgMusic) bgMusic.volume = +volumeSlider.value;
+      if (volumeIcon) volumeIcon.textContent = +volumeSlider.value === 0 ? '🔇' : '🔊';
+    });
+  }
 
+  // ── HUD ───────────────────────────────────────────────────────
   hud.innerHTML = `
-    <div class="hud-item" style="grid-column: span 2; text-align:center; font-weight:bold; font-size:1.2rem; color:#4CAF50;">
-      🌽 El Recreo
+    <div class="hud-item" style="grid-column:span 3;text-align:center;font-weight:bold;font-size:1.1rem;color:#A78BFA;">
+      🔮 Canicas
     </div>
     <div class="hud-item">
-      <span>${jt('jue.hud.points', 'Puntos')}</span>
-      <b id="el-score">0</b>
-    </div>
-    <div class="hud-item lives">
-      <span>${jt('jue.hud.lives', 'Vidas')}</span>
-      <b id="el-lives">❤️❤️❤️</b>
+      <span>${jt('jue.hud.points','Puntos')}</span>
+      <b id="can-score">0</b>
     </div>
     <div class="hud-item">
-      <span>${jt('jue.hud.combo', 'Combo')}</span>
-      <span class="elotes-combo" id="el-combo">x1</span>
+      <span>Ronda</span>
+      <b id="can-round">1/${totalRounds}</b>
     </div>
     <div class="hud-item">
-      <span>${jt('jue.hud.time', 'Tiempo')}</span>
-      <b id="el-time">30</b>
+      <span>Tiros</span>
+      <b id="can-shots">5</b>
     </div>`;
 
-  function renderLives(count) {
-    const hearts = [];
-    for (let i = 0; i < totalLives; i++) {
-      const active = i < count;
-      hearts.push(`<span class="heart${active ? '' : ' broken'}">${active ? '❤️' : '💔'}</span>`);
-    }
-    return hearts.join('');
+  function updateHUD() {
+    const elScore = document.getElementById('can-score');
+    const elRound = document.getElementById('can-round');
+    const elShots = document.getElementById('can-shots');
+    if (elScore) elScore.textContent = score;
+    if (elRound) elRound.textContent = `${round}/${totalRounds}`;
+    if (elShots) elShots.textContent = shotsLeft;
+    // GSAP pulse on score
+    if (elScore) gsap.fromTo(elScore, { scale: 1.5, color: '#C4B5FD' }, { scale: 1, color: '#fff', duration: 0.4, ease: 'back.out(2)' });
   }
 
-  function updateHud() {
-    const scoreEl = document.getElementById('el-score');
-    const livesEl = document.getElementById('el-lives');
-    const comboEl = document.getElementById('el-combo');
-    const timeEl = document.getElementById('el-time');
-    if (scoreEl) scoreEl.textContent = score;
-    if (livesEl) livesEl.innerHTML = renderLives(lives);
-    if (comboEl) comboEl.textContent = 'x' + Math.max(1, 1 + Math.floor(combo / 5));
-    if (timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
-  }
+  // ── Física: variables ─────────────────────────────────────────
+  let circleCenter = { x: 0, y: 0 };
+  let circleRadius = 0;
+  let marbleRadius = 0;
+  let tirador = null; // cuerpo Matter.js del tirador
+  let marbles = [];   // cuerpos Matter.js de canicas objetivo
+  let walls = [];     // bordes del canvas
+  let marblesTouched = new Set(); // IDs de canicas que ya salieron
 
-  const engine = Engine.create();
-  // Sin gravedad real: este juego es de carriles (izq/der), no de caída libre.
-  // Los items "caen" de forma controlada manualmente en el step, no por física de Matter.
-  engine.gravity.y = 0;
-  const world = engine.world;
+  // ── Aiming / power ────────────────────────────────────────────
+  let aimStart = null;   // {x,y} donde empieza el drag
+  let aimCurrent = null; // {x,y} posición actual del mouse
+  let tiradorSpawnPos = { x: 0, y: 0 }; // posición fuera del círculo donde se spawnea el tirador
+  const MAX_POWER_PX = 180; // máx distancia de drag para potencia máxima
+  const MAX_SPEED = 18;     // velocidad máxima del tirador
 
-  const wallThickness = 30;
-  let walls = [];
-  let playerFixedY = 0;
-
-  function setupWalls() {
-    if (walls.length) World.remove(world, walls);
-    const w = canvas.width, h = canvas.height;
-    playerFixedY = h - 90;
-    walls = [
-      Bodies.rectangle(-wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(w + wallThickness/2, h/2, wallThickness, h + wallThickness*2, { isStatic: true, label: 'wall' })
-    ];
-    World.add(world, walls);
-  }
-
-  const playerRadius = 22;
-  const player = Bodies.circle(canvas.width/2, canvas.height - 90, playerRadius, {
-    label: 'player',
-    friction: 0,
-    frictionAir: 0,
-    restitution: 0,
-    inertia: Infinity, // no rotar por choques
-    isStatic: false
-  });
-  World.add(world, player);
-
-  let keys = {};
-  window.addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-    if (running && !paused) {
-      if (e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
-      if (e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
-    }
-  });
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-
-  let targetLane = 1;
-  const lanesCount = 3;
-  let lanePositions = [];
-
-  function updateLanePositions() {
-    const laneWidth = canvas.width / lanesCount;
-    lanePositions = [];
-    for (let i = 0; i < lanesCount; i++) {
-      lanePositions.push((i * laneWidth) + (laneWidth / 2));
-    }
-  }
-  updateLanePositions();
-
-  function moveLane(dir) {
-    const next = targetLane + dir;
-    if (next >= 0 && next < lanesCount) targetLane = next;
-  }
-
-  canvas.addEventListener('touchstart', (e) => {
-    if (!running || paused) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.touches[0].clientX - rect.left;
-    if (x < rect.width / 2) moveLane(-1);
-    else moveLane(1);
-  }, { passive: true });
-
-  let goodItems = [];
-  let badItems = [];
-
-  const GOOD_TYPES = [
-    { emoji: '🌽', pts: 10, label: 'elote', color: '#f9a825', draw: drawElote },
-    { emoji: '🥭', pts: 8, label: 'mango', color: '#ff8f00', draw: drawMango },
-    { emoji: '🍧', pts: 12, label: 'minuta', color: '#b3e5fc', draw: drawMinuta },
-    { emoji: '🍬', pts: 6, label: 'dulce', color: '#ffab00', draw: drawDulce }
-  ];
-  const BAD_TYPES = [
-    { emoji: '🪑', label: 'pupitre', color: '#5d4037', draw: drawPupitre },
-    { emoji: '⚽', label: 'pelota', color: '#212121', draw: drawPelota },
-    { emoji: '🧹', label: 'escoba', color: '#8d6e63', draw: drawEscoba }
-  ];
-
-  function drawElote(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#f9a825';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 14, 20, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#f57f17';
-    ctx.beginPath();
-    ctx.ellipse(0, -4, 8, 12, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#2e7d32';
-    ctx.beginPath();
-    ctx.ellipse(-12, -2, 6, 14, -0.3, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(12, -2, 6, 14, 0.3, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawMango(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#ff8f00';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#e65100';
-    ctx.beginPath();
-    ctx.ellipse(0, -8, 4, 6, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#33691e';
-    ctx.beginPath();
-    ctx.ellipse(-8, -6, 4, 8, -0.5, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawMinuta(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#b3e5fc';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 16, 20, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#81d4fa';
-    ctx.beginPath();
-    ctx.ellipse(0, -2, 10, 14, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle = '#8d6e63';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(8, 8);
-    ctx.lineTo(18, 18);
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawDulce(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#ffab00';
-    ctx.beginPath();
-    ctx.arc(0, 0, 14, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#ff6f00';
-    ctx.beginPath();
-    ctx.arc(0, 0, 8, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#e040fb';
-    ctx.beginPath();
-    ctx.ellipse(-14, -4, 6, 10, -0.5, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(14, -4, 6, 10, 0.5, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawPupitre(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#5d4037';
-    ctx.fillRect(-18, -12, 36, 24);
-    ctx.fillStyle = '#3e2723';
-    ctx.fillRect(-14, -4, 28, 8);
-    ctx.fillStyle = '#795548';
-    ctx.fillRect(-16, -16, 4, 32);
-    ctx.fillRect(12, -16, 4, 32);
-    ctx.restore();
-  }
-
-  function drawPelota(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#212121';
-    ctx.beginPath();
-    ctx.arc(0, 0, 18, 0, Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, 10, 0, Math.PI*2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(-18, 0);
-    ctx.lineTo(18, 0);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, -18);
-    ctx.lineTo(0, 18);
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawEscoba(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = '#8d6e63';
-    ctx.fillRect(-4, -20, 8, 40);
-    ctx.fillStyle = '#6d4c41';
-    ctx.beginPath();
-    ctx.ellipse(0, -24, 16, 6, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#a1887f';
-    for (let i = -12; i <= 12; i += 4) {
-      ctx.fillRect(i, -22, 2, 8);
-    }
-    ctx.restore();
-  }
-
-  function spawnGoodItem() {
-    const lane = Math.floor(Math.random() * lanesCount);
-    const x = lanePositions[lane];
-    const type = GOOD_TYPES[Math.floor(Math.random() * GOOD_TYPES.length)];
-    const body = Bodies.circle(x, -30, 20, {
-      label: 'good',
-      isStatic: false,
-      isSensor: true, // no debe empujar al jugador, solo detectar la recolección
-      inertia: Infinity,
-      frictionAir: 0,
-      type: type
-    });
-    Body.setVelocity(body, { x: 0, y: currentConfig().speed });
-    World.add(world, body);
-    goodItems.push({ body: body, type: type });
-  }
-
-  function spawnBadItem() {
-    const lane = Math.floor(Math.random() * lanesCount);
-    const x = lanePositions[lane];
-    const type = BAD_TYPES[Math.floor(Math.random() * BAD_TYPES.length)];
-    const body = Bodies.rectangle(x, -30, 30, 30, {
-      label: 'bad',
-      isStatic: false,
-      isSensor: true, // no debe empujar al jugador, solo detectar el impacto
-      inertia: Infinity,
-      frictionAir: 0,
-      type: type
-    });
-    Body.setVelocity(body, { x: 0, y: currentConfig().speed });
-    World.add(world, body);
-    badItems.push({ body: body, type: type });
-  }
-
-  function currentConfig() {
-    return gameConfig[difficulty] || gameConfig.easy;
-  }
-
-  Events.on(engine, 'collisionStart', (event) => {
-    for (const pair of event.pairs) {
-      const { bodyA, bodyB } = pair;
-      if ((bodyA.label === 'player' && bodyB.label === 'good') || (bodyA.label === 'good' && bodyB.label === 'player')) {
-        const goodBody = bodyA.label === 'good' ? bodyA : bodyB;
-        const item = goodItems.find(it => it.body === goodBody);
-        if (item) {
-          const multiplier = Math.max(1, 1 + Math.floor(combo / 5));
-          score += item.type.pts * multiplier;
-          combo++;
-          flashEffect(goodBody.position.x, goodBody.position.y, '#ffd700');
-          World.remove(world, goodBody);
-          goodItems = goodItems.filter(it => it.body !== goodBody);
-          updateHud();
-        }
-      }
-      if ((bodyA.label === 'player' && bodyB.label === 'bad') || (bodyA.label === 'bad' && bodyB.label === 'player')) {
-        const badBody = bodyA.label === 'bad' ? bodyA : bodyB;
-        const item = badItems.find(it => it.body === badBody);
-        if (item) {
-          lives--;
-          combo = 0;
-          flashEffect(badBody.position.x, badBody.position.y, '#ff1744');
-          World.remove(world, badBody);
-          badItems = badItems.filter(it => it.body !== badBody);
-          playerFlash = 1;
-          updateHud();
-        }
-      }
-    }
-  });
-
-  let playerFlash = 0;
+  // ── Partículas ────────────────────────────────────────────────
   let particles = [];
 
-  function flashEffect(x, y, color) {
-    for (let i = 0; i < 10; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 4;
+  function spawnParticles(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+      const angle = (Math.PI * 2 * i) / 12;
+      const speed = 2 + Math.random() * 3;
       particles.push({
-        x: x,
-        y: y,
+        x, y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1,
-        radius: 3 + Math.random() * 5,
+        vy: Math.sin(angle) * speed,
         life: 1,
-        color: color
+        color: color || `hsl(${Math.random() * 60 + 260}, 90%, 70%)`,
+        r: 3 + Math.random() * 3
       });
     }
   }
 
-  function drawPlayer(body) {
-    const x = body.position.x, y = body.position.y;
-    ctx.save();
-    ctx.translate(x, y);
-
-    ctx.shadowColor = 'rgba(0,0,0,0.2)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 3;
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#42a5f5';
-    ctx.beginPath();
-    ctx.roundRect(-16, -10, 32, 24, 6);
-    ctx.fill();
-
-    ctx.fillStyle = '#ffccbc';
-    ctx.beginPath();
-    ctx.arc(0, -18, 14, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(-5, -21, 4.5, 0, Math.PI*2);
-    ctx.arc(5, -21, 4.5, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#1a237e';
-    ctx.beginPath();
-    ctx.arc(-5, -21, 2.5, 0, Math.PI*2);
-    ctx.arc(5, -21, 2.5, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(-4, -22, 1, 0, Math.PI*2);
-    ctx.arc(6, -22, 1, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255,150,150,0.5)';
-    ctx.beginPath();
-    ctx.ellipse(-9, -17, 3, 2.5, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(9, -17, 3, 2.5, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.strokeStyle = '#212121';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(0, -14, 4.5, 0.1, Math.PI - 0.1);
-    ctx.stroke();
-
-    ctx.fillStyle = '#5d4037';
-    ctx.beginPath();
-    ctx.arc(0, -26, 14, Math.PI, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = '#ef6c00';
-    ctx.fillRect(10, -4, 12, 16);
-
-    ctx.strokeStyle = '#ffccbc';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(-6, 14);
-    ctx.lineTo(-8, 26);
-    ctx.moveTo(6, 14);
-    ctx.lineTo(8, 26);
-    ctx.stroke();
-
-    ctx.fillStyle = '#37474f';
-    ctx.beginPath();
-    ctx.ellipse(-8, 27, 6, 3, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(8, 27, 6, 3, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    if (playerFlash > 0) {
-      ctx.fillStyle = 'rgba(255,0,0,0.2)';
-      ctx.beginPath();
-      ctx.arc(0, 0, playerRadius + 4, 0, Math.PI*2);
-      ctx.fill();
-      playerFlash -= 0.02;
-    }
-
-    ctx.restore();
-  }
-
-  function step(timestamp) {
-    if (!running || !isGameVisible) return;
-    if (lastTime === null) lastTime = timestamp;
-    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    lastTime = timestamp;
-
-    const targetX = lanePositions[targetLane];
-    const diff = targetX - player.position.x;
-    Body.setVelocity(player, {
-      x: diff * 0.12,
-      y: 0
-    });
-    if (Math.abs(player.velocity.x) > 6) {
-      Body.setVelocity(player, {
-        x: Math.sign(player.velocity.x) * 6,
-        y: 0
-      });
-    }
-    // El jugador siempre está anclado a su línea vertical fija (sin caer)
-    if (Math.abs(player.position.y - playerFixedY) > 0.01) {
-      Body.setPosition(player, { x: player.position.x, y: playerFixedY });
-    }
-
-    const config = gameConfig[difficulty];
-
-    itemSpawnAccum += dt;
-    if (itemSpawnAccum >= nextItemSpawnIn) {
-      itemSpawnAccum = 0;
-      nextItemSpawnIn = config.itemMinGap + Math.random() * (config.itemMaxGap - config.itemMinGap);
-      spawnGoodItem();
-    }
-
-    obstacleSpawnAccum += dt;
-    if (obstacleSpawnAccum >= nextObstacleSpawnIn) {
-      obstacleSpawnAccum = 0;
-      nextObstacleSpawnIn = config.obstacleMinGap + Math.random() * (config.obstacleMaxGap - config.obstacleMinGap);
-      spawnBadItem();
-    }
-
-    Engine.update(engine, dt);
-
-    clockAccum += dt;
-    while (clockAccum >= 1000 && timeLeft > 0) {
-      clockAccum -= 1000;
-      timeLeft--;
-    }
-    updateHud();
-
-    goodItems = goodItems.filter(it => {
-      if (it.body.position.y > canvas.height + 60) {
-        World.remove(world, it.body);
-        return false;
-      }
-      return true;
-    });
-    badItems = badItems.filter(it => {
-      if (it.body.position.y > canvas.height + 60) {
-        World.remove(world, it.body);
-        return false;
-      }
-      return true;
-    });
-
-    if (lives <= 0 || timeLeft <= 0) {
-      running = false;
-      endGame();
-      return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#e8f5e9');
-    grad.addColorStop(0.5, '#c8e6c9');
-    grad.addColorStop(1, '#a5d6a7');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([12, 16]);
-    for (let i = 1; i < lanesCount; i++) {
-      const x = (i / lanesCount) * canvas.width;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
-    }
-    ctx.setLineDash([]);
-
-    for (const item of goodItems) {
-      item.type.draw(item.body.position.x, item.body.position.y);
-      ctx.save();
-      ctx.translate(item.body.position.x, item.body.position.y - 20);
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    for (const item of badItems) {
-      item.type.draw(item.body.position.x, item.body.position.y);
-    }
-
-    drawPlayer(player);
-
+  function updateParticles(dt) {
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.05;
-      p.life -= 0.015;
-      p.radius *= 0.98;
-      if (p.life <= 0 || p.radius < 0.5) {
-        particles.splice(i, 1);
-        continue;
-      }
-      ctx.globalAlpha = p.life;
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      p.vy += 0.15;
+      p.life -= 0.025;
+      if (p.life <= 0) particles.splice(i, 1);
     }
-
-    rafId = requestAnimationFrame(step);
   }
 
-  function endGame() {
-    paused = false;
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if (pauseIcon) pauseIcon.textContent = '⏸️';
+  function drawParticles() {
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.restore();
+    });
+  }
 
-    let text = score >= 150 ? jt('jue.card5.end.high', '🏆 ¡Sos el campeón del recreo, nadie te gana un elote!') :
-               score >= 80 ? jt('jue.card5.end.mid', '🌟 ¡Buen ritmo! Ya casi te comés todo el recreo.') :
-               jt('jue.card5.end.low', '👍 Buen intento, ¡seguí practicando para el próximo recreo!');
+  // ── Resetear layout de una ronda ──────────────────────────────
+  function resetRoundLayout() {
+    if (!engine) return;
+    const W = canvas.width, H = canvas.height;
 
-    const gameName = `elotes-${difficulty}`;
+    // Limpiar mundo
+    World.clear(world);
+    Engine.clear(engine);
+    marbles = [];
+    marblesTouched.clear();
+    tirador = null;
+    particles = [];
+    aimStart = null;
+    aimCurrent = null;
 
-    showOverlay(`
-      <span class="overlay-tag">${difficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil')}</span>
-      <h3>${jt('jue.card5.end.title', '¡Sonó la campana!')}</h3>
-      <div class="overlay-score">${score} pts</div>
-      <p>${text}</p>
-      <p class="overlay-best-score" id="el-best-score"></p>
-      <button class="btn-primary" id="el-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
-    document.getElementById('el-restart').onclick = showDifficultySelector;
+    // Dimensiones del círculo (ronda)
+    const cfg = gameConfig[difficulty];
+    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor * (1 + (round - 1) * 0.05);
+    circleCenter = { x: W / 2, y: H / 2 - H * 0.04 };
+    marbleRadius = circleRadius / (cfg.marbles <= 8 ? 5.5 : 6.5);
 
-    guardarPuntajeJuego(gameName, score).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('el-best-score');
-        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
+    // Posición de spawn del tirador (abajo del círculo)
+    tiradorSpawnPos = {
+      x: circleCenter.x,
+      y: circleCenter.y + circleRadius + marbleRadius * 3.5
+    };
+
+    // Muros invisibles del canvas
+    const thick = 60;
+    walls = [
+      Bodies.rectangle(W / 2, -thick / 2, W + 120, thick, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(W / 2, H + thick / 2, W + 120, thick, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(-thick / 2, H / 2, thick, H + 120, { isStatic: true, label: 'wall' }),
+      Bodies.rectangle(W + thick / 2, H / 2, thick, H + 120, { isStatic: true, label: 'wall' })
+    ];
+    World.add(world, walls);
+
+    // Distribuir canicas dentro del círculo (sin solaparse)
+    const marblesCount = cfg.marbles + (round - 1) * 2;
+    placeMarbles(marblesCount);
+
+    // Spawn del tirador
+    spawnTirador();
+
+    gamePhase = 'aiming';
+  }
+
+  function placeMarbles(count) {
+    const placed = [];
+    let attempts = 0;
+    while (placed.length < count && attempts < 2000) {
+      attempts++;
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * (circleRadius - marbleRadius * 2.5);
+      const px = circleCenter.x + Math.cos(angle) * dist;
+      const py = circleCenter.y + Math.sin(angle) * dist;
+      // Verificar no solapamiento
+      let ok = true;
+      for (const p of placed) {
+        const dx = p.x - px, dy = p.y - py;
+        if (Math.sqrt(dx * dx + dy * dy) < marbleRadius * 2.4) { ok = false; break; }
+      }
+      if (!ok) continue;
+      placed.push({ x: px, y: py });
+      const hue = Math.floor(Math.random() * 360);
+      const marble = Bodies.circle(px, py, marbleRadius, {
+        restitution: 0.7,
+        friction: 0.02,
+        frictionAir: 0.015,
+        density: 0.003,
+        label: `marble_${placed.length}`,
+        render: { fillStyle: `hsl(${hue},80%,55%)` },
+        plugin: { hue, isOut: false }
+      });
+      marbles.push(marble);
+    }
+    World.add(world, marbles);
+
+    // GSAP: entrada con stagger bounce
+    marbles.forEach((m, i) => {
+      const startY = m.position.y - circleRadius;
+      Body.setPosition(m, { x: m.position.x, y: startY });
+      const targetY = m.position.y + circleRadius;
+      const delay = i * 0.06;
+      gsap.to({}, {
+        duration: 0.5 + Math.random() * 0.2,
+        delay,
+        ease: 'bounce.out',
+        onUpdate: function() {
+          // La física de Matter ya mueve las canicas; esta animación es solo visual al inicio
+        }
+      });
+      // Reposicionar con pequeño delay usando Body
+      setTimeout(() => {
+        if (marbles.includes(m)) Body.setPosition(m, { x: placed[i]?.x || m.position.x, y: placed[i]?.y || m.position.y });
+        Body.setVelocity(m, { x: 0, y: 0 });
+      }, i * 60 + 50);
+    });
+  }
+
+  function spawnTirador() {
+    if (tirador) { try { World.remove(world, tirador); } catch(e){} }
+    tirador = Bodies.circle(tiradorSpawnPos.x, tiradorSpawnPos.y, marbleRadius * 1.4, {
+      restitution: 0.65,
+      friction: 0.01,
+      frictionAir: 0.008,
+      density: 0.012,
+      label: 'tirador',
+      isStatic: true // estático mientras apunta
+    });
+    World.add(world, tirador);
+  }
+
+  // ── Input: Apuntar y disparar ──────────────────────────────────
+  function getCanvasPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function onPointerDown(e) {
+    if (gamePhase !== 'aiming' || !tirador) return;
+    const pos = getCanvasPos(e);
+    // Solo iniciar drag cerca del tirador
+    const tp = tirador.position;
+    const dist = Math.hypot(pos.x - tp.x, pos.y - tp.y);
+    if (dist < marbleRadius * 4) {
+      aimStart = { x: tp.x, y: tp.y };
+      aimCurrent = { x: pos.x, y: pos.y };
+      e.preventDefault();
+    }
+  }
+
+  function onPointerMove(e) {
+    if (gamePhase !== 'aiming' || !aimStart) return;
+    aimCurrent = getCanvasPos(e);
+    e.preventDefault();
+  }
+
+  function onPointerUp(e) {
+    if (gamePhase !== 'aiming' || !aimStart || !tirador) return;
+    const dx = aimStart.x - aimCurrent.x;
+    const dy = aimStart.y - aimCurrent.y;
+    const dist = Math.min(Math.hypot(dx, dy), MAX_POWER_PX);
+    if (dist < 8) { aimStart = null; aimCurrent = null; return; }
+
+    const power = dist / MAX_POWER_PX;
+    const vx = (dx / dist) * power * MAX_SPEED;
+    const vy = (dy / dist) * power * MAX_SPEED;
+
+    // Disparar: hacer dinámico y aplicar velocidad
+    Body.setStatic(tirador, false);
+    Body.setVelocity(tirador, { x: vx, y: vy });
+
+    shotsLeft--;
+    updateHUD();
+    gamePhase = 'shooting';
+    aimStart = null;
+    aimCurrent = null;
+    e.preventDefault();
+  }
+
+  canvas.addEventListener('mousedown', onPointerDown);
+  canvas.addEventListener('mousemove', onPointerMove);
+  canvas.addEventListener('mouseup', onPointerUp);
+  canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+  canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+  canvas.addEventListener('touchend', onPointerUp, { passive: false });
+
+  // ── Colisiones (sonido / efecto visual) ──────────────────────
+  function setupCollisionEvents() {
+    Events.on(engine, 'collisionStart', e => {
+      e.pairs.forEach(pair => {
+        const { bodyA, bodyB } = pair;
+        const isTirador = bodyA.label === 'tirador' || bodyB.label === 'tirador';
+        if (isTirador) {
+          const other = bodyA.label === 'tirador' ? bodyB : bodyA;
+          if (other.label.startsWith('marble_')) {
+            const pos = other.position;
+            spawnParticles(pos.x, pos.y, `hsl(${other.plugin?.hue || 260},80%,65%)`);
+          }
+        }
       });
     });
   }
 
+  // ── Loop de juego ────────────────────────────────────────────
+  let lastTs = null;
+  let watchTimer = 0; // tiempo esperando que las canicas se detengan
+
+  function step(ts) {
+    if (!running || paused) return;
+    rafId = requestAnimationFrame(step);
+
+    const dt = lastTs ? Math.min(ts - lastTs, 50) : 16;
+    lastTs = ts;
+
+    // Actualizar física
+    Engine.update(engine, dt);
+    updateParticles(dt);
+
+    // Detectar canicas que salieron del círculo
+    marbles.forEach(m => {
+      if (m.plugin?.isOut) return;
+      const dx = m.position.x - circleCenter.x;
+      const dy = m.position.y - circleCenter.y;
+      if (Math.sqrt(dx * dx + dy * dy) > circleRadius + marbleRadius) {
+        m.plugin.isOut = true;
+        score++;
+        updateHUD();
+        spawnParticles(m.position.x, m.position.y, '#C4B5FD');
+        // Animación GSAP de score pop
+        const elScore = document.getElementById('can-score');
+        if (elScore) gsap.fromTo(elScore, { scale: 2, color: '#7C3AED' }, { scale: 1, color: '#fff', duration: 0.5, ease: 'elastic.out(1,0.5)' });
+      }
+    });
+
+    // Lógica de transición de fases
+    if (gamePhase === 'shooting') {
+      const tiradorSpeed = tirador ? Math.hypot(tirador.velocity.x, tirador.velocity.y) : 0;
+      const marblesMoving = marbles.some(m => Math.hypot(m.velocity.x, m.velocity.y) > 0.15);
+      if (tiradorSpeed < 0.2 && !marblesMoving) {
+        watchTimer += dt;
+        if (watchTimer > 600) {
+          watchTimer = 0;
+          if (shotsLeft > 0) {
+            // Recolocar tirador para el siguiente disparo
+            spawnNewTirador();
+          } else {
+            // Sin más tiros → siguiente ronda o fin
+            setTimeout(() => endRound(), 500);
+          }
+        }
+      } else {
+        watchTimer = 0;
+      }
+    }
+
+    // Render
+    draw();
+  }
+
+  function spawnNewTirador() {
+    if (tirador) { try { World.remove(world, tirador); } catch(e){} tirador = null; }
+    spawnTirador();
+    gamePhase = 'aiming';
+  }
+
+  function endRound() {
+    if (round >= totalRounds) {
+      gamePhase = 'gameOver';
+      showEndScreen();
+    } else {
+      round++;
+      updateHUD();
+      shotsLeft = gameConfig[difficulty].shots;
+      showRoundTransition(() => resetRoundLayout());
+    }
+  }
+
+  function showRoundTransition(cb) {
+    const msg = document.createElement('div');
+    msg.style.cssText = `
+      position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:rgba(10,0,30,0.75);border-radius:12px;z-index:20;color:#fff;font-family:inherit;
+    `;
+    msg.innerHTML = `
+      <div style="font-size:3rem;">🔮</div>
+      <h3 style="font-size:1.8rem;margin:.5rem 0;color:#A78BFA;">Ronda ${round - 1} completada</h3>
+      <p style="color:#C4B5FD;">Preparate para la ronda ${round}...</p>
+    `;
+    canvasWrap.style.position = 'relative';
+    canvasWrap.appendChild(msg);
+    gsap.fromTo(msg, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.7)' });
+    setTimeout(() => {
+      gsap.to(msg, { opacity: 0, scale: 0.9, duration: 0.35, ease: 'power2.in', onComplete: () => {
+        msg.remove();
+        cb?.();
+      }});
+    }, 1800);
+  }
+
+  // ── Render manual en canvas ───────────────────────────────────
+  const MARBLE_COLORS = [
+    '#7C3AED','#2563EB','#059669','#DC2626','#D97706',
+    '#DB2777','#0891B2','#65A30D','#9333EA','#E11D48'
+  ];
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Fondo degradado
+    const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+    bg.addColorStop(0, '#1E0A3C');
+    bg.addColorStop(1, '#0A0020');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Dibujar círculo de la ronda (el hoyo)
+    // Sombra exterior
+    ctx.save();
+    ctx.shadowColor = 'rgba(124,58,237,0.5)';
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.arc(circleCenter.x, circleCenter.y, circleRadius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(167,139,250,0.6)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+
+    // Relleno del círculo (tierra)
+    const circFill = ctx.createRadialGradient(circleCenter.x, circleCenter.y - circleRadius * 0.2, 0, circleCenter.x, circleCenter.y, circleRadius);
+    circFill.addColorStop(0, 'rgba(60,30,100,0.45)');
+    circFill.addColorStop(1, 'rgba(30,10,60,0.2)');
+    ctx.beginPath();
+    ctx.arc(circleCenter.x, circleCenter.y, circleRadius, 0, Math.PI * 2);
+    ctx.fillStyle = circFill;
+    ctx.fill();
+
+    // Líneas de textura en el círculo
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    for (let i = -3; i <= 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(circleCenter.x - circleRadius, circleCenter.y + i * circleRadius * 0.3);
+      ctx.lineTo(circleCenter.x + circleRadius, circleCenter.y + i * circleRadius * 0.3);
+      ctx.strokeStyle = '#A78BFA';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Dibujar canicas objetivo
+    marbles.forEach((m, idx) => {
+      const { x, y } = m.position;
+      const hue = m.plugin?.hue ?? (idx * 37) % 360;
+      const isOut = m.plugin?.isOut;
+
+      if (isOut) {
+        // Canica que salió: dibujada más pequeña y con brillo
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        drawMarble(x, y, marbleRadius * 0.8, hue);
+        ctx.restore();
+      } else {
+        drawMarble(x, y, marbleRadius, hue);
+      }
+    });
+
+    // Dibujar tirador
+    if (tirador) {
+      const { x, y } = tirador.position;
+      drawTirador(x, y, marbleRadius * 1.4);
+    }
+
+    // Dibujar línea de aiming
+    if (gamePhase === 'aiming' && aimStart && aimCurrent && tirador) {
+      drawAimLine();
+    }
+
+    // Partículas
+    drawParticles();
+
+    // Label "FUERA" para canicas salidas
+    marbles.forEach(m => {
+      if (m.plugin?.isOut) {
+        ctx.save();
+        ctx.font = `bold ${marbleRadius * 0.7}px sans-serif`;
+        ctx.fillStyle = '#FDE68A';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✓', m.position.x, m.position.y);
+        ctx.restore();
+      }
+    });
+
+    // Indicador "Apuntá y jalá" cuando está en aiming sin drag
+    if (gamePhase === 'aiming' && !aimStart && tirador) {
+      ctx.save();
+      ctx.font = `${Math.max(12, canvas.width * 0.022)}px sans-serif`;
+      ctx.fillStyle = 'rgba(196,181,253,0.85)';
+      ctx.textAlign = 'center';
+      ctx.fillText('🖱️ Jalá desde el tirador para apuntar', circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
+      ctx.restore();
+    }
+  }
+
+  function drawMarble(x, y, r, hue) {
+    // Sombra
+    ctx.save();
+    ctx.shadowColor = `hsla(${hue},70%,30%,0.6)`;
+    ctx.shadowBlur = r * 0.8;
+    ctx.shadowOffsetY = r * 0.3;
+
+    // Cuerpo principal
+    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.05, x, y, r);
+    grad.addColorStop(0, `hsl(${hue},90%,75%)`);
+    grad.addColorStop(0.5, `hsl(${hue},80%,55%)`);
+    grad.addColorStop(1, `hsl(${hue},60%,30%)`);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Brillo especular
+    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    const shine = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, 0, x - r * 0.2, y - r * 0.25, r * 0.55);
+    shine.addColorStop(0, 'rgba(255,255,255,0.75)');
+    shine.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = shine;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawTirador(x, y, r) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(250,204,21,0.7)';
+    ctx.shadowBlur = r * 1.2;
+
+    // Anillo exterior dorado
+    ctx.beginPath();
+    ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+    ctx.strokeStyle = '#FDE68A';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Cuerpo del tirador (plateado/dorado)
+    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.05, x, y, r);
+    grad.addColorStop(0, '#FEF3C7');
+    grad.addColorStop(0.4, '#F59E0B');
+    grad.addColorStop(1, '#78350F');
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Brillo
+    ctx.shadowBlur = 0;
+    const shine = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, 0, x - r * 0.2, y - r * 0.2, r * 0.5);
+    shine.addColorStop(0, 'rgba(255,255,255,0.8)');
+    shine.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = shine;
+    ctx.fill();
+
+    // Etiqueta
+    ctx.shadowBlur = 0;
+    ctx.font = `bold ${r * 0.8}px sans-serif`;
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('T', x, y);
+    ctx.restore();
+  }
+
+  function drawAimLine() {
+    if (!tirador) return;
+    const tp = tirador.position;
+    const dx = aimStart.x - aimCurrent.x;
+    const dy = aimStart.y - aimCurrent.y;
+    const dist = Math.min(Math.hypot(dx, dy), MAX_POWER_PX);
+    const power = dist / MAX_POWER_PX;
+
+    // Línea de dirección (punteada)
+    const dirX = dx / (Math.hypot(dx, dy) || 1);
+    const dirY = dy / (Math.hypot(dx, dy) || 1);
+    const lineLen = Math.min(dist * 1.5, 160);
+
+    ctx.save();
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(tp.x, tp.y);
+    ctx.lineTo(tp.x + dirX * lineLen, tp.y + dirY * lineLen);
+    const alpha = 0.4 + power * 0.5;
+    ctx.strokeStyle = `rgba(253,230,138,${alpha})`;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Indicador de potencia (arco)
+    ctx.beginPath();
+    ctx.arc(tp.x, tp.y, marbleRadius * 1.4 + 6, 0, Math.PI * 2 * power);
+    ctx.strokeStyle = power > 0.7 ? '#EF4444' : power > 0.4 ? '#F59E0B' : '#4ADE80';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Flecha en la punta
+    const ex = tp.x + dirX * lineLen;
+    const ey = tp.y + dirY * lineLen;
+    const angle = Math.atan2(dirY, dirX);
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - Math.cos(angle - 0.4) * 10, ey - Math.sin(angle - 0.4) * 10);
+    ctx.lineTo(ex - Math.cos(angle + 0.4) * 10, ey - Math.sin(angle + 0.4) * 10);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(253,230,138,${alpha})`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Pantalla de inicio / selector de dificultad ───────────────
+  function showDifficultySelector() {
+    running = false;
+    paused = false;
+    gamePhase = 'idle';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    score = 0; round = 1;
+
+    overlayCard.innerHTML = `
+      <span class="overlay-tag">🔮 Canicas</span>
+      <h3 style="margin:.5rem 0 .2rem;">¡El juego de patio!</h3>
+      <p style="font-size:.88rem;opacity:.85;margin-bottom:1rem;">
+        Lanzá tu tirador (T) desde abajo del círculo arrastrando el mouse.<br>
+        Sacá las canicas de la ronda para ganar puntos.<br>
+        ¡Más canicas fuera = más puntos!
+      </p>
+      <ul class="rules-list" style="text-align:left;font-size:.82rem;margin-bottom:1.2rem;padding-left:0;list-style:none;">
+        <li class="rule-good"><span class="rule-icon">✅</span> Canica fuera del círculo → +1 punto</li>
+        <li class="rule-good"><span class="rule-icon">🎯</span> Tirador dorado (T): jalalo y soltá para disparar</li>
+        <li class="rule-good"><span class="rule-icon">🔮</span> 3 rondas con más canicas cada vez</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> Shots limitados — ¡que cada tiro cuente!</li>
+      </ul>
+      <p style="font-weight:600;margin-bottom:.5rem;color:#A78BFA;">Seleccioná dificultad:</p>
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn easy" id="btn-easy-canicas">
+          🟢 Fácil<br><small>8 canicas · 5 tiros</small>
+        </button>
+        <button class="difficulty-btn hard" id="btn-hard-canicas">
+          🔴 Difícil<br><small>14 canicas · 4 tiros</small>
+        </button>
+      </div>`;
+    overlay.classList.remove('hidden');
+    gsap.fromTo(overlayCard, { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' });
+
+    document.getElementById('btn-easy-canicas').onclick = () => startGame('easy');
+    document.getElementById('btn-hard-canicas').onclick = () => startGame('hard');
+  }
+
+  function startGame(diff) {
+    difficulty = diff;
+    shotsLeft = gameConfig[diff].shots;
+    score = 0; round = 1;
+    particles = [];
+
+    gsap.to(overlayCard, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in', onComplete: () => {
+      overlay.classList.add('hidden');
+      initEngine();
+      resetRoundLayout();
+      updateHUD();
+      running = true;
+      lastTs = null;
+      rafId = requestAnimationFrame(step);
+      playMusic();
+    }});
+  }
+
+  function initEngine() {
+    if (engine) { World.clear(world); Engine.clear(engine); }
+    engine = Engine.create({ gravity: { x: 0, y: 0 } }); // vista cenital, sin gravedad
+    world = engine.world;
+    setupCollisionEvents();
+  }
+
+  // ── Fin del juego ─────────────────────────────────────────────
+  function showEndScreen() {
+    running = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    stopMusic();
+
+    // Animación de victoria en canvas
+    const confetti = [];
+    for (let i = 0; i < 60; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        color: `hsl(${Math.random() * 360},80%,65%)`
+      });
+      spawnParticles(confetti[i].x, confetti[i].y, confetti[i].color);
+    }
+
+    // Guardar score
+    const gameName = `canicas-${difficulty}`;
+    const best = parseInt(localStorage.getItem(`best_${gameName}`) || '0');
+    if (score > best) localStorage.setItem(`best_${gameName}`, score);
+    const isBest = score >= best && score > 0;
+
+    setTimeout(() => {
+      overlayCard.innerHTML = `
+        <span class="overlay-tag">🔮 Canicas</span>
+        <h3 style="margin:.5rem 0;">${isBest ? '🏆 ¡Nuevo Récord!' : '¡Partida terminada!'}</h3>
+        <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${score} canicas</p>
+        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">sacadas en ${totalRounds} rondas</p>
+        <p style="font-size:.8rem;color:#C4B5FD;margin-bottom:1rem;">Mejor: ${Math.max(score, best)}</p>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn-primary" id="can-replay">🔮 Jugar de nuevo</button>
+          <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">Menú</button>
+        </div>`;
+      overlay.classList.remove('hidden');
+      gsap.fromTo(overlayCard, { opacity: 0, scale: 0.8, y: 40 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'elastic.out(1,0.7)' });
+
+      document.getElementById('can-replay').onclick = showDifficultySelector;
+      document.getElementById('can-menu').onclick = showDifficultySelector;
+    }, 800);
+  }
+
+  // ── Pausa ─────────────────────────────────────────────────────
   const pauseBtn = document.getElementById('pauseBtn-elotes');
   const pauseIcon = document.getElementById('pauseIcon-elotes');
   const pauseOverlay = document.getElementById('pauseOverlay-elotes');
   const resumeBtn = document.getElementById('resumeBtn-elotes');
-  const menuBtn = document.getElementById('menuBtn-elotes');
 
   function pauseGame() {
-    if (!running) return;
-    running = false;
+    if (!running || paused) return;
     paused = true;
-    cancelAnimationFrame(rafId);
-    if (bgMusic) { savedVolume = bgMusic.volume; bgMusic.volume = 0.1; }
     canvasWrap?.classList.add('is-paused');
-    pauseOverlay?.classList.remove('hidden');
     if (pauseIcon) pauseIcon.textContent = '▶️';
+    pauseOverlay?.classList.remove('hidden');
+    bgMusic?.pause();
   }
-
   function resumeGame() {
-    if (!paused) return;
+    if (!running || !paused) return;
     paused = false;
-    running = true;
-    lastTime = null;
     canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
     if (pauseIcon) pauseIcon.textContent = '⏸️';
-    if (bgMusic) { bgMusic.volume = savedVolume || volume; if (volume > 0) bgMusic.play().catch(() => {}); }
+    pauseOverlay?.classList.add('hidden');
+    bgMusic?.play().catch(() => {});
+    lastTs = null;
     rafId = requestAnimationFrame(step);
   }
 
-  function returnToMenu(){
-    running = false;
-    paused = false;
-    cancelAnimationFrame(rafId);
-    // stopMusic();  // ELIMINADO
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
-    goodItems.forEach(it => World.remove(world, it.body));
-    badItems.forEach(it => World.remove(world, it.body));
-    goodItems = [];
-    badItems = [];
-    showDifficultySelector();
-  }
+  if (pauseBtn) pauseBtn.addEventListener('click', () => paused ? resumeGame() : pauseGame());
+  if (resumeBtn) resumeBtn.addEventListener('click', resumeGame);
 
-  pauseBtn?.addEventListener('click', () => {
-    if (!running && !paused) return;
-    if (paused) resumeGame();
-    else pauseGame();
-  });
-  resumeBtn?.addEventListener('click', resumeGame);
-  menuBtn?.addEventListener('click', returnToMenu);
-
-  const bgMusic = document.getElementById('bgMusic-elotes');
-  const volumeSlider = document.getElementById('volumeSlider-elotes');
-  const volumeIcon = document.getElementById('volumeIcon-elotes');
-  const damageOverlay = document.getElementById('damageOverlay-elotes');
-  let volume = Number(volumeSlider?.value || 0.45);
-  let savedVolume = volume;
-
-  if (bgMusic) { bgMusic.volume = volume; bgMusic.muted = false; }
-  volumeSlider?.addEventListener('input', (event) => {
-    volume = Number(event.target.value);
-    if (bgMusic) { bgMusic.volume = volume; bgMusic.muted = volume <= 0; }
-    if (volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
-  });
-
-  function playMusic() { if (!bgMusic) return; bgMusic.muted = false; bgMusic.volume = volume; bgMusic.currentTime = 0; bgMusic.play().catch(() => {}); }
-  function stopMusic() { if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; } }
-
-  function showOverlay(html) {
-    overlayCard.innerHTML = html;
-    overlay.classList.remove('hidden');
-    overlay.style.backdropFilter = 'none';
-    overlay.style.webkitBackdropFilter = 'none';
-    if (window.gsap) {
-      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
-      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
-    }
-  }
-
-  function hideOverlay() {
-    if (window.gsap) {
-      overlay.style.pointerEvents = 'none';
-      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
-      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden'); overlay.style.pointerEvents = ''; } });
-    } else {
-      overlay.classList.add('hidden');
-    }
-  }
-
-  function startGame() {
-    goodItems.forEach(it => World.remove(world, it.body));
-    badItems.forEach(it => World.remove(world, it.body));
-    goodItems = [];
-    badItems = [];
-    score = 0;
-    combo = 0;
-    lives = totalLives;
-    timeLeft = gameConfig[difficulty].timeLimit;
-    clockAccum = 0;
-    itemSpawnAccum = 0;
-    nextItemSpawnIn = gameConfig[difficulty].itemMinGap + Math.random() * (gameConfig[difficulty].itemMaxGap - gameConfig[difficulty].itemMinGap);
-    obstacleSpawnAccum = 0;
-    nextObstacleSpawnIn = gameConfig[difficulty].obstacleMinGap + Math.random() * (gameConfig[difficulty].obstacleMaxGap - gameConfig[difficulty].obstacleMinGap);
-    targetLane = 1;
-    Body.setPosition(player, { x: lanePositions[1], y: canvas.height - 90 });
-    Body.setVelocity(player, { x: 0, y: 0 });
-    lastTime = null;
-    particles = [];
-    updateHud();
-    hideOverlay();
-    running = true;
-    paused = false;
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if (pauseIcon) pauseIcon.textContent = '⏸️';
-    playMusic();
-    cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(step);
-  }
-
-  function showDifficultySelector() {
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
-      <h3>🌽 ${jt('jue.card5.diff.title', 'Selecciona Nivel')}</h3>
-      <p>${jt('jue.card5.diff.sub', '¿Qué tan movido va a estar el recreo hoy?')}</p>
-      <div class="difficulty-buttons">
-        <button class="difficulty-btn easy" id="btn-easy-elotes">
-          ${jt('jue.diff.easy', '🟢 Fácil')}
-          <div class="difficulty-desc">${jt('jue.card5.diff.easyDesc', 'Recreo tranquilo')}</div>
-        </button>
-        <button class="difficulty-btn hard" id="btn-hard-elotes">
-          ${jt('jue.diff.hard', '🔴 Difícil')}
-          <div class="difficulty-desc">${jt('jue.card5.diff.hardDesc', 'Recreo a toda velocidad')}</div>
-        </button>
-      </div>`);
-    document.getElementById('btn-easy-elotes').onclick = () => {
-      difficulty = 'easy';
-      totalLives = gameConfig.easy.initialLives;
-      setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); startGame(); }, 100);
-    };
-    document.getElementById('btn-hard-elotes').onclick = () => {
-      difficulty = 'hard';
-      totalLives = gameConfig.hard.initialLives;
-      setTimeout(() => { resizeCanvas(); setupWalls(); updateLanePositions(); startGame(); }, 100);
-    };
-  }
-
-  resizeCanvas();
-  setupWalls();
-  updateLanePositions();
-  showOverlay(`
-    <span class="overlay-tag">${jt('jue.card5.tagModal', 'El Recreo')}</span>
-    <h3>🌽 ${jt('jue.card5.title', 'El Recreo')}</h3>
-    <p>${jt('jue.card5.intro', 'Movete entre los 3 carriles del patio con las teclas <strong>A</strong>/<strong>D</strong>, las flechas ⬅️➡️, o tocando a los lados de la pantalla en el celular. Recogé lo rico del recreo y esquivá lo que te estorba.')}</p>
-    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
-    <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleGood', 'Recogé <strong>🌽 elotes locos</strong>, <strong>🥭 mangos</strong>, <strong>🍧 minutas</strong> y <strong>🍬 dulces</strong> — suman puntos y combo.')}</li>
-      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card5.ruleBad', 'Evitá <strong>🪑 pupitres</strong>, <strong>⚽ pelotas perdidas</strong> y <strong>🧹 la escoba del conserje</strong> — te quitan una vida y el combo.')}</li>
-    </ul>
-    <button class="btn-primary" id="el-start">${jt('jue.continue', 'Continuar')}</button>`);
-  document.getElementById('el-start').onclick = showDifficultySelector;
-
-  gameContent?.addEventListener('gameVisible', (e) => {
+  // ── Visibilidad del modal ─────────────────────────────────────
+  gameContent?.addEventListener('game:open', e => {
     if (e.detail.gameId === 'elotes') {
       isGameVisible = true;
       resizeCanvas();
-      setupWalls();
-      updateLanePositions();
-      playMusic();
-      if (paused && running) resumeGame();
-      else if (running) rafId = requestAnimationFrame(step);
+      if (!running && gamePhase === 'idle') showDifficultySelector();
+      else if (paused && running) resumeGame();
+      else if (running) { lastTs = null; rafId = requestAnimationFrame(step); }
     }
   });
 
@@ -5626,7 +5703,7 @@ function spawnEntities() {
   Salvadorean Roots — ANIMACIONES GSAP
    ============================================================ */
 (function initStartAnimations(){
-  window.addEventListener('DOMContentLoaded', () => {
+  const runAnim = () => {
     if (typeof gsap === 'undefined') return;
 
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -5660,5 +5737,11 @@ function spawnEntities() {
         });
       });
     }
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', runAnim);
+  } else {
+    runAnim();
+  }
 })();
