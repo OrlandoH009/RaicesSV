@@ -1808,13 +1808,13 @@
 
       "jue.card4.tag": "Route 04 — Memory",
       "jue.card4.tagModal": "Route 04 — Memory",
-      "jue.card4.title": "Hide-and-Seek Runner",
+      "jue.card4.title": "The Mica",
       "jue.card4.desc": "You're \"it.\" Your friends will make a run for the base at any moment: move fast around the yard and intercept them before they reach it and get away. Don't let too many escape!",
       "jue.card4.pauseText": "Press resume to keep looking for your friends.",
 
       "jue.card5.tag": "Route 05 — Recess",
       "jue.card5.tagModal": "Route 05 — Recess",
-      "jue.card5.title": "Corn on the Cob Run",
+      "jue.card5.title": "Canicas",
       "jue.card5.desc": "Run through the schoolyard grabbing corn on the cob, mangoes, and shaved ice, while dodging desks and stray balls at recess. Rack up combos and keep the rhythm going!",
       "jue.card5.pauseTitle": "Recess paused",
       "jue.card5.pauseText": "Press resume to keep the flavor race going.",
