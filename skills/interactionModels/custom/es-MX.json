@@ -109,24 +109,7 @@
           "name": "RespuestaPlanificadorIntent",
           "samples": [
             "digamos {texto}",
-            "mi respuesta es {texto}",
             "la planificación será {texto}"
-          ]
-        },
-        {
-          "slots": [],
-          "name": "IdiomaEspanolIntent",
-          "samples": [
-            "spanish",
-            "español"
-          ]
-        },
-        {
-          "slots": [],
-          "name": "IdiomaInglesIntent",
-          "samples": [
-            "english",
-            "inglés"
           ]
         }
       ],
