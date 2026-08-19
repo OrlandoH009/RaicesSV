@@ -32,22 +32,6 @@
         },
         {
           "slots": [],
-          "name": "IdiomaSpanishIntent",
-          "samples": [
-            "español",
-            "spanish"
-          ]
-        },
-        {
-          "slots": [],
-          "name": "IdiomaEnglishIntent",
-          "samples": [
-            "inglés",
-            "english"
-          ]
-        },
-        {
-          "slots": [],
           "name": "FreeModeIntent",
           "samples": [
             "I want to ask",
@@ -89,8 +73,7 @@
           "name": "PlannerResponseIntent",
           "samples": [
             "let\u0027s say {texto}",
-            "the plan will be {texto}",
-            "my answer is {texto}"
+            "the plan will be {texto}"
           ]
         }
       ],

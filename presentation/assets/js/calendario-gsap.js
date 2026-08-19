@@ -19,17 +19,6 @@
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── Glow de cursor (solo dispositivos con hover) ── */
-  if (!prefersReducedMotion && window.matchMedia('(hover: hover)').matches) {
-    const cursor = document.createElement('div');
-    cursor.className = 'cursor-glow';
-    document.body.appendChild(cursor);
-    gsap.set(cursor, { xPercent: -50, yPercent: -50, opacity: 0 });
-    window.addEventListener('mousemove', (e) => {
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, opacity: 1, duration: .6, ease: 'power3.out' });
-    });
-  }
-
   /* ── Grilla del calendario: entrada escalonada cada vez que se redibuja ── */
   if (typeof window.renderCalendarGrid === 'function') {
     const _renderCalendarGrid = window.renderCalendarGrid;

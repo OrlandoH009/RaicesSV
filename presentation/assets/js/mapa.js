@@ -478,15 +478,13 @@ const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth
   const mapContainer = document.getElementById('mapa-leaflet');
   if (!mapContainer) return;
 
-  // Crear indicador de carga
   const loadingDiv = document.createElement('div');
   loadingDiv.className = 'mapa-loading';
   loadingDiv.textContent = 'Cargando mapa...';
   mapContainer.appendChild(loadingDiv);
 
-  // Ocultar cuando los tiles estén listos
   let tileLoadCount = 0;
-  const totalTilesExpected = 20; // Aproximado, se disparará varias veces
+  const totalTilesExpected = 20;
 
   tileLayer.on('loading', () => {
     loadingDiv.style.display = 'flex';
@@ -499,23 +497,19 @@ const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth
     }
   });
 
-  // Fallback: ocultar después de 5 segundos si no se dispara 'load'
   setTimeout(() => {
     loadingDiv.style.display = 'none';
   }, 5000);
 
-  // También ocultar al hacer zoom o mover (para que no se vea)
   mapa.on('zoomend moveend', () => {
     loadingDiv.style.display = 'none';
   });
 
-  // Invalidar tamaño al cargar completamente
   mapa.whenReady(() => {
     setTimeout(() => invalidateMapSize(), 300);
   });
 })();
 
-// Función para invalidar tamaño correctamente
 function invalidateMapSize() {
   if (mapa) {
     requestAnimationFrame(() => {
@@ -556,7 +550,6 @@ function obtenerEtiquetaCategoria(cat, forcedLang = null) {
   return window.SRi18n ? window.SRi18n.t(claves[cat], lang) : cat;
 }
 
-/* ── IMAGEN DE REFERENCIA POR LUGAR ── */
 function getImgUrl(lm) {
   if (!lm || !lm.id) return '../assets/media/mapa/default.webp';
   return `../assets/media/mapa/${lm.id}.webp?v=1.0.0`;
@@ -744,7 +737,6 @@ sbCenter.addEventListener('click', () => {
   }
 });
 
-/* ── Botón "Cómo llegar" usa la ubicación actual ── */
 sbDirections.addEventListener('click', () => {
   if (!activeLandmark) return;
   const [lat, lng] = activeLandmark.coords;
@@ -1224,391 +1216,298 @@ if (filtersToggle && mapaFiltersFloat) {
     setTimeout(invalidateMapSize, 300);
   });
 }
-
 /* ══════════════════════════════════════════════════════════
-   GEOLOCALIZACIÓN CON TOAST DE ACTIVACIÓN (CORREGIDO)
+   GEOLOCALIZACIÓN Y GESTIÓN RECURRENTE DE PERMISOS
    ══════════════════════════════════════════════════════════ */
 let miUbicacionActual = null;
 let marcadorUbicacion = null;
-let geoActivado = false;
 let watchId = null;
 let toastTimeout = null;
 
-const GEO_CONSENT_KEY = 'raices-geo-consent';
 const btnCentrar = document.getElementById('btn-mi-ubicacion');
 
-// ── Toast de activación (solo si no está denegado) ──
-function mostrarToastActivacion() {
-  const consent = localStorage.getItem(GEO_CONSENT_KEY);
-  if (consent === 'denied') {
-    mostrarToast(
-      'Permiso de ubicación denegado. Para activarlo, cambia los permisos en la configuración de tu navegador y recarga la página.',
-      'error'
-    );
-    return;
-  }
-
-  const existente = document.querySelector('.geo-activate-toast');
-  if (existente) existente.remove();
-
-  const toast = document.createElement('div');
-  toast.className = 'geo-activate-toast';
-  toast.innerHTML = `
-    <span class="geo-activate-toast__icon">📍</span>
-    <span class="geo-activate-toast__msg">Activa tu ubicación para una mejor experiencia</span>
-    <button class="geo-activate-toast__btn" id="geoActivateBtn">Activar</button>
-    <button class="geo-activate-toast__close" id="geoActivateClose">✕</button>
-  `;
-  document.body.appendChild(toast);
-
-  const styleId = 'geo-toast-styles';
-  if (!document.getElementById(styleId)) {
+// ── Inyectar estilos (marcador, banner y modal) ──
+(function injectUserMarkerStyles() {
+  if (!document.getElementById('user-marker-styles')) {
     const style = document.createElement('style');
-    style.id = styleId;
+    style.id = 'user-marker-styles';
     style.textContent = `
-      .geo-activate-toast {
-        position: fixed;
-        bottom: 100px;
+      .user-location-marker { background: none; border: none; }
+      .user-pulse {
+        width: 20px; height: 20px;
+        background: #be8e56; border-radius: 50%;
+        box-shadow: 0 0 0 0 rgba(190, 142, 86, 0.7);
+        animation: userPulse 1.5s infinite;
+      }
+      @keyframes userPulse {
+        0% { box-shadow: 0 0 0 0 rgba(190, 142, 86, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(190, 142, 86, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(190, 142, 86, 0); }
+      }
+      .geo-floating-banner {
+        position: absolute;
+        bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(30, 30, 42, 0.92);
-        backdrop-filter: blur(8px);
-        color: #f0e6d3;
-        padding: 0.8rem 1.2rem;
-        border-radius: 40px;
-        border: 1px solid rgba(190, 142, 86, 0.3);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        z-index: 1000;
+        background: rgba(30, 30, 42, 0.95);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 30px;
+        border: 1px solid rgba(190, 142, 86, 0.4);
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        z-index: 9999;
-        font-size: 0.9rem;
-        max-width: 90%;
-        animation: slideUp 0.4s ease;
-        white-space: nowrap;
+        gap: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px);
+        font-size: 0.88rem;
       }
-      .geo-activate-toast__icon { font-size: 1.3rem; }
-      .geo-activate-toast__msg { flex: 1; }
-      .geo-activate-toast__btn {
+      .geo-floating-banner button {
         background: #be8e56;
-        border: none;
         color: #fff;
-        padding: 0.3rem 1rem;
+        border: none;
+        padding: 6px 14px;
         border-radius: 20px;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s, transform 0.2s;
-        font-size: 0.85rem;
+        transition: transform 0.2s, background 0.2s;
       }
-      .geo-activate-toast__btn:hover {
+      .geo-floating-banner button:hover {
         background: #a67848;
-        transform: scale(1.05);
+        transform: scale(1.04);
       }
-      .geo-activate-toast__close {
-        background: none;
-        border: none;
-        color: #aaa;
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0 0.2rem;
-        transition: color 0.2s;
-        line-height: 1;
+      .geo-consent-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        backdrop-filter: blur(4px);
       }
-      .geo-activate-toast__close:hover { color: #fff; }
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      .geo-consent-modal-content {
+        background: #1e1e2a;
+        color: #fff;
+        padding: 2rem;
+        border-radius: 16px;
+        max-width: 420px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.08);
       }
-      @media (max-width: 600px) {
-        .geo-activate-toast {
-          flex-wrap: wrap;
-          justify-content: center;
-          white-space: normal;
-          padding: 0.8rem 1rem;
-          bottom: 80px;
-        }
-        .geo-activate-toast__msg { flex: 0 0 100%; text-align: center; }
+      .geo-consent-modal-content h3 { margin-top: 0; font-size: 1.3rem; color: #f0e6d3; }
+      .geo-consent-buttons { display: flex; gap: 0.8rem; justify-content: center; }
+      .geo-consent-btn {
+        padding: 0.6rem 1.4rem; border: none; border-radius: 40px;
+        font-size: 0.95rem; font-weight: 600; cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
       }
+      .geo-consent-btn.allow { background: #be8e56; color: #fff; }
+      .geo-consent-btn.allow:hover { background: #a67848; transform: scale(1.03); }
+      .geo-consent-btn.deny { background: #3a3a4a; color: #ccc; }
+      .geo-consent-btn.deny:hover { background: #4a4a5a; transform: scale(1.03); }
     `;
     document.head.appendChild(style);
   }
+})();
 
-  const activateBtn = document.getElementById('geoActivateBtn');
-  const closeBtn = document.getElementById('geoActivateClose');
-
-  activateBtn.addEventListener('click', () => {
-    toast.remove();
-    iniciarGeolocalizacion(true);
-  });
-
-  closeBtn.addEventListener('click', () => {
-    toast.remove();
-    localStorage.setItem('raices-geo-toast-dismissed', 'true');
-  });
-
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => {
-    if (document.body.contains(toast)) toast.remove();
-  }, 15000);
-}
-
-// ── Funciones de geolocalización ──
-function eliminarMarcadorUbicacion() {
-  if (marcadorUbicacion) {
-    mapa.removeLayer(marcadorUbicacion);
-    marcadorUbicacion = null;
-  }
-}
-
+// ── Toast Notificador ──
 function mostrarToast(mensaje, tipo = 'info') {
   const existente = document.querySelector('.geo-toast');
   if (existente) existente.remove();
   const toast = document.createElement('div');
   toast.className = `geo-toast geo-toast--${tipo}`;
-  toast.innerHTML = `<span class="geo-toast__icon">${tipo === 'error' ? '📍' : 'ℹ️'}</span><span class="geo-toast__msg">${mensaje}</span>`;
+  toast.innerHTML = `<span class="geo-toast__icon">${tipo === 'error' ? '⚠️' : 'ℹ️'}</span><span class="geo-toast__msg">${mensaje}</span>`;
   document.body.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('geo-toast--visible'));
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
     toast.classList.remove('geo-toast--visible');
     setTimeout(() => toast.remove(), 300);
-  }, 5000);
+  }, 6000);
 }
 
-function detenerGeolocalizacion() {
-  if (watchId !== null) {
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
+// ── Banner Flotante ──
+function mostrarBannerGeo(esDenegado = false) {
+  let banner = document.getElementById('geoFloatingBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'geoFloatingBanner';
+    banner.className = 'geo-floating-banner';
+    const mapSection = document.getElementById('mapaSection') || document.body;
+    mapSection.appendChild(banner);
   }
-  eliminarMarcadorUbicacion();
-  miUbicacionActual = null;
-  geoActivado = false;
+  
+  banner.innerHTML = `
+    <span>📍 ${esDenegado ? 'Ubicación deshabilitada' : 'Activa tu ubicación para ver sitios cercanos'}</span>
+    <button id="btnGeoBannerActivar" type="button">${esDenegado ? '¿Cómo activar?' : 'Habilitar ubicación'}</button>
+  `;
+  banner.style.display = 'flex';
+
+  const btnActivar = document.getElementById('btnGeoBannerActivar');
+  if (btnActivar) {
+    btnActivar.onclick = (e) => {
+      e.preventDefault();
+      solicitarUbicacionConVerificacion(true);
+    };
+  }
 }
 
-function iniciarGeolocalizacion(centrar = true) {
-  if (!navigator.geolocation) {
-    mostrarToast('Tu navegador no soporta geolocalización.', 'error');
-    return;
-  }
-  if (geoActivado) return;
-
-  const consent = localStorage.getItem(GEO_CONSENT_KEY);
-  if (consent === 'denied') {
-    mostrarToast(
-      'Permiso de ubicación denegado. Por favor, habilítalo en la configuración de tu navegador y recarga la página.',
-      'error'
-    );
-    return;
-  }
-  if (consent === null) {
-    mostrarModalGeo(() => {
-      iniciarGeolocalizacion(centrar);
-    });
-    return;
-  }
-
-  geoActivado = true;
-
-  if (watchId !== null) {
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
-  }
-
-  const success = (position) => {
-    const userLat = position.coords.latitude;
-    const userLng = position.coords.longitude;
-    miUbicacionActual = [userLat, userLng];
-
-    eliminarMarcadorUbicacion();
-
-    const userMarkerIcon = L.divIcon({
-      className: 'user-location-marker',
-      html: '<div class="user-pulse"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    });
-
-    marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
-      .addTo(mapa)
-      .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
-
-    if (centrar) {
-      mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.5 });
-      setTimeout(invalidateMapSize, 600);
-    }
-    mostrarToast('Ubicación obtenida correctamente.', 'info');
-  };
-
-  const error = (err) => {
-    console.warn('Error de geolocalización:', err);
-    let mensaje = 'No pudimos obtener tu ubicación.';
-    if (err.code === err.PERMISSION_DENIED) {
-      mensaje = 'Permiso denegado. Cambia la configuración de tu navegador.';
-      localStorage.setItem(GEO_CONSENT_KEY, 'denied');
-    }
-    mostrarToast(mensaje, 'error');
-    detenerGeolocalizacion();
-  };
-
-  watchId = navigator.geolocation.watchPosition(success, error, {
-    enableHighAccuracy: true,
-    timeout: 6000,
-    maximumAge: 0
-  });
+function ocultarBannerGeo() {
+  const banner = document.getElementById('geoFloatingBanner');
+  if (banner) banner.style.display = 'none';
 }
 
-// ── Modal de consentimiento ──
-function mostrarModalGeo(callback) {
+// ── Modal de Instrucciones para Permisos Bloqueados ──
+function mostrarModalInstrucciones() {
   let modal = document.getElementById('geoConsentModal');
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'geoConsentModal';
     modal.className = 'geo-consent-modal';
-    modal.innerHTML = `
-      <div class="geo-consent-modal-content">
-        <h3>📍 Mejor experiencia con tu ubicación</h3>
-        <p>Permítenos acceder a tu ubicación para mostrarte lugares cercanos y mejorar tu experiencia en el mapa.</p>
-        <div class="geo-consent-buttons">
-          <button id="geoConsentAllow" class="geo-consent-btn allow">Habilitar</button>
-          <button id="geoConsentDeny" class="geo-consent-btn deny">No, gracias</button>
-        </div>
-      </div>
-    `;
     document.body.appendChild(modal);
-    const styleId = 'geo-modal-styles';
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = `
-        .geo-consent-modal {
-          position: fixed;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.7);
-          display: none;
-          align-items: center;
-          justify-content: center;
-          z-index: 99999;
-          animation: fadeIn 0.3s ease;
-          backdrop-filter: blur(4px);
-        }
-        .geo-consent-modal-content {
-          background: #1e1e2a;
-          color: #fff;
-          padding: 2rem;
-          border-radius: 16px;
-          max-width: 400px;
-          width: 90%;
-          text-align: center;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-          border: 1px solid rgba(255,255,255,0.08);
-        }
-        .geo-consent-modal-content h3 {
-          margin-top: 0;
-          font-size: 1.4rem;
-          color: #f0e6d3;
-        }
-        .geo-consent-modal-content p {
-          margin: 1rem 0 1.5rem;
-          line-height: 1.5;
-          opacity: 0.85;
-          color: #d0c8b8;
-        }
-        .geo-consent-buttons {
-          display: flex;
-          gap: 0.8rem;
-          justify-content: center;
-        }
-        .geo-consent-btn {
-          padding: 0.6rem 1.8rem;
-          border: none;
-          border-radius: 40px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: transform 0.2s, background 0.2s;
-        }
-        .geo-consent-btn.allow {
-          background: #be8e56;
-          color: #fff;
-        }
-        .geo-consent-btn.allow:hover {
-          background: #a67848;
-          transform: scale(1.05);
-        }
-        .geo-consent-btn.deny {
-          background: #3a3a4a;
-          color: #ccc;
-        }
-        .geo-consent-btn.deny:hover {
-          background: #4a4a5a;
-          transform: scale(1.05);
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
   }
+  
+  modal.innerHTML = `
+    <div class="geo-consent-modal-content">
+      <h3>🔒 Habilitar permisos del navegador</h3>
+      <p style="text-align: left; font-size: 0.9rem; margin-bottom: 0.8rem; color: #d0c8b8;">
+        Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:
+      </p>
+      <ol style="text-align: left; font-size: 0.85rem; color: #d0c8b8; padding-left: 1.2rem; line-height: 1.6; margin-bottom: 1.2rem;">
+        <li>Haz clic en el icono de <b>candado 🔒</b> o ajustes junto a la URL arriba.</li>
+        <li>Busca <b>Permisos del sitio</b> o <b>Ubicación</b>.</li>
+        <li>Cambia la opción a <b>Permitir</b>.</li>
+      </ol>
+      <div class="geo-consent-buttons">
+        <button id="geoRetryBtn" class="geo-consent-btn allow" type="button">Probar de nuevo</button>
+        <button id="geoCloseInst" class="geo-consent-btn deny" type="button">Cerrar</button>
+      </div>
+    </div>
+  `;
   modal.style.display = 'flex';
 
-  const allowBtn = document.getElementById('geoConsentAllow');
-  const denyBtn = document.getElementById('geoConsentDeny');
-  allowBtn.replaceWith(allowBtn.cloneNode(true));
-  denyBtn.replaceWith(denyBtn.cloneNode(true));
-
-  document.getElementById('geoConsentAllow').addEventListener('click', () => {
-    localStorage.setItem(GEO_CONSENT_KEY, 'granted');
+  document.getElementById('geoRetryBtn').onclick = () => {
     modal.style.display = 'none';
-    if (typeof callback === 'function') callback();
-  });
+    solicitarUbicacionConVerificacion(true);
+  };
 
-  document.getElementById('geoConsentDeny').addEventListener('click', () => {
-    localStorage.setItem(GEO_CONSENT_KEY, 'denied');
+  document.getElementById('geoCloseInst').onclick = () => {
     modal.style.display = 'none';
-    detenerGeolocalizacion();
-  });
+  };
 }
 
-// ── Evento del botón de la diana ──
+// ── Solicitud y Verificación en Tiempo Real ──
+function solicitarUbicacionConVerificacion(centrar = true) {
+  if (!navigator.geolocation) {
+    mostrarToast('Tu navegador no soporta geolocalización.', 'error');
+    return;
+  }
+
+  if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions.query({ name: 'geolocation' }).then((perm) => {
+      if (perm.state === 'denied') {
+        mostrarBannerGeo(true);
+        mostrarModalInstrucciones();
+      } else {
+        ejecutarGeolocalizacion(centrar);
+      }
+    }).catch(() => {
+      ejecutarGeolocalizacion(centrar);
+    });
+  } else {
+    ejecutarGeolocalizacion(centrar);
+  }
+}
+
+function ejecutarGeolocalizacion(centrar = true) {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      miUbicacionActual = [userLat, userLng];
+
+      if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
+      ocultarBannerGeo();
+
+      const userMarkerIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: '<div class="user-pulse"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+
+      marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
+        .addTo(mapa)
+        .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
+
+      if (centrar) {
+        mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.5 });
+        setTimeout(invalidateMapSize, 800);
+      }
+
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
+          if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
+        },
+        null,
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+
+      mostrarToast('Ubicación activada correctamente.', 'info');
+    },
+    (err) => {
+      console.warn('Error al obtener geolocalización:', err);
+      mostrarBannerGeo(true);
+      if (err.code === err.PERMISSION_DENIED) {
+        mostrarModalInstrucciones();
+      } else {
+        mostrarToast('No se pudo obtener tu posición actual.', 'error');
+      }
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+  );
+}
+
+// ── Escuchar cambios nativos del navegador ──
+if (navigator.permissions && navigator.permissions.query) {
+  navigator.permissions.query({ name: 'geolocation' }).then((perm) => {
+    perm.onchange = () => {
+      if (perm.state === 'granted') {
+        solicitarUbicacionConVerificacion(false);
+      } else if (perm.state === 'denied') {
+        mostrarBannerGeo(true);
+      } else {
+        mostrarBannerGeo(false);
+      }
+    };
+  }).catch(() => {});
+}
+
+// ── Botón Diana ──
 if (btnCentrar) {
   btnCentrar.addEventListener('click', () => {
     if (miUbicacionActual) {
       mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.2 });
       setTimeout(invalidateMapSize, 500);
     } else {
-      mostrarToastActivacion();
+      solicitarUbicacionConVerificacion(true);
     }
   });
 }
 
-// ── Inicialización al cargar ──
-const consentInicial = localStorage.getItem(GEO_CONSENT_KEY);
-const paramsURL = new URLSearchParams(window.location.search);
-const tieneDestino = paramsURL.has('evento') || paramsURL.has('sitio') || paramsURL.has('lat') || paramsURL.has('lng');
+// ── Carga Inicial ──
+solicitarUbicacionConVerificacion(false);
 
-if (consentInicial === 'granted') {
-  iniciarGeolocalizacion(false);
-} else if (consentInicial === 'denied') {
-  // No hacer nada
-} else {
-  if (!tieneDestino) {
-    setTimeout(() => {
-      mostrarModalGeo(() => {
-        iniciarGeolocalizacion(true);
-      });
-    }, 500);
-  }
-}
-
-if (tieneDestino && !miUbicacionActual && consentInicial !== 'denied') {
-  setTimeout(() => {
-    mostrarToastActivacion();
-  }, 1000);
-}
-
-// ── Redimensionar correctamente al cambiar tamaño de ventana ──
+// ── Redimensionar ──
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
@@ -1617,4 +1516,4 @@ window.addEventListener('resize', () => {
   }, 200);
 });
 
-console.log('mapa.js cargado correctamente - Optimizado con preloader y invalidación de tamaño');
+console.log('mapa.js cargado correctamente - Geolocalización dinámica ajustada');

@@ -131,12 +131,12 @@
         <!-- Tarjeta Juego 4 -->
         <div class="game-card">
           <div class="game-card__media" style="background: linear-gradient(135deg, #2D6A4F 0%, #113068 100%);">
-            <span class="game-card__emoji">🙈</span>
+            <span class="game-card__emoji">🏃</span>
           </div>
           <div class="game-card__body">
-            <span class="game-card__tag" data-i18n="jue.card4.tag">Ruta 04 — Memoria</span>
-            <h3 class="game-card__title" data-i18n="jue.card4.title">Escondelero</h3>
-            <p class="game-card__desc" data-i18n="jue.card4.desc">Vos sos el que la trae. Tus amigos se van a escapar corriendo hacia el bote en cualquier momento: movete rápido por el patio e interceptalos antes de que lleguen y se salven. ¡No dejes que se te escapen muchos!</p>
+            <span class="game-card__tag" data-i18n="jue.card4.tag">Ruta 04 — Tradición & Destreza</span>
+            <h3 class="game-card__title" data-i18n="jue.card4.title">La Mica</h3>
+            <p class="game-card__desc" data-i18n="jue.card4.desc">¡El clásico juego de la mica! Tocá a los demás para pasarles la mica y escapá por el campo. Esquivá su cono de visión y su área de audición para que no te persigan corriendo. ¡No te quedes con la mica cuando termine el tiempo!</p>
             <button class="btn-play-trigger" data-open-modal="encantados" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
@@ -162,7 +162,7 @@
           <div class="game-card__body">
             <span class="game-card__tag" data-i18n="jue.card6.tag">Ruta 06 — Fiestas Patronales</span>
             <h3 class="game-card__title" data-i18n="jue.card6.title">Torito Pinto</h3>
-            <p class="game-card__desc" data-i18n="jue.card6.desc">Corré con el torito de cohetes por la calle empedrada del pueblo, esquivando puestos, gente comprando y obstáculos. ¡Cuidá tu energía y llegá lo más lejos posible!</p>
+            <p class="game-card__desc" data-i18n="jue.card6.desc">Corré con el torito por las calles empedradas, pasá entre la gente para animarla, recogé silbadores y cuetillos para recargar energía y llegá triunfante al Atrio de la Iglesia en las fiestas patronales.</p>
             <button class="btn-play-trigger" data-open-modal="torito" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
@@ -318,7 +318,7 @@
       </div>
 
       <!-- ══════════════════════════════════════════
-           VENTANA FLOTANTE (MODAL JUEGO 4: ENCANTADOS Y BOTE)
+           VENTANA FLOTANTE (MODAL JUEGO 4: LA MICA)
            ══════════════════════════════════════════ -->
       <div class="game-modal" id="modal-encantados">
         <div class="game-modal__overlay"></div>
@@ -328,8 +328,8 @@
           <div class="game-panel">
             <div class="game-panel__head">
               <div>
-                <span class="game-panel__tag" data-i18n="jue.card4.tagModal">Ruta 04 — Memoria</span>
-                <h2>🙈 <span data-i18n="jue.card4.title">Escondelero</span></h2>
+                <span class="game-panel__tag" data-i18n="jue.card4.tagModal">Ruta 04 — Juegos Tradicionales</span>
+                <h2>🏃 <span data-i18n="jue.card4.title">La Mica</span></h2>
               </div>
             </div>
 
@@ -346,6 +346,7 @@
                 </div>
               </div>
               <canvas id="canvas-encantados"></canvas>
+              <div class="torito-popups-layer" id="mica-popups"></div>
               <div class="damage-overlay" id="damageOverlay-encantados"></div>
               <audio id="bgMusic-encantados" src="../assets/media/juegos/Arriba El Salvador - Marimba Salvadoreña.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-encantados">
@@ -443,6 +444,7 @@
                 </div>
               </div>
               <canvas id="canvas-torito"></canvas>
+              <div class="torito-popups-layer" id="torito-popups"></div>
               <div class="damage-overlay" id="damageOverlay-torito"></div>
               <audio id="bgMusic-torito" src="../assets/media/juegos/El torito pinto - Folklore Salvadoreño.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-torito">

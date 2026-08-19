@@ -1180,3 +1180,27 @@
 [data-theme="light"] .search-results-empty {
   color: rgba(36, 33, 29, 0.4);
 }
+/* ═══════════════════════════════════════════════════
+   CAMBIO DE TEMA DEL MAPA VÍA CSS (SIN AFECTAR MARCADORES)
+   ═══════════════════════════════════════════════════ */
+
+/* 1. Invierte únicamente las imágenes/azulejos del mapa al activar Modo Claro */
+[data-theme="light"] .leaflet-tile-pane {
+  filter: brightness(1.15) invert(1) contrast(0.95) hue-rotate(180deg);
+  transition: filter 0.4s ease;
+}
+
+/* 2. Garantiza que la capa de marcadores y popups no se oculten ni se inviertan */
+.leaflet-marker-pane,
+.leaflet-popup-pane,
+.leaflet-overlay-pane {
+  z-index: 600 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 3. Ajuste de contraste para que los marcadores destaquen sobre fondo claro */
+[data-theme="light"] .custom-marker {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  border-color: #ffffff !important;
+}

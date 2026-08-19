@@ -1017,3 +1017,195 @@ canvas {
   animation-play-state: paused; /* Pausa la flotación para que no parpadee */
   transform: scale(1.3) rotate(12deg) translateY(-10px);
 }
+/* ============================================================
+   ESTILOS MEJORADOS: JUEGO 6 - TORITO PINTO (FIESTAS PATRONALES)
+   ============================================================ */
+
+#hud-torito {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 95%;
+  padding: 6px 12px;
+}
+
+.torito-hud-bar-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(14, 10, 24, 0.7);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 14px;
+  padding: 3px 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.torito-hud-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffea00;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.torito-meter-track {
+  width: 90px;
+  height: 9px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.torito-meter-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.12s linear;
+}
+
+#t-energy-fill {
+  background: linear-gradient(90deg, #ff9100, #ffea00, #00e676);
+  box-shadow: 0 0 8px #ffea00;
+}
+
+#t-prog-fill {
+  background: linear-gradient(90deg, #0056b3, #00e5ff, #ffd700);
+  box-shadow: 0 0 8px #00e5ff;
+}
+
+.torito-combo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff007f, #ff3d00);
+  border: 1.5px solid #ffffff;
+  border-radius: 14px;
+  padding: 2px 8px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+}
+
+/* Floating Slang Popups en Torito Pinto */
+.torito-popups-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 15;
+}
+
+.torito-slang-popup {
+  position: absolute;
+  font-family: 'Fredoka', 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  text-shadow: 0 0 12px currentColor, 2px 2px 0 #000;
+  pointer-events: none;
+  white-space: nowrap;
+  transform-origin: center center;
+}
+
+/* Touch controls en pantalla */
+.torito-touch-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 12;
+}
+
+.torito-touch-btn {
+  pointer-events: auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(22, 16, 38, 0.75);
+  border: 2px solid rgba(255, 215, 0, 0.6);
+  color: #ffffff;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s, background 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.torito-touch-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 215, 0, 0.3);
+}
+
+@media (min-width: 769px) {
+  .torito-meter-track {
+    width: 120px;
+    height: 10px;
+  }
+}
+
+/* ============================================================
+   ESTILOS JUEGO 4: LA MICA (CAMPO, VISIÓN Y AUDICIÓN)
+   ============================================================ */
+
+#hud-encantados {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 95%;
+  padding: 6px 12px;
+}
+
+.mica-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.mica-hud-badge.has-mica {
+  background: linear-gradient(135deg, #d50000, #ff5252);
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
+  animation: pulseMica 0.8s infinite alternate;
+}
+
+.mica-hud-badge.safe {
+  background: linear-gradient(135deg, #00796b, #00e676);
+  border: 1.5px solid #ffffff;
+  color: #ffffff;
+}
+
+@keyframes pulseMica {
+  from { box-shadow: 0 0 6px #ff1744; }
+  to { box-shadow: 0 0 16px #ff1744, 0 0 24px #ffd600; }
+}
+
+.mica-time-box {
+  background: rgba(14, 10, 24, 0.7);
+  border: 1.5px solid rgba(255, 215, 0, 0.4);
+  border-radius: 14px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffd700;
+  font-weight: 800;
+  font-size: 0.85rem;
+}

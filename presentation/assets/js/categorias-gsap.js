@@ -15,17 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── Glow de cursor ── */
-  if (!prefersReducedMotion && window.matchMedia('(hover: hover)').matches) {
-    const cursor = document.createElement('div');
-    cursor.className = 'cursor-glow';
-    document.body.appendChild(cursor);
-    gsap.set(cursor, { xPercent: -50, yPercent: -50, opacity: 0 });
-    window.addEventListener('mousemove', (e) => {
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, opacity: 1, duration: .6, ease: 'power3.out' });
-    });
-  }
-
   /* ── Hero: partir el título en letras ── */
   const heroTitle = document.querySelector('.hero__title');
   if (heroTitle) {
