@@ -2230,11 +2230,15 @@ function spawnEntities() {
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 4: ESCONDELERO (CON MATTER.JS, FONDO DE CIUDAD Y NIÑOS BONITOS)
+   JUEGO 4: LA MICA (JUEGO TRADICIONAL SALVADOREÑO)
+   - Campo abierto con árboles, bancas y arbustos.
+   - Pasa la mica tocando a otros niños y escapa de quien la lleve.
+   - Conos de visión y áreas de audición en tiempo real.
+   - Modos de tiempo: 20s, 40s y 60s (1 minuto).
 --------------------------------------------------------- */
 (function initGameEncantados() {
   const canvas = document.getElementById('canvas-encantados');
-  if (!canvas) return;
+  if (!canvas || typeof Matter === 'undefined') return;
 
   const ctx = canvas.getContext('2d');
   const hud = document.getElementById('hud-encantados');
@@ -2242,18 +2246,39 @@ function spawnEntities() {
   const overlayCard = document.getElementById('overlay-card-encantados');
   const gameContent = document.getElementById('modal-encantados');
   const canvasWrap = document.getElementById('encantados-canvas-wrap');
+  const popupsLayer = document.getElementById('mica-popups');
 
-  const { Engine, World, Bodies, Body, Events } = Matter;
+  const { Engine, World, Bodies, Body, Events, Composite } = Matter;
 
   let isGameVisible = false;
   let running = false;
   let paused = false;
   let rafId = null;
-  let lastTime = null;
 
-  let baseWidth = 0,
-    baseHeight = 0;
+  // Selected time limit (20, 40, or 60 seconds)
+  let selectedTimeLimit = 40;
+  let timeLeft = 40;
+  let score = 0;
+  let timesPassedMica = 0;
+  let timesCarriedMica = 0;
+  let timeWithoutMica = 0;
 
+  // Entities
+  let player = null;
+  let kids = [];
+  let obstacles = [];
+  let particles = [];
+
+  // Who carries the Mica? (0 = player, 1..N = NPC kids)
+  let micaBearerIndex = 1; // Start with an NPC holding the mica
+  let immunityTimer = 0; // Grace period after passing mica
+
+  // Input tracking
+  let keys = {};
+  let touchJoystick = { x: 0, y: 0, active: false };
+
+  // Canvas resizing
+  let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
     if (isFS && baseWidth && baseHeight) {
@@ -2268,10 +2293,11 @@ function spawnEntities() {
     baseWidth = canvas.width;
     baseHeight = canvas.height;
   }
+
   resizeCanvas();
-  window.addEventListener('resize', () => { resizeCanvas(); setupWalls(); });
-  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
-  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
+  window.addEventListener('resize', () => { resizeCanvas(); setupArena(); });
+  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupArena(); }, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupArena(); }, 100));
 
   const fsBtn = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtn) {
@@ -2287,160 +2313,94 @@ function spawnEntities() {
     });
   }
 
-  let gameConfig = {
-    easy: { kidsToWin: 6, escapeMin: 2200, escapeMax: 3600, fleeSpeed: 2.6, catcherSpeed: 4, maxEscapes: 5, timeLimit: 45 },
-    medium: { kidsToWin: 8, escapeMin: 1700, escapeMax: 2800, fleeSpeed: 3.3, catcherSpeed: 5, maxEscapes: 4, timeLimit: 42 },
-    hard: { kidsToWin: 10, escapeMin: 1200, escapeMax: 2200, fleeSpeed: 4.0, catcherSpeed: 6, maxEscapes: 3, timeLimit: 38 }
-  };
-  let difficulty = 'easy';
-
-  let score = 0,
-    caught = 0,
-    escaped = 0,
-    timeLeft = 0;
-  let nextEscapeIn = 0,
-    escapeAccum = 0;
-
-  hud.innerHTML = `
-    <div class="hud-item">
-      <span>${jt('jue.hud.points', 'Puntos')}</span>
-      <b id="e-score">0</b>
-    </div>
-    <div class="hud-item">
-      <span>${jt('jue.card4.caught', 'Atrapados')}</span>
-      <span class="encantados-round-dots" id="e-dots"></span>
-    </div>
-    <div class="hud-item">
-      <span>${jt('jue.card4.escaped', 'Se salvaron')}</span>
-      <b id="e-escaped">0/${gameConfig.easy.maxEscapes}</b>
-    </div>
-    <div class="hud-item">
-      <span>${jt('jue.hud.time', 'Tiempo')}</span>
-      <b id="e-time">-</b>
-    </div>`;
-
-  function renderDots() {
-    const dotsEl = document.getElementById('e-dots');
-    if (!dotsEl) return;
-    const total = gameConfig[difficulty].kidsToWin;
-    let html = '';
-    for (let i = 0; i < total; i++) {
-      html += `<span class="dot${i < caught ? ' found' : ''}"></span>`;
+  // ================= SOUND ENGINE (WEB AUDIO) =================
+  let audioCtx = null;
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) audioCtx = new AudioCtx();
     }
-    dotsEl.innerHTML = html;
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
   }
 
-  function updateHud() {
-    const scoreEl = document.getElementById('e-score');
-    const escapedEl = document.getElementById('e-escaped');
-    const timeEl = document.getElementById('e-time');
-    if (scoreEl) scoreEl.textContent = score;
-    if (escapedEl) escapedEl.textContent = `${escaped}/${gameConfig[difficulty].maxEscapes}`;
-    if (timeEl) timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
-    renderDots();
-  }
+  function playSFX(type) {
+    if (volume <= 0) return;
+    try {
+      const actx = getAudioContext();
+      if (!actx) return;
+      const t = actx.currentTime;
 
-  const engine = Engine.create();
-  engine.gravity.y = 0;
-  const world = engine.world;
-
-  const wallThickness = 40;
-  let walls = [];
-
-  function setupWalls() {
-    if (walls.length) World.remove(world, walls);
-    const w = canvas.width,
-      h = canvas.height;
-    walls = [
-      Bodies.rectangle(w / 2, -wallThickness / 2, w + wallThickness * 2, wallThickness, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(w / 2, h + wallThickness / 2, w + wallThickness * 2, wallThickness, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(-wallThickness / 2, h / 2, wallThickness, h + wallThickness * 2, { isStatic: true, label: 'wall' }),
-      Bodies.rectangle(w + wallThickness / 2, h / 2, wallThickness, h + wallThickness * 2, { isStatic: true, label: 'wall' })
-    ];
-    World.add(world, walls);
-  }
-
-  const catcherRadius = 24;
-  const kidRadius = 18;
-  const boteRadius = 38;
-
-  // El bote es un sensor: solo detecta cuándo un niño llega, no debe frenarlo ni empujarlo.
-  const bote = Bodies.circle(canvas.width / 2, 70, boteRadius, { isStatic: true, label: 'bote', isSensor: true });
-  World.add(world, bote);
-
-  const catcher = Bodies.circle(canvas.width / 2, canvas.height - 100, catcherRadius, {
-    label: 'catcher',
-    friction: 0,
-    frictionAir: 0.02,
-    restitution: 0,
-    inertia: Infinity
-  });
-  World.add(world, catcher);
-
-  let kids = [];
-  let hideSpots = [];
-
-  function createHideSpots() {
-    const count = 10;
-    const cols = 5;
-    const rows = Math.ceil(count / cols);
-    const marginX = canvas.width * 0.08;
-    const marginY = canvas.height * 0.25;
-    const usableW = canvas.width - marginX * 2;
-    const usableH = canvas.height - marginY * 2 - 60;
-    const cellW = usableW / cols;
-    const cellH = usableH / rows;
-
-    const spots = [];
-    let i = 0;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (i >= count) break;
-        const jitterX = (Math.random() - 0.5) * cellW * 0.3;
-        const jitterY = (Math.random() - 0.5) * cellH * 0.3;
-        spots.push({
-          x: marginX + c * cellW + cellW / 2 + jitterX,
-          y: marginY + 40 + r * cellH + cellH / 2 + jitterY,
+      if (type === 'tag') {
+        // Tag whoosh & hit
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, t);
+        osc.frequency.exponentialRampToValueAtTime(880, t + 0.12);
+        gain.gain.setValueAtTime(0.35 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.26);
+      } else if (type === 'alert') {
+        // Spotted / Heard alert chime
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(659.25, t); // E5
+        osc.frequency.setValueAtTime(987.77, t + 0.08); // B5
+        gain.gain.setValueAtTime(0.25 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.32);
+      } else if (type === 'win') {
+        // Victory fanfare
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = actx.createOscillator();
+          const gain = actx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.12);
+          gain.gain.setValueAtTime(0.3 * volume, t + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.12 + 0.4);
+          osc.connect(gain);
+          gain.connect(actx.destination);
+          osc.start(t + idx * 0.12);
+          osc.stop(t + idx * 0.12 + 0.45);
         });
-        i++;
       }
+    } catch(e){}
+  }
+
+  // ================= GSAP POPUPS =================
+  function showSlangCallout(text, x, y, color = '#ffd700') {
+    const layer = popupsLayer || canvasWrap;
+    if (!layer) return;
+
+    const el = document.createElement('div');
+    el.className = 'torito-slang-popup';
+    el.innerText = text;
+    el.style.left = `${x || canvas.width / 2}px`;
+    el.style.top = `${y || canvas.height / 2}px`;
+    el.style.color = color;
+    layer.appendChild(el);
+
+    if (window.gsap) {
+      const rot = (Math.random() - 0.5) * 24;
+      gsap.timeline({ onComplete: () => el.remove() })
+        .fromTo(el, { scale: 0.3, opacity: 0, rotation: rot }, { scale: 1.2, opacity: 1, duration: 0.2, ease: 'back.out(2)' })
+        .to(el, { y: -45 - Math.random() * 25, duration: 0.5, ease: 'power1.out' })
+        .to(el, { opacity: 0, scale: 0.6, duration: 0.25, ease: 'power2.in' }, '-=0.15');
+    } else {
+      setTimeout(() => el.remove(), 700);
     }
-    return spots;
   }
 
-  function initKids() {
-    kids.forEach(k => World.remove(world, k.body));
-    kids = [];
-    hideSpots = createHideSpots();
-    const colors = ['#e63946', '#3a86c8', '#2fbf9f', '#f2c744', '#7d3ac1', '#f4a261', '#e76f51', '#a8dadc', '#457b9d', '#1d3557'];
-    hideSpots.forEach((spot, idx) => {
-      // isSensor: true evita que los niños se empujen físicamente entre sí, contra el
-      // catcher, o contra el bote — solo se usan para detectar colisiones (atrapada / llegada al bote).
-      const body = Bodies.circle(spot.x, spot.y, kidRadius, {
-        label: 'kid',
-        friction: 0,
-        restitution: 0,
-        frictionAir: 0.01,
-        isSensor: true,
-        inertia: Infinity,
-        state: 'hidden',
-        color: colors[idx % colors.length],
-        spotIndex: idx
-      });
-      World.add(world, body);
-      kids.push({
-        body: body,
-        state: 'hidden',
-        color: colors[idx % colors.length],
-        spotIndex: idx
-      });
-    });
-  }
-
-  let keys = {};
-  window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
-  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
-
+  // ================= HUD & MUSIC =================
   const bgMusic = document.getElementById('bgMusic-encantados');
   const volumeSlider = document.getElementById('volumeSlider-encantados');
   const volumeIcon = document.getElementById('volumeIcon-encantados');
@@ -2448,447 +2408,787 @@ function spawnEntities() {
   let volume = Number(volumeSlider?.value || 0.45);
   let savedVolume = volume;
 
-  if (bgMusic) { bgMusic.volume = volume;
-    bgMusic.muted = false; }
+  if (bgMusic) {
+    bgMusic.volume = volume;
+    bgMusic.muted = false;
+  }
+
   volumeSlider?.addEventListener('input', (event) => {
     volume = Number(event.target.value);
-    if (bgMusic) { bgMusic.volume = volume;
-      bgMusic.muted = volume <= 0; }
+    if (bgMusic) {
+      bgMusic.volume = volume;
+      bgMusic.muted = volume <= 0;
+    }
     if (volumeIcon) volumeIcon.textContent = volume <= 0 ? '🔇' : volume < 0.35 ? '🔉' : '🔊';
   });
 
-  function playMusic() { if (!bgMusic) return;
+  function playMusic() {
+    if (!bgMusic) return;
     bgMusic.muted = false;
     bgMusic.volume = volume;
-    bgMusic.play().catch(() => {}); }
+    bgMusic.play().catch(() => {});
+  }
+  function stopMusic() { if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; } }
 
-  function stopMusic() { if (bgMusic) { bgMusic.pause();
-      bgMusic.currentTime = 0; } }
-
-  function showOverlay(html) {
-    overlayCard.innerHTML = html;
-    overlay.classList.remove('hidden');
-    overlay.style.backdropFilter = 'none';
-    overlay.style.webkitBackdropFilter = 'none';
-    if (window.gsap) {
-      gsap.fromTo(overlayCard, { autoAlpha: 0, y: 18, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' });
-      gsap.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, ease: 'power1.out' });
-    }
+  function flashDamage() {
+    if (!damageOverlay) return;
+    damageOverlay.style.opacity = '1';
+    setTimeout(() => { damageOverlay.style.opacity = '0'; }, 150);
   }
 
-  function hideOverlay() {
-    if (window.gsap) {
-      overlay.style.pointerEvents = 'none';
-      gsap.to(overlayCard, { autoAlpha: 0, y: -12, scale: 0.97, duration: 0.25, ease: 'power1.in' });
-      gsap.to(overlay, { autoAlpha: 0, duration: 0.25, ease: 'power1.in', onComplete: () => { overlay.classList.add('hidden');
-          overlay.style.pointerEvents = ''; } });
-    } else {
-      overlay.classList.add('hidden');
-    }
+  function updateHud() {
+    const isPlayerMica = (micaBearerIndex === 0);
+    hud.innerHTML = `
+      <div class="mica-hud-badge ${isPlayerMica ? 'has-mica' : 'safe'}">
+        <span>${isPlayerMica ? '🔥 ¡LLEVÁS LA MICA!' : '🛡️ ¡ESTÁS A SALVO!'}</span>
+      </div>
+      <div class="mica-time-box">
+        <span>⏳ ${Math.max(0, Math.ceil(timeLeft))}s</span>
+      </div>
+      <div class="torito-hud-bar-container">
+        <span class="torito-hud-label">⭐ <b>${Math.round(score)} pts</b></span>
+      </div>`;
   }
 
-  function randomEscapeInterval() {
-    const config = gameConfig[difficulty];
-    return config.escapeMin + Math.random() * (config.escapeMax - config.escapeMin);
+  // ================= MATTER.JS ENGINE & ARENA SETUP =================
+  const engine = Engine.create();
+  engine.gravity.y = 0;
+  const world = engine.world;
+
+  let boundaryWalls = [];
+
+  function setupArena() {
+    Composite.clear(world, false);
+    boundaryWalls = [];
+    obstacles = [];
+
+    const wallThickness = 40;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Outer Field Boundaries
+    const top = Bodies.rectangle(w / 2, -wallThickness / 2, w + 100, wallThickness, { isStatic: true });
+    const bottom = Bodies.rectangle(w / 2, h + wallThickness / 2, w + 100, wallThickness, { isStatic: true });
+    const left = Bodies.rectangle(-wallThickness / 2, h / 2, wallThickness, h + 100, { isStatic: true });
+    const right = Bodies.rectangle(w + wallThickness / 2, h / 2, wallThickness, h + 100, { isStatic: true });
+
+    boundaryWalls = [top, bottom, left, right];
+    World.add(world, boundaryWalls);
+
+    // Natural Obstacles in the Salvadoran Field (Trees & Benches)
+    const treeCoords = [
+      { x: w * 0.25, y: h * 0.3, r: 24, type: 'maquilishuat' },
+      { x: w * 0.75, y: h * 0.3, r: 24, type: 'maquilishuat' },
+      { x: w * 0.5,  y: h * 0.5, r: 28, type: 'conacaste' },
+      { x: w * 0.25, y: h * 0.72, r: 22, type: 'bush' },
+      { x: w * 0.75, y: h * 0.72, r: 22, type: 'bush' }
+    ];
+
+    treeCoords.forEach(t => {
+      const body = Bodies.circle(t.x, t.y, t.r, { isStatic: true, label: 'tree' });
+      body.treeType = t.type;
+      body.radius = t.r;
+      obstacles.push(body);
+      World.add(world, body);
+    });
+
+    // Park benches
+    const bench1 = Bodies.rectangle(w * 0.5, h * 0.22, 54, 18, { isStatic: true, label: 'bench' });
+    const bench2 = Bodies.rectangle(w * 0.5, h * 0.78, 54, 18, { isStatic: true, label: 'bench' });
+    obstacles.push(bench1, bench2);
+    World.add(world, [bench1, bench2]);
+
+    initCharacters();
   }
 
-  function triggerEscape() {
-    const hiddenKids = kids.filter(k => k.state === 'hidden');
-    if (!hiddenKids.length) return;
-    const kid = hiddenKids[Math.floor(Math.random() * hiddenKids.length)];
-    kid.state = 'fleeing';
-    const angle = Math.random() * Math.PI * 2;
-    Body.setVelocity(kid.body, {
-      x: Math.cos(angle) * 0.5,
-      y: -0.5
+  function initCharacters() {
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // 1. Create Player (Entity 0)
+    const pBody = Bodies.circle(w * 0.15, h * 0.5, 15, {
+      frictionAir: 0.08,
+      restitution: 0.5,
+      label: 'player'
+    });
+    pBody.angleFacing = 0;
+    pBody.speedCurrent = 0;
+    pBody.name = 'Vos';
+    player = pBody;
+    World.add(world, player);
+
+    // 2. Create 4 NPC Kids (Entities 1..4)
+    kids = [];
+    const npcConfigs = [
+      { name: 'Chepe', color: '#ff3d00', x: w * 0.85, y: h * 0.5, shirt: '#ff5722' },
+      { name: 'Sofía', color: '#00e5ff', x: w * 0.65, y: h * 0.25, shirt: '#ff4081' },
+      { name: 'Mateo', color: '#ffd600', x: w * 0.35, y: h * 0.75, shirt: '#00c853' },
+      { name: 'Andrea', color: '#7c4dff', x: w * 0.8,  y: h * 0.8,  shirt: '#7c4dff' }
+    ];
+
+    npcConfigs.forEach((cfg, idx) => {
+      const npcBody = Bodies.circle(cfg.x, cfg.y, 15, {
+        frictionAir: 0.08,
+        restitution: 0.5,
+        label: `npc_${idx + 1}`
+      });
+      npcBody.index = idx + 1;
+      npcBody.name = cfg.name;
+      npcBody.color = cfg.color;
+      npcBody.shirt = cfg.shirt;
+      npcBody.angleFacing = Math.random() * Math.PI * 2;
+      npcBody.state = 'WANDERING'; // 'WANDERING', 'CHASING', 'FLEEING'
+      npcBody.alertTimer = 0;
+      npcBody.wanderTimer = Math.random() * 60;
+      npcBody.targetAngle = npcBody.angleFacing;
+      kids.push(npcBody);
+      World.add(world, npcBody);
     });
   }
 
-  Events.on(engine, 'collisionStart', (event) => {
-    for (const pair of event.pairs) {
-      const { bodyA, bodyB } = pair;
-      if ((bodyA.label === 'catcher' && bodyB.label === 'kid') || (bodyA.label === 'kid' && bodyB.label === 'catcher')) {
-        const kidBody = bodyA.label === 'kid' ? bodyA : bodyB;
-        const kid = kids.find(k => k.body === kidBody);
-        if (kid && kid.state === 'fleeing') {
-          kid.state = 'caught';
-          caught++;
-          score += 25;
-          flashEffect(kidBody.position.x, kidBody.position.y, '#ffd700');
-          World.remove(world, kidBody);
-          updateHud();
+  // ================= VISION & HEARING SENSING =================
+
+  // Check if target is inside the observer's 75° Vision Cone
+  function canSeeTarget(observer, target, coneAngle = Math.PI * 0.42, maxDist = 180) {
+    const dx = target.position.x - observer.position.x;
+    const dy = target.position.y - observer.position.y;
+    const distSq = dx * dx + dy * dy;
+
+    if (distSq > maxDist * maxDist) return false;
+
+    // Check angle difference
+    const angleToTarget = Math.atan2(dy, dx);
+    let diff = angleToTarget - (observer.angleFacing || 0);
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+
+    if (Math.abs(diff) > coneAngle / 2) return false;
+
+    // Check line-of-sight raycast against solid trees/benches
+    const dist = Math.sqrt(distSq);
+    const steps = 6;
+    for (let i = 1; i < steps; i++) {
+      const testX = observer.position.x + (dx / dist) * (dist * (i / steps));
+      const testY = observer.position.y + (dy / dist) * (dist * (i / steps));
+      for (const obs of obstacles) {
+        if (obs.circleRadius) {
+          const odx = testX - obs.position.x;
+          const ody = testY - obs.position.y;
+          if (odx * odx + ody * ody < obs.circleRadius * obs.circleRadius) return false; // Blocked by tree!
         }
       }
-      if ((bodyA.label === 'bote' && bodyB.label === 'kid') || (bodyA.label === 'kid' && bodyB.label === 'bote')) {
-        const kidBody = bodyA.label === 'kid' ? bodyA : bodyB;
-        const kid = kids.find(k => k.body === kidBody);
-        if (kid && kid.state === 'fleeing') {
-          kid.state = 'escaped';
-          escaped++;
-          score = Math.max(0, score - 10);
-          flashEffect(kidBody.position.x, kidBody.position.y, '#ff4444');
-          World.remove(world, kidBody);
-          updateHud();
-        }
+    }
+
+    return true;
+  }
+
+  // Check if observer hears target's footsteps/running
+  function canHearTarget(observer, target, maxDist = 115) {
+    const dx = target.position.x - observer.position.x;
+    const dy = target.position.y - observer.position.y;
+    const distSq = dx * dx + dy * dy;
+
+    if (distSq > maxDist * maxDist) return false;
+
+    // Target is heard if running or moving with speed > 1.0
+    const targetSpeed = Math.sqrt(target.velocity.x * target.velocity.x + target.velocity.y * target.velocity.y);
+    return targetSpeed > 0.8;
+  }
+
+  // ================= MICA TRANSFER LOGIC =================
+  function transferMica(fromIndex, toIndex) {
+    if (immunityTimer > 0 || fromIndex === toIndex) return;
+
+    micaBearerIndex = toIndex;
+    immunityTimer = 100; // ~1.6s grace period
+
+    const allEntities = [player, ...kids];
+    const newBearer = allEntities[toIndex];
+    const prevBearer = allEntities[fromIndex];
+
+    playSFX('tag');
+    createParticles(newBearer.position.x, newBearer.position.y, 22);
+
+    if (toIndex === 0) {
+      // Player received the mica!
+      timesCarriedMica++;
+      flashDamage();
+      showSlangCallout('¡TE PASARON LA MICA! 🔥', newBearer.position.x, newBearer.position.y, '#ff1744');
+    } else {
+      // An NPC received the mica!
+      if (fromIndex === 0) {
+        timesPassedMica++;
+        score += 350;
+        showSlangCallout('¡TE SALVASTE! 🏃💨', prevBearer.position.x, prevBearer.position.y, '#00e676');
+      } else {
+        showSlangCallout(`¡${newBearer.name} lleva la mica!`, newBearer.position.x, newBearer.position.y, '#ffea00');
       }
+    }
+  }
+
+  // ================= INPUT HANDLING =================
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.code === 'Space' && running && !paused) {
+      e.preventDefault();
+      // Quick dash boost
+      const pAngle = player.angleFacing || 0;
+      Body.applyForce(player, player.position, {
+        x: Math.cos(pAngle) * 0.012,
+        y: Math.sin(pAngle) * 0.012
+      });
+      createParticles(player.position.x, player.position.y, 8);
     }
   });
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-  let particles = [];
-
-  function flashEffect(x, y, color) {
-    for (let i = 0; i < 12; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1.5 + Math.random() * 4;
-      particles.push({
-        x: x,
-        y: y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 0.5,
-        radius: 3 + Math.random() * 6,
-        life: 1,
-        color: color
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!running || paused || !player) return;
+    const r = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - r.left;
+    const touchY = e.touches[0].clientY - r.top;
+    const dx = touchX - player.position.x;
+    const dy = touchY - player.position.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    if (len > 10) {
+      Body.applyForce(player, player.position, {
+        x: (dx / len) * 0.0035,
+        y: (dy / len) * 0.0035
       });
+      player.angleFacing = Math.atan2(dy, dx);
     }
-  }
+  }, { passive: false });
 
-  // --- FONDO DE CIUDAD ---
-  let cityOffset = 0;
-  let cars = [];
+  function handlePlayerMovement() {
+    if (!player) return;
 
-  function initCars() {
-    cars = [];
-    for (let i = 0; i < 6; i++) {
-      cars.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height * 0.55 + Math.random() * 30,
-        speed: 0.5 + Math.random() * 1.5,
-        color: ['#e63946', '#3a86c8', '#f4a261', '#2fbf9f', '#e9c46a', '#9b5de5'][Math.floor(Math.random() * 6)],
-        size: 12 + Math.random() * 10,
-        dir: Math.random() > 0.5 ? 1 : -1
+    let moveX = 0, moveY = 0;
+    if (keys['w'] || keys['arrowup']) moveY -= 1;
+    if (keys['s'] || keys['arrowdown']) moveY += 1;
+    if (keys['a'] || keys['arrowleft']) moveX -= 1;
+    if (keys['d'] || keys['arrowright']) moveX += 1;
+
+    const len = Math.sqrt(moveX * moveX + moveY * moveY);
+    if (len > 0) {
+      const normX = moveX / len;
+      const normY = moveY / len;
+      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
+
+      Body.applyForce(player, player.position, {
+        x: normX * force,
+        y: normY * force
       });
+
+      player.angleFacing = Math.atan2(normY, normX);
     }
   }
-  initCars();
 
-  function drawCityBackground() {
-    const w = canvas.width,
-      h = canvas.height;
+  // ================= AI UPDATE LOOP =================
+  function updateNPCs() {
+    const allEntities = [player, ...kids];
+    const micaBearer = allEntities[micaBearerIndex];
 
-    // Fondo simple tipo patio, para no restar visibilidad a los niños y al catcher.
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0, '#a5d6a7');
-    skyGrad.addColorStop(1, '#81c784');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h);
-  }
+    kids.forEach(npc => {
+      const isMicaBearer = (micaBearerIndex === npc.index);
 
-  function drawCatcher(body) {
-    const x = body.position.x,
-      y = body.position.y;
-    ctx.save();
-    ctx.translate(x, y);
+      if (isMicaBearer) {
+        // NPC HAS THE MICA -> Chases anyone seen or heard!
+        let target = null;
+        let minTargetDist = 9999;
 
-    // Sombra simple
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.ellipse(0, 20, 16, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
+        // Scan all other kids and player
+        allEntities.forEach((other, oIdx) => {
+          if (oIdx === npc.index) return;
+          const dist = Math.hypot(other.position.x - npc.position.x, other.position.y - npc.position.y);
 
-    // Cuerpo (silueta simple)
-    ctx.fillStyle = '#2196F3';
-    ctx.beginPath();
-    ctx.arc(0, 0, 22, 0, Math.PI * 2);
-    ctx.fill();
+          const seen = canSeeTarget(npc, other);
+          const heard = canHearTarget(npc, other);
 
-    // Cara simple
-    ctx.fillStyle = '#FFCCBC';
-    ctx.beginPath();
-    ctx.arc(0, -10, 14, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Ojos
-    ctx.fillStyle = '#212121';
-    ctx.beginPath();
-    ctx.arc(-5, -11, 2.2, 0, Math.PI * 2);
-    ctx.arc(5, -11, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Boca
-    ctx.strokeStyle = '#212121';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, -6, 5, 0.15, Math.PI - 0.15);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  function drawKid(body, color, state) {
-    const x = body.position.x,
-      y = body.position.y;
-    ctx.save();
-    ctx.translate(x, y);
-
-    // Sombra simple
-    ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath();
-    ctx.ellipse(0, 16, 12, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cuerpo (silueta simple, sin piernas ni brazos detallados)
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cara simple
-    ctx.fillStyle = '#FFCCBC';
-    ctx.beginPath();
-    ctx.arc(0, -6, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Ojos
-    ctx.fillStyle = '#212121';
-    ctx.beginPath();
-    ctx.arc(-3.5, -7, 1.6, 0, Math.PI * 2);
-    ctx.arc(3.5, -7, 1.6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Boca: sonrisa normal, o abierta si va corriendo
-    ctx.strokeStyle = '#212121';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    if (state === 'fleeing') {
-      ctx.arc(0, -3, 3.5, 0.15, Math.PI - 0.15);
-    } else {
-      ctx.arc(0, -4, 2.5, 0.15, Math.PI - 0.15);
-    }
-    ctx.stroke();
-
-    if (state === 'fleeing') {
-      ctx.strokeStyle = 'rgba(255,200,0,0.5)';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < 3; i++) {
-        const lx = -18 - i * 6;
-        const ly = -2 + i * 3;
-        ctx.beginPath();
-        ctx.moveTo(lx, ly);
-        ctx.lineTo(lx - 8, ly - 4);
-        ctx.stroke();
-      }
-    }
-
-    ctx.restore();
-  }
-
-  function drawBote(body) {
-    const x = body.position.x,
-      y = body.position.y;
-    ctx.save();
-    ctx.translate(x, y);
-
-    ctx.shadowColor = 'rgba(0,0,0,0.3)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#8D6E63';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, boteRadius, boteRadius * 0.7, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#4E342E';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.strokeStyle = '#4E342E';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(0, -6, boteRadius * 0.85, boteRadius * 0.35, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.ellipse(0, 6, boteRadius * 0.85, boteRadius * 0.35, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.fillStyle = '#A1887F';
-    ctx.beginPath();
-    ctx.ellipse(0, -boteRadius * 0.5, boteRadius * 0.5, boteRadius * 0.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#4E342E';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFD54F';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('¡BOTE!', 0, 4);
-
-    ctx.restore();
-  }
-
-  function step(timestamp) {
-    if (!running || !isGameVisible) return;
-    if (lastTime === null) lastTime = timestamp;
-    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    lastTime = timestamp;
-    const dtSec = dt / 1000;
-
-    const config = gameConfig[difficulty];
-    timeLeft -= dtSec;
-
-    let moveX = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
-    let moveY = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['w'] || keys['arrowup'] ? 1 : 0);
-    if (moveX !== 0 || moveY !== 0) {
-      const len = Math.hypot(moveX, moveY) || 1;
-      Body.setVelocity(catcher, {
-        x: (moveX / len) * config.catcherSpeed,
-        y: (moveY / len) * config.catcherSpeed
-      });
-    } else {
-      Body.setVelocity(catcher, {
-        x: catcher.velocity.x * 0.92,
-        y: catcher.velocity.y * 0.92
-      });
-    }
-
-    const maxSpeed = config.catcherSpeed * 1.2;
-    const v = catcher.velocity;
-    const speed = Math.hypot(v.x, v.y);
-    if (speed > maxSpeed) {
-      Body.setVelocity(catcher, {
-        x: (v.x / speed) * maxSpeed,
-        y: (v.y / speed) * maxSpeed
-      });
-    }
-
-    escapeAccum += dt;
-    if (escapeAccum >= nextEscapeIn) {
-      escapeAccum = 0;
-      nextEscapeIn = randomEscapeInterval();
-      triggerEscape();
-    }
-
-    for (const kid of kids) {
-      if (kid.state !== 'fleeing') continue;
-      const dx = bote.position.x - kid.body.position.x;
-      const dy = bote.position.y - kid.body.position.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist > 5) {
-        const speed = config.fleeSpeed * (0.8 + Math.random() * 0.4);
-        Body.setVelocity(kid.body, {
-          x: (dx / dist) * speed,
-          y: (dy / dist) * speed
+          if ((seen || heard) && dist < minTargetDist) {
+            minTargetDist = dist;
+            target = other;
+          }
         });
+
+        if (target) {
+          // Alerted! Sprint towards target
+          npc.state = 'CHASING';
+          npc.alertTimer = 40;
+          const dx = target.position.x - npc.position.x;
+          const dy = target.position.y - npc.position.y;
+          npc.angleFacing = Math.atan2(dy, dx);
+
+          const chaseForce = 0.0042;
+          Body.applyForce(npc, npc.position, {
+            x: Math.cos(npc.angleFacing) * chaseForce,
+            y: Math.sin(npc.angleFacing) * chaseForce
+          });
+        } else {
+          // Not detected -> Wanders calmly looking around
+          npc.state = 'WANDERING';
+          npc.wanderTimer--;
+          if (npc.wanderTimer <= 0) {
+            npc.wanderTimer = 40 + Math.random() * 50;
+            npc.angleFacing += (Math.random() - 0.5) * 1.5;
+          }
+
+          const walkForce = 0.0016;
+          Body.applyForce(npc, npc.position, {
+            x: Math.cos(npc.angleFacing) * walkForce,
+            y: Math.sin(npc.angleFacing) * walkForce
+          });
+        }
+      } else {
+        // NPC DOES NOT HAVE MICA -> Wanders, or flees if Mica bearer comes close
+        const distToMica = Math.hypot(micaBearer.position.x - npc.position.x, micaBearer.position.y - npc.position.y);
+        const micaSeen = canSeeTarget(npc, micaBearer, Math.PI * 0.6, 160);
+        const micaHeard = canHearTarget(npc, micaBearer, 110);
+
+        if ((micaSeen || micaHeard || distToMica < 110) && distToMica < 200) {
+          // Panicked! Flee away from Mica bearer
+          npc.state = 'FLEEING';
+          const fleeAngle = Math.atan2(npc.position.y - micaBearer.position.y, npc.position.x - micaBearer.position.x);
+          npc.angleFacing = fleeAngle;
+
+          const fleeForce = 0.0038;
+          Body.applyForce(npc, npc.position, {
+            x: Math.cos(fleeAngle) * fleeForce,
+            y: Math.sin(fleeAngle) * fleeForce
+          });
+        } else {
+          // Wanders safely in the field
+          npc.state = 'WANDERING';
+          npc.wanderTimer--;
+          if (npc.wanderTimer <= 0) {
+            npc.wanderTimer = 50 + Math.random() * 60;
+            npc.angleFacing += (Math.random() - 0.5) * 1.2;
+          }
+
+          const walkForce = 0.0015;
+          Body.applyForce(npc, npc.position, {
+            x: Math.cos(npc.angleFacing) * walkForce,
+            y: Math.sin(npc.angleFacing) * walkForce
+          });
+        }
       }
+    });
+
+    // Check collisions for Mica tags
+    if (immunityTimer > 0) immunityTimer--;
+
+    const bearer = allEntities[micaBearerIndex];
+    if (bearer && immunityTimer <= 0) {
+      allEntities.forEach((other, idx) => {
+        if (idx === micaBearerIndex) return;
+        const dist = Math.hypot(other.position.x - bearer.position.x, other.position.y - bearer.position.y);
+        if (dist < 28) {
+          transferMica(micaBearerIndex, idx);
+        }
+      });
     }
+  }
 
-    Engine.update(engine, dt);
-
-    if (caught >= config.kidsToWin) { endGame(true); return; }
-    if (escaped >= config.maxEscapes) { endGame(false); return; }
-    if (timeLeft <= 0) { endGame(caught >= Math.ceil(config.kidsToWin * 0.6)); return; }
-
-    updateHud();
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawCityBackground();
-
-    for (const spot of hideSpots) {
-      ctx.save();
-      ctx.translate(spot.x, spot.y);
-
-      // Marca circular en el suelo para que se note bien de dónde puede salir un niño
-      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 5]);
-      ctx.beginPath();
-      ctx.arc(0, 14, 28, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      ctx.fillStyle = '#2e7d32';
-      ctx.strokeStyle = '#1b5e20';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(0, 8, 24, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#43a047';
-      ctx.beginPath();
-      ctx.arc(-12, 12, 17, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(12, 12, 17, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+  // ================= PARTICLES =================
+  function createParticles(x, y, count = 15) {
+    const colors = ['#ff1744', '#ffd600', '#00e676', '#00e5ff', '#ff007f'];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 4;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 2 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1.0,
+        decay: 0.03 + Math.random() * 0.03
+      });
     }
+  }
 
-    drawBote(bote);
-
-    for (const kid of kids) {
-      if (kid.state === 'hidden' || kid.state === 'caught' || kid.state === 'escaped') continue;
-      drawKid(kid.body, kid.color, kid.state);
-    }
-
-    drawCatcher(catcher);
-
+  function drawParticles() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.05;
-      p.life -= 0.015;
-      p.radius *= 0.98;
-      if (p.life <= 0 || p.radius < 0.5) {
+      p.vx *= 0.95;
+      p.vy *= 0.95;
+      p.alpha -= p.decay;
+
+      if (p.alpha <= 0) {
         particles.splice(i, 1);
         continue;
       }
-      ctx.globalAlpha = p.life;
+
+      ctx.globalAlpha = p.alpha;
       ctx.fillStyle = p.color;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
-      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
+  // ================= MAIN STEP LOOP =================
+  function step() {
+    if (!running || !isGameVisible) return;
+
+    timeLeft -= 0.0166;
+    if (micaBearerIndex !== 0) {
+      timeWithoutMica += 0.0166;
+      score += 0.25;
     }
 
+    if (timeLeft <= 0) {
+      endGame();
+      return;
+    }
+
+    handlePlayerMovement();
+    updateNPCs();
+    Engine.update(engine, 16.667);
+
+    // ================= DRAWING =================
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw Field Background (Campo salvadoreño)
+    drawFieldBackground();
+
+    // 2. Draw Vision & Hearing Areas for Mica Bearer
+    drawMicaSensoryAreas();
+
+    // 3. Draw Obstacles (Trees & Benches)
+    drawObstacles();
+
+    // 4. Draw Characters (Player & Kids)
+    drawCharacters();
+
+    // 5. Draw Particles
+    drawParticles();
+
+    updateHud();
     rafId = requestAnimationFrame(step);
   }
 
-  function endGame(win) {
+  // ================= DRAWING FUNCTIONS =================
+
+  function drawFieldBackground() {
+    // Lush green park grass gradient
+    const grad = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 80,
+      canvas.width / 2, canvas.height / 2, canvas.width * 0.7
+    );
+    grad.addColorStop(0, '#3e8e41');
+    grad.addColorStop(0.7, '#2e7d32');
+    grad.addColorStop(1, '#1b5e20');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Natural soil paths & wildflower specks
+    ctx.fillStyle = 'rgba(255, 235, 59, 0.25)';
+    for (let i = 0; i < 20; i++) {
+      const fx = (i * 73) % canvas.width;
+      const fy = (i * 59) % canvas.height;
+      ctx.beginPath();
+      ctx.arc(fx, fy, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Draw Vision Cone & Hearing Circle of whoever carries the Mica
+  function drawMicaSensoryAreas() {
+    const allEntities = [player, ...kids];
+    const bearer = allEntities[micaBearerIndex];
+    if (!bearer) return;
+
+    const x = bearer.position.x;
+    const y = bearer.position.y;
+    const angle = bearer.angleFacing || 0;
+    const coneAngle = Math.PI * 0.42;
+    const maxDist = 180;
+    const hearingDist = 115;
+
+    ctx.save();
+
+    // 1. Hearing Circle (Audición)
+    const hearingGrad = ctx.createRadialGradient(x, y, 10, x, y, hearingDist);
+    hearingGrad.addColorStop(0, 'rgba(255, 235, 59, 0.15)');
+    hearingGrad.addColorStop(0.8, 'rgba(255, 235, 59, 0.06)');
+    hearingGrad.addColorStop(1, 'rgba(255, 235, 59, 0)');
+    ctx.fillStyle = hearingGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, hearingDist, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 235, 59, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.arc(x, y, hearingDist, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. Vision Cone (Visión)
+    const visionGrad = ctx.createRadialGradient(x, y, 10, x, y, maxDist);
+    visionGrad.addColorStop(0, 'rgba(255, 23, 68, 0.35)');
+    visionGrad.addColorStop(0.7, 'rgba(255, 82, 82, 0.18)');
+    visionGrad.addColorStop(1, 'rgba(255, 82, 82, 0)');
+    ctx.fillStyle = visionGrad;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.arc(x, y, maxDist, angle - coneAngle / 2, angle + coneAngle / 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 23, 68, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.arc(x, y, maxDist, angle - coneAngle / 2, angle + coneAngle / 2);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawObstacles() {
+    obstacles.forEach(obs => {
+      ctx.save();
+      ctx.translate(obs.position.x, obs.position.y);
+
+      if (obs.label === 'tree') {
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.beginPath();
+        ctx.ellipse(0, 10, obs.radius * 1.1, obs.radius * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (obs.treeType === 'maquilishuat') {
+          // National Maquilishuat Tree with Pink Blossoms
+          ctx.fillStyle = '#ff80ab';
+          ctx.beginPath();
+          ctx.arc(0, 0, obs.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ff4081';
+          ctx.beginPath();
+          ctx.arc(-4, -4, obs.radius * 0.7, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (obs.treeType === 'conacaste') {
+          // Giant Conacaste Tree (deep green foliage)
+          ctx.fillStyle = '#1b5e20';
+          ctx.beginPath();
+          ctx.arc(0, 0, obs.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#2e7d32';
+          ctx.beginPath();
+          ctx.arc(-5, -5, obs.radius * 0.75, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Bush
+          ctx.fillStyle = '#33691e';
+          ctx.beginPath();
+          ctx.arc(0, 0, obs.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (obs.label === 'bench') {
+        // Park Bench
+        ctx.fillStyle = '#5d4037';
+        ctx.fillRect(-27, -9, 54, 18);
+        ctx.strokeStyle = '#3e2723';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-27, -9, 54, 18);
+      }
+
+      ctx.restore();
+    });
+  }
+
+  function drawCharacters() {
+    const allEntities = [player, ...kids];
+
+    allEntities.forEach((ent, idx) => {
+      const isMicaBearer = (micaBearerIndex === idx);
+      const isPlayer = (idx === 0);
+      const { x, y } = ent.position;
+      const angle = ent.angleFacing || 0;
+
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Character Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(0, 14, 14, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Body (Shirt)
+      ctx.fillStyle = isPlayer ? '#0056b3' : (ent.shirt || '#ff5722');
+      ctx.beginPath();
+      ctx.roundRect(-8, -6, 16, 18, 4);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#e8b385';
+      ctx.beginPath();
+      ctx.arc(0, -12, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hair
+      ctx.fillStyle = isPlayer ? '#3e2723' : '#212121';
+      ctx.beginPath();
+      ctx.arc(0, -15, 7.5, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Facing Nose/Direction pointer
+      ctx.fillStyle = '#d7ccc8';
+      ctx.beginPath();
+      ctx.arc(Math.cos(angle) * 7, -12 + Math.sin(angle) * 7, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Status Badges (MICA / ALERT / FLEEING)
+      if (isMicaBearer) {
+        ctx.fillStyle = '#ffd600';
+        ctx.font = 'bold 12px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🔥 ¡LA MICA!', 0, -26);
+      } else if (ent.state === 'CHASING' || ent.alertTimer > 0) {
+        ctx.fillStyle = '#ff1744';
+        ctx.font = 'bold 12px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('👀❗', 0, -24);
+      } else if (ent.state === 'FLEEING') {
+        ctx.fillStyle = '#00e5ff';
+        ctx.font = 'bold 12px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('😱💨', 0, -24);
+      }
+
+      // Name label
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px Fredoka, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ent.name || (isPlayer ? 'Vos' : 'Amigo'), 0, 24);
+
+      ctx.restore();
+    });
+  }
+
+  // ================= END GAME & OVERLAYS =================
+  function endGame() {
     running = false;
     paused = false;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if (pauseIcon) pauseIcon.textContent = '⏸️';
 
-    let title = win ? jt('jue.card4.end.win', '🏆 ¡Los atrapaste a todos antes del bote!') :
-      (timeLeft <= 0 ? jt('jue.card4.end.timeUp', '⏰ ¡Se acabó el tiempo!') :
-        jt('jue.card4.end.tooMany', '🏁 ¡Se te escaparon demasiados!'));
-    let text = score >= 150 ? jt('jue.card4.end.high', '🌟 Sos el mejor "trayendola" del barrio, nadie se te escapa.') :
-      score >= 80 ? jt('jue.card4.end.mid', '👍 Buena persecución, ¡ya casi los atrapás a todos!') :
-      jt('jue.card4.end.low', 'Seguí practicando tus reflejos para la próxima ronda de encantados.');
+    const playerWon = (micaBearerIndex !== 0);
+    const finalScore = Math.round(score + (playerWon ? 500 : 100));
 
-    const gameName = `encantados-${difficulty}`;
+    let title, msg;
+    if (playerWon) {
+      playSFX('win');
+      title = '🏆 ¡TE SALVASTE DE LA MICA!';
+      msg = `¡Sos un rayo! Terminó el tiempo y <b>no te quedaste con la mica</b>. Pasaste la mica <b>${timesPassedMica} veces</b> y lograste un récord.`;
+    } else {
+      title = '🙈 ¡TE QUEDASTE CON LA MICA!';
+      msg = `¡Se acabó el tiempo y <b>te quedaste con la mica</b>! La próxima vez pasala más rápido a Chepe, Sofía o Mateo antes de que termine la ronda.`;
+    }
+
+    const gameName = `mica-${selectedTimeLimit}s`;
 
     showOverlay(`
-      <span class="overlay-tag">${jt('jue.card4.end.tag', 'Fin del Juego')}</span>
-      <h3>${title}</h3>
-      <div class="overlay-score">${score} pts</div>
-      <p>${jt('jue.card4.end.caughtOf', 'Atrapaste {c} de {t} amigos.').replace('{c}', caught).replace('{t}', gameConfig[difficulty].kidsToWin)} ${text}</p>
-      <p class="overlay-best-score" id="e-best-score"></p>
-      <button class="btn-primary" id="e-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
-    document.getElementById('e-restart').onclick = showDifficultySelector;
+      <span class="overlay-tag">Fin de la Ronda</span>
+      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
+      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${finalScore} pts</div>
+      <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
+        <div><b>${Math.round(timeWithoutMica)}s</b><br><span style="color:#aaa;">Sin Mica</span></div>
+        <div><b>${timesPassedMica}</b><br><span style="color:#aaa;">Pasadas</span></div>
+        <div><b>${selectedTimeLimit}s</b><br><span style="color:#aaa;">Ronda</span></div>
+      </div>
+      <p class="overlay-best-score" id="m-best-score"></p>
+      <button class="btn-primary" id="btn-restart-encantados">${jt('jue.rematch', 'Revancha')}</button>
+    `);
 
-    guardarPuntajeJuego(gameName, score).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('e-best-score');
-        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
+    document.getElementById('btn-restart-encantados').onclick = showTimeSelector;
+
+    guardarPuntajeJuego(gameName, finalScore).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then(best => {
+        const el = document.getElementById('m-best-score');
+        if (el && best) el.textContent = `Tu récord en ${selectedTimeLimit}s: ${best.score} pts`;
       });
     });
   }
 
+  // Mode Selection: 20s, 40s, 60s
+  function showTimeSelector() {
+    showOverlay(`
+      <span class="overlay-tag">Tiempo de Juego</span>
+      <h3 style="font-size: 1.3rem; color: #ffd700;">⏱️ Elige la Duración</h3>
+      <p style="font-size: 0.9rem;">¿Cuánto tiempo querés que dure la ronda de la mica?</p>
+      <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-primary" id="time-20s" style="font-size: 0.95rem;">
+          ⚡ Ráfaga Rápida (20 Segundos)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Pasa la mica inmediatamente</div>
+        </button>
+        <button class="btn-primary" id="time-40s" style="font-size: 0.95rem;">
+          ⏱️ Ronda Media (40 Segundos)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Equilibrada para escapar y perseguir</div>
+        </button>
+        <button class="btn-primary" id="time-60s" style="font-size: 0.95rem;">
+          🏆 Partida Completa (1 Minuto / 60s)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Máxima adrenalina y sigilo</div>
+        </button>
+      </div>
+    `);
+
+    document.getElementById('time-20s').onclick = () => startGame(20);
+    document.getElementById('time-40s').onclick = () => startGame(40);
+    document.getElementById('time-60s').onclick = () => startGame(60);
+  }
+
+  function startGame(timeSeconds) {
+    selectedTimeLimit = timeSeconds;
+    timeLeft = timeSeconds;
+    score = 0;
+    timesPassedMica = 0;
+    timesCarriedMica = 0;
+    timeWithoutMica = 0;
+    micaBearerIndex = 1; // Start with Chepe having the mica
+    immunityTimer = 60;
+
+    resizeCanvas();
+    setupArena();
+    hideOverlay();
+
+    running = true;
+    paused = false;
+    playMusic();
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  function showModeSelector() {
+    showOverlay(`
+      <span class="overlay-tag">Juego Tradicional</span>
+      <h2>🏃 ${jt('jue.card4.title', 'La Mica')}</h2>
+      <p>El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.</p>
+      <p class="rules-title">Reglas del juego</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">👀</span> <b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!</li>
+        <li class="rule-good"><span class="rule-icon">🖐️</span> <b>Pasar la Mica:</b> Tocá a un amigo para pasarle la mica y alejate antes de que te persiga.</li>
+        <li class="rule-bad"><span class="rule-icon">⏳</span> <b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!</li>
+      </ul>
+      <button class="btn-primary" id="btn-start-mica">Continuar</button>
+    `);
+    document.getElementById('btn-start-mica').onclick = showTimeSelector;
+  }
+
+  // ================= PAUSE / RESUME / MENU =================
   const pauseBtn = document.getElementById('pauseBtn-encantados');
   const pauseIcon = document.getElementById('pauseIcon-encantados');
   const pauseOverlay = document.getElementById('pauseOverlay-encantados');
@@ -2900,8 +3200,10 @@ function spawnEntities() {
     running = false;
     paused = true;
     cancelAnimationFrame(rafId);
-    if (bgMusic) { savedVolume = bgMusic.volume;
-      bgMusic.volume = 0.1; }
+    if (bgMusic) {
+      savedVolume = bgMusic.volume;
+      bgMusic.volume = 0.1;
+    }
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if (pauseIcon) pauseIcon.textContent = '▶️';
@@ -2911,118 +3213,42 @@ function spawnEntities() {
     if (!paused) return;
     paused = false;
     running = true;
-    lastTime = null;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if (pauseIcon) pauseIcon.textContent = '⏸️';
-    if (bgMusic) { bgMusic.volume = savedVolume || volume; if (volume > 0) bgMusic.play().catch(() => {}); }
+    if (bgMusic) {
+      bgMusic.volume = savedVolume || volume;
+      if (volume > 0) bgMusic.play().catch(() => {});
+    }
     rafId = requestAnimationFrame(step);
   }
 
-  function returnToMenu(){
+  function returnToMenu() {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    // stopMusic();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
-    if(pauseIcon) pauseIcon.textContent = '⏸️';
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
     showModeSelector();
   }
 
   pauseBtn?.addEventListener('click', () => {
-    if (!running && !paused) return;
     if (paused) resumeGame();
     else pauseGame();
   });
   resumeBtn?.addEventListener('click', resumeGame);
   menuBtn?.addEventListener('click', returnToMenu);
 
-  function setupGame() {
-    kids.forEach(k => World.remove(world, k.body));
-    kids = [];
-    initKids();
-    Body.setPosition(catcher, { x: canvas.width / 2, y: canvas.height - 100 });
-    Body.setVelocity(catcher, { x: 0, y: 0 });
-    const config = gameConfig[difficulty];
-    score = 0;
-    caught = 0;
-    escaped = 0;
-    timeLeft = config.timeLimit;
-    escapeAccum = 0;
-    nextEscapeIn = randomEscapeInterval();
-    lastTime = null;
-    particles = [];
-    initCars();
-    updateHud();
-    hideOverlay();
-    running = true;
-    paused = false;
-    canvasWrap?.classList.remove('is-paused');
-    pauseOverlay?.classList.add('hidden');
-    if (pauseIcon) pauseIcon.textContent = '⏸️';
-    playMusic();
-    cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(step);
-  }
-
-  function showDifficultySelector() {
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.diff.chooseTag', 'Elegí tu dificultad')}</span>
-      <h3>${jt('jue.card4.diff.title', '🏃 ¿Qué tan rápidos son tus amigos?')}</h3>
-      <p>${jt('jue.card4.diff.sub', 'Más difícil significa que corren más rápido al bote y tenés menos escapes permitidos.')}</p>
-      <div class="difficulty-buttons">
-        <button class="difficulty-btn easy" id="btn-easy-encantados">
-          ${jt('jue.diff.easy', '🟢 Fácil')}
-          <div class="difficulty-desc">${jt('jue.card4.diff.easyDesc', 'Atrapá 6 amigos, corren despacio')}</div>
-        </button>
-        <button class="difficulty-btn medium" id="btn-medium-encantados">
-          ${jt('jue.diff.medium', '🟡 Normal')}
-          <div class="difficulty-desc">${jt('jue.card4.diff.medDesc', 'Atrapá 8 amigos, corren más seguido')}</div>
-        </button>
-        <button class="difficulty-btn hard" id="btn-hard-encantados">
-          ${jt('jue.diff.hard', '🔴 Difícil')}
-          <div class="difficulty-desc">${jt('jue.card4.diff.hardDesc', 'Atrapá 10 amigos, casi no hay respiro')}</div>
-        </button>
-      </div>`);
-    document.getElementById('btn-easy-encantados').onclick = () => { difficulty = 'easy';
-      setTimeout(() => { resizeCanvas();
-        setupWalls();
-        setupGame(); }, 100); };
-    document.getElementById('btn-medium-encantados').onclick = () => { difficulty = 'medium';
-      setTimeout(() => { resizeCanvas();
-        setupWalls();
-        setupGame(); }, 100); };
-    document.getElementById('btn-hard-encantados').onclick = () => { difficulty = 'hard';
-      setTimeout(() => { resizeCanvas();
-        setupWalls();
-        setupGame(); }, 100); };
-  }
-
-  function showModeSelector() {
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card4.tagModal', 'Ruta 04')}</span>
-      <h3>🏃 ${jt('jue.card4.title', 'Escondelero')}</h3>
-      <p>${jt('jue.card4.intro', 'Vos sos "el que la trae". Tus amigos están escondidos por todo el patio y de repente van a salir corriendo hacia el bote para salvarse. Movete con las teclas <strong>WASD</strong> o las <strong>flechas</strong> del teclado e interceptalos antes de que lleguen.')}</p>
-      <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
-      <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card4.ruleGood', 'Tocá a los amigos que van corriendo antes de que lleguen al bote — cada atrapada suma puntos.')}</li>
-        <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card4.ruleBad', 'Si un amigo llega al bote, se salva y perdés puntos. Si se te escapan demasiados, perdés la partida.')}</li>
-      </ul>
-      <button class="btn-primary" id="e-start">${jt('jue.continue', 'Continuar')}</button>`);
-    document.getElementById('e-start').onclick = showDifficultySelector;
-  }
-
   resizeCanvas();
-  setupWalls();
-  initKids();
+  setupArena();
   showModeSelector();
 
   gameContent?.addEventListener('gameVisible', (e) => {
     if (e.detail.gameId === 'encantados') {
       isGameVisible = true;
       resizeCanvas();
-      setupWalls();
+      setupArena();
       playMusic();
       if (paused && running) resumeGame();
       else if (running) rafId = requestAnimationFrame(step);
@@ -3039,6 +3265,7 @@ function spawnEntities() {
     reloadMenu: showModeSelector
   });
 })();
+
 
 /* ---------------------------------------------------------
    JUEGO 5: EL RECREO (antes Elotes y Olé)
@@ -3884,10 +4111,11 @@ function spawnEntities() {
 })();
 
 /* ---------------------------------------------------------
-   JUEGO 6: TORITO PINTO (carrera de distancia por carriles,
-   ambientado en una calle empedrada de pueblo mágico con gente
-   comprando, puestos y obstáculos — mismo patrón que Coasters
-   pero con barra de energía en vez de bus rival)
+   JUEGO 6: TORITO PINTO (FIESTAS PATRONALES DE EL SALVADOR)
+   Jugabilidad mejorada con Matter.js, GSAP y Web Audio API.
+   - Pasa entre la gente y anímala con chispas y bailes tradicionales.
+   - Recoge silbadores y cuetillos para ganar energía y activar turbos.
+   - Llega hasta el Atrio de la Iglesia / Plaza Mayor de las Fiestas Patronales.
 --------------------------------------------------------- */
 (function initGameTorito(){
   const canvas = document.getElementById('canvas-torito');
@@ -3901,6 +4129,7 @@ function spawnEntities() {
   const overlay = document.getElementById('overlay-torito');
   const overlayCard = document.getElementById('overlay-card-torito');
   const gameContent = document.getElementById('modal-torito');
+  const popupsLayer = document.getElementById('torito-popups');
 
   let isGameVisible = false;
   let running = false;
@@ -3909,10 +4138,11 @@ function spawnEntities() {
 
   let gameDifficulty = 'easy';
   let targetDistance = 1200;
+  let destinationName = 'Suchitoto — Parroquia Santa Lucía';
 
   const gameConfig = {
-    easy: { fallSpeed: 1.7, energyDrainOnHit: 14, energyRegen: 10 },
-    hard: { fallSpeed: 2.5, energyDrainOnHit: 20, energyRegen: 8 }
+    easy: { baseSpeed: 3.6, energyDrainRate: 0.024, obstacleDrain: 14, turboSpeed: 6.2 },
+    hard: { baseSpeed: 5.2, energyDrainRate: 0.038, obstacleDrain: 18, turboSpeed: 8.0 }
   };
 
   const lanesCount = 3;
@@ -3924,8 +4154,176 @@ function spawnEntities() {
   let toritoLane = 1;
   let toritoY = 0;
   let distance = 0, energy = 100;
-  let stalls = [];
+  let score = 0;
+  let combo = 1;
+  let comboTimer = 0;
+  let maxCombo = 1;
+  let genteAnimada = 0;
+  let silbadoresRecogidos = 0;
+  let cuetillosRecogidos = 0;
 
+  let turboTimer = 0;
+  let isTurboActive = false;
+  let isArriving = false;
+  let arrivalTimer = 0;
+
+  let stalls = [];
+  let particles = [];
+  let spectators = [];
+  let sparks = [];
+
+  // ================= WEB AUDIO SFX SYNTHESIZER =================
+  let audioCtx = null;
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) audioCtx = new AudioCtx();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playSound(type) {
+    if (volume <= 0) return;
+    try {
+      const actx = getAudioContext();
+      if (!actx) return;
+      const t = actx.currentTime;
+
+      if (type === 'whistle') {
+        // Silbador rocket whistle (rising frequency glide)
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(450, t);
+        osc.frequency.exponentialRampToValueAtTime(1800, t + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(2600, t + 0.55);
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(0.25 * volume, t + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.56);
+      } else if (type === 'pop') {
+        // Cuetillo / Triquitraca pop
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(550 + Math.random() * 200, t);
+        osc.frequency.exponentialRampToValueAtTime(60, t + 0.08);
+        gain.gain.setValueAtTime(0.3 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.09);
+      } else if (type === 'cheer') {
+        // Crowd cheer burst
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, t); // C5
+        osc.frequency.setValueAtTime(659.25, t + 0.06); // E5
+        osc.frequency.setValueAtTime(783.99, t + 0.12); // G5
+        gain.gain.setValueAtTime(0.2 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.32);
+      } else if (type === 'spark') {
+        // Sparkler crackle
+        const bufferSize = Math.floor(actx.sampleRate * 0.12);
+        const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (Math.random() > 0.5 ? 1 : 0);
+        const noise = actx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = actx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(3200, t);
+        const gain = actx.createGain();
+        gain.gain.setValueAtTime(0.2 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(actx.destination);
+        noise.start(t);
+      } else if (type === 'dash') {
+        // Embestida whoosh
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, t);
+        osc.frequency.exponentialRampToValueAtTime(380, t + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(80, t + 0.35);
+        gain.gain.setValueAtTime(0.25 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 0.36);
+      } else if (type === 'bell') {
+        // Church arrival bells
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, t);
+        gain.gain.setValueAtTime(0.4 * volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start(t);
+        osc.stop(t + 1.25);
+      }
+    } catch(e){}
+  }
+
+  // ================= SALVADOREAN SLANG POPUPS (GSAP) =================
+  const salvadoranPraise = [
+    { text: '¡QUÉ CHIVO!', color: '#00e5ff' },
+    { text: '¡PUCHICA!', color: '#ffea00' },
+    { text: '¡ÉCHALE TORITO!', color: '#ff0055' },
+    { text: '¡CALIDÁ!', color: '#00e676' },
+    { text: '¡BÁRBARO!', color: '#ff9100' },
+    { text: '¡CHULADA!', color: '#7c4dff' },
+    { text: '¡DE TOCHO MOROCHO!', color: '#39ff14' },
+    { text: '¡VIVA LA FIESTA!', color: '#ffd700' }
+  ];
+
+  function showSlangCallout(customText, screenX, screenY) {
+    const layer = popupsLayer || canvasWrap;
+    if (!layer) return;
+
+    const item = salvadoranPraise[Math.floor(Math.random() * salvadoranPraise.length)];
+    const text = customText || item.text;
+    const color = item.color;
+
+    const x = screenX !== undefined ? screenX : (canvas.width * 0.25 + Math.random() * canvas.width * 0.5);
+    const y = screenY !== undefined ? screenY : (canvas.height * 0.35 + Math.random() * canvas.height * 0.3);
+
+    const el = document.createElement('div');
+    el.className = 'torito-slang-popup';
+    el.innerText = text;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.color = color;
+
+    layer.appendChild(el);
+
+    if (window.gsap) {
+      const rot = (Math.random() - 0.5) * 26;
+      gsap.timeline({ onComplete: () => el.remove() })
+        .fromTo(el, { scale: 0.3, opacity: 0, rotation: rot, y: 0 }, { scale: 1.25, opacity: 1, duration: 0.22, ease: 'back.out(2)' })
+        .to(el, { y: -50 - Math.random() * 30, scale: 0.95, duration: 0.5, ease: 'power1.out' })
+        .to(el, { opacity: 0, scale: 0.5, duration: 0.25, ease: 'power2.in' }, '-=0.15');
+    } else {
+      setTimeout(() => el.remove(), 700);
+    }
+  }
+
+  // ================= CANVAS RESIZING & PHYSICS BOUNDS =================
   let baseWidth = 0, baseHeight = 0;
   function resizeCanvas() {
     const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -3942,7 +4340,7 @@ function spawnEntities() {
       baseHeight = canvas.height;
     }
 
-    const sideW = canvas.width * 0.14;
+    const sideW = canvas.width * 0.16;
     streetLeft = sideW;
     streetRight = canvas.width - sideW;
     const streetWidth = streetRight - streetLeft;
@@ -3952,8 +4350,8 @@ function spawnEntities() {
       lanePositions[i] = streetLeft + (i * laneWidth) + (laneWidth / 2);
     }
 
-    stallLeftX = sideW * 0.55;
-    stallRightX = canvas.width - sideW * 0.55;
+    stallLeftX = sideW * 0.52;
+    stallRightX = canvas.width - sideW * 0.52;
 
     toritoY = canvas.height - 110;
 
@@ -3976,7 +4374,7 @@ function spawnEntities() {
   let wallRight = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
   World.add(world, [wallLeft, wallRight]);
 
-  const toritoBody = Bodies.rectangle(0, 0, 46, 30, { isStatic: true, label: 'torito' });
+  const toritoBody = Bodies.rectangle(0, 0, 48, 32, { isStatic: true, label: 'torito' });
   World.add(world, toritoBody);
 
   resizeCanvas();
@@ -3998,12 +4396,17 @@ function spawnEntities() {
     });
   }
 
+  // ================= INPUTS & CONTROLS =================
   let keys = {};
   window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
     if(running && !paused) {
       if(e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
       if(e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
+      if(e.code === 'Space') {
+        e.preventDefault();
+        performSparkDash();
+      }
     }
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
@@ -4017,29 +4420,60 @@ function spawnEntities() {
 
   function moveLane(direction) {
     const nextLane = toritoLane + direction;
-    if(nextLane >= 0 && nextLane < lanesCount) toritoLane = nextLane;
+    if(nextLane >= 0 && nextLane < lanesCount) {
+      toritoLane = nextLane;
+      playSound('spark');
+    }
   }
 
+  function performSparkDash() {
+    if (energy < 10) return;
+    energy = Math.max(0, energy - 8);
+    playSound('dash');
+    createFireworkBurst(toritoBody.position.x, toritoY, 18);
+    if (window.gsap) {
+      gsap.fromTo(canvas, { x: -4 }, { x: 4, duration: 0.04, repeat: 4, yoyo: true, onComplete: () => gsap.set(canvas, { x: 0 }) });
+    }
+    // Animate all nearby spectators instantly
+    animateNearbySpectators(toritoBody.position.x, toritoY, 160);
+  }
+
+  // ================= HUD & MUSIC =================
   function updateHud(){
-    const prog = document.getElementById('t-prog');
+    const prog = document.getElementById('t-prog-fill');
     const energyFill = document.getElementById('t-energy-fill');
+    const hudScore = document.getElementById('t-hud-score');
+    const hudCombo = document.getElementById('t-hud-combo');
 
     if(prog) prog.style.width = Math.min(100, (distance / targetDistance) * 100) + '%';
     if(energyFill) {
       energyFill.style.width = Math.max(0, energy) + '%';
-      energyFill.style.background = energy > 50 ? '#3ae080' : energy > 20 ? '#ffb300' : '#e53935';
+      energyFill.style.background = energy > 50 
+        ? 'linear-gradient(90deg, #00e676, #76ff03)' 
+        : energy > 22 ? 'linear-gradient(90deg, #ffb300, #ffea00)' : 'linear-gradient(90deg, #ff1744, #ff5252)';
+    }
+    if(hudScore) hudScore.innerText = `${Math.round(score)} pts`;
+    if(hudCombo) {
+      hudCombo.innerText = `x${combo}`;
+      hudCombo.parentElement.style.display = combo > 1 ? 'inline-flex' : 'none';
     }
   }
 
   if(hud) {
     hud.innerHTML = `
-      <div class="hud-item">
-        <span>${jt('jue.card6.routeLabel', '🐂 Progreso')}</span>
-        <div class="coasters-progress-bar"><div id="t-prog" class="coasters-progress-fill"></div></div>
+      <div class="torito-hud-bar-container">
+        <span class="torito-hud-label">⛪ Ruta</span>
+        <div class="torito-meter-track"><div id="t-prog-fill" class="torito-meter-fill"></div></div>
       </div>
-      <div class="hud-item">
-        <span>${jt('jue.card6.energyLabel', '🧨 Energía')}</span>
-        <div class="coasters-progress-bar"><div id="t-energy-fill" class="coasters-progress-fill" style="background:#3ae080;"></div></div>
+      <div class="torito-hud-bar-container">
+        <span class="torito-hud-label">🧨 Pólvora</span>
+        <div class="torito-meter-track"><div id="t-energy-fill" class="torito-meter-fill"></div></div>
+      </div>
+      <div class="torito-hud-bar-container">
+        <span class="torito-hud-label">🎉 <b id="t-hud-score">0 pts</b></span>
+      </div>
+      <div class="torito-combo-badge" style="display:none;">
+        <span>🔥</span><span id="t-hud-combo">x1</span>
       </div>`;
   }
 
@@ -4047,7 +4481,7 @@ function spawnEntities() {
   const volumeSlider = document.getElementById('volumeSlider-torito');
   const volumeIcon = document.getElementById('volumeIcon-torito');
   const damageOverlay = document.getElementById('damageOverlay-torito');
-  let volume = Number(volumeSlider?.value || 0.4);
+  let volume = Number(volumeSlider?.value || 0.45);
   let savedVolume = volume;
 
   if(bgMusic){
@@ -4098,16 +4532,30 @@ function spawnEntities() {
     }
   }
 
+  // ================= RESET & ENTITY CREATION =================
   function resetGame() {
     resizeCanvas();
     toritoLane = 1;
     Body.setPosition(toritoBody, { x: lanePositions[1], y: toritoY });
     distance = 0;
     energy = 100;
+    score = 0;
+    combo = 1;
+    comboTimer = 0;
+    maxCombo = 1;
+    genteAnimada = 0;
+    silbadoresRecogidos = 0;
+    cuetillosRecogidos = 0;
+    turboTimer = 0;
+    isTurboActive = false;
+    isArriving = false;
+    arrivalTimer = 0;
     stalls = [];
+    particles = [];
+    sparks = [];
 
     Composite.allBodies(world).forEach(b => {
-      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
+      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'silbador' || b.label === 'cuetillo' || b.label === 'pupusa' || b.label === 'agua') {
         World.remove(world, b);
       }
     });
@@ -4118,8 +4566,8 @@ function spawnEntities() {
     const laneX = lanePositions[lane];
     const bodies = Composite.allBodies(world);
     for (const b of bodies) {
-      if (b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
-        if (Math.abs(b.position.x - laneX) < 30 && b.position.y < threshold) {
+      if (['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
+        if (Math.abs(b.position.x - laneX) < 32 && b.position.y < threshold) {
           return true;
         }
       }
@@ -4127,25 +4575,56 @@ function spawnEntities() {
     return false;
   }
 
+  // 1. Spawning Spectators / Dancers (Gente que se anima)
+  function spawnPersona(lane){
+    const body = Bodies.circle(lanePositions[lane], -40, 14, {
+      restitution: 0.6, friction: 0.25, frictionAir: 0.015, label: 'persona'
+    });
+    body.isCheering = false;
+    body.cheerTimer = 0;
+    body.personType = Math.random() > 0.5 ? 'volcanena' : 'campesino';
+    body.outfitColor = body.personType === 'volcanena'
+      ? ['#e63946', '#ff007f', '#3a86c8', '#2fbf9f', '#7d3ac1'][Math.floor(Math.random() * 5)]
+      : '#f8f4e6';
+    World.add(world, body);
+  }
+
+  // 2. Spawning Silbadores (Whistling rockets that recharge big energy & give speed)
+  function spawnSilbador(lane){
+    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+      restitution: 0.7, friction: 0.1, isSensor: true, label: 'silbador'
+    });
+    World.add(world, body);
+  }
+
+  // 3. Spawning Cuetillos (Firecrackers that recharge energy & burst sparks)
+  function spawnCuetillo(lane){
+    const body = Bodies.circle(lanePositions[lane], -40, 10, {
+      restitution: 0.6, friction: 0.2, isSensor: true, label: 'cuetillo'
+    });
+    World.add(world, body);
+  }
+
+  // 4. Spawning Pupusas (Bonus food pickup)
+  function spawnPupusa(lane){
+    const body = Bodies.circle(lanePositions[lane], -40, 11, {
+      restitution: 0.5, friction: 0.2, isSensor: true, label: 'pupusa'
+    });
+    World.add(world, body);
+  }
+
+  // 5. Spawning Heavy Obstacles (Carretas) & Hazards (Baldes de agua)
   function spawnCarreta(lane){
-    const body = Bodies.rectangle(lanePositions[lane], -40, 40, 20, {
+    const body = Bodies.rectangle(lanePositions[lane], -40, 44, 24, {
       restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
     });
-    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.04);
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.03);
     World.add(world, body);
   }
 
-  function spawnPersona(lane){
+  function spawnAgua(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 12, {
-      restitution: 0.5, friction: 0.3, frictionAir: 0.015, label: 'persona'
-    });
-    body.outfitColor = ['#e63946', '#3a86c8', '#2fbf9f', '#f2c744', '#7d3ac1'][Math.floor(Math.random() * 5)];
-    World.add(world, body);
-  }
-
-  function spawnCohetillo(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 9, {
-      restitution: 0.6, friction: 0.2, frictionAir: 0.012, isSensor: true, label: 'cohetillo'
+      restitution: 0.4, friction: 0.2, label: 'agua'
     });
     World.add(world, body);
   }
@@ -4160,73 +4639,233 @@ function spawnEntities() {
   }
 
   function spawnEntities() {
+    if (isArriving) return; // Stop spawning obstacles when entering church plaza!
+
     const config = gameConfig[gameDifficulty];
     let lane = Math.floor(Math.random() * lanesCount);
-    if (!isLaneOccupied(lane) && Math.random() < 0.006 && countBodies('carreta') < 2) spawnCarreta(lane);
-    
-    lane = Math.floor(Math.random() * lanesCount);
-    if (!isLaneOccupied(lane) && Math.random() < 0.008 && countBodies('persona') < 4) spawnPersona(lane);
-    
-    lane = Math.floor(Math.random() * lanesCount);
-    if (!isLaneOccupied(lane) && Math.random() < 0.006 && countBodies('cohetillo') < 2) spawnCohetillo(lane);
 
+    // High spawn rate for people so you can pass between them and cheer them!
+    if (!isLaneOccupied(lane) && Math.random() < 0.014 && countBodies('persona') < 5) {
+      spawnPersona(lane);
+    }
+
+    lane = Math.floor(Math.random() * lanesCount);
+    // Silbadores (Rocket power)
+    if (!isLaneOccupied(lane) && Math.random() < 0.009 && countBodies('silbador') < 2) {
+      spawnSilbador(lane);
+    }
+
+    lane = Math.floor(Math.random() * lanesCount);
+    // Cuetillos (Firecrackers)
+    if (!isLaneOccupied(lane) && Math.random() < 0.011 && countBodies('cuetillo') < 3) {
+      spawnCuetillo(lane);
+    }
+
+    lane = Math.floor(Math.random() * lanesCount);
+    // Pupusa food pickup
+    if (!isLaneOccupied(lane) && Math.random() < 0.005 && countBodies('pupusa') < 2) {
+      spawnPupusa(lane);
+    }
+
+    lane = Math.floor(Math.random() * lanesCount);
+    // Carreta obstacle
+    if (!isLaneOccupied(lane) && Math.random() < (gameDifficulty === 'hard' ? 0.008 : 0.005) && countBodies('carreta') < 2) {
+      spawnCarreta(lane);
+    }
+
+    // Puestos along sidewalks
     if(Math.random() < 0.008 && stalls.length < 3) spawnStall();
   }
 
+  // ================= ANIMATING PEOPLE & COLLISIONS =================
   const toRemove = new Set();
+
+  function animateNearbySpectators(x, y, radius = 90) {
+    Composite.allBodies(world).forEach(b => {
+      if (b.label === 'persona' && !b.isCheering) {
+        const dx = b.position.x - x;
+        const dy = b.position.y - y;
+        if (Math.sqrt(dx * dx + dy * dy) < radius) {
+          b.isCheering = true;
+          b.cheerTimer = 80;
+          genteAnimada++;
+          score += 100 * combo;
+          combo = Math.min(15, combo + 1);
+          comboTimer = 160;
+          energy = Math.min(100, energy + 2.5); // Cheering people restores a little energy!
+          playSound('cheer');
+          createFireworkBurst(b.position.x, b.position.y, 10);
+          if (combo % 3 === 0) showSlangCallout(null, b.position.x, b.position.y);
+        }
+      }
+    });
+  }
 
   Events.on(engine, 'collisionStart', (evt) => {
     const config = gameConfig[gameDifficulty];
     for(const pair of evt.pairs){
       const bodies = [pair.bodyA, pair.bodyB];
       const toritoHit = bodies.find(b => b.label === 'torito');
-      const other = bodies.find(b => b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo');
+      const other = bodies.find(b => ['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label));
       if(!toritoHit || !other || other.hit) continue;
 
       other.hit = true;
 
-      if(other.label === 'cohetillo') {
-        energy = Math.min(100, energy + config.energyRegen);
+      // 1. PERSONA: Animar a la gente alegremente
+      if(other.label === 'persona') {
+        other.isCheering = true;
+        other.cheerTimer = 90;
+        genteAnimada++;
+        score += 120 * combo;
+        combo = Math.min(15, combo + 1);
+        comboTimer = 180;
+        energy = Math.min(100, energy + 4);
+
+        // Apply playful push force
+        const angle = (other.position.x > toritoBody.position.x) ? 0.3 : -0.3;
+        Body.applyForce(other, other.position, { x: angle * 0.02, y: -0.015 });
+        Body.setAngularVelocity(other, angle * 0.2);
+
+        playSound('cheer');
+        createFireworkBurst(other.position.x, other.position.y, 14);
+        showSlangCallout('¡Olé Torito! 🎉', other.position.x, other.position.y);
+        continue;
+      }
+
+      // 2. SILBADOR: Ganar energía y activar Turbo Silbador
+      if(other.label === 'silbador') {
+        energy = Math.min(100, energy + 24);
+        score += 250 * combo;
+        silbadoresRecogidos++;
+        turboTimer = 180; // ~3 seconds of Turbo Rocket
+        isTurboActive = true;
+
+        playSound('whistle');
+        createFireworkBurst(other.position.x, other.position.y, 25);
+        showSlangCallout('🚀 ¡TURBO SILBADOR!', other.position.x, other.position.y);
         toRemove.add(other);
         continue;
       }
 
-      const kickX = (Math.random() - 0.5) * 0.045;
-      Body.applyForce(other, other.position, { x: kickX, y: -0.02 });
-      Body.setAngularVelocity(other, (Math.random() - 0.5) * 0.5);
+      // 3. CUETILLO: Ganar energía y lluvia de chispas
+      if(other.label === 'cuetillo') {
+        energy = Math.min(100, energy + 16);
+        score += 180 * combo;
+        cuetillosRecogidos++;
 
-      const penalty = other.label === 'carreta' ? config.energyDrainOnHit : config.energyDrainOnHit * 0.5;
-      energy = Math.max(0, energy - penalty);
-      flashDamage();
+        playSound('pop');
+        createFireworkBurst(other.position.x, other.position.y, 20);
+        showSlangCallout('🧨 ¡CUETILLO!', other.position.x, other.position.y);
+        animateNearbySpectators(other.position.x, other.position.y, 130);
+        toRemove.add(other);
+        continue;
+      }
 
-      setTimeout(() => toRemove.add(other), 220);
+      // 4. PUPUSA: Deliciosa recarga de energía
+      if(other.label === 'pupusa') {
+        energy = Math.min(100, energy + 28);
+        score += 300 * combo;
+        playSound('cheer');
+        createFireworkBurst(other.position.x, other.position.y, 16);
+        showSlangCallout('🫓 ¡Pupusa de Loroco!', other.position.x, other.position.y);
+        toRemove.add(other);
+        continue;
+      }
+
+      // 5. CARRETA / OBSTACULO: Choque que drena energía
+      if(other.label === 'carreta') {
+        const kickX = (Math.random() - 0.5) * 0.045;
+        Body.applyForce(other, other.position, { x: kickX, y: -0.02 });
+        Body.setAngularVelocity(other, (Math.random() - 0.5) * 0.5);
+
+        energy = Math.max(0, energy - config.obstacleDrain);
+        combo = 1; // Reset combo on heavy crash
+        flashDamage();
+        playSound('pop');
+        showSlangCallout('¡Cuidado con la carreta! ⚠️', other.position.x, other.position.y);
+        setTimeout(() => toRemove.add(other), 240);
+        continue;
+      }
+
+      // 6. AGUA: Balde de agua que apaga cohetes
+      if(other.label === 'agua') {
+        energy = Math.max(0, energy - 18);
+        combo = 1;
+        flashDamage();
+        showSlangCallout('¡Agua fría! 💦', other.position.x, other.position.y);
+        setTimeout(() => toRemove.add(other), 180);
+      }
     }
   });
 
+  // ================= MAIN STEP LOOP =================
   function step(){
     if(!running || !isGameVisible) return;
 
     const config = gameConfig[gameDifficulty];
+    const currentSpeed = (isTurboActive ? config.turboSpeed : config.baseSpeed);
 
-    distance += config.fallSpeed * 0.15;
-    energy = Math.max(0, energy - 0.02);
+    distance += currentSpeed * 0.16;
+    energy = Math.max(0, energy - config.energyDrainRate);
+
+    // Combo timer decay
+    if (comboTimer > 0) {
+      comboTimer--;
+      if (comboTimer <= 0) combo = 1;
+    }
+
+    // Turbo timer decay
+    if (turboTimer > 0) {
+      turboTimer--;
+      if (turboTimer % 8 === 0) {
+        createSpark(toritoBody.position.x + (Math.random() - 0.5) * 20, toritoY + 20, (Math.random() - 0.5) * 3, 4 + Math.random() * 4);
+      }
+      if (turboTimer <= 0) isTurboActive = false;
+    }
+
+    // Auto-animate people if passing right next to them
+    animateNearbySpectators(toritoBody.position.x, toritoY, isTurboActive ? 120 : 65);
+
+    // Destination Arrival Check
+    if (distance >= targetDistance && !isArriving) {
+      isArriving = true;
+      arrivalTimer = 180; // ~3 seconds triumphal sequence
+      playSound('bell');
+      showSlangCallout('⛪ ¡LLEGASTE AL ATRIO!', canvas.width / 2, canvas.height * 0.35);
+    }
+
+    if (isArriving) {
+      arrivalTimer--;
+      if (arrivalTimer % 12 === 0) {
+        const rx = 60 + Math.random() * (canvas.width - 120);
+        const ry = 60 + Math.random() * (canvas.height * 0.5);
+        createFireworkBurst(rx, ry, 24);
+        playSound('pop');
+      }
+      if (arrivalTimer <= 0) {
+        endRun('completo');
+        return;
+      }
+    }
 
     spawnEntities();
 
+    // Smooth lateral movement towards target lane
     const targetX = lanePositions[toritoLane];
-    const nextX = toritoBody.position.x + (targetX - toritoBody.position.x) * 0.22;
+    const nextX = toritoBody.position.x + (targetX - toritoBody.position.x) * 0.24;
     Body.setPosition(toritoBody, { x: nextX, y: toritoY });
 
+    // Update Matter bodies
     Composite.allBodies(world).forEach(b => {
-      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'cohetillo') {
-        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: config.fallSpeed });
-        if(b.position.y > canvas.height + 60) World.remove(world, b);
+      if(['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
+        Body.setVelocity(b, { x: b.velocity.x * 0.95, y: currentSpeed });
+        if(b.position.y > canvas.height + 70) World.remove(world, b);
       }
     });
 
     stalls.forEach((s, idx) => {
-      s.y += config.fallSpeed;
-      if(s.y > canvas.height) stalls.splice(idx, 1);
+      s.y += currentSpeed;
+      if(s.y > canvas.height + 60) stalls.splice(idx, 1);
     });
 
     Engine.update(engine, 16.667);
@@ -4237,31 +4876,43 @@ function spawnEntities() {
     }
 
     if(energy <= 0) { endRun('sinEnergia'); return; }
-    if(distance >= targetDistance) { endRun('completo'); return; }
 
+    // ================= DRAWING =================
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawStreet();
     stalls.forEach(drawStall);
+
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'carreta') drawCarreta(b);
       else if(b.label === 'persona') drawPersona(b);
-      else if(b.label === 'cohetillo') drawCohetillo(b);
+      else if(b.label === 'silbador') drawSilbador(b);
+      else if(b.label === 'cuetillo') drawCuetillo(b);
+      else if(b.label === 'pupusa') drawPupusa(b);
+      else if(b.label === 'agua') drawAgua(b);
     });
+
     drawTorito(toritoBody.position.x, toritoY);
+    drawParticles();
+
+    // Destination Church Atrium drawing when nearing the end
+    if (distance >= targetDistance - 300) {
+      drawChurchDestination(distance - (targetDistance - 300));
+    }
 
     updateHud();
     rafId = requestAnimationFrame(step);
   }
 
-  // ---- Dibujado ----
+  // ================= GRAPHICS & RENDERING =================
 
   function drawStreet(){
-    ctx.fillStyle = '#9c8f7e';
+    ctx.fillStyle = '#8f8170';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = 'rgba(0,0,0,.10)';
-    ctx.lineWidth = 1;
-    const stoneSize = 26;
+    // Cobblestone paving pattern
+    ctx.strokeStyle = 'rgba(0,0,0,.12)';
+    ctx.lineWidth = 1.2;
+    const stoneSize = 28;
     const offsetY = distance % stoneSize;
     for(let row = -1; row * stoneSize - offsetY < canvas.height; row++) {
       const rowY = row * stoneSize - offsetY;
@@ -4272,16 +4923,54 @@ function spawnEntities() {
       }
     }
 
-    const facadeColors = ['#f2b134', '#3a7d6b', '#7d3ac1', '#e8622c'];
-    const colorIdx = Math.floor(distance / 260);
-    const sideW = canvas.width * 0.14;
+    const facadeColors = ['#f2b134', '#3a7d6b', '#7d3ac1', '#e8622c', '#d32f2f', '#0097a7'];
+    const colorIdx = Math.floor(distance / 240);
+    const sideW = canvas.width * 0.16;
 
     drawHouse(0, sideW, facadeColors[colorIdx % facadeColors.length]);
     drawHouse(canvas.width - sideW, sideW, facadeColors[(colorIdx + 2) % facadeColors.length]);
 
-    ctx.fillStyle = 'rgba(0,0,0,.15)';
+    // Curb lines
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
     ctx.fillRect(sideW - 4, 0, 4, canvas.height);
     ctx.fillRect(canvas.width - sideW, 0, 4, canvas.height);
+
+    // Animated Papel Picado hanging across the street
+    drawPapelPicado();
+  }
+
+  function drawPapelPicado() {
+    const garlandInterval = 180;
+    const garlandY = (distance * 0.7) % garlandInterval;
+    const colors = ['#ff007f', '#00e5ff', '#ffea00', '#00e676', '#ff9100'];
+
+    for (let y = -garlandY; y < canvas.height; y += garlandInterval) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(streetLeft, y);
+      ctx.quadraticCurveTo(canvas.width / 2, y + 20, streetRight, y);
+      ctx.stroke();
+
+      const flags = 7;
+      const step = (streetRight - streetLeft) / flags;
+      for (let i = 0; i < flags; i++) {
+        const fx = streetLeft + i * step + step * 0.15;
+        const t = i / (flags - 1);
+        const fy = y + 20 * (4 * t * (1 - t));
+        ctx.fillStyle = colors[(i + Math.floor(distance / 100)) % colors.length];
+        ctx.beginPath();
+        ctx.moveTo(fx, fy);
+        ctx.lineTo(fx + step * 0.7, fy);
+        ctx.lineTo(fx + step * 0.7, fy + 16);
+        ctx.lineTo(fx + step * 0.35, fy + 12);
+        ctx.lineTo(fx, fy + 16);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
   }
 
   function drawHouse(x, width, color) {
@@ -4289,52 +4978,65 @@ function spawnEntities() {
     ctx.fillStyle = color;
     ctx.fillRect(x, 0, width, canvas.height);
 
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    const doorSpacing = 130;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    const doorSpacing = 120;
     const offsetY = (distance * 0.4) % doorSpacing;
     for (let y = -offsetY; y < canvas.height; y += doorSpacing) {
       const cx = x + width / 2;
       ctx.beginPath();
-      ctx.roundRect(cx - width * 0.2, y + 20, width * 0.4, width * 0.5, 3);
+      ctx.roundRect(cx - width * 0.22, y + 16, width * 0.44, width * 0.55, 3);
       ctx.fill();
     }
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(x - width * 0.15, 0);
-    ctx.lineTo(x + width / 2, -roofHeight);
-    ctx.lineTo(x + width + width * 0.15, 0);
-    ctx.closePath();
+    // Tiled roof eaves
     ctx.fillStyle = '#b54b3a';
-    ctx.fill();
-    ctx.strokeStyle = '#7a3428';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.fillRect(x - (x === 0 ? 0 : 4), 0, width + 4, 10);
+  }
 
-    ctx.strokeStyle = '#8a3f2e';
-    ctx.lineWidth = 1.5;
-    const steps = 6;
-    for (let i = 1; i < steps; i++) {
-      const t = i / steps;
-      const yPos = -roofHeight * t;
-      const xLeft = x + width * 0.15 * t;
-      const xRight = x + width - width * 0.15 * t;
-      ctx.beginPath();
-      ctx.moveTo(xLeft, yPos);
-      ctx.lineTo(xRight, yPos);
-      ctx.stroke();
-    }
-    ctx.strokeStyle = '#7a3428';
-    ctx.lineWidth = 1;
-    for (let i = 1; i < steps * 2; i++) {
-      const t = i / (steps * 2);
-      const yPos = -roofHeight * t;
-      const xPos = x + width * 0.15 + (width - width * 0.3) * t;
-      ctx.beginPath();
-      ctx.moveTo(xPos, yPos);
-      ctx.lineTo(xPos + width * 0.08, yPos - roofHeight * 0.05);
-      ctx.stroke();
-    }
+  function drawChurchDestination(progress) {
+    // Grand Colonial Church facade descending when reaching the end of the run
+    const churchH = Math.min(220, progress * 0.8);
+    const churchY = -220 + churchH;
+
+    ctx.save();
+    ctx.translate(0, churchY);
+
+    // Church main stone facade
+    ctx.fillStyle = '#f5ede0';
+    ctx.fillRect(streetLeft, 0, streetRight - streetLeft, 220);
+
+    // Twin Bell Towers
+    ctx.fillStyle = '#e8dcc8';
+    ctx.fillRect(streetLeft, -40, 50, 260);
+    ctx.fillRect(streetRight - 50, -40, 50, 260);
+
+    // Bells
+    ctx.fillStyle = '#d4af37';
+    ctx.beginPath();
+    ctx.arc(streetLeft + 25, 20, 10, 0, Math.PI * 2);
+    ctx.arc(streetRight - 25, 20, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Golden Cross
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(canvas.width / 2 - 4, -30, 8, 35);
+    ctx.fillRect(canvas.width / 2 - 14, -20, 28, 7);
+
+    // Grand Portal
+    ctx.fillStyle = '#5c3a21';
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, 160, 45, Math.PI, 0);
+    ctx.rect(canvas.width / 2 - 45, 160, 90, 60);
+    ctx.fill();
+
+    // Banner
+    ctx.fillStyle = '#d32f2f';
+    ctx.fillRect(canvas.width / 2 - 90, 80, 180, 26);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px Fredoka, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('¡FIESTAS PATRONALES!', canvas.width / 2, 97);
+
     ctx.restore();
   }
 
@@ -4342,83 +5044,263 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(x, y);
 
-    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
     ctx.beginPath();
-    ctx.ellipse(0, 46, 24, 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 44, 26, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    const bob = Math.sin(Date.now() / 160) * 2;
-    const legSwing = Math.sin(Date.now() / 110) * 6;
-    ctx.fillStyle = '#1c1c1c';
+    // Turbo Flame aura
+    if (isTurboActive) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const turboGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, 55);
+      turboGrad.addColorStop(0, 'rgba(255, 61, 0, 0.8)');
+      turboGrad.addColorStop(0.6, 'rgba(255, 234, 0, 0.4)');
+      turboGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = turboGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, 55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    const bob = Math.sin(Date.now() / 140) * 2.5;
+    const legSwing = Math.sin(Date.now() / 90) * 8;
+
+    // Dancing carrier legs in white manta pants
+    ctx.fillStyle = '#f8f4e6';
     ctx.beginPath();
-    ctx.roundRect(-7, 30 + bob, 5, 16 + legSwing * 0.3, 2);
+    ctx.roundRect(-8, 28 + bob, 6, 18 + legSwing * 0.3, 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.roundRect(2, 30 + bob, 5, 16 - legSwing * 0.3, 2);
-    ctx.fill();
-    ctx.fillStyle = '#2b2b2b';
-    ctx.beginPath();
-    ctx.roundRect(-10, 8 + bob, 20, 26, 6);
+    ctx.roundRect(2, 28 + bob, 6, 18 - legSwing * 0.3, 2);
     ctx.fill();
 
     ctx.translate(0, bob);
 
+    // Wooden Frame Structure
     ctx.strokeStyle = '#8a6238';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-20, 6); ctx.lineTo(-22, -22);
-    ctx.moveTo(20, 6); ctx.lineTo(22, -22);
-    ctx.moveTo(-22, -22); ctx.lineTo(22, -22);
-    ctx.moveTo(-22, -6); ctx.lineTo(22, -6);
-    ctx.moveTo(-20, 6); ctx.lineTo(20, 6);
+    ctx.roundRect(-22, -18, 44, 38, 6);
     ctx.stroke();
 
+    // Colorful folkloric handkerchiefs & ribbons
     const panos = [
-      { x: -14, y: -16, w: 12, h: 12, color: '#e63946' },
-      { x: -1,  y: -18, w: 11, h: 11, color: '#f2c744' },
-      { x: 10,  y: -15, w: 12, h: 12, color: '#3a86c8' },
-      { x: -16, y: -3,  w: 11, h: 11, color: '#2fbf9f' },
-      { x: -3,  y: -3,  w: 11, h: 12, color: '#7d3ac1' },
-      { x: 10,  y: -2,  w: 11, h: 11, color: '#e63946' },
-      { x: -14, y: 9,   w: 11, h: 10, color: '#3a86c8' },
-      { x: 10,  y: 9,   w: 11, h: 10, color: '#f2c744' }
+      { x: -16, y: -14, w: 14, h: 14, color: '#e63946' },
+      { x: 2,   y: -14, w: 14, h: 14, color: '#f2c744' },
+      { x: -16, y: 2,   w: 14, h: 14, color: '#3a86c8' },
+      { x: 2,   y: 2,   w: 14, h: 14, color: '#2fbf9f' }
     ];
     panos.forEach(p => {
       ctx.fillStyle = p.color;
       ctx.beginPath();
-      ctx.roundRect(p.x, p.y, p.w, p.h, 2);
+      ctx.roundRect(p.x, p.y, p.w, p.h, 3);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,.18)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
     });
 
-    ctx.fillStyle = '#3d2a1e';
+    // Bull Head Mask
+    ctx.fillStyle = '#2b1a0f';
     ctx.beginPath();
-    ctx.ellipse(0, -30, 11, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(0, -38, 6, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#c9c2b0';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-8, -34); ctx.quadraticCurveTo(-18, -40, -14, -48);
-    ctx.moveTo(8, -34); ctx.quadraticCurveTo(18, -40, 14, -48);
-    ctx.stroke();
-    ctx.fillStyle = '#ffd54f';
-    ctx.beginPath();
-    ctx.arc(-4, -31, 1.6, 0, Math.PI * 2);
-    ctx.arc(4, -31, 1.6, 0, Math.PI * 2);
+    ctx.ellipse(0, -28, 12, 10, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if(Math.random() > 0.55){
-      ctx.fillStyle = '#ffd54f';
+    // Bull Horns with Flowers
+    ctx.strokeStyle = '#e0dacb';
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-9, -32); ctx.quadraticCurveTo(-20, -38, -16, -46);
+    ctx.moveTo(9, -32); ctx.quadraticCurveTo(20, -38, 16, -46);
+    ctx.stroke();
+
+    // Horn Flowers
+    ctx.fillStyle = '#ff007f';
+    ctx.beginPath();
+    ctx.arc(-10, -32, 3, 0, Math.PI * 2);
+    ctx.arc(10, -32, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fiery Eyes
+    ctx.fillStyle = '#ffd54f';
+    ctx.beginPath();
+    ctx.arc(-4, -29, 2, 0, Math.PI * 2);
+    ctx.arc(4, -29, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Active Sparkler Tubes on flanks
+    const tubes = [
+      { x: -22, y: -10, a: -Math.PI / 4 },
+      { x: 22, y: -10, a: Math.PI / 4 },
+      { x: -22, y: 10, a: -3 * Math.PI / 4 },
+      { x: 22, y: 10, a: 3 * Math.PI / 4 }
+    ];
+    tubes.forEach(t => {
+      ctx.save();
+      ctx.translate(t.x, t.y);
+      ctx.rotate(t.a);
+      ctx.fillStyle = '#ff9800';
+      ctx.fillRect(-2, -3, 10, 6);
+      ctx.fillStyle = '#ffff00';
       ctx.beginPath();
-      ctx.arc(-20 + Math.random()*40, -20 + Math.random()*20, 1.8, 0, Math.PI * 2);
+      ctx.arc(8, 0, 2 + Math.random() * 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    ctx.restore();
+
+    // Emit live sparks
+    if (Math.random() > 0.3) {
+      createSpark(x + (Math.random() - 0.5) * 36, y + (Math.random() - 0.5) * 20);
+    }
+  }
+
+  function drawPersona(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.rotate(b.angle);
+
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.beginPath();
+    ctx.ellipse(0, 18, 12, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const sway = b.isCheering ? Math.sin(Date.now() / 80) * 4 : 0;
+
+    if (b.personType === 'volcanena') {
+      // Traditional Volcaneña Dress (falda floreada)
+      ctx.fillStyle = b.outfitColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 2 + sway, 16, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Blouse
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(-7, -10 + sway, 14, 12, 3);
+      ctx.fill();
+
+      // Head & Flowers
+      ctx.fillStyle = '#e8b385';
+      ctx.beginPath();
+      ctx.arc(0, -16 + sway, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ff007f';
+      ctx.beginPath();
+      ctx.arc(-4, -20 + sway, 2.5, 0, Math.PI * 2);
+      ctx.arc(4, -20 + sway, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Traditional Campesino (Manta & Sombrero)
+      ctx.fillStyle = '#f8f4e6';
+      ctx.beginPath();
+      ctx.roundRect(-8, -4 + sway, 16, 18, 4);
+      ctx.fill();
+
+      // Red sash
+      ctx.fillStyle = '#d32f2f';
+      ctx.fillRect(-8, 2 + sway, 16, 3);
+
+      // Straw Hat
+      ctx.fillStyle = '#e0c068';
+      ctx.beginPath();
+      ctx.ellipse(0, -14 + sway, 16, 8, 0, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    // Reaction Balloon when cheered!
+    if (b.isCheering) {
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 13px Fredoka, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('¡Olé! 🎉', 0, -26);
+    }
+
+    ctx.restore();
+  }
+
+  function drawSilbador(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    const pulse = Math.sin(Date.now() / 120) * 3;
+
+    // Glowing aura
+    ctx.fillStyle = 'rgba(0, 229, 255, 0.4)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 18 + pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Silbador Rocket body
+    ctx.fillStyle = '#ff3d00';
+    ctx.beginPath();
+    ctx.moveTo(0, -18);
+    ctx.lineTo(8, 6);
+    ctx.lineTo(-8, 6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Stick
+    ctx.strokeStyle = '#8d6e63';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 6);
+    ctx.lineTo(0, 18);
+    ctx.stroke();
+
+    // Smoking Fuse Tip
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath();
+    ctx.arc(0, -18, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawCuetillo(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+
+    // Glowing aura
+    ctx.fillStyle = 'rgba(255, 85, 0, 0.35)';
+    ctx.beginPath();
+    ctx.arc(0, 0, 16, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Firecracker bundle
+    ctx.fillStyle = '#d50000';
+    ctx.fillRect(-7, -8, 14, 16);
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(-7, -4, 14, 2);
+    ctx.fillRect(-7, 4, 14, 2);
+
+    // Spark fuse
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath();
+    ctx.arc(0, -10, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawPupusa(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.fillStyle = '#f4c542';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#8d5524';
+    ctx.beginPath();
+    ctx.arc(-3, -2, 2, 0, Math.PI * 2);
+    ctx.arc(4, 3, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#4caf50'; // Loroco
+    ctx.beginPath();
+    ctx.arc(1, -4, 1.5, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -4427,18 +5309,32 @@ function spawnEntities() {
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
     ctx.fillStyle = '#5c3a21';
-    ctx.fillRect(-18, -8, 36, 16);
+    ctx.fillRect(-20, -10, 40, 20);
     ctx.strokeStyle = '#2b1a0f';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.arc(-10, 10, 6, 0, Math.PI * 2);
-    ctx.arc(10, 10, 6, 0, Math.PI * 2);
+    ctx.arc(-12, 12, 6, 0, Math.PI * 2);
+    ctx.arc(12, 12, 6, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
 
-  const stallColors = ['#e8622c', '#3a86c8', '#2fbf9f', '#f2c744'];
+  function drawAgua(b){
+    ctx.save();
+    ctx.translate(b.position.x, b.position.y);
+    ctx.fillStyle = '#00bcd4';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🪣', 0, 1);
+    ctx.restore();
+  }
 
+  const stallColors = ['#e8622c', '#3a86c8', '#2fbf9f', '#f2c744'];
   function drawStall(s){
     ctx.save();
     ctx.translate(s.x, s.y);
@@ -4468,59 +5364,62 @@ function spawnEntities() {
     ctx.restore();
   }
 
-  function drawPersona(b){
+  // ================= PARTICLES & EXPLOSIONS =================
+  function createSpark(x, y, vx, vy) {
+    particles.push({
+      x, y,
+      vx: vx !== undefined ? vx : (Math.random() - 0.5) * 4,
+      vy: vy !== undefined ? vy : 2 + Math.random() * 4,
+      size: 2 + Math.random() * 2.5,
+      color: ['#ffea00', '#ff3d00', '#ff007f', '#00e5ff', '#ffffff'][Math.floor(Math.random() * 5)],
+      alpha: 1.0,
+      decay: 0.04 + Math.random() * 0.03
+    });
+  }
+
+  function createFireworkBurst(x, y, count = 20) {
+    const colors = ['#ffea00', '#ff3d00', '#ff007f', '#00e5ff', '#39ff14', '#ffffff'];
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 5;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 2 + Math.random() * 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1.0,
+        decay: 0.025 + Math.random() * 0.02
+      });
+    }
+  }
+
+  function drawParticles() {
     ctx.save();
-    ctx.translate(b.position.x, b.position.y);
-    ctx.rotate(b.angle);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+      p.alpha -= p.decay;
 
-    ctx.fillStyle = 'rgba(0,0,0,.2)';
-    ctx.beginPath();
-    ctx.ellipse(0, 18, 10, 3.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+      if (p.alpha <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
 
-    ctx.strokeStyle = '#3a352f';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-3, 10); ctx.lineTo(-3, 18);
-    ctx.moveTo(3, 10); ctx.lineTo(3, 18);
-    ctx.stroke();
-
-    ctx.fillStyle = b.outfitColor || '#3a86c8';
-    ctx.beginPath();
-    ctx.roundRect(-8, -6, 16, 18, 5);
-    ctx.fill();
-
-    ctx.fillStyle = '#e8b385';
-    ctx.beginPath();
-    ctx.arc(0, -12, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#2b2018';
-    ctx.beginPath();
-    ctx.arc(0, -15, 7.2, Math.PI, Math.PI * 2);
-    ctx.fill();
-
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 
-  function drawCohetillo(b){
-    ctx.save();
-    ctx.translate(b.position.x, b.position.y);
-    ctx.rotate(b.angle);
-    ctx.fillStyle = '#ffd54f';
-    ctx.beginPath();
-    ctx.moveTo(0, -18);
-    ctx.lineTo(9, 10);
-    ctx.lineTo(-9, 10);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#ff7043';
-    ctx.beginPath();
-    ctx.arc(0, -22, 5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
+  // ================= END RUN & MODALS =================
   function endRun(motivo){
     running = false;
     paused = false;
@@ -4534,22 +5433,27 @@ function spawnEntities() {
     else distanciaId = 'larga';
 
     const gameName = `torito-${gameDifficulty}-${distanciaId}`;
-    const scoreFinal = Math.round(distance);
+    const scoreFinal = Math.round(score + distance);
 
     let title, msg;
     if(motivo === 'completo') {
-      title = jt('jue.card6.end.winTitle', '🏆 ¡Recorriste toda la calle!');
-      msg = jt('jue.card6.end.winMsg', 'El torito llegó completo hasta el final de las fiestas. ¡Buena corrida!');
+      title = jt('jue.card6.end.winTitle', '🏆 ¡LLEGASTE AL ATRIO DE LA IGLESIA!');
+      msg = jt('jue.card6.end.winMsg', `¡Qué gran corrida! El Torito Pinto llegó triunfante a <b>${destinationName}</b> y alegró a todo el pueblo salvadoreño.`);
     } else {
       title = jt('jue.card6.end.tiredTitle', '🧨 ¡El torito se quedó sin cohetes!');
-      msg = jt('jue.card6.end.tiredMsg', 'Recorriste <b>{n}m</b> antes de quedarte sin energía. ¡Cuidado con los puestos y la gente la próxima vez!').replace('{n}', scoreFinal);
+      msg = jt('jue.card6.end.tiredMsg', `Recorriste <b>${Math.round(distance)}m</b> y animaste a <b>${genteAnimada} personas</b>. ¡Recogé más silbadores y cuetillos para llegar al atrio la próxima vez!`);
     }
 
     showOverlay(`
-      <span class="overlay-tag">${jt('jue.card6.end.tag', 'Fin de la Corrida')}</span>
-      <h3>${title}</h3>
-      <div class="overlay-score">${scoreFinal}m</div>
-      <p>${msg}</p>
+      <span class="overlay-tag">${jt('jue.card6.end.tag', 'Fiestas Patronales')}</span>
+      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
+      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${scoreFinal} pts</div>
+      <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
+        <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">Distancia</span></div>
+        <div><b>${genteAnimada}</b><br><span style="color:#aaa;">Animados</span></div>
+        <div><b>x${maxCombo}</b><br><span style="color:#aaa;">Max Combo</span></div>
+      </div>
       <p class="overlay-best-score" id="t-best-score"></p>
       <button class="btn-primary" id="btn-restart-torito">${jt('jue.rematch', 'Revancha')}</button>
     `);
@@ -4558,7 +5462,7 @@ function spawnEntities() {
     guardarPuntajeJuego(gameName, scoreFinal).then(() => {
       obtenerMejorPuntajeJuego(gameName).then((best) => {
         const el = document.getElementById('t-best-score');
-        if (el && best) el.textContent = `${jt('jue.bestScore.distance', 'Tu récord de distancia')}: ${best.score}m`;
+        if (el && best) el.textContent = `${jt('jue.bestScore.distance', 'Tu récord')}: ${best.score} pts`;
       });
     });
   }
@@ -4566,22 +5470,32 @@ function spawnEntities() {
   function showDistanceSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
-      <h3>${jt('jue.card6.distance.title', '🐂 Elige el Recorrido')}</h3>
-      <p>${jt('jue.card6.distance.sub', '¿Qué tan larga será la corrida por el pueblo?')}</p>
+      <h3 style="font-size: 1.3rem; color: #ffd700;">🐂 Elige tu Destino</h3>
+      <p style="font-size: 0.9rem;">¿Hasta qué plaza colonial llevarás la fiesta del Torito?</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-primary" id="dist-corta-torito">${jt('jue.card6.distCorta', 'Corta (1200m)')}</button>
-        <button class="btn-primary" id="dist-media-torito">${jt('jue.card6.distMedia', 'Media (2400m)')}</button>
-        <button class="btn-primary" id="dist-larga-torito">${jt('jue.card6.distLarga', 'Larga (3600m)')}</button>
+        <button class="btn-primary" id="dist-corta-torito" style="font-size: 0.95rem;">
+          ⛪ Suchitoto (1200m)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Parroquia Santa Lucía</div>
+        </button>
+        <button class="btn-primary" id="dist-media-torito" style="font-size: 0.95rem;">
+          🌺 Panchimalco (2400m)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Iglesia de la Santa Cruz</div>
+        </button>
+        <button class="btn-primary" id="dist-larga-torito" style="font-size: 0.95rem;">
+          🏛️ San Salvador (3600m)
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Atrio de la Catedral Metropolitana</div>
+        </button>
       </div>
     `);
 
-    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(1200); };
-    document.getElementById('dist-media-torito').onclick = () => { selectDistance(2400); };
-    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3600); };
+    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(1200, 'Suchitoto — Parroquia Santa Lucía'); };
+    document.getElementById('dist-media-torito').onclick = () => { selectDistance(2400, 'Panchimalco — Iglesia de la Santa Cruz'); };
+    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3600, 'San Salvador — Catedral Metropolitana'); };
   }
 
-  function selectDistance(dist) {
+  function selectDistance(dist, name) {
     targetDistance = dist;
+    destinationName = name;
     showDifficultySelector();
   }
 
@@ -4589,15 +5503,15 @@ function spawnEntities() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
       <h3>${jt('jue.card6.diff.title', '🎮 Selecciona Nivel')}</h3>
-      <p>${jt('jue.card6.diff.sub', 'Elegí qué tan seguido aparecen puestos y gente en la calle.')}</p>
+      <p>${jt('jue.card6.diff.sub', 'Elegí la intensidad de la fiesta por la calle.')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-torito">
-          ${jt('jue.diff.easy', '🟢 Fácil')}
-          <div class="difficulty-desc">${jt('jue.card6.diff.easyDesc', 'Calle más despejada')}</div>
+          ${jt('jue.diff.easy', '🟢 Tradicional')}
+          <div class="difficulty-desc">Calle alegre y más silbadores</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-torito">
-          ${jt('jue.diff.hard', '🔴 Difícil')}
-          <div class="difficulty-desc">${jt('jue.card6.diff.hardDesc', 'Calle llena de gente y puestos')}</div>
+          ${jt('jue.diff.hard', '🔴 Torito Bravo')}
+          <div class="difficulty-desc">Mayor velocidad y obstáculos</div>
         </button>
       </div>`);
 
@@ -4621,12 +5535,12 @@ function spawnEntities() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
       <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
-      <p>${jt('jue.card6.intro', 'Corré con el torito de cohetes por la calle empedrada del pueblo. Esquivá puestos, carretas y gente comprando, y recogé cohetillos para no quedarte sin energía.')}</p>
-      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <p>${jt('jue.card6.intro', 'Corré con el torito por las calles coloniales. <b>Pasa entre la gente para animarla</b> y recogé <b>silbadores y cuetillos</b> para ganar energía y llegar al Atrio de la Iglesia.')}</p>
+      <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️ (o toca la pantalla): cambiar de carril.')}</li>
-        <li class="rule-good"><span class="rule-icon">🧨</span> ${jt('jue.card6.controlsCohete', 'Recogé cohetillos para recuperar energía.')}</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.controlsObstacle', 'Chocar con puestos, carretas o gente te quita energía.')}</li>
+        <li class="rule-good"><span class="rule-icon">👥</span> <b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.</li>
+        <li class="rule-good"><span class="rule-icon">🚀</span> <b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> <b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.</li>
       </ul>
       <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
     `);
@@ -4671,8 +5585,6 @@ function spawnEntities() {
     running = false;
     paused = false;
     cancelAnimationFrame(rafId);
-    // bgMusic?.pause();  // ELIMINADO
-    // stopMusic();       // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -4708,6 +5620,7 @@ function spawnEntities() {
     reloadMenu: () => { if(!running && !paused) showModeSelector(); }
   });
 })();
+
 
 /* ============================================================
   Salvadorean Roots — ANIMACIONES GSAP
