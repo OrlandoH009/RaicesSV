@@ -143,13 +143,13 @@
 
         <!-- Tarjeta Juego 5 -->
         <div class="game-card">
-          <div class="game-card__media" style="background: linear-gradient(135deg, #F2C744 0%, #FF9944 100%);">
-            <span class="game-card__emoji">🌽</span>
+          <div class="game-card__media" style="background: linear-gradient(135deg, #6C3FD4 0%, #2E0FA3 100%);">
+            <span class="game-card__emoji">🔮</span>
           </div>
           <div class="game-card__body">
             <span class="game-card__tag" data-i18n="jue.card5.tag">Ruta 05 — Recreo</span>
-            <h3 class="game-card__title" data-i18n="jue.card5.title">Elotes y Olé</h3>
-            <p class="game-card__desc" data-i18n="jue.card5.desc">Corré por el patio de la escuela recogiendo elotes locos, mangos y minutas, mientras esquivás los pupitres y las pelotas perdidas del recreo. ¡Sumá combos y no perdás el ritmo!</p>
+            <h3 class="game-card__title" data-i18n="jue.card5.title">Canicas</h3>
+            <p class="game-card__desc" data-i18n="jue.card5.desc">El clásico juego de patio de El Salvador. Lanzá tu tirador dentro del círculo y sacá las canicas de tus rivales. ¡Cada canica que salga de la ronda es tuya!</p>
             <button class="btn-play-trigger" data-open-modal="elotes" data-i18n="jue.card.play">⚡ Jugar Ahora</button>
           </div>
         </div>
@@ -369,7 +369,7 @@
       </div>
 
       <!-- ══════════════════════════════════════════
-           VENTANA FLOTANTE (MODAL JUEGO 5: ELOTES Y OLÉ)
+           VENTANA FLOTANTE (MODAL JUEGO 5: CANICAS)
            ══════════════════════════════════════════ -->
       <div class="game-modal" id="modal-elotes">
         <div class="game-modal__overlay"></div>
@@ -380,7 +380,7 @@
             <div class="game-panel__head">
               <div>
                 <span class="game-panel__tag" data-i18n="jue.card5.tagModal">Ruta 05 — Recreo</span>
-                <h2>🌽 <span data-i18n="jue.card5.title">Elotes y Olé</span></h2>
+                <h2>🔮 <span data-i18n="jue.card5.title">Canicas</span></h2>
               </div>
             </div>
 
@@ -405,8 +405,8 @@
               <div class="overlay hidden" id="pauseOverlay-elotes">
                 <div class="overlay-card overlay-card--pause">
                   <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
-                  <h3 data-i18n="jue.card5.pauseTitle">Recreo en pausa</h3>
-                  <p data-i18n="jue.card5.pauseText">Presioná reanudar para seguir la carrera de sabores.</p>
+                  <h3 data-i18n="jue.card5.pauseTitle">¡Canicas en pausa!</h3>
+                  <p data-i18n="jue.card5.pauseText">Presioná reanudar para seguir lanzando.</p>
                   <button class="btn-primary" id="resumeBtn-elotes" data-i18n="jue.pause.resume">Reanudar</button>
                 </div>
               </div>
@@ -487,10 +487,10 @@
     </div>
   </footer>
 
-  <script src="../assets/js/script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="../assets/js/theme-blobs.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/theme-blobs.js"></script>
   <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/juegos.js"></script>
   <script src="../assets/js/chatbot.js"></script>
