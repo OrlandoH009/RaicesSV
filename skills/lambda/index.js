@@ -101,7 +101,10 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = '¡Hola! Bienvenido a Salvadorean Roots. Di "español" para continuar en español, o di "inglés" para continuar en inglés. Hello! Welcome to Salvadorean Roots. Say "english" to continue in English, or say "spanish" to continue in Spanish.';
+        const idioma = obtenerIdioma(handlerInput);
+        const speakOutput = idioma === 'en'
+            ? 'Welcome to Salvadorean Roots! I am Pupusita, your cultural guide to El Salvador. Would you like to use free mode, or plan your trip?'
+            : '¡Bienvenido a Salvadorean Roots! Soy Pupusita, tu guía cultural de El Salvador. ¿Quieres hacer una consulta libre, o planificar tu viaje?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -111,53 +114,9 @@ const LaunchRequestHandler = {
 };
 
 function obtenerIdioma(handlerInput) {
-    const attributes = handlerInput.attributesManager.getSessionAttributes();
-    if (attributes.idioma) {
-        return attributes.idioma;
-    }
     const locale = Alexa.getLocale(handlerInput.requestEnvelope);
     return locale && locale.startsWith('en') ? 'en' : 'es';
 }
-
-const IdiomaEspanolIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'IdiomaEspanolIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'IdiomaSpanishIntent');
-    },
-    handle(handlerInput) {
-        const attributes = handlerInput.attributesManager.getSessionAttributes();
-        attributes.idioma = 'es';
-        handlerInput.attributesManager.setSessionAttributes(attributes);
-
-        const speakOutput = '¡Perfecto! Soy Pupusita, tu guía cultural de El Salvador. ¿Quieres hacer una consulta libre, o planificar tu viaje?';
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
-};
-
-const IdiomaInglesIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'IdiomaInglesIntent'
-                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'IdiomaEnglishIntent');
-    },
-    handle(handlerInput) {
-        const attributes = handlerInput.attributesManager.getSessionAttributes();
-        attributes.idioma = 'en';
-        handlerInput.attributesManager.setSessionAttributes(attributes);
-
-        const speakOutput = 'Great! I am Pupusita, your cultural guide to El Salvador. Would you like to use free mode, or plan your trip?';
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
-            .getResponse();
-    }
-};
 
 const ModoLibreIntentHandler = {
     canHandle(handlerInput) {
@@ -473,8 +432,6 @@ const ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        IdiomaEspanolIntentHandler,
-        IdiomaInglesIntentHandler,
         ModoLibreIntentHandler,
         ConsultaLibreIntentHandler,
         ModoPlanificadorIntentHandler,
