@@ -540,8 +540,90 @@ function toggleOrigin() {
 }
 
 /* ============================================================
-   SISTEMA DE NARRACIÓN Y VOZ (TTS)
+   SISTEMA DE NARRACIÓN Y VOZ
+   Reproduce archivos .mp3 pre-grabados por leyenda, ubicados en
+   assets/audio/leyendas/{id}-{lang}.mp3 (ej: siguanaba-es.mp3).
+   Esto funciona EXACTAMENTE igual en Windows, macOS y Linux, porque
+   un archivo de audio no depende de nada instalado en el sistema
+   del usuario (a diferencia de la Web Speech API).
+
+   Si el mp3 de una leyenda todavía no existe (mientras los vas
+   generando y subiendo poco a poco), cae automáticamente de vuelta
+   a la voz del navegador (speechSynthesis) como respaldo, para que
+   nada se rompa mientras completas el catálogo de audios.
    ============================================================ */
+
+const AUDIO_BASE_PATH = "../assets/audio/leyendas";
+
+let narrationAudioEl = null;
+let narrationQueue = [];
+let narrationQueueIndex = 0;
+let narrationKeepAliveTimer = null;
+let voicesReadyPromise = null;
+
+function getAudioSrc(leyendaId, isEn) {
+  const lang = isEn ? "en" : "es";
+  return `${AUDIO_BASE_PATH}/${leyendaId}-${lang}.mp3`;
+}
+
+// Comprueba si el mp3 existe en el servidor antes de intentar
+// reproducirlo (evita un <audio> roto si aún no lo has subido).
+function audioFileExists(src) {
+  return fetch(src, { method: "HEAD" })
+    .then(res => res.ok)
+    .catch(() => false);
+}
+
+function setNarrateBtnState(state) {
+  const btn = document.getElementById("leyendaNarrateBtn");
+  if (!btn) return;
+  btn.classList.remove("speaking", "loading");
+  if (state === "speaking") btn.classList.add("speaking");
+  if (state === "loading") btn.classList.add("loading");
+}
+
+function stopNarration() {
+  if (narrationAudioEl) {
+    narrationAudioEl.pause();
+    narrationAudioEl.currentTime = 0;
+    narrationAudioEl = null;
+  }
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  if (narrationKeepAliveTimer) {
+    clearInterval(narrationKeepAliveTimer);
+    narrationKeepAliveTimer = null;
+  }
+  narrationQueue = [];
+  narrationQueueIndex = 0;
+  setNarrateBtnState("idle");
+  ttsUtterance = null;
+}
+
+function isNarrating() {
+  return !!narrationAudioEl || (("speechSynthesis" in window) && window.speechSynthesis.speaking) || narrationQueue.length > 0;
+}
+
+/* ---------- Reproducción de mp3 pre-grabado (modo principal) ---------- */
+
+function playPreRecordedAudio(src) {
+  return new Promise((resolve, reject) => {
+    narrationAudioEl = new Audio(src);
+    narrationAudioEl.addEventListener("ended", () => {
+      narrationAudioEl = null;
+      resolve();
+    });
+    narrationAudioEl.addEventListener("error", () => {
+      narrationAudioEl = null;
+      reject(new Error("No se pudo reproducir el audio."));
+    });
+    narrationAudioEl.play().catch(reject);
+  });
+}
+
+/* ---------- Respaldo con voz del navegador (solo si falta el mp3) ---------- */
+
 function getNarrationChunks(l) {
   const titulo = getTextTranslation(l.tituloKey, l.titulo);
   const sub = getTextTranslation(l.subKey, l.sub);
@@ -566,70 +648,82 @@ function getNarrationChunks(l) {
   return chunks;
 }
 
-let narrationQueue = [];
-let narrationQueueIndex = 0;
-let narrationKeepAliveTimer = null;
+function waitForVoices(timeoutMs = 3000) {
+  if (voicesReadyPromise) return voicesReadyPromise;
 
-function stopNarration() {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-  if (narrationKeepAliveTimer) {
-    clearInterval(narrationKeepAliveTimer);
-    narrationKeepAliveTimer = null;
-  }
-  narrationQueue = [];
-  narrationQueueIndex = 0;
-  const btn = document.getElementById("leyendaNarrateBtn");
-  if (btn) btn.classList.remove("speaking");
-  ttsUtterance = null;
+  voicesReadyPromise = new Promise((resolve) => {
+    const existing = window.speechSynthesis.getVoices();
+    if (existing.length > 0) {
+      resolve(existing);
+      return;
+    }
+    let resolved = false;
+    const finish = (voices) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(voices);
+    };
+    window.speechSynthesis.onvoiceschanged = () => finish(window.speechSynthesis.getVoices());
+    setTimeout(() => finish(window.speechSynthesis.getVoices()), timeoutMs);
+  });
+
+  return voicesReadyPromise;
 }
 
-function speakNextChunk() {
-  const btn = document.getElementById("leyendaNarrateBtn");
+function pickBestVoice(voices, isEn) {
+  const wantedPrefixes = isEn ? ["en-gb", "en-us", "en"] : ["es-es", "es-419", "es-us", "es"];
+  for (const prefix of wantedPrefixes) {
+    const exact = voices.find(v => v.lang && v.lang.toLowerCase() === prefix);
+    if (exact) return exact;
+  }
+  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isEn ? "en" : "es")) || null;
+}
 
+function speakNextChunk(voice, langTag) {
   if (narrationQueueIndex >= narrationQueue.length) {
     stopNarration();
     return;
   }
-
   const chunkText = narrationQueue[narrationQueueIndex];
   narrationQueueIndex++;
 
-  const langKey = getCurrentLang();
-  const isEn = (langKey === 'en');
-
   ttsUtterance = new SpeechSynthesisUtterance(chunkText);
-  ttsUtterance.lang = isEn ? "en-GB" : "es-ES";
+  ttsUtterance.lang = voice ? voice.lang : langTag;
   ttsUtterance.rate = 0.95;
   ttsUtterance.pitch = 1;
+  if (voice) ttsUtterance.voice = voice;
 
-  const voices = window.speechSynthesis.getVoices();
-  const targetVoice = voices.find(v => v.lang && v.lang.toLowerCase() === "en-gb")
-  || voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isEn ? "en" : "es"));
-  if (targetVoice) ttsUtterance.voice = targetVoice;
-
-  ttsUtterance.onend = () => speakNextChunk();
-  ttsUtterance.onerror = () => speakNextChunk();
+  ttsUtterance.onend = () => speakNextChunk(voice, langTag);
+  ttsUtterance.onerror = () => speakNextChunk(voice, langTag);
 
   window.speechSynthesis.speak(ttsUtterance);
-  if (btn) btn.classList.add("speaking");
+  setNarrateBtnState("speaking");
 }
 
-function toggleNarration() {
-  if (currentLeyendaIndex < 0) return;
-
+async function playBrowserVoiceFallback(l, isEn) {
   if (!("speechSynthesis" in window)) {
-    alert("Tu navegador no soporta la narración por voz.");
+    alert(
+      isEn
+        ? "This legend's audio isn't uploaded yet, and your browser doesn't support voice narration either."
+        : "El audio de esta leyenda todavía no está disponible, y tu navegador tampoco soporta narración por voz."
+    );
+    setNarrateBtnState("idle");
     return;
   }
 
-  if (window.speechSynthesis.speaking || narrationQueue.length) {
-    stopNarration();
+  const voices = await waitForVoices();
+  const voice = pickBestVoice(voices, isEn);
+
+  if (!voice) {
+    setNarrateBtnState("idle");
+    alert(
+      isEn
+        ? "This legend's audio isn't uploaded yet, and no English voice was found on your system either."
+        : "El audio de esta leyenda todavía no está disponible, y tampoco se encontró una voz en español en tu sistema."
+    );
     return;
   }
 
-  const l = LEYENDAS_DATA[currentLeyendaIndex];
   narrationQueue = getNarrationChunks(l);
   narrationQueueIndex = 0;
 
@@ -641,7 +735,47 @@ function toggleNarration() {
     }
   }, 12000);
 
-  speakNextChunk();
+  speakNextChunk(voice, isEn ? "en-GB" : "es-ES");
+}
+
+/* ---------- Punto de entrada ---------- */
+
+async function toggleNarration() {
+  if (currentLeyendaIndex < 0) return;
+
+  if (isNarrating()) {
+    stopNarration();
+    return;
+  }
+
+  const l = LEYENDAS_DATA[currentLeyendaIndex];
+  const langKey = getCurrentLang();
+  const isEn = (langKey === 'en');
+
+  setNarrateBtnState("loading");
+
+  const src = getAudioSrc(l.id, isEn);
+  const exists = await audioFileExists(src);
+
+  // El usuario pudo cerrar el modal mientras comprobábamos el archivo
+  if (currentLeyendaIndex < 0) {
+    setNarrateBtnState("idle");
+    return;
+  }
+
+  if (exists) {
+    try {
+      setNarrateBtnState("speaking");
+      await playPreRecordedAudio(src);
+      setNarrateBtnState("idle");
+    } catch (err) {
+      console.error("Error reproduciendo audio pre-grabado:", err);
+      // Si falla la reproducción por algún motivo, intentamos con la voz del navegador
+      await playBrowserVoiceFallback(l, isEn);
+    }
+  } else {
+    await playBrowserVoiceFallback(l, isEn);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -669,10 +803,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeLeyendaModal();
   });
-
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.onvoiceschanged = () => {};
-  }
 
   // Re-traduce el modal si el idioma cambia mientras está abierto
   document.addEventListener("langchange", () => {
