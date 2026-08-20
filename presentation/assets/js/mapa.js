@@ -1043,23 +1043,76 @@ document.addEventListener("langchange", (e) => {
 });
 
 /* ══════════════════════════════════════════════════════════
-   MANEJAR PUBLICACIÓN DESDE URL
+   PUBLICACIONES DE USUARIOS COMO PINES EN EL MAPA
+   Carga todas las publicaciones que tengan lat/lng y las
+   muestra con un pin + popup (imagen, título, ubicación,
+   autor y link a la publicación). Si la URL trae ?pub=ID,
+   centra el mapa y abre esa publicación automáticamente.
    ══════════════════════════════════════════════════════════ */
-(function manejarPublicacionDesdeURL() {
+(function cargarPublicacionesEnMapa() {
   const params = new URLSearchParams(window.location.search);
-  const location = params.get('location');
-  const latParam = params.get('lat');
-  const lngParam = params.get('lng');
-  if (!location || !latParam || !lngParam) return;
-  const lat = parseFloat(latParam);
-  const lng = parseFloat(lngParam);
-  if (Number.isNaN(lat) || Number.isNaN(lng)) return;
-  const marker = L.marker([lat, lng], {
-    icon: crearIcono('📍', '#be8e56')
-  }).addTo(mapa);
-  marker.bindPopup(`<b>${location}</b><br>Publicación seleccionada`).openPopup();
-  mapa.setView([lat, lng], 13.9, { animate: true });
-  setTimeout(invalidateMapSize, 500);
+  const focusPubId = params.get('pub');
+  const fallbackLat = parseFloat(params.get('lat'));
+  const fallbackLng = parseFloat(params.get('lng'));
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function construirPopupPublicacion(pub) {
+    const imagenHtml = pub.image
+      ? `<img class="popup-pub-image" src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" loading="lazy">`
+      : '';
+
+    return `
+      ${imagenHtml}
+      <div class="popup-inner">
+        <p class="popup-cat" style="color: var(--gold);">📍 ${escapeHtml(pub.location)}</p>
+        <h3 class="popup-title">${escapeHtml(pub.title)}</h3>
+        <p class="popup-desc">${escapeHtml(pub.description)}</p>
+        <p class="popup-pub-author">Por ${escapeHtml(pub.author?.name || 'Usuario')}</p>
+        <a class="popup-pub-link" href="publicaciones.html" target="_self">Ver todas las publicaciones →</a>
+      </div>
+    `;
+  }
+
+  fetch('/api/publications')
+    .then((res) => res.ok ? res.json() : { publications: [] })
+    .then((data) => {
+      const publicaciones = (data.publications || []).filter(
+        (pub) => pub.lat !== null && pub.lat !== undefined && pub.lng !== null && pub.lng !== undefined
+      );
+
+      let markerAAbrir = null;
+
+      publicaciones.forEach((pub) => {
+        const marker = L.marker([pub.lat, pub.lng], {
+          icon: crearIcono('📍', '#be8e56')
+        }).addTo(mapa);
+
+        marker.bindPopup(construirPopupPublicacion(pub), { maxWidth: 300 });
+
+        if (focusPubId && String(pub.id) === String(focusPubId)) {
+          markerAAbrir = marker;
+        }
+      });
+
+      if (markerAAbrir) {
+        mapa.setView(markerAAbrir.getLatLng(), 14.5, { animate: true });
+        setTimeout(() => markerAAbrir.openPopup(), 400);
+      } else if (!Number.isNaN(fallbackLat) && !Number.isNaN(fallbackLng)) {
+        // Publicación no encontrada por id, pero venían coordenadas en la URL:
+        // se centra ahí igualmente para no perder el contexto del enlace.
+        mapa.setView([fallbackLat, fallbackLng], 13.9, { animate: true });
+      }
+
+      setTimeout(invalidateMapSize, 500);
+    })
+    .catch((error) => {
+      console.error('No se pudieron cargar las publicaciones en el mapa:', error);
+    });
 })();
 
 /* ══════════════════════════════════════════════════════════

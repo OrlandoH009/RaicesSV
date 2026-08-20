@@ -58,16 +58,11 @@ const findById = (id_publication) => {
 
 const create = (id_user, { title, description, location, lat, lng, image }) => {
     return new Promise((resolve, reject) => {
-        console.log('[DIAGNÓSTICO] Ejecutando INSERT publications con:', { id_user, title, description, location, lat, lng, image });
         db.query(
             'INSERT INTO publications(id_user, title, description, location, lat, lng, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [id_user, title, description, location, lat, lng, image],
             (err, result) => {
-                if (err) {
-                    console.error('[DIAGNÓSTICO] Error en INSERT publications:', err);
-                    return reject(err);
-                }
-                console.log('[DIAGNÓSTICO] INSERT publications OK, insertId:', result.insertId);
+                if (err) return reject(err);
                 resolve(result);
             }
         );
