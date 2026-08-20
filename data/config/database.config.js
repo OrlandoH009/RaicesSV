@@ -20,13 +20,6 @@ db.on('error', (err) => {
     console.error('Error inesperado en el pool de MySQL:', err);
 });
 
-console.log('[DIAGNÓSTICO] Conectando a MySQL con:', {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    database: process.env.DB_NAME || 'raicessv'
-});
-
 const ensureUserStatusTable = () => new Promise((resolve) => {
     db.query(
         `CREATE TABLE IF NOT EXISTS user_status(

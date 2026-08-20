@@ -237,6 +237,32 @@
       margin-right: .3rem; margin-top: .2rem;
     }
 
+    /* ── Popup de publicación de usuario (pin en el mapa) ── */
+    .popup-pub-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px 12px 0 0;
+    }
+    .popup-pub-author {
+      font-family: var(--font-body); font-size: .78rem;
+      color: rgba(255,255,255,.55); margin-top: .2rem;
+    }
+    [data-theme="light"] .popup-pub-author { color: rgba(36,33,29,.55); }
+    .popup-pub-link {
+      display: inline-block;
+      margin-top: .7rem;
+      font-family: var(--font-body); font-size: .82rem; font-weight: 700;
+      color: var(--gold); text-decoration: none;
+      border-bottom: 1px solid rgba(190,142,86,.5);
+      transition: color .2s ease, border-color .2s ease;
+    }
+    .popup-pub-link:hover {
+      color: var(--gold-hover, #a87a42);
+      border-color: var(--gold-hover, #a87a42);
+    }
+
     /* ── Custom marker icon ── */
     .custom-marker {
       position: relative;

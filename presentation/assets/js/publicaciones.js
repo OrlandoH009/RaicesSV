@@ -127,7 +127,7 @@ function renderPublications(publications) {
         <div class="publication-location">
           <div class="publication-location-icon">📍</div>
           <div class="publication-location-text">${pub.location}</div>
-          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?location=${encodeURIComponent(pub.location)}&lat=${pub.lat}&lng=${pub.lng}" title="${t('pub.viewOnMap')}">🗺️</a>` : ''}
+          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?pub=${pub.id}&lat=${pub.lat}&lng=${pub.lng}" title="${t('pub.viewOnMap')}">🗺️</a>` : ''}
         </div>
         <div class="publication-author">
           <span>${t('pub.authorBy', { name: pub.author.name })}</span>
