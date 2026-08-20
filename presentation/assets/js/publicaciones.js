@@ -55,26 +55,19 @@ function t(key, replacements = {}) {
 }
 
 // ════════════════════════════════════
-// MANEJO DEL SELECT "OTRO" DE UBICACIÓN
+// UBICACIÓN (buscador + mapa Leaflet, ver location-picker.js)
 // ════════════════════════════════════
-const locationSelect = document.getElementById('pubLocation');
-const locationOtherInput = document.getElementById('pubLocationOther');
-
-locationSelect.addEventListener('change', () => {
-  if (locationSelect.value === '__otro__') {
-    locationOtherInput.style.display = 'block';
-    locationOtherInput.focus();
-  } else {
-    locationOtherInput.style.display = 'none';
-    locationOtherInput.value = '';
-  }
-});
-
 function getSelectedLocation() {
-  if (locationSelect.value === '__otro__') {
-    return locationOtherInput.value.trim();
-  }
-  return locationSelect.value;
+  return document.getElementById('pubLocation').value.trim();
+}
+
+function getSelectedCoords() {
+  const lat = document.getElementById('pubLocationLat').value;
+  const lng = document.getElementById('pubLocationLng').value;
+  return {
+    lat: lat !== '' ? lat : null,
+    lng: lng !== '' ? lng : null
+  };
 }
 
 // ════════════════════════════════════
@@ -134,6 +127,7 @@ function renderPublications(publications) {
         <div class="publication-location">
           <div class="publication-location-icon">📍</div>
           <div class="publication-location-text">${pub.location}</div>
+          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?location=${encodeURIComponent(pub.location)}&lat=${pub.lat}&lng=${pub.lng}" title="${t('pub.viewOnMap')}">🗺️</a>` : ''}
         </div>
         <div class="publication-author">
           <span>${t('pub.authorBy', { name: pub.author.name })}</span>
@@ -278,10 +272,16 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   const title = document.getElementById('pubTitle').value.trim();
   const description = document.getElementById('pubDescription').value.trim();
   const location = getSelectedLocation();
+  const { lat, lng } = getSelectedCoords();
   const imageFile = document.getElementById('pubImage').files[0];
 
   if (!location) {
     alert(t('pub.alertNoLocation'));
+    return;
+  }
+
+  if (!lat || !lng) {
+    alert(t('pub.alertNoCoords'));
     return;
   }
 
@@ -294,6 +294,8 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   formData.append('title', title);
   formData.append('description', description);
   formData.append('location', location);
+  formData.append('lat', lat);
+  formData.append('lng', lng);
   if (imageFile) {
     formData.append('image', imageFile);
   }
@@ -325,7 +327,7 @@ function resetPublicationForm() {
   const form = document.getElementById('publicationForm');
   form.reset();
   document.getElementById('imagePreview').classList.remove('show');
-  locationOtherInput.style.display = 'none';
+  window.LocationPicker?.reset();
   editingPublicationId = null;
   document.getElementById('publicationFormTitle').textContent = t('pub.formTitle');
   document.getElementById('publicationSubmitBtn').textContent = t('pub.submitBtn');
@@ -356,16 +358,7 @@ async function startEditPublication(id) {
     document.getElementById('pubTitle').value = pub.title;
     document.getElementById('pubDescription').value = pub.description;
 
-    const knownLocation = Array.from(locationSelect.options).some(opt => opt.value === pub.location);
-    if (knownLocation) {
-      locationSelect.value = pub.location;
-      locationOtherInput.style.display = 'none';
-      locationOtherInput.value = '';
-    } else {
-      locationSelect.value = '__otro__';
-      locationOtherInput.style.display = 'block';
-      locationOtherInput.value = pub.location;
-    }
+    window.LocationPicker?.loadExisting(pub.location, pub.lat, pub.lng);
 
     document.getElementById('pubImage').value = '';
     document.getElementById('previewImg').src = pub.image;

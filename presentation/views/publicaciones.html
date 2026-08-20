@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/info-shared.css" />
   <link rel="stylesheet" href="../assets/css/publicaciones.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#113068" />
@@ -116,27 +117,58 @@
         </div>
 
         <div class="form-group">
-          <label for="pubLocation" data-i18n="pub.fieldLocation">Ubicación</label>
-          <select id="pubLocation" required>
-            <option value="" data-i18n="pub.fieldLocationPlaceholder">Selecciona un lugar...</option>
-            <option value="Tazumal">Tazumal (Chalchuapa, Santa Ana)</option>
-            <option value="Joya de Cerén">Joya de Cerén (San Juan Opico, La Libertad)</option>
-            <option value="Salvador del Mundo">Salvador del Mundo (San Salvador)</option>
-            <option value="Suchitoto">Suchitoto (Cuscatlán)</option>
-            <option value="Catedral Metropolitana">Catedral Metropolitana (San Salvador)</option>
-            <option value="MUNA">MUNA (San Salvador)</option>
-            <option value="Ruinas de San Andrés">Ruinas de San Andrés (Ciudad Arce, La Libertad)</option>
-            <option value="Casa Blanca">Casa Blanca (Chalchuapa, Santa Ana)</option>
-            <option value="Palacio Nacional">Palacio Nacional (San Salvador)</option>
-            <option value="Teatro Nacional">Teatro Nacional (San Salvador)</option>
-            <option value="Iglesia El Rosario">Iglesia El Rosario (San Salvador)</option>
-            <option value="El Boquerón">El Boquerón (Volcán de San Salvador, San Salvador)</option>
-            <option value="Lago de Coatepeque">Lago de Coatepeque (Santa Ana)</option>
-            <option value="Bosque El Imposible">Bosque El Imposible (Ahuachapán)</option>
-            <option value="Puerta del Diablo">Puerta del Diablo (Los Planes de Renderos, Panchimalco)</option>
-            <option value="__otro__" data-i18n="pub.fieldLocationOptionOther">Otro (especificar)</option>
-          </select>
-          <input type="text" id="pubLocationOther" placeholder="Escribe el nombre del lugar" style="display: none; margin-top: 0.6rem;" data-i18n-attr="placeholder:pub.fieldLocationOtherPlaceholder">
+          <label for="pubLocationSearch" data-i18n="pub.fieldLocation">Ubicación</label>
+
+          <div class="location-picker" id="locationPicker">
+            <div class="location-picker__search-wrap">
+              <input
+                type="text"
+                id="pubLocationSearch"
+                class="location-picker__input"
+                autocomplete="off"
+                placeholder="Busca un lugar en El Salvador..."
+                data-i18n-attr="placeholder:pub.fieldLocationSearchPlaceholder"
+              >
+              <button type="button" class="location-picker__geo-btn" id="pubLocationGeoBtn" data-i18n-attr="aria-label:pub.fieldLocationGeoLabel" aria-label="Usar mi ubicación actual" title="Usar mi ubicación actual">🎯</button>
+              <ul class="location-picker__results" id="pubLocationResults" style="display:none;"></ul>
+            </div>
+
+            <p class="location-picker__hint" data-i18n="pub.fieldLocationHint">
+              Busca el nombre del lugar o mueve el pin del mapa para marcar la ubicación exacta.
+            </p>
+
+            <div class="location-picker__map-wrap">
+              <div class="location-picker__map" id="pubLocationMap"></div>
+              <span class="location-picker__map-hint" id="pubLocationMapHint" data-i18n="pub.fieldLocationMapHint">📍 Toca el mapa para elegir el lugar exacto</span>
+              <button type="button" class="location-picker__expand-btn" id="pubLocationExpandBtn" data-i18n-attr="aria-label:pub.fieldLocationExpandLabel" aria-label="Ampliar mapa" title="Ampliar mapa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+              </button>
+            </div>
+
+            <div class="location-picker__selected" id="pubLocationSelected" style="display:none;">
+              📍 <span id="pubLocationSelectedText"></span>
+            </div>
+          </div>
+
+          <div class="location-picker-expanded" id="pubLocationExpandedOverlay">
+            <div class="location-picker-expanded__panel">
+              <div class="location-picker-expanded__header">
+                <span data-i18n="pub.fieldLocationExpandTitle">Ajusta el pin con precisión</span>
+                <button type="button" class="location-picker-expanded__close" id="pubLocationCollapseBtn" data-i18n-attr="aria-label:pub.fieldLocationCollapseLabel" aria-label="Cerrar mapa ampliado">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div class="location-picker-expanded__map" id="pubLocationMapExpanded"></div>
+              <div class="location-picker-expanded__footer">
+                <span id="pubLocationExpandedSelectedText" class="location-picker-expanded__selected"></span>
+                <button type="button" class="location-picker-expanded__confirm" id="pubLocationConfirmBtn" data-i18n="pub.fieldLocationConfirmBtn">Confirmar ubicación</button>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" id="pubLocation" required>
+          <input type="hidden" id="pubLocationLat">
+          <input type="hidden" id="pubLocationLng">
         </div>
 
         <div class="form-group form-file-input">
@@ -207,6 +239,8 @@
   <script src="../assets/js/script.js"></script>
   <script src="../assets/js/i18n.js"></script>
   <script src="../assets/js/chatbot.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="../assets/js/location-picker.js"></script>
   <script src="../assets/js/publicaciones.js"></script>
 
 </body>

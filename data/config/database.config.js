@@ -20,6 +20,13 @@ db.on('error', (err) => {
     console.error('Error inesperado en el pool de MySQL:', err);
 });
 
+console.log('[DIAGNÓSTICO] Conectando a MySQL con:', {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
+    database: process.env.DB_NAME || 'raicessv'
+});
+
 const ensureUserStatusTable = () => new Promise((resolve) => {
     db.query(
         `CREATE TABLE IF NOT EXISTS user_status(
@@ -169,6 +176,35 @@ const ensureAppealsTable = () => new Promise((resolve) => {
     );
 });
 
+const ensurePublicationLocationColumns = () => {
+    const migrations = [
+        { name: 'lat', definition: 'DECIMAL(10, 7) NULL' },
+        { name: 'lng', definition: 'DECIMAL(10, 7) NULL' }
+    ];
+
+    const runMigration = ({ name, definition }) => new Promise((resolve) => {
+        db.query('SHOW COLUMNS FROM publications LIKE ?', [name], (err, results) => {
+            if (err) {
+                console.error(`No se pudo verificar la columna ${name} en publications:`, err);
+                return resolve();
+            }
+
+            if (results && results.length > 0) {
+                return resolve();
+            }
+
+            db.query(`ALTER TABLE publications ADD COLUMN ${name} ${definition}`, (alterErr) => {
+                if (alterErr && !/duplicate column|already exists/i.test(alterErr.message)) {
+                    console.error(`No se pudo agregar la columna ${name} en publications:`, alterErr);
+                }
+                resolve();
+            });
+        });
+    });
+
+    return Promise.all(migrations.map(runMigration));
+};
+
 db.getConnection((err, connection) => {
     if (err) {
         console.error('No se pudo conectar a MySQL:', err);
@@ -197,6 +233,10 @@ db.getConnection((err, connection) => {
         })
         .then(() => {
             console.log('Tabla de apelaciones verificada');
+            return ensurePublicationLocationColumns();
+        })
+        .then(() => {
+            console.log('Columnas de ubicación (lat/lng) de publicaciones verificadas');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);

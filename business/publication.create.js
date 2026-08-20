@@ -6,13 +6,15 @@ const createPublication = async (req, res) => {
             return res.status(400).send('Debes subir una imagen.');
         }
 
-        const { title, description, location } = req.body;
+        const { title, description, location, lat, lng } = req.body;
         const imagePath = `/assets/media/publications/${req.file.filename}`;
 
         const publication = await publicationService.createPublication(req.session.user.id, {
             title,
             description,
             location,
+            lat,
+            lng,
             image: imagePath
         });
 

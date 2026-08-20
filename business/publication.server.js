@@ -3,6 +3,18 @@ const publicationRepository = require('../data/repositories/publication.reposito
 const MAX_TITLE_LENGTH = 125;
 const MAX_LOCATION_LENGTH = 125;
 
+// Coordenadas válidas para El Salvador (con margen) — evita guardar basura si el picker falla
+const LAT_MIN = 12.5;
+const LAT_MAX = 15.2;
+const LNG_MIN = -90.5;
+const LNG_MAX = -87.4;
+
+const parseCoordinate = (value) => {
+    if (value === undefined || value === null || value === '') return null;
+    const num = Number(value);
+    return Number.isFinite(num) ? num : NaN;
+};
+
 const sanitizePublication = (row, currentUser) => {
     const isOwner = Boolean(currentUser) && currentUser.id === row.id_user;
     const isAdmin = Boolean(currentUser) && (currentUser.role === 'Admin' || currentUser.role === 'Fundador');
@@ -12,6 +24,8 @@ const sanitizePublication = (row, currentUser) => {
         title: row.title,
         description: row.description,
         location: row.location,
+        lat: row.lat !== null && row.lat !== undefined ? Number(row.lat) : null,
+        lng: row.lng !== null && row.lng !== undefined ? Number(row.lng) : null,
         image: row.image,
         createdAt: row.created_at,
         author: {
@@ -42,7 +56,7 @@ const getPublication = async (id_publication, currentUser) => {
     return sanitizePublication(row, currentUser);
 };
 
-const createPublication = async (id_user, { title, description, location, image }) => {
+const createPublication = async (id_user, { title, description, location, lat, lng, image }) => {
     if (typeof title !== 'string' || !title.trim()) {
         const err = new Error('El título es obligatorio.'); err.expose = true; throw err;
     }
@@ -67,17 +81,30 @@ const createPublication = async (id_user, { title, description, location, image 
         const err = new Error('La imagen es obligatoria para mejor visualización.'); err.expose = true; throw err;
     }
 
+    const parsedLat = parseCoordinate(lat);
+    const parsedLng = parseCoordinate(lng);
+
+    if (Number.isNaN(parsedLat) || Number.isNaN(parsedLng)) {
+        const err = new Error('Las coordenadas de la ubicación no son válidas.'); err.expose = true; throw err;
+    }
+
+    if (parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX || parsedLng < LNG_MIN || parsedLng > LNG_MAX)) {
+        const err = new Error('La ubicación seleccionada está fuera de El Salvador.'); err.expose = true; throw err;
+    }
+
     const result = await publicationRepository.create(id_user, {
         title: title.trim(),
         description: description.trim(),
         location: location.trim(),
+        lat: parsedLat,
+        lng: parsedLng,
         image: image.trim()
     });
 
     return getPublication(result.insertId, { id: id_user });
 };
 
-const updatePublication = async (id_publication, requestingUser, { title, description, location, image }) => {
+const updatePublication = async (id_publication, requestingUser, { title, description, location, lat, lng, image }) => {
     const row = await publicationRepository.findById(id_publication);
 
     if (!row) {
@@ -110,12 +137,25 @@ const updatePublication = async (id_publication, requestingUser, { title, descri
         const err = new Error(`La ubicación no puede superar los ${MAX_LOCATION_LENGTH} caracteres.`); err.expose = true; throw err;
     }
 
+    const parsedLat = lat !== undefined ? parseCoordinate(lat) : Number(row.lat);
+    const parsedLng = lng !== undefined ? parseCoordinate(lng) : Number(row.lng);
+
+    if (Number.isNaN(parsedLat) || Number.isNaN(parsedLng)) {
+        const err = new Error('Las coordenadas de la ubicación no son válidas.'); err.expose = true; throw err;
+    }
+
+    if (parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX || parsedLng < LNG_MIN || parsedLng > LNG_MAX)) {
+        const err = new Error('La ubicación seleccionada está fuera de El Salvador.'); err.expose = true; throw err;
+    }
+
     const finalImage = (typeof image === 'string' && image.trim()) ? image.trim() : row.image;
 
     await publicationRepository.updateById(id_publication, {
         title: title.trim(),
         description: description.trim(),
         location: location.trim(),
+        lat: parsedLat,
+        lng: parsedLng,
         image: finalImage
     });
 
