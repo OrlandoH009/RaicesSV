@@ -3,7 +3,7 @@ const publicationService = require('./publication.server');
 const updatePublication = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, location } = req.body;
+        const { title, description, location, lat, lng } = req.body;
 
         const imagePath = req.file ? `/assets/media/publications/${req.file.filename}` : undefined;
 
@@ -11,6 +11,8 @@ const updatePublication = async (req, res) => {
             title,
             description,
             location,
+            lat,
+            lng,
             image: imagePath
         });
 

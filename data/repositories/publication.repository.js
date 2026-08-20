@@ -7,6 +7,8 @@ const BASE_SELECT = `
         p.title,
         p.description,
         p.location,
+        p.lat,
+        p.lng,
         p.image,
         p.created_at,
         u.name AS author_name,
@@ -54,24 +56,29 @@ const findById = (id_publication) => {
     });
 };
 
-const create = (id_user, { title, description, location, image }) => {
+const create = (id_user, { title, description, location, lat, lng, image }) => {
     return new Promise((resolve, reject) => {
+        console.log('[DIAGNÓSTICO] Ejecutando INSERT publications con:', { id_user, title, description, location, lat, lng, image });
         db.query(
-            'INSERT INTO publications(id_user, title, description, location, image) VALUES (?, ?, ?, ?, ?)',
-            [id_user, title, description, location, image],
+            'INSERT INTO publications(id_user, title, description, location, lat, lng, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [id_user, title, description, location, lat, lng, image],
             (err, result) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('[DIAGNÓSTICO] Error en INSERT publications:', err);
+                    return reject(err);
+                }
+                console.log('[DIAGNÓSTICO] INSERT publications OK, insertId:', result.insertId);
                 resolve(result);
             }
         );
     });
 };
 
-const updateById = (id_publication, { title, description, location, image }) => {
+const updateById = (id_publication, { title, description, location, lat, lng, image }) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'UPDATE publications SET title = ?, description = ?, location = ?, image = ? WHERE id_publication = ?',
-            [title, description, location, image, id_publication],
+            'UPDATE publications SET title = ?, description = ?, location = ?, lat = ?, lng = ?, image = ? WHERE id_publication = ?',
+            [title, description, location, lat, lng, image, id_publication],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);

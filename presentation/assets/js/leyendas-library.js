@@ -383,7 +383,7 @@ const LEYENDAS_DATA = [
           tag: "Tradición oral · Hogar",
           chips: ["Advertencia infantil", "Aparece de noche", "Tradición familiar", "Sin forma definida"],
           origen: "Personaje de tradición oral utilizado por familias de El Salvador y de otros países hispanos para advertir a los niños y fomentar el buen comportamiento.",
-          img: "../assets/media/leyenda/el.png",
+          img: "../assets/media/leyenda/el-cuco.png",
           relato: `El Cuco es diferente de personajes como la Siguanaba, el Cipitío o el Cadejo. No posee una única historia de origen ni una apariencia establecida. Es principalmente un personaje de tradición oral utilizado por madres, padres, abuelos y otros familiares para advertir a los niños.
 
       La frase "te va a llevar el Cuco" ha formado parte de muchas conversaciones familiares y sirve para representar una amenaza misteriosa que puede aparecer cuando un niño no obedece, no quiere dormir o se comporta mal.
