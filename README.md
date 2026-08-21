@@ -133,7 +133,6 @@ RaicesSV/
 - Matter.js para la física de los juegos interactivos
 
 **Desarrollo**
-- TypeScript y @types/node (herramientas de tipado, sin migración completa del código)
 - dotenv para variables de entorno
 
 ## Requisitos previos
