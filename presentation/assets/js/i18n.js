@@ -131,7 +131,7 @@
 
       "jue.card4.tag": "Ruta 04 — Memoria",
       "jue.card4.tagModal": "Ruta 04 — Memoria",
-      "jue.card4.title": "Escondelero",
+      "jue.card4.title": "Mica",
       "jue.card4.desc": "Vos sos el que la trae. Tus amigos se van a escapar corriendo hacia el bote en cualquier momento: movete rápido por el patio e interceptalos antes de que lleguen y se salven. ¡No dejes que se te escapen muchos!",
       "jue.card4.pauseText": "Presioná reanudar para seguir buscando a tus amigos.",
 
