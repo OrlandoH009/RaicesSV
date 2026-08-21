@@ -241,11 +241,11 @@ async function obtenerMejorPuntajeJuego(gameName) {
     return config.spawnIntervalMin + Math.random() * (config.spawnIntervalMax - config.spawnIntervalMin);
   }
 
-  const bgMusic = document.getElementById('bgMusic');
-  const volumeSlider = document.getElementById('volumeSlider');
-  const volumeIcon = document.getElementById('volumeIcon');
+  const bgMusic = document.getElementById('bgMusic-pupusa');
+  const volumeSlider = document.getElementById('volumeSlider-pupusa');
+  const volumeIcon = document.getElementById('volumeIcon-pupusa');
   const damageOverlay = document.getElementById('damageOverlay-pupusa');
-  let volume = Number(volumeSlider?.value || 0.3);
+  let volume = Number(volumeSlider?.value || 0.25);
   let savedVolume = volume;
 
   function updateVolumeIcon(value){
@@ -763,7 +763,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
   const volumeIconTrompos = document.getElementById('volumeIcon-trompos');
   const damageOverlay = document.getElementById('damageOverlay-trompos');
-  let volume = Number(volumeSliderTrompos?.value || 0.45);
+  let volume = Number(volumeSliderTrompos?.value || 0.25);
   let savedVolume = volume;
 
   function updateVolumeIcon(value){
@@ -1186,6 +1186,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function showDifficultySelector(){
     showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-diff-trompos">${jt('jue.back', '← Atrás')}</button>
       <span class="overlay-tag">${jt('jue.card2.chooseDiffTag', 'Elige Dificultad')}</span>
       <h3>${jt('jue.card2.diff.title', '🎮 Selecciona tu Desafío')}</h3>
       <p>${jt('jue.card2.diff.sub', 'Elige el nivel de agilidad que tendrá la IA.')}</p>
@@ -1203,7 +1204,8 @@ async function obtenerMejorPuntajeJuego(gameName) {
           <div class="difficulty-desc">${jt('jue.card2.diff.hardDesc', 'NPC experto (Modo Imposible)')}</div>
         </button>
       </div>`);
-    
+
+    document.getElementById('btn-back-diff-trompos').onclick = showRoundSelector;
     document.getElementById('btn-easy-trompos').onclick = ()=>{
       npcDifficulty = 'easy';
       document.getElementById('p2-label').textContent = jt('jue.card2.npcEasy', '🟢 NPC - Fácil');
@@ -1225,6 +1227,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function showRoundSelector(){
     showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-rounds-trompos">${jt('jue.back', '← Atrás')}</button>
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
       <h3>${jt('jue.card2.rounds.title', '🏁 ¿A cuántas rondas jugamos?')}</h3>
       <p>${jt('jue.card2.rounds.sub', 'El primero en ganar la mitad más uno de las rondas seleccionadas se lleva la victoria.')}</p>
@@ -1235,6 +1238,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
       </div>
     `);
 
+    document.getElementById('btn-back-rounds-trompos').onclick = showModeSelector;
     document.getElementById('rounds-1').onclick = () => { selectRounds(1); };
     document.getElementById('rounds-3').onclick = () => { selectRounds(3); };
     document.getElementById('rounds-5').onclick = () => { selectRounds(5); };
@@ -1682,7 +1686,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   const volumeSlider = document.getElementById('volumeSlider-coasters');
   const volumeIcon = document.getElementById('volumeIcon-coasters');
   const damageOverlay = document.getElementById('damageOverlay-coasters');
-  let volume = Number(volumeSlider?.value || 0.35);
+  let volume = Number(volumeSlider?.value || 0.25);
   let savedVolume = volume;
 
   if(bgMusic){
@@ -2110,6 +2114,7 @@ function spawnEntities() {
 
   function showDifficultySelector() {
     showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-diff-coasters">${jt('jue.back', '← Atrás')}</button>
       <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
       <h3>${jt('jue.card3.diff.title', '🚦 ¿Qué tan veloz es tu rival?')}</h3>
       <p>${jt('jue.card3.diff.sub', 'Ajusta el nivel del motorista oponente.')}</p>
@@ -2127,6 +2132,8 @@ function spawnEntities() {
           <div class="difficulty-desc">${jt('jue.card3.diff.hardDesc', 'Maneja a lo loco')}</div>
         </button>
       </div>`);
+
+    document.getElementById('btn-back-diff-coasters').onclick = showDistanceSelector;
 
     document.getElementById('btn-easy-coasters').onclick = () => { startGame('easy'); };
     document.getElementById('btn-medium-coasters').onclick = () => { startGame('medium'); };
@@ -2441,7 +2448,7 @@ function spawnEntities() {
   const volumeSlider = document.getElementById('volumeSlider-encantados');
   const volumeIcon = document.getElementById('volumeIcon-encantados');
   const damageOverlay = document.getElementById('damageOverlay-encantados');
-  let volume = Number(volumeSlider?.value || 0.45);
+  let volume = Number(volumeSlider?.value || 0.25);
   let savedVolume = volume;
 
   if (bgMusic) {
@@ -3424,7 +3431,7 @@ function spawnEntities() {
   const volumeIcon = document.getElementById('volumeIcon-elotes');
   function playMusic() {
     if (!bgMusic) return;
-    bgMusic.volume = volumeSlider ? +volumeSlider.value : 0.45;
+    bgMusic.volume = volumeSlider ? +volumeSlider.value : 0.25;
     bgMusic.play().catch(() => {});
   }
   function stopMusic() { bgMusic?.pause(); }
@@ -4142,6 +4149,7 @@ function spawnEntities() {
   const pauseIcon = document.getElementById('pauseIcon-elotes');
   const pauseOverlay = document.getElementById('pauseOverlay-elotes');
   const resumeBtn = document.getElementById('resumeBtn-elotes');
+  const menuBtn = document.getElementById('menuBtn-elotes');
 
   function pauseGame() {
     if (!running || paused) return;
@@ -4161,12 +4169,22 @@ function spawnEntities() {
     lastTs = null;
     rafId = requestAnimationFrame(step);
   }
+  function returnToMenu() {
+    running = false;
+    paused = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    canvasWrap?.classList.remove('is-paused');
+    pauseOverlay?.classList.add('hidden');
+    if (pauseIcon) pauseIcon.textContent = '⏸️';
+    showDifficultySelector();
+  }
 
   if (pauseBtn) pauseBtn.addEventListener('click', () => paused ? resumeGame() : pauseGame());
   if (resumeBtn) resumeBtn.addEventListener('click', resumeGame);
+  if (menuBtn) menuBtn.addEventListener('click', returnToMenu);
 
   // ── Visibilidad del modal ─────────────────────────────────────
-  gameContent?.addEventListener('game:open', e => {
+  gameContent?.addEventListener('gameVisible', e => {
     if (e.detail.gameId === 'elotes') {
       isGameVisible = true;
       resizeCanvas();
@@ -4558,7 +4576,7 @@ function spawnEntities() {
   const volumeSlider = document.getElementById('volumeSlider-torito');
   const volumeIcon = document.getElementById('volumeIcon-torito');
   const damageOverlay = document.getElementById('damageOverlay-torito');
-  let volume = Number(volumeSlider?.value || 0.45);
+  let volume = Number(volumeSlider?.value || 0.25);
   let savedVolume = volume;
 
   if(bgMusic){
@@ -5578,6 +5596,7 @@ function spawnEntities() {
 
   function showDifficultySelector() {
     showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-diff-torito">${jt('jue.back', '← Atrás')}</button>
       <span class="overlay-tag">${jt('jue.diff.tag', 'Dificultad')}</span>
       <h3>${jt('jue.card6.diff.title', '🎮 Selecciona Nivel')}</h3>
       <p>${jt('jue.card6.diff.sub', 'Elegí la intensidad de la fiesta por la calle.')}</p>
@@ -5592,6 +5611,7 @@ function spawnEntities() {
         </button>
       </div>`);
 
+    document.getElementById('btn-back-diff-torito').onclick = showDistanceSelector;
     document.getElementById('btn-easy-torito').onclick = () => { startGame('easy'); };
     document.getElementById('btn-hard-torito').onclick = () => { startGame('hard'); };
   }

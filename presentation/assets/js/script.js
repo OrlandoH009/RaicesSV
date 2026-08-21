@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const state = readState();
     const muted = state.muted === true;
-    const volume = typeof state.volume === 'number' ? state.volume : 0.35;
+    const volume = typeof state.volume === 'number' ? state.volume : 0.2;
     const savedTime = typeof state.time === 'number' ? state.time : 0;
 
     audio.volume = volume;

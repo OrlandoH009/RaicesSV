@@ -672,6 +672,7 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 }
 .footer__links a:hover { color: var(--gold); }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
+.footer__disclaimer { font-size: 0.7rem; color: #777; margin-top: 0.1rem; max-width: 560px; }
 
 /* ── Barra de Progreso y Efectos ── */
 .scroll-progress {

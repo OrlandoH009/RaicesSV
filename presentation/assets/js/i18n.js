@@ -26,7 +26,7 @@
      Agrega aquí las claves de cada página nueva. */
   const TRANSLATIONS = {
     es: {
-      "meta.title": "Salvadorean Roots — Inicio",
+      "meta.title": "Inicio — Salvadorean Roots",
       "meta.description": "Salvadorean Roots — Descubre la esencia de El Salvador.",
 
       "nav.inicio": "Inicio",
@@ -84,13 +84,14 @@
       "cards.explorar": "Explorar",
 
       "footer.copy": "© 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.",
+      "footer.disclaimer": "Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.",
       "footer.juegos": "Juegos",
 
       "lang.switchTo": "EN",
       "lang.label": "Idioma",
 
       /* ── Página: Juegos Interactivos ── */
-      "jue.meta.title": "Salvadorean Roots — Juegos Interactivos",
+      "jue.meta.title": "Juegos Interactivos — Salvadorean Roots",
       "jue.meta.description": "Salvadorean Roots — Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña.",
 
       "jue.hero.eyebrow": "Aprender jugando",
@@ -105,6 +106,7 @@
       "jue.pause.title": "Juego en pausa",
       "jue.pause.resume": "Reanudar",
       "jue.pause.menu": "Menú",
+      "jue.back": "← Atrás",
 
       "jue.card1.tag": "Ruta 01 — Reflejos",
       "jue.card1.tagModal": "Ruta 01",
@@ -135,8 +137,8 @@
 
       "jue.card5.tag": "Ruta 05 — Recreo",
       "jue.card5.tagModal": "Ruta 05 — Recreo",
-      "jue.card5.title": "Elotes y Olé",
-      "jue.card5.desc": "Corré por el patio de la escuela recogiendo elotes locos, mangos y minutas, mientras esquivás los pupitres y las pelotas perdidas del recreo. ¡Sumá combos y no perdás el ritmo!",
+      "jue.card5.title": "Canicas",
+      "jue.card5.desc": "El clásico juego de patio de El Salvador. Lanzá tu tirador dentro del círculo y sacá las canicas de tus rivales. ¡Cada canica que salga de la ronda es tuya!",
       "jue.card5.pauseTitle": "Recreo en pausa",
       "jue.card5.pauseText": "Presioná reanudar para seguir la carrera de sabores.",
 
@@ -681,7 +683,7 @@
       "gas.torrejas.p3": "Durante la Cuaresma y Semana Santa, muchas familias salvadoreñas se reúnen para prepararlas junto a otros dulces tradicionales como el ayote en miel, marcando el inicio de las celebraciones religiosas.",
 
       /* ── Página: Categorías ── */
-      "cat.meta.title": "Salvadorean Roots — Categorías",
+      "cat.meta.title": "Categorías — Salvadorean Roots",
       "cat.meta.description": "Salvadorean Roots — Elige la categoría de información cultural que deseas explorar.",
       "cat.hero.title": "Explora Nuestras Categorías",
       "cat.hero.subtitle": "Descubre la riqueza cultural de El Salvador a través de nuestras secciones especializadas.",
@@ -711,7 +713,7 @@
       "nav.leyendas": "Leyendas",
 
       /* ── Página: Calendario ── */
-      "cal.meta.title": "Calendario de Festividades – Salvadorean Roots",
+      "cal.meta.title": "Calendario de Festividades — Salvadorean Roots",
       "cal.hero.eyebrow": "Descubre El Salvador",
       "cal.hero.title": "Calendario de Festividades",
       "cal.hero.desc": "Fiestas patronales, ferias y celebraciones emblemáticas de los 14 departamentos — organizadas mes a mes para que no pierdas ninguna.",
@@ -753,7 +755,7 @@
       "cal.types.religiosa": "Celebración Religiosa", "cal.types.nacional": "Festividad Nacional",
 
       /* ── Página: Mapa ── */
-      "map.meta.title": "Salvadorean Roots — Mapa Cultural",
+      "map.meta.title": "Mapa Cultural — Salvadorean Roots",
       "map.sidebar.close": "Cerrar información",
       "map.sidebar.desc": "Descripción",
       "map.sidebar.details": "Detalles",
@@ -999,7 +1001,7 @@
       }
       },
       // Sección Leyendas (Navegación & Hero)
-      "ley.meta.title": "Raíces Salvadoreñas — Leyendas",
+      "ley.meta.title": "Leyendas — Salvadorean Roots",
       "ley.hero.eyebrow": "Raíces Salvadoreñas te da la bienvenida",
       "ley.hero.title": "Cuando cae la noche, El Salvador cuenta historias",
       "ley.hero.desc": "Ríos que murmuran, caminos con trampa, sombras que velan por los niños. Descubre 16 leyendas que nuestros abuelos contaron por generaciones.",
@@ -1199,6 +1201,7 @@
       "lock.login": "Ya tengo cuenta",
       "lock.close": "Cerrar",
 
+      "recetas.meta.title": "Recetario Tradicional — Salvadorean Roots",
       "recetas.pageTitle": "Recetario de Nuestra Tierra",
       "recetas.intro": "Explora <strong>14 platillos típicos</strong> de la cocina salvadoreña. Toca una tarjeta para ver ingredientes y preparación paso a paso.",
       "recetas.downloadPDF": "Descargar Receta en PDF",
@@ -1498,6 +1501,7 @@
 
       // ——— Página: Quiz Cultural ———
       "quiz.heroEyebrow": "Aprender jugando",
+      "quiz.meta.title": "Quiz Cultural — Salvadorean Roots",
       "quiz.heroTitle": "Quiz de Salvadorean Roots",
       "quiz.heroSubtitle": "Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña.",
 
@@ -1576,7 +1580,7 @@
       "quiz.catLabelLeyendas": "Leyendas",
 
       // ——— Página: Perfil ———
-      "perfil.meta.title": "Salvadorean Roots — Mi perfil",
+      "perfil.meta.title": "Mi perfil — Salvadorean Roots",
       "perfil.meta.description": "Gestiona tu perfil en Salvadorean Roots.",
 
       "perfil.eyebrow": "Mi cuenta",
@@ -1643,7 +1647,7 @@
       "perfil.status.connectionError": "Error de conexión.",
 
       // ——— Página: Publicaciones ———
-      "pub.meta.title": "Publicaciones – Salvadorean Roots",
+      "pub.meta.title": "Publicaciones — Salvadorean Roots",
       "pub.meta.description": "Descubre fotografías y historias de lugares increíbles de El Salvador compartidas por nuestra comunidad.",
 
       "pub.backLabel": "Volver a categorías",
@@ -1690,6 +1694,8 @@
       "pub.submitBtn": "Publicar",
       "pub.cancelEditBtn": "Cancelar edición",
       "pub.clearBtn": "Limpiar",
+      "pub.editBtn": "Editar",
+      "pub.deleteBtn": "Eliminar",
 
       "pub.guestBlockerTitle": "¿Quieres compartir un lugar?",
       "pub.guestBlockerText": "Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.",
@@ -1719,7 +1725,7 @@
     },
 
     en: {
-      "meta.title": "Salvadorean Roots — Home",
+      "meta.title": "Home — Salvadorean Roots",
       "meta.description": "Salvadorean Roots — Discover the essence of El Salvador.",
 
       "nav.inicio": "Home",
@@ -1777,13 +1783,14 @@
       "cards.explorar": "Explore",
 
       "footer.copy": "© 2026 Salvadorean Roots — Our heritage, our pride.",
+      "footer.disclaimer": "Material used exclusively for educational, non-profit purposes. All rights belong to their original author.",
       "footer.juegos": "Games",
 
       "lang.switchTo": "ES",
       "lang.label": "Language",
 
       /* ── Page: Interactive Games ── */
-      "jue.meta.title": "Salvadorean Roots — Interactive Games",
+      "jue.meta.title": "Interactive Games — Salvadorean Roots",
       "jue.meta.description": "Salvadorean Roots — Put your reflexes and skill to the test with games inspired by Salvadoran culture.",
 
       "jue.hero.eyebrow": "Learn by playing",
@@ -1798,6 +1805,7 @@
       "jue.pause.title": "Game paused",
       "jue.pause.resume": "Resume",
       "jue.pause.menu": "Menu",
+      "jue.back": "← Back",
 
       "jue.card1.tag": "Route 01 — Reflexes",
       "jue.card1.tagModal": "Route 01",
@@ -1829,7 +1837,7 @@
       "jue.card5.tag": "Route 05 — Recess",
       "jue.card5.tagModal": "Route 05 — Recess",
       "jue.card5.title": "Canicas",
-      "jue.card5.desc": "Run through the schoolyard grabbing corn on the cob, mangoes, and shaved ice, while dodging desks and stray balls at recess. Rack up combos and keep the rhythm going!",
+      "jue.card5.desc": "The classic Salvadoran playground game. Launch your marble inside the circle and knock your opponents' marbles out. Every marble that falls out of the circle is yours!",
       "jue.card5.pauseTitle": "Recess paused",
       "jue.card5.pauseText": "Press resume to keep the flavor race going.",
 
@@ -2374,7 +2382,7 @@
       "gas.torrejas.p3": "During Lent and Holy Week, many Salvadoran families gather to make them along with other traditional sweets such as ayote en miel, marking the start of the religious celebrations.",
 
       /* ── Page: Categories ── */
-      "cat.meta.title": "Salvadorean Roots — Categories",
+      "cat.meta.title": "Categories — Salvadorean Roots",
       "cat.meta.description": "Salvadorean Roots — Choose the cultural category you want to explore.",
       "cat.hero.title": "Explore Our Categories",
       "cat.hero.subtitle": "Discover the cultural richness of El Salvador through our specialized sections.",
@@ -2403,7 +2411,7 @@
       "nav.leyendas": "Legends",
 
       /* ── Page: Calendar ── */
-      "cal.meta.title": "Festivities Calendar – Salvadorean Roots",
+      "cal.meta.title": "Festivities Calendar — Salvadorean Roots",
       "cal.hero.eyebrow": "Discover El Salvador",
       "cal.hero.title": "Festivities Calendar",
       "cal.hero.desc": "Patronal festivals, fairs, and iconic celebrations across all 14 departments — organized month by month so you don't miss any.",
@@ -2445,7 +2453,7 @@
       "cal.types.religiosa": "Religious Celebration", "cal.types.nacional": "National Holiday",
 
       /* ── Page: Map ── */
-      "map.meta.title": "Salvadorean Roots — Cultural Map",
+      "map.meta.title": "Cultural Map — Salvadorean Roots",
       "map.sidebar.close": "Close information",
       "map.sidebar.desc": "Description",
       "map.sidebar.details": "Details",
@@ -2690,7 +2698,7 @@
       }
       },
       // Sección Leyendas (Navegación & Hero)
-      "ley.meta.title": "Salvadorean Roots — Legends",
+      "ley.meta.title": "Legends — Salvadorean Roots",
       "ley.hero.eyebrow": "Salvadorean Roots welcomes you",
       "ley.hero.title": "When night falls,   El Salvador tells stories",
       "ley.hero.desc": "Whispering rivers, tricking paths, shadows watching over children. Discover 16 legends that our grandparents told for generations.",
@@ -2890,6 +2898,7 @@
       "lock.login": "I already have an account",
       "lock.close": "Close",
 
+      "recetas.meta.title": "Traditional Recipes — Salvadorean Roots",
       "recetas.pageTitle": "Recipe Book of Our Land",
       "recetas.intro": "Explore <strong>14 typical dishes</strong> of Salvadoran cuisine. Tap a card to see ingredients and step-by-step instructions.",
       "recetas.downloadPDF": "Download Recipe as PDF",
@@ -3184,6 +3193,7 @@
 
       // ——— Quiz page ———
         "quiz.heroEyebrow": "Learn while playing",
+        "quiz.meta.title": "Cultural Quiz — Salvadorean Roots",
         "quiz.heroTitle": "Salvadorean Roots Quiz",
         "quiz.heroSubtitle": "Test your knowledge about Salvadoran culture, history and gastronomy.",
 
@@ -3262,7 +3272,7 @@
         "quiz.catLabelLeyendas": "Legends",
 
         // ——— Profile page ———
-        "perfil.meta.title": "Salvadorean Roots — My profile",
+        "perfil.meta.title": "My profile — Salvadorean Roots",
         "perfil.meta.description": "Manage your profile on Salvadorean Roots.",
 
         "perfil.eyebrow": "My account",
@@ -3329,7 +3339,7 @@
         "perfil.status.connectionError": "Connection error.",
 
         // ——— Publications page ———
-        "pub.meta.title": "Publications – Salvadorean Roots",
+        "pub.meta.title": "Publications — Salvadorean Roots",
         "pub.meta.description": "Discover photos and stories of amazing places in El Salvador shared by our community.",
 
         "pub.backLabel": "Back to categories",
@@ -3376,6 +3386,8 @@
         "pub.submitBtn": "Publish",
         "pub.cancelEditBtn": "Cancel editing",
         "pub.clearBtn": "Clear",
+        "pub.editBtn": "Edit",
+        "pub.deleteBtn": "Delete",
 
         "pub.guestBlockerTitle": "Want to share a place?",
         "pub.guestBlockerText": "Log in or sign up to upload your own photos of El Salvador.",

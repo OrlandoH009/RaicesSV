@@ -39,6 +39,7 @@ let activeSiteSlug = null;
 let isUserLoggedIn = false;
 let currentUserId = null;
 let editingPublicationId = null;
+let lastPublications = [];
 
 // ── Función de traducción (i18n) ──
 function t(key, replacements = {}) {
@@ -87,9 +88,11 @@ async function fetchPublications() {
       throw new Error('No se pudieron cargar las publicaciones');
     }
     const data = await response.json();
-    renderPublications(data.publications || []);
+    lastPublications = data.publications || [];
+    renderPublications(lastPublications);
   } catch (error) {
     console.error(error);
+    lastPublications = [];
     renderPublications([]);
   }
 }
@@ -130,7 +133,7 @@ function renderPublications(publications) {
           ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?pub=${pub.id}&lat=${pub.lat}&lng=${pub.lng}" title="${t('pub.viewOnMap')}">🗺️</a>` : ''}
         </div>
         <div class="publication-author">
-          <span>${t('pub.authorBy', { name: pub.author.name })}</span>
+          <span>${pub.author.name}</span>
         </div>
         ${(pub.canEdit || pub.canDelete) ? `
           <div class="publication-owner-actions">
@@ -558,3 +561,11 @@ fetch('/auth/status')
     currentUserId = null;
     checkGuestFormAccess();
   });
+
+// ════════════════════════════════════
+// ESCUCHAR CAMBIOS DE IDIOMA
+// ════════════════════════════════════
+document.addEventListener('langchange', () => {
+  renderPublications(lastPublications);
+  actualizarEmptyStateTexto();
+});
