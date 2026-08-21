@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Salvadorean Roots — Juegos Interactivos</title>
+  <title>Juegos Interactivos — Salvadorean Roots</title>
   <meta name="description" content="Salvadorean Roots — Poné a prueba tus reflejos y destreza con juegos inspirados en la cultura salvadoreña." />
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/juegos.css" />
@@ -193,13 +193,13 @@
                 </button>
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
-                  <span class="volume-icon" id="volumeIcon">🔊</span>
-                  <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.45" />
+                  <span class="volume-icon" id="volumeIcon-pupusa">🔊</span>
+                  <input type="range" id="volumeSlider-pupusa" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-pupusa"></canvas>
               <div class="damage-overlay" id="damageOverlay-pupusa"></div>
-              <audio id="bgMusic" src="../assets/media/juegos/musica-salvadorena.mp3" loop preload="auto"></audio>
+              <audio id="bgMusic-pupusa" src="../assets/media/juegos/musica-salvadorena.mp3" loop preload="auto"></audio>
               <div class="overlay" id="overlay-pupusa">
                 <div class="overlay-card" id="overlay-card-pupusa"></div>
               </div>
@@ -208,7 +208,10 @@
                   <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
                   <h3 data-i18n="jue.pause.title">Juego en pausa</h3>
                   <p data-i18n="jue.card1.pauseText">Presioná reanudar para volver a atrapar pupusas.</p>
-                  <button class="btn-primary" id="resumeBtn-pupusa" data-i18n="jue.pause.resume">Reanudar</button>
+                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="btn-primary" id="resumeBtn-pupusa" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-pupusa" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,7 +244,7 @@
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-trompos">🔊</span>
-                  <input type="range" id="volumeSlider-trompos" min="0" max="1" step="0.05" value="0.45" />
+                  <input type="range" id="volumeSlider-trompos" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-trompos"></canvas>
@@ -291,7 +294,7 @@
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-coasters">🔊</span>
-                  <input type="range" id="volumeSlider-coasters" min="0" max="1" step="0.05" value="0.45" />
+                  <input type="range" id="volumeSlider-coasters" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-coasters"></canvas>
@@ -342,7 +345,7 @@
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-encantados">🔊</span>
-                  <input type="range" id="volumeSlider-encantados" min="0" max="1" step="0.05" value="0.45" />
+                  <input type="range" id="volumeSlider-encantados" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-encantados"></canvas>
@@ -393,7 +396,7 @@
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-elotes">🔊</span>
-                  <input type="range" id="volumeSlider-elotes" min="0" max="1" step="0.05" value="0.45" />
+                  <input type="range" id="volumeSlider-elotes" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-elotes"></canvas>
@@ -407,7 +410,10 @@
                   <span class="overlay-tag" data-i18n="jue.pause.tag">Pausa</span>
                   <h3 data-i18n="jue.card5.pauseTitle">¡Canicas en pausa!</h3>
                   <p data-i18n="jue.card5.pauseText">Presioná reanudar para seguir lanzando.</p>
-                  <button class="btn-primary" id="resumeBtn-elotes" data-i18n="jue.pause.resume">Reanudar</button>
+                  <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                    <button class="btn-primary" id="resumeBtn-elotes" data-i18n="jue.pause.resume">Reanudar</button>
+                    <button class="btn-primary" id="menuBtn-elotes" style="background-color: var(--navy); border: 2px solid var(--white);" data-i18n="jue.pause.menu">Menú</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -440,7 +446,7 @@
                 <button class="icon-btn fullscreen-btn">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-torito">🔊</span>
-                  <input type="range" id="volumeSlider-torito" min="0" max="1" step="0.05" value="0.45" />
+                  <input type="range" id="volumeSlider-torito" min="0" max="1" step="0.05" value="0.25" />
                 </div>
               </div>
               <canvas id="canvas-torito"></canvas>
@@ -484,6 +490,7 @@
         <li><a href="../views/juegos.html" data-i18n="footer.juegos">Juegos</a></li>
       </ul>
       <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__disclaimer" data-i18n="footer.disclaimer">Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.</p>
     </div>
   </footer>
 

@@ -702,6 +702,34 @@ canvas {
   padding: .8rem 2.2rem;
 }
 
+.btn-back-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+  padding: 0.35rem 0.9rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: var(--r-sm, 8px);
+  color: inherit;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.btn-back-selector:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.5);
+}
+[data-theme="light"] .btn-back-selector {
+  border-color: rgba(36,33,29,.25);
+}
+[data-theme="light"] .btn-back-selector:hover {
+  background: rgba(36,33,29,.08);
+  border-color: rgba(36,33,29,.4);
+}
+
 .games-footnote {
   position: relative;
   z-index: 1;
