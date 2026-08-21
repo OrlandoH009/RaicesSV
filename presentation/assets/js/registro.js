@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
       googleLinkBtn.href = '/auth/google?redirect=' + encodeURIComponent(redirectParam);
     }
   }
-  const form = document.getElementById('login-form');
+  const form = document.getElementById('register-form');
   const messageBox = document.getElementById('form-message');
   const passwordInput = document.querySelector('input[name="password"]');
 
@@ -198,17 +198,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
-    
+
     const targetRedirect = params.get('redirect') || '/';
 
+    const nombre = (formData.get('nombre') || '').toString().trim();
+    const apellido = (formData.get('apellido') || '').toString().trim();
+    const password = formData.get('password');
+    const password2 = formData.get('password2');
+
+    if (password !== password2) {
+      showMessage(tt('register.error_passwords_match', 'Las contraseñas no coinciden'));
+      return;
+    }
+
     const payload = {
+      name: [nombre, apellido].filter(Boolean).join(' '),
       email: formData.get('email'),
-      password: formData.get('password'),
+      password: password,
       redirect: targetRedirect
     };
 
     try {
-      const response = await fetch('/login', {
+      const response = await fetch('/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -216,26 +227,21 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
 
+      const data = await response.json().catch(() => null);
+
       if (response.ok) {
-        const data = await response.json();
-
-        // ============================================================
-        // 🔥 PASO 3: ACTUALIZAR ESTADO PARA EL CHATBOT 🔥
-        // ============================================================
-        window.USER_AUTH_STATE = 'autenticado';
-        localStorage.setItem('userAuthState', 'autenticado');
-        document.dispatchEvent(new CustomEvent('authchange'));
-        // ============================================================
-
-        window.location.href = data.redirect || '/';
+        showMessage((data && data.message) || tt('register.success', 'Cuenta creada correctamente'), false);
+        window.setTimeout(() => {
+          window.location.href = (data && data.redirect) || '/login.html';
+        }, 900);
         return;
       }
 
-      const text = await response.text();
-      showMessage(text || window.SRi18n.t('login.error_generic', window.SRi18n.getLang()));
-      
+      const text = (data && (data.message || data.error)) || (await response.text().catch(() => ''));
+      showMessage(text || tt('register.error_generic', 'No se pudo crear la cuenta. Inténtalo de nuevo.'));
+
     } catch (error) {
-      showMessage(window.SRi18n.t('login.error_server', window.SRi18n.getLang()));
+      showMessage(tt('register.error_server', 'Ocurrió un error de conexión. Inténtalo de nuevo.'));
     }
   });
 
