@@ -35,9 +35,15 @@ app.post('/chat-proxy', async (req, res) => {
     });
   }
 
-  // Detectar si es una traducción para ajustar tokens
+  // Detectar si es una traducción para ajustar tokens.
+  // Se respeta el max_tokens enviado por el cliente (que reintenta con
+  // presupuestos más altos si la traducción se trunca), con un techo
+  // de seguridad para no disparar el consumo indefinidamente.
   const isTranslation = systemPrompt && systemPrompt.toLowerCase().includes('translator');
-  const tokenLimit = isTranslation ? 2000 : (max_tokens || 800);
+  const TRANSLATION_TOKEN_CAP = 16000;
+  const tokenLimit = isTranslation
+    ? Math.min(max_tokens || 2000, TRANSLATION_TOKEN_CAP)
+    : (max_tokens || 800);
 
   const payload = {
     model: MODEL,

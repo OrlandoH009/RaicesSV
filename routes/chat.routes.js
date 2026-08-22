@@ -29,9 +29,15 @@ router.post('/chat-proxy', async (req, res) => {
     });
   }
 
-  // Determinar el límite de tokens según el tipo de petición
+  // Determinar el límite de tokens según el tipo de petición.
+  // Para traducciones se respeta el max_tokens que envía el cliente (que
+  // reintenta con presupuestos más altos si la traducción se trunca),
+  // con un techo de seguridad para no disparar el consumo indefinidamente.
   const isTranslation = systemPrompt && systemPrompt.includes('translator');
-  const tokenLimit = isTranslation ? 2000 : (max_tokens || 800);
+  const TRANSLATION_TOKEN_CAP = 16000;
+  const tokenLimit = isTranslation
+    ? Math.min(max_tokens || 2000, TRANSLATION_TOKEN_CAP)
+    : (max_tokens || 800);
 
   const payload = {
     model: MODEL,

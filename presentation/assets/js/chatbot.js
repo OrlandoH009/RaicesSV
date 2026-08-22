@@ -64,8 +64,9 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
   let plannerMode = false;   
   let plannerStep = null;    
   let plannerData = {};
-  let isColoquialMode = false;
   let isTranslating = false;
+  let pendingTranslationLang = null;
+  let historyLang = currentLang;
 
   // ==========================================
   // 3. TEXTOS DE LA UI
@@ -99,9 +100,6 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       plannerSuccess: "¡Tu plan ha sido generado con éxito! El planificador se ha desactivado automáticamente. Puedes seguir haciéndome preguntas normales.",
       errGeneric: "Hubo un problema. Por favor intenta de nuevo.",
       quickQuestions: ['¿Qué son las pupusas?', '¿Qué es Joya de Cerén?', '¿Quién es la Siguanaba?', '¿Cuándo son las Fiestas Agostinas?'],
-      coloquialMode: '🇸🇻 Modo cipote',
-      coloquialOn: 'Activado',
-      coloquialOff: 'Desactivado',
       sharePlan: '📤 Compartir plan',
       planImageAlt: 'Itinerario de Salvadorean Roots',
       chatTranslated: 'Chat traducido'
@@ -134,9 +132,6 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       plannerSuccess: "Your plan has been generated successfully! The planner has turned off automatically. You can keep asking me regular questions.",
       errGeneric: "There was a problem. Please try again.",
       quickQuestions: ['What are pupusas?', 'What is Joya de Cerén?', 'Who is the Siguanaba?', 'When are the August Festivals?'],
-      coloquialMode: '🇸🇻 Slang mode',
-      coloquialOn: 'On',
-      coloquialOff: 'Off',
       sharePlan: '📤 Share plan',
       planImageAlt: 'Salvadorean Roots Itinerary',
       chatTranslated: 'Chat translated'
@@ -169,16 +164,6 @@ ${RAICES_LANDMARKS_INFO}
 6. Filtro: Si te saludan, di solo: "Hola, soy Pupusita. ¿Qué dato buscas?". Si es ajeno a El Salvador, responde ÚNICAMENTE: "No tengo respuesta a temas no relacionados al sitio."
 7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.`;
 
-    if (isColoquialMode && lang === 'es') {
-      return basePrompt + `
-8. ESTILO COLOQUIAL SALVADOREÑO: Usa expresiones típicas como "¡Mirá, vos!", "¡Qué chivo!", "¡Pucha!", "¡Ahí te voy contando!", "¡Bien, pues!", "¡Dale!".
-Incorpora modismos salvadoreños de forma natural. No abuses, solo para dar sabor cultural.`;
-    } else if (isColoquialMode && lang === 'en') {
-      return basePrompt + `
-8. COLLOQUIAL SALVADOREAN STYLE: Use expressions like "¡Mirá, vos!", "¡Qué chivo!", "¡Pucha!", "¡Ahí te voy contando!", "¡Bien, pues!", "¡Dale!".
-Incorporate Salvadoran idioms naturally. Don't overuse, just for cultural flavor.`;
-    }
-    
     return basePrompt;
   }
 
@@ -211,7 +196,7 @@ ${RAICES_LANDMARKS_INFO}
   function loadSavedHistory() {
     if (!isAuthenticated()) return;
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
@@ -229,7 +214,7 @@ ${RAICES_LANDMARKS_INFO}
       if (conversationHistory.length > MAX_HISTORY) {
         conversationHistory = conversationHistory.slice(-MAX_HISTORY);
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(conversationHistory));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(conversationHistory));
     } catch (e) {}
   }
 
@@ -350,34 +335,6 @@ ${RAICES_LANDMARKS_INFO}
     #rs-planner-toggle.locked { opacity: 0.5; cursor: not-allowed; border-color: #555; }
     #rs-planner-toggle.locked:hover { background: rgba(255,255,255,.06); border-color: #555; }
     
-    #rs-coloquial-toggle {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(190,142,86,0.3);
-      color: rgba(255,255,255,0.7);
-      font-weight: 600;
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    #rs-coloquial-toggle:hover {
-      background: rgba(190,142,86,0.15);
-      border-color: #be8e56;
-    }
-    #rs-coloquial-toggle.active {
-      background: #be8e56;
-      border-color: #be8e56;
-      color: #113068;
-    }
-    #rs-coloquial-toggle.locked { opacity: 0.5; cursor: not-allowed; border-color: #555; }
-    #rs-coloquial-toggle.locked:hover { background: rgba(255,255,255,0.06); border-color: #555; }
-    
     #rs-share-plan {
       display: none;
       align-items: center;
@@ -443,6 +400,10 @@ ${RAICES_LANDMARKS_INFO}
     .rs-quick-btn { font-size: clamp(11px, 0.75vw, 13px); font-weight: 500; color: #be8e56; background: rgba(190,142,86,.08); border: 1px solid rgba(190,142,86,.3); border-radius: 20px; padding: 5px 12px; cursor: pointer; text-align: left; }
     .rs-quick-btn.locked { opacity: 0.4; cursor: not-allowed; }
     .rs-map-btn { color: #7fc3f0; background: rgba(82,160,224,.1); border-color: rgba(82,160,224,.35); text-decoration: none; display: inline-flex; align-items: center; }
+
+    .rs-translate-spinner { display: flex; align-items: center; justify-content: center; flex: 1; width: 100%; height: 100%; min-height: 120px; }
+    .rs-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(190,142,86,0.25); border-top-color: #be8e56; animation: rs-spin 0.8s linear infinite; }
+    @keyframes rs-spin { to { transform: rotate(360deg); } }
     
     /* Login overlay */
     .rs-login-overlay {
@@ -525,8 +486,7 @@ ${RAICES_LANDMARKS_INFO}
     [data-theme="light"] #rs-chat-input:focus { background: #fffaf0; }
     [data-theme="light"] #rs-chat-input::placeholder { color: rgba(44,38,32,.4); }
     [data-theme="light"] #rs-planner-toggle { background: rgba(17,48,104,.05); color: rgba(44,38,32,.85); }
-    [data-theme="light"] #rs-coloquial-toggle { background: rgba(17,48,104,0.05); color: rgba(44,38,32,0.7); }
-    [data-theme="light"] #rs-coloquial-toggle.active { background: #be8e56; color: #fff; }
+    [data-theme="light"] .rs-spinner { border-color: rgba(17,48,104,0.15); border-top-color: #be8e56; }
     [data-theme="light"] #rs-share-plan { background: rgba(190,142,86,0.1); color: #8b6b3a; }
     [data-theme="light"] .rs-login-overlay { background: rgba(255,253,248,0.92); backdrop-filter: blur(4px); }
     [data-theme="light"] .rs-login-overlay .rs-lock-title { color: #113068; }
@@ -693,26 +653,6 @@ ${RAICES_LANDMARKS_INFO}
     toggleBtn.classList.toggle('active', active);
     toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     gsap.fromTo(toggleBtn, { scale: 0.9 }, { scale: 1, duration: 0.2, ease: "back.out(3)" });
-  }
-
-  function toggleColoquialMode() {
-    if (!isAuthenticated()) return;
-    isColoquialMode = !isColoquialMode;
-    const btn = document.getElementById('rs-coloquial-toggle');
-    const status = document.getElementById('rs-coloquial-status');
-    if (btn) {
-      btn.classList.toggle('active', isColoquialMode);
-    }
-    if (status) {
-      status.textContent = isColoquialMode 
-        ? TRANSLATABLE_TEXTS[currentLang].coloquialOn 
-        : TRANSLATABLE_TEXTS[currentLang].coloquialOff;
-    }
-    
-    const msg = isColoquialMode 
-      ? (currentLang === 'es' ? '🇸🇻 ¡Modo cipote activado! Ahora hablo más a la salvadoreña.' : '🇸🇻 Slang mode activated! I\'ll speak more Salvadoran.')
-      : (currentLang === 'es' ? 'Modo formal activado.' : 'Formal mode activated.');
-    addBotMessage(msg);
   }
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -1110,9 +1050,15 @@ Dame un plan concreto y realista dentro de El Salvador.`;
       chatIcon.style.display = 'none';
       closeIcon.style.display = 'block';
       btn.setAttribute('aria-label', 'Cerrar asistente');
-      
+
       gsap.fromTo(win, { opacity: 0, y: 35, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "power4.out" });
       setTimeout(() => document.getElementById('rs-chat-input')?.focus(), 100);
+
+      if (pendingTranslationLang && pendingTranslationLang !== historyLang) {
+        const lang = pendingTranslationLang;
+        pendingTranslationLang = null;
+        translateChatHistory(lang);
+      }
     } else {
       chatIcon.style.display = 'block';
       closeIcon.style.display = 'none';
@@ -1182,7 +1128,6 @@ Dame un plan concreto y realista dentro de El Salvador.`;
     const input = document.getElementById('rs-chat-input');
     const sendBtn = document.getElementById('rs-chat-send');
     const plannerBtn = document.getElementById('rs-planner-toggle');
-    const coloquialBtn = document.getElementById('rs-coloquial-toggle');
     const statusText = document.getElementById('rs-header-status');
     const statusDot = document.querySelector('.rs-dot');
     const avatar = document.getElementById('rs-bot-avatar');
@@ -1198,13 +1143,11 @@ Dame un plan concreto y realista dentro de El Salvador.`;
       input?.classList.remove('locked');
       sendBtn?.classList.remove('locked');
       plannerBtn?.classList.remove('locked');
-      coloquialBtn?.classList.remove('locked');
 
       // Habilitar elementos
       input?.removeAttribute('disabled');
       sendBtn?.removeAttribute('disabled');
       plannerBtn?.classList.remove('locked');
-      coloquialBtn?.classList.remove('locked');
 
       // Actualizar estado visual
       if (statusDot) {
@@ -1238,7 +1181,6 @@ Dame un plan concreto y realista dentro de El Salvador.`;
       input?.classList.add('locked');
       sendBtn?.classList.add('locked');
       plannerBtn?.classList.add('locked');
-      coloquialBtn?.classList.add('locked');
 
       // Deshabilitar elementos
       input?.setAttribute('disabled', 'true');
@@ -1263,83 +1205,109 @@ Dame un plan concreto y realista dentro de El Salvador.`;
   // ==========================================
   // NUEVA FUNCIÓN: TRADUCIR HISTORIAL DEL CHAT (CORREGIDA)
   // ==========================================
+  function showTranslateSpinner() {
+    const msgs = document.getElementById('rs-chat-messages');
+    if (!msgs) return;
+    msgs.innerHTML = '';
+    const spinner = document.createElement('div');
+    spinner.id = 'rs-translate-spinner';
+    spinner.className = 'rs-translate-spinner';
+    spinner.innerHTML = '<div class="rs-spinner"></div>';
+    msgs.appendChild(spinner);
+  }
+
+  function hideTranslateSpinner() {
+    const spinner = document.getElementById('rs-translate-spinner');
+    if (spinner) spinner.remove();
+  }
+
   async function translateChatHistory(targetLang) {
-    // Si no hay historial o ya se está traduciendo, salir
+    // Si no hay historial o ya se esta traduciendo, salir
     if (conversationHistory.length === 0) return;
     if (isTranslating) return;
     if (!isAuthenticated()) return;
 
     isTranslating = true;
-    showTyping();
+    showTranslateSpinner();
 
-    try {
-      const targetLangName = targetLang === 'es' ? 'Spanish' : 'English';
-      const translationPrompt = `Translate the following JSON array of chat messages into ${targetLangName}. 
+    // Si la respuesta viene truncada (JSON incompleto) o falla el parseo,
+    // reintentamos con un presupuesto de tokens cada vez mayor para evitar
+    // que la traduccion falle silenciosamente.
+    const tokenBudgets = [4000, 8000, 12000];
+    let success = false;
+
+    for (let i = 0; i < tokenBudgets.length && !success; i++) {
+      try {
+        const targetLangName = targetLang === 'es' ? 'Spanish' : 'English';
+        const translationPrompt = `Translate the following JSON array of chat messages into ${targetLangName}.
 Return ONLY valid JSON array with the same structure.
 IMPORTANT: Keep all markdown formatting like **bold** and emojis.
 Only translate the text content, not the structure.
 
 ${JSON.stringify(conversationHistory)}`;
 
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system: `You are a translator. ONLY output a valid JSON array. Never add extra text.`,
-          messages: [{ role: 'user', content: translationPrompt }],
-          max_tokens: 4000 // Aumentado para traducciones largas
-        })
-      });
+        const response = await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system: `You are a translator. ONLY output a valid JSON array. Never add extra text.`,
+            messages: [{ role: 'user', content: translationPrompt }],
+            max_tokens: tokenBudgets[i]
+          })
+        });
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let rawReply = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        rawReply += decoder.decode(value, { stream: true });
-      }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let rawReply = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          rawReply += decoder.decode(value, { stream: true });
+        }
 
-      // Limpiar y parsear el JSON
-      let cleanJson = rawReply.trim();
-      const firstBracket = cleanJson.indexOf('[');
-      const lastBracket = cleanJson.lastIndexOf(']');
-      if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+        // Limpiar y parsear el JSON
+        let cleanJson = rawReply.trim();
+        const firstBracket = cleanJson.indexOf('[');
+        const lastBracket = cleanJson.lastIndexOf(']');
+        if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+          // No hay un array completo: probablemente la respuesta se trunco
+          // por falta de tokens. Reintentamos con mas presupuesto.
+          throw new Error('Respuesta truncada o sin JSON valido (posible limite de tokens)');
+        }
         cleanJson = cleanJson.substring(firstBracket, lastBracket + 1);
-      }
 
-      // Intentar parsear con manejo de errores
-      let translatedHistory;
-      try {
-        translatedHistory = JSON.parse(cleanJson);
-      } catch (parseError) {
-        // Si falla, intentar limpiar caracteres no válidos
-        cleanJson = cleanJson.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-        translatedHistory = JSON.parse(cleanJson);
-      }
+        // Intentar parsear con manejo de errores
+        let translatedHistory;
+        try {
+          translatedHistory = JSON.parse(cleanJson);
+        } catch (parseError) {
+          // Si falla, intentar limpiar caracteres no validos
+          cleanJson = cleanJson.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+          translatedHistory = JSON.parse(cleanJson);
+        }
 
-      if (Array.isArray(translatedHistory) && translatedHistory.length > 0) {
-        // Mantener solo los últimos MAX_HISTORY mensajes
+        if (!Array.isArray(translatedHistory) || translatedHistory.length !== conversationHistory.length) {
+          throw new Error('La traduccion no devolvio un array valido o completo');
+        }
+
+        // Mantener solo los ultimos MAX_HISTORY mensajes
         conversationHistory = translatedHistory.slice(-MAX_HISTORY);
         saveHistory();
-        
-        // Re-renderizar la UI con los mensajes traducidos
-        renderSavedHistoryUI();
-        
-        // Mostrar mensaje de confirmación
-        addBotMessage(`🌐 ${TRANSLATABLE_TEXTS[targetLang].chatTranslated}`);
-      } else {
-        throw new Error('La traducción no devolvió un array válido');
+        historyLang = targetLang;
+        success = true;
+      } catch (err) {
+        console.error(`Error en traduccion del historial (intento ${i + 1}/${tokenBudgets.length}, max_tokens=${tokenBudgets[i]}):`, err);
+        // Si quedan reintentos, el bucle sigue con mas tokens.
+        // Si no, se sale sin marcar success y se conserva el idioma original.
       }
-    } catch (err) {
-      console.error("Error en traducción del historial:", err);
-      // No mostrar error al usuario para no interrumpir la experiencia
-    } finally {
-      hideTyping();
-      isTranslating = false;
     }
+
+    hideTranslateSpinner();
+    // Re-renderizar la UI (traducida si tuvo exito, original si fallaron todos los intentos)
+    renderSavedHistoryUI();
+    isTranslating = false;
   }
 
   // ==========================================
@@ -1357,8 +1325,6 @@ ${JSON.stringify(conversationHistory)}`;
     const plannerText = document.getElementById('rs-planner-text');
     const input = document.getElementById('rs-chat-input');
     const bubble = document.getElementById('rs-chat-bubble');
-    const coloquialStatus = document.getElementById('rs-coloquial-status');
-    const coloquialBtn = document.getElementById('rs-coloquial-toggle');
     const statusDot = document.querySelector('.rs-dot');
     
     if (headerName) headerName.textContent = TRANSLATABLE_TEXTS[newLang].headerTitle;
@@ -1375,15 +1341,7 @@ ${JSON.stringify(conversationHistory)}`;
       input.placeholder = TRANSLATABLE_TEXTS[newLang].inputPlaceholder;
     }
     if (bubble) bubble.textContent = TRANSLATABLE_TEXTS[newLang].welcomeBubble;
-    if (coloquialStatus) {
-      coloquialStatus.textContent = isColoquialMode 
-        ? TRANSLATABLE_TEXTS[newLang].coloquialOn 
-        : TRANSLATABLE_TEXTS[newLang].coloquialOff;
-    }
-    if (coloquialBtn) {
-      coloquialBtn.innerHTML = `${TRANSLATABLE_TEXTS[newLang].coloquialMode} <span id="rs-coloquial-status">${isColoquialMode ? TRANSLATABLE_TEXTS[newLang].coloquialOn : TRANSLATABLE_TEXTS[newLang].coloquialOff}</span>`;
-    }
-    
+
     const shareBtn = document.getElementById('rs-share-plan');
     if (shareBtn) shareBtn.textContent = TRANSLATABLE_TEXTS[newLang].sharePlan;
     
@@ -1400,13 +1358,16 @@ ${JSON.stringify(conversationHistory)}`;
       existingOverlay.replaceWith(newOverlay);
     }
 
-    // 🔥 TRADUCIR EL HISTORIAL DE MENSAJES AL NUEVO IDIOMA
-    // Solo si hay mensajes y el idioma cambió realmente
-    if (conversationHistory.length > 0) {
-      // Esperar un momento para que la UI se actualice
-      setTimeout(() => {
+    // TRADUCIR EL HISTORIAL DE MENSAJES AL NUEVO IDIOMA
+    // Si el chat está abierto, traducir de inmediato (ocultando mensajes con un loader).
+    // Si está cerrado, dejar pendiente y traducir cuando el usuario lo abra.
+    if (conversationHistory.length > 0 && newLang !== historyLang) {
+      if (isOpen) {
+        pendingTranslationLang = null;
         translateChatHistory(newLang);
-      }, 300);
+      } else {
+        pendingTranslationLang = newLang;
+      }
     }
   }
 
@@ -1434,7 +1395,8 @@ ${JSON.stringify(conversationHistory)}`;
   // ==========================================
   function init() {
     currentLang = detectLanguage();
-    
+    historyLang = currentLang;
+
     if (isAuthenticated()) {
       loadSavedHistory();
     }
@@ -1575,18 +1537,7 @@ ${JSON.stringify(conversationHistory)}`;
     const header = document.getElementById('rs-chat-header');
     if (header && isAuthenticated()) {
       const plannerBtn = document.getElementById('rs-planner-toggle');
-      
-      const coloquialBtn = document.createElement('button');
-      coloquialBtn.id = 'rs-coloquial-toggle';
-      coloquialBtn.innerHTML = `${TRANSLATABLE_TEXTS[currentLang].coloquialMode} <span id="rs-coloquial-status">${TRANSLATABLE_TEXTS[currentLang].coloquialOff}</span>`;
-      coloquialBtn.addEventListener('click', toggleColoquialMode);
-      
-      if (plannerBtn) {
-        header.insertBefore(coloquialBtn, plannerBtn);
-      } else {
-        header.appendChild(coloquialBtn);
-      }
-      
+
       const shareBtn = document.createElement('button');
       shareBtn.id = 'rs-share-plan';
       shareBtn.textContent = TRANSLATABLE_TEXTS[currentLang].sharePlan;

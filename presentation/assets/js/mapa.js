@@ -667,9 +667,17 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   mapaSection.classList.add('sidebar-open');
 
   if (window.gsap) {
+    // En móvil (≤600px) el CSS convierte la sidebar en una "ficha" que se
+    // desliza desde abajo (translateY); en pantallas más grandes es un panel
+    // lateral que entra desde la izquierda (translateX). Si siempre animamos
+    // translateX, en móvil el panel nunca sale de su escondite vertical.
+    const esMovil = window.matchMedia('(max-width: 600px)').matches;
     gsap.killTweensOf(mapaSidebar);
+    // Limpiamos cualquier transform inline previo para que el punto de partida
+    // vuelva a ser el que define el CSS del breakpoint actual.
+    gsap.set(mapaSidebar, { clearProps: 'transform' });
     gsap.to(mapaSidebar, {
-      translateX: 0,
+      [esMovil ? 'y' : 'x']: 0,
       duration: 0.5,
       ease: 'power3.out',
       onComplete: () => invalidateMapSize()
@@ -682,7 +690,10 @@ function abrirSidebar(lm, marker, forcedLang = null) {
       );
     }
   } else {
-    mapaSidebar.style.transform = 'translateX(0)';
+    // Sin GSAP: dejamos que la regla CSS `.mapa-sidebar.open` (translateX en
+    // escritorio, translateY en el diseño de ficha inferior de móvil) sea la
+    // que controle la posición, en vez de forzar un eje fijo por inline style.
+    mapaSidebar.style.transform = '';
     setTimeout(invalidateMapSize, 350);
   }
 }
@@ -698,9 +709,10 @@ function cerrarSidebar() {
   }
 
   if (window.gsap) {
+    const esMovil = window.matchMedia('(max-width: 600px)').matches;
     gsap.killTweensOf(mapaSidebar);
     gsap.to(mapaSidebar, {
-      translateX: '-100%',
+      [esMovil ? 'y' : 'x']: esMovil ? '100%' : '-100%',
       duration: 0.4,
       ease: 'power3.in',
       onComplete: () => {

@@ -81,12 +81,25 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(isLight ? 'dark' : 'light');
   });
 
+  // `overflow: hidden` en el body no basta para bloquear el scroll táctil
+  // en varios navegadores móviles (Safari iOS en particular sigue dejando
+  // "arrastrar" el fondo). Fijamos el body en su posición actual para que
+  // ni la rueda ni el dedo puedan mover nada detrás del drawer, y al cerrar
+  // restauramos exactamente el mismo scroll donde estaba.
+  let scrollYAlAbrir = 0;
+
   function openDrawer() {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
     burger?.classList.add('open');
     const closeLabel = window.SRi18n ? window.SRi18n.t('nav.cerrarMenu', window.SRi18n.getLang()) : 'Cerrar menú';
     burger?.setAttribute('aria-label', closeLabel);
+    scrollYAlAbrir = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollYAlAbrir}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
   }
   function closeDrawer() {
@@ -95,7 +108,13 @@ document.addEventListener('DOMContentLoaded', () => {
     burger?.classList.remove('open');
     const openLabel = window.SRi18n ? window.SRi18n.t('nav.abrirMenu', window.SRi18n.getLang()) : 'Abrir menú';
     burger?.setAttribute('aria-label', openLabel);
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
     document.body.style.overflow = '';
+    window.scrollTo(0, scrollYAlAbrir);
   }
 
   burger?.addEventListener('click', () =>

@@ -73,19 +73,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   const canvasWrap = canvas.closest('.canvas-wrap');
 
-  let baseWidth = 0, baseHeight = 0;
+  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
+  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
+  // Ahora medimos siempre el tamaño real del canvas, así que en fullscreen el
+  // juego dibuja a la resolución completa de la pantalla.
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if(isFS && baseWidth && baseHeight){
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      return;
-    }
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    baseWidth = canvas.width;
-    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -586,25 +581,21 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   const canvasWrap = canvas.closest('.canvas-wrap');
 
-  let baseWidth = 0, baseHeight = 0;
+  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
+  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
+  // Ahora medimos siempre el tamaño real del canvas; como cambiar el tamaño
+  // implica reconstruir las paredes de la arena, eso se hace en el listener
+  // de fullscreenchange con setupWalls().
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if(isFS && baseWidth && baseHeight){
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      return;
-    }
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    baseWidth = canvas.width;
-    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
-  document.addEventListener('webkitfullscreenchange', () => setTimeout(resizeCanvas, 100));
+  document.addEventListener('fullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => { resizeCanvas(); setupWalls(); }, 100));
 
   const fsBtnTrompos = canvasWrap?.querySelector('.fullscreen-btn');
   if (fsBtnTrompos) {
@@ -755,6 +746,25 @@ async function obtenerMejorPuntajeJuego(gameName) {
   window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
+  // Control táctil para el jugador 1 (WASD): arrastrá el dedo y el trompo
+  // se mueve hacia donde apuntás. Sin esto el juego era imposible de jugar
+  // en celular, ya que solo respondía al teclado.
+  let touchTarget = null;
+  function updateTouchTarget(e){
+    if (!e.touches || !e.touches.length) return;
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    touchTarget = {
+      x: (t.clientX - r.left) * (canvas.width / r.width),
+      y: (t.clientY - r.top) * (canvas.height / r.height)
+    };
+  }
+  canvas.addEventListener('touchstart', updateTouchTarget, { passive: false });
+  canvas.addEventListener('touchmove', updateTouchTarget, { passive: false });
+  canvas.addEventListener('touchend', () => { touchTarget = null; }, { passive: false });
+  canvas.addEventListener('touchcancel', () => { touchTarget = null; }, { passive: false });
+
   let npcLastAction = 0;
   let lastCollisionTime = 0;
   const COLLISION_COOLDOWN = 180;
@@ -891,6 +901,13 @@ async function obtenerMejorPuntajeJuego(gameName) {
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
       Body.setVelocity(top.body, { x: moveX1 * 4, y: moveY1 * 4 });
+    } else if (touchTarget) {
+      const dx = touchTarget.x - top.body.position.x;
+      const dy = touchTarget.y - top.body.position.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > 6) {
+        Body.setVelocity(top.body, { x: (dx / dist) * 4, y: (dy / dist) * 4 });
+      }
     }
     
     if(gameMode === 'pvp'){
@@ -1408,11 +1425,19 @@ async function obtenerMejorPuntajeJuego(gameName) {
         document.body.style.overflow = 'hidden';
 
         const content = modal.querySelector('.game-modal__content');
+        // Los canvas de cada juego escuchan el evento 'resize' de window para
+        // recalcular su resolución interna a partir de su tamaño real en pantalla.
+        // Si se calcula mientras el modal todavía está animando su escala de apertura
+        // (scale 0.85 → 1), el canvas queda con una resolución más chica que su
+        // tamaño visual final: se ve borroso y los clics/touches quedan desalineados.
+        // Por eso disparamos el resize solo cuando la animación ya terminó.
         if(window.gsap && content){
           gsap.set(modal, { autoAlpha: 1 });
           gsap.fromTo(content,
             { scale: 0.85, y: 24, autoAlpha: 0 },
-            { scale: 1, y: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(1.6)' }
+            { scale: 1, y: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(1.6)',
+              onComplete: () => window.dispatchEvent(new Event('resize'))
+            }
           );
         } else {
           // Sin GSAP: forzamos visibilidad directa por estilos inline,
@@ -1425,6 +1450,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
             content.style.visibility = 'visible';
             content.style.transform = 'none';
           }
+          window.dispatchEvent(new Event('resize'));
         }
 
         modal.dispatchEvent(new CustomEvent('gameVisible', { detail: { gameId: gameId } }));
@@ -1545,6 +1571,14 @@ async function obtenerMejorPuntajeJuego(gameName) {
   let paused = false;
   let rafId = null;
 
+  // Al llegar a la meta, en vez de cortar directo al resultado, se muestra
+  // una breve escena de la terminal de buses mientras el bus del ganador
+  // entra a parquearse.
+  let arriving = false;
+  let arrivalTimer = 0;
+  let arrivalWinner = null;
+  const ARRIVAL_DURATION = 1900; // ms
+
   let botDifficulty = 'easy';
   let targetDistance = 2000;
 
@@ -1558,6 +1592,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   let passengers = [];
 
+  // Buses y obstáculos más grandes, usan más espacio del carril (afecta
+  // tanto el dibujo como el tamaño real de colisión de cada entidad).
+  const ENTITY_SCALE = 1.35;
+
   const engine = Engine.create();
   engine.gravity.y = 0;
   const world = engine.world;
@@ -1566,25 +1604,19 @@ async function obtenerMejorPuntajeJuego(gameName) {
   let wallRight = Bodies.rectangle(-10, 0, 20, 10, { isStatic: true, label: 'wall' });
   World.add(world, [wallLeft, wallRight]);
 
-  const playerBody = Bodies.rectangle(0, 0, 26, 60, { isStatic: true, label: 'busPlayer' });
-  const botBody = Bodies.rectangle(0, 0, 26, 60, { isStatic: true, label: 'busBot' });
+  const playerBody = Bodies.rectangle(0, 0, 26 * ENTITY_SCALE, 60 * ENTITY_SCALE, { isStatic: true, label: 'busPlayer' });
+  const botBody = Bodies.rectangle(0, 0, 26 * ENTITY_SCALE, 60 * ENTITY_SCALE, { isStatic: true, label: 'busBot' });
   World.add(world, [playerBody, botBody]);
 
-  let baseWidth = 0, baseHeight = 0;
+  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
+  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
+  // Ahora medimos siempre el tamaño real del canvas, y como esta función ya
+  // reconstruye carriles y paredes, el fullscreen queda nítido automáticamente.
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-
-    if(isFS && baseWidth && baseHeight){
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-    } else {
-      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      baseWidth = canvas.width;
-      baseHeight = canvas.height;
-    }
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
     laneWidth = canvas.width / lanesCount;
     for(let i = 0; i < lanesCount; i++){
@@ -1636,6 +1668,17 @@ async function obtenerMejorPuntajeJuego(gameName) {
     }
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  // Control táctil: tocar la mitad izquierda o derecha del canvas cambia de
+  // carril hacia ese lado. Sin esto el juego solo respondía al teclado y
+  // era imposible de jugar en celular.
+  canvas.addEventListener('touchstart', e => {
+    if (!running || paused) return;
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - r.left;
+    moveLane(touchX < r.width / 2 ? -1 : 1);
+  }, { passive: false });
 
   function moveLane(direction) {
     let nextLane = player.lane + direction;
@@ -1768,6 +1811,10 @@ async function obtenerMejorPuntajeJuego(gameName) {
     passengers = [];
     roadY = 0;
 
+    arriving = false;
+    arrivalTimer = 0;
+    arrivalWinner = null;
+
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic') World.remove(world, b);
     });
@@ -1778,7 +1825,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function spawnBache(){
     const lane = Math.floor(Math.random() * lanesCount);
-    const body = Bodies.circle(lanePositions[lane], -50, 16, {
+    const body = Bodies.circle(lanePositions[lane], -50, 16 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache'
     });
     World.add(world, body);
@@ -1786,7 +1833,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
 
   function spawnTumulo(){
     const lane = Math.floor(Math.random() * lanesCount);
-    const body = Bodies.rectangle(lanePositions[lane], -50, 44, 10, {
+    const body = Bodies.rectangle(lanePositions[lane], -50, 44 * ENTITY_SCALE, 10 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo'
     });
     World.add(world, body);
@@ -1795,7 +1842,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   function spawnTraffic(){
     const lane = Math.floor(Math.random() * lanesCount);
     const color = ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)];
-    const body = Bodies.rectangle(lanePositions[lane], -100, 24, 44, {
+    const body = Bodies.rectangle(lanePositions[lane], -100, 24 * ENTITY_SCALE, 44 * ENTITY_SCALE, {
       restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic'
     });
     body.trafficColor = color;
@@ -1855,8 +1902,18 @@ function spawnEntities() {
  function step(timestamp){
     if(!running || !isGameVisible) return;
 
+    if (arriving) {
+      stepArrival();
+      if (running) rafId = requestAnimationFrame(step);
+      return;
+    }
+
     const speedMultiplier = player.speed;
-    const visualSpeed = speedMultiplier * 0.5;
+    // El scroll visual va más rápido que antes (se "siente" más veloz) pero
+    // la distancia recorrida (lo que decide cuándo se llega a la meta) usa
+    // el mismo multiplicador de siempre, así que el tiempo real de llegada
+    // no cambia — solo la sensación de velocidad.
+    const visualSpeed = speedMultiplier * 0.8;
 
     roadY += visualSpeed;
     player.distance += speedMultiplier * 0.1;
@@ -1897,7 +1954,7 @@ function spawnEntities() {
     // --- Colisión entre buses: si ambos coinciden en el mismo carril y se acercan
     // demasiado, el que va más adelante (mayor distancia recorrida) empuja al otro
     // hacia un carril libre. El que es empujado no pierde velocidad, solo cambia de carril.
-    const busMinGap = 30; // distancia horizontal mínima antes de considerarse "tocándose"
+    const busMinGap = 30 * ENTITY_SCALE; // distancia horizontal mínima antes de considerarse "tocándose"
     if (player.lane === bot.lane && Math.abs(player.x - bot.x) < busMinGap) {
       const playerAhead = player.distance >= bot.distance;
       if (playerAhead) {
@@ -1939,11 +1996,13 @@ function spawnEntities() {
 
     Engine.update(engine, 16.667);
 
-    if(player.distance >= targetDistance) {
-      endRace('player');
-      return;
-    } else if(bot.distance >= targetDistance) {
-      endRace('bot');
+    if(player.distance >= targetDistance || bot.distance >= targetDistance) {
+      // En vez de cortar directo al resultado, entra a la escena de la
+      // terminal mientras el bus ganador se parquea.
+      arriving = true;
+      arrivalTimer = 0;
+      arrivalWinner = player.distance >= targetDistance ? 'player' : 'bot';
+      rafId = requestAnimationFrame(step);
       return;
     }
 
@@ -1959,9 +2018,87 @@ function spawnEntities() {
 
     drawBus(player.x, player.y, '#d62828', 'R-44');
     drawBus(bot.x, bot.y, '#003049', 'R-101D');
+    drawPlayerArrow(player.x, player.y);
+    drawSpeedometer(player.speed);
 
     updateHud();
     rafId = requestAnimationFrame(step);
+  }
+
+  // ── Escena de llegada a la terminal ──────────────────────────
+  function stepArrival() {
+    arrivalTimer += 16.667;
+
+    // Los buses frenan y se acomodan uno junto al otro en la terminal.
+    const parkY = canvas.height * 0.4;
+    const parkXPlayer = lanePositions[1];
+    const parkXBot = lanePositions[2];
+
+    player.speed = Math.max(0, player.speed - 0.06);
+    bot.speed = Math.max(0, bot.speed - 0.06);
+    player.x += (parkXPlayer - player.x) * 0.05;
+    player.y += (parkY - player.y) * 0.045;
+    bot.x += (parkXBot - bot.x) * 0.05;
+    bot.y += (parkY - bot.y) * 0.045;
+
+    Body.setPosition(playerBody, { x: player.x, y: player.y });
+    Body.setPosition(botBody, { x: bot.x, y: bot.y });
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawTerminal(arrivalTimer);
+    drawBus(player.x, player.y, '#d62828', 'R-44');
+    drawBus(bot.x, bot.y, '#003049', 'R-101D');
+    if (arrivalWinner === 'player') drawPlayerArrow(player.x, player.y);
+    drawSpeedometer(player.speed);
+
+    updateHud();
+
+    if (arrivalTimer >= ARRIVAL_DURATION) {
+      endRace(arrivalWinner);
+    }
+  }
+
+  function drawTerminal(t) {
+    // Piso de la terminal (concreto, no asfalto de calle)
+    ctx.fillStyle = '#6b6f76';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#5a5e64';
+    for (let y = -50 + (roadY % 60); y < canvas.height; y += 60) {
+      ctx.fillRect(0, y, canvas.width, 3);
+    }
+
+    // Andenes / bahías de estacionamiento pintadas en el piso
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([14, 10]);
+    for (let i = 1; i < lanesCount; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * laneWidth, 0);
+      ctx.lineTo(i * laneWidth, canvas.height);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Edificio / andén techado al fondo
+    const roofH = Math.min(120, canvas.height * 0.16);
+    ctx.fillStyle = '#8b6b3a';
+    ctx.fillRect(0, 0, canvas.width, roofH);
+    ctx.fillStyle = '#be8e56';
+    ctx.fillRect(0, roofH - 8, canvas.width, 8);
+    for (let i = 0; i < lanesCount; i++) {
+      ctx.fillStyle = '#3a3a3a';
+      ctx.fillRect(i * laneWidth + laneWidth * 0.15, 0, laneWidth * 0.7, roofH - 10);
+    }
+
+    // Letrero "TERMINAL"
+    const fade = Math.min(1, t / 400);
+    ctx.save();
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `bold ${Math.max(14, canvas.width * 0.045)}px 'Fredoka', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(jt('jue.card3.terminalSign', '🚏 TERMINAL DE BUSES'), canvas.width / 2, roofH * 0.62);
+    ctx.restore();
   }
 
   function drawRoad() {
@@ -1986,6 +2123,7 @@ function spawnEntities() {
   function drawBus(x, y, color, label) {
     ctx.save();
     ctx.translate(x, y);
+    ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.fillRect(-17, -35, 34, 80);
     ctx.fillStyle = color;
@@ -2010,10 +2148,35 @@ function spawnEntities() {
     ctx.restore();
   }
 
+  // Flecha que señala cuál bus es el que maneja el jugador (Ruta 44),
+  // para no perderlo de vista entre el tráfico y el bus rival.
+  function drawPlayerArrow(x, y) {
+    const bounce = Math.sin(Date.now() / 220) * 4;
+    const arrowY = y - 40 * ENTITY_SCALE - 14 + bounce;
+    ctx.save();
+    ctx.translate(x, arrowY);
+    ctx.fillStyle = '#ffd600';
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, 10);
+    ctx.lineTo(-8, -4);
+    ctx.lineTo(-3, -4);
+    ctx.lineTo(-3, -13);
+    ctx.lineTo(3, -13);
+    ctx.lineTo(3, -4);
+    ctx.lineTo(8, -4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawBache(b) {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
+    ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
     ctx.fillStyle = '#222222';
     ctx.beginPath();
     ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI*2);
@@ -2025,6 +2188,7 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
+    ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
     ctx.fillStyle = '#ffb300';
     ctx.fillRect(-22, -4, 44, 8);
     ctx.fillStyle = '#000000';
@@ -2049,10 +2213,70 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
+    ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
     ctx.fillStyle = b.trafficColor || '#3a86c8';
     ctx.beginPath();
     ctx.roundRect(-12, -22, 24, 44, 3);
     ctx.fill();
+    ctx.restore();
+  }
+
+  // Velocímetro chico en la esquina inferior derecha: la velocidad en km/h
+  // se calcula a partir de la velocidad interna del bus (no es un valor fijo),
+  // con una leve vibración en la aguja para que se sienta como un instrumento
+  // real y no un número estático.
+  function drawSpeedometer(speedUnits) {
+    const r = Math.max(24, Math.min(42, canvas.width * 0.05));
+    const cx = canvas.width - r - 12;
+    const cy = canvas.height - r - 12;
+
+    const jitter = Math.sin(Date.now() / 90) * 1.2;
+    const kmh = Math.max(0, Math.round(speedUnits * 11 + jitter));
+    const maxKmh = Math.round(player.maxSpeed * 11 + 6);
+    const pct = Math.min(1, kmh / maxKmh);
+
+    const startAngle = Math.PI * 0.75;
+    const endAngle = Math.PI * 2.25;
+    const needleAngle = startAngle + (endAngle - startAngle) * pct;
+
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(10,10,15,0.65)';
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#ffd700';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 6, startAngle, endAngle);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 6, startAngle, needleAngle);
+    ctx.strokeStyle = pct > 0.85 ? '#ff5252' : '#00e676';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(needleAngle) * (r - 10), cy + Math.sin(needleAngle) * (r - 10));
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.font = `bold ${Math.max(10, r * 0.32)}px 'Fredoka', sans-serif`;
+    ctx.fillText(String(kmh), cx, cy + r * 0.05);
+    ctx.font = `${Math.max(7, r * 0.18)}px 'Fredoka', sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText('km/h', cx, cy + r * 0.38);
+
     ctx.restore();
   }
 
@@ -2320,21 +2544,15 @@ function spawnEntities() {
   let keys = {};
   let touchJoystick = { x: 0, y: 0, active: false };
 
-  // Canvas resizing
-  let baseWidth = 0, baseHeight = 0;
+  // Canvas resizing. Antes, al entrar en pantalla completa se reusaba la
+  // resolución chica de la ventana normal y el navegador solo la estiraba
+  // (se veía borrosa/pixelada). Ahora medimos siempre el tamaño real del
+  // canvas; como el resize ya dispara setupArena(), el fullscreen queda nítido.
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (isFS && baseWidth && baseHeight) {
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      return;
-    }
     const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    baseWidth = canvas.width;
-    baseHeight = canvas.height;
   }
 
   resizeCanvas();
@@ -2483,7 +2701,7 @@ function spawnEntities() {
     const isPlayerMica = (micaBearerIndex === 0);
     hud.innerHTML = `
       <div class="mica-hud-badge ${isPlayerMica ? 'has-mica' : 'safe'}">
-        <span>${isPlayerMica ? '🔥 ¡LLEVÁS LA MICA!' : '🛡️ ¡ESTÁS A SALVO!'}</span>
+        <span>${isPlayerMica ? jt('jue.card4.hudHasMica', '🔥 ¡LLEVÁS LA MICA!') : jt('jue.card4.hudSafe', '🛡️ ¡ESTÁS A SALVO!')}</span>
       </div>
       <div class="mica-time-box">
         <span>⏳ ${Math.max(0, Math.ceil(timeLeft))}s</span>
@@ -2556,7 +2774,7 @@ function spawnEntities() {
     });
     pBody.angleFacing = 0;
     pBody.speedCurrent = 0;
-    pBody.name = 'Vos';
+    pBody.name = jt('jue.card4.you', 'Vos');
     player = pBody;
     World.add(world, player);
 
@@ -2651,12 +2869,7 @@ function spawnEntities() {
 
   // ================= MICA TRANSFER LOGIC =================
   function transferMica(fromIndex, toIndex) {
-      if (immunityTimer > 0 || fromIndex === toIndex) return;
-      micaBearerIndex = toIndex;
-      immunityTimer = 60; // Tiempo de gracia
-      playSFX('tag');
-
-
+    if (immunityTimer > 0 || fromIndex === toIndex) return;
     micaBearerIndex = toIndex;
     immunityTimer = 100; // ~1.6s grace period
 
@@ -2671,15 +2884,16 @@ function spawnEntities() {
       // Player received the mica!
       timesCarriedMica++;
       flashDamage();
-      showSlangCallout('¡TE PASARON LA MICA! 🔥', newBearer.position.x, newBearer.position.y, '#ff1744');
+      showSlangCallout(jt('jue.card4.calloutReceived', '¡TE PASARON LA MICA! 🔥'), newBearer.position.x, newBearer.position.y, '#ff1744');
     } else {
       // An NPC received the mica!
       if (fromIndex === 0) {
         timesPassedMica++;
         score += 350;
-        showSlangCallout('¡TE SALVASTE! 🏃💨', prevBearer.position.x, prevBearer.position.y, '#00e676');
+        showSlangCallout(jt('jue.card4.calloutSaved', '¡TE SALVASTE! 🏃💨'), prevBearer.position.x, prevBearer.position.y, '#00e676');
       } else {
-        showSlangCallout(`¡${newBearer.name} lleva la mica!`, newBearer.position.x, newBearer.position.y, '#ffea00');
+        const calloutTpl = jt('jue.card4.calloutNpcHasMica', '¡{name} lleva la mica!');
+        showSlangCallout(calloutTpl.replace('{name}', newBearer.name), newBearer.position.x, newBearer.position.y, '#ffea00');
       }
     }
   }
@@ -2715,7 +2929,7 @@ function spawnEntities() {
         y: (dy / len) * 0.0035
       });
       player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, 3.0);
+      clampVelocity(player, 2.4);
     }
   }, { passive: false });
 
@@ -2739,7 +2953,7 @@ function spawnEntities() {
         y: (dy / len) * force
       });
       player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, (keys['shift'] || keys[' ']) ? 4.2 : 3.0);
+      clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
       return true;
     }
     return false;
@@ -2773,7 +2987,7 @@ function spawnEntities() {
 
       player.angleFacing = Math.atan2(normY, normX);
     }
-    clampVelocity(player, (keys['shift'] || keys[' ']) ? 4.2 : 3.0);
+    clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -2816,7 +3030,7 @@ function spawnEntities() {
             x: Math.cos(npc.angleFacing) * chaseForce,
             y: Math.sin(npc.angleFacing) * chaseForce
           });
-          clampVelocity(npc, 3.2);
+          clampVelocity(npc, 2.5);
         } else {
           // Not detected -> Wanders calmly looking around
           npc.state = 'WANDERING';
@@ -2831,7 +3045,7 @@ function spawnEntities() {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.6);
+          clampVelocity(npc, 1.4);
         }
       } else {
         // NPC DOES NOT HAVE MICA -> Wanders, or flees if Mica bearer comes close
@@ -2850,7 +3064,7 @@ function spawnEntities() {
             x: Math.cos(fleeAngle) * fleeForce,
             y: Math.sin(fleeAngle) * fleeForce
           });
-          clampVelocity(npc, 3.0);
+          clampVelocity(npc, 2.4);
         } else {
           // Wanders safely in the field
           npc.state = 'WANDERING';
@@ -2865,7 +3079,7 @@ function spawnEntities() {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.6);
+          clampVelocity(npc, 1.4);
         }
       }
     });
@@ -2878,7 +3092,12 @@ function spawnEntities() {
       allEntities.forEach((other, idx) => {
         if (idx === micaBearerIndex) return;
         const dist = Math.hypot(other.position.x - bearer.position.x, other.position.y - bearer.position.y);
-        if (dist < 28) {
+        // Los cuerpos miden 15px de radio cada uno (30px de un borde a otro),
+        // así que un umbral de 28 exigía que ya estuvieran encimados antes de
+        // pasar la mica; como Matter.js los empuja para separarlos apenas se
+        // tocan (restitution), casi nunca llegaban a esa distancia y el toque
+        // "no hacía nada". Con 34 el traspaso ocurre justo al tocarse.
+        if (dist < 34) {
           transferMica(micaBearerIndex, idx);
         }
       });
@@ -3150,7 +3369,7 @@ function spawnEntities() {
         ctx.fillStyle = '#ffd600';
         ctx.font = 'bold 12px Fredoka, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('🔥 ¡LA MICA!', 0, -26);
+        ctx.fillText('🔥 ' + jt('jue.card4.micaBadge', '¡LA MICA!'), 0, -26);
       } else if (ent.state === 'CHASING' || ent.alertTimer > 0) {
         ctx.fillStyle = '#ff1744';
         ctx.font = 'bold 12px Fredoka, sans-serif';
@@ -3167,9 +3386,32 @@ function spawnEntities() {
       ctx.fillStyle = '#ffffff';
       ctx.font = '10px Fredoka, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(ent.name || (isPlayer ? 'Vos' : 'Amigo'), 0, 24);
+      ctx.fillText(ent.name || (isPlayer ? jt('jue.card4.you', 'Vos') : jt('jue.card4.friend', 'Amigo')), 0, 24);
 
       ctx.restore();
+
+      // "You are here" arrow above the player, so they never lose track of themselves
+      if (isPlayer) {
+        const bounce = Math.sin(Date.now() / 220) * 4;
+        const arrowY = y - 34 + bounce;
+        ctx.save();
+        ctx.translate(x, arrowY);
+        ctx.fillStyle = '#ffd600';
+        ctx.strokeStyle = '#3e2723';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, 10);
+        ctx.lineTo(-7, -4);
+        ctx.lineTo(-3, -4);
+        ctx.lineTo(-3, -12);
+        ctx.lineTo(3, -12);
+        ctx.lineTo(3, -4);
+        ctx.lineTo(7, -4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
     });
   }
 
@@ -3187,24 +3429,24 @@ function spawnEntities() {
     let title, msg;
     if (playerWon) {
       playSFX('win');
-      title = '🏆 ¡TE SALVASTE DE LA MICA!';
-      msg = `¡Sos un rayo! Terminó el tiempo y <b>no te quedaste con la mica</b>. Pasaste la mica <b>${timesPassedMica} veces</b> y lograste un récord.`;
+      title = jt('jue.card4.winTitle', '🏆 ¡TE SALVASTE DE LA MICA!');
+      msg = jt('jue.card4.winMsg', '¡Sos un rayo! Terminó el tiempo y <b>no te quedaste con la mica</b>. Pasaste la mica <b>{n} veces</b> y lograste un récord.').replace('{n}', timesPassedMica);
     } else {
-      title = '🙈 ¡TE QUEDASTE CON LA MICA!';
-      msg = `¡Se acabó el tiempo y <b>te quedaste con la mica</b>! La próxima vez pasala más rápido a Chepe, Sofía o Mateo antes de que termine la ronda.`;
+      title = jt('jue.card4.loseTitle', '🙈 ¡TE QUEDASTE CON LA MICA!');
+      msg = jt('jue.card4.loseMsg', '¡Se acabó el tiempo y <b>te quedaste con la mica</b>! La próxima vez pasala más rápido a Chepe, Sofía o Mateo antes de que termine la ronda.');
     }
 
     const gameName = `mica-${selectedTimeLimit}s`;
 
     showOverlay(`
-      <span class="overlay-tag">Fin de la Ronda</span>
+      <span class="overlay-tag">${jt('jue.card4.roundEndTag', 'Fin de la Ronda')}</span>
       <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
       <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${finalScore} pts</div>
       <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(timeWithoutMica)}s</b><br><span style="color:#aaa;">Sin Mica</span></div>
-        <div><b>${timesPassedMica}</b><br><span style="color:#aaa;">Pasadas</span></div>
-        <div><b>${selectedTimeLimit}s</b><br><span style="color:#aaa;">Ronda</span></div>
+        <div><b>${Math.round(timeWithoutMica)}s</b><br><span style="color:#aaa;">${jt('jue.card4.statNoMica', 'Sin Mica')}</span></div>
+        <div><b>${timesPassedMica}</b><br><span style="color:#aaa;">${jt('jue.card4.statPassed', 'Pasadas')}</span></div>
+        <div><b>${selectedTimeLimit}s</b><br><span style="color:#aaa;">${jt('jue.card4.statRound', 'Ronda')}</span></div>
       </div>
       <p class="overlay-best-score" id="m-best-score"></p>
       <button class="btn-primary" id="btn-restart-encantados">${jt('jue.rematch', 'Revancha')}</button>
@@ -3215,7 +3457,7 @@ function spawnEntities() {
     guardarPuntajeJuego(gameName, finalScore).then(() => {
       obtenerMejorPuntajeJuego(gameName).then(best => {
         const el = document.getElementById('m-best-score');
-        if (el && best) el.textContent = `Tu récord en ${selectedTimeLimit}s: ${best.score} pts`;
+        if (el && best) el.textContent = jt('jue.card4.bestScore', 'Tu récord en {s}s: {p} pts').replace('{s}', selectedTimeLimit).replace('{p}', best.score);
       });
     });
   }
@@ -3223,21 +3465,21 @@ function spawnEntities() {
   // Mode Selection: 20s, 40s, 60s
   function showTimeSelector() {
     showOverlay(`
-      <span class="overlay-tag">Tiempo de Juego</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">⏱️ Elige la Duración</h3>
-      <p style="font-size: 0.9rem;">¿Cuánto tiempo querés que dure la ronda de la mica?</p>
+      <span class="overlay-tag">${jt('jue.card4.timeTag', 'Tiempo de Juego')}</span>
+      <h3 style="font-size: 1.3rem; color: #ffd700;">⏱️ ${jt('jue.card4.timeTitle', 'Elige la Duración')}</h3>
+      <p style="font-size: 0.9rem;">${jt('jue.card4.timeDesc', '¿Cuánto tiempo querés que dure la ronda de la mica?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="time-20s" style="font-size: 0.95rem;">
-          ⚡ Ráfaga Rápida (20 Segundos)
-          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Pasa la mica inmediatamente</div>
+          ⚡ ${jt('jue.card4.time20', 'Ráfaga Rápida (20 Segundos)')}
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">${jt('jue.card4.time20Desc', 'Pasa la mica inmediatamente')}</div>
         </button>
         <button class="btn-primary" id="time-40s" style="font-size: 0.95rem;">
-          ⏱️ Ronda Media (40 Segundos)
-          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Equilibrada para escapar y perseguir</div>
+          ⏱️ ${jt('jue.card4.time40', 'Ronda Media (40 Segundos)')}
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">${jt('jue.card4.time40Desc', 'Equilibrada para escapar y perseguir')}</div>
         </button>
         <button class="btn-primary" id="time-60s" style="font-size: 0.95rem;">
-          🏆 Partida Completa (1 Minuto / 60s)
-          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Máxima adrenalina y sigilo</div>
+          🏆 ${jt('jue.card4.time60', 'Partida Completa (1 Minuto / 60s)')}
+          <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">${jt('jue.card4.time60Desc', 'Máxima adrenalina y sigilo')}</div>
         </button>
       </div>
     `);
@@ -3270,16 +3512,16 @@ function spawnEntities() {
 
   function showModeSelector() {
     showOverlay(`
-      <span class="overlay-tag">Juego Tradicional</span>
+      <span class="overlay-tag">${jt('jue.card4.overlayTag', 'Juego Tradicional')}</span>
       <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
-      <p>El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.</p>
-      <p class="rules-title">Reglas del juego</p>
+      <p>${jt('jue.card4.intro', 'El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.')}</p>
+      <p class="rules-title">${jt('jue.card4.rulesTitle', 'Reglas del juego')}</p>
       <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">👀</span> <b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!</li>
-        <li class="rule-good"><span class="rule-icon">🖐️</span> <b>Pasar la Mica:</b> Tocá a un amigo para pasarle la mica y alejate antes de que te persiga.</li>
-        <li class="rule-bad"><span class="rule-icon">⏳</span> <b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!</li>
+        <li class="rule-good"><span class="rule-icon">👀</span> ${jt('jue.card4.rule1', '<b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!')}</li>
+        <li class="rule-good"><span class="rule-icon">🖐️</span> ${jt('jue.card4.rule2', '<b>Pasar la Mica:</b> Tocá a un amigo para pasarle la mica y alejate antes de que te persiga.')}</li>
+        <li class="rule-bad"><span class="rule-icon">⏳</span> ${jt('jue.card4.rule3', '<b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!')}</li>
       </ul>
-      <button class="btn-primary" id="btn-start-mica">Continuar</button>
+      <button class="btn-primary" id="btn-start-mica">${jt('jue.card4.continueBtn', 'Continuar')}</button>
     `);
     document.getElementById('btn-start-mica').onclick = showTimeSelector;
   }
@@ -3400,16 +3642,15 @@ function spawnEntities() {
   };
 
   // ── Canvas sizing ─────────────────────────────────────────────
-  let baseWidth = 0, baseHeight = 0;
+  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
+  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
+  // Ahora medimos siempre el tamaño real del canvas; como el resize ya
+  // dispara resetRoundLayout(), el fullscreen queda nítido.
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (isFS && baseWidth && baseHeight) { canvas.width = baseWidth; canvas.height = baseHeight; return; }
     const wrap = canvasWrap || canvas.closest('.canvas-wrap');
     const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    baseWidth = canvas.width;
-    baseHeight = canvas.height;
   }
   resizeCanvas();
   window.addEventListener('resize', () => { resizeCanvas(); if (running) resetRoundLayout(); });
@@ -3445,18 +3686,18 @@ function spawnEntities() {
   // ── HUD ───────────────────────────────────────────────────────
   hud.innerHTML = `
     <div class="hud-item" style="grid-column:span 3;text-align:center;font-weight:bold;font-size:1.1rem;color:#A78BFA;">
-      🔮 Canicas
+      🔮 ${jt('jue.card5.title', 'Canicas')}
     </div>
     <div class="hud-item">
       <span>${jt('jue.hud.points','Puntos')}</span>
       <b id="can-score">0</b>
     </div>
     <div class="hud-item">
-      <span>Ronda</span>
+      <span>${jt('jue.hud.round','Ronda')}</span>
       <b id="can-round">1/${totalRounds}</b>
     </div>
     <div class="hud-item">
-      <span>Tiros</span>
+      <span>${jt('jue.card5.hud.shots','Tiros')}</span>
       <b id="can-shots">5</b>
     </div>`;
 
@@ -3802,8 +4043,8 @@ function spawnEntities() {
     `;
     msg.innerHTML = `
       <div style="font-size:3rem;">🔮</div>
-      <h3 style="font-size:1.8rem;margin:.5rem 0;color:#A78BFA;">Ronda ${round - 1} completada</h3>
-      <p style="color:#C4B5FD;">Preparate para la ronda ${round}...</p>
+      <h3 style="font-size:1.8rem;margin:.5rem 0;color:#A78BFA;">${jt('jue.card5.roundComplete', 'Ronda {n} completada').replace('{n}', round - 1)}</h3>
+      <p style="color:#C4B5FD;">${jt('jue.card5.roundPrepare', 'Preparate para la ronda {n}...').replace('{n}', round)}</p>
     `;
     canvasWrap.style.position = 'relative';
     canvasWrap.appendChild(msg);
@@ -3917,7 +4158,7 @@ function spawnEntities() {
       ctx.font = `${Math.max(12, canvas.width * 0.022)}px sans-serif`;
       ctx.fillStyle = 'rgba(196,181,253,0.85)';
       ctx.textAlign = 'center';
-      ctx.fillText('🖱️ Jalá desde el tirador para apuntar', circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
+      ctx.fillText(jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
       ctx.restore();
     }
   }
@@ -4047,26 +4288,24 @@ function spawnEntities() {
     score = 0; round = 1;
 
     overlayCard.innerHTML = `
-      <span class="overlay-tag">🔮 Canicas</span>
-      <h3 style="margin:.5rem 0 .2rem;">¡El juego de patio!</h3>
+      <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+      <h3 style="margin:.5rem 0 .2rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
       <p style="font-size:.88rem;opacity:.85;margin-bottom:1rem;">
-        Lanzá tu tirador (T) desde abajo del círculo arrastrando el mouse.<br>
-        Sacá las canicas de la ronda para ganar puntos.<br>
-        ¡Más canicas fuera = más puntos!
+        ${jt('jue.card5.intro', 'Lanzá tu tirador (T) desde abajo del círculo arrastrando el mouse.<br>Sacá las canicas de la ronda para ganar puntos.<br>¡Más canicas fuera = más puntos!')}
       </p>
       <ul class="rules-list" style="text-align:left;font-size:.82rem;margin-bottom:1.2rem;padding-left:0;list-style:none;">
-        <li class="rule-good"><span class="rule-icon">✅</span> Canica fuera del círculo → +1 punto</li>
-        <li class="rule-good"><span class="rule-icon">🎯</span> Tirador dorado (T): jalalo y soltá para disparar</li>
-        <li class="rule-good"><span class="rule-icon">🔮</span> 3 rondas con más canicas cada vez</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> Shots limitados — ¡que cada tiro cuente!</li>
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', 'Canica fuera del círculo → +1 punto')}</li>
+        <li class="rule-good"><span class="rule-icon">🎯</span> ${jt('jue.card5.ruleShoot', 'Tirador dorado (T): jalalo y soltá para disparar')}</li>
+        <li class="rule-good"><span class="rule-icon">🔮</span> ${jt('jue.card5.ruleRounds', '3 rondas con más canicas cada vez')}</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Shots limitados — ¡que cada tiro cuente!')}</li>
       </ul>
-      <p style="font-weight:600;margin-bottom:.5rem;color:#A78BFA;">Seleccioná dificultad:</p>
+      <p style="font-weight:600;margin-bottom:.5rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-canicas">
-          🟢 Fácil<br><small>8 canicas · 5 tiros</small>
+          ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '8 canicas · 5 tiros')}</small>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-canicas">
-          🔴 Difícil<br><small>14 canicas · 4 tiros</small>
+          ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '14 canicas · 4 tiros')}</small>
         </button>
       </div>`;
     overlay.classList.remove('hidden');
@@ -4126,14 +4365,14 @@ function spawnEntities() {
 
     setTimeout(() => {
       overlayCard.innerHTML = `
-        <span class="overlay-tag">🔮 Canicas</span>
-        <h3 style="margin:.5rem 0;">${isBest ? '🏆 ¡Nuevo Récord!' : '¡Partida terminada!'}</h3>
+        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+        <h3 style="margin:.5rem 0;">${isBest ? jt('jue.card5.end.newRecord', '🏆 ¡Nuevo Récord!') : jt('jue.card5.end.finished', '¡Partida terminada!')}</h3>
         <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${score} canicas</p>
-        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">sacadas en ${totalRounds} rondas</p>
-        <p style="font-size:.8rem;color:#C4B5FD;margin-bottom:1rem;">Mejor: ${Math.max(score, best)}</p>
+        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'sacadas en {n} rondas').replace('{n}', totalRounds)}</p>
+        <p style="font-size:.8rem;color:#C4B5FD;margin-bottom:1rem;">${jt('jue.card5.end.best', 'Mejor: {n}').replace('{n}', Math.max(score, best))}</p>
         <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="btn-primary" id="can-replay">🔮 Jugar de nuevo</button>
-          <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">Menú</button>
+          <button class="btn-primary" id="can-replay">🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>
+          <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">${jt('jue.pause.menu', 'Menú')}</button>
         </div>`;
       overlay.classList.remove('hidden');
       gsap.fromTo(overlayCard, { opacity: 0, scale: 0.8, y: 40 },
@@ -4377,14 +4616,14 @@ function spawnEntities() {
 
   // ================= SALVADOREAN SLANG POPUPS (GSAP) =================
   const salvadoranPraise = [
-    { text: '¡QUÉ CHIVO!', color: '#00e5ff' },
-    { text: '¡PUCHICA!', color: '#ffea00' },
-    { text: '¡ÉCHALE TORITO!', color: '#ff0055' },
-    { text: '¡CALIDÁ!', color: '#00e676' },
-    { text: '¡BÁRBARO!', color: '#ff9100' },
-    { text: '¡CHULADA!', color: '#7c4dff' },
-    { text: '¡DE TOCHO MOROCHO!', color: '#39ff14' },
-    { text: '¡VIVA LA FIESTA!', color: '#ffd700' }
+    { text: jt('jue.card6.slang1', '¡QUÉ CHIVO!'), color: '#00e5ff' },
+    { text: jt('jue.card6.slang2', '¡PUCHICA!'), color: '#ffea00' },
+    { text: jt('jue.card6.slang3', '¡ÉCHALE TORITO!'), color: '#ff0055' },
+    { text: jt('jue.card6.slang4', '¡CALIDÁ!'), color: '#00e676' },
+    { text: jt('jue.card6.slang5', '¡BÁRBARO!'), color: '#ff9100' },
+    { text: jt('jue.card6.slang6', '¡CHULADA!'), color: '#7c4dff' },
+    { text: jt('jue.card6.slang7', '¡DE TOCHO MOROCHO!'), color: '#39ff14' },
+    { text: jt('jue.card6.slang8', '¡VIVA LA FIESTA!'), color: '#ffd700' }
   ];
 
   function showSlangCallout(customText, screenX, screenY) {
@@ -4419,21 +4658,15 @@ function spawnEntities() {
   }
 
   // ================= CANVAS RESIZING & PHYSICS BOUNDS =================
-  let baseWidth = 0, baseHeight = 0;
+  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
+  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
+  // Ahora medimos siempre el tamaño real del canvas, y como esta función ya
+  // reconstruye carriles y paredes, el fullscreen queda nítido automáticamente.
   function resizeCanvas() {
-    const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-
-    if(isFS && baseWidth && baseHeight){
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-    } else {
-      const wrap = canvasWrap || canvas.closest('.canvas-wrap');
-      const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      baseWidth = canvas.width;
-      baseHeight = canvas.height;
-    }
+    const wrap = canvasWrap || canvas.closest('.canvas-wrap');
+    const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
     const sideW = canvas.width * 0.16;
     streetLeft = sideW;
@@ -4506,11 +4739,19 @@ function spawnEntities() {
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
+  let lastTapTime = 0;
   canvas.addEventListener('touchstart', e => {
     if(!running || paused) return;
-    const r = canvas.getBoundingClientRect();
-    const touchX = e.touches[0].clientX - r.left;
-    moveLane(touchX < r.width / 2 ? -1 : 1);
+    const now = Date.now();
+    if (now - lastTapTime < 300) {
+      // Doble toque = ráfaga de chispas (equivalente táctil de la barra espaciadora)
+      performSparkDash();
+    } else {
+      const r = canvas.getBoundingClientRect();
+      const touchX = e.touches[0].clientX - r.left;
+      moveLane(touchX < r.width / 2 ? -1 : 1);
+    }
+    lastTapTime = now;
   }, { passive: true });
 
   function moveLane(direction) {
@@ -4557,11 +4798,11 @@ function spawnEntities() {
   if(hud) {
     hud.innerHTML = `
       <div class="torito-hud-bar-container">
-        <span class="torito-hud-label">⛪ Ruta</span>
+        <span class="torito-hud-label">⛪ ${jt('jue.card6.hud.route', 'Ruta')}</span>
         <div class="torito-meter-track"><div id="t-prog-fill" class="torito-meter-fill"></div></div>
       </div>
       <div class="torito-hud-bar-container">
-        <span class="torito-hud-label">🧨 Pólvora</span>
+        <span class="torito-hud-label">🧨 ${jt('jue.card6.hud.gunpowder', 'Pólvora')}</span>
         <div class="torito-meter-track"><div id="t-energy-fill" class="torito-meter-fill"></div></div>
       </div>
       <div class="torito-hud-bar-container">
@@ -4823,7 +5064,7 @@ function spawnEntities() {
 
         playSound('cheer');
         createFireworkBurst(other.position.x, other.position.y, 14);
-        showSlangCallout('¡Olé Torito! 🎉', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutOle', '¡Olé Torito! 🎉'), other.position.x, other.position.y);
         continue;
       }
 
@@ -4837,7 +5078,7 @@ function spawnEntities() {
 
         playSound('whistle');
         createFireworkBurst(other.position.x, other.position.y, 25);
-        showSlangCallout('🚀 ¡TURBO SILBADOR!', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutTurbo', '🚀 ¡TURBO SILBADOR!'), other.position.x, other.position.y);
         toRemove.add(other);
         continue;
       }
@@ -4850,7 +5091,7 @@ function spawnEntities() {
 
         playSound('pop');
         createFireworkBurst(other.position.x, other.position.y, 20);
-        showSlangCallout('🧨 ¡CUETILLO!', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutCuetillo', '🧨 ¡CUETILLO!'), other.position.x, other.position.y);
         animateNearbySpectators(other.position.x, other.position.y, 130);
         toRemove.add(other);
         continue;
@@ -4862,7 +5103,7 @@ function spawnEntities() {
         score += 300 * combo;
         playSound('cheer');
         createFireworkBurst(other.position.x, other.position.y, 16);
-        showSlangCallout('🫓 ¡Pupusa de Loroco!', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutPupusa', '🫓 ¡Pupusa de Loroco!'), other.position.x, other.position.y);
         toRemove.add(other);
         continue;
       }
@@ -4877,7 +5118,7 @@ function spawnEntities() {
         combo = 1; // Reset combo on heavy crash
         flashDamage();
         playSound('pop');
-        showSlangCallout('¡Cuidado con la carreta! ⚠️', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutCarreta', '¡Cuidado con la carreta! ⚠️'), other.position.x, other.position.y);
         setTimeout(() => toRemove.add(other), 240);
         continue;
       }
@@ -4887,7 +5128,7 @@ function spawnEntities() {
         energy = Math.max(0, energy - 18);
         combo = 1;
         flashDamage();
-        showSlangCallout('¡Agua fría! 💦', other.position.x, other.position.y);
+        showSlangCallout(jt('jue.card6.calloutAgua', '¡Agua fría! 💦'), other.position.x, other.position.y);
         setTimeout(() => toRemove.add(other), 180);
       }
     }
@@ -4926,7 +5167,7 @@ function spawnEntities() {
       isArriving = true;
       arrivalTimer = 180; // ~3 seconds triumphal sequence
       playSound('bell');
-      showSlangCallout('⛪ ¡LLEGASTE AL ATRIO!', canvas.width / 2, canvas.height * 0.35);
+      showSlangCallout(jt('jue.card6.calloutArrived', '⛪ ¡LLEGASTE AL ATRIO!'), canvas.width / 2, canvas.height * 0.35);
     }
 
     if (isArriving) {
@@ -5130,7 +5371,7 @@ function spawnEntities() {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 12px Fredoka, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('¡FIESTAS PATRONALES!', canvas.width / 2, 97);
+    ctx.fillText(jt('jue.card6.churchBanner', '¡FIESTAS PATRONALES!'), canvas.width / 2, 97);
 
     ctx.restore();
   }
@@ -5311,7 +5552,7 @@ function spawnEntities() {
       ctx.fillStyle = '#ffd700';
       ctx.font = 'bold 13px Fredoka, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('¡Olé! 🎉', 0, -26);
+      ctx.fillText(jt('jue.card6.oleShort', '¡Olé! 🎉'), 0, -26);
     }
 
     ctx.restore();
@@ -5533,10 +5774,11 @@ function spawnEntities() {
     let title, msg;
     if(motivo === 'completo') {
       title = jt('jue.card6.end.winTitle', '🏆 ¡LLEGASTE AL ATRIO DE LA IGLESIA!');
-      msg = jt('jue.card6.end.winMsg', `¡Qué gran corrida! El Torito Pinto llegó triunfante a <b>${destinationName}</b> y alegró a todo el pueblo salvadoreño.`);
+      msg = jt('jue.card6.end.winMsg', '¡Qué gran corrida! El Torito Pinto llegó triunfante a <b>{dest}</b> y alegró a todo el pueblo salvadoreño.').replace('{dest}', destinationName);
     } else {
       title = jt('jue.card6.end.tiredTitle', '🧨 ¡El torito se quedó sin cohetes!');
-      msg = jt('jue.card6.end.tiredMsg', `Recorriste <b>${Math.round(distance)}m</b> y animaste a <b>${genteAnimada} personas</b>. ¡Recogé más silbadores y cuetillos para llegar al atrio la próxima vez!`);
+      msg = jt('jue.card6.end.tiredMsg', 'Recorriste <b>{dist}m</b> y animaste a <b>{n} personas</b>. ¡Recogé más silbadores y cuetillos para llegar al atrio la próxima vez!')
+        .replace('{dist}', Math.round(distance)).replace('{n}', genteAnimada);
     }
 
     showOverlay(`
@@ -5545,9 +5787,9 @@ function spawnEntities() {
       <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${scoreFinal} pts</div>
       <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">Distancia</span></div>
-        <div><b>${genteAnimada}</b><br><span style="color:#aaa;">Animados</span></div>
-        <div><b>x${maxCombo}</b><br><span style="color:#aaa;">Max Combo</span></div>
+        <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">${jt('jue.card6.stat.distance', 'Distancia')}</span></div>
+        <div><b>${genteAnimada}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.animated', 'Animados')}</span></div>
+        <div><b>x${maxCombo}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.maxCombo', 'Max Combo')}</span></div>
       </div>
       <p class="overlay-best-score" id="t-best-score"></p>
       <button class="btn-primary" id="btn-restart-torito">${jt('jue.rematch', 'Revancha')}</button>
@@ -5565,8 +5807,8 @@ function spawnEntities() {
   function showDistanceSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">🐂 Elige tu Destino</h3>
-      <p style="font-size: 0.9rem;">¿Hasta qué plaza colonial llevarás la fiesta del Torito?</p>
+      <h3 style="font-size: 1.3rem; color: #ffd700;">🐂 ${jt('jue.card6.distance.title', 'Elige tu Destino')}</h3>
+      <p style="font-size: 0.9rem;">${jt('jue.card6.distance.sub', '¿Hasta qué plaza colonial llevarás la fiesta del Torito?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="dist-corta-torito" style="font-size: 0.95rem;">
           ⛪ Suchitoto (1200m)
@@ -5603,11 +5845,11 @@ function spawnEntities() {
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-torito">
           ${jt('jue.diff.easy', '🟢 Tradicional')}
-          <div class="difficulty-desc">Calle alegre y más silbadores</div>
+          <div class="difficulty-desc">${jt('jue.card6.diff.easyDesc', 'Calle alegre y más silbadores')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-torito">
           ${jt('jue.diff.hard', '🔴 Torito Bravo')}
-          <div class="difficulty-desc">Mayor velocidad y obstáculos</div>
+          <div class="difficulty-desc">${jt('jue.card6.diff.hardDesc', 'Mayor velocidad y obstáculos')}</div>
         </button>
       </div>`);
 
@@ -5635,9 +5877,9 @@ function spawnEntities() {
       <p>${jt('jue.card6.intro', 'Corré con el torito por las calles coloniales. <b>Pasa entre la gente para animarla</b> y recogé <b>silbadores y cuetillos</b> para ganar energía y llegar al Atrio de la Iglesia.')}</p>
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">👥</span> <b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.</li>
-        <li class="rule-good"><span class="rule-icon">🚀</span> <b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> <b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.</li>
+        <li class="rule-good"><span class="rule-icon">👥</span> ${jt('jue.card6.ruleAnimate', '<b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.')}</li>
+        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', '<b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.')}</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', '<b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.')}</li>
       </ul>
       <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
     `);
