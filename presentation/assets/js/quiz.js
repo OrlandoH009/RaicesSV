@@ -1288,6 +1288,15 @@ function actualizarPreguntaActualConIdioma() {
 
   // Obtener el nuevo array según el idioma actual
   const nuevoPool = getPreguntasSegunIdioma();
+
+  // Retraducir TODAS las preguntas de la sesión (no solo la actual), para que
+  // "Siguiente" también muestre las preguntas ya en el nuevo idioma.
+  for (let i = 0; i < indicesOriginales.length; i++) {
+    const idx = indicesOriginales[i];
+    const traducida = nuevoPool[idx];
+    if (traducida) preguntasActivas[i] = traducida;
+  }
+
   // Si el índice original existe, buscar la pregunta correspondiente en el nuevo pool
   if (indicesOriginales.length > indice) {
     const idxOriginal = indicesOriginales[indice];

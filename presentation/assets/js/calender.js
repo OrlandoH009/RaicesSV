@@ -194,6 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCalendarEvents();
   initCatalogAndFilters();
   setupModalEvents();
+  restaurarEstadoCalendario();
 
   abrirEventoDesdeURL();
 
@@ -488,22 +489,6 @@ function renderTodayEvent() {
 let listaEventosFiltrados = [];
 let currentLimit = 6;
 
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    initCatalogAndFilters();
-    setupModalEvents();
-    restaurarEstadoCalendario();
-    abrirEventoDesdeURL();
-  }, 100);
-
-  document.addEventListener("langchange", () => {
-    setTimeout(() => { 
-      if (typeof renderCatalogo === "function") {
-        renderCatalogo(listaEventosFiltrados);
-      }
-    }, 100);
-  });
-});
 
 function abrirEventoDesdeURL() {
   const params = new URLSearchParams(window.location.search);

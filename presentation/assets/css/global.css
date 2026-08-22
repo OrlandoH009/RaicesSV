@@ -371,6 +371,13 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   box-shadow: -4px 0 25px rgba(17,48,104,.18);
 }
 
+/* En escritorio el contenido del menú siempre entra en la pantalla,
+   así que el scroll interno no hace falta y solo genera un scrollbar
+   o un rebote de rueda innecesario. */
+@media (min-width: 769px) {
+  .nav-drawer { overflow-y: hidden; }
+}
+
 .nav-drawer__head {
   display: flex;
   align-items: center;
@@ -750,13 +757,27 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
     display: block !important;
   }
   
-  /* Desplazamiento adaptable del menú lateral */
+  /* Desplazamiento adaptable del menú lateral: más angosto para que no
+     ocupe casi toda la pantalla en celular */
   .nav-drawer {
-    width: min(80vw, 260px);
-    right: calc(-1 * min(80vw, 260px) - 20px);
-    padding: 1.25rem 1.1rem;
+    width: min(70vw, 230px);
+    right: calc(-1 * min(70vw, 230px) - 20px);
+    padding: 1.1rem .9rem;
+    overflow-y: auto;
   }
-  
+
+  /* Texto más compacto para que quepa cómodo en el ancho reducido */
+  .nav-drawer__head span { font-size: .9rem; }
+  .drawer-section-label { font-size: .66rem; padding: .5rem .4rem .25rem; }
+  .nav-drawer a.drawer-link { font-size: .92rem; padding: .65rem .4rem; }
+  .theme-switch-label { font-size: .78rem; gap: .45rem; }
+  .theme-switch-row { padding: .55rem .4rem; }
+  .drawer-profile { padding: .55rem .6rem; gap: .65rem; margin: 0 -.15rem 1rem; }
+  .drawer-avatar { width: 38px; height: 38px; flex: 0 0 38px; }
+  .drawer-username { font-size: .9rem; }
+  .drawer-profile-caption { font-size: .64rem; }
+  .drawer-divider { margin: .9rem 0; }
+
   /* Muestra secciones del drawer exclusivas de pantallas táctiles/móviles */
   .drawer-group--principales,
   .drawer-label--extras {

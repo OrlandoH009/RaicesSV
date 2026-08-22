@@ -533,4 +533,5 @@
 
 @media (max-width: 480px) {
   .hist-hero { min-height: 60vh; padding-top: calc(var(--nav-h) + 1.5rem); }
+  .hist-hero__title { font-size: clamp(1.9rem, 9vw, 2.6rem); }
 }
