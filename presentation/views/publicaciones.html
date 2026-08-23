@@ -33,7 +33,7 @@
     <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -154,7 +154,7 @@
             <div class="location-picker-expanded__panel">
               <div class="location-picker-expanded__header">
                 <span data-i18n="pub.fieldLocationExpandTitle">Ajusta el pin con precisión</span>
-                <button type="button" class="location-picker-expanded__close" id="pubLocationCollapseBtn" data-i18n-attr="aria-label:pub.fieldLocationCollapseLabel" aria-label="Cerrar mapa ampliado">
+                <button type="button" class="location-picker-expanded__close" id="pubLocationCollapseBtn" data-i18n-attr="aria-label:pub.fieldLocationCollapseLabel,title:common.tooltip.closeEsc" aria-label="Cerrar mapa ampliado" title="Cerrar (Esc)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
                 </button>
               </div>

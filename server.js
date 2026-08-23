@@ -2,7 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const session = require('express-session');
 const path = require('path');
-const ngrok = require('@ngrok/ngrok');
+const { startTunnel } = require('untun');
 const passport = require('passport');
 
 dotenv.config();
@@ -58,11 +58,7 @@ app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets')
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
 const sendView = (name) => (req, res) => {
-    // Evita que el navegador (o su caché "atrás/adelante" / bfcache) reutilice
-    // una versión previamente renderizada de esta vista. Esto es clave para
-    // que, tras iniciar sesión o cerrar sesión, el botón "atrás" del navegador
-    // no muestre una página desactualizada (p. ej. login ya autenticado, o
-    // una vista protegida después de haber cerrado sesión).
+    // Evita que el navegador reutilice una versión previamente renderizada de esta vista.
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
@@ -118,7 +114,6 @@ app.get(['/restablecer.html', '/views/restablecer.html'], (req, res) => {
 });
 
 app.get(['/categorias.html', '/categorias', '/views/categorias.html'], sendView('categorias.html'));
-
 
 app.get('/views', (req, res) => {
     res.redirect('/');
@@ -201,7 +196,16 @@ app.use(scoresRoutes);
 app.use(adminRoutes);
 
 app.use((req, res) => {
-    res.status(404).send('Página no encontrada.');
+    res.status(404);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.sendFile(path.join(viewsDir, '404.html'), (err) => {
+        if (err) {
+            console.error(err);
+            if (!res.headersSent) {
+                res.status(404).send('Página no encontrada.');
+            }
+        }
+    });
 });
 
 app.use((err, req, res, next) => {
@@ -210,18 +214,20 @@ app.use((err, req, res, next) => {
     res.status(500).send('Ocurrió un error inesperado. Inténtalo de nuevo más tarde.');
 });
 
-app.listen(port, async() => {
+app.listen(port, async () => {
     console.log(`Servidor iniciado en http://localhost:${port}`);
 
     if (process.env.NGROK_ENABLED === 'true') {
         try {
-            const listener = await ngrok.forward({
-                addr: port,
-                authtoken_from_env: true,
+            const tunnel = await startTunnel({
+                port: port,
+                acceptCloudflareNotice: true
             });
-            console.log (`La URL de ngrok es: ${listener.url()}`);
-        }catch (e) {
-            console.error('Error al iniciar ngrok:', e);
+            
+            const url = await tunnel.getURL();
+            console.log(`La URL pública de Cloudflare es: ${url}`);
+        } catch (e) {
+            console.error('Error al iniciar el túnel de Cloudflare:', e);
         }
     }
 });

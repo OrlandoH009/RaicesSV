@@ -7,12 +7,32 @@
  *    coincida con el host de la app (mitigación CSRF básica).
  */
 
+// Fuentes externas realmente usadas por las vistas: GSAP/Chart.js/Matter.js/html2pdf
+// (cdnjs, jsdelivr, unpkg), Leaflet (unpkg + tiles de OpenStreetMap), Google Fonts,
+// y el iframe de YouTube embebido en recetas. No hay CSS-in-JS con nonce (las vistas
+// son HTML estático), así que 'unsafe-inline' es necesario para los <script>/style
+// inline existentes en las vistas.
+const CSP = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self'",
+    "frame-src https://www.youtube.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'"
+].join('; ');
+
 const securityHeaders = (req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'geolocation=(self), camera=(), microphone=()');
     res.setHeader('X-XSS-Protection', '0');
+    res.setHeader('Content-Security-Policy', CSP);
     next();
 };
 

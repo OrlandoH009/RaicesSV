@@ -18,7 +18,7 @@
   --overlay:     rgba(15, 47, 102, 0.45);
   --card-dim:    rgba(85, 84, 84, 0.45);
 
-  --font-display: '', serif;
+  --font-display: 'Playfair Display', serif;
   --font-body:    'Lato', sans-serif;
 
   /* Radios de borde que escalan fluidamente con la pantalla */
@@ -299,45 +299,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .navbar__burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
 .navbar__burger.open span:nth-child(2) { opacity: 0; }
 .navbar__burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
-
-/* ── Botón de música de fondo (icono de nota musical, junto al burger) ── */
-.music-toggle {
-  margin-left: .6rem;
-  margin-right: 8px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: var(--white);
-  transition: background .25s ease, border-color .25s ease, color .25s ease, transform .2s ease;
-}
-.music-toggle:hover {
-  background: rgba(190, 142, 86, 0.16);
-  border-color: rgba(190, 142, 86, .45);
-  color: var(--gold);
-}
-.music-toggle:active { transform: scale(.94); }
-.music-toggle[aria-pressed="false"] {
-  color: rgba(255,255,255,.45);
-}
-[data-theme="light"] .music-toggle {
-  background: rgba(17,48,104,.05);
-  border-color: rgba(17,48,104,.14);
-  color: var(--navy);
-}
-[data-theme="light"] .music-toggle:hover {
-  background: rgba(190, 142, 86, 0.16);
-  border-color: rgba(190, 142, 86, .45);
-  color: var(--gold-hover);
-}
-[data-theme="light"] .music-toggle[aria-pressed="false"] {
-  color: rgba(17,48,104,.35);
-}
 
 /* Overlay */
 .nav-overlay {
@@ -746,11 +707,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
     z-index: 6000 !important;
   }
 
-  /* El botón de música pasa a ser el que empuja el grupo hacia la derecha */
-  .music-toggle {
-    margin-left: auto !important;
-  }
-  
   /* Asegura que las líneas internas tengan color y sean visibles */
   .navbar__burger span {
     background: var(--white) !important;
@@ -960,17 +916,31 @@ body.i18n-fading [data-i18n] {
 .music-toggle {
   background: none;
   border: none;
-  color: currentColor;
+  color: var(--white);
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background 0.2s;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
 }
 .music-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(190, 142, 86, 0.16);
+  color: var(--gold);
+}
+.music-toggle:active { transform: scale(.94); }
+.music-toggle[aria-pressed="false"] {
+  color: rgba(255,255,255,.45);
+}
+[data-theme="light"] .music-toggle {
+  color: var(--navy);
+}
+[data-theme="light"] .music-toggle:hover {
+  color: var(--gold-hover);
+}
+[data-theme="light"] .music-toggle[aria-pressed="false"] {
+  color: rgba(17,48,104,.35);
 }
 
 /* Slider de volumen */

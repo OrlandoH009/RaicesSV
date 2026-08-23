@@ -622,6 +622,97 @@ body.quiz-modal-open {
 }
 
 /* ══════════════════════════════════════════════════════════
+   SELECCIÓN PASO A PASO (nivel → cantidad → categoría)
+   ══════════════════════════════════════════════════════════ */
+
+.quiz-step {
+  display: none;
+}
+.quiz-step.active {
+  display: block;
+}
+
+.quiz-setup__back {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: transparent;
+  border: 1.5px solid rgba(190, 142, 86, 0.35);
+  color: var(--gold);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: .85rem;
+  padding: .5rem 1rem .5rem .8rem;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-bottom: 1.4rem;
+  transition: background .2s, border-color .2s, transform .15s;
+}
+.quiz-setup__back svg { width: 15px; height: 15px; }
+.quiz-setup__back:hover {
+  background: rgba(190, 142, 86, 0.12);
+  border-color: var(--gold);
+  transform: translateX(-3px);
+}
+[data-theme="light"] .quiz-setup__back { color: var(--gold-hover); }
+
+/* ══════════════════════════════════════════════════════════
+   MODAL DE CARGA (entre elegir opciones y ver la primera pregunta)
+   ══════════════════════════════════════════════════════════ */
+.quiz-loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(8, 12, 22, 0.92);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.quiz-loading-overlay.show {
+  display: flex;
+  opacity: 1;
+}
+.quiz-loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  text-align: center;
+}
+.quiz-loading-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(190, 142, 86, 0.4));
+  animation: quizLoadingPulse 1.6s ease-in-out infinite;
+}
+@keyframes quizLoadingPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.quiz-loading-spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 4px solid rgba(190, 142, 86, 0.2);
+  border-top-color: var(--gold);
+  animation: quizLoadingSpin 0.9s linear infinite;
+}
+@keyframes quizLoadingSpin {
+  to { transform: rotate(360deg); }
+}
+.quiz-loading-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
+}
+
+/* ══════════════════════════════════════════════════════════
    FONDO OSCURO DEL MODAL
    ══════════════════════════════════════════════════════════ */
 
@@ -853,6 +944,12 @@ body.quiz-modal-open {
   align-items: center;
   padding: 1.2rem 1.4rem;
   font-size: 1.15rem;
+  /* Antes cada opción medía lo que su propio texto ocupara: una respuesta
+     corta se veía como una pastilla chica y una larga como un bloque
+     grande, delatando cuál era la "elaborada" (normalmente la correcta).
+     Con un alto mínimo parejo todas se ven igual de válidas sin importar
+     cuánto texto tengan. */
+  min-height: 4.4rem;
 }
 [data-theme="light"] .quiz-option {
   background: #ffffff;
@@ -1264,10 +1361,45 @@ body.quiz-modal-open {
 
   .quiz-levels {
     grid-template-columns: 1fr;
+    gap: .7rem;
+    margin-bottom: 1.1rem;
   }
 
   .quiz-amounts {
     grid-template-columns: 1fr;
+    gap: .7rem;
+    margin-bottom: 1.1rem;
+  }
+
+  /* Nivel/cantidad/categoría más compactos: en celular las cuatro tarjetas
+     de nivel + las de cantidad + las categorías + el botón de inicio no
+     entraban en pantalla y ocupaban demasiado alto cada una. */
+  .quiz-setup__label {
+    font-size: .95rem;
+    margin-bottom: .8rem;
+  }
+
+  .level-card, .amount-btn {
+    padding: .65rem .9rem;
+  }
+
+  .level-card__name, .amount-btn__name {
+    font-size: .98rem;
+  }
+
+  .level-card__sub, .amount-btn__sub {
+    font-size: .8rem;
+    line-height: 1.35;
+  }
+
+  .quiz-cats {
+    gap: .5rem;
+    margin-bottom: .8rem;
+  }
+
+  .cat-btn {
+    padding: .5rem 1.1rem;
+    font-size: .85rem;
   }
 
   .quiz-card {
@@ -1276,6 +1408,16 @@ body.quiz-modal-open {
 
   .quiz-card__question {
     font-size: 1.2rem;
+  }
+
+  .quiz-option {
+    padding: .85rem 1rem;
+    font-size: .95rem;
+    min-height: 3.4rem;
+  }
+
+  .quiz-options {
+    gap: .6rem;
   }
 
   .quiz-results {

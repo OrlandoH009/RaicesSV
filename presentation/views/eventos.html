@@ -80,7 +80,7 @@
             }
           });
         }
-        const factTimer = setInterval(rotateFact, 3800);
+        const factTimer = setInterval(rotateFact, 6800);
 
         const cta = document.getElementById('welcomeCta');
         const emoji = document.getElementById('welcomeEmoji');
@@ -172,7 +172,7 @@
     <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">

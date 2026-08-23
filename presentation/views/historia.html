@@ -27,7 +27,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
 
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
@@ -113,7 +113,7 @@
   <div class="event-modal" id="eventModal" aria-hidden="true">
     <div class="event-modal__backdrop" id="eventBackdrop"></div>
     <div class="event-modal__panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="event-modal__close" id="eventClose" aria-label="Cerrar" data-i18n-attr="aria-label:hist.modal.close">✕</button>
+      <button class="event-modal__close" id="eventClose" aria-label="Cerrar" title="Cerrar (Esc)" data-i18n-attr="aria-label:hist.modal.close,title:common.tooltip.closeEsc">✕</button>
       <div class="event-modal__media">
         <img id="modalImg" src="" alt="" />
         <div class="event-modal__media-grad"></div>

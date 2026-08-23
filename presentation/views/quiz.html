@@ -31,7 +31,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
     
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -99,66 +99,74 @@
       </div>
     </div>
 
-    <!-- Selección -->
+    <!-- Selección paso a paso -->
     <div class="quiz-setup reveal" id="quizSetup">
-      <!-- Niveles -->
-      <p class="quiz-setup__label" data-i18n="quiz.selectLevel">Selecciona un nivel</p>
-      <div class="quiz-levels">
-        <div class="level-card" data-level="facil">
-          <div class="level-card__bar"></div>
-          <p class="level-card__name" data-i18n="quiz.levelFacil">Fácil</p>
-          <p class="level-card__sub" data-i18n="quiz.levelFacilSub">Cultura general. 5 pts por respuesta.</p>
-        </div>
-        <div class="level-card" data-level="medio">
-          <div class="level-card__bar"></div>
-          <p class="level-card__name" data-i18n="quiz.levelMedio">Medio</p>
-          <p class="level-card__sub" data-i18n="quiz.levelMedioSub">Conocimiento detallado. 10 pts.</p>
-        </div>
-        <div class="level-card" data-level="dificil">
-          <div class="level-card__bar"></div>
-          <p class="level-card__name" data-i18n="quiz.levelDificil">Difícil</p>
-          <p class="level-card__sub" data-i18n="quiz.levelDificilSub">Para expertos en historia. 15 pts.</p>
-        </div>
-        <div class="level-card" data-level="guanaco">
-          <div class="level-card__bar"></div>
-          <p class="level-card__name" data-i18n="quiz.levelGuanaco">100% Guanaco</p>
-          <p class="level-card__sub" data-i18n="quiz.levelGuanacoSub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
+
+      <button type="button" class="quiz-setup__back" id="setupBackBtn" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+        <span data-i18n="quiz.backBtn">Regresar</span>
+      </button>
+
+      <!-- Paso 1: Nivel -->
+      <div class="quiz-step active" id="stepNivel" data-step="nivel">
+        <p class="quiz-setup__label" data-i18n="quiz.selectLevel">Selecciona un nivel</p>
+        <div class="quiz-levels">
+          <div class="level-card" data-level="facil">
+            <div class="level-card__bar"></div>
+            <p class="level-card__name" data-i18n="quiz.levelFacil">Fácil</p>
+            <p class="level-card__sub" data-i18n="quiz.levelFacilSub">Cultura general. 5 pts por respuesta.</p>
+          </div>
+          <div class="level-card" data-level="medio">
+            <div class="level-card__bar"></div>
+            <p class="level-card__name" data-i18n="quiz.levelMedio">Medio</p>
+            <p class="level-card__sub" data-i18n="quiz.levelMedioSub">Conocimiento detallado. 10 pts.</p>
+          </div>
+          <div class="level-card" data-level="dificil">
+            <div class="level-card__bar"></div>
+            <p class="level-card__name" data-i18n="quiz.levelDificil">Difícil</p>
+            <p class="level-card__sub" data-i18n="quiz.levelDificilSub">Para expertos en historia. 15 pts.</p>
+          </div>
+          <div class="level-card" data-level="guanaco">
+            <div class="level-card__bar"></div>
+            <p class="level-card__name" data-i18n="quiz.levelGuanaco">100% Guanaco</p>
+            <p class="level-card__sub" data-i18n="quiz.levelGuanacoSub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
+          </div>
         </div>
       </div>
 
-      <div class="quiz-setup__divider"></div>
-
-      <!-- Cantidad -->
-      <p class="quiz-setup__label" data-i18n="quiz.selectAmount">¿Cuántas preguntas?</p>
-      <div class="quiz-amounts" id="quizAmounts">
-        <button class="amount-btn" data-amount="express">
-          <p class="amount-btn__name" data-i18n="quiz.amountExpress">Express</p>
-          <p class="amount-btn__sub" data-i18n="quiz.amountExpressSub">8 preguntas</p>
-        </button>
-        <button class="amount-btn" data-amount="normal">
-          <p class="amount-btn__name" data-i18n="quiz.amountNormal">Normal</p>
-          <p class="amount-btn__sub" data-i18n="quiz.amountNormalSub">15 preguntas</p>
-        </button>
-        <button class="amount-btn" data-amount="extenso">
-          <p class="amount-btn__name" data-i18n="quiz.amountExtenso">Extenso</p>
-          <p class="amount-btn__sub" data-i18n="quiz.amountExtensoSub">Todas las preguntas</p>
-        </button>
+      <!-- Paso 2: Cantidad -->
+      <div class="quiz-step" id="stepCantidad" data-step="cantidad">
+        <p class="quiz-setup__label" data-i18n="quiz.selectAmount">¿Cuántas preguntas?</p>
+        <div class="quiz-amounts" id="quizAmounts">
+          <button class="amount-btn" data-amount="express">
+            <p class="amount-btn__name" data-i18n="quiz.amountExpress">Express</p>
+            <p class="amount-btn__sub" data-i18n="quiz.amountExpressSub">8 preguntas</p>
+          </button>
+          <button class="amount-btn" data-amount="normal">
+            <p class="amount-btn__name" data-i18n="quiz.amountNormal">Normal</p>
+            <p class="amount-btn__sub" data-i18n="quiz.amountNormalSub">15 preguntas</p>
+          </button>
+          <button class="amount-btn" data-amount="extenso">
+            <p class="amount-btn__name" data-i18n="quiz.amountExtenso">Extenso</p>
+            <p class="amount-btn__sub" data-i18n="quiz.amountExtensoSub">Todas las preguntas</p>
+          </button>
+        </div>
       </div>
 
-      <div class="quiz-setup__divider"></div>
+      <!-- Paso 3: Categoría -->
+      <div class="quiz-step" id="stepCategoria" data-step="categoria">
+        <p class="quiz-setup__label" data-i18n="quiz.selectCategory">Elige una categoría</p>
+        <div class="quiz-cats">
+          <button class="cat-btn" data-cat="todas" data-i18n="quiz.catTodas">Todas</button>
+          <button class="cat-btn" data-cat="historia" data-i18n="quiz.catHistoria">Historia</button>
+          <button class="cat-btn" data-cat="gastronomia" data-i18n="quiz.catGastronomia">Gastronomía</button>
+          <button class="cat-btn" data-cat="sitios" data-i18n="quiz.catSitios">Sitios Culturales</button>
+          <button class="cat-btn" data-cat="leyendas" data-i18n="quiz.catLeyendas">Leyendas</button>
+        </div>
 
-      <!-- Categorías -->
-      <p class="quiz-setup__label" data-i18n="quiz.selectCategory">Elige una categoría</p>
-      <div class="quiz-cats">
-        <button class="cat-btn" data-cat="todas" data-i18n="quiz.catTodas">Todas</button>
-        <button class="cat-btn" data-cat="historia" data-i18n="quiz.catHistoria">Historia</button>
-        <button class="cat-btn" data-cat="gastronomia" data-i18n="quiz.catGastronomia">Gastronomía</button>
-        <button class="cat-btn" data-cat="sitios" data-i18n="quiz.catSitios">Sitios Culturales</button>
-        <button class="cat-btn" data-cat="leyendas" data-i18n="quiz.catLeyendas">Leyendas</button>
-      </div>
-
-      <div class="quiz-start-wrap">
-        <button class="quiz-start-btn" id="startBtn" data-i18n="quiz.startBtn">Comenzar Quiz</button>
+        <div class="quiz-start-wrap" id="quizStartWrap">
+          <button class="quiz-start-btn" id="startBtn" data-i18n="quiz.startBtn">Comenzar Quiz</button>
+        </div>
       </div>
 
     </div>
@@ -166,6 +174,15 @@
 
   </div>
   <!-- cierre de #quizHome -->
+
+  <!-- ══ MODAL DE CARGA AL COMENZAR ══ -->
+  <div class="quiz-loading-overlay" id="quizLoadingOverlay">
+    <div class="quiz-loading-box">
+      <img class="quiz-loading-logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Salvadorean Roots" />
+      <div class="quiz-loading-spinner" aria-hidden="true"></div>
+      <p class="quiz-loading-text" data-i18n="quiz.loadingText">Preparando tu quiz...</p>
+    </div>
+  </div>
 
   <!-- ══ FONDO OSCURO DEL MODAL ══ -->
   <div class="quiz-backdrop" id="quizBackdrop"></div>

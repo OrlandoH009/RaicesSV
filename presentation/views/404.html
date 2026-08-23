@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página no encontrada — Salvadorean Roots</title>
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="/assets/css/global.css" />
+  <link rel="stylesheet" href="/assets/css/error-404.css" />
+  <link rel="icon" href="/assets/favicon/favicon.ico" />
+  <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0f2f66" />
+</head>
+<body class="error-body" data-gsap-reveal>
+
+  <div class="error-page">
+    <div class="error-page__bg"></div>
+
+    <main class="error-card">
+      <span class="error-emoji" aria-hidden="true">🌋</span>
+      <span class="error-eyebrow">Error 404</span>
+      <h1 class="error-code">404</h1>
+      <h2>Esta página se perdió en el camino</h2>
+      <p class="error-sub">El enlace al que intentaste entrar no existe, fue movido o ya no está disponible. Elegí una opción para seguir explorando.</p>
+
+      <div class="error-actions">
+        <a href="/" class="error-btn error-btn--primary">Volver al inicio</a>
+        <button type="button" class="error-btn error-btn--secondary" id="errorBackBtn">Volver a la página anterior</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('errorBackBtn').addEventListener('click', () => {
+      // Si el usuario llegó directo (sin historial previo del mismo sitio),
+      // no hay a dónde "regresar": lo mandamos al inicio en vez de dejarlo
+      // atascado o sacarlo del sitio hacia una página externa.
+      const hasPreviousPage = window.history.length > 1 && document.referrer && new URL(document.referrer).origin === window.location.origin;
+      if (hasPreviousPage) {
+        window.history.back();
+      } else {
+        window.location.href = '/';
+      }
+    });
+  </script>
+</body>
+</html>

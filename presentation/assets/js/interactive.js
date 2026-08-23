@@ -78,27 +78,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ── Rotador de datos curiosos ── */
-  const facts = [
-    'El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.',
-    'La pupusa fue declarada Plato Típico y Patrimonio Cultural de El Salvador en 2005.',
-    'Joya de Cerén, en La Libertad, es Patrimonio de la Humanidad: la "Pompeya de América".',
-    'El país cuenta con más de veinte volcanes, entre activos e inactivos.',
-    'La flor de izote, flor nacional, también se cocina en platillos tradicionales.',
-    'El náhuat es uno de los idiomas indígenas que aún se conserva en algunas comunidades.',
-    'Las Ruinas de Tazumal son uno de los sitios arqueológicos mayas más visitados del país.'
-  ];
+  const FACT_KEYS = ['fact.text1', 'fact.text2', 'fact.text3', 'fact.text4', 'fact.text5', 'fact.text6', 'fact.text7'];
   const factEl = document.getElementById('factText');
   const factDots = document.getElementById('factDots');
+  const factPrev = document.getElementById('factPrev');
+  const factNext = document.getElementById('factNext');
   if (factEl) {
     let i = 0;
+    let timer = null;
+
+    const currentFacts = () => {
+      const lang = (window.SRi18n && window.SRi18n.getLang()) || 'es';
+      return FACT_KEYS.map(key => (window.SRi18n ? window.SRi18n.t(key, lang) : key));
+    };
+
     if (factDots) {
-      facts.forEach((_, idx) => {
+      FACT_KEYS.forEach((_, idx) => {
         const dot = document.createElement('span');
         dot.className = 'fact-dot' + (idx === 0 ? ' active' : '');
         factDots.appendChild(dot);
       });
     }
+
     const showFact = (idx) => {
+      const facts = currentFacts();
       factEl.style.opacity = 0;
       setTimeout(() => {
         factEl.textContent = facts[idx];
@@ -107,10 +110,27 @@ document.addEventListener('DOMContentLoaded', () => {
           d.classList.toggle('active', di === idx));
       }, 350);
     };
-    setInterval(() => {
-      i = (i + 1) % facts.length;
+
+    const restartAutoplay = () => {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => {
+        i = (i + 1) % FACT_KEYS.length;
+        showFact(i);
+      }, 5000);
+    };
+
+    const goTo = (idx) => {
+      i = (idx + FACT_KEYS.length) % FACT_KEYS.length;
       showFact(i);
-    }, 5000);
+      restartAutoplay();
+    };
+
+    factPrev?.addEventListener('click', () => goTo(i - 1));
+    factNext?.addEventListener('click', () => goTo(i + 1));
+
+    document.addEventListener('langchange', () => showFact(i));
+
+    restartAutoplay();
   }
 
   /* ── Buscador y filtros (Categorías) — se omite si la página usa su propia versión GSAP ── */

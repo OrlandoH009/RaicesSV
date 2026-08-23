@@ -599,6 +599,10 @@ function stopNarration() {
   narrationQueueIndex = 0;
   setNarrateBtnState("idle");
   ttsUtterance = null;
+  // La narración (mp3 pre-grabado o voz del navegador) no es un <audio>
+  // del DOM ni dispara los eventos que escucha script.js, así que
+  // retomamos la música de fondo explícitamente acá.
+  window.SRDuckBgMusic?.resume();
 }
 
 function isNarrating() {
@@ -612,12 +616,15 @@ function playPreRecordedAudio(src) {
     narrationAudioEl = new Audio(src);
     narrationAudioEl.addEventListener("ended", () => {
       narrationAudioEl = null;
+      window.SRDuckBgMusic?.resume();
       resolve();
     });
     narrationAudioEl.addEventListener("error", () => {
       narrationAudioEl = null;
+      window.SRDuckBgMusic?.resume();
       reject(new Error("No se pudo reproducir el audio."));
     });
+    window.SRDuckBgMusic?.pause();
     narrationAudioEl.play().catch(reject);
   });
 }
@@ -726,6 +733,8 @@ async function playBrowserVoiceFallback(l, isEn) {
 
   narrationQueue = getNarrationChunks(l);
   narrationQueueIndex = 0;
+
+  window.SRDuckBgMusic?.pause();
 
   if (narrationKeepAliveTimer) clearInterval(narrationKeepAliveTimer);
   narrationKeepAliveTimer = setInterval(() => {

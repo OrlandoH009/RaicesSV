@@ -35,7 +35,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
 
-    <button class="navbar__burger" id="burger" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -140,8 +140,9 @@
       </button>
 
       <!-- Botón de geolocalización -->
-      <button id="btn-mi-ubicacion" class="btn-geo-float" data-i18n-attr="aria-label:map.geo.label">
+      <button id="btn-mi-ubicacion" class="btn-geo-float" data-i18n-attr="aria-label:map.geo.label,title:map.geo.label">
         <span class="btn-geo-float__icon">🎯</span>
+        <span class="btn-geo-float__label" data-i18n="map.geo.label">¿Dónde estoy?</span>
       </button>
       
     </section>

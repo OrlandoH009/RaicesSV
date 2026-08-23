@@ -12,6 +12,11 @@
   };
 })();
 
+/* Detección de dispositivo táctil, compartida por todos los juegos: se usa
+   para adaptar controles (p. ej. auto-acelerar en vez de exigir mantener
+   una tecla) y para mostrar instrucciones de celular en vez de teclado. */
+const esTactilJuegos = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
 /* Helper de traducción para los juegos: usa el sistema i18n del sitio si está
    cargado (window.SRi18n), con fallback seguro al texto en español si no lo está. */
 function jt(key, fallback) {
@@ -52,6 +57,19 @@ async function obtenerMejorPuntajeJuego(gameName) {
     console.error('No se pudo obtener el récord personal:', error);
     return null;
   }
+}
+
+/* En móvil, cuando la barra de direcciones del navegador se
+   muestra/oculta (al hacer scroll) o el teclado aparece, el alto visible
+   real cambia pero algunos navegadores no disparan un 'resize' normal de
+   window de forma confiable. Cada juego ya escucha 'resize' para
+   recalcular el tamaño de su canvas, así que reenviamos ese evento
+   cuando cambia el viewport visual — sin esto el canvas podía quedar con
+   un tamaño o recorte incorrecto al usar el juego en celular/tablet. */
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    window.dispatchEvent(new Event('resize'));
+  });
 }
 
 /* Reveal on scroll */
@@ -227,6 +245,29 @@ async function obtenerMejorPuntajeJuego(gameName) {
     {emoji:'🦴', pts:-1}
   ];
 
+  /* ── Bolsa de aparición con proporción fija ──
+     Antes cada objeto era bueno/malo con Math.random() < 0.32 de forma
+     independiente: en muestras cortas eso a veces tiraba rachas de puros
+     objetos malos (o puros buenos) porque la probabilidad no garantiza
+     nada sobre la cantidad real. Con una "bolsa" que siempre contiene la
+     misma proporción (barajada) y se recarga al vaciarse, la cantidad de
+     buenos vs. malos es consistente partida tras partida. */
+  const SPAWN_BAG_SIZE = 25;
+  const SPAWN_BAG_BAD_COUNT = 8; // 8 de 25 ≈ 32% malos, igual que antes pero fijo
+  let spawnBag = [];
+  function refillSpawnBag(){
+    spawnBag = [];
+    for(let i=0;i<SPAWN_BAG_SIZE;i++) spawnBag.push(i < SPAWN_BAG_BAD_COUNT ? 'bad' : 'good');
+    for(let i=spawnBag.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [spawnBag[i], spawnBag[j]] = [spawnBag[j], spawnBag[i]];
+    }
+  }
+  function nextSpawnType(){
+    if(spawnBag.length===0) refillSpawnBag();
+    return spawnBag.pop();
+  }
+
   let score = 0, lives = 3, timeLeft = 30, running = false, paused = false;
   let lastTime = null, lastDelta = 1000/60, spawnAccum = 0, clockAccum = 0, nextSpawnIn = randomSpawnInterval();
 
@@ -344,7 +385,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
   menuBtn?.addEventListener('click', returnToMenu);
 
   function spawn(){
-    const isBad = Math.random() < 0.32;
+    const isBad = nextSpawnType() === 'bad';
     const set = isBad ? BAD : GOOD;
     const item = set[Math.floor(Math.random()*set.length)];
     const x = 40 + Math.random()*(canvas.width-80);
@@ -479,6 +520,7 @@ async function obtenerMejorPuntajeJuego(gameName) {
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
     lastTime = null; lastDelta = 1000/60; spawnAccum = 0; clockAccum = 0; nextSpawnIn = randomSpawnInterval();
+    refillSpawnBag();
     updateHud();
     hideOverlay();
     cancelAnimationFrame(rafId);
@@ -1921,7 +1963,12 @@ function spawnEntities() {
 
     spawnEntities();
 
-    if(keys['w'] || keys['arrowup']) {
+    // En táctil no hay forma natural de "mantener presionada" una tecla de
+    // acelerar, y el juego solo respondía al toque para cambiar de carril:
+    // sin acelerador el bus nunca llegaba a la meta. En dispositivos
+    // táctiles el bus acelera solo (como un endless-runner); el jugador
+    // solo necesita tocar para esquivar cambiando de carril.
+    if(keys['w'] || keys['arrowup'] || esTactilJuegos) {
       player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
     } else if(keys['s'] || keys['arrowdown']) {
       player.speed = Math.max(0, player.speed - 0.15);
@@ -2369,6 +2416,12 @@ function spawnEntities() {
     resetGame();
     hideOverlay();
 
+    // Si ya había un bucle de animación corriendo (p. ej. por un doble
+    // toque en el botón, muy común en móvil/tablet), lo cancelamos antes
+    // de arrancar uno nuevo. Si no, quedaban dos bucles avanzando el
+    // reloj/física del juego a la vez y la partida se sentía mucho más
+    // corta e irregular de lo esperado.
+    cancelAnimationFrame(rafId);
     running = true;
     paused = false;
     playMusic();
@@ -2383,8 +2436,12 @@ function spawnEntities() {
       <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
       <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
       <ul class="rules-list">
+        ${esTactilJuegos ? `
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card3.controlsTapLane', 'El bus acelera solo. Tocá el lado <strong>izquierdo</strong> o <strong>derecho</strong> de la pantalla para cambiar de carril hacia ese lado.')}</li>
+        ` : `
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel', '<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.')}</li>
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
+        `}
       </ul>
       <button class="btn-primary" id="btn-start-coasters">${jt('jue.next', 'Siguiente')}</button>
     `);
@@ -2521,6 +2578,7 @@ function spawnEntities() {
   let running = false;
   let paused = false;
   let rafId = null;
+  let lastTime = null;
 
   // Selected time limit (20, 40, or 60 seconds)
   let selectedTimeLimit = 40;
@@ -3148,13 +3206,24 @@ function spawnEntities() {
   }
 
   // ================= MAIN STEP LOOP =================
-  function step() {
+  function step(timestamp) {
     if (!running || !isGameVisible) return;
 
-    timeLeft -= 0.0166;
+    // El tiempo se descontaba una cantidad fija (0.0166) por cada frame,
+    // asumiendo 60fps. En pantallas de 90/120Hz el bucle corre más
+    // seguido y la ronda terminaba antes de los 20/40/60s elegidos; en
+    // dispositivos con caídas de fps corría más lento de lo esperado.
+    // Usamos el tiempo real transcurrido para que la duración de la
+    // ronda sea siempre la misma sin importar el dispositivo.
+    if (lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 0), 100);
+    lastTime = timestamp;
+    const dtSec = dt / 1000;
+
+    timeLeft -= dtSec;
     if (micaBearerIndex !== 0) {
-      timeWithoutMica += 0.0166;
-      score += 0.25;
+      timeWithoutMica += dtSec;
+      score += 0.25 * (dtSec / 0.0166);
     }
 
     if (timeLeft <= 0) {
@@ -3503,8 +3572,13 @@ function spawnEntities() {
     setupArena();
     hideOverlay();
 
+    // Evita bucles de animación duplicados (p. ej. doble toque al elegir
+    // la duración de la ronda), que hacían correr el reloj más rápido de
+    // lo debido y la partida terminaba antes de tiempo de forma errática.
+    cancelAnimationFrame(rafId);
     running = true;
     paused = false;
+    lastTime = null;
     playMusic();
 
     rafId = requestAnimationFrame(step);
@@ -3551,6 +3625,7 @@ function spawnEntities() {
     if (!paused) return;
     paused = false;
     running = true;
+    lastTime = null;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if (pauseIcon) pauseIcon.textContent = '⏸️';
@@ -3588,6 +3663,7 @@ function spawnEntities() {
       resizeCanvas();
       setupArena();
       playMusic();
+      lastTime = null;
       if (paused && running) resumeGame();
       else if (running) rafId = requestAnimationFrame(step);
     }
@@ -3790,10 +3866,15 @@ function spawnEntities() {
     circleCenter = { x: W / 2, y: H / 2 - H * 0.04 };
     marbleRadius = circleRadius / (cfg.marbles <= 8 ? 5.5 : 6.5);
 
-    // Posición de spawn del tirador (abajo del círculo)
+    // Posición de spawn del tirador (abajo del círculo). Antes quedaba
+    // pegado al borde inferior del canvas/modal (especialmente en
+    // celular, donde hay menos alto disponible), lo que hacía muy difícil
+    // agarrarlo y arrastrarlo para apuntar. Lo acercamos más al círculo y
+    // además lo topamos para que nunca quede a menos de 5 radios del
+    // borde inferior real del canvas.
     tiradorSpawnPos = {
       x: circleCenter.x,
-      y: circleCenter.y + circleRadius + marbleRadius * 3.5
+      y: Math.min(circleCenter.y + circleRadius + marbleRadius * 2.2, H - marbleRadius * 5)
     };
 
     // Muros invisibles del canvas
@@ -3871,7 +3952,10 @@ function spawnEntities() {
 
   function spawnTirador() {
     if (tirador) { try { World.remove(world, tirador); } catch(e){} }
-    tirador = Bodies.circle(tiradorSpawnPos.x, tiradorSpawnPos.y, marbleRadius * 1.4, {
+    // El tirador debe ser del mismo tamaño que las demás canicas (antes
+    // era 1.4x más grande, lo cual además de verse inconsistente le daba
+    // una ventaja física injusta al golpear).
+    tirador = Bodies.circle(tiradorSpawnPos.x, tiradorSpawnPos.y, marbleRadius, {
       restitution: 0.65,
       friction: 0.01,
       frictionAir: 0.008,
@@ -4000,7 +4084,15 @@ function spawnEntities() {
         watchTimer += dt;
         if (watchTimer > 600) {
           watchTimer = 0;
-          if (shotsLeft > 0) {
+          // La ronda se da por terminada en cuanto todas las canicas ya
+          // salieron del círculo, sin importar si quedaban tiros — antes
+          // solo se avanzaba de ronda al agotar los tiros, así que si el
+          // jugador limpiaba el círculo con tiros de sobra el juego lo
+          // seguía obligando a disparar contra un círculo ya vacío.
+          const todasAfuera = marbles.length > 0 && marbles.every(m => m.plugin?.isOut);
+          if (todasAfuera) {
+            setTimeout(() => endRound(), 500);
+          } else if (shotsLeft > 0) {
             // Recolocar tirador para el siguiente disparo
             spawnNewTirador();
           } else {
@@ -4326,6 +4418,9 @@ function spawnEntities() {
       initEngine();
       resetRoundLayout();
       updateHUD();
+      // Evita que un doble toque en el botón de dificultad deje dos
+      // bucles de animación corriendo a la vez.
+      cancelAnimationFrame(rafId);
       running = true;
       lastTs = null;
       rafId = requestAnimationFrame(step);
@@ -5863,6 +5958,10 @@ function spawnEntities() {
     resetGame();
     hideOverlay();
 
+    // Evita bucles de animación duplicados por un doble toque al elegir
+    // dificultad (frecuente en pantallas táctiles), que hacían avanzar el
+    // juego más rápido de lo debido.
+    cancelAnimationFrame(rafId);
     running = true;
     paused = false;
     playMusic();
@@ -5877,6 +5976,11 @@ function spawnEntities() {
       <p>${jt('jue.card6.intro', 'Corré con el torito por las calles coloniales. <b>Pasa entre la gente para animarla</b> y recogé <b>silbadores y cuetillos</b> para ganar energía y llegar al Atrio de la Iglesia.')}</p>
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
+        ${esTactilJuegos ? `
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá el lado <b>izquierdo</b> o <b>derecho</b> de la pantalla para cambiar de carril. <b>Doble toque</b> para soltar una ráfaga de chispas.')}</li>
+        ` : `
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', '<b>A</b>/<b>D</b> o flechas ⬅️➡️: cambiar de carril. <b>Espacio:</b> ráfaga de chispas.')}</li>
+        `}
         <li class="rule-good"><span class="rule-icon">👥</span> ${jt('jue.card6.ruleAnimate', '<b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.')}</li>
         <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', '<b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.')}</li>
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', '<b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.')}</li>

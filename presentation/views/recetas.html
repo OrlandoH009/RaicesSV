@@ -35,7 +35,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
 
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -87,7 +87,7 @@
     <!-- Modal flotante de receta -->
     <div class="recipe-modal-overlay" id="recipeModalOverlay">
       <div class="recipe-modal" id="recipeModal">
-        <button class="recipe-modal__close" id="recipeModalClose" aria-label="Cerrar receta" data-i18n-attr="aria-label:recetas.modalClose">
+        <button class="recipe-modal__close" id="recipeModalClose" aria-label="Cerrar receta" title="Cerrar (Esc)" data-i18n-attr="aria-label:recetas.modalClose,title:common.tooltip.closeEsc">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
         <div class="recipe-modal__scroll" id="printable-recipe-area">
