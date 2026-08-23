@@ -78,7 +78,45 @@
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero__bg" id="heroBg"></div>
+      <div class="hero__bg" id="heroBg">
+        <!-- Friso escalonado inferior (estilo templos mayas/pipiles) — SVG ancho fijo que se repite -->
+        <svg class="hero__deco-band" viewBox="0 0 1440 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs>
+            <pattern id="mayaStep" width="48" height="24" patternUnits="userSpaceOnUse">
+              <rect x="0"  y="16" width="8" height="8"  fill="var(--gold)" />
+              <rect x="8"  y="8"  width="8" height="16" fill="var(--gold)" />
+              <rect x="16" y="0"  width="8" height="24" fill="var(--gold)" />
+              <rect x="24" y="8"  width="8" height="16" fill="var(--gold)" />
+              <rect x="32" y="16" width="8" height="8"  fill="var(--gold)" />
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="1440" height="24" fill="url(#mayaStep)" opacity=".22" />
+        </svg>
+
+        <!-- Liana esquina superior izquierda — SVG propio, anclado a la esquina -->
+        <svg class="hero__deco-vine hero__deco-vine--tl" viewBox="0 0 300 300" aria-hidden="true" focusable="false">
+          <path d="M-10,-10 C60,40 40,120 120,150 C200,180 180,260 260,300" fill="none" stroke="var(--accent-jade)" stroke-width="3" stroke-linecap="round" opacity=".45" />
+          <g fill="var(--accent-jade)" opacity=".5">
+            <path transform="translate(48,34) rotate(35)"  d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+            <path transform="translate(108,146) rotate(-20)" d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+            <path transform="translate(172,258) rotate(50)" d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+            <path transform="translate(248,296) rotate(-10)" d="M0,0 C6,-9 17,-9 23,0 C17,9 6,9 0,0 Z" />
+          </g>
+        </svg>
+
+        <!-- Liana esquina inferior derecha (espejo) — SVG propio, anclado a la esquina -->
+        <svg class="hero__deco-vine hero__deco-vine--br" viewBox="0 0 300 300" aria-hidden="true" focusable="false">
+          <g transform="translate(300,300) scale(-1,-1)">
+            <path d="M-10,-10 C60,40 40,120 120,150 C200,180 180,260 260,300" fill="none" stroke="var(--accent-jade)" stroke-width="3" stroke-linecap="round" opacity=".45" />
+            <g fill="var(--accent-jade)" opacity=".5">
+              <path transform="translate(48,34) rotate(35)"  d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+              <path transform="translate(108,146) rotate(-20)" d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+              <path transform="translate(172,258) rotate(50)" d="M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z" />
+              <path transform="translate(248,296) rotate(-10)" d="M0,0 C6,-9 17,-9 23,0 C17,9 6,9 0,0 Z" />
+            </g>
+          </g>
+        </svg>
+      </div>
       <!-- Agregamos este contenedor para que el JS renderice las partículas doradas -->
       <div id="heroParticles" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1;"></div>
       <div class="hero__overlay"></div>
