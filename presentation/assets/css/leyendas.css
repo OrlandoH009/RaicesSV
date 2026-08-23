@@ -605,6 +605,21 @@
 }
 .leyenda-modal__relato p:last-child { margin-bottom: 0; }
 
+/* Resaltado "karaoke": el párrafo que se está narrando en este momento */
+.leyenda-modal__relato p {
+  transition: background .3s ease, box-shadow .3s ease, color .3s ease;
+  border-radius: 6px;
+}
+.leyenda-modal__relato p.is-narrating {
+  background: rgba(190,142,86,.14);
+  box-shadow: inset 3px 0 0 var(--gold);
+  padding: .2rem .6rem;
+  margin-left: -.6rem;
+  margin-right: -.6rem;
+  color: var(--white);
+}
+[data-theme="light"] .leyenda-modal__relato p.is-narrating { color: var(--navy); }
+
 body.modal-lock { overflow: hidden; }
 
 /* ── Responsive ── */
@@ -618,14 +633,46 @@ body.modal-lock { overflow: hidden; }
   .leyenda-concepto__cards { grid-template-columns: 1fr; }
   .leyenda-flip { height: 170px; }
   .leyenda-grid { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+
+  /* En móvil el modal pasa a columna: imagen arriba, texto abajo con
+     scroll propio. La imagen queda "sticky" para que, mientras narra
+     y el texto avanza, la imagen de la leyenda se mantenga visible
+     en vez de desaparecer hacia arriba fuera de pantalla. */
   .leyenda-modal { flex-direction: column; max-height: 92vh; }
-  .leyenda-modal__media { flex: 0 0 180px; min-height: 180px; }
-  .leyenda-modal__content { padding: 2.2rem 1.4rem 1.6rem; }
+  .leyenda-modal__media {
+    flex: 0 0 150px;
+    min-height: 150px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .leyenda-modal__content {
+    padding: 1.6rem 1.4rem 1.6rem;
+    -webkit-overflow-scrolling: touch;
+  }
   .leyenda-modal__origin { width: 170px; font-size: .7rem; top: 3.4rem; }
   .leyenda-modal__narrate { top: .7rem; right: 3.8rem; width: 36px; height: 36px; }
   .leyenda-modal__close { top: .7rem; right: .7rem; width: 36px; height: 36px; }
   .leyenda-modal__relato p { text-align: left; line-height: 1.85; }
   .leyenda-modal__relato p:first-of-type::first-letter { font-size: 2.6rem; }
+
+  /* Feedback visual claro en la imagen mientras se narra en celular,
+     ya que ahí el texto y la imagen no están lado a lado como en
+     escritorio y conviene reforzar que "está narrando" */
+  .leyenda-modal__media.is-narrating::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 18px rgba(190,142,86,.55);
+    pointer-events: none;
+    animation: leyendaNarratePulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes leyendaNarratePulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
 }
 @media (max-width: 480px) {
   .leyenda-grid { grid-template-columns: repeat(2, 1fr); gap: .9rem; }
