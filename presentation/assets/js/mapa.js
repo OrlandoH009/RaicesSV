@@ -450,6 +450,10 @@ const SLUG_TO_LANDMARK_ID = {
 // primer render sea más rápido y no sature dispositivos de gama baja.
 const esDispositivoMovil = window.matchMedia('(max-width: 900px)').matches || ('ontouchstart' in window);
 
+// Nivel de zoom único al enfocar un lugar (marcador, búsqueda, enlace directo
+// o publicación), para que la sensación de acercamiento sea siempre la misma.
+const FOCUS_ZOOM = 14;
+
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
   zoom: 10.45,
@@ -793,7 +797,7 @@ sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
   if (activeMarker) {
-    mapa.flyTo(activeMarker.getLatLng(), 13.6, { animate: true, duration: 1 });
+    mapa.flyTo(activeMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
     setTimeout(invalidateMapSize, 500);
   }
 });
@@ -867,7 +871,7 @@ function crearMarker(lm) {
 
   marker.on('click', () => {
     abrirSidebar(lm, marker);
-    mapa.flyTo(marker.getLatLng(), 13.6, { animate: true, duration: 1 });
+    mapa.flyTo(marker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
     setTimeout(invalidateMapSize, 500);
   });
 
@@ -910,15 +914,12 @@ function aplicarFiltro(categoria) {
     }
   });
 
-  if (categoria === 'todas') {
-    Object.values(gruposCategoria).forEach(grupo => {
-      mapa.addLayer(grupo);
-    });
-  } else {
-    if (gruposCategoria[categoria]) {
-      mapa.addLayer(gruposCategoria[categoria]);
-    }
-  }
+  const gruposVisibles = categoria === 'todas'
+    ? Object.values(gruposCategoria)
+    : (gruposCategoria[categoria] ? [gruposCategoria[categoria]] : []);
+
+  gruposVisibles.forEach(grupo => mapa.addLayer(grupo));
+  animarAparicionMarcadores(gruposVisibles);
 
   const searchQuery = document.getElementById('mapSearchInput')?.value?.toLowerCase().trim() || '';
   if (searchQuery) {
@@ -929,6 +930,34 @@ function aplicarFiltro(categoria) {
   }
   actualizarContador(categoria);
   setTimeout(invalidateMapSize, 200);
+}
+
+// Pequeño "pop" escalonado en los marcadores que quedan visibles tras
+// aplicar un filtro, para que el cambio se sienta dinámico en vez de
+// un simple aparecer/desaparecer instantáneo.
+function animarAparicionMarcadores(grupos) {
+  if (typeof gsap === 'undefined') return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const puntos = [];
+  grupos.forEach(grupo => {
+    grupo.eachLayer(m => {
+      const punto = m._icon?.querySelector('.custom-marker');
+      if (punto) puntos.push(punto);
+    });
+  });
+  if (!puntos.length) return;
+
+  // clearProps al terminar: los marcadores usan su propio transform (CSS)
+  // para el estado "activo" (scale 1.25 en .custom-marker--active); si dejamos
+  // un transform inline de GSAP, ese estado dejaría de funcionar después.
+  gsap.fromTo(puntos,
+    { scale: 0, opacity: 0 },
+    {
+      scale: 1, opacity: 1, duration: .4, stagger: { each: .012, from: 'center' }, ease: 'back.out(2)',
+      onComplete: () => gsap.set(puntos, { clearProps: 'transform' })
+    }
+  );
 }
 
 function actualizarListaResultados(categoria, query) {
@@ -970,7 +999,7 @@ function actualizarListaResultados(categoria, query) {
         const marker = markers.find(m => m._landmarkId === id);
         if (lm && marker) {
           container.style.display = 'none';
-          mapa.flyTo(marker.getLatLng(), 14, { animate: true, duration: 1 });
+          mapa.flyTo(marker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
           abrirSidebar(lm, marker);
           setTimeout(invalidateMapSize, 500);
         }
@@ -1181,12 +1210,12 @@ document.addEventListener("langchange", (e) => {
       });
 
       if (markerAAbrir) {
-        mapa.setView(markerAAbrir.getLatLng(), 14.5, { animate: true });
+        mapa.flyTo(markerAAbrir.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
         setTimeout(() => markerAAbrir.openPopup(), 400);
       } else if (!Number.isNaN(fallbackLat) && !Number.isNaN(fallbackLng)) {
         // Publicación no encontrada por id, pero venían coordenadas en la URL:
         // se centra ahí igualmente para no perder el contexto del enlace.
-        mapa.setView([fallbackLat, fallbackLng], 13.9, { animate: true });
+        mapa.flyTo([fallbackLat, fallbackLng], FOCUS_ZOOM, { animate: true, duration: 1 });
       }
 
       setTimeout(invalidateMapSize, 500);
@@ -1262,7 +1291,7 @@ const TRADUCTOR_A_LANDMARK = {
           });
           targetMarker.setIcon(iconoDestacado);
           targetMarker.setZIndexOffset(1000);
-          mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+          mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
           abrirSidebar(lmDirecto, targetMarker);
           setTimeout(invalidateMapSize, 500);
         }
@@ -1299,7 +1328,7 @@ const TRADUCTOR_A_LANDMARK = {
             });
             targetMarker.setIcon(iconoDestacado);
             targetMarker.setZIndexOffset(1000);
-            mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+            mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
             abrirSidebar(lmCercano, targetMarker);
             setTimeout(invalidateMapSize, 500);
           }
@@ -1327,7 +1356,7 @@ const TRADUCTOR_A_LANDMARK = {
             });
             targetMarker.setIcon(iconoDestacado);
             targetMarker.setZIndexOffset(1000);
-            mapa.setView(targetMarker.getLatLng(), 14, { animate: true });
+            mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
             abrirSidebar(lm, targetMarker);
             setTimeout(invalidateMapSize, 500);
           }
@@ -1583,7 +1612,7 @@ function ejecutarGeolocalizacion(centrar = true) {
         .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
 
       if (centrar) {
-        mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.5 });
+        mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
         setTimeout(invalidateMapSize, 800);
       }
 
@@ -1630,7 +1659,7 @@ if (navigator.permissions && navigator.permissions.query) {
 if (btnCentrar) {
   btnCentrar.addEventListener('click', () => {
     if (miUbicacionActual) {
-      mapa.flyTo(miUbicacionActual, 14, { animate: true, duration: 1.2 });
+      mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
       setTimeout(invalidateMapSize, 500);
     } else {
       solicitarUbicacionConVerificacion(true);

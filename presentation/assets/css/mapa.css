@@ -85,6 +85,7 @@
     .mapa-filters-float.collapsed .filters-toggle svg { transform: rotate(-90deg); }
     
     .filters-list {
+      position: relative;
       display: flex; flex-wrap: nowrap; gap: .4rem; align-items: center;
       overflow: hidden;
       max-width: 900px;
@@ -97,7 +98,20 @@
       margin: 0;
       pointer-events: none;
     }
+    /* Indicador deslizante (GSAP) detrás del filtro activo */
+    .filter-pill {
+      position: absolute;
+      top: 0; left: 0;
+      border-radius: 50px;
+      background: var(--gold);
+      box-shadow: 0 4px 16px rgba(190,142,86,.4);
+      z-index: 0;
+      pointer-events: none;
+      will-change: transform, width, height;
+    }
     .filter-btn {
+      position: relative;
+      z-index: 1;
       display: flex; align-items: center; gap: .35rem;
       font-family: var(--font-display); font-weight: 700; font-size: .75rem;
       color: rgba(255,255,255,.8);
@@ -109,6 +123,13 @@
     }
     .filter-btn:hover { background: rgba(190,142,86,.18); border-color: var(--gold); color: var(--white); transform: translateY(-2px); }
     .filter-btn.active { background: var(--gold); border-color: var(--gold); color: var(--white); box-shadow: 0 4px 16px rgba(190,142,86,.4); }
+    /* Cuando el indicador deslizante (GSAP) está activo, el propio botón
+       deja de pintar su fondo — el "pill" es quien lo provee, animado.
+       Si GSAP no cargó, el estilo de arriba sigue funcionando igual. */
+    .filters-list.filter-pill-ready .filter-btn.active {
+      background: transparent;
+      box-shadow: none;
+    }
     .filter-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
     /* ── Contador flotante (esquina inferior izquierda del mapa) ── */
