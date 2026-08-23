@@ -13,18 +13,66 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: url('../media/Hero-Categorias.jpg') center/cover no-repeat;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dark) 65%, #0a2350 100%);
 }
 
 .hero__bg {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
   transform: scale(1.06);
   transition: transform 8s ease;
 }
 .hero__bg.loaded { transform: scale(1); }
+
+/* ── Decoración: friso escalonado + lianas (SVG) ──
+   Cada pieza es un SVG independiente anclado a su propia esquina/borde,
+   para que nada dependa del ancho del contenedor (se ve completo tanto
+   en escritorio como en celular). ── */
+.hero__deco-band {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 20px;
+  transform-origin: center;
+}
+
+.hero__deco-vine {
+  position: absolute;
+  width: clamp(120px, 20vw, 220px);
+  height: clamp(120px, 20vw, 220px);
+  overflow: visible;
+}
+.hero__deco-vine--tl {
+  top: 0;
+  left: 0;
+  transform-origin: 0% 0%;
+}
+.hero__deco-vine--br {
+  bottom: 0;
+  right: 0;
+  transform-origin: 100% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__deco-vine {
+    animation: heroVineSway 7s ease-in-out infinite;
+  }
+  .hero__deco-vine--br {
+    animation-delay: -3.5s;
+  }
+  .hero__deco-band {
+    animation: heroBandShimmer 6s ease-in-out infinite;
+  }
+}
+@keyframes heroVineSway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+@keyframes heroBandShimmer {
+  0%, 100% { opacity: .16; }
+  50% { opacity: .3; }
+}
 
 .hero__overlay {
   position: absolute;
