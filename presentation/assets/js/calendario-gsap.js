@@ -170,6 +170,16 @@
       };
     }
 
-    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.refresh();
+
+      // Refresco tardío: el layout todavía se mueve mientras cargan las
+      // imágenes/fuentes, así que sin esto las posiciones de disparo del
+      // scroll quedan desactualizadas y las animaciones tardan en aparecer.
+      window.addEventListener('load', () => ScrollTrigger.refresh());
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => ScrollTrigger.refresh());
+      }
+    }
   });
 })();

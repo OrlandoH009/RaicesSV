@@ -12,7 +12,7 @@
     .page-badge__inner {
       background: var(--cream); border-radius: var(--r-md);
       padding: 1.1rem 4rem;
-      box-shadow: 0 8px 4px rgba(255,255,255,.25);
+      box-shadow: 0 8px 24px rgba(255,255,255,.15);
     }
     [data-theme="light"] .page-badge__inner {
       background: var(--card-alt-bg);
@@ -29,7 +29,12 @@
       position: relative;
       width: 100%;
       margin-top: var(--nav-h);
+      /* 100vh en móviles incluye la barra de direcciones, así que al
+         mostrarse/ocultarse (al hacer scroll) el alto real cambiaba sin
+         que Leaflet lo supiera, dejando el mapa "congelado" en blanco.
+         100dvh se recalcula con el viewport visible real. */
       height: calc(100vh - var(--nav-h));
+      height: calc(100dvh - var(--nav-h));
       background: var(--black);
       overflow: hidden;
       transition: background .4s ease;
@@ -620,7 +625,15 @@
     /* [PANTALLAS MEDIANAS / TABLETS (Hasta 900px)] */
     @media (max-width: 900px) {
       .mapa-back-btn { top: .75rem; right: .75rem; font-size: .75rem; padding: .5rem .7rem .5rem .9rem; }
-      
+
+      /* En este breakpoint la barra de búsqueda/filtros pasa a ocupar todo
+         el ancho arriba del mapa, en la misma zona donde "Volver a
+         categorías" estaba fijo — se pisaban. Bajamos el botón para que
+         quede siempre debajo de esa barra. */
+      .info-back-btn {
+        top: calc(var(--nav-h) + 3.6rem);
+      }
+
       .mapa-filters-float {
         top: .6rem; left: .6rem; right: .6rem;
         transform: none;
@@ -841,10 +854,36 @@
   font-size: 24px; /* Icono de objetivo/mira más grande */
 }
 
+/* En escritorio el texto queda oculto (solo ícono + tooltip nativo vía
+   title/aria-label). En pantallas táctiles no hay :hover para mostrar
+   un tooltip, así que el botón se convierte en una píldora con el
+   texto "¿Dónde estoy?" siempre visible. */
+.btn-geo-float__label {
+  display: none;
+}
+
 .btn-geo-float:hover {
   background-color: #2a2a2a;
   transform: scale(1.05);
 
+}
+
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .btn-geo-float {
+    width: auto;
+    height: auto;
+    border-radius: 30px;
+    padding: .55rem .9rem .55rem .7rem;
+    gap: .45rem;
+  }
+  .btn-geo-float__icon { font-size: 19px; }
+  .btn-geo-float__label {
+    display: inline-block;
+    color: #f0e6d3;
+    font-size: .82rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 480px) {
@@ -886,7 +925,6 @@
   .btn-geo-float {
     bottom: 80px; /* Se reposiciona para no chocar con atribuciones o barras inferiores */
     right: .75rem;
-    width: 46px; height: 46px;
   }
 }
 /* ═══════════════════════════════════════════════════
@@ -1010,8 +1048,6 @@
   .btn-geo-float {
     bottom: calc(72vh + 15px); /* Si la sidebar está abierta, queda justo arriba (usa el mismo tope que max-height de la sidebar) */
     right: 0.5rem;
-    width: 44px;
-    height: 44px;
   }
   
   /* Si la sidebar está cerrada, bajamos el botón de geo para que sea ergonómico */

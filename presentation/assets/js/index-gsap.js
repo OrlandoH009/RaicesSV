@@ -207,4 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   ScrollTrigger.refresh();
+
+  // Las posiciones de disparo (.reveal, .stat, .home-card, etc.) se calculan
+  // aquí con el layout que hay en DOMContentLoaded, pero las imágenes de las
+  // secciones de abajo todavía no cargan y empujan el alto de la página. Sin
+  // este refresco tardío, ScrollTrigger se queda con posiciones "viejas" y
+  // las animaciones tardan en dispararse (hay que scrollear de más).
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+  }
 });

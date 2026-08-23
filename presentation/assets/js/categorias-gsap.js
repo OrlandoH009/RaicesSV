@@ -204,4 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   ScrollTrigger.refresh();
+
+  // Refresco tardío: las imágenes de las tarjetas todavía no cargaron cuando
+  // se calculó lo anterior, así que las posiciones de disparo del scroll
+  // quedan desactualizadas y las animaciones tardan en aparecer.
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
+  }
 });

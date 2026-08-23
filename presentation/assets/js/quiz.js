@@ -919,18 +919,127 @@ function pulso(el) {
   });
 }
 
+function esMovilQuiz() {
+  return window.innerWidth <= 768;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ASISTENTE PASO A PASO: nivel → cantidad → categoría
+   Antes se mostraban las tres cosas juntas. Ahora se muestra un paso a
+   la vez: al elegir una opción se espera un momento (para que se note
+   la selección) y luego aparece el siguiente paso con una animación
+   suave. Un botón "Regresar" arriba permite volver a cambiar una
+   elección anterior.
+   ══════════════════════════════════════════════════════════ */
+const setupBackBtn  = document.getElementById('setupBackBtn');
+const quizStartWrap = document.getElementById('quizStartWrap');
+const quizLoadingOverlay = document.getElementById('quizLoadingOverlay');
+
+const PASOS = ['nivel', 'cantidad', 'categoria'];
+const ID_PASO = { nivel: 'stepNivel', cantidad: 'stepCantidad', categoria: 'stepCategoria' };
+let pasoActual = 0;
+
+function elPaso(nombre) {
+  return document.getElementById(ID_PASO[nombre]);
+}
+
+function irAPaso(destino) {
+  const anterior = elPaso(PASOS[pasoActual]);
+  const siguiente = elPaso(PASOS[destino]);
+  pasoActual = destino;
+  if (setupBackBtn) setupBackBtn.style.display = destino > 0 ? 'flex' : 'none';
+
+  const mostrarSiguiente = () => {
+    siguiente.classList.add('active');
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(siguiente, { opacity: 0, y: 16 }, {
+        opacity: 1, y: 0, duration: 0.45, ease: 'power2.out',
+        onComplete: () => gsap.set(siguiente, { clearProps: 'opacity,transform' })
+      });
+    }
+    if (esMovilQuiz()) siguiente.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  if (typeof gsap === 'undefined') {
+    anterior.classList.remove('active');
+    mostrarSiguiente();
+    return;
+  }
+
+  gsap.to(anterior, {
+    opacity: 0, y: -12, duration: 0.25, ease: 'power1.in',
+    onComplete: () => {
+      anterior.classList.remove('active');
+      gsap.set(anterior, { clearProps: 'opacity,transform' });
+      mostrarSiguiente();
+    }
+  });
+}
+
+/* Limpia la selección del paso `desde` en adelante (se usa al ir hacia
+   atrás, para no dejar pasos posteriores con una elección "fantasma"). */
+function limpiarSeleccionDesde(desde) {
+  if (desde <= 2) {
+    catBtns.forEach(b => b.classList.remove('selected'));
+    categoriaSeleccionada = null;
+    startBtn.classList.remove('visible');
+  }
+  if (desde <= 1) {
+    amountBtns.forEach(b => b.classList.remove('selected'));
+    cantidadSeleccionada = null;
+  }
+  if (desde <= 0) {
+    levelCards.forEach(c => c.classList.remove('selected'));
+    nivelSeleccionado = null;
+  }
+}
+
+function reiniciarAsistente() {
+  document.querySelectorAll('.quiz-step').forEach(s => {
+    s.classList.remove('active');
+    if (typeof gsap !== 'undefined') gsap.set(s, { clearProps: 'opacity,transform' });
+  });
+  elPaso('nivel').classList.add('active');
+  pasoActual = 0;
+  if (setupBackBtn) setupBackBtn.style.display = 'none';
+}
+
+if (setupBackBtn) {
+  setupBackBtn.addEventListener('click', () => {
+    if (pasoActual === 0) return;
+    const destino = pasoActual - 1;
+    limpiarSeleccionDesde(destino + 1);
+    irAPaso(destino);
+  });
+}
+
+const ESPERA_ANTES_DE_AVANZAR_MS = 1000;
+
 levelCards.forEach(card => {
   card.addEventListener('click', () => {
+    if (pasoActual !== 0) return;
     levelCards.forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     nivelSeleccionado = card.dataset.level;
     pulso(card);
-    verificarListo();
+    setTimeout(() => irAPaso(1), ESPERA_ANTES_DE_AVANZAR_MS);
+  });
+});
+
+amountBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (pasoActual !== 1) return;
+    amountBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    cantidadSeleccionada = btn.dataset.amount;
+    pulso(btn);
+    setTimeout(() => irAPaso(2), ESPERA_ANTES_DE_AVANZAR_MS);
   });
 });
 
 catBtns.forEach(btn => {
   btn.addEventListener('click', () => {
+    if (pasoActual !== 2) return;
     catBtns.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     categoriaSeleccionada = btn.dataset.cat;
@@ -939,19 +1048,14 @@ catBtns.forEach(btn => {
   });
 });
 
-amountBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    amountBtns.forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    cantidadSeleccionada = btn.dataset.amount;
-    pulso(btn);
-    verificarListo();
-  });
-});
-
 function verificarListo() {
   if (nivelSeleccionado && categoriaSeleccionada && cantidadSeleccionada) {
-    startBtn.classList.add('visible');
+    setTimeout(() => {
+      startBtn.classList.add('visible');
+      if (esMovilQuiz()) {
+        startBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, ESPERA_ANTES_DE_AVANZAR_MS);
   }
 }
 
@@ -976,7 +1080,7 @@ startBtn.addEventListener('click', () => {
   indicesOriginales = seleccionadas.map(p => poolCompleto.indexOf(p));
   // Guardamos también las preguntas actuales (para acceso rápido)
   preguntasActivas = seleccionadas;
-  
+
   indice = 0;
   puntaje = 0;
   respondida = false;
@@ -986,9 +1090,15 @@ startBtn.addEventListener('click', () => {
   levelBadge.textContent = getLevelName(nivelSeleccionado);
   levelBadge.className = `quiz-level-badge ${nivelSeleccionado}`;
 
-  abrirModalQuiz();
-  results.classList.remove('show');
-  mostrarPregunta();
+  // Modal de carga: un pequeño respiro (~3s) con el logo antes de que
+  // aparezca la primera pregunta ya montada en su propio modal.
+  if (quizLoadingOverlay) quizLoadingOverlay.classList.add('show');
+  setTimeout(() => {
+    if (quizLoadingOverlay) quizLoadingOverlay.classList.remove('show');
+    abrirModalQuiz();
+    results.classList.remove('show');
+    mostrarPregunta();
+  }, 3000);
 });
 
 /* ══════════════════════════════════════════════════════════
@@ -1265,6 +1375,7 @@ retryBtn.addEventListener('click', () => {
   nivelSeleccionado = null;
   categoriaSeleccionada = null;
   cantidadSeleccionada = null;
+  reiniciarAsistente();
   preguntasActivas = [];
   indicesOriginales = [];
   indice = 0;

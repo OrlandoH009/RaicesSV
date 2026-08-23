@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
     burger?.classList.add('open');
+    burger?.setAttribute('aria-expanded', 'true');
     const closeLabel = window.SRi18n ? window.SRi18n.t('nav.cerrarMenu', window.SRi18n.getLang()) : 'Cerrar menú';
     burger?.setAttribute('aria-label', closeLabel);
     scrollYAlAbrir = window.scrollY || window.pageYOffset || 0;
@@ -106,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     drawer?.classList.remove('open');
     overlay?.classList.remove('open');
     burger?.classList.remove('open');
+    burger?.setAttribute('aria-expanded', 'false');
     const openLabel = window.SRi18n ? window.SRi18n.t('nav.abrirMenu', window.SRi18n.getLang()) : 'Abrir menú';
     burger?.setAttribute('aria-label', openLabel);
     document.body.style.position = '';
@@ -428,11 +430,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Autoplay (solo si no está silenciado)
     if (!muted) {
       audio.play().catch(() => {
+        // En móvil/tablet los navegadores bloquean el autoplay hasta que
+        // hay una interacción del usuario: un click, pero también un
+        // deslizar (swipe/scroll táctil) cuenta como interacción válida.
         const resumeOnce = () => {
           audio.play().catch(() => {});
           document.removeEventListener('click', resumeOnce);
+          document.removeEventListener('touchstart', resumeOnce);
+          document.removeEventListener('touchmove', resumeOnce);
+          document.removeEventListener('scroll', resumeOnce);
         };
         document.addEventListener('click', resumeOnce, { once: true });
+        document.addEventListener('touchstart', resumeOnce, { once: true, passive: true });
+        document.addEventListener('touchmove', resumeOnce, { once: true, passive: true });
+        document.addEventListener('scroll', resumeOnce, { once: true, passive: true });
       });
     }
 
@@ -444,7 +455,59 @@ document.addEventListener('DOMContentLoaded', () => {
       writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
     });
 
+    /* ── Pausar la música de fondo mientras suena "otro" audio/video ──
+       Si un juego, un video de receta o una narración de leyenda empieza
+       a sonar, la música de fondo global seguía sonando encima, mezclando
+       las dos pistas. Con esto, en cuanto arranca cualquier <audio>/<video>
+       del sitio (que no sea esta misma pista), la pausamos; cuando ese
+       otro audio termina o se pausa, retomamos la música de fondo — pero
+       solo si fuimos nosotros quienes la pausamos (si el usuario la había
+       pausado/silenciado a propósito, la dejamos como estaba). */
+    let bgMusicAutoPausada = false;
+    let otrosMediaSonando = 0;
+
+    function esOtroMedia(el) {
+      return el && el !== audio && (el.tagName === 'AUDIO' || el.tagName === 'VIDEO');
+    }
+
+    document.addEventListener('play', (e) => {
+      if (!esOtroMedia(e.target)) return;
+      otrosMediaSonando++;
+      if (!audio.paused) {
+        audio.pause();
+        bgMusicAutoPausada = true;
+      }
+    }, true);
+
+    function alTerminarOtroMedia(e) {
+      if (!esOtroMedia(e.target)) return;
+      otrosMediaSonando = Math.max(0, otrosMediaSonando - 1);
+      if (otrosMediaSonando === 0 && bgMusicAutoPausada && !audio.muted) {
+        bgMusicAutoPausada = false;
+        audio.play().catch(() => {});
+      }
+    }
+    document.addEventListener('pause', alTerminarOtroMedia, true);
+    document.addEventListener('ended', alTerminarOtroMedia, true);
+
     window.SRbgMusic = audio;
+    // Expuesto para casos donde "el otro audio" no es un <audio>/<video>
+    // del DOM (p. ej. narración de leyendas creada con `new Audio()` suelto,
+    // o síntesis de voz del navegador), que no disparan estos eventos aquí.
+    window.SRDuckBgMusic = {
+      pause() {
+        if (!audio.paused) {
+          audio.pause();
+          bgMusicAutoPausada = true;
+        }
+      },
+      resume() {
+        if (bgMusicAutoPausada && !audio.muted) {
+          bgMusicAutoPausada = false;
+          audio.play().catch(() => {});
+        }
+      }
+    };
   })();
 
 }); // Fin DOMContentLoaded
@@ -494,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockModalHTML = `
   <div class="lock-modal-overlay" id="lockModalOverlay">
     <div class="lock-modal" id="lockModal" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
-      <button class="lock-modal__close" id="lockModalClose" data-i18n-attr="aria-label:lock.close">&times;</button>
+      <button class="lock-modal__close" id="lockModalClose" title="Cerrar (Esc)" data-i18n-attr="aria-label:lock.close,title:common.tooltip.closeEsc">&times;</button>
       <div class="lock-modal__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="4" y="10" width="16" height="10" rx="2"/>
@@ -607,3 +670,53 @@ window.addEventListener('pageshow', (event) => {
       window.location.reload();
     });
 });
+
+/* ============================================================
+   Bloqueo de scroll de fondo con flechas cuando hay un modal
+   o un juego abierto (los juegos usan las flechas para moverse,
+   y sin esto el navegador desplazaba la página detrás del modal)
+   ============================================================ */
+(function blockArrowScrollBehindOverlays() {
+  const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+
+  function isEditableTarget(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  }
+
+  // Comprueba visibilidad real subiendo por los ancestros: un modal puede
+  // estar oculto por su propio estilo o por el de un contenedor padre
+  // (p. ej. .game-modal__content hereda la opacidad 0 de .game-modal).
+  function isActuallyVisible(el) {
+    let node = el;
+    while (node && node.nodeType === 1) {
+      const style = window.getComputedStyle(node);
+      if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) return false;
+      node = node.parentElement;
+    }
+    return true;
+  }
+
+  function isOverlayOpen() {
+    if (document.body.style.overflow === 'hidden') return true;
+    if (document.documentElement.classList.contains('quiz-modal-open')) return true;
+    if (document.body.classList.contains('modal-lock')) return true;
+
+    // Heurística general: cualquier elemento cuyo nombre de clase incluya
+    // "modal" (usado en todo el sitio para modales y juegos) y que esté
+    // visible en pantalla cuenta como una superposición abierta. Se agregan
+    // aparte un par de overlays que no siguen esa convención de nombre.
+    const candidates = document.querySelectorAll('[class*="modal"], .admin-drawer-overlay, .quiz-confirm-overlay');
+    for (const el of candidates) {
+      if (isActuallyVisible(el)) return true;
+    }
+    return false;
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (!ARROW_KEYS.has(e.key)) return;
+    if (isEditableTarget(document.activeElement)) return;
+    if (isOverlayOpen()) e.preventDefault();
+  }, { passive: false });
+})();

@@ -31,7 +31,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
 
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -175,7 +175,7 @@
       <div class="game-modal" id="modal-pupusa">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="pupusa" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="pupusa" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
           
           <div class="game-panel">
             <div class="game-panel__head">
@@ -188,10 +188,10 @@
             <div class="canvas-wrap" id="pupusa-canvas-wrap">
               <div class="hud hud--overlay" id="hud-pupusa"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-pupusa">
+                <button class="icon-btn" id="pauseBtn-pupusa" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-pupusa">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-pupusa">🔊</span>
                   <input type="range" id="volumeSlider-pupusa" min="0" max="1" step="0.05" value="0.25" />
@@ -225,7 +225,7 @@
       <div class="game-modal" id="modal-trompos">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="trompos" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="trompos" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
           
           <div class="game-panel">
             <div class="game-panel__head">
@@ -238,10 +238,10 @@
             <div class="canvas-wrap" id="trompos-canvas-wrap">
               <div class="hud hud--overlay" id="hud-trompos"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-trompos">
+                <button class="icon-btn" id="pauseBtn-trompos" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-trompos">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-trompos">🔊</span>
                   <input type="range" id="volumeSlider-trompos" min="0" max="1" step="0.05" value="0.25" />
@@ -275,7 +275,7 @@
       <div class="game-modal" id="modal-coasters">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="coasters" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="coasters" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
           
           <div class="game-panel">
             <div class="game-panel__head">
@@ -288,10 +288,10 @@
             <div class="canvas-wrap" id="coasters-canvas-wrap">
               <div class="hud hud--overlay" id="hud-coasters"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-coasters">
+                <button class="icon-btn" id="pauseBtn-coasters" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-coasters">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-coasters">🔊</span>
                   <input type="range" id="volumeSlider-coasters" min="0" max="1" step="0.05" value="0.25" />
@@ -326,7 +326,7 @@
       <div class="game-modal" id="modal-encantados">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="encantados" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="encantados" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
 
           <div class="game-panel">
             <div class="game-panel__head">
@@ -339,10 +339,10 @@
             <div class="canvas-wrap" id="encantados-canvas-wrap">
               <div class="hud hud--overlay" id="hud-encantados"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-encantados">
+                <button class="icon-btn" id="pauseBtn-encantados" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-encantados">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-encantados">🔊</span>
                   <input type="range" id="volumeSlider-encantados" min="0" max="1" step="0.05" value="0.25" />
@@ -377,7 +377,7 @@
       <div class="game-modal" id="modal-elotes">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="elotes" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="elotes" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
 
           <div class="game-panel">
             <div class="game-panel__head">
@@ -390,10 +390,10 @@
             <div class="canvas-wrap" id="elotes-canvas-wrap">
               <div class="hud hud--overlay" id="hud-elotes"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-elotes">
+                <button class="icon-btn" id="pauseBtn-elotes" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-elotes">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-elotes">🔊</span>
                   <input type="range" id="volumeSlider-elotes" min="0" max="1" step="0.05" value="0.25" />
@@ -427,7 +427,7 @@
       <div class="game-modal" id="modal-torito">
         <div class="game-modal__overlay"></div>
         <div class="game-modal__content">
-          <button class="game-modal__close" data-close-modal="torito" aria-label="Cerrar juego" data-i18n-attr="aria-label:jue.modal.close">✕</button>
+          <button class="game-modal__close" data-close-modal="torito" aria-label="Cerrar juego" title="Cerrar (Esc)" data-i18n-attr="aria-label:jue.modal.close,title:jue.tooltip.close">✕</button>
 
           <div class="game-panel">
             <div class="game-panel__head">
@@ -440,10 +440,10 @@
             <div class="canvas-wrap" id="torito-canvas-wrap">
               <div class="hud hud--overlay" id="hud-torito"></div>
               <div class="canvas-controls">
-                <button class="icon-btn" id="pauseBtn-torito">
+                <button class="icon-btn" id="pauseBtn-torito" title="Pausar / Reanudar (P)" data-i18n-attr="title:jue.tooltip.pause">
                   <span id="pauseIcon-torito">⏸️</span>
                 </button>
-                <button class="icon-btn fullscreen-btn">⛶</button>
+                <button class="icon-btn fullscreen-btn" title="Pantalla completa (F)" data-i18n-attr="title:jue.tooltip.fullscreen">⛶</button>
                 <div class="volume-group">
                   <span class="volume-icon" id="volumeIcon-torito">🔊</span>
                   <input type="range" id="volumeSlider-torito" min="0" max="1" step="0.05" value="0.25" />

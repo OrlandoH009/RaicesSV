@@ -18,7 +18,7 @@
 .auth-page__bg {
   position: fixed;
   inset: 0;
-  background-image: url('../MEDIA/Santa Ana Volcan.jpg');
+  background-image: url('../media/Santa Ana Volcan.jpg');
   background-size: cover;
   background-position: center;
   opacity: .18;

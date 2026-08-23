@@ -44,6 +44,7 @@
       "nav.recetario": "Recetario",
       "nav.quiz": "Quiz Cultural",
       "nav.cerrar": "Cerrar",
+      "common.tooltip.closeEsc": "Cerrar (Esc)",
       "nav.principales": "Principales",
       "nav.publicaciones": "Publicaciones",
       "nav.juegos": "Juegos Interactivos",
@@ -73,6 +74,14 @@
 
       "fact.eyebrow": "¿Sabías que...?",
       "fact.text1": "El Salvador es conocido como \"Pulgarcito de América\" por su tamaño territorial.",
+      "fact.text2": "La pupusa fue declarada Plato Típico y Patrimonio Cultural de El Salvador en 2005.",
+      "fact.text3": "Joya de Cerén, en La Libertad, es Patrimonio de la Humanidad: la \"Pompeya de América\".",
+      "fact.text4": "El país cuenta con más de veinte volcanes, entre activos e inactivos.",
+      "fact.text5": "La flor de izote, flor nacional, también se cocina en platillos tradicionales.",
+      "fact.text6": "El náhuat es uno de los idiomas indígenas que aún se conserva en algunas comunidades.",
+      "fact.text7": "Las Ruinas de Tazumal son uno de los sitios arqueológicos mayas más visitados del país.",
+      "fact.prev": "Dato anterior",
+      "fact.next": "Siguiente dato",
 
       "badge.title": "Información para ti",
 
@@ -100,6 +109,9 @@
       "jue.footnote": "Juegos de la cultura salvadoreña — ¡Desafía tus habilidades!",
 
       "jue.modal.close": "Cerrar juego",
+      "jue.tooltip.close": "Cerrar (Esc)",
+      "jue.tooltip.pause": "Pausar / Reanudar (P)",
+      "jue.tooltip.fullscreen": "Pantalla completa (F)",
       "jue.card.play": "⚡ Jugar Ahora",
 
       "jue.pause.tag": "Pausa",
@@ -230,6 +242,7 @@
       "jue.card2.winnerLabel": "Ganador",
       "jue.card3.controlsAccel": "<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.",
       "jue.card3.controlsLane": "<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.",
+      "jue.card3.controlsTapLane": "El bus acelera solo. Tocá el lado <strong>izquierdo</strong> o <strong>derecho</strong> de la pantalla para cambiar de carril hacia ese lado.",
       "jue.card3.diff.easy": "🟢 Tranquilo",
       "jue.card3.diff.easyDesc": "Va despacio",
       "jue.card3.diff.hard": "🔴 Hora Pico",
@@ -288,6 +301,8 @@
       "jue.card6.titleModal": "Torito Pinto",
       "jue.card6.prepareTag": "Prepará el Torito",
       "jue.card6.intro": "Corré con el torito por las calles coloniales. <b>Pasa entre la gente para animarla</b> y recogé <b>silbadores y cuetillos</b> para ganar energía y llegar al Atrio de la Iglesia.",
+      "jue.card6.controlsTap": "Tocá el lado <b>izquierdo</b> o <b>derecho</b> de la pantalla para cambiar de carril. <b>Doble toque</b> para soltar una ráfaga de chispas.",
+      "jue.card6.controlsKeys": "<b>A</b>/<b>D</b> o flechas ⬅️➡️: cambiar de carril. <b>Espacio:</b> ráfaga de chispas.",
       "jue.card6.ruleAnimate": "<b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.",
       "jue.card6.ruleRockets": "<b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.",
       "jue.card6.ruleObstacles": "<b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.",
@@ -554,7 +569,7 @@
       "gas.pupusas.p3": "Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.",
       "gas.pupusas.p4": "La pupusa de arroz tiene una textura más suave y es especialmente popular en la zona central del país. Se sirven siempre acompañadas de curtido (repollo encurtido) y salsa de tomate casera.",
       "gas.pupusas.h3": "Cómo se hacen",
-      "gas.pupusas.p5": "La elaboración requiere maestría: se toma una porción de masa, se forma una bola, se aplana en la palma, se coloca el relleno en el centro y se cierra sellando los bordes. Luego se aplana en forma circular y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.",
+      "gas.pupusas.p5": "La elaboración requiere maestría: se toma una porción de masa y se forma una bola; con los dedos se abre una cavidad en el centro para colocar el relleno, y se envuelve sellando bien los bordes. Después se aplana con las palmas hasta darle forma de disco, y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.",
 
       "gas.tamales.title": "Tamales",
       "gas.tamales.sub": "Tradición festiva salvadoreña",
@@ -593,7 +608,7 @@
       "gas.yuca.chip4": "Comida callejera",
       "gas.yuca.h1": "La yuca en la cultura salvadoreña",
       "gas.yuca.p1": "La yuca (mandioca) es un tubérculo de origen americano que los pueblos indígenas de El Salvador cultivaban desde antes de la colonización. En El Salvador se consume principalmente frita o hervida, acompañada de chicharrón (cerdo frito crujiente), curtido de repollo y salsa de tomate.",
-      "gas.yuca.p2": "Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierten en una combinación irresistible.",
+      "gas.yuca.p2": "Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierte en una combinación irresistible.",
       "gas.yuca.h2": "Preparación tradicional",
       "gas.yuca.p3": "La yuca se pela, se corta en trozos y se hierve en agua con sal hasta que esté tierna. Luego se fríe en aceite caliente hasta dorar. El chicharrón se prepara friendo trozos de carne de cerdo con grasa en su jugo hasta que queden dorados y crujientes.",
       "gas.yuca.h3": "Variaciones",
@@ -842,7 +857,7 @@
       "map.backBtn": "Volver",
       "map.filters.toggle": "Ocultar filtros",
       "map.filters.all": "Todos",
-      "map.geo.label": "Centrar en mi ubicación",
+      "map.geo.label": "¿Dónde estoy?",
 
       // Agrega esto dentro del objeto "es" en tu i18n.js
       "cal": {
@@ -1614,6 +1629,8 @@
       "quiz.catLeyendas": "Leyendas",
 
       "quiz.startBtn": "Comenzar Quiz",
+      "quiz.backBtn": "Regresar",
+      "quiz.loadingText": "Preparando tu quiz...",
 
       "quiz.questionCounter": "Pregunta {current} de {total}",
       "quiz.scoreLive": "Puntos: {points}",
@@ -1821,6 +1838,7 @@
       "nav.recetario": "Recipes",
       "nav.quiz": "Cultural Quiz",
       "nav.cerrar": "Close",
+      "common.tooltip.closeEsc": "Close (Esc)",
       "nav.principales": "Main",
       "nav.publicaciones": "Posts",
       "nav.juegos": "Interactive Games",
@@ -1850,6 +1868,14 @@
 
       "fact.eyebrow": "Did you know...?",
       "fact.text1": "El Salvador is known as the \"Tom Thumb of the Americas\" because of its small territorial size.",
+      "fact.text2": "The pupusa was declared a Typical Dish and Cultural Heritage of El Salvador in 2005.",
+      "fact.text3": "Joya de Cerén, in La Libertad, is a World Heritage Site: the \"Pompeii of the Americas\".",
+      "fact.text4": "The country has more than twenty volcanoes, both active and inactive.",
+      "fact.text5": "The izote flower, the national flower, is also cooked in traditional dishes.",
+      "fact.text6": "Nahuat is one of the indigenous languages still preserved in some communities.",
+      "fact.text7": "The Tazumal Ruins are one of the most visited Mayan archaeological sites in the country.",
+      "fact.prev": "Previous fact",
+      "fact.next": "Next fact",
 
       "badge.title": "Information for you",
 
@@ -1877,6 +1903,9 @@
       "jue.footnote": "Games from Salvadoran culture — Challenge your skills!",
 
       "jue.modal.close": "Close game",
+      "jue.tooltip.close": "Close (Esc)",
+      "jue.tooltip.pause": "Pause / Resume (P)",
+      "jue.tooltip.fullscreen": "Fullscreen (F)",
       "jue.card.play": "⚡ Play Now",
 
       "jue.pause.tag": "Paused",
@@ -2007,6 +2036,7 @@
       "jue.card2.winnerLabel": "Winner",
       "jue.card3.controlsAccel": "<strong>W</strong> or up arrow: accelerate. <strong>S</strong> or down arrow: brake.",
       "jue.card3.controlsLane": "<strong>A</strong>/<strong>D</strong> or arrows ⬅️➡️: change lanes.",
+      "jue.card3.controlsTapLane": "The bus accelerates on its own. Tap the <strong>left</strong> or <strong>right</strong> side of the screen to change lanes that way.",
       "jue.card3.diff.easy": "🟢 Calm",
       "jue.card3.diff.easyDesc": "Goes slow",
       "jue.card3.diff.hard": "🔴 Rush Hour",
@@ -2065,6 +2095,8 @@
       "jue.card6.titleModal": "Torito Pinto",
       "jue.card6.prepareTag": "Get the Torito Ready",
       "jue.card6.intro": "Run with the torito through the colonial streets. <b>Weave between the crowd to cheer them on</b> and grab <b>whistling rockets and firecrackers</b> to gain energy and reach the Church Atrium.",
+      "jue.card6.controlsTap": "Tap the <b>left</b> or <b>right</b> side of the screen to change lanes. <b>Double-tap</b> to release a burst of sparks.",
+      "jue.card6.controlsKeys": "<b>A</b>/<b>D</b> or arrows ⬅️➡️: change lanes. <b>Space:</b> burst of sparks.",
       "jue.card6.ruleAnimate": "<b>Cheer the crowd:</b> Pass close to people to cheer them up and build combos.",
       "jue.card6.ruleRockets": "<b>Whistlers & Firecrackers:</b> Grab rockets to recharge energy and trigger turbos.",
       "jue.card6.ruleObstacles": "<b>Obstacles:</b> Dodge oxcarts and buckets of water that put out your sparks.",
@@ -2331,7 +2363,7 @@
       "gas.pupusas.p3": "The most traditional pupusas are: cheese (the classic filling), chicharrón (seasoned ground pork), refried beans, and revuelta (a mix of cheese, chicharrón and beans). Modern variations with loroco, jalapeño, seafood and vegetables also exist.",
       "gas.pupusas.p4": "Rice pupusas have a softer texture and are especially popular in the central part of the country. They are always served with curtido (pickled cabbage slaw) and homemade tomato sauce.",
       "gas.pupusas.h3": "How they're made",
-      "gas.pupusas.p5": "Making them takes skill: a portion of masa is taken, formed into a ball, flattened in the palm, filled in the center and sealed at the edges. It is then flattened into a circle and cooked on a comal over medium-high heat for about 3 minutes per side.",
+      "gas.pupusas.p5": "Making them takes skill: a portion of masa is formed into a ball, then a small cavity is opened in the center to hold the filling, which is wrapped and sealed at the edges. It is then flattened between the palms into a disc and cooked on a comal over medium-high heat for about 3 minutes per side.",
 
       "gas.tamales.title": "Tamales",
       "gas.tamales.sub": "Festive Salvadoran tradition",
@@ -2618,7 +2650,7 @@
       "map.backBtn": "Back",
       "map.filters.toggle": "Hide filters",
       "map.filters.all": "All",
-      "map.geo.label": "Center on my location",
+      "map.geo.label": "Where am I?",
 
       // Agrega esto dentro del objeto "en" en tu i18n.js
       "cal": {
@@ -3384,6 +3416,8 @@
         "quiz.catLeyendas": "Legends",
 
         "quiz.startBtn": "Start Quiz",
+        "quiz.backBtn": "Back",
+        "quiz.loadingText": "Preparing your quiz...",
 
         "quiz.questionCounter": "Question {current} of {total}",
         "quiz.scoreLive": "Score: {points}",

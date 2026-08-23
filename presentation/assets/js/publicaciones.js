@@ -41,6 +41,17 @@ let currentUserId = null;
 let editingPublicationId = null;
 let lastPublications = [];
 
+// ── Escapa texto/atributos antes de insertarlos vía innerHTML (previene XSS) ──
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+}
+
 // ── Función de traducción (i18n) ──
 function t(key, replacements = {}) {
   if (typeof window.SRi18n === 'undefined') {
@@ -120,25 +131,25 @@ function renderPublications(publications) {
 
   emptyState.style.display = 'none';
   grid.innerHTML = publications.map(pub => `
-    <article class="publication-card" data-id="${pub.id}">
+    <article class="publication-card" data-id="${escapeHtml(pub.id)}">
       <div class="publication-image-container">
-        <img src="${pub.image}" alt="${pub.title}" loading="lazy">
+        <img src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" loading="lazy">
       </div>
       <div class="publication-content">
-        <h3 class="publication-title">${pub.title}</h3>
-        <p class="publication-description">${pub.description}</p>
+        <h3 class="publication-title">${escapeHtml(pub.title)}</h3>
+        <p class="publication-description">${escapeHtml(pub.description)}</p>
         <div class="publication-location">
           <div class="publication-location-icon">📍</div>
-          <div class="publication-location-text">${pub.location}</div>
-          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?pub=${pub.id}&lat=${pub.lat}&lng=${pub.lng}" title="${t('pub.viewOnMap')}">🗺️</a>` : ''}
+          <div class="publication-location-text">${escapeHtml(pub.location)}</div>
+          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?pub=${encodeURIComponent(pub.id)}&lat=${encodeURIComponent(pub.lat)}&lng=${encodeURIComponent(pub.lng)}" title="${escapeHtml(t('pub.viewOnMap'))}">🗺️</a>` : ''}
         </div>
         <div class="publication-author">
-          <span>${pub.author.name}</span>
+          <span>${escapeHtml(pub.author.name)}</span>
         </div>
         ${(pub.canEdit || pub.canDelete) ? `
           <div class="publication-owner-actions">
-            ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${pub.id}">${t('pub.editBtn')}</button>` : ''}
-            ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${pub.id}">${t('pub.deleteBtn')}</button>` : ''}
+            ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.editBtn'))}</button>` : ''}
+            ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.deleteBtn'))}</button>` : ''}
           </div>
         ` : ''}
       </div>

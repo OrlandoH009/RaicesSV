@@ -38,7 +38,7 @@
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
 
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
       <span></span><span></span><span></span>
     </button>
   </nav>
@@ -141,7 +141,15 @@
     <section class="fact-wrap">
       <div class="fact-box reveal">
         <p class="fact-box__eyebrow" data-i18n="fact.eyebrow">¿Sabías que...?</p>
-        <p class="fact-box__text" id="factText" data-i18n="fact.text1">El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.</p>
+        <div class="fact-box__row">
+          <button type="button" class="fact-nav fact-nav--prev" id="factPrev" data-i18n-attr="aria-label:fact.prev" aria-label="Dato anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <p class="fact-box__text" id="factText" data-i18n="fact.text1">El Salvador es conocido como "Pulgarcito de América" por su tamaño territorial.</p>
+          <button type="button" class="fact-nav fact-nav--next" id="factNext" data-i18n-attr="aria-label:fact.next" aria-label="Siguiente dato">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
         <div class="fact-dots" id="factDots"></div>
       </div>
     </section>

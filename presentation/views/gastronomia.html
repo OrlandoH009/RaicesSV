@@ -80,7 +80,7 @@
             }
           });
         }
-        const factTimer = setInterval(rotateFact, 3800);
+        const factTimer = setInterval(rotateFact, 6800);
 
         const cta = document.getElementById('welcomeCta');
         const emoji = document.getElementById('welcomeEmoji');
@@ -172,7 +172,7 @@
     <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
       <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
     </button>
-    <button class="navbar__burger" id="burger" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
   </nav>
   <div class="nav-overlay" id="navOverlay"></div>
   <nav class="nav-drawer" id="navDrawer">
@@ -248,7 +248,7 @@
           <p data-i18n="gas.pupusas.p3">Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.</p>
           <p data-i18n="gas.pupusas.p4">La pupusa de arroz tiene una textura más suave y es especialmente popular en la zona central del país. Se sirven siempre acompañadas de curtido (repollo encurtido) y salsa de tomate casera.</p>
           <h3 data-i18n="gas.pupusas.h3">Cómo se hacen</h3>
-          <p data-i18n="gas.pupusas.p5">La elaboración requiere maestría: se toma una porción de masa, se forma una bola, se aplana en la palma, se coloca el relleno en el centro y se cierra sellando los bordes. Luego se aplana en forma circular y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.</p>
+          <p data-i18n="gas.pupusas.p5">La elaboración requiere maestría: se toma una porción de masa y se forma una bola; con los dedos se abre una cavidad en el centro para colocar el relleno, y se envuelve sellando bien los bordes. Después se aplana con las palmas hasta darle forma de disco, y se cocina en un comal a fuego medio-alto durante aproximadamente 3 minutos por lado.</p>
           <div class="recipe-cta">
             <a class="btn-ver-receta" href="recetas.html?receta=pupusas&from=gastronomia.html">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"></path><path d="m18 11-6 6-6-6"></path><path d="M5 21h14"></path></svg>
@@ -340,7 +340,7 @@
           </div>
           <h3 data-i18n="gas.yuca.h1">La yuca en la cultura salvadoreña</h3>
           <p data-i18n="gas.yuca.p1">La yuca (mandioca) es un tubérculo de origen americano que los pueblos indígenas de El Salvador cultivaban desde antes de la colonización. En El Salvador se consume principalmente frita o hervida, acompañada de chicharrón (cerdo frito crujiente), curtido de repollo y salsa de tomate.</p>
-          <p data-i18n="gas.yuca.p2">Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierten en una combinación irresistible.</p>
+          <p data-i18n="gas.yuca.p2">Es uno de los antojos más comunes en las ferias, mercados y puestos callejeros del país. Su textura cremosa por dentro y crujiente por fuera, combinada con el sabor del chicharrón, la convierte en una combinación irresistible.</p>
           <h3 data-i18n="gas.yuca.h2">Preparación tradicional</h3>
           <p data-i18n="gas.yuca.p3">La yuca se pela, se corta en trozos y se hierve en agua con sal hasta que esté tierna. Luego se fríe en aceite caliente hasta dorar. El chicharrón se prepara friendo trozos de carne de cerdo con grasa en su jugo hasta que queden dorados y crujientes.</p>
           <h3 data-i18n="gas.yuca.h3">Variaciones</h3>
@@ -711,7 +711,7 @@
           <div class="info-chips">
             <span class="info-chip" data-i18n="gas.torrejas.chip1">Pan bañado en huevo</span>
             <span class="info-chip" data-i18n="gas.torrejas.chip2">Miel de panela</span>
-            <span class="info-chip" data-i18n="gas.torrejas.chip3">Semana  Santa</span>
+            <span class="info-chip" data-i18n="gas.torrejas.chip3">Semana Santa</span>
             <span class="info-chip" data-i18n="gas.torrejas.chip4">Postre familiar</span>
           </div>
           <h3 data-i18n="gas.torrejas.h1">Un dulce de tradición religiosa</h3>

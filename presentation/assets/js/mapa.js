@@ -446,12 +446,17 @@ const SLUG_TO_LANDMARK_ID = {
 /* ══════════════════════════════════════════════════════════
    INICIALIZACIÓN DEL MAPA CON LEAFLET (OPTIMIZADO)
    ══════════════════════════════════════════════════════════ */
+// En móvil/tablet reducimos animaciones y buffer de tiles para que el
+// primer render sea más rápido y no sature dispositivos de gama baja.
+const esDispositivoMovil = window.matchMedia('(max-width: 900px)').matches || ('ontouchstart' in window);
+
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
   zoom: 10.45,
   zoomControl: false,
   attributionControl: true,
-  fadeAnimation: true,
+  preferCanvas: true,
+  fadeAnimation: !esDispositivoMovil,
   zoomAnimation: true,
   markerZoomAnimation: true,
   inertia: true,
@@ -466,7 +471,7 @@ const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth
   maxZoom: 16.5,
   updateWhenZooming: false,
   updateWhenIdle: true,
-  keepBuffer: 4,
+  keepBuffer: esDispositivoMovil ? 2 : 4,
   crossOrigin: true,
   errorTileUrl: '',
   opacity: 1,
@@ -517,6 +522,50 @@ function invalidateMapSize() {
     });
   }
 }
+
+/* ── Vigilancia robusta del tamaño del contenedor ──
+   El bug de "mapa en blanco" en móvil/tablet ocurre porque Leaflet solo
+   se entera de que su contenedor cambió de tamaño si se lo decimos
+   explícitamente. Eventos como mostrar/ocultar la barra de direcciones,
+   rotar el dispositivo, volver de otra pestaña o restaurar la página
+   desde el caché de retroceso (bfcache) cambian el tamaño real sin
+   disparar 'resize' de forma confiable en todos los navegadores. Un
+   ResizeObserver sobre el propio contenedor cubre todos esos casos de
+   una sola vez. */
+(function vigilarTamanoMapa() {
+  const contenedor = document.getElementById('mapa-leaflet');
+  if (!contenedor) return;
+
+  if ('ResizeObserver' in window) {
+    let pendiente = false;
+    const ro = new ResizeObserver(() => {
+      if (pendiente) return;
+      pendiente = true;
+      requestAnimationFrame(() => {
+        mapa.invalidateSize({ animate: false });
+        pendiente = false;
+      });
+    });
+    ro.observe(contenedor);
+  }
+
+  // Vuelta desde otra pestaña o desde el caché de retroceso (iOS Safari
+  // suele dejar el mapa congelado en blanco tras este tipo de regreso).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') invalidateMapSize();
+  });
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) invalidateMapSize();
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(invalidateMapSize, 250);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      setTimeout(invalidateMapSize, 100);
+    });
+  }
+})();
 
 /* ── Crear ícono personalizado con emoji ── */
 function crearIcono(emoji, color) {
@@ -798,7 +847,7 @@ function generarHtmlTooltip(lm, lang) {
      </div>`;
 }
 
-LANDMARKS.forEach(lm => {
+function crearMarker(lm) {
   const icono = crearIcono(lm.emoji, lm.color);
   const marker = L.marker(lm.coords, { icon: icono });
 
@@ -829,7 +878,27 @@ LANDMARKS.forEach(lm => {
   }
 
   markers.push(marker);
-});
+}
+
+/* ── Creación de marcadores por lotes ──
+   Crear los ~70 marcadores (con su ícono, tooltip y listeners) de golpe
+   bloquea el hilo principal justo cuando el mapa recién se está pintando,
+   lo que en tablets/celulares de gama baja se percibe como una pantalla
+   en blanco/congelada por un instante. Repartir el trabajo en lotes
+   pequeños entre frames deja que el primer paint (tiles + UI) ocurra
+   antes, y el resultado final es idéntico. */
+(function crearMarkersEnLotes(lista) {
+  const LOTE = 12;
+  let i = 0;
+  function procesarLote() {
+    const fin = Math.min(i + LOTE, lista.length);
+    for (; i < fin; i++) crearMarker(lista[i]);
+    if (i < lista.length) {
+      (window.requestIdleCallback || window.requestAnimationFrame)(procesarLote);
+    }
+  }
+  procesarLote();
+})(LANDMARKS);
 
 let categoriaActiva = 'todas';
 
