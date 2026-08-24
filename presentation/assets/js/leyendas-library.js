@@ -796,6 +796,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Deep-link (?leyenda=id): llega desde una búsqueda en Categorías y debe
+  // abrir directamente el modal de esa leyenda.
+  const leyendaParam = new URLSearchParams(window.location.search).get("leyenda");
+  if (leyendaParam) {
+    const idx = LEYENDAS_DATA.findIndex(l => l.id === leyendaParam);
+    if (idx !== -1) setTimeout(() => openLeyendaModal(idx), 250);
+  }
+
   const overlay = document.getElementById("leyendaModalOverlay");
   const closeBtn = document.getElementById("leyendaCloseBtn");
   const narrateBtn = document.getElementById("leyendaNarrateBtn");

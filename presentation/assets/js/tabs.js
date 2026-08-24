@@ -104,4 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.info-panel.active .reveal').forEach(el => {
     setTimeout(() => el.classList.add('visible'), 200);
   });
+
+  // Deep-link (?tab=id): llega desde una búsqueda en Categorías y debe
+  // abrir directamente la pestaña correspondiente y llevar hasta ella.
+  const tabParam = new URLSearchParams(window.location.search).get('tab');
+  if (tabParam) {
+    const targetBtn = list?.querySelector(`.tab-btn[data-tab="${tabParam}"]`);
+    if (targetBtn) setTimeout(() => targetBtn.click(), 250);
+  }
 });

@@ -166,69 +166,86 @@
     }
 
     /* ── Grid de publicaciones ── */
+    /* ── Cuadrícula estilo Instagram: recuadros apretados ── */
     .publications-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 4px;
       position: relative;
       z-index: 2;
     }
 
-    /* ── Tarjeta de publicación ── */
+    /* ── Tarjeta de publicación (recuadro seleccionable) ── */
     .publication-card {
       background: rgba(29, 25, 25, 0.6);
-      border: 1px solid rgba(190, 142, 86, 0.3);
-      border-radius: var(--r-md);
+      border: 1px solid rgba(190, 142, 86, 0.25);
+      border-radius: var(--r-sm);
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
       position: relative;
-      backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
-      height: 100%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
     [data-theme="light"] .publication-card {
       background: #ffffff;
       border-color: rgba(17,48,104,.14);
-      box-shadow: 0 4px 20px rgba(17,48,104,.1);
+      box-shadow: 0 4px 14px rgba(17,48,104,.1);
     }
 
     .publication-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-3px);
       border-color: var(--gold);
-      box-shadow: 0 12px 40px rgba(190, 142, 86, 0.25);
-      background: rgba(29, 25, 25, 0.8);
-    }
-    [data-theme="light"] .publication-card:hover {
-      background: #fffaf0;
-      box-shadow: 0 14px 40px rgba(190,142,86,.35), 0 0 0 1px rgba(190,142,86,.3);
+      box-shadow: 0 10px 26px rgba(190, 142, 86, 0.25);
     }
 
-    .publication-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* ── Encabezado tipo Instagram: foto de perfil + nombre ── */
+    .publication-card__header {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .6rem .7rem;
+      position: relative;
+      z-index: 2;
+    }
+    .publication-card__avatar {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: .85rem;
+      box-shadow: 0 0 0 2px rgba(190,142,86,.5);
+    }
+    .publication-card__avatar img {
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, rgba(190, 142, 86, 0.1) 0%, rgba(17, 48, 104, 0.05) 100%);
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      z-index: 1;
-      pointer-events: none;
+      object-fit: cover;
     }
-
-    .publication-card:hover::before {
-      opacity: 1;
+    .publication-card__username {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: .85rem;
+      color: var(--white);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+    [data-theme="light"] .publication-card__username { color: var(--navy); }
 
-    /* ── Contenedor de imagen ── */
+    /* ── Contenedor de imagen: proporción 4:3 ── */
     .publication-image-container {
       position: relative;
       width: 100%;
-      padding-top: 66.66%;
+      padding-top: 75%; /* 4:3 */
       overflow: hidden;
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
     }
@@ -244,20 +261,21 @@
     }
 
     .publication-card:hover .publication-image-container img {
-      transform: scale(1.08);
+      transform: scale(1.06);
     }
 
     /* ── Overlay en imagen ── */
     .publication-image-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, transparent 40%, rgba(17, 48, 104, 0.8));
+      background: linear-gradient(to bottom, transparent 55%, rgba(17, 48, 104, 0.75));
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.25s ease;
       z-index: 2;
       display: flex;
       align-items: flex-end;
-      padding: 1.5rem;
+      padding: .9rem;
+      pointer-events: none;
     }
 
     .publication-card:hover .publication-image-overlay {
@@ -265,89 +283,14 @@
     }
 
     .publication-image-overlay-text {
-      font-size: 0.9rem;
-      color: var(--gold);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* ── Contenido de la tarjeta ── */
-    .publication-content {
-      padding: 1.5rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 2;
-    }
-
-    .publication-title {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      font-weight: 700;
+      font-size: 0.8rem;
       color: var(--white);
-      margin-bottom: 0.8rem;
-      line-height: 1.3;
-    }
-    [data-theme="light"] .publication-title { color: var(--navy); }
-
-    .publication-description {
-      font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.75);
-      margin-bottom: 1.2rem;
-      flex: 1;
-      line-height: 1.6;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
+      font-weight: 700;
       overflow: hidden;
-    }
-    [data-theme="light"] .publication-description { color: rgba(36,33,29,.78); }
-
-    /* ── Información de ubicación ── */
-    .publication-location {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(190, 142, 86, 0.2);
-    }
-
-    .publication-location-icon {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(190, 142, 86, 0.2);
-      border-radius: 50%;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-
-    .publication-location-text {
-      font-size: 0.9rem;
-      color: var(--gold);
-      font-weight: 600;
-    }
-
-    .publication-location-map-link {
-      margin-left: auto;
-      width: 28px;
-      height: 28px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(190, 142, 86, 0.15);
-      border-radius: 50%;
-      font-size: 0.95rem;
-      text-decoration: none;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .publication-location-map-link:hover {
-      background: rgba(190, 142, 86, 0.35);
-      transform: scale(1.08);
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     /* ── Botón de acción ── */
@@ -380,6 +323,168 @@
 
     .publication-btn:active {
       transform: translateY(0);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       MODAL DE DETALLE DE UNA PUBLICACIÓN
+       ══════════════════════════════════════════════════════════ */
+    .pub-detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .pub-detail-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .pub-detail-modal {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 480px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: var(--card-alt-bg, #1d1919);
+      border-radius: var(--r-md);
+      box-shadow: 0 24px 60px rgba(0,0,0,.55);
+      transform: translateY(24px) scale(.96);
+      opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .pub-detail-overlay.is-open .pub-detail-modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    [data-theme="light"] .pub-detail-modal { background: #ffffff; }
+
+    .pub-detail-modal__close {
+      position: absolute;
+      top: .7rem; right: .7rem;
+      z-index: 3;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(10,10,15,.55);
+      color: #fff;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pub-detail-modal__close:hover { background: rgba(10,10,15,.8); }
+
+    .pub-detail-modal__media {
+      position: relative;
+      width: 100%;
+      padding-top: 75%; /* 4:3, igual que en la cuadrícula */
+      background: var(--navy-dark);
+      flex-shrink: 0;
+    }
+    .pub-detail-modal__media img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .pub-detail-modal__body {
+      padding: 1.1rem 1.3rem 1.4rem;
+      color: var(--white);
+    }
+    [data-theme="light"] .pub-detail-modal__body { color: var(--navy); }
+
+    .pub-detail-modal__author {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: .9rem;
+    }
+    .pub-detail-modal__avatar {
+      width: 38px; height: 38px;
+      flex: 0 0 38px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(190,142,86,.5);
+    }
+    .pub-detail-modal__avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pub-detail-modal__author-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .pub-detail-modal__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: .5rem;
+      line-height: 1.3;
+    }
+    .pub-detail-modal__description {
+      font-size: .92rem;
+      line-height: 1.6;
+      opacity: .85;
+      margin-bottom: 1rem;
+      white-space: pre-line;
+    }
+
+    .pub-detail-modal__location {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: .8rem;
+    }
+    .pub-detail-modal__map-link {
+      margin-left: auto;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      flex-shrink: 0;
+    }
+
+    .pub-detail-modal__map {
+      width: 100%;
+      height: 180px;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(190,142,86,.3);
+    }
+
+    .pub-detail-modal__actions {
+      display: flex;
+      gap: .7rem;
+    }
+    .pub-detail-modal__actions:empty { display: none; }
+
+    @media (max-width: 480px) {
+      .pub-detail-overlay { padding: 0; align-items: flex-end; }
+      .pub-detail-modal { max-width: none; max-height: 90vh; border-radius: var(--r-md) var(--r-md) 0 0; }
     }
 
     /* ── Estado vacío ── */
@@ -1022,8 +1127,8 @@
       }
 
       .publications-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 3px;
       }
 
       .create-publication-section {
@@ -1044,17 +1149,15 @@
         font-size: 1.5rem;
       }
 
+      /* Estilo Instagram también en celular: 2 recuadros por fila en vez
+         de apilar una tarjeta grande por fila. */
       .publications-grid {
-        grid-template-columns: 1fr;
-        gap: 1.2rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3px;
       }
 
-      .publication-title {
-        font-size: 1.2rem;
-      }
-
-      .publication-description {
-        font-size: 0.9rem;
+      .publication-card__username {
+        font-size: .78rem;
       }
 
       .create-publication-section {

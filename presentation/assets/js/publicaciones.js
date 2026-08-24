@@ -130,40 +130,123 @@ function renderPublications(publications) {
   }
 
   emptyState.style.display = 'none';
-  grid.innerHTML = publications.map(pub => `
+  grid.innerHTML = publications.map(pub => {
+    const initial = escapeHtml((pub.author?.name || '?').trim().charAt(0).toUpperCase());
+    const avatarHtml = pub.author?.avatarUrl
+      ? `<img src="${escapeHtml(pub.author.avatarUrl)}" alt="">`
+      : `<span>${initial}</span>`;
+    return `
     <article class="publication-card" data-id="${escapeHtml(pub.id)}">
+      <div class="publication-card__header">
+        <div class="publication-card__avatar">${avatarHtml}</div>
+        <span class="publication-card__username">${escapeHtml(pub.author?.name || '')}</span>
+      </div>
       <div class="publication-image-container">
         <img src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" loading="lazy">
-      </div>
-      <div class="publication-content">
-        <h3 class="publication-title">${escapeHtml(pub.title)}</h3>
-        <p class="publication-description">${escapeHtml(pub.description)}</p>
-        <div class="publication-location">
-          <div class="publication-location-icon">📍</div>
-          <div class="publication-location-text">${escapeHtml(pub.location)}</div>
-          ${(pub.lat && pub.lng) ? `<a class="publication-location-map-link" href="mapa.html?pub=${encodeURIComponent(pub.id)}&lat=${encodeURIComponent(pub.lat)}&lng=${encodeURIComponent(pub.lng)}" title="${escapeHtml(t('pub.viewOnMap'))}">🗺️</a>` : ''}
+        <div class="publication-image-overlay">
+          <span class="publication-image-overlay-text">${escapeHtml(pub.title)}</span>
         </div>
-        <div class="publication-author">
-          <span>${escapeHtml(pub.author.name)}</span>
-        </div>
-        ${(pub.canEdit || pub.canDelete) ? `
-          <div class="publication-owner-actions">
-            ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.editBtn'))}</button>` : ''}
-            ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.deleteBtn'))}</button>` : ''}
-          </div>
-        ` : ''}
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
 
-  document.querySelectorAll('.publication-edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => startEditPublication(btn.dataset.id));
-  });
-
-  document.querySelectorAll('.publication-delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => confirmDeletePublication(btn.dataset.id));
+  document.querySelectorAll('.publication-card').forEach(card => {
+    card.addEventListener('click', () => openPublicationDetail(card.dataset.id));
   });
 }
+
+// ════════════════════════════════════
+// MODAL DE DETALLE (imagen, autor, descripción y mini-mapa)
+// ════════════════════════════════════
+let pubDetailMap = null;
+let pubDetailMarker = null;
+
+function openPublicationDetail(id) {
+  const pub = lastPublications.find(p => String(p.id) === String(id));
+  if (!pub) return;
+
+  const overlay = document.getElementById('pubDetailOverlay');
+  const modal = document.getElementById('pubDetailModal');
+
+  document.getElementById('pubDetailImage').src = pub.image;
+  document.getElementById('pubDetailImage').alt = pub.title;
+  document.getElementById('pubDetailTitle').textContent = pub.title;
+  document.getElementById('pubDetailDescription').textContent = pub.description;
+  document.getElementById('pubDetailLocationText').textContent = pub.location;
+  document.getElementById('pubDetailAuthorName').textContent = pub.author?.name || '';
+
+  const avatarImg = document.getElementById('pubDetailAvatar');
+  const avatarInitial = document.getElementById('pubDetailAvatarInitial');
+  if (pub.author?.avatarUrl) {
+    avatarImg.src = pub.author.avatarUrl;
+    avatarImg.style.display = 'block';
+    avatarInitial.style.display = 'none';
+  } else {
+    avatarImg.style.display = 'none';
+    avatarInitial.style.display = 'block';
+    avatarInitial.textContent = (pub.author?.name || '?').trim().charAt(0).toUpperCase();
+  }
+
+  const actionsWrap = document.getElementById('pubDetailActions');
+  actionsWrap.innerHTML = `
+    ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.editBtn'))}</button>` : ''}
+    ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.deleteBtn'))}</button>` : ''}
+  `;
+  actionsWrap.querySelector('.publication-edit-btn')?.addEventListener('click', () => {
+    closePublicationDetail();
+    startEditPublication(pub.id);
+  });
+  actionsWrap.querySelector('.publication-delete-btn')?.addEventListener('click', () => {
+    closePublicationDetail();
+    confirmDeletePublication(pub.id);
+  });
+
+  const mapLink = document.getElementById('pubDetailMapLink');
+  if (pub.lat && pub.lng) {
+    mapLink.href = `mapa.html?pub=${encodeURIComponent(pub.id)}&lat=${encodeURIComponent(pub.lat)}&lng=${encodeURIComponent(pub.lng)}`;
+    mapLink.style.display = 'inline';
+  } else {
+    mapLink.style.display = 'none';
+  }
+
+  const mapEl = document.getElementById('pubDetailMap');
+  if (pub.lat && pub.lng && window.L) {
+    mapEl.style.display = 'block';
+    const lat = Number(pub.lat), lng = Number(pub.lng);
+    setTimeout(() => {
+      if (!pubDetailMap) {
+        pubDetailMap = L.map(mapEl, { zoomControl: false, attributionControl: false, scrollWheelZoom: false }).setView([lat, lng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(pubDetailMap);
+        pubDetailMarker = L.marker([lat, lng]).addTo(pubDetailMap);
+      } else {
+        pubDetailMap.setView([lat, lng], 14);
+        pubDetailMarker.setLatLng([lat, lng]);
+      }
+      pubDetailMap.invalidateSize();
+    }, 60);
+  } else {
+    mapEl.style.display = 'none';
+  }
+
+  overlay.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePublicationDetail() {
+  document.getElementById('pubDetailOverlay')?.classList.remove('is-open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('pubDetailClose')?.addEventListener('click', closePublicationDetail);
+document.getElementById('pubDetailOverlay')?.addEventListener('click', (e) => {
+  if (e.target.id === 'pubDetailOverlay') closePublicationDetail();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('pubDetailOverlay')?.classList.contains('is-open')) {
+    closePublicationDetail();
+  }
+});
 
 // ════════════════════════════════════
 // MOSTRAR MODAL DE INVITACIÓN (GSAP)

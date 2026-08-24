@@ -147,4 +147,19 @@
 
   // ---------- Init ----------
   buildTimeline('all');
+
+  // Deep-link (?item=id): llega desde una búsqueda en Categorías y debe
+  // abrir directamente el evento correspondiente de la línea de tiempo.
+  const itemParam = new URLSearchParams(window.location.search).get('item');
+  if (itemParam) {
+    const eventos = typeof getHistoriaEventos === 'function' ? getHistoriaEventos() : HISTORIA_EVENTOS_ES;
+    const ev = eventos.find(e => e.id === itemParam);
+    if (ev) {
+      setTimeout(() => {
+        openModal(ev);
+        const node = listEl.querySelector(`.tl-node[data-id="${itemParam}"]`);
+        node?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 250);
+    }
+  }
 })();

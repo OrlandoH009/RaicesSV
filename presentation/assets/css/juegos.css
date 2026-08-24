@@ -323,7 +323,14 @@ canvas {
   border-radius: var(--r-sm);
   touch-action: none;
   cursor: pointer;
-  
+  /* Evita el destello/resaltado azul por defecto de los navegadores
+     móviles al tocar (p. ej. el Torito, que se controla tocando a los
+     lados del canvas para cambiar de carril). */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+
   /* Mantiene los pixeles súper nítidos sin importar el estiramiento */
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-optimize-contrast;
@@ -347,6 +354,7 @@ canvas {
 }
 
 .icon-btn {
+  position: relative;
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -363,6 +371,11 @@ canvas {
 
 .icon-btn:hover { background: var(--navy); transform: scale(1.08); }
 .icon-btn svg { width: 18px; height: 18px; }
+
+/* Insignia de volumen dentro del botón de pausa: solo tiene sentido en el
+   popover compacto de celular (ver bloque @media max-width:768px); en
+   escritorio el volumen ya se ve siempre junto a los controles. */
+.pause-volume-badge { display: none; }
 
 .volume-group {
   display: flex;
@@ -747,9 +760,15 @@ canvas {
     max-width: 95vw;
   }
 
+  /* Modal más grande en celular: usa casi todo el ancho disponible
+     en lugar del 85vw pensado para escritorio/tablet. */
+  .game-modal__content {
+    width: 98vw;
+  }
+
  canvas {
-    height: 50vh; /* Ajuste cómodo para dispositivos móviles */
-    min-height: 380px;
+    height: 64vh; /* Más alto en celular: aprovecha el formato vertical de la pantalla */
+    min-height: 440px;
   }
 
   .game-tabs { padding: 0.3rem; }
@@ -757,26 +776,62 @@ canvas {
   .game-tab-btn .tab-text { font-size: 0.85rem; }
   .game-tab-btn .tab-icon { font-size: 1.1rem; }
 
-  /* El botón de cerrar vivía flotando arriba del modal (top:-3rem). En
-     celular, con el modal ya ocupando casi todo el alto disponible, ese
-     botón quedaba fuera de la pantalla y no se podía tocar para salir.
-     Lo metemos dentro del propio contenido, arriba a la derecha. */
-  .game-modal__close {
-    position: sticky;
-    top: .5rem;
-    right: .5rem;
-    float: right;
-    margin: .5rem .5rem 0 0;
-    z-index: 30;
-    background: rgba(11, 26, 51, 0.55);
+  /* Interfaz general del juego más compacta en celular, y menos padding
+     alrededor del canvas para que el juego en sí ocupe más ancho de
+     pantalla en relación al modal. */
+  .game-panel { padding: .8rem .6rem 1rem; }
+  .game-panel__head { margin-bottom: .55rem; gap: .5rem; }
+  .game-panel__tag { font-size: .6rem; padding: .22rem .55rem; margin-bottom: .25rem; }
+  .game-panel__head h2 { font-size: clamp(1.05rem, 4.2vw, 1.3rem); }
+
+  .hud--overlay { top: .5rem; left: .5rem; gap: .35rem; max-width: 58%; }
+  .hud--overlay .hud-item { min-width: 62px; padding: .28rem .5rem; font-size: .66rem; }
+  .hud--overlay .hud-item b { font-size: .92rem; }
+
+  .canvas-controls { top: .5rem; right: .5rem; gap: .4rem; }
+  .icon-btn { width: 32px; height: 32px; font-size: .85rem; }
+  .icon-btn svg { width: 15px; height: 15px; }
+
+  /* El volumen se "guarda" dentro del botón de pausa: en vez de la barra
+     siempre visible (que ocupaba mucho ancho junto a los demás controles),
+     queda oculta detrás de una insignia de bocina sobre el botón de pausa
+     y se despliega como una pequeña ventana emergente al tocarla
+     (ver juegos-mobile-controls.js). */
+  .pause-volume-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
-    width: 2.4rem;
-    height: 2.4rem;
+    background: var(--gold-hover);
+    border: 1.5px solid var(--white);
+    font-size: .55rem;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
   }
+
+  .volume-group.volume-popover {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    z-index: 25;
+    width: auto;
+    justify-content: flex-start;
+    opacity: 0;
+    transform: translateY(-6px) scale(.92);
+    transform-origin: top left;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .volume-group.volume-popover.is-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .volume-group.volume-popover input[type="range"] { width: 90px; }
 }
 
 /* Además del ancho, en celulares y tablets con poca ALTURA (apaisados,
@@ -792,13 +847,11 @@ canvas {
 }
 
 @media (max-width: 600px) {
-  .game-panel { padding: 1.2rem 1rem 1.5rem; }
-  .hud--overlay { max-width: 92%; gap: .35rem; }
-  .hud--overlay .hud-item { min-width: 60px; padding: .3rem .5rem; font-size: .68rem; }
-  .hud--overlay .hud-item b { font-size: .95rem; }
-  .icon-btn { width: 32px; height: 32px; }
-  .volume-group { width: 100%; justify-content: flex-end; }
-  .volume-group input[type="range"] { width: 100px; }
+  .game-panel { padding: .7rem .5rem .9rem; }
+  .hud--overlay { max-width: 62%; gap: .3rem; }
+  .hud--overlay .hud-item { min-width: 56px; padding: .26rem .45rem; font-size: .64rem; }
+  .hud--overlay .hud-item b { font-size: .88rem; }
+  .icon-btn { width: 30px; height: 30px; }
   
   .game-tabs { flex-wrap: wrap; }
   .game-tab-btn { flex-basis: 48%; padding: 0.7rem 0.8rem; font-size: 0.8rem; }
@@ -915,7 +968,9 @@ canvas {
 .game-modal {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  /* Por encima del widget del chatbot flotante (z-index 99999), que si no
+     se queda tapando o robando toques al juego abierto. */
+  z-index: 100000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -959,16 +1014,33 @@ canvas {
 }
 
 .game-modal__close {
-  position: absolute;
-  top: -3rem;
-  right: 0;
-  background: transparent;
+  /* Antes vivía en top:-3rem, flotando arriba del contenido: en cualquier
+     ventana sin margen libre por encima del modal (viewport bajo o modal
+     alto, no solo en celular) quedaba fuera de la pantalla y era
+     imposible de tocar/clickear. Ahora va sticky dentro del propio
+     contenido, así siempre es visible y alcanzable sin importar el alto
+     de pantalla, en escritorio y en móvil por igual. */
+  position: sticky;
+  top: .6rem;
+  right: .6rem;
+  float: right;
+  margin: .6rem .6rem 0 0;
+  z-index: 30;
+  background: rgba(11, 26, 51, 0.55);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   color: var(--white);
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, background 0.2s;
 }
+
+.game-modal__close:hover { background: rgba(11, 26, 51, 0.8); }
 
 .game-modal__close:hover {
   transform: scale(1.15) rotate(90deg);

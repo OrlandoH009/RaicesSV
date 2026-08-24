@@ -220,7 +220,8 @@ if (window.visualViewport) {
   const world = engine.world;
 
   const paddleY = canvas.height - 60;
-  const paddle = Bodies.rectangle(canvas.width/2, paddleY, 150, 22, { isStatic:true, label:'comal' });
+  const COMAL_HALF_WIDTH = 55; // ancho visual/físico del comal (antes 75, radio de la elipse dibujada)
+  const paddle = Bodies.rectangle(canvas.width/2, paddleY, COMAL_HALF_WIDTH*2, 18, { isStatic:true, label:'comal' });
   World.add(world, paddle);
 
   let mouseX = canvas.width/2;
@@ -236,8 +237,8 @@ if (window.visualViewport) {
 
   const GOOD = [
     {emoji:'🫓', pts:10},
-    {emoji:'🧀', pts:15},
-    {emoji:'🌽', pts:8}
+    {emoji:'🧀', pts:11},
+    {emoji:'🌽', pts:9}
   ];
   const BAD = [
     {emoji:'🩴', pts:-1},
@@ -389,7 +390,7 @@ if (window.visualViewport) {
     const set = isBad ? BAD : GOOD;
     const item = set[Math.floor(Math.random()*set.length)];
     const x = 40 + Math.random()*(canvas.width-80);
-    const body = Bodies.circle(x, -20, 24, {
+    const body = Bodies.circle(x, -20, 18, {
       restitution:0.1, friction:0.6, frictionAir: 0.01, label: isBad ? 'bad' : 'good'
     });
     body.foodEmoji = item.emoji;
@@ -419,7 +420,17 @@ if (window.visualViewport) {
   function step(timestamp){
     if(!running || !isGameVisible) return;
     if(lastTime === null) lastTime = timestamp;
+    // dt para la física: recortado a 100ms para que un frame lento no haga
+    // "saltar" a los objetos ni desestabilice la simulación.
     const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    // dtReloj: el tiempo real transcurrido, sin ese recorte (solo protegido
+    // contra saltos absurdos si la pestaña estuvo en segundo plano). Si el
+    // reloj usara el mismo dt recortado que la física, cada frame lento
+    // "perdería" tiempo real sin descontarlo del cronómetro, y la ronda
+    // terminaría durando más de los segundos configurados. Con esto el
+    // cronómetro siempre cumple el 100% del tiempo predispuesto, ni más
+    // ni menos, sin importar caídas de framerate.
+    const dtReloj = Math.min(Math.max(timestamp - lastTime, 0), 2000);
     lastTime = timestamp;
 
     const correction = dt / lastDelta;
@@ -446,14 +457,14 @@ if (window.visualViewport) {
       spawn();
     }
 
-    clockAccum += dt;
+    clockAccum += dtReloj;
     while(clockAccum >= 1000 && timeLeft > 0){
       clockAccum -= 1000;
       timeLeft -= 1;
     }
     document.getElementById('p-time').textContent = Math.max(0, timeLeft);
 
-    Body.setPosition(paddle, { x: Math.max(75, Math.min(canvas.width-75, mouseX)), y: canvas.height-60 });
+    Body.setPosition(paddle, { x: Math.max(COMAL_HALF_WIDTH, Math.min(canvas.width-COMAL_HALF_WIDTH, mouseX)), y: canvas.height-60 });
     updateHud();
 
     if(lives <= 0 || timeLeft <= 0){
@@ -467,19 +478,50 @@ if (window.visualViewport) {
     ctx.fillRect(0, canvas.height-20, canvas.width, 20);
     for(const b of world.bodies){
       if(b.label==='comal'){
-        ctx.save();
-        ctx.translate(b.position.x, b.position.y);
-        ctx.fillStyle = '#3a3226';
-        ctx.beginPath();
-        ctx.ellipse(0,0,78,11,0,0,Math.PI*2);
-        ctx.fill();
-        ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();
-        ctx.restore();
+        drawComal(b.position.x, b.position.y);
       } else {
-        drawEmoji(b.foodEmoji, b.position.x, b.position.y, 34, b.angle);
+        drawEmoji(b.foodEmoji, b.position.x, b.position.y, 25, b.angle);
       }
     }
     rafId = requestAnimationFrame(step);
+  }
+
+  // Comal de barro tradicional: elipse con degradado (más clara al centro,
+  // oscura hacia el borde, como el barro cocido), un aro de reflejo tenue
+  // y tres "piedras de fogón" debajo que lo sostienen sobre el fuego.
+  function drawComal(x, y){
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Piedras del fogón
+    ctx.fillStyle = '#4a4238';
+    [[-38, 10], [0, 14], [38, 10]].forEach(([dx, dy]) => {
+      ctx.beginPath();
+      ctx.ellipse(dx, dy, 9, 6, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    // Cuerpo del comal con degradado radial (simula el barro cocido)
+    const grad = ctx.createRadialGradient(-14, -5, 4, 0, 0, 58);
+    grad.addColorStop(0, '#6b5643');
+    grad.addColorStop(0.55, '#4a3b2d');
+    grad.addColorStop(1, '#2c231a');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, COMAL_HALF_WIDTH, 9, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#1b140d';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Reflejo/brillo tenue de uso (superficie curtida por el fuego)
+    ctx.strokeStyle = 'rgba(255,214,158,.35)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(0, -1, COMAL_HALF_WIDTH-6, 5, 0, Math.PI*1.1, Math.PI*1.9);
+    ctx.stroke();
+
+    ctx.restore();
   }
 
   function endGame(){
@@ -1400,12 +1442,30 @@ if (window.visualViewport) {
 (function initGameModals() {
   const triggers = document.querySelectorAll('[data-open-modal]');
   const closeButtons = document.querySelectorAll('[data-close-modal]');
-  // Reemplaza el uso de la constante 'hasGsap' por 'window.gsap' directamente
-  function closeModal(gameId) {
-    /* ... */
-    if (window.gsap && content) {
-      gsap.to(content, { scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3 });
-    }
+
+  // `overflow: hidden` en el body no basta para bloquear el scroll táctil
+  // del fondo en varios navegadores móviles (Safari iOS sigue dejando
+  // "arrastrar" lo que está detrás del modal). Fijamos el body en su
+  // posición actual mientras el juego está abierto, igual que se hace con
+  // el menú hamburguesa, y lo restauramos exactamente igual al cerrar.
+  let scrollYAlAbrirJuego = 0;
+  function lockBackgroundScroll() {
+    scrollYAlAbrirJuego = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollYAlAbrirJuego}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+  }
+  function unlockBackgroundScroll() {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+    window.scrollTo(0, scrollYAlAbrirJuego);
   }
 
   if(window.gsap){
@@ -1439,14 +1499,14 @@ if (window.visualViewport) {
         scale: 0.9, y: 16, autoAlpha: 0, duration: 0.3, ease: 'power1.in',
         onComplete: () => {
           modal.classList.remove('active');
-          document.body.style.overflow = '';
+          unlockBackgroundScroll();
           gsap.set(modal, { clearProps: 'opacity,visibility' });
           gsap.set(content, { clearProps: 'all' });
         }
       });
     } else {
       modal.classList.remove('active');
-      document.body.style.overflow = '';
+      unlockBackgroundScroll();
       // Limpiar los estilos inline de respaldo que pusimos al abrir sin GSAP
       modal.style.opacity = '';
       modal.style.visibility = '';
@@ -1464,7 +1524,7 @@ if (window.visualViewport) {
       const modal = document.getElementById(`modal-${gameId}`);
       if (modal) {
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        lockBackgroundScroll();
 
         const content = modal.querySelector('.game-modal__content');
         // Los canvas de cada juego escuchan el evento 'resize' de window para
@@ -1527,11 +1587,14 @@ if (window.visualViewport) {
   });
 
   document.querySelectorAll('.game-modal').forEach(modal => {
+    const gameId = modal.id.replace('modal-', '');
+    // El overlay oscuro es un hijo posicionado sobre todo el modal, así que
+    // un toque "afuera" del juego cae sobre él (no sobre .game-modal en sí);
+    // por eso el cierre se engancha en el overlay y no en el contenedor.
+    const overlayEl = modal.querySelector('.game-modal__overlay');
+    overlayEl?.addEventListener('click', () => closeModal(gameId));
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        const gameId = modal.id.replace('modal-', '');
-        closeModal(gameId);
-      }
+      if (e.target === modal) closeModal(gameId);
     });
   });
 
@@ -2876,6 +2939,22 @@ function spawnEntities() {
     }
   }
 
+  // Antes los NPCs solo cambiaban de rumbo cuando expiraba wanderTimer, sin
+  // importar hacia dónde estuvieran caminando: si ese rumbo apuntaba a una
+  // pared, se quedaban empujando contra ella (patinando pegados al borde)
+  // hasta que el timer volviera a cero. Con esto, en cuanto detectan pared
+  // cerca en la dirección en la que van, giran de inmediato hacia el centro
+  // de la cancha (con algo de variación) a "buscar" en otro lado, en vez de
+  // seguir de frente contra el muro.
+  const WALL_LOOKAHEAD = 55;
+  const WALL_MARGIN = 45;
+  function isFacingWall(npc) {
+    const nx = npc.position.x + Math.cos(npc.angleFacing) * WALL_LOOKAHEAD;
+    const ny = npc.position.y + Math.sin(npc.angleFacing) * WALL_LOOKAHEAD;
+    return nx < WALL_MARGIN || nx > canvas.width - WALL_MARGIN ||
+           ny < WALL_MARGIN || ny > canvas.height - WALL_MARGIN;
+  }
+
   // ================= VISION & HEARING SENSING =================
 
   // Check if target is inside the observer's 75° Vision Cone
@@ -3093,17 +3172,23 @@ function spawnEntities() {
           // Not detected -> Wanders calmly looking around
           npc.state = 'WANDERING';
           npc.wanderTimer--;
-          if (npc.wanderTimer <= 0) {
+          const nearWall = isFacingWall(npc);
+          if (npc.wanderTimer <= 0 || nearWall) {
             npc.wanderTimer = 40 + Math.random() * 50;
-            npc.angleFacing += (Math.random() - 0.5) * 1.5;
+            if (nearWall) {
+              const toCenter = Math.atan2(canvas.height / 2 - npc.position.y, canvas.width / 2 - npc.position.x);
+              npc.angleFacing = toCenter + (Math.random() - 0.5) * 1.2;
+            } else {
+              npc.angleFacing += (Math.random() - 0.5) * 1.5;
+            }
           }
 
-          const walkForce = 0.0009;
+          const walkForce = 0.0012;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.4);
+          clampVelocity(npc, 1.8);
         }
       } else {
         // NPC DOES NOT HAVE MICA -> Wanders, or flees if Mica bearer comes close
@@ -3127,17 +3212,23 @@ function spawnEntities() {
           // Wanders safely in the field
           npc.state = 'WANDERING';
           npc.wanderTimer--;
-          if (npc.wanderTimer <= 0) {
+          const nearWall = isFacingWall(npc);
+          if (npc.wanderTimer <= 0 || nearWall) {
             npc.wanderTimer = 50 + Math.random() * 60;
-            npc.angleFacing += (Math.random() - 0.5) * 1.2;
+            if (nearWall) {
+              const toCenter = Math.atan2(canvas.height / 2 - npc.position.y, canvas.width / 2 - npc.position.x);
+              npc.angleFacing = toCenter + (Math.random() - 0.5) * 1.2;
+            } else {
+              npc.angleFacing += (Math.random() - 0.5) * 1.2;
+            }
           }
 
-          const walkForce = 0.0009;
+          const walkForce = 0.0012;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.4);
+          clampVelocity(npc, 1.8);
         }
       }
     });
@@ -3713,8 +3804,12 @@ function spawnEntities() {
   let difficulty = null;
   let gamePhase = 'idle'; // idle | aiming | shooting | watching | roundEnd | gameOver
   let gameConfig = {
+    // Mismo tamaño de juego (circleRadiusFactor) en ambos niveles: antes
+    // fácil usaba un círculo más grande que difícil, así que no era un
+    // cambio de dificultad limpio (también achicaba el área de juego).
+    // La dificultad ahora solo la marcan la cantidad de canicas y tiros.
     easy: { marbles: 8,  shots: 5, circleRadiusFactor: 0.28 },
-    hard: { marbles: 14, shots: 4, circleRadiusFactor: 0.23 }
+    hard: { marbles: 14, shots: 4, circleRadiusFactor: 0.28 }
   };
 
   // ── Canvas sizing ─────────────────────────────────────────────
@@ -3860,11 +3955,17 @@ function spawnEntities() {
     aimStart = null;
     aimCurrent = null;
 
-    // Dimensiones del círculo (ronda)
+    // Dimensiones del círculo (ronda). El círculo crece un poco más por
+    // ronda (antes 5%, ahora 9%) para darle espacio a las canicas extra
+    // que ahora se agregan (+3 por ronda en vez de +2): si no, el
+    // acomodo aleatorio de canicas sin solaparse podía quedarse corto
+    // de espacio y terminar colocando menos canicas de las configuradas.
     const cfg = gameConfig[difficulty];
-    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor * (1 + (round - 1) * 0.05);
+    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor * (1 + (round - 1) * 0.09);
     circleCenter = { x: W / 2, y: H / 2 - H * 0.04 };
-    marbleRadius = circleRadius / (cfg.marbles <= 8 ? 5.5 : 6.5);
+    // Radio un poco más grande (antes 5.5 / 6.5): canicas y tirador más
+    // visibles sin dejar de entrar dentro del círculo de la ronda.
+    marbleRadius = circleRadius / (cfg.marbles <= 8 ? 4.7 : 5.5);
 
     // Posición de spawn del tirador (abajo del círculo). Antes quedaba
     // pegado al borde inferior del canvas/modal (especialmente en
@@ -3887,8 +3988,12 @@ function spawnEntities() {
     ];
     World.add(world, walls);
 
-    // Distribuir canicas dentro del círculo (sin solaparse)
-    const marblesCount = cfg.marbles + (round - 1) * 2;
+    // Distribuir canicas dentro del círculo (sin solaparse). Antes crecía
+    // de a 2 por ronda; ahora crece de a 3 en ambos niveles para que se
+    // sienta más difícil ronda a ronda, con un piso mínimo por si algún
+    // día se ajusta la base de canicas hacia abajo (4 en fácil, 7 en difícil).
+    const marblesFloor = difficulty === 'hard' ? 7 : 4;
+    const marblesCount = Math.max(marblesFloor, cfg.marbles + (round - 1) * 3);
     placeMarbles(marblesCount);
 
     // Spawn del tirador
@@ -3928,26 +4033,16 @@ function spawnEntities() {
     }
     World.add(world, marbles);
 
-    // GSAP: entrada con stagger bounce
-    marbles.forEach((m, i) => {
-      const startY = m.position.y - circleRadius;
-      Body.setPosition(m, { x: m.position.x, y: startY });
-      const targetY = m.position.y + circleRadius;
-      const delay = i * 0.06;
-      gsap.to({}, {
-        duration: 0.5 + Math.random() * 0.2,
-        delay,
-        ease: 'bounce.out',
-        onUpdate: function() {
-          // La física de Matter ya mueve las canicas; esta animación es solo visual al inicio
-        }
-      });
-      // Reposicionar con pequeño delay usando Body
-      setTimeout(() => {
-        if (marbles.includes(m)) Body.setPosition(m, { x: placed[i]?.x || m.position.x, y: placed[i]?.y || m.position.y });
-        Body.setVelocity(m, { x: 0, y: 0 });
-      }, i * 60 + 50);
-    });
+    // Antes había acá una "animación de entrada" que desplazaba cada canica
+    // circleRadius píxeles fuera de su lugar y la regresaba recién tras un
+    // setTimeout escalonado (hasta ~1.2s en rondas con muchas canicas) —
+    // pero el tween de GSAP no movía nada de verdad (onUpdate vacío), así
+    // que las canicas quedaban paradas fuera del círculo durante esa
+    // ventana. El chequeo de "¿salió del círculo?" corre cada frame sin
+    // importar la fase del juego, así que casi todas terminaban marcadas
+    // isOut=true (y sumando puntos) apenas arrancaba la ronda, antes de
+    // cualquier disparo. Las canicas ya quedan bien colocadas al crearlas
+    // arriba, así que no hace falta nada de esto.
   }
 
   function spawnTirador() {
@@ -4090,14 +4185,21 @@ function spawnEntities() {
           // jugador limpiaba el círculo con tiros de sobra el juego lo
           // seguía obligando a disparar contra un círculo ya vacío.
           const todasAfuera = marbles.length > 0 && marbles.every(m => m.plugin?.isOut);
-          if (todasAfuera) {
+          if (todasAfuera || shotsLeft <= 0) {
+            // gamePhase cambia ANTES del setTimeout: mientras se espera para
+            // llamar a endRound(), este bloque seguía corriendo cada frame
+            // y, como todo seguía quieto, volvía a cumplirse la condición
+            // una y otra vez — cada disparo de watchTimer llamaba a
+            // endRound() de nuevo, así que una sola ronda terminada
+            // encadenaba varias llamadas (round++ varias veces) y el juego
+            // "saltaba" directo a la ronda 2 y 3. Esta bandera evita que
+            // el bloque se vuelva a ejecutar hasta que resetRoundLayout()
+            // (o spawnNewTirador) devuelva la fase a 'aiming'.
+            gamePhase = 'roundEnd';
             setTimeout(() => endRound(), 500);
-          } else if (shotsLeft > 0) {
+          } else {
             // Recolocar tirador para el siguiente disparo
             spawnNewTirador();
-          } else {
-            // Sin más tiros → siguiente ronda o fin
-            setTimeout(() => endRound(), 500);
           }
         }
       } else {
@@ -4381,17 +4483,15 @@ function spawnEntities() {
 
     overlayCard.innerHTML = `
       <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
-      <h3 style="margin:.5rem 0 .2rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
-      <p style="font-size:.88rem;opacity:.85;margin-bottom:1rem;">
-        ${jt('jue.card5.intro', 'Lanzá tu tirador (T) desde abajo del círculo arrastrando el mouse.<br>Sacá las canicas de la ronda para ganar puntos.<br>¡Más canicas fuera = más puntos!')}
+      <h3 style="margin:.4rem 0 .15rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
+      <p style="font-size:.85rem;opacity:.85;margin-bottom:.55rem;">
+        ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá canicas del círculo para sumar puntos.')}
       </p>
-      <ul class="rules-list" style="text-align:left;font-size:.82rem;margin-bottom:1.2rem;padding-left:0;list-style:none;">
-        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', 'Canica fuera del círculo → +1 punto')}</li>
-        <li class="rule-good"><span class="rule-icon">🎯</span> ${jt('jue.card5.ruleShoot', 'Tirador dorado (T): jalalo y soltá para disparar')}</li>
-        <li class="rule-good"><span class="rule-icon">🔮</span> ${jt('jue.card5.ruleRounds', '3 rondas con más canicas cada vez')}</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Shots limitados — ¡que cada tiro cuente!')}</li>
+      <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', 'Canica fuera → +1 punto · 3 rondas, cada vez más difícil')}</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
       </ul>
-      <p style="font-weight:600;margin-bottom:.5rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
+      <p style="font-weight:600;margin-bottom:.4rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-canicas">
           ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '8 canicas · 5 tiros')}</small>
@@ -5973,17 +6073,16 @@ function spawnEntities() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
       <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
-      <p>${jt('jue.card6.intro', 'Corré con el torito por las calles coloniales. <b>Pasa entre la gente para animarla</b> y recogé <b>silbadores y cuetillos</b> para ganar energía y llegar al Atrio de la Iglesia.')}</p>
+      <p>${jt('jue.card6.intro', 'Corré por las calles, animá a la gente y recogé cohetes para llegar a la iglesia.')}</p>
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá el lado <b>izquierdo</b> o <b>derecho</b> de la pantalla para cambiar de carril. <b>Doble toque</b> para soltar una ráfaga de chispas.')}</li>
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá izquierda/derecha para cambiar de carril · doble toque = ráfaga')}</li>
         ` : `
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', '<b>A</b>/<b>D</b> o flechas ⬅️➡️: cambiar de carril. <b>Espacio:</b> ráfaga de chispas.')}</li>
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', 'A/D o ⬅️➡️: cambiar de carril · Espacio: ráfaga de chispas')}</li>
         `}
-        <li class="rule-good"><span class="rule-icon">👥</span> ${jt('jue.card6.ruleAnimate', '<b>Animar al pueblo:</b> Pasá cerca de la gente para alegrarla y sumar combos.')}</li>
-        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', '<b>Silbadores & Cuetillos:</b> Recogé cohetes para recargar energía y activar turbos.')}</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', '<b>Obstáculos:</b> Esquivá carretas y baldes de agua que apagan tus fuegos.')}</li>
+        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', 'Animá gente y recogé silbadores/cuetillos → combo y energía')}</li>
+        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', 'Esquivá carretas y baldes de agua')}</li>
       </ul>
       <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
     `);

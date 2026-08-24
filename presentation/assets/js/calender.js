@@ -76,7 +76,11 @@ const DICCIONARIO_FALLBACK = {
   "ev.independencia.title": "Día de la Independencia",
   "ev.independencia.desc": "Fiestas patrias con desfiles cívicos, actos culturales y presentaciones artísticas el 15 de septiembre.",
   "ev.floresPalmas.title": "Festival de las Flores y Palmas",
-  "ev.floresPalmas.desc": "Celebración en La Libertad donde se elaboran alfombras de flores y palmas para procesiones religiosas."
+  "ev.floresPalmas.desc": "Celebración en La Libertad donde se elaboran alfombras de flores y palmas para procesiones religiosas.",
+  "ev.invierno.title": "Festival de Invierno de Perquín",
+  "ev.invierno.desc": "Festival en las montañas de Morazán con danzas folclóricas, feria del café, artesanías y gastronomía típica.",
+  "ev.hamaca.title": "Feria de la Hamaca",
+  "ev.hamaca.desc": "Feria en San Sebastián, San Vicente, cuna de las hamacas tejidas a mano, con exhibiciones de tejedores y venta artesanal."
 };
 
 function t(clave, textoPorDefecto = "") {
@@ -109,7 +113,8 @@ const TRADUCTOR_A_LANDMARK = {
   24: 48, 25: 28, 26: 34, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26,
   34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
   44: 45, 45: 57, 46: 58, 47: 25,
-  100: 60, 101: 60
+  100: 60, 101: 60,
+  200: 71, 201: 72
 };
 
 // ============================================================
@@ -169,7 +174,11 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   // Día de la Independencia - 15 de septiembre
   { id: 46, keyNombre: "ev.independencia.title", keyDesc: "ev.independencia.desc", dia: 15, mes: 9, depto: "Todos", tipo: "Festividad Nacional", lat: 13.7005, lng: -89.1898 },
   // Festival de las Flores y Palmas - 10 de abril
-  { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 4, depto: "La Libertad", tipo: "Celebración Tradicional", lat: 13.6769, lng: -89.2797 }
+  { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 4, depto: "La Libertad", tipo: "Celebración Tradicional", lat: 13.6769, lng: -89.2797 },
+  // Festival de Invierno de Perquín - 1 de agosto de 2026 (edición XXXII, del 1 al 4 de agosto)
+  { id: 200, keyNombre: "ev.invierno.title", keyDesc: "ev.invierno.desc", dia: 1, mes: 8, anio: 2026, depto: "Morazán", tipo: "Festival Cultural", lat: 13.9667, lng: -88.1667 },
+  // Feria de la Hamaca - 29 de agosto de 2026, San Sebastián, San Vicente
+  { id: 201, keyNombre: "ev.hamaca.title", keyDesc: "ev.hamaca.desc", dia: 29, mes: 8, anio: 2026, depto: "San Vicente", tipo: "Feria Artesanal", lat: 13.85, lng: -88.8167 }
 ];
 
 // FILTRAR EVENTOS: solo aquellos que tienen mapeo en TRADUCTOR_A_LANDMARK
@@ -220,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function initCalendar() {
   renderYearTitle();
   renderMonthPills();
+  renderMonthTitle();
   renderCalendarGrid();
   renderTodayEvent();
 }
@@ -227,6 +237,8 @@ function initCalendar() {
 function setupCalendarEvents() {
   const prevYearBtn = document.getElementById("prevYear");
   const nextYearBtn = document.getElementById("nextYear");
+  const prevMonthBtn = document.getElementById("prevMonth");
+  const nextMonthBtn = document.getElementById("nextMonth");
 
   if (prevYearBtn) {
     prevYearBtn.addEventListener("click", () => {
@@ -245,12 +257,52 @@ function setupCalendarEvents() {
       renderCalendarGrid();
     });
   }
+
+  // Navegación de mes con flechas (versión celular de las pills de mes):
+  // al pasar de diciembre a enero (o viceversa) también avanza el año,
+  // igual que uno esperaría de un calendario continuo.
+  if (prevMonthBtn) {
+    prevMonthBtn.addEventListener("click", () => {
+      calendarState.currentMonth--;
+      if (calendarState.currentMonth < 0) {
+        calendarState.currentMonth = 11;
+        calendarState.currentYear--;
+      }
+      triggerGridAnimation();
+      renderYearTitle();
+      renderMonthTitle();
+      renderMonthPills();
+      renderCalendarGrid();
+    });
+  }
+
+  if (nextMonthBtn) {
+    nextMonthBtn.addEventListener("click", () => {
+      calendarState.currentMonth++;
+      if (calendarState.currentMonth > 11) {
+        calendarState.currentMonth = 0;
+        calendarState.currentYear++;
+      }
+      triggerGridAnimation();
+      renderYearTitle();
+      renderMonthTitle();
+      renderMonthPills();
+      renderCalendarGrid();
+    });
+  }
 }
 
 function renderYearTitle() {
   const yearTitle = document.getElementById("calYearTitle");
   if (yearTitle) {
     yearTitle.textContent = `${calendarState.currentYear}`;
+  }
+}
+
+function renderMonthTitle() {
+  const monthTitle = document.getElementById("calMonthTitle");
+  if (monthTitle) {
+    monthTitle.textContent = t(CLAVES_MESES[calendarState.currentMonth], nombresMeses[calendarState.currentMonth]);
   }
 }
 
@@ -276,6 +328,7 @@ function renderMonthPills() {
       calendarState.currentMonth = index;
       triggerGridAnimation();
       renderYearTitle();
+      renderMonthTitle();
       renderCalendarGrid();
     });
 
@@ -502,6 +555,7 @@ function abrirEventoDesdeURL() {
   calendarState.currentYear = evento.anio || calendarState.currentYear;
   if (typeof renderYearTitle === "function") renderYearTitle();
   if (typeof renderMonthPills === "function") renderMonthPills();
+  if (typeof renderMonthTitle === "function") renderMonthTitle();
   if (typeof renderCalendarGrid === "function") renderCalendarGrid();
 
   const calGrid = document.getElementById("calGrid");

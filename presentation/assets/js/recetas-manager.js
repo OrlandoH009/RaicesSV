@@ -747,14 +747,23 @@ function getCategorias(lang) {
 // ============================================================
 // Renderizado de la grilla y filtros
 // ============================================================
-function renderGrid(filtro = "Todas", langOverride = null) {
+function renderGrid(filtro = "Todas", langOverride = null, searchTerm = null) {
   const grid = document.getElementById("recipes-grid");
   if (!grid) return;
   const lang = langOverride || (window.SRi18n ? window.SRi18n.getLang() : 'es');
   const data = getRecetasData(lang);
+  const term = (searchTerm !== null ? searchTerm : (document.getElementById('recipeSearch')?.value || '')).toLowerCase().trim();
 
-  grid.innerHTML = Object.entries(data)
-    .filter(([key, receta]) => filtro === (lang === 'en' ? 'All' : 'Todas') || receta.categoria === filtro)
+  const entradas = Object.entries(data).filter(([key, receta]) => {
+    const matchesCat = filtro === (lang === 'en' ? 'All' : 'Todas') || receta.categoria === filtro;
+    const matchesSearch = !term || receta.titulo.toLowerCase().includes(term);
+    return matchesCat && matchesSearch;
+  });
+
+  const emptyState = document.getElementById('recipesEmpty');
+  if (emptyState) emptyState.style.display = entradas.length === 0 ? 'block' : 'none';
+
+  grid.innerHTML = entradas
     .map(([key, receta]) => `
       <article class="recipe-mini-card" data-key="${key}" tabindex="0">
         <div class="recipe-mini-card__img">
@@ -825,6 +834,7 @@ function openRecipeModal() {
 
   overlay.classList.add("is-open");
   document.body.style.overflow = "hidden";
+  document.body.classList.add("recipe-modal-open");
   modalScrollLocked = true;
 
   if (window.gsap) {
@@ -851,6 +861,7 @@ function closeRecipeModal() {
   const finish = () => {
     overlay.classList.remove("is-open");
     document.body.style.overflow = "";
+    document.body.classList.remove("recipe-modal-open");
     modalScrollLocked = false;
   };
 
@@ -1130,6 +1141,42 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
     allBtn.classList.add('active');
   }
+
+  // ── Panel de filtros en celular (mismo patrón que Categorías) ──
+  const filtersPanel = document.getElementById('recipeFiltersSheet');
+  const filtersFab = document.getElementById('filtersFabBtn');
+  const filtersOverlay = document.getElementById('filtersSheetOverlay');
+  const filtersClose = document.getElementById('filtersSheetClose');
+
+  function openFiltersSheet() {
+    filtersPanel?.classList.add('is-open');
+    filtersOverlay?.classList.add('is-open');
+    filtersFab?.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('filters-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeFiltersSheet() {
+    filtersPanel?.classList.remove('is-open');
+    filtersOverlay?.classList.remove('is-open');
+    filtersFab?.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('filters-open');
+    document.body.style.overflow = '';
+  }
+  filtersFab?.addEventListener('click', openFiltersSheet);
+  filtersClose?.addEventListener('click', closeFiltersSheet);
+  filtersOverlay?.addEventListener('click', closeFiltersSheet);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && filtersPanel?.classList.contains('is-open')) closeFiltersSheet();
+  });
+
+  // Buscador de recetas (mismo patrón que Categorías): filtra la
+  // cuadrícula en vivo, combinado con la categoría activa.
+  document.getElementById('recipeSearch')?.addEventListener('input', () => {
+    const activeChip = document.querySelector('.filter-chip.active');
+    const currentLang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+    const filtro = activeChip ? activeChip.getAttribute('data-filter') : (currentLang === 'en' ? 'All' : 'Todas');
+    renderGrid(filtro, currentLang);
+  });
 
   // Botón de descarga PDF
   const downloadBtn = document.getElementById("download-pdf-btn");

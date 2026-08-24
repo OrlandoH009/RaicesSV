@@ -81,7 +81,7 @@
         <p class="hero__subtitle" data-i18n="hero.subtitle">Nuestra herencia, nuestro orgullo.</p>
         <a href="../views/categorias.html" class="btn-primary hero__cta" data-i18n="hero.cta">Explorar Culturas</a>
       </div>
-      <div class="hero__scroll-cue">
+      <div class="hero__scroll-cue" id="heroScrollCue" role="button" tabindex="0" aria-label="Desliza para ver más" data-i18n-attr="aria-label:hero.scrollAria">
         <span data-i18n="hero.scroll">Desliza</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
       </div>
@@ -105,10 +105,16 @@
     </section>
 
     <!-- ¿QUÉ ES Salvadorean Roots? -->
-    <section class="about">
+    <section class="about" id="about">
       <span class="ambient-blob ambient-blob--a"></span>
       <span class="ambient-blob ambient-blob--b"></span>
       <div class="about__card reveal">
+        <div class="about__corner-ornament about__corner--tl" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12V2h10M2 2l8 8M6 2v4H2"/></svg>
+        </div>
+        <div class="about__corner-ornament about__corner--br" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12v10H12M22 22l-8-8M18 22v-4h4"/></svg>
+        </div>
         <h2 data-i18n="about.title">¿Qué es Salvadorean Roots?</h2>
         <p data-i18n="about.text">Salvadorean Roots es un espacio digital que conecta a las personas con la escencia de El Salvador, permitiéndoles descubrir, aprender y compartir su cultura a través de una experiencia interactiva.</p>
       </div>
@@ -119,18 +125,22 @@
       <span class="ambient-blob ambient-blob--a"></span>
       <div class="stats__grid">
         <div class="stat reveal" style="transition-delay:.05s">
+          <div class="stat__icon-wrap"><span class="stat__icon">🏛️</span></div>
           <span class="stat__num" data-count="5">0</span>
           <span class="stat__label" data-i18n="stats.categorias">Categorías culturales</span>
         </div>
         <div class="stat reveal" style="transition-delay:.12s">
+          <div class="stat__icon-wrap"><span class="stat__icon">📍</span></div>
           <span class="stat__num" data-count="14">0</span>
           <span class="stat__label" data-i18n="stats.departamentos">Departamentos representados</span>
         </div>
         <div class="stat reveal" style="transition-delay:.19s">
+          <div class="stat__icon-wrap"><span class="stat__icon">⏳</span></div>
           <span class="stat__num" data-count="500" data-suffix="+">0</span>
           <span class="stat__label" data-i18n="stats.anios">Años de historia</span>
         </div>
         <div class="stat reveal" style="transition-delay:.26s">
+          <div class="stat__icon-wrap"><span class="stat__icon">📜</span></div>
           <span class="stat__num" data-count="20" data-suffix="+">0</span>
           <span class="stat__label" data-i18n="stats.leyendas">Leyendas y tradiciones</span>
         </div>
@@ -140,6 +150,7 @@
     <!-- DATO CURIOSO ROTATIVO -->
     <section class="fact-wrap">
       <div class="fact-box reveal">
+        <div class="fact-box__progress" id="factProgress"><div class="fact-box__progress-bar" id="factProgressBar"></div></div>
         <p class="fact-box__eyebrow" data-i18n="fact.eyebrow">¿Sabías que...?</p>
         <div class="fact-box__row">
           <button type="button" class="fact-nav fact-nav--prev" id="factPrev" data-i18n-attr="aria-label:fact.prev" aria-label="Dato anterior">
@@ -156,8 +167,8 @@
 
     <!-- BADGE -->
     <section class="info-badge">
-      <div class="info-badge__inner reveal">
-        <h2 data-i18n="badge.title">Información para ti</h2>
+      <div class="info-badge__inner">
+        <h2 id="infoBadgeTitle" data-i18n="badge.title">Información para ti</h2>
       </div>
     </section>
 

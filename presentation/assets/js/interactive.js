@@ -10,19 +10,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ── Barra de progreso de scroll ── */
-  const progress = document.createElement('div');
-  progress.className = 'scroll-progress';
-  document.body.appendChild(progress);
-  const updateProgress = () => {
-    const h = document.documentElement;
-    const max = h.scrollHeight - h.clientHeight;
-    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
-    progress.style.width = pct + '%';
-  };
-  window.addEventListener('scroll', updateProgress, { passive: true });
-  updateProgress();
-
   /* ── Tarjetas con spotlight (sin tilt 3D: el tilt inline pisaba el
      scale(1.018) del :hover en CSS y, por el cálculo de perspective()
      aplicado en el propio elemento, hacía que la card pareciera

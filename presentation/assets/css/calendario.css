@@ -260,6 +260,13 @@ section {
   margin-bottom: 2rem;
 }
 
+/* Navegación de mes por flechas: solo se usa en celular (ver breakpoint
+   más abajo), donde reemplaza a las 12 pills por "‹ Mes ›" para que
+   entre cómodo en pantallas angostas. */
+#calMonthControls {
+  display: none;
+}
+
 .month-pill {
   padding: .4rem .9rem;
   border-radius: 999px;
@@ -1026,6 +1033,36 @@ section {
 @media (max-width: 640px) {
   .nav-links {
     display: none;
+  }
+
+  /* Año y mes se acoplan mejor en celular: en vez del botón de texto
+     "Año anterior"/"Año siguiente" (que no entraba bien), solo quedan
+     las flechas a los lados; y en vez de las 12 pills de mes se muestra
+     el mes actual con flechas para pasar de uno a otro, igual que el año. */
+  .cal-controls {
+    padding: .7rem .5rem;
+    gap: .5rem;
+  }
+  .cal-nav-btn {
+    min-width: auto;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  #calYearControls .cal-nav-btn span,
+  .cal-nav-btn--arrow span {
+    display: none;
+  }
+  .cal-month-title {
+    font-size: 1.15rem;
+  }
+  .month-pills {
+    display: none;
+  }
+  #calMonthControls {
+    display: flex;
   }
 
   .cal-day {

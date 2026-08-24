@@ -131,6 +131,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ── Panel de filtros en celular: botón flotante + hoja deslizante ── */
+  const filtersPanel = document.getElementById('categoriasTools');
+  const filtersFab = document.getElementById('filtersFabBtn');
+  const filtersOverlay = document.getElementById('filtersSheetOverlay');
+  const filtersClose = document.getElementById('filtersSheetClose');
+
+  function openFiltersSheet() {
+    filtersPanel?.classList.add('is-open');
+    filtersOverlay?.classList.add('is-open');
+    filtersFab?.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('filters-open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('categoriaSearch')?.focus(), 320);
+  }
+  function closeFiltersSheet() {
+    filtersPanel?.classList.remove('is-open');
+    filtersOverlay?.classList.remove('is-open');
+    filtersFab?.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('filters-open');
+    document.body.style.overflow = '';
+  }
+  filtersFab?.addEventListener('click', openFiltersSheet);
+  filtersClose?.addEventListener('click', closeFiltersSheet);
+  filtersOverlay?.addEventListener('click', closeFiltersSheet);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && filtersPanel?.classList.contains('is-open')) closeFiltersSheet();
+  });
+
+  /* ── Búsqueda global: encuentra contenido dentro de otras categorías ── */
+  const globalResultsWrap = document.getElementById('globalSearchResults');
+  if (window.SRGlobalSearch) window.SRGlobalSearch.init();
+
+  function renderGlobalResults(term) {
+    if (!globalResultsWrap) return;
+    if (!term || !window.SRGlobalSearch) {
+      globalResultsWrap.innerHTML = '';
+      return;
+    }
+    const matches = window.SRGlobalSearch.search(term, 6);
+    if (!matches.length) {
+      globalResultsWrap.innerHTML = '';
+      return;
+    }
+    globalResultsWrap.innerHTML = matches.map((m) => `
+      <a class="global-result" href="${m.url}">
+        <div class="global-result__body">
+          <span class="global-result__badge">${m.badge}</span>
+          <p class="global-result__title">${m.title}</p>
+          <p class="global-result__snippet">${m.snippet}</p>
+        </div>
+        <svg class="global-result__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    `).join('');
+  }
+
   /* ── Filtrado animado (búsqueda + chips) ── */
   const filterChips = document.querySelectorAll('.filter-chip');
   const emptyState = document.getElementById('emptyState');
@@ -192,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     setCount(visible);
+    renderGlobalResults(term);
   }
 
   searchInput?.addEventListener('input', applyFiltersAnimated);

@@ -423,6 +423,20 @@ const LANDMARKS = [
     nombre: 'Llanos de Olocuilta',
     lugar: 'La Paz',
     coords: [13.5650, -89.1180]
+  },
+  {
+    id: 71, cat: 'evento', emoji: '☕', color: '#52a0e0',
+    nombre: 'Festival de Invierno de Perquín',
+    lugar: 'Perquín, Morazán',
+    desc: 'Festival de cuatro días en las montañas de Morazán con danzas folclóricas, feria del café, artesanías, caminatas y gastronomía típica. Se celebra la primera semana de agosto.',
+    coords: [13.9667, -88.1667]
+  },
+  {
+    id: 72, cat: 'evento', emoji: '🪢', color: '#52a0e0',
+    nombre: 'Feria de la Hamaca',
+    lugar: 'San Sebastián, San Vicente',
+    desc: 'Feria en el pueblo cuna de las hamacas tejidas a mano de El Salvador, con exhibiciones de tejedores artesanales y venta de textiles tradicionales.',
+    coords: [13.8500, -88.8167]
   }
 ];
 
