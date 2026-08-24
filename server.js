@@ -1,9 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const { startTunnel } = require('untun');
 const passport = require('passport');
+const db = require('./data/config/database.config');
 
 dotenv.config();
 
@@ -17,6 +19,11 @@ if (isProduction && !process.env.SESSION_SECRET) {
     console.error('FALTA SESSION_SECRET en el archivo .env. No se debe usar el valor por defecto en producción.');
     process.exit(1);
 }
+
+const sessionStore = new MySQLStore({}, db);
+sessionStore.on('error', (error) => {
+    console.error('Error en el almacén de sesiones MySQL:', error);
+});
 
 const authRoutes = require('./routes/auth.routes');
 const chatRoutes = require('./routes/chat.routes');
@@ -37,6 +44,7 @@ app.use(express.json());
 app.use(passport.initialize());
 
 app.use(session({
+    store: sessionStore,
     name: 'raices.sid',
     secret: process.env.SESSION_SECRET || 'raices-secret-dev-only',
     resave: false,
@@ -214,20 +222,24 @@ app.use((err, req, res, next) => {
     res.status(500).send('Ocurrió un error inesperado. Inténtalo de nuevo más tarde.');
 });
 
-app.listen(port, async () => {
-    console.log(`Servidor iniciado en http://localhost:${port}`);
+if (!process.env.VERCEL) {
+    app.listen(port, async () => {
+        console.log(`Servidor iniciado en http://localhost:${port}`);
 
-    if (process.env.NGROK_ENABLED === 'true') {
-        try {
-            const tunnel = await startTunnel({
-                port: port,
-                acceptCloudflareNotice: true
-            });
-            
-            const url = await tunnel.getURL();
-            console.log(`La URL pública de Cloudflare es: ${url}`);
-        } catch (e) {
-            console.error('Error al iniciar el túnel de Cloudflare:', e);
+        if (process.env.NGROK_ENABLED === 'true') {
+            try {
+                const tunnel = await startTunnel({
+                    port: port,
+                    acceptCloudflareNotice: true
+                });
+
+                const url = await tunnel.getURL();
+                console.log(`La URL pública de Cloudflare es: ${url}`);
+            } catch (e) {
+                console.error('Error al iniciar el túnel de Cloudflare:', e);
+            }
         }
-    }
-});
+    });
+}
+
+module.exports = app;
