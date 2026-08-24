@@ -372,10 +372,32 @@ canvas {
 .icon-btn:hover { background: var(--navy); transform: scale(1.08); }
 .icon-btn svg { width: 18px; height: 18px; }
 
-/* Insignia de volumen dentro del botón de pausa: solo tiene sentido en el
-   popover compacto de celular (ver bloque @media max-width:768px); en
-   escritorio el volumen ya se ve siempre junto a los controles. */
-.pause-volume-badge { display: none; }
+/* El volumen ya no vive suelto junto a pausa/pantalla-completa (ocupaba
+   espacio fijo en el flotante de controles en todas las pantallas). Ahora
+   se "guarda" dentro del propio botón de pausa: una insignia de bocina
+   sobre el botón y una ventana emergente que se abre al tocarla/clickearla
+   (ver juegos-mobile-controls.js, que arma este comportamiento sin
+   distinguir tamaño de pantalla). */
+.pause-volume-badge {
+  /* Antes medía 15x15px: apuntarle con precisión (sobre todo con mouse,
+     en un círculo tan chico pegado al borde del botón) costaba mucho y
+     a veces el clic caía justo afuera y no pasaba nada. La agrandamos
+     bastante para que sea un blanco fácil de acertar. */
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gold-hover);
+  border: 2px solid var(--white);
+  font-size: .68rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
 .volume-group {
   display: flex;
@@ -405,6 +427,48 @@ canvas {
   border-radius: 999px;
   background: rgba(255,255,255,.55);
 }
+
+.volume-group.volume-popover {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  z-index: 25;
+  width: auto;
+  opacity: 0;
+  transform: translateY(-6px) scale(.92);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.volume-group.volume-popover.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.volume-group.volume-popover input[type="range"] { width: 90px; }
+
+/* ── Celular: el volumen se reubica solo (ver juegos-mobile-controls.js) ── */
+.volume-group.volume-hidden { display: none; }
+
+/* Flotando centrado, arriba de la tarjeta de instrucciones/selección/fin
+   de juego (no adentro: esa tarjeta reemplaza su contenido seguido y se
+   perdería). */
+.volume-group.volume-floating {
+  position: absolute;
+  top: .6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+}
+.volume-group.volume-floating input[type="range"] { width: 90px; }
+
+/* Dentro de la propia tarjeta de pausa, debajo de "Reanudar"/"Menú". */
+.volume-group.volume-inline-pause {
+  position: static;
+  margin: .9rem auto 0;
+  width: fit-content;
+}
+.volume-group.volume-inline-pause input[type="range"] { width: 100px; }
 
 .volume-group input[type="range"]::-webkit-slider-thumb {
   width: 15px;
@@ -503,6 +567,18 @@ canvas {
 /* ── Overlay de pausa ── */
 .canvas-wrap.is-paused canvas { filter: brightness(.7); } /* Oscurece un poco el fondo de manera nítida */
 .overlay-card--pause { max-width: 380px; }
+
+/* Los botones "Reanudar" / "Menú" de la pausa usaban el mismo estilo
+   grande y llamativo que el botón principal de "Jugar de nuevo" en la
+   pantalla de fin de juego. Acá los queremos de menor jerarquía visual:
+   más chicos y discretos, sin competir con el resto de la interfaz. */
+.overlay-card--pause .btn-primary {
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .5rem 1.2rem;
+  border-width: 1.5px;
+  box-shadow: none;
+}
 
 .overlay-card {
   background: var(--cream);
@@ -784,54 +860,39 @@ canvas {
   .game-panel__tag { font-size: .6rem; padding: .22rem .55rem; margin-bottom: .25rem; }
   .game-panel__head h2 { font-size: clamp(1.05rem, 4.2vw, 1.3rem); }
 
-  .hud--overlay { top: .5rem; left: .5rem; gap: .35rem; max-width: 58%; }
-  .hud--overlay .hud-item { min-width: 62px; padding: .28rem .5rem; font-size: .66rem; }
-  .hud--overlay .hud-item b { font-size: .92rem; }
+  /* Antes el HUD tenía un max-width fijo en % (58%), pensado para el
+     puñado de tarjetas chicas de puntaje que usan la mayoría de los
+     juegos. En Coasters (con barras de progreso, más ancho) eso ya no
+     alcanzaba y las tarjetas se apilaban tapando el camino. Ahora, en
+     vez de un % arbitrario, el HUD directamente ocupa todo el ancho
+     disponible hasta justo antes de los controles (pausa/pantalla
+     completa) de la esquina derecha — así aprovecha el espacio real
+     que hay en cada juego sin invadir esos botones ni depender de
+     adivinar un %. También se vuelve semitransparente (en vez de
+     blanco casi opaco) para que el juego siga viéndose detrás.
+     Ver #hud-coasters más abajo para lo que sí es específico de ese
+     juego (las barras de progreso). */
+  .hud--overlay { top: .5rem; left: .5rem; right: 82px; gap: .35rem; max-width: none; }
+  .hud--overlay .hud-item {
+    background: rgba(17,48,104,.6);
+    min-width: 62px;
+    padding: .28rem .5rem;
+    font-size: .66rem;
+  }
+  .hud--overlay .hud-item span { color: var(--white); }
+  .hud--overlay .hud-item b { color: var(--white); font-size: .92rem; }
+
+  /* Las barras de progreso de Coasters son más anchas que el resto del
+     contenido del HUD; las achicamos para que no fuercen tarjetas
+     enormes. */
+  #hud-coasters .hud-item { min-width: 0; padding: .22rem .4rem; }
+  #hud-coasters .hud-item span { font-size: .56rem; margin-bottom: .1rem; }
+  #hud-coasters .hud-item b { font-size: .68rem; }
+  #hud-coasters .hud-item .coasters-progress-bar { width: 52px; margin-left: 5px; }
 
   .canvas-controls { top: .5rem; right: .5rem; gap: .4rem; }
   .icon-btn { width: 32px; height: 32px; font-size: .85rem; }
   .icon-btn svg { width: 15px; height: 15px; }
-
-  /* El volumen se "guarda" dentro del botón de pausa: en vez de la barra
-     siempre visible (que ocupaba mucho ancho junto a los demás controles),
-     queda oculta detrás de una insignia de bocina sobre el botón de pausa
-     y se despliega como una pequeña ventana emergente al tocarla
-     (ver juegos-mobile-controls.js). */
-  .pause-volume-badge {
-    position: absolute;
-    bottom: -3px;
-    right: -3px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background: var(--gold-hover);
-    border: 1.5px solid var(--white);
-    font-size: .55rem;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .volume-group.volume-popover {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    z-index: 25;
-    width: auto;
-    justify-content: flex-start;
-    opacity: 0;
-    transform: translateY(-6px) scale(.92);
-    transform-origin: top left;
-    pointer-events: none;
-    transition: opacity .18s ease, transform .18s ease;
-  }
-  .volume-group.volume-popover.is-open {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-  }
-  .volume-group.volume-popover input[type="range"] { width: 90px; }
 }
 
 /* Además del ancho, en celulares y tablets con poca ALTURA (apaisados,
@@ -848,7 +909,7 @@ canvas {
 
 @media (max-width: 600px) {
   .game-panel { padding: .7rem .5rem .9rem; }
-  .hud--overlay { max-width: 62%; gap: .3rem; }
+  .hud--overlay { right: 78px; max-width: none; gap: .3rem; }
   .hud--overlay .hud-item { min-width: 56px; padding: .26rem .45rem; font-size: .64rem; }
   .hud--overlay .hud-item b { font-size: .88rem; }
   .icon-btn { width: 30px; height: 30px; }

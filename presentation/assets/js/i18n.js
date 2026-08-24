@@ -1613,6 +1613,9 @@
       "quiz.statQuestions": "Preguntas",
       "quiz.statCategories": "Categorías",
       "quiz.statLevels": "Niveles",
+      "quiz.stepNivel": "Nivel",
+      "quiz.stepCantidad": "Cantidad",
+      "quiz.stepCategoria": "Categoría",
 
       "quiz.selectLevel": "Selecciona un nivel",
       "quiz.levelFacil": "Fácil",
@@ -3411,6 +3414,9 @@
         "quiz.statQuestions": "Questions",
         "quiz.statCategories": "Categories",
         "quiz.statLevels": "Levels",
+        "quiz.stepNivel": "Level",
+        "quiz.stepCantidad": "Amount",
+        "quiz.stepCategoria": "Category",
 
         "quiz.selectLevel": "Select a level",
         "quiz.levelFacil": "Easy",

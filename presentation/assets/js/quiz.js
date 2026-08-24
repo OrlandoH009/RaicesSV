@@ -935,6 +935,53 @@ const setupBackBtn  = document.getElementById('setupBackBtn');
 const quizStartWrap = document.getElementById('quizStartWrap');
 const quizLoadingOverlay = document.getElementById('quizLoadingOverlay');
 
+/* ── Stepper visual del asistente ── */
+const stepperSteps = document.querySelectorAll('.quiz-stepper__step');
+const stepperLine1 = document.getElementById('stepperLine1');
+const stepperLine2 = document.getElementById('stepperLine2');
+const streakBadge  = document.getElementById('streakBadge');
+const streakCount  = document.getElementById('streakCount');
+
+let rachaActual = 0;
+let mejorRacha = 0;
+
+function actualizarStepper(paso) {
+  stepperSteps.forEach((s, idx) => {
+    s.classList.toggle('active', idx === paso);
+  });
+  if (stepperLine1) stepperLine1.classList.toggle('filled', paso >= 1);
+  if (stepperLine2) stepperLine2.classList.toggle('filled', paso >= 2);
+}
+
+// Navegación clickeable en el stepper
+stepperSteps.forEach((stepEl) => {
+  stepEl.addEventListener('click', () => {
+    const target = parseInt(stepEl.dataset.stepTarget, 10);
+    if (!isNaN(target) && target < pasoActual) {
+      limpiarSeleccionDesde(target + 1);
+      irAPaso(target);
+    }
+  });
+});
+
+/* ── Animación de estadísticas de bienvenida al cargar ── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.quiz-stat__number').forEach((el) => {
+    const count = parseFloat(el.dataset.count) || 0;
+    const suffix = el.dataset.suffix || '';
+    const counter = { val: 0 };
+    if (typeof gsap !== 'undefined') {
+      gsap.to(counter, {
+        val: count,
+        duration: 1.6,
+        ease: 'power2.out',
+        onUpdate: () => { el.textContent = Math.floor(counter.val) + suffix; },
+        onComplete: () => { el.textContent = count + suffix; }
+      });
+    }
+  });
+});
+
 const PASOS = ['nivel', 'cantidad', 'categoria'];
 const ID_PASO = { nivel: 'stepNivel', cantidad: 'stepCantidad', categoria: 'stepCategoria' };
 let pasoActual = 0;
@@ -947,6 +994,7 @@ function irAPaso(destino) {
   const anterior = elPaso(PASOS[pasoActual]);
   const siguiente = elPaso(PASOS[destino]);
   pasoActual = destino;
+  actualizarStepper(destino);
   if (setupBackBtn) setupBackBtn.style.display = destino > 0 ? 'flex' : 'none';
 
   const mostrarSiguiente = () => {
@@ -1001,6 +1049,10 @@ function reiniciarAsistente() {
   });
   elPaso('nivel').classList.add('active');
   pasoActual = 0;
+  actualizarStepper(0);
+  rachaActual = 0;
+  mejorRacha = 0;
+  if (streakBadge) streakBadge.style.display = 'none';
   if (setupBackBtn) setupBackBtn.style.display = 'none';
 }
 
@@ -1135,12 +1187,12 @@ function mostrarPregunta() {
   if (typeof gsap !== 'undefined') {
     gsap.set([quizCardEl, optionsDiv, feedback], { opacity: 1, y: 0 });
     gsap.fromTo(quizCardEl,
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+      { opacity: 0, y: 22, rotateX: -10, transformPerspective: 800 },
+      { opacity: 1, y: 0, rotateX: 0, duration: 0.45, ease: 'power2.out' }
     );
-    gsap.set(optionsDiv.children, { opacity: 0, y: 14 });
+    gsap.set(optionsDiv.children, { opacity: 0, y: 14, scale: 0.96 });
     gsap.to(optionsDiv.children, {
-      opacity: 1, y: 0, duration: 0.4, stagger: 0.07, delay: 0.12, ease: 'power2.out'
+      opacity: 1, y: 0, scale: 1, duration: 0.38, stagger: 0.06, delay: 0.1, ease: 'back.out(1.5)'
     });
   }
 }
@@ -1162,23 +1214,68 @@ function seleccionar(btn, newIdx, correctaMezclada, q) {
   const opts = optionsDiv.querySelectorAll('.quiz-option');
   opts.forEach(o => o.disabled = true);
 
-  if (typeof gsap !== 'undefined' && respuestaCorrecta) {
-    gsap.fromTo(btn, { scale: 1 }, {
-      scale: 1.04, duration: 0.3, ease: 'back.out(2)',
-      onComplete: () => gsap.set(btn, { clearProps: 'transform' })
-    });
-  }
-
   if (respuestaCorrecta) {
+    rachaActual++;
+    if (rachaActual > mejorRacha) mejorRacha = rachaActual;
+
+    // Mostrar badge de racha
+    if (rachaActual >= 2 && streakBadge) {
+      streakBadge.style.display = 'inline-flex';
+      if (streakCount) streakCount.textContent = rachaActual;
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(streakBadge,
+          { scale: 0.6, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(2.2)' }
+        );
+      }
+    }
+
     btn.classList.add('correct');
-    puntaje += nivelPuntos();
-    feedback.className = 'quiz-feedback show correct-fb';
     const points = nivelPuntos();
+    puntaje += points;
+
+    // Crear burbuja de puntaje flotante (+pts)
+    const scorePop = document.createElement('span');
+    scorePop.className = 'score-pop';
+    scorePop.textContent = `+${points}`;
+    scorePop.style.left = `${btn.offsetWidth / 2 - 16}px`;
+    scorePop.style.top = `-8px`;
+    btn.style.position = 'relative';
+    btn.appendChild(scorePop);
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to(scorePop, {
+        y: -36, opacity: 0, duration: 0.85, ease: 'power1.out',
+        onComplete: () => scorePop.remove()
+      });
+      gsap.fromTo(scoreLive,
+        { scale: 1.3, color: '#10b981' },
+        { scale: 1, color: '', duration: 0.4, ease: 'back.out(2)' }
+      );
+      gsap.fromTo(btn, { scale: 1 }, {
+        scale: 1.04, duration: 0.3, ease: 'back.out(2)',
+        onComplete: () => gsap.set(btn, { clearProps: 'transform' })
+      });
+    }
+
+    feedback.className = 'quiz-feedback show correct-fb';
     feedback.innerHTML = `
       <strong>${t('quiz.correctPoints', { points: points })}</strong>
       <p>${q.explicacion}</p>
     `;
   } else {
+    rachaActual = 0;
+    if (streakBadge) {
+      if (typeof gsap !== 'undefined') {
+        gsap.to(streakBadge, {
+          opacity: 0, scale: 0.8, duration: 0.2,
+          onComplete: () => { streakBadge.style.display = 'none'; }
+        });
+      } else {
+        streakBadge.style.display = 'none';
+      }
+    }
+
     btn.classList.add('wrong');
     opts[correctaMezclada].classList.add('correct');
     feedback.className = 'quiz-feedback show wrong-fb';
@@ -1277,7 +1374,7 @@ function mostrarResultados() {
     );
 
     gsap.fromTo(
-      ['#resultsRank', '#resultsTitle', '#resultsScore', '.quiz-results__pct-bar', '#resultsMessage', '.quiz-results__actions'],
+      ['#resultsTrophy', '#resultsRank', '#resultsTitle', '#resultsScore', '.quiz-results__pct-bar', '#resultsMessage', '.quiz-results__actions'],
       { opacity: 0, y: 14 },
       { opacity: 1, y: 0, duration: 0.45, stagger: 0.1, delay: 0.15, ease: 'power2.out' }
     );
@@ -1308,39 +1405,39 @@ function mostrarResultados() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   CONFETI (sin cambios)
+   CONFETI CON PALETA SALVADOREÑA (Añil, Dorado, Volcán, Jade)
    ══════════════════════════════════════════════════════════ */
 function lanzarConfeti() {
   if (typeof gsap === 'undefined') return;
-  const colores = ['#be8e56', '#d4af37', '#e5eaff', '#10b981', '#ffffff'];
+  const colores = ['#be8e56', '#d4af37', '#3d4fa0', '#3aa6c9', '#e8734a', '#10b981', '#ffffff'];
   const contenedor = document.createElement('div');
   contenedor.className = 'confetti-container';
   document.body.appendChild(contenedor);
 
-  const totalPiezas = 46;
+  const totalPiezas = 52;
   for (let i = 0; i < totalPiezas; i++) {
     const pieza = document.createElement('div');
     pieza.className = 'confetti-piece';
     pieza.style.background = colores[Math.floor(Math.random() * colores.length)];
     pieza.style.left = `${Math.random() * 100}vw`;
-    const tam = 6 + Math.random() * 6;
+    const tam = 6 + Math.random() * 7;
     pieza.style.width = `${tam}px`;
-    pieza.style.height = `${tam * 0.4}px`;
+    pieza.style.height = `${tam * 0.45}px`;
     contenedor.appendChild(pieza);
 
     gsap.set(pieza, { y: -20, opacity: 1, rotation: Math.random() * 360 });
     gsap.to(pieza, {
       y: '100vh',
-      x: (Math.random() - 0.5) * 220,
+      x: (Math.random() - 0.5) * 260,
       rotation: `+=${360 + Math.random() * 360}`,
       opacity: 0,
-      duration: 2 + Math.random() * 1.5,
+      duration: 2 + Math.random() * 1.6,
       delay: Math.random() * 0.35,
       ease: 'power1.in',
       onComplete: () => pieza.remove()
     });
   }
-  setTimeout(() => contenedor.remove(), 4200);
+  setTimeout(() => contenedor.remove(), 4500);
 }
 
 /* ══════════════════════════════════════════════════════════
