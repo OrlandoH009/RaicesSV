@@ -3659,7 +3659,15 @@ function spawnEntities() {
       msg = jt('jue.card4.loseMsg', '¡Se acabó el tiempo y <b>te quedaste con la mica</b>! La próxima vez pasala más rápido a Chepe, Sofía o Mateo antes de que termine la ronda.');
     }
 
-    const gameName = `mica-${selectedTimeLimit}s`;
+    // El id interno de este juego es "encantados" (mismo que sus elementos
+    // del DOM: hud-encantados, pauseBtn-encantados, etc.) y así también
+    // está en la lista blanca del backend (GAME_NAMES_VALIDOS espera
+    // "encantados-20s"/"encantados-40s"/"encantados-60s", una entrada por
+    // cada duración seleccionable). "Mica" es solo el nombre visible.
+    // Antes esto mandaba "mica-40s", que no está en esa lista, así que el
+    // guardado del puntaje fallaba en silencio (400) y nunca llegaba a
+    // guardarse.
+    const gameName = `encantados-${selectedTimeLimit}s`;
 
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.roundEndTag', 'Fin de la Ronda')}</span>
@@ -4615,19 +4623,23 @@ function spawnEntities() {
       spawnParticles(confetti[i].x, confetti[i].y, confetti[i].color);
     }
 
-    // Guardar score
-    const gameName = `canicas-${difficulty}`;
-    const best = parseInt(localStorage.getItem(`best_${gameName}`) || '0');
-    if (score > best) localStorage.setItem(`best_${gameName}`, score);
-    const isBest = score >= best && score > 0;
+    // Guardar score en la base de datos (como el resto de los juegos,
+    // en vez de solo localStorage: antes Canicas era el único que no
+    // mandaba el puntaje al servidor, así que su récord no aparecía
+    // junto con el de los demás juegos ni se guardaba en la cuenta).
+    // El id interno de este juego es "elotes" (mismo que sus elementos del
+    // DOM: hud-elotes, pauseBtn-elotes, etc.) y así también está en la
+    // lista blanca del backend (GAME_NAMES_VALIDOS espera "elotes-easy" /
+    // "elotes-hard"). "canicas" es solo el nombre visible para el jugador.
+    const gameName = `elotes-${difficulty}`;
 
     setTimeout(() => {
       overlayCard.innerHTML = `
         <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
-        <h3 style="margin:.5rem 0;">${isBest ? jt('jue.card5.end.newRecord', '🏆 ¡Nuevo Récord!') : jt('jue.card5.end.finished', '¡Partida terminada!')}</h3>
+        <h3 style="margin:.5rem 0;">${jt('jue.card5.end.finished', '¡Partida terminada!')}</h3>
         <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${score} canicas</p>
         <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'sacadas en {n} rondas').replace('{n}', totalRounds)}</p>
-        <p style="font-size:.8rem;color:#C4B5FD;margin-bottom:1rem;">${jt('jue.card5.end.best', 'Mejor: {n}').replace('{n}', Math.max(score, best))}</p>
+        <p class="overlay-best-score" id="can-best-score"></p>
         <div style="display:flex;gap:10px;justify-content:center;">
           <button class="btn-primary" id="can-replay">🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>
           <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">${jt('jue.pause.menu', 'Menú')}</button>
@@ -4638,6 +4650,13 @@ function spawnEntities() {
 
       document.getElementById('can-replay').onclick = showDifficultySelector;
       document.getElementById('can-menu').onclick = showDifficultySelector;
+
+      guardarPuntajeJuego(gameName, score).then(() => {
+        obtenerMejorPuntajeJuego(gameName).then((best) => {
+          const el = document.getElementById('can-best-score');
+          if (el && best) el.textContent = jt('jue.card5.end.best', 'Mejor: {n}').replace('{n}', best.score);
+        });
+      });
     }, 800);
   }
 

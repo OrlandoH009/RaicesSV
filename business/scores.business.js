@@ -12,7 +12,7 @@ const pool = db.promise();
 //   pupusa:     "pupusa-dificultad"      (ej. "pupusa-easy")
 //   trompos:    "trompos-modo"           (ej. "trompos-pvp")
 //   coasters:   "coasters-distancia"     (ej. "coasters-express")
-//   encantados: "encantados-dificultad"  (ej. "encantados-medium")
+//   encantados: "encantados-duracion"     (ej. "encantados-40s")
 //   elotes:     "elotes-dificultad"      (ej. "elotes-hard")
 //
 // GAME_NAMES_VALIDOS es la lista blanca completa de valores permitidos.
@@ -29,7 +29,10 @@ const GAME_NAMES_VALIDOS = new Set([
     'pupusa-easy', 'pupusa-hard',
     'trompos-pvp', 'trompos-pve',
     'coasters-express', 'coasters-normal', 'coasters-costaacosta',
-    'encantados-easy', 'encantados-medium', 'encantados-hard',
+    // Mica (id interno "encantados") no tiene selector de dificultad, sino
+    // de duración de la ronda (20/40/60 segundos) — la lista blanca debe
+    // reflejar exactamente lo que manda el cliente en juegos.js.
+    'encantados-20s', 'encantados-40s', 'encantados-60s',
     'elotes-easy', 'elotes-hard',
     ...['easy', 'hard'].flatMap((dif) =>
         ['corta', 'media', 'larga'].map((dist) => `torito-${dif}-${dist}`)
