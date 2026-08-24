@@ -85,15 +85,15 @@
 
       <div class="quiz-welcome__stats">
         <div class="quiz-stat">
-          <div class="quiz-stat__number">448+</div>
+          <div class="quiz-stat__number" data-count="448" data-suffix="+">448+</div>
           <div class="quiz-stat__label" data-i18n="quiz.statQuestions">Preguntas</div>
         </div>
         <div class="quiz-stat">
-          <div class="quiz-stat__number">4</div>
+          <div class="quiz-stat__number" data-count="4">4</div>
           <div class="quiz-stat__label" data-i18n="quiz.statCategories">Categorías</div>
         </div>
         <div class="quiz-stat">
-          <div class="quiz-stat__number">4</div>
+          <div class="quiz-stat__number" data-count="4">4</div>
           <div class="quiz-stat__label" data-i18n="quiz.statLevels">Niveles</div>
         </div>
       </div>
@@ -101,6 +101,24 @@
 
     <!-- Selección paso a paso -->
     <div class="quiz-setup reveal" id="quizSetup">
+
+      <!-- Stepper visual dinámico -->
+      <div class="quiz-stepper" id="quizStepper">
+        <div class="quiz-stepper__step active" data-step-target="0">
+          <span class="quiz-stepper__num">1</span>
+          <span class="quiz-stepper__label" data-i18n="quiz.stepNivel">Nivel</span>
+        </div>
+        <div class="quiz-stepper__line" id="stepperLine1"></div>
+        <div class="quiz-stepper__step" data-step-target="1">
+          <span class="quiz-stepper__num">2</span>
+          <span class="quiz-stepper__label" data-i18n="quiz.stepCantidad">Cantidad</span>
+        </div>
+        <div class="quiz-stepper__line" id="stepperLine2"></div>
+        <div class="quiz-stepper__step" data-step-target="2">
+          <span class="quiz-stepper__num">3</span>
+          <span class="quiz-stepper__label" data-i18n="quiz.stepCategoria">Categoría</span>
+        </div>
+      </div>
 
       <button type="button" class="quiz-setup__back" id="setupBackBtn" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
@@ -126,7 +144,8 @@
             <p class="level-card__name" data-i18n="quiz.levelDificil">Difícil</p>
             <p class="level-card__sub" data-i18n="quiz.levelDificilSub">Para expertos en historia. 15 pts.</p>
           </div>
-          <div class="level-card" data-level="guanaco">
+          <div class="level-card level-card--guanaco" data-level="guanaco">
+            <div class="level-card__badge-fire">🔥 Especial</div>
             <div class="level-card__bar"></div>
             <p class="level-card__name" data-i18n="quiz.levelGuanaco">100% Guanaco</p>
             <p class="level-card__sub" data-i18n="quiz.levelGuanacoSub">Solo lo sabe un verdadero cuscatleco. 20 pts.</p>
@@ -157,11 +176,11 @@
       <div class="quiz-step" id="stepCategoria" data-step="categoria">
         <p class="quiz-setup__label" data-i18n="quiz.selectCategory">Elige una categoría</p>
         <div class="quiz-cats">
-          <button class="cat-btn" data-cat="todas" data-i18n="quiz.catTodas">Todas</button>
-          <button class="cat-btn" data-cat="historia" data-i18n="quiz.catHistoria">Historia</button>
-          <button class="cat-btn" data-cat="gastronomia" data-i18n="quiz.catGastronomia">Gastronomía</button>
-          <button class="cat-btn" data-cat="sitios" data-i18n="quiz.catSitios">Sitios Culturales</button>
-          <button class="cat-btn" data-cat="leyendas" data-i18n="quiz.catLeyendas">Leyendas</button>
+          <button class="cat-btn" data-cat="todas"><span class="cat-btn__icon">✨</span> <span data-i18n="quiz.catTodas">Todas</span></button>
+          <button class="cat-btn" data-cat="historia"><span class="cat-btn__icon">📜</span> <span data-i18n="quiz.catHistoria">Historia</span></button>
+          <button class="cat-btn" data-cat="gastronomia"><span class="cat-btn__icon">🍲</span> <span data-i18n="quiz.catGastronomia">Gastronomía</span></button>
+          <button class="cat-btn" data-cat="sitios"><span class="cat-btn__icon">🏛️</span> <span data-i18n="quiz.catSitios">Sitios Culturales</span></button>
+          <button class="cat-btn" data-cat="leyendas"><span class="cat-btn__icon">🌋</span> <span data-i18n="quiz.catLeyendas">Leyendas</span></button>
         </div>
 
         <div class="quiz-start-wrap" id="quizStartWrap">
@@ -202,7 +221,10 @@
 
       <div class="quiz-status">
         <span id="questionCounter">Pregunta 1 de 10</span>
-        <span class="quiz-score-live" id="scoreLive">Puntos: 0</span>
+        <div class="quiz-status-right">
+          <span class="quiz-streak-badge" id="streakBadge" style="display:none;"><span class="streak-flame">🔥</span> <span id="streakCount">2</span> racha</span>
+          <span class="quiz-score-live" id="scoreLive">Puntos: 0</span>
+        </div>
       </div>
 
       <!-- Pregunta -->
@@ -222,6 +244,10 @@
 
       <!-- Resultados -->
       <div class="quiz-results" id="quizResults">
+        <div class="quiz-results__trophy" id="resultsTrophy">
+          <span class="trophy-icon">🏆</span>
+          <div class="results-sunburst" aria-hidden="true"></div>
+        </div>
         <p class="quiz-results__rank" id="resultsRank"></p>
         <h2 class="quiz-results__title" id="resultsTitle"></h2>
         <div class="quiz-results__score" id="resultsScore"></div>

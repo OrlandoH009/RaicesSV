@@ -64,60 +64,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ── Rotador de datos curiosos ── */
-  const FACT_KEYS = ['fact.text1', 'fact.text2', 'fact.text3', 'fact.text4', 'fact.text5', 'fact.text6', 'fact.text7'];
-  const factEl = document.getElementById('factText');
-  const factDots = document.getElementById('factDots');
-  const factPrev = document.getElementById('factPrev');
-  const factNext = document.getElementById('factNext');
-  if (factEl) {
-    let i = 0;
-    let timer = null;
+  /* ── Rotador de datos curiosos (fallback si no está GSAP) ── */
+  if (typeof gsap === 'undefined') {
+    const FACT_KEYS = ['fact.text1', 'fact.text2', 'fact.text3', 'fact.text4', 'fact.text5', 'fact.text6', 'fact.text7'];
+    const factEl = document.getElementById('factText');
+    const factDots = document.getElementById('factDots');
+    const factPrev = document.getElementById('factPrev');
+    const factNext = document.getElementById('factNext');
+    if (factEl) {
+      let i = 0;
+      let timer = null;
 
-    const currentFacts = () => {
-      const lang = (window.SRi18n && window.SRi18n.getLang()) || 'es';
-      return FACT_KEYS.map(key => (window.SRi18n ? window.SRi18n.t(key, lang) : key));
-    };
+      const currentFacts = () => {
+        const lang = (window.SRi18n && window.SRi18n.getLang()) || 'es';
+        return FACT_KEYS.map(key => (window.SRi18n ? window.SRi18n.t(key, lang) : key));
+      };
 
-    if (factDots) {
-      FACT_KEYS.forEach((_, idx) => {
-        const dot = document.createElement('span');
-        dot.className = 'fact-dot' + (idx === 0 ? ' active' : '');
-        factDots.appendChild(dot);
-      });
-    }
+      if (factDots && factDots.children.length === 0) {
+        FACT_KEYS.forEach((_, idx) => {
+          const dot = document.createElement('span');
+          dot.className = 'fact-dot' + (idx === 0 ? ' active' : '');
+          factDots.appendChild(dot);
+        });
+      }
 
-    const showFact = (idx) => {
-      const facts = currentFacts();
-      factEl.style.opacity = 0;
-      setTimeout(() => {
-        factEl.textContent = facts[idx];
-        factEl.style.opacity = 1;
-        factDots?.querySelectorAll('.fact-dot').forEach((d, di) =>
-          d.classList.toggle('active', di === idx));
-      }, 350);
-    };
+      const showFact = (idx) => {
+        const facts = currentFacts();
+        factEl.style.opacity = 0;
+        setTimeout(() => {
+          factEl.textContent = facts[idx];
+          factEl.style.opacity = 1;
+          factDots?.querySelectorAll('.fact-dot').forEach((d, di) =>
+            d.classList.toggle('active', di === idx));
+        }, 350);
+      };
 
-    const restartAutoplay = () => {
-      if (timer) clearInterval(timer);
-      timer = setInterval(() => {
-        i = (i + 1) % FACT_KEYS.length;
+      const restartAutoplay = () => {
+        if (timer) clearInterval(timer);
+        timer = setInterval(() => {
+          i = (i + 1) % FACT_KEYS.length;
+          showFact(i);
+        }, 5000);
+      };
+
+      const goTo = (idx) => {
+        i = (idx + FACT_KEYS.length) % FACT_KEYS.length;
         showFact(i);
-      }, 5000);
-    };
+        restartAutoplay();
+      };
 
-    const goTo = (idx) => {
-      i = (idx + FACT_KEYS.length) % FACT_KEYS.length;
-      showFact(i);
+      factPrev?.addEventListener('click', () => goTo(i - 1));
+      factNext?.addEventListener('click', () => goTo(i + 1));
+
+      document.addEventListener('langchange', () => showFact(i));
+
       restartAutoplay();
-    };
-
-    factPrev?.addEventListener('click', () => goTo(i - 1));
-    factNext?.addEventListener('click', () => goTo(i + 1));
-
-    document.addEventListener('langchange', () => showFact(i));
-
-    restartAutoplay();
+    }
   }
 
   /* ── Buscador y filtros (Categorías) — se omite si la página usa su propia versión GSAP ── */

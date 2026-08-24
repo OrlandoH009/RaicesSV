@@ -1580,7 +1580,17 @@ if (window.visualViewport) {
   });
 
   closeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      // El botón ✕ vive dentro de `.game-modal__content`, que tiene un
+      // listener `retryPlay` (para reintentar la música bloqueada por
+      // autoplay en móvil) armado con el mismo clic que abre el juego.
+      // Sin este stopPropagation, cerrar el juego con su primer clic
+      // dentro del modal hacía burbujear este mismo evento hasta ese
+      // listener, que volvía a reproducir la música del juego justo
+      // cuando se estaba pausando al cerrar — y como esa música "seguía
+      // sonando", la música de fondo global (El Carbonero) nunca
+      // recuperaba el turno para reanudarse.
+      e.stopPropagation();
       const gameId = btn.dataset.closeModal;
       closeModal(gameId);
     });
@@ -1687,8 +1697,15 @@ if (window.visualViewport) {
   let botDifficulty = 'easy';
   let targetDistance = 2000;
 
-  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8, lane: 1, targetX: 0, distance: 0, passengers: 0 };
-  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5, lane: 2, targetX: 0, distance: 0 };
+  // En celular el bus acelera solo (no hay forma natural de "mantener
+  // presionada" una tecla), y la misma velocidad en píxeles se siente
+  // mucho más frenética en una pantalla chica que en una de escritorio.
+  // Bajamos el techo de velocidad de ambos buses para que el scroll del
+  // camino (que depende directo de player.speed) se vea más manejable.
+  const COASTERS_SPEED_MULT = esTactilJuegos ? 0.68 : 1;
+
+  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8 * COASTERS_SPEED_MULT, lane: 1, targetX: 0, distance: 0, passengers: 0 };
+  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0 };
 
   const lanesCount = 4;
   let laneWidth = 0;
@@ -1906,11 +1923,11 @@ if (window.visualViewport) {
     bot.distance = 0;
 
     if (botDifficulty === 'easy') {
-      bot.maxSpeed = 5.2;
+      bot.maxSpeed = 5.2 * COASTERS_SPEED_MULT;
     } else if (botDifficulty === 'medium') {
-      bot.maxSpeed = 6.3;
+      bot.maxSpeed = 6.3 * COASTERS_SPEED_MULT;
     } else {
-      bot.maxSpeed = 7.2;
+      bot.maxSpeed = 7.2 * COASTERS_SPEED_MULT;
     }
 
     passengers = [];
@@ -2661,6 +2678,22 @@ function spawnEntities() {
   let micaBearerIndex = 1; // Start with an NPC holding the mica
   let immunityTimer = 0; // Grace period after passing mica
 
+  // Antes, apenas alguien recibía la mica, lo más común es que la persona
+  // que se la acababa de pasar siguiera siendo el objetivo más cercano/
+  // visible, así que el nuevo "que la trae" la perseguía de inmediato y
+  // se la devolvía enseguida: dos NPCs quedaban pasándosela en bucle sin
+  // que nadie más entrara en juego. Guardamos quién la traía justo antes
+  // y lo ignoramos como objetivo por un ratito para forzar a que el que
+  // ahora la tiene busque a alguien más.
+  let previousBearerIndex = -1;
+  let avoidPrevBearerTimer = 0;
+
+  // En celular el campo de juego es más chico en relación al tamaño de
+  // los personajes, así que las mismas velocidades se sienten mucho más
+  // frenéticas que en escritorio. Bajamos un poco el ritmo general del
+  // juego (caminata, persecución y huida) solo quienes juegan táctil.
+  const MICA_SPEED_MULT = esTactilJuegos ? 0.72 : 1;
+
   // Input tracking
   let keys = {};
   let touchJoystick = { x: 0, y: 0, active: false };
@@ -3009,6 +3042,8 @@ function spawnEntities() {
     if (immunityTimer > 0 || fromIndex === toIndex) return;
     micaBearerIndex = toIndex;
     immunityTimer = 100; // ~1.6s grace period
+    previousBearerIndex = fromIndex;
+    avoidPrevBearerTimer = 220; // ~3.5s ignorando a quien se la acaba de pasar
 
     const allEntities = [player, ...kids];
     const newBearer = allEntities[toIndex];
@@ -3062,11 +3097,11 @@ function spawnEntities() {
     const len = Math.sqrt(dx * dx + dy * dy);
     if (len > 10) {
       Body.applyForce(player, player.position, {
-        x: (dx / len) * 0.0035,
-        y: (dy / len) * 0.0035
+        x: (dx / len) * 0.0035 * MICA_SPEED_MULT,
+        y: (dy / len) * 0.0035 * MICA_SPEED_MULT
       });
       player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, 2.4);
+      clampVelocity(player, 2.4 * MICA_SPEED_MULT);
     }
   }, { passive: false });
 
@@ -3140,19 +3175,32 @@ function spawnEntities() {
         let target = null;
         let minTargetDist = 9999;
 
-        // Scan all other kids and player
+        // Scan all other kids and player. Mientras dure avoidPrevBearerTimer,
+        // ignoramos a quien nos acaba de pasar la mica (salvo que sea el
+        // único disponible) para que el bucle de "pasársela entre 2" se
+        // rompa y el que la trae salga a buscar a alguien más.
+        let fallbackTarget = null;
+        let fallbackDist = 9999;
         allEntities.forEach((other, oIdx) => {
           if (oIdx === npc.index) return;
           const dist = Math.hypot(other.position.x - npc.position.x, other.position.y - npc.position.y);
 
           const seen = canSeeTarget(npc, other);
           const heard = canHearTarget(npc, other);
+          if (!seen && !heard) return;
 
-          if ((seen || heard) && dist < minTargetDist) {
+          if (avoidPrevBearerTimer > 0 && oIdx === previousBearerIndex) {
+            if (dist < fallbackDist) { fallbackDist = dist; fallbackTarget = other; }
+            return;
+          }
+          if (dist < minTargetDist) {
             minTargetDist = dist;
             target = other;
           }
         });
+        // Si de verdad no hay nadie más a la vista/oído, mejor perseguir al
+        // anterior portador que quedarse parado sin hacer nada.
+        if (!target && fallbackTarget) target = fallbackTarget;
 
         if (target) {
           // Alerted! Sprint towards target
@@ -3162,12 +3210,12 @@ function spawnEntities() {
           const dy = target.position.y - npc.position.y;
           npc.angleFacing = Math.atan2(dy, dx);
 
-          const chaseForce = 0.0022;
+          const chaseForce = 0.0022 * MICA_SPEED_MULT;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * chaseForce,
             y: Math.sin(npc.angleFacing) * chaseForce
           });
-          clampVelocity(npc, 2.5);
+          clampVelocity(npc, 2.5 * MICA_SPEED_MULT);
         } else {
           // Not detected -> Wanders calmly looking around
           npc.state = 'WANDERING';
@@ -3183,12 +3231,12 @@ function spawnEntities() {
             }
           }
 
-          const walkForce = 0.0012;
+          const walkForce = 0.0012 * MICA_SPEED_MULT;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.8);
+          clampVelocity(npc, 1.8 * MICA_SPEED_MULT);
         }
       } else {
         // NPC DOES NOT HAVE MICA -> Wanders, or flees if Mica bearer comes close
@@ -3197,17 +3245,31 @@ function spawnEntities() {
         const micaHeard = canHearTarget(npc, micaBearer, 110);
 
         if ((micaSeen || micaHeard || distToMica < 110) && distToMica < 200) {
-          // Panicked! Flee away from Mica bearer
+          // Panicked! Flee away from Mica bearer, con amagues.
           npc.state = 'FLEEING';
           const fleeAngle = Math.atan2(npc.position.y - micaBearer.position.y, npc.position.x - micaBearer.position.x);
-          npc.angleFacing = fleeAngle;
 
-          const fleeForce = 0.0022;
+          // Antes huía siempre en línea recta (directo lejos del que trae
+          // la mica), lo cual se ve robótico. Ahora, cada cierto tiempo
+          // mete un quiebre lateral tipo amague -más marcado cuanto más
+          // cerca la tiene encima-, y de vez en cuando amaga hacia el
+          // lado contrario al que venía amagando para que no sea un
+          // simple zigzag predecible.
+          npc.feintTimer = (npc.feintTimer || 0) - 1;
+          if (npc.feintTimer <= 0) {
+            npc.feintTimer = 14 + Math.random() * 22;
+            npc.feintSign = (Math.random() < 0.35 && npc.feintSign) ? -npc.feintSign : (Math.random() < 0.5 ? -1 : 1);
+          }
+          const closeness = Math.max(0, Math.min(1, (150 - distToMica) / 150));
+          const feintOffset = npc.feintSign * closeness * (Math.PI / 3.4);
+          npc.angleFacing = fleeAngle + feintOffset;
+
+          const fleeForce = 0.0022 * MICA_SPEED_MULT;
           Body.applyForce(npc, npc.position, {
-            x: Math.cos(fleeAngle) * fleeForce,
-            y: Math.sin(fleeAngle) * fleeForce
+            x: Math.cos(npc.angleFacing) * fleeForce,
+            y: Math.sin(npc.angleFacing) * fleeForce
           });
-          clampVelocity(npc, 2.4);
+          clampVelocity(npc, 2.4 * MICA_SPEED_MULT);
         } else {
           // Wanders safely in the field
           npc.state = 'WANDERING';
@@ -3223,18 +3285,19 @@ function spawnEntities() {
             }
           }
 
-          const walkForce = 0.0012;
+          const walkForce = 0.0012 * MICA_SPEED_MULT;
           Body.applyForce(npc, npc.position, {
             x: Math.cos(npc.angleFacing) * walkForce,
             y: Math.sin(npc.angleFacing) * walkForce
           });
-          clampVelocity(npc, 1.8);
+          clampVelocity(npc, 1.8 * MICA_SPEED_MULT);
         }
       }
     });
 
     // Check collisions for Mica tags
     if (immunityTimer > 0) immunityTimer--;
+    if (avoidPrevBearerTimer > 0) avoidPrevBearerTimer--;
 
     const bearer = allEntities[micaBearerIndex];
     if (bearer && immunityTimer <= 0) {

@@ -1,11 +1,14 @@
 /* ============================================================
   Salvadorean Roots — index-gsap.js
    Animaciones GSAP exclusivas del Inicio:
-   - Hero con título partido en letras + partículas + parallax
-   - Marquee cultural infinito
+   - Hero con título partido en letras + partículas culturales (ascuas volcánicas, estrellas, glifos) + parallax
+   - 3D Parallax y Tilt interactivo con el puntero
+   - Marquee cultural infinito con control de velocidad en hover
    - Revelado de secciones con ScrollTrigger
-   - Contadores animados con GSAP
-   - Botones magnéticos + glow de cursor
+   - Contadores numéricos con destello de finalización
+   - Rotador dinámico de Datos Curiosos con barra de progreso GSAP
+   - Tarjetas Bento con 3D Tilt suave y reflejo de luz
+   - Botones magnéticos + glow pulsante
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,30 +39,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ── 3. Hero: partículas doradas flotantes ── */
+  /* ── 3. Hero: partículas temáticas flotantes (doradas, ascuas de volcán y glifos) ── */
   const particleWrap = document.getElementById('heroParticles');
   if (particleWrap && !prefersReducedMotion) {
-    const total = window.innerWidth < 600 ? 10 : 20;
+    const total = window.innerWidth < 600 ? 14 : 26;
+    const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
+    
     for (let i = 0; i < total; i++) {
       const p = document.createElement('span');
-      p.className = 'hero-particle';
-      const size = gsap.utils.random(4, 12);
+      const type = types[i % types.length];
+      p.className = 'hero-particle ' + type;
+      
+      const size = type === 'hero-particle--glyph' ? gsap.utils.random(8, 14) : gsap.utils.random(4, 11);
       p.style.width = size + 'px';
       p.style.height = size + 'px';
       p.style.left = gsap.utils.random(0, 100) + '%';
       particleWrap.appendChild(p);
 
       gsap.fromTo(p,
-        { y: 30, opacity: 0 },
+        { y: 40, opacity: 0, rotation: gsap.utils.random(0, 180) },
         {
-          y: -window.innerHeight * gsap.utils.random(0.7, 1.1),
-          x: gsap.utils.random(-60, 60),
-          opacity: gsap.utils.random(.4, .85),
-          duration: gsap.utils.random(7, 14),
+          y: -window.innerHeight * gsap.utils.random(0.75, 1.15),
+          x: gsap.utils.random(-80, 80),
+          rotation: `+=${gsap.utils.random(90, 360)}`,
+          opacity: gsap.utils.random(.45, .9),
+          duration: gsap.utils.random(8, 16),
           delay: gsap.utils.random(0, 10),
           repeat: -1,
           ease: 'none',
-          onRepeat: () => { p.style.left = gsap.utils.random(0, 100) + '%'; }
+          onRepeat: () => {
+            p.style.left = gsap.utils.random(0, 100) + '%';
+          }
         }
       );
     }
@@ -91,9 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.to('.hero__scroll-cue', { y: 8, duration: 1.1, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2.2 });
   }
 
-  // Tocar/clickear "Desliza": un movimiento sutil de confirmación y baja
-  // suavemente hasta "¿Qué es Salvadorean Roots?", para que la gente siga
-  // bajando y vea las demás secciones.
+  // Tocar/clickear "Desliza"
   const scrollCue = document.getElementById('heroScrollCue');
   const aboutSection = document.getElementById('about');
   if (scrollCue && aboutSection) {
@@ -117,10 +125,41 @@ document.addEventListener('DOMContentLoaded', () => {
       ease: 'none',
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });
+
+    // 3D Parallax suave en el contenido del hero con el movimiento del ratón
+    const heroSection = document.querySelector('.hero');
+    const heroTitleWrap = document.querySelector('.hero__title-wrap');
+    if (heroSection && heroTitleWrap) {
+      heroSection.addEventListener('mousemove', (e) => {
+        const { clientX, clientY } = e;
+        const xPos = (clientX / window.innerWidth - 0.5) * 2;
+        const yPos = (clientY / window.innerHeight - 0.5) * 2;
+        gsap.to(heroTitleWrap, {
+          rotateY: xPos * 8,
+          rotateX: -yPos * 8,
+          x: xPos * 12,
+          y: yPos * 8,
+          duration: 0.6,
+          ease: 'power2.out',
+          transformPerspective: 900
+        });
+      });
+      heroSection.addEventListener('mouseleave', () => {
+        gsap.to(heroTitleWrap, {
+          rotateY: 0,
+          rotateX: 0,
+          x: 0,
+          y: 0,
+          duration: 1,
+          ease: 'elastic.out(1, 0.4)'
+        });
+      });
+    }
   }
 
-  /* ── 5. Marquee cultural infinito ── */
+  /* ── 5. Marquee cultural infinito con desaceleración interactiva ── */
   const track = document.getElementById('marqueeTrack');
+  const marqueeSection = document.querySelector('.marquee');
   if (track) {
     const original = track.querySelector('.marquee__group');
     if (original) {
@@ -128,7 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
       clone.setAttribute('aria-hidden', 'true');
       track.appendChild(clone);
     }
-    gsap.to(track, { xPercent: -50, duration: 24, ease: 'none', repeat: -1 });
+    const marqueeTween = gsap.to(track, { xPercent: -50, duration: 24, ease: 'none', repeat: -1 });
+
+    if (marqueeSection && !prefersReducedMotion) {
+      marqueeSection.addEventListener('mouseenter', () => {
+        gsap.to(marqueeTween, { timeScale: 0.35, duration: 0.6 });
+      });
+      marqueeSection.addEventListener('mouseleave', () => {
+        gsap.to(marqueeTween, { timeScale: 1, duration: 0.6 });
+      });
+    }
   }
 
   /* ── 6. Revelado de secciones (.reveal) con ScrollTrigger ── */
@@ -142,13 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  /* ── 6b. Título "Información para ti": entrada palabra por palabra ──
-     Antes usaba el mismo fundido genérico que el resto de secciones
-     (.reveal). Para que se vea más animado lo partimos en palabras
-     (igual que el título del hero, con espacios de verdad entre ellas
-     para que siga envolviendo bien en celular) y cada una entra con un
-     rebote, mientras el degradado dorado del texto sigue brillando
-     como ya lo hacía. */
+  /* ── 6b. Título "Información para ti": entrada palabra por palabra ── */
   const infoBadgeTitle = document.getElementById('infoBadgeTitle');
   if (infoBadgeTitle) {
     const original = infoBadgeTitle.textContent.trim();
@@ -170,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ── 7. Estadísticas: stagger + contador numérico ── */
+  /* ── 7. Estadísticas: stagger + contador numérico + destello al finalizar ── */
   gsap.utils.toArray('.stat').forEach((stat, i) => {
     gsap.fromTo(stat,
       { autoAlpha: 0, y: 45, rotateX: -20, transformPerspective: 700 },
@@ -185,6 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const target = parseFloat(el.dataset.count) || 0;
     const suffix = el.dataset.suffix || '';
     const counter = { val: 0 };
+    const parentStat = el.closest('.stat');
+
     ScrollTrigger.create({
       trigger: el,
       start: 'top 88%',
@@ -193,25 +237,107 @@ document.addEventListener('DOMContentLoaded', () => {
         gsap.to(counter, {
           val: target, duration: 1.7, ease: 'power2.out',
           onUpdate: () => { el.textContent = Math.floor(counter.val).toLocaleString('es-SV') + suffix; },
-          onComplete: () => { el.textContent = target.toLocaleString('es-SV') + suffix; }
+          onComplete: () => {
+            el.textContent = target.toLocaleString('es-SV') + suffix;
+            if (parentStat && !prefersReducedMotion) {
+              gsap.fromTo(parentStat,
+                { boxShadow: '0 0 25px rgba(190,142,86,0.6)' },
+                { boxShadow: '0 14px 30px rgba(190,142,86,.18)', duration: 0.8, ease: 'power2.out' }
+              );
+            }
+          }
         });
       }
     });
   });
 
-  /* ── 8. Tarjetas del grid principal: caen y se acomodan en su lugar ──
-     Las tarjetas viven en un CSS grid con celdas fijas: un transform no
-     reordena el layout, solo desplaza el "dibujo" de la tarjeta por
-     encima de lo que haya alrededor. Con un salto de -46px y apenas
-     10-14px de espacio real entre celdas (menos aún en celular, donde
-     además quedan apiladas en una sola columna), cada tarjeta terminaba
-     pintándose encima de la de arriba mientras caía. Ahora el salto es
-     más corto que el espacio real entre celdas (ver gap ampliado en
-     index.css) y el stagger es más lento, así caen una por una, con
-     lugar de sobra, sin pisarse entre ellas. */
+  /* ── 7b. Rotador de Datos Curiosos con GSAP y barra de progreso ── */
+  const factEl = document.getElementById('factText');
+  const factProgressBar = document.getElementById('factProgressBar');
+  const factBox = document.querySelector('.fact-box');
+  const FACT_KEYS = ['fact.text1', 'fact.text2', 'fact.text3', 'fact.text4', 'fact.text5', 'fact.text6', 'fact.text7'];
+
+  if (factEl && factBox) {
+    let factIdx = 0;
+    let progressTween = null;
+
+    const getFactText = (idx) => {
+      const lang = (window.SRi18n && window.SRi18n.getLang()) || 'es';
+      const key = FACT_KEYS[idx];
+      return window.SRi18n ? window.SRi18n.t(key, lang) : key;
+    };
+
+    const animateFactChange = (nextIdx, direction = 1) => {
+      factIdx = (nextIdx + FACT_KEYS.length) % FACT_KEYS.length;
+
+      // Animar salida del texto anterior
+      gsap.to(factEl, {
+        opacity: 0,
+        y: -14 * direction,
+        scale: 0.96,
+        duration: 0.25,
+        ease: 'power2.in',
+        onComplete: () => {
+          factEl.textContent = getFactText(factIdx);
+          document.querySelectorAll('.fact-dot').forEach((d, di) => {
+            d.classList.toggle('active', di === factIdx);
+          });
+
+          // Animar entrada del nuevo texto
+          gsap.fromTo(factEl,
+            { opacity: 0, y: 14 * direction, scale: 0.96 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)' }
+          );
+        }
+      });
+
+      startProgressBar();
+    };
+
+    const startProgressBar = () => {
+      if (progressTween) progressTween.kill();
+      if (!factProgressBar || prefersReducedMotion) return;
+
+      gsap.set(factProgressBar, { width: '0%' });
+      progressTween = gsap.to(factProgressBar, {
+        width: '100%',
+        duration: 5.5,
+        ease: 'none',
+        onComplete: () => {
+          animateFactChange(factIdx + 1, 1);
+        }
+      });
+    };
+
+    const prevBtn = document.getElementById('factPrev');
+    const nextBtn = document.getElementById('factNext');
+    if (prevBtn) prevBtn.addEventListener('click', () => animateFactChange(factIdx - 1, -1));
+    if (nextBtn) nextBtn.addEventListener('click', () => animateFactChange(factIdx + 1, 1));
+
+    document.querySelectorAll('.fact-dot').forEach((dot, dotIdx) => {
+      dot.addEventListener('click', () => {
+        if (dotIdx !== factIdx) animateFactChange(dotIdx, dotIdx > factIdx ? 1 : -1);
+      });
+    });
+
+    factBox.addEventListener('mouseenter', () => {
+      if (progressTween) progressTween.pause();
+    });
+    factBox.addEventListener('mouseleave', () => {
+      if (progressTween) progressTween.resume();
+    });
+
+    document.addEventListener('langchange', () => {
+      factEl.textContent = getFactText(factIdx);
+    });
+
+    startProgressBar();
+  }
+
+  /* ── 8. Tarjetas del grid principal: 3D Tilt suave + entrada cinemática ── */
   const homeCards = gsap.utils.toArray('.home-card');
   if (homeCards.length) {
-    gsap.set(homeCards, { autoAlpha: 0, y: -16, scale: .96 });
+    gsap.set(homeCards, { autoAlpha: 0, y: 24, scale: .96 });
 
     ScrollTrigger.batch(homeCards, {
       start: 'top 90%',
@@ -219,10 +345,38 @@ document.addEventListener('DOMContentLoaded', () => {
       onEnter: (batch) => {
         gsap.to(batch, {
           autoAlpha: 1, y: 0, scale: 1,
-          duration: .8, ease: 'power3.out', stagger: .18
+          duration: .8, ease: 'power3.out', stagger: .15
         });
       }
     });
+
+    // 3D Tilt en las tarjetas Bento
+    if (!prefersReducedMotion) {
+      homeCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+          gsap.to(card, {
+            rotateY: x * 8,
+            rotateX: -y * 8,
+            duration: 0.35,
+            ease: 'power2.out',
+            transformPerspective: 800
+          });
+        });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            rotateY: 0,
+            rotateX: 0,
+            duration: 0.65,
+            ease: 'elastic.out(1, 0.4)'
+          });
+        });
+      });
+    }
   }
 
   /* ── 9. Botones magnéticos ── */
@@ -238,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
       gsap.to(el, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1, 0.4)' });
     });
   }
-  document.querySelectorAll('.hero__cta, .home-cta-final .btn-primary').forEach((el) => magnetize(el));
+  document.querySelectorAll('.hero__cta, .home-cta-final .btn-primary, .fact-nav').forEach((el) => magnetize(el));
 
   /* ── 10. Ambient blobs: deriva lenta tipo "onda" ── */
   if (!prefersReducedMotion) {
@@ -271,11 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   ScrollTrigger.refresh();
 
-  // Las posiciones de disparo (.reveal, .stat, .home-card, etc.) se calculan
-  // aquí con el layout que hay en DOMContentLoaded, pero las imágenes de las
-  // secciones de abajo todavía no cargan y empujan el alto de la página. Sin
-  // este refresco tardío, ScrollTrigger se queda con posiciones "viejas" y
-  // las animaciones tardan en dispararse (hay que scrollear de más).
   window.addEventListener('load', () => ScrollTrigger.refresh());
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => ScrollTrigger.refresh());
