@@ -3,7 +3,6 @@ const dotenv = require('dotenv');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
-const { startTunnel } = require('untun');
 const passport = require('passport');
 const db = require('./data/config/database.config');
 
@@ -228,6 +227,7 @@ if (!process.env.VERCEL) {
 
         if (process.env.NGROK_ENABLED === 'true') {
             try {
+                const { startTunnel } = await import('untun');
                 const tunnel = await startTunnel({
                     port: port,
                     acceptCloudflareNotice: true
