@@ -3,12 +3,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const dbUrl = process.env.DB_URL;
+
+if (!dbUrl) {
+    throw new Error('Falta la variable de entorno DB_URL');
+}
+
+const isAiven = dbUrl.includes('aivencloud.com');
+
 const db = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'raicessv',
+    uri: dbUrl,
+    ssl: isAiven ? { rejectUnauthorized: true } : undefined,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
