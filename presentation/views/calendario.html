@@ -74,7 +74,7 @@
       <h2 class="section-title" data-i18n="cal.title">Calendario</h2>
 
       <!-- Navegación por año -->
-      <div class="cal-controls">
+      <div class="cal-controls" id="calYearControls">
         <button class="cal-nav-btn" id="prevYear">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="15 18 9 12 15 6"/>
@@ -92,8 +92,25 @@
         </button>
       </div>
 
-      <!-- Pills de meses -->
+      <!-- Pills de meses (escritorio) -->
       <div class="month-pills" id="monthPills"></div>
+
+      <!-- Navegación por mes con flechas (celular) -->
+      <div class="cal-controls cal-controls--month" id="calMonthControls">
+        <button class="cal-nav-btn cal-nav-btn--arrow" id="prevMonth" data-i18n-attr="aria-label:cal.prevMonth" aria-label="Mes anterior">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+
+        <span class="cal-month-title" id="calMonthTitle">Cargando…</span>
+
+        <button class="cal-nav-btn cal-nav-btn--arrow" id="nextMonth" data-i18n-attr="aria-label:cal.nextMonth" aria-label="Mes siguiente">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
 
       <!-- Grid del mes -->
       <div class="calendar-wrap">

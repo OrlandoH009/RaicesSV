@@ -76,18 +76,19 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(currentTheme);
 
   const themeSwitch = document.getElementById('themeSwitch');
-  themeSwitch?.addEventListener('click', () => {
+  themeSwitch?.addEventListener('click', (event) => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    applyTheme(isLight ? 'dark' : 'light');
+    runThemeTransition(isLight ? 'dark' : 'light', event);
   });
 
-  // `overflow: hidden` en el body no basta para bloquear el scroll táctil
-  // en varios navegadores móviles (Safari iOS en particular sigue dejando
-  // "arrastrar" el fondo). Fijamos el body en su posición actual para que
-  // ni la rueda ni el dedo puedan mover nada detrás del drawer, y al cerrar
-  // restauramos exactamente el mismo scroll donde estaba.
-  let scrollYAlAbrir = 0;
-
+  // Bloquear el scroll de fondo mientras el menú está abierto: en vez de
+  // fijar el body (position:fixed) o interceptar touchmove por JS —dos
+  // técnicas que terminaron interfiriendo con el scroll INTERNO del propio
+  // menú—, el overlay oscuro (que cubre toda la pantalla detrás del
+  // drawer) lleva "touch-action: none" en su CSS. Así ningún gesto de
+  // arrastre pasa a través de él hacia el fondo, pero el menú en sí —que
+  // está pintado encima del overlay y nunca es el elemento tocado— queda
+  // totalmente libre para su propio scroll nativo.
   function openDrawer() {
     drawer?.classList.add('open');
     overlay?.classList.add('open');
@@ -95,13 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
     burger?.setAttribute('aria-expanded', 'true');
     const closeLabel = window.SRi18n ? window.SRi18n.t('nav.cerrarMenu', window.SRi18n.getLang()) : 'Cerrar menú';
     burger?.setAttribute('aria-label', closeLabel);
-    scrollYAlAbrir = window.scrollY || window.pageYOffset || 0;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollYAlAbrir}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
+    // El widget flotante del chatbot vive en su propia capa con z-index muy
+    // alto (99999), así que en páginas como Categorías (y sus apartados:
+    // sitios, gastronomía, eventos, historia, leyendas) se quedaba flotando
+    // por encima del menú abierto. Lo mandamos al fondo mientras el menú
+    // está abierto.
+    document.body.classList.add('nav-drawer-open');
   }
   function closeDrawer() {
     drawer?.classList.remove('open');
@@ -110,19 +111,27 @@ document.addEventListener('DOMContentLoaded', () => {
     burger?.setAttribute('aria-expanded', 'false');
     const openLabel = window.SRi18n ? window.SRi18n.t('nav.abrirMenu', window.SRi18n.getLang()) : 'Abrir menú';
     burger?.setAttribute('aria-label', openLabel);
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
     document.body.style.overflow = '';
-    window.scrollTo(0, scrollYAlAbrir);
+    document.body.classList.remove('nav-drawer-open');
   }
 
   burger?.addEventListener('click', () =>
     drawer?.classList.contains('open') ? closeDrawer() : openDrawer()
   );
   overlay?.addEventListener('click', closeDrawer);
+
+  // Cierre al tocar fuera del menú: el overlay ya cubre la mayor parte de
+  // la pantalla, pero queda por debajo del navbar (que tiene mayor z-index),
+  // así que un toque sobre el navbar (fuera del propio botón hamburguesa)
+  // no llegaba a disparar el cierre. Este listener a nivel de documento
+  // cubre cualquier punto fuera del drawer, sin importar qué haya encima.
+  document.addEventListener('click', (event) => {
+    if (!drawer?.classList.contains('open')) return;
+    if (drawer.contains(event.target)) return;
+    if (burger?.contains(event.target)) return;
+    closeDrawer();
+  });
+
   drawer?.addEventListener('click', (event) => {
     if (event.target.closest('#themeSwitch')) return;
     const target = event.target.closest('a, button');
@@ -548,6 +557,71 @@ function applyTheme(theme) {
       themeText.textContent = theme === 'light' ? 'Modo claro' : 'Modo oscuro';
     }
   }
+}
+
+/* ============================================================
+   TRANSICIÓN DE TEMA — mancha líquida con GSAP
+   El tema real cambia al instante (las transiciones CSS de
+   background/color ya existentes se encargan del fundido). Por
+   encima, una mancha de color muy transparente y de bordes suaves
+   se expande desde el punto donde se tocó el interruptor y se
+   desvanece, como una gota de tinte esparciéndose en agua.
+   ============================================================ */
+// Deben mantenerse sincronizados con --bg-body en global.css (:root y [data-theme="light"])
+const THEME_LIQUID_RGB = { dark: '29,25,25', light: '250,246,238' };
+
+function runThemeTransition(newTheme, originEvent) {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReduced || typeof gsap === 'undefined') {
+    applyTheme(newTheme);
+    return;
+  }
+
+  const themeSwitch = document.getElementById('themeSwitch');
+  if (themeSwitch) {
+    if (themeSwitch.disabled) return; // animación ya en curso
+    themeSwitch.disabled = true;
+  }
+
+  let originX = originEvent?.clientX;
+  let originY = originEvent?.clientY;
+  if (!originX && !originY && themeSwitch) {
+    const rect = themeSwitch.getBoundingClientRect();
+    originX = rect.left + rect.width / 2;
+    originY = rect.top + rect.height / 2;
+  }
+
+  const maxRadius = Math.hypot(
+    Math.max(originX, window.innerWidth - originX),
+    Math.max(originY, window.innerHeight - originY)
+  ) * 1.15;
+
+  const rgb = THEME_LIQUID_RGB[newTheme] || THEME_LIQUID_RGB.dark;
+  const blob = document.createElement('div');
+  blob.className = 'theme-liquid';
+  blob.setAttribute('aria-hidden', 'true');
+  blob.style.left = originX + 'px';
+  blob.style.top = originY + 'px';
+  blob.style.background = `radial-gradient(circle,
+    rgba(${rgb},.4) 0%,
+    rgba(${rgb},.22) 45%,
+    rgba(${rgb},0) 72%)`;
+  document.body.appendChild(blob);
+
+  // El tema real se aplica de inmediato: la mancha es solo un tinte
+  // decorativo por encima, nunca oculta el contenido.
+  applyTheme(newTheme);
+
+  const cleanup = () => {
+    blob.remove();
+    if (themeSwitch) themeSwitch.disabled = false;
+  };
+
+  const scaleNeeded = maxRadius / 30; // el blob base mide 60px (radio 30px)
+  gsap.timeline({ onComplete: cleanup })
+    .fromTo(blob, { scale: 0, opacity: 1 }, { scale: scaleNeeded, duration: 1.1, ease: 'power2.out' }, 0)
+    .to(blob, { opacity: 0, duration: 0.7, ease: 'power1.in' }, 0.45);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

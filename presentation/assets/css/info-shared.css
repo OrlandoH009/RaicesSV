@@ -179,28 +179,47 @@
 }
 
 /* Hero de la tarjeta con imagen */
+/* El título y el subtítulo vivían cada uno con su propio `position:absolute`
+   y un `bottom` fijo, como si siempre fueran a ocupar una sola línea. En
+   varios lugares (nombres largos como "Palacio Nacional" o subtítulos como
+   "Chalchuapa, Santa Ana — Sitio arqueológico") el subtítulo envuelve a 2
+   líneas en pantallas angostas y, como su posición no dependía de la
+   altura real del título, crecía hacia arriba y quedaba encimado con él.
+   Ahora el hero es un flex column con justify-content:flex-end: la imagen
+   y el degradado quedan absolutos de fondo (inset:0) y el título/subtítulo
+   vuelven al flujo normal, apilados uno debajo del otro sin importar
+   cuántas líneas ocupe cada uno. */
 .info-content__hero {
   position: relative;
   height: 340px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 2.5rem 1.6rem;
 }
 .info-content__hero img {
+  position: absolute;
+  inset: 0;
   width: 100%; height: 100%;
   object-fit: cover;
   opacity: .55;
   transition: opacity .4s;
+  z-index: 0;
 }
 .info-content__hero:hover img { opacity: .7; }
 .info-content__hero-grad {
   position: absolute; inset: 0;
+  z-index: 1;
   background: linear-gradient(to top, rgba(13,13,13,1) 0%, transparent 60%);
 }
 [data-theme="light"] .info-content__hero-grad {
   background: linear-gradient(to top, rgba(17,48,104,.92) 0%, rgba(17,48,104,.15) 55%, transparent 75%);
 }
 .info-content__hero-title {
-  position: absolute;
-  bottom: 1.8rem; left: 2.5rem;
+  position: relative;
+  z-index: 2;
+  margin: 0 0 .2rem;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.8rem, 3.5vw, 3rem);
@@ -209,8 +228,9 @@
   pointer-events: none;
 }
 .info-content__hero-sub {
-  position: absolute;
-  bottom: .8rem; left: 2.5rem;
+  position: relative;
+  z-index: 2;
+  margin: 0;
   font-family: var(--font-display);
   font-style: italic;
   font-size: clamp(.9rem, 1.4vw, 1.1rem);
@@ -314,5 +334,6 @@
 }
 @media (max-width: 480px) {
   .info-gallery { grid-template-columns: 1fr; }
-  .info-content__hero-title { font-size: 1.4rem; left: 1.2rem; }
+  .info-content__hero { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .info-content__hero-title { font-size: 1.4rem; }
 }

@@ -307,6 +307,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   inset: 0;
   background: rgba(0,0,0,.55);
   z-index: 4998;
+  /* Evita que un arrastre táctil sobre el fondo (fuera del menú) lo
+     desplace mientras el drawer está abierto. El menú se pinta encima
+     de este overlay, así que nunca es el elemento tocado ahí y su
+     propio scroll no se ve afectado por esto. */
+  touch-action: none;
 }
 .nav-overlay.open { display: block; }
 
@@ -315,7 +320,15 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   position: fixed;
   top: 0; right: -290px;
   width: 270px;
+  /* 100vh en celular casi siempre calcula MÁS alto que lo que en verdad
+     se ve en pantalla (incluye el espacio detrás de la barra de
+     direcciones del navegador). Con eso, el contenido del menú cabía
+     dentro de esos "100vh" aunque no dentro de la pantalla real: no
+     había overflow que el scroll pudiera activar, así que el botón de
+     cerrar sesión quedaba cortado por el borde de la pantalla sin
+     ninguna forma de alcanzarlo. 100dvh usa el alto real visible. */
   height: 100vh;
+  height: 100dvh;
   background: var(--drawer-bg);
   display: flex;
   flex-direction: column;
@@ -325,19 +338,30 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   box-shadow: -4px 0 25px rgba(0,0,0,.6);
   transition: right .35s cubic-bezier(.4,0,.2,1), background .6s ease, border-color .6s ease, box-shadow .6s ease;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .nav-drawer.open { right: 0; }
+
+/* El widget flotante del chatbot (z-index 99999) quedaba por encima del
+   menú hamburguesa abierto en cualquier página que lo incluya (Categorías
+   y sus apartados: sitios, gastronomía, eventos, historia, leyendas,
+   etc.). Con el menú abierto, el chat pasa al fondo. */
+body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
 
 [data-theme="light"] .nav-drawer {
   box-shadow: -4px 0 25px rgba(17,48,104,.18);
 }
 
-/* En escritorio el contenido del menú siempre entra en la pantalla,
-   así que el scroll interno no hace falta y solo genera un scrollbar
-   o un rebote de rueda innecesario. */
-@media (min-width: 769px) {
-  .nav-drawer { overflow-y: hidden; }
-}
+/* Antes, en pantallas de 769px+ de ancho se forzaba overflow-y:hidden en
+   el menú (pensado para escritorio, donde el contenido "siempre entra").
+   El problema: muchos celulares en horizontal (o con "Solicitar sitio de
+   escritorio" activado) también reportan 769px+ de ancho, así que esta
+   regla anulaba el scroll del menú en celular también — sin que ninguno
+   de los arreglos del bloqueo de fondo pudiera hacer nada al respecto,
+   porque el verdadero bloqueo estaba acá. Se quita del todo: dejar
+   overflow-y:auto siempre no tiene contra, si el contenido entra no
+   aparece scrollbar de todos modos. */
 
 .nav-drawer__head {
   display: flex;
@@ -420,6 +444,22 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 [data-theme="light"] .theme-switch { background: var(--gold); border-color: var(--gold-hover); }
 [data-theme="light"] .theme-switch__thumb { transform: translateX(22px); background: var(--navy); }
 [data-theme="light"] .theme-switch__thumb svg { color: var(--gold-light); }
+
+/* ============================================================
+   TRANSICIÓN DE TEMA — mancha líquida (ver runThemeTransition en script.js)
+   ============================================================ */
+.theme-liquid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border-radius: 50%;
+  z-index: 100001;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
 
 .drawer-section-label {
   font-family: var(--font-body);
@@ -571,6 +611,16 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .btn-register:hover { background: var(--gold-hover); transform: translateY(-1px); }
 
 .btn-logout {
+  /* Es un <button>, no un <a> como sus vecinos "Mi perfil"/"Iniciar
+     Sesión": sin resetear la apariencia nativa del navegador ni fijar
+     el ancho, quedaba angosto (no ocupaba todo el ancho del menú como
+     los demás) y con el relieve/borde nativo del botón por encima del
+     estilo propio — se veía mal puesto comparado con los otros. */
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
   display: block;
   text-align: center;
   font-family: var(--font-display);
@@ -641,18 +691,6 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .footer__links a:hover { color: var(--gold); }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
 .footer__disclaimer { font-size: 0.7rem; color: #777; margin-top: 0.1rem; max-width: 560px; }
-
-/* ── Barra de Progreso y Efectos ── */
-.scroll-progress {
-  position: fixed;
-  top: 0; left: 0;
-  height: 3px;
-  width: 0%;
-  background: linear-gradient(90deg, var(--gold), #f0c98a);
-  z-index: 5001;
-  transition: width .08s linear;
-  box-shadow: 0 0 8px rgba(190,142,86,.6);
-}
 
 .card-spotlight {
   position: absolute;

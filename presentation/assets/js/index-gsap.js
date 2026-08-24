@@ -21,11 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const original = heroTitle.textContent.trim();
     heroTitle.setAttribute('aria-label', original);
     heroTitle.innerHTML = '';
-    [...original].forEach((ch) => {
-      const span = document.createElement('span');
-      span.className = 'char';
-      span.textContent = ch === ' ' ? '\u00A0' : ch;
-      heroTitle.appendChild(span);
+    const words = original.split(' ');
+    words.forEach((word, wi) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'word';
+      [...word].forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        wordSpan.appendChild(span);
+      });
+      heroTitle.appendChild(wordSpan);
+      if (wi < words.length - 1) heroTitle.appendChild(document.createTextNode(' '));
     });
   }
 
@@ -84,6 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.to('.hero__scroll-cue', { y: 8, duration: 1.1, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 2.2 });
   }
 
+  // Tocar/clickear "Desliza": un movimiento sutil de confirmación y baja
+  // suavemente hasta "¿Qué es Salvadorean Roots?", para que la gente siga
+  // bajando y vea las demás secciones.
+  const scrollCue = document.getElementById('heroScrollCue');
+  const aboutSection = document.getElementById('about');
+  if (scrollCue && aboutSection) {
+    const goToAbout = () => {
+      gsap.fromTo(scrollCue,
+        { scale: 1 },
+        { scale: .82, y: 6, duration: .12, ease: 'power1.out', yoyo: true, repeat: 1 }
+      );
+      aboutSection.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    };
+    scrollCue.addEventListener('click', goToAbout);
+    scrollCue.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToAbout(); }
+    });
+  }
+
   // Parallax del fondo del hero al hacer scroll
   if (!prefersReducedMotion) {
     gsap.to('.hero__bg', {
@@ -116,6 +142,34 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
+  /* ── 6b. Título "Información para ti": entrada palabra por palabra ──
+     Antes usaba el mismo fundido genérico que el resto de secciones
+     (.reveal). Para que se vea más animado lo partimos en palabras
+     (igual que el título del hero, con espacios de verdad entre ellas
+     para que siga envolviendo bien en celular) y cada una entra con un
+     rebote, mientras el degradado dorado del texto sigue brillando
+     como ya lo hacía. */
+  const infoBadgeTitle = document.getElementById('infoBadgeTitle');
+  if (infoBadgeTitle) {
+    const original = infoBadgeTitle.textContent.trim();
+    infoBadgeTitle.setAttribute('aria-label', original);
+    infoBadgeTitle.innerHTML = '';
+    original.split(' ').forEach((word, wi, arr) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'badge-word';
+      wordSpan.textContent = word;
+      infoBadgeTitle.appendChild(wordSpan);
+      if (wi < arr.length - 1) infoBadgeTitle.appendChild(document.createTextNode(' '));
+    });
+
+    gsap.set('.badge-word', { y: 34, opacity: 0, scale: .7, rotate: -8 });
+    gsap.to('.badge-word', {
+      y: 0, opacity: 1, scale: 1, rotate: 0,
+      duration: .7, ease: 'back.out(2.4)', stagger: .12,
+      scrollTrigger: { trigger: '.info-badge__inner', start: 'top 88%' }
+    });
+  }
+
   /* ── 7. Estadísticas: stagger + contador numérico ── */
   gsap.utils.toArray('.stat').forEach((stat, i) => {
     gsap.fromTo(stat,
@@ -145,10 +199,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ── 8. Tarjetas del grid principal: caen y se acomodan en su lugar ── */
+  /* ── 8. Tarjetas del grid principal: caen y se acomodan en su lugar ──
+     Las tarjetas viven en un CSS grid con celdas fijas: un transform no
+     reordena el layout, solo desplaza el "dibujo" de la tarjeta por
+     encima de lo que haya alrededor. Con un salto de -46px y apenas
+     10-14px de espacio real entre celdas (menos aún en celular, donde
+     además quedan apiladas en una sola columna), cada tarjeta terminaba
+     pintándose encima de la de arriba mientras caía. Ahora el salto es
+     más corto que el espacio real entre celdas (ver gap ampliado en
+     index.css) y el stagger es más lento, así caen una por una, con
+     lugar de sobra, sin pisarse entre ellas. */
   const homeCards = gsap.utils.toArray('.home-card');
   if (homeCards.length) {
-    gsap.set(homeCards, { autoAlpha: 0, y: -46, scale: .96 });
+    gsap.set(homeCards, { autoAlpha: 0, y: -16, scale: .96 });
 
     ScrollTrigger.batch(homeCards, {
       start: 'top 90%',
@@ -156,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       onEnter: (batch) => {
         gsap.to(batch, {
           autoAlpha: 1, y: 0, scale: 1,
-          duration: .9, ease: 'power3.out', stagger: .12
+          duration: .8, ease: 'power3.out', stagger: .18
         });
       }
     });

@@ -123,6 +123,153 @@
   box-shadow: 0 6px 16px rgba(190, 142, 86, 0.35);
 }
 
+/* ── Buscador de recetas (mismo patrón que Categorías) ── */
+.recipe-search-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 1rem;
+}
+.recipe-search-wrap svg {
+  position: absolute;
+  left: 1rem; top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  stroke: var(--gold);
+  pointer-events: none;
+}
+#recipeSearch {
+  width: 100%;
+  background: var(--search-bg);
+  border: 1.5px solid rgba(190,142,86,.4);
+  border-radius: var(--r-lg);
+  padding: .85rem 1.2rem .85rem 2.7rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-main);
+  transition: border-color .25s, background .25s, color .25s;
+}
+#recipeSearch::placeholder { color: var(--search-placeholder); }
+#recipeSearch:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: var(--search-bg-focus);
+}
+
+.recipes-empty {
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--text-main);
+  opacity: .7;
+  padding: 2rem 1rem;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOTÓN DE FILTROS EN CELULAR (mismo patrón que Categorías)
+   ══════════════════════════════════════════════════════════ */
+.filters-fab {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  width: calc(100% - 4rem);
+  max-width: 480px;
+  margin: 0 auto 1.5rem;
+  background: var(--gold);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-lg);
+  padding: .8rem 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .92rem;
+  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+  cursor: pointer;
+  transition: transform .2s, background .2s;
+}
+.filters-fab svg { width: 18px; height: 18px; }
+.filters-fab:hover { background: var(--gold-hover); }
+.filters-fab:active { transform: scale(.96); }
+
+.filters-sheet-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 48, 104, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 5600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.filters-sheet-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.filters-sheet-head { display: none; }
+
+@media (max-width: 768px) {
+  .filters-fab { display: flex; }
+  .filters-sheet-overlay { display: block; }
+
+  /* El panel de filtros se abre arriba de todo, por encima del navbar
+     (que tiene z-index 5000), en vez de arrancar justo debajo de él —
+     igual que en Categorías. */
+  .recipe-filters-sheet {
+    position: fixed;
+    left: 0; right: 0;
+    top: 0;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    background: var(--bg-body);
+    border-radius: 0 0 var(--r-md) var(--r-md);
+    box-shadow: 0 14px 40px rgba(0,0,0,.5);
+    padding: calc(1.1rem + env(safe-area-inset-top)) 1.3rem 1.6rem;
+    z-index: 5700;
+    transform: translateY(-120%);
+    transition: transform .32s cubic-bezier(.32,.72,.24,1);
+  }
+  .recipe-filters-sheet.is-open { transform: translateY(0); }
+
+  .filters-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: .9rem;
+  }
+  .filters-sheet-head__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-main);
+  }
+  .filters-sheet-close {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--text-main);
+    opacity: .7;
+    cursor: pointer;
+    padding: .2rem .4rem;
+  }
+  .filters-sheet-close:hover { opacity: 1; }
+
+  .recipe-filters {
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  /* Cuando el panel de filtros está abierto, el chat flotante pasa al
+     fondo para no estorbar, igual que en Categorías. */
+  body.filters-open #rs-chat-widget { z-index: 100 !important; }
+}
+
 /* Grid dinámico de tarjetas de recetas */
 .recipes-grid {
   max-width: 1200px;
@@ -297,17 +444,29 @@
 /* ============================================================
    Modal flotante de receta
    ============================================================ */
+/* Mientras el modal de receta está abierto, el chat flotante pasa al
+   fondo para no estorbar ni quedar flotando encima. */
+body.recipe-modal-open #rs-chat-widget { z-index: 100 !important; }
+
 .recipe-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  /* Por encima del botón fijo "Volver a categorías" (z-index 4500 en
+     info-shared.css), que si no se quedaba flotando encima del modal
+     mientras la receta está abierta. */
+  z-index: 5000;
   display: none;
   align-items: center;
   justify-content: center;
   padding: calc(var(--nav-h, 80px) + 1.5rem) 1rem 1.5rem;
   opacity: 0;
+  /* Evita que un arrastre táctil sobre el fondo (fuera del modal) lo
+     desplace mientras la receta está abierta. El modal se pinta encima
+     de este overlay y tiene su propio scroll interno (.recipe-modal__scroll),
+     que no se ve afectado por esto. */
+  touch-action: none;
 }
 
 .recipe-modal-overlay.is-open {
@@ -389,10 +548,12 @@
 @media (max-width: 768px) {
   .recipe-modal {
     width: 94%;
-    max-height: calc(100vh - var(--nav-h, 80px) - 2rem);
+    max-height: 85vh;
+    max-height: 85dvh;
   }
   .recipe-modal__scroll {
-    max-height: calc(100vh - var(--nav-h, 80px) - 2rem);
+    max-height: 85vh;
+    max-height: 85dvh;
   }
   .recipe-modal .recipe-container {
     padding: 0 1rem;

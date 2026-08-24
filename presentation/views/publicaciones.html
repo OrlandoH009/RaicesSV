@@ -211,6 +211,40 @@
     </div>
   </footer>
 
+  <!-- Modal de detalle de una publicación -->
+  <div class="pub-detail-overlay" id="pubDetailOverlay">
+    <div class="pub-detail-modal" id="pubDetailModal">
+      <button type="button" class="pub-detail-modal__close" id="pubDetailClose" aria-label="Cerrar" data-i18n-attr="aria-label:nav.cerrar">&times;</button>
+
+      <div class="pub-detail-modal__media">
+        <img id="pubDetailImage" src="" alt="">
+      </div>
+
+      <div class="pub-detail-modal__body">
+        <div class="pub-detail-modal__author">
+          <div class="pub-detail-modal__avatar" id="pubDetailAvatarWrap">
+            <img id="pubDetailAvatar" src="" alt="" style="display:none;">
+            <span id="pubDetailAvatarInitial"></span>
+          </div>
+          <span class="pub-detail-modal__author-name" id="pubDetailAuthorName"></span>
+        </div>
+
+        <h3 class="pub-detail-modal__title" id="pubDetailTitle"></h3>
+        <p class="pub-detail-modal__description" id="pubDetailDescription"></p>
+
+        <div class="pub-detail-modal__location">
+          <span class="pub-detail-modal__location-icon">📍</span>
+          <span id="pubDetailLocationText"></span>
+          <a class="pub-detail-modal__map-link" id="pubDetailMapLink" href="#" style="display:none;" data-i18n="pub.viewOnMap">Ver en el mapa</a>
+        </div>
+
+        <div class="pub-detail-modal__map" id="pubDetailMap"></div>
+
+        <div class="pub-detail-modal__actions" id="pubDetailActions"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de invitación para visitantes sin cuenta -->
   <div class="guest-modal-overlay" id="guestModalOverlay">
     <div class="guest-modal" id="guestModal">

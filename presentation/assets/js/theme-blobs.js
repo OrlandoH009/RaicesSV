@@ -93,37 +93,10 @@
     });
   }
 
-  /* ── Transición tipo "onda" al cambiar de tema ──
-     Se hace deliberadamente lenta (barrido + fade largos) para que el
-     cambio de tema se sienta suave y agradable a la vista, en vez de
-     un parpadeo brusco. Respeta prefers-reduced-motion. */
-  function playThemeWave(isLight) {
-    if (typeof gsap === 'undefined') return;
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    const wave = document.createElement('div');
-    wave.setAttribute('aria-hidden', 'true');
-    wave.style.cssText = `
-      position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-      background: ${isLight
-        ? 'radial-gradient(circle at 90% 4%, #faf6ee 0%, rgba(250,246,238,.85) 35%, rgba(250,246,238,0) 72%)'
-        : 'radial-gradient(circle at 90% 4%, #1d1919 0%, rgba(29,25,25,.85) 35%, rgba(29,25,25,0) 72%)'};
-      opacity: 0;
-    `;
-    document.body.appendChild(wave);
-    gsap.timeline({ onComplete: () => wave.remove() })
-      .to(wave, { opacity: 1, duration: .9, ease: 'sine.inOut' })
-      .to(wave, { opacity: 0, duration: 1.1, ease: 'sine.inOut' }, '+=0.25');
-  }
+  // La transición de tema tipo "onda" vive ahora en runThemeTransition
+  // (script.js), que ya se encarga de todo el efecto al cambiar de tema.
 
   document.addEventListener('DOMContentLoaded', () => {
     initSectionBlobs();
-
-    const themeSwitch = document.getElementById('themeSwitch');
-    themeSwitch?.addEventListener('click', () => {
-      const willBeLight = document.documentElement.getAttribute('data-theme') !== 'light';
-      playThemeWave(willBeLight);
-    });
   });
 })();

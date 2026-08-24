@@ -16,6 +16,9 @@
   <script src="../assets/js/script.js" defer></script>
   <script src="../assets/js/interactive.js" defer></script>
   <script src="../assets/js/chatbot.js" defer></script>
+  <script src="../assets/js/leyendas-library.js" defer></script>
+  <script src="../assets/js/historia-data.js" defer></script>
+  <script src="../assets/js/global-search.js" defer></script>
   <script src="../assets/js/categorias-gsap.js" defer></script>
   <script>
     (function() {
@@ -128,8 +131,20 @@
       </div>
     </section>
 
+    <!-- Botón que abre el panel de filtros (solo celular), arriba en el
+         mismo lugar donde siempre estuvo la barra de búsqueda/filtros -->
+    <button class="filters-fab" id="filtersFabBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="categoriasTools">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+      <span data-i18n="cat.filters.open">Filtros</span>
+    </button>
+    <div class="filters-sheet-overlay" id="filtersSheetOverlay"></div>
+
     <!-- BUSCADOR Y FILTROS -->
-    <section class="categorias-tools">
+    <section class="categorias-tools" id="categoriasTools" role="dialog" aria-modal="false" aria-label="Filtros">
+      <div class="filters-sheet-head">
+        <span class="filters-sheet-head__title" data-i18n="cat.filters.title">Filtros</span>
+        <button class="filters-sheet-close" id="filtersSheetClose" type="button" aria-label="Cerrar filtros" data-i18n-attr="aria-label:nav.cerrar">&times;</button>
+      </div>
       <div class="categoria-search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="categoriaSearch" placeholder="Buscar una categoría... (ej. comida, mitos, sitios)" data-i18n-attr="placeholder:cat.search.placeholder" autocomplete="off" />
@@ -143,6 +158,7 @@
         <button class="filter-chip" data-tag="mitologia" data-i18n="cat.filter.mitologia">Mitología</button>
       </div>
       <p class="results-count" id="resultsCount"></p>
+      <div class="global-search-results" id="globalSearchResults"></div>
     </section>
 
     <!-- GRID DE CARDS -->
@@ -256,6 +272,7 @@
       }
 
       overlay.classList.add('is-visible');
+      document.body.classList.add('guest-modal-open');
 
       if (window.gsap) {
         // Matamos cualquier animación previa que pueda estar interfiriendo
@@ -299,6 +316,7 @@
       // 🔥 1. Oculta el overlay inmediatamente (sin esperar animaciones)
       overlay.classList.remove('is-visible');
       overlay.style.display = 'none'; // fuerza el ocultamiento
+      document.body.classList.remove('guest-modal-open');
 
       // 2. Si hay GSAP, anima el modal de salida (pero ya no importa el onComplete)
       if (window.gsap) {
@@ -314,9 +332,9 @@
     };
     closeBtn?.addEventListener('click', closeModal);
     skipBtn?.addEventListener('click', closeModal);
-    overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) closeModal();
-    });
+    // A propósito NO se cierra al tocar fuera del modal: el usuario debe
+    // elegir explícitamente una opción (crear cuenta, iniciar sesión o
+    // "seguir sin cuenta") para descartarlo.
 
     // Escuchar si cambian el idioma con el modal abierto en pantalla
     document.addEventListener("langchange", (e) => {

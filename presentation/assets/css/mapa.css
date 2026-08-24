@@ -649,14 +649,14 @@
 
       /* En este breakpoint la barra de búsqueda/filtros pasa a ocupar todo
          el ancho arriba del mapa, en la misma zona donde "Volver a
-         categorías" estaba fijo — se pisaban. Bajamos el botón para que
-         quede siempre debajo de esa barra. */
+         categorías" estaba fijo — se pisaban. "Volver a categorías" va
+         arriba de todo, y la barra de búsqueda/filtros queda debajo. */
       .info-back-btn {
-        top: calc(var(--nav-h) + 3.6rem);
+        top: calc(var(--nav-h) + .6rem);
       }
 
       .mapa-filters-float {
-        top: .6rem; left: .6rem; right: .6rem;
+        top: 3.1rem; left: .6rem; right: .6rem;
         transform: none;
         width: auto; max-width: none;
         justify-content: flex-start;
