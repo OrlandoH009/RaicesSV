@@ -408,12 +408,16 @@ function getCurrentLang() {
   return (lang.startsWith('en') || lang === 'us') ? 'en' : 'es';
 }
 
-// Función auxiliar para obtener traducción dinámicamente desde el sistema SRi18n
+// Función auxiliar para obtener traducción dinámicamente desde el sistema SRi18n.
+// IMPORTANTE: solo se usa el diccionario i18n cuando el idioma activo es
+// inglés. En español, el texto que manda SIEMPRE es el que está escrito
+// directamente en LEYENDAS_DATA (fallbackText) — así lo que ves en el
+// código de cada leyenda es exactamente lo que se muestra y se narra,
+// sin que un texto antiguo/duplicado en i18n.js lo sustituya por error.
 function getTextTranslation(key, fallbackText) {
   const lang = getCurrentLang();
 
-  // Soporte para tu librería SRi18n (i18n.js)
-  if (window.SRi18n && typeof window.SRi18n.t === 'function') {
+  if (lang === 'en' && window.SRi18n && typeof window.SRi18n.t === 'function') {
     const translation = window.SRi18n.t(key, lang);
     // t() devuelve la propia key si no encuentra traducción; en ese caso usamos el fallback
     if (translation && translation !== key) return translation;
@@ -464,11 +468,13 @@ function buildModalBody(l) {
     return `<span class="leyenda-modal__chip" data-i18n="${chipKey}">${chipText}</span>`;
   }).join("");
 
+  // Cada párrafo lleva un data-p-index para poder resaltarlo
+  // ("modo karaoke") mientras se narra ese fragmento del relato.
   const parrafos = relatoTrad
     .split(/\n\s*\n/)
     .map(p => p.trim())
     .filter(Boolean)
-    .map(p => `<p>${p}</p>`)
+    .map((p, i) => `<p data-p-index="${i}">${p}</p>`)
     .join("");
 
   const mediaHtml = l.img
@@ -479,7 +485,7 @@ function buildModalBody(l) {
        </div>`;
 
   return `
-    <div class="leyenda-modal__media">
+    <div class="leyenda-modal__media" id="leyendaModalMedia">
       ${mediaHtml}
       <div class="leyenda-modal__media-grad"></div>
     </div>
@@ -487,7 +493,7 @@ function buildModalBody(l) {
       <div class="leyenda-modal__chips">${chips}</div>
       <h2 data-i18n="${l.tituloKey}">${tituloTrad}</h2>
       <p class="leyenda-modal__sub" data-i18n="${l.subKey}">${subTrad}</p>
-      <div class="leyenda-modal__relato">${parrafos}</div>
+      <div class="leyenda-modal__relato" id="leyendaModalRelato">${parrafos}</div>
     </div>
   `;
 }
@@ -556,10 +562,13 @@ function toggleOrigin() {
 const AUDIO_BASE_PATH = "../assets/audio/leyendas";
 
 let narrationAudioEl = null;
-let narrationQueue = [];
+let narrationQueue = [];       // [{ text, pIndex }]
 let narrationQueueIndex = 0;
 let narrationKeepAliveTimer = null;
 let voicesReadyPromise = null;
+let narrationRetryCount = 0;
+const NARRATION_MAX_RETRIES = 2;
+let narrationGeneration = 0; // se incrementa en cada chunk/stop para invalidar callbacks/timeouts viejos
 
 function getAudioSrc(leyendaId, isEn) {
   const lang = isEn ? "en" : "es";
@@ -576,13 +585,22 @@ function audioFileExists(src) {
 
 function setNarrateBtnState(state) {
   const btn = document.getElementById("leyendaNarrateBtn");
-  if (!btn) return;
-  btn.classList.remove("speaking", "loading");
-  if (state === "speaking") btn.classList.add("speaking");
-  if (state === "loading") btn.classList.add("loading");
+  const media = document.getElementById("leyendaModalMedia");
+
+  if (btn) {
+    btn.classList.remove("speaking", "loading");
+    if (state === "speaking") btn.classList.add("speaking");
+    if (state === "loading") btn.classList.add("loading");
+  }
+  // La imagen del modal recibe el mismo estado, para mostrar el
+  // pulso de "narrando" en el borde (solo visible en móvil vía CSS).
+  if (media) {
+    media.classList.toggle("is-narrating", state === "speaking");
+  }
 }
 
 function stopNarration() {
+  narrationGeneration++; // invalida cualquier callback/timeout de chunk en vuelo
   if (narrationAudioEl) {
     narrationAudioEl.pause();
     narrationAudioEl.currentTime = 0;
@@ -597,12 +615,46 @@ function stopNarration() {
   }
   narrationQueue = [];
   narrationQueueIndex = 0;
+  narrationRetryCount = 0;
   setNarrateBtnState("idle");
   ttsUtterance = null;
+  clearParagraphHighlight();
+  document.removeEventListener("visibilitychange", handleNarrationVisibilityChange);
   // La narración (mp3 pre-grabado o voz del navegador) no es un <audio>
   // del DOM ni dispara los eventos que escucha script.js, así que
   // retomamos la música de fondo explícitamente acá.
   window.SRDuckBgMusic?.resume();
+}
+
+/* ---------- Resaltado "karaoke" del párrafo narrado ---------- */
+
+function clearParagraphHighlight() {
+  document.querySelectorAll(".leyenda-modal__relato p.is-narrating")
+    .forEach(p => p.classList.remove("is-narrating"));
+}
+
+function highlightParagraph(pIndex) {
+  clearParagraphHighlight();
+  if (pIndex == null) return;
+  const relato = document.getElementById("leyendaModalRelato");
+  if (!relato) return;
+  const p = relato.querySelector(`p[data-p-index="${pIndex}"]`);
+  if (!p) return;
+  p.classList.add("is-narrating");
+  p.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+/* ---------- Continuidad en móvil: reanuda si la pestaña vuelve a foco ---------- */
+
+function handleNarrationVisibilityChange() {
+  if (document.visibilityState === "visible" && "speechSynthesis" in window) {
+    // Algunos navegadores móviles detienen o "congelan" speechSynthesis
+    // al perder el foco; al volver, si quedó pausado pero seguíamos
+    // narrando, forzamos un resume.
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+  }
 }
 
 function isNarrating() {
@@ -631,31 +683,90 @@ function playPreRecordedAudio(src) {
 
 /* ---------- Respaldo con voz del navegador (solo si falta el mp3) ---------- */
 
+// Genera los fragmentos que se narrarán en orden. Cada fragmento
+// conoce su "pIndex" (índice de párrafo del relato) para poder
+// resaltar en pantalla exactamente lo que se está narrando.
+// A diferencia de la versión anterior (cortar cada ~180 caracteres
+// sin importar el sentido), aquí respetamos los párrafos reales del
+// relato: esto evita cortes de voz a media frase y hace que el
+// resaltado visual coincida con una unidad de lectura completa.
+// Si un párrafo es muy largo, igual lo subdividimos por oraciones
+// para que ningún "utterance" sea excesivamente largo (los motores
+// de voz de algunos celulares truncan o fallan con textos muy extensos).
+// Genera los fragmentos que se narrarán en orden. IMPORTANTE: se leen
+// directamente del DOM ya renderizado (#leyendaModalRelato), es decir,
+// exactamente lo que el usuario está viendo en pantalla en ese momento
+// (con su traducción activa ya aplicada), y no una reconstrucción por
+// separado desde LEYENDAS_DATA. Así se evita cualquier desfase entre
+// "lo que se lee" y "lo que se ve".
+// Cada fragmento conoce su "pIndex" (índice de párrafo real en el DOM)
+// para poder resaltar en pantalla exactamente lo que se está narrando.
+// Si un párrafo es muy largo, se subdivide por oraciones para que
+// ningún "utterance" sea excesivamente largo (algunos motores de voz
+// en celulares truncan o fallan con textos muy extensos).
 function getNarrationChunks(l) {
-  const titulo = getTextTranslation(l.tituloKey, l.titulo);
-  const sub = getTextTranslation(l.subKey, l.sub);
-  const relato = getTextTranslation(l.relatoKey, l.relato);
+  const tituloEl = document.querySelector("#leyendaModal h2");
+  const subEl = document.querySelector("#leyendaModal .leyenda-modal__sub");
+  const relato = document.getElementById("leyendaModalRelato");
 
-  const fullText = `${titulo}. ${sub}. ${relato.replace(/<[^>]*>/g, '').replace(/\n+/g, " ")}`;
-  const rawSentences = fullText.match(/[^.!?]+[.!?]+["')\]]*|\s*[^.!?]+$/g) || [fullText];
+  const titulo = (tituloEl?.textContent || getTextTranslation(l.tituloKey, l.titulo)).trim();
+  const sub = (subEl?.textContent || getTextTranslation(l.subKey, l.sub)).trim();
+  const intro = `${titulo}. ${sub}.`;
 
+  // Tomamos los <p data-p-index="N"> tal como están en el DOM real.
+  const pEls = relato
+    ? Array.from(relato.querySelectorAll("p[data-p-index]"))
+    : [];
+
+  const parrafos = pEls.map(p => (p.textContent || "").replace(/\s+/g, " ").trim());
+
+  // MAX_CHUNK_LEN se redujo de 220 a 90: cuanto más corto es cada
+  // "utterance", menos tiempo tiene el motor de voz de Android para
+  // colgarse a medio camino. Con textos largos (>150-200 caracteres)
+  // es cuando más se ha visto el síntoma de "queda mudo pero el botón
+  // sigue en estado narrando". Trocear casi por oración es más seguro,
+  // a costa de pausas un poco más frecuentes entre frases.
+  const MAX_CHUNK_LEN = 90;
   const chunks = [];
-  let current = "";
-  rawSentences.forEach(sentence => {
-    const trimmed = sentence.trim();
-    if (!trimmed) return;
-    if ((current + " " + trimmed).trim().length > 180 && current) {
-      chunks.push(current.trim());
-      current = trimmed;
-    } else {
-      current = (current + " " + trimmed).trim();
+
+  // La intro (título + subtítulo) se narra como fragmento propio,
+  // sin asociarse a ningún párrafo (pIndex null = no resalta nada).
+  if (intro.trim().length > 1) {
+    chunks.push({ text: intro.trim(), pIndex: null });
+  }
+
+  parrafos.forEach((parrafo, pIndex) => {
+    if (!parrafo) return;
+    if (parrafo.length <= MAX_CHUNK_LEN) {
+      chunks.push({ text: parrafo, pIndex });
+      return;
     }
+    // Párrafo largo: lo partimos por oraciones, todas apuntando
+    // al mismo pIndex para que el resaltado no "salte" a mitad de párrafo.
+    const rawSentences = parrafo.match(/[^.!?]+[.!?]+["')\]]*|\s*[^.!?]+$/g) || [parrafo];
+    let current = "";
+    rawSentences.forEach(sentence => {
+      const trimmed = sentence.trim();
+      if (!trimmed) return;
+      if ((current + " " + trimmed).trim().length > MAX_CHUNK_LEN && current) {
+        chunks.push({ text: current.trim(), pIndex });
+        current = trimmed;
+      } else {
+        current = (current + " " + trimmed).trim();
+      }
+    });
+    if (current) chunks.push({ text: current.trim(), pIndex });
   });
-  if (current) chunks.push(current.trim());
+
   return chunks;
 }
 
-function waitForVoices(timeoutMs = 3000) {
+// En Android, Chrome a veces devuelve getVoices() vacío en el primer
+// intento y el evento onvoiceschanged puede tardar o no llegar nunca
+// si el motor TTS del sistema está inicializando. En vez de esperar
+// pasivamente un solo timeout, reintentamos activamente varias veces
+// durante un margen más amplio (hasta 5s) antes de rendirnos.
+function waitForVoices(timeoutMs = 5000) {
   if (voicesReadyPromise) return voicesReadyPromise;
 
   voicesReadyPromise = new Promise((resolve) => {
@@ -667,23 +778,52 @@ function waitForVoices(timeoutMs = 3000) {
     let resolved = false;
     const finish = (voices) => {
       if (resolved) return;
+      if (voices.length === 0) return; // seguimos esperando si sigue vacío
       resolved = true;
+      clearInterval(pollTimer);
       resolve(voices);
     };
     window.speechSynthesis.onvoiceschanged = () => finish(window.speechSynthesis.getVoices());
-    setTimeout(() => finish(window.speechSynthesis.getVoices()), timeoutMs);
+
+    // Sondeo activo cada 250ms: en algunos Android nunca llega el
+    // evento, pero getVoices() sí empieza a devolver datos poco a poco.
+    const pollTimer = setInterval(() => finish(window.speechSynthesis.getVoices()), 250);
+
+    setTimeout(() => {
+      resolved = true;
+      clearInterval(pollTimer);
+      // Aunque siga vacío, resolvemos con lo que haya (puede ser [])
+      // para no bloquear la narración indefinidamente.
+      resolve(window.speechSynthesis.getVoices());
+    }, timeoutMs);
   });
 
   return voicesReadyPromise;
 }
 
+// Elige la mejor voz disponible para el idioma pedido. Si no existe
+// ninguna voz en ese idioma exacto (caso típico: el celular no tiene
+// el paquete de voz en español instalado), en vez de fallar y no
+// narrar nada, usamos cualquier voz disponible en el sistema como
+// último recurso -- es preferible narrar con un acento no ideal que
+// no narrar en absoluto. Solo devolvemos null si de verdad no hay
+// ninguna voz instalada en el dispositivo.
 function pickBestVoice(voices, isEn) {
+  if (!voices || voices.length === 0) return null;
+
   const wantedPrefixes = isEn ? ["en-gb", "en-us", "en"] : ["es-es", "es-419", "es-us", "es"];
   for (const prefix of wantedPrefixes) {
     const exact = voices.find(v => v.lang && v.lang.toLowerCase() === prefix);
     if (exact) return exact;
   }
-  return voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isEn ? "en" : "es")) || null;
+  const startsWith = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(isEn ? "en" : "es"));
+  if (startsWith) return startsWith;
+
+  // Último recurso: ninguna voz coincide con el idioma pedido, pero
+  // el dispositivo sí tiene voces instaladas. Usamos la primera
+  // disponible (normalmente la voz por defecto del sistema) para que
+  // al menos haya narración en vez de silencio total.
+  return voices[0] || null;
 }
 
 function speakNextChunk(voice, langTag) {
@@ -691,18 +831,83 @@ function speakNextChunk(voice, langTag) {
     stopNarration();
     return;
   }
-  const chunkText = narrationQueue[narrationQueueIndex];
+  const chunk = narrationQueue[narrationQueueIndex];
   narrationQueueIndex++;
 
-  ttsUtterance = new SpeechSynthesisUtterance(chunkText);
+  // Si el chunk quedó vacío por algún motivo, no llamamos a speak()
+  // con texto vacío (algunos navegadores ni disparan onerror con eso,
+  // simplemente se quedan "colgados") y pasamos directo al siguiente.
+  if (!chunk.text || !chunk.text.trim()) {
+    speakNextChunk(voice, langTag);
+    return;
+  }
+
+  narrationGeneration++;
+  const myGeneration = narrationGeneration;
+  const thisIndex = narrationQueueIndex - 1;
+  let chunkSettled = false; // true en cuanto onend/onerror/timeout ya actuaron sobre este chunk
+
+  ttsUtterance = new SpeechSynthesisUtterance(chunk.text);
   ttsUtterance.lang = voice ? voice.lang : langTag;
   ttsUtterance.rate = 0.95;
   ttsUtterance.pitch = 1;
   if (voice) ttsUtterance.voice = voice;
 
-  ttsUtterance.onend = () => speakNextChunk(voice, langTag);
-  ttsUtterance.onerror = () => speakNextChunk(voice, langTag);
+  ttsUtterance.onstart = () => {
+    if (myGeneration !== narrationGeneration) return;
+    highlightParagraph(chunk.pIndex);
+  };
 
+  ttsUtterance.onend = () => {
+    if (myGeneration !== narrationGeneration || chunkSettled) return;
+    chunkSettled = true;
+    narrationRetryCount = 0;
+    speakNextChunk(voice, langTag);
+  };
+
+  ttsUtterance.onerror = () => {
+    if (myGeneration !== narrationGeneration || chunkSettled) return;
+    chunkSettled = true;
+    // Antes: se saltaba el chunk sin más ante cualquier error, lo que
+    // sonaba como que "la voz se corta". Ahora reintentamos ese mismo
+    // fragmento un par de veces (típico en Android cuando el motor de
+    // voz se interrumpe momentáneamente) antes de continuar.
+    if (narrationRetryCount < NARRATION_MAX_RETRIES) {
+      narrationRetryCount++;
+      narrationQueueIndex = thisIndex; // reintenta el mismo fragmento
+      speakNextChunk(voice, langTag);
+    } else {
+      narrationRetryCount = 0;
+      speakNextChunk(voice, langTag);
+    }
+  };
+
+  // Red de seguridad simple: un único timeout por chunk, calculado
+  // generosamente según su longitud (a ~10 caracteres por segundo,
+  // con un piso de 6s), que NO depende de leer "speaking"/"paused"
+  // -- esas banderas son justo las que resultaron poco confiables en
+  // algunos Android y provocaban falsos positivos (cortar chunks que
+  // en realidad seguían narrando bien). Si onend/onerror ya resolvió
+  // el chunk, este timeout no hace nada (chunkSettled ya es true).
+  const failsafeMs = Math.max(6000, chunk.text.length * 100);
+  setTimeout(() => {
+    if (myGeneration !== narrationGeneration || chunkSettled) return;
+    chunkSettled = true;
+    try { window.speechSynthesis.cancel(); } catch (e) { /* noop */ }
+    if (narrationRetryCount < NARRATION_MAX_RETRIES) {
+      narrationRetryCount++;
+      narrationQueueIndex = thisIndex;
+    } else {
+      narrationRetryCount = 0;
+    }
+    speakNextChunk(voice, langTag);
+  }, failsafeMs);
+
+  // Cancelamos cualquier resto de síntesis previa antes de encolar el
+  // nuevo chunk: llamar speak() mientras el motor todavía está
+  // liberando el utterance anterior es una causa común de que el
+  // nuevo se descarte en silencio en Chrome/Android.
+  window.speechSynthesis.cancel();
   window.speechSynthesis.speak(ttsUtterance);
   setNarrateBtnState("speaking");
 }
@@ -733,16 +938,24 @@ async function playBrowserVoiceFallback(l, isEn) {
 
   narrationQueue = getNarrationChunks(l);
   narrationQueueIndex = 0;
+  narrationRetryCount = 0;
 
   window.SRDuckBgMusic?.pause();
 
-  if (narrationKeepAliveTimer) clearInterval(narrationKeepAliveTimer);
-  narrationKeepAliveTimer = setInterval(() => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    }
-  }, 12000);
+  // La detección de cuelgues ahora es un simple timeout por chunk
+  // (dentro de speakNextChunk) que NO depende de leer
+  // speechSynthesis.speaking/paused -- esas señales resultaron poco
+  // confiables en algunos Android y provocaban falsos positivos que
+  // cortaban chunks que en realidad seguían narrando bien. Como los
+  // chunks ahora son más cortos (por oración, no por párrafo entero),
+  // ya no hace falta el ciclo pause()/resume() de mantenimiento cada
+  // pocos segundos.
+
+  // En móvil, si el usuario cambia de app o bloquea pantalla, algunos
+  // navegadores pausan speechSynthesis y no siempre lo reanudan solos
+  // al volver. Este listener lo retoma en cuanto la pestaña vuelve a
+  // primer plano.
+  document.addEventListener("visibilitychange", handleNarrationVisibilityChange);
 
   speakNextChunk(voice, isEn ? "en-GB" : "es-ES");
 }
