@@ -10,14 +10,24 @@ if (!dbUrl) {
 }
 
 const isAiven = dbUrl.includes('aivencloud.com');
+const isTiDB = dbUrl.includes('tidbcloud.com');
 
 const dbUrlWithoutSslMode = dbUrl.replace(/[?&]ssl-mode=[^&]*/i, '');
 
+let sslConfig;
+if (isAiven) {
+    // El certificado de Aiven no viene firmado por una CA pública conocida por Node.
+    sslConfig = { rejectUnauthorized: false };
+} else if (isTiDB) {
+    // TiDB Cloud usa certificados de una CA pública, sí se puede verificar la cadena.
+    sslConfig = { minVersion: 'TLSv1.2', rejectUnauthorized: true };
+}
+
 const db = mysql.createPool({
     uri: dbUrlWithoutSslMode,
-    ssl: isAiven ? { rejectUnauthorized: false } : undefined,
+    ssl: sslConfig,
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 3,
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000

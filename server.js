@@ -61,7 +61,9 @@ app.use(verifyOrigin);
 
 // Solo se sirven como estáticos los recursos públicos (css/js/imágenes/favicons).
 // Las vistas HTML NUNCA se sirven aquí.
-app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets')));
+app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets'), {
+    maxAge: '7d'
+}));
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
 const sendView = (name) => (req, res) => {
