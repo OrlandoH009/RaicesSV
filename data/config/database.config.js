@@ -11,9 +11,11 @@ if (!dbUrl) {
 
 const isAiven = dbUrl.includes('aivencloud.com');
 
+const dbUrlWithoutSslMode = dbUrl.replace(/[?&]ssl-mode=[^&]*/i, '');
+
 const db = mysql.createPool({
-    uri: dbUrl,
-    ssl: isAiven ? { rejectUnauthorized: true } : undefined,
+    uri: dbUrlWithoutSslMode,
+    ssl: isAiven ? { rejectUnauthorized: false } : undefined,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
