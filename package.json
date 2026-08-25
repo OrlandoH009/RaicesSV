@@ -21,6 +21,7 @@
   "homepage": "https://github.com/OrlandoH009/RaicesSV#readme",
   "dependencies": {
     "@ngrok/ngrok": "^1.7.0",
+    "@vercel/analytics": "^2.0.1",
     "bcrypt": "^6.0.0",
     "cloudflared": "^0.7.3",
     "dotenv": "^17.4.2",
@@ -35,7 +36,9 @@
     "nodemailer": "^9.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "puppeteer": "^25.2.1",
+    "puppeteer": "^25.2.1"
+  },
+  "devDependencies": {
     "untun": "^0.2.2"
   },
   "allowScripts": {
