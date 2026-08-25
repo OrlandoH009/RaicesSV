@@ -254,17 +254,15 @@ section {
 
 /* ── Pills de meses ── */
 .month-pills {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   gap: .5rem;
   margin-bottom: 2rem;
 }
 
-/* Navegación de mes por flechas: solo se usa en celular (ver breakpoint
-   más abajo), donde reemplaza a las 12 pills por "‹ Mes ›" para que
-   entre cómodo en pantallas angostas. */
+/* Navegación de mes por flechas "‹ Mes ›", igual en desktop y en celular. */
 #calMonthControls {
-  display: none;
+  display: flex;
 }
 
 .month-pill {
