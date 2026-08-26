@@ -198,7 +198,7 @@ RaicesSV/
 - **MySQL2**: Driver de alto rendimiento para MySQL con soporte de promesas.
 - **Multer**: Middleware para subida y procesamiento de imágenes.
 - **Nodemailer**: Envío de correos transaccionales por protocolo SMTP.
-- **Cloudflared, untun y @ngrok/ngrok**: Soporte para túneles de desarrollo y exposición local.
+- **@ngrok/ngrok**: Soporte para túneles de desarrollo y exposición local.
 
 ### Frontend
 - **HTML5 semántico, CSS3 moderno y Vanilla JavaScript**: Rendimiento nativo sin sobrecarga de frameworks.

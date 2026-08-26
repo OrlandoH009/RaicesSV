@@ -229,16 +229,15 @@ if (!process.env.VERCEL) {
 
         if (process.env.NGROK_ENABLED === 'true') {
             try {
-                const { startTunnel } = await import('untun');
-                const tunnel = await startTunnel({
-                    port: port,
-                    acceptCloudflareNotice: true
+                const ngrok = require('@ngrok/ngrok');
+                const listener = await ngrok.forward({
+                    addr: port,
+                    authtoken: process.env.NGROK_AUTHTOKEN
                 });
 
-                const url = await tunnel.getURL();
-                console.log(`La URL pública de Cloudflare es: ${url}`);
+                console.log(`La URL pública de ngrok es: ${listener.url()}`);
             } catch (e) {
-                console.error('Error al iniciar el túnel de Cloudflare:', e);
+                console.error('Error al iniciar el túnel de ngrok:', e);
             }
         }
     });
