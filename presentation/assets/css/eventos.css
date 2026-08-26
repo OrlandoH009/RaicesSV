@@ -307,6 +307,10 @@ body.welcome-lock { overflow: hidden; }
   text-shadow: 0 4px 4px rgba(0,0,0,.25);
   white-space: nowrap;
 }
+@media (max-width: 768px) {
+  .page-badge__inner { padding: 1rem 1.5rem; }
+  .page-badge__inner h1 { white-space: normal; text-align: center; }
+}
 
 /* ============ Chips: etiquetas de dato, no botones ============ */
 .info-chips {
