@@ -101,7 +101,7 @@ body.quiz-modal-open {
   font-weight: 700;
   color: var(--gold);
   margin-bottom: 0.8rem;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   animation: slideInDown 0.6s ease-out;
 }
 
@@ -199,7 +199,7 @@ body.quiz-modal-open {
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--gold);
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
 }
 [data-theme="light"] .quiz-stat__number { color: var(--gold-hover); }
 
@@ -283,7 +283,7 @@ body.quiz-modal-open {
   margin-bottom: 1rem;
 }
 .quiz-page-hero .page-hero__title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(2rem, 4.5vw, 3.2rem);
   color: var(--white, #fff);
@@ -292,7 +292,7 @@ body.quiz-modal-open {
   animation: slideInDown 0.6s ease-out;
 }
 .quiz-page-hero .page-hero__subtitle {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 600;
   font-size: clamp(1rem, 1.8vw, 1.3rem);
@@ -1313,7 +1313,7 @@ body.quiz-modal-open {
   color: var(--gold);
   margin-bottom: 1.5rem;
   animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
 }
 
 @keyframes bounceIn {
@@ -1476,7 +1476,7 @@ body.quiz-modal-open {
   font-weight: 700;
   color: var(--gold);
   margin: 0 0 0.6rem;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
 }
 
 .quiz-confirm-text {

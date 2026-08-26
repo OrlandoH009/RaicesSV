@@ -1306,7 +1306,7 @@ canvas {
 
 .torito-slang-popup {
   position: absolute;
-  font-family: 'Fredoka', 'Poppins', sans-serif;
+  font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.25rem;
   text-shadow: 0 0 12px currentColor, 2px 2px 0 #000;

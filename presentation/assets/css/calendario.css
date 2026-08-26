@@ -31,7 +31,7 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   background: linear-gradient(135deg, #1a1510 0%, #2a241d 50%, #1f1a14 100%);
   color: var(--crema); /* Actualizado para contraste en fondo oscuro */
   min-height: 100vh;
@@ -113,7 +113,7 @@ body::before {
 }
 
 .page-hero-eyebrow {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: .75rem;
   letter-spacing: .2em;
   text-transform: uppercase;
@@ -122,7 +122,7 @@ body::before {
 }
 
 .page-hero h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 800;
   color: var(--white);
@@ -157,7 +157,7 @@ section {
 }
 
 .section-label {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: .7rem;
   letter-spacing: .22em;
   text-transform: uppercase;
@@ -166,7 +166,7 @@ section {
 }
 
 .section-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 1.7rem;
   font-weight: 700;
   color: var(--white); /* Cambiado a blanco para destacar del fondo */
@@ -205,7 +205,7 @@ section {
   background: transparent;
   border: 2px solid var(--oro); /* Acento dorado */
   color: var(--oro);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-weight: 600;
   font-size: .85rem;
   padding: .75rem 1.1rem;
@@ -244,7 +244,7 @@ section {
 }
 
 .cal-month-title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--oro); /* Destaca el año */
@@ -356,7 +356,7 @@ section {
 }
 
 .today-event-panel__label {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: .68rem;
   letter-spacing: .18em;
   text-transform: uppercase;
@@ -368,7 +368,7 @@ section {
 }
 
 .today-event-panel__title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--white);
@@ -378,7 +378,7 @@ section {
 }
 
 .today-event-panel.no-event .today-event-panel__title {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-weight: 500;
   font-size: .92rem;
   color: var(--crema-dk);
@@ -581,7 +581,7 @@ section {
   border: 1.5px solid rgba(255,255,255,.28);
   background: rgba(255,255,255,.12);
   color: var(--white);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: .9rem;
   outline: none;
   appearance: none;
@@ -623,7 +623,7 @@ section {
   color: var(--white);
   border: none;
   border-radius: calc(var(--radius) * 1.1);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: .88rem;
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
@@ -643,7 +643,7 @@ section {
   color: rgba(255,255,255,.65);
   border: 1.5px solid rgba(255,255,255,.2);
   border-radius: var(--radius);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: .85rem;
   cursor: pointer;
   transition: all var(--transition);
@@ -825,7 +825,7 @@ section {
 }
 
 .fest-card h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--oro); /* Título dorado en tarjeta */
@@ -947,7 +947,7 @@ section {
 }
 
 .modal-top h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   color: var(--white);
   font-size: 1.3rem;
   font-weight: 700;
