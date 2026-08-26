@@ -228,11 +228,13 @@ if (window.visualViewport) {
   canvas.addEventListener('mousemove', e=>{
     const r = canvas.getBoundingClientRect();
     mouseX = (e.clientX - r.left) * (canvas.width/r.width);
+    notifyTutorial('move');
   });
   canvas.addEventListener('touchmove', e=>{
     const r = canvas.getBoundingClientRect();
     mouseX = (e.touches[0].clientX - r.left) * (canvas.width/r.width);
     e.preventDefault();
+    notifyTutorial('move');
   }, {passive:false});
 
   const GOOD = [
@@ -276,6 +278,79 @@ if (window.visualViewport) {
     if(!gameDifficulty) return 1500;
     const config = gameConfig[gameDifficulty];
     return config.spawnIntervalMin + Math.random() * (config.spawnIntervalMax - config.spawnIntervalMin);
+  }
+
+  // ================= MODO TUTORIAL =================
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'move', text: () => esTactilJuegos
+        ? jt('jue.tutorial.pupusa.move.tap', 'Deslizá el dedo sobre la calle para mover el comal. ¡Probalo!')
+        : jt('jue.tutorial.pupusa.move.key', 'Mové el mouse de un lado a otro para mover el comal. ¡Probalo!') },
+    { action: 'catch', text: () => jt('jue.tutorial.pupusa.catch', 'Ahora atrapá la pupusa que va a caer, poniendo el comal justo debajo.') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() { canvasWrap?.querySelector('.tutorial-bubble')?.remove(); }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+    if (tutorialSteps[i].action === 'catch') {
+      const body = Bodies.circle(canvas.width / 2, -20, 18, {
+        restitution: 0.1, friction: 0.6, frictionAir: 0.01, label: 'good'
+      });
+      body.foodEmoji = '🫓';
+      body.points = 10;
+      World.add(world, body);
+    }
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    cancelAnimationFrame(rafId);
+    showOverlay(`
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés atrapar pupusas!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-pupusa">🫓 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
+    `);
+    document.getElementById('btn-tutorial-done-pupusa').onclick = showDifficultySelector;
+  }
+
+  function startTutorial() {
+    gameDifficulty = 'easy';
+    totalLives = 999;
+    engine.gravity.y = gameConfig.easy.gravity * 0.6;
+    start();
+    tutorialMode = true;
+    timeLeft = 999;
+    showTutorialStep(0);
   }
 
   const bgMusic = document.getElementById('bgMusic-pupusa');
@@ -347,6 +422,7 @@ if (window.visualViewport) {
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
+    if (tutorialMode) hideTutorialBubble();
   }
 
   function resumeGame(){
@@ -362,12 +438,15 @@ if (window.visualViewport) {
       bgMusic.volume = savedVolume || volume;
       if (volume > 0) bgMusic.play().catch(()=>{});
     }
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
 
   function returnToMenu(){
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     cancelAnimationFrame(rafId);
     // stopMusic();  // ELIMINADO para que la música no se detenga
     canvasWrap?.classList.remove('is-paused');
@@ -407,11 +486,12 @@ if (window.visualViewport) {
       if(paddleHit && item && !item.caught){
         item.caught = true;
         score += item.points;
-        if(item.points < 0){
+        if(item.points < 0 && !tutorialMode){
           lives -= 1;
           updateHud();
           flashDamage();
         }
+        if(item.label === 'good') notifyTutorial('catch');
         World.remove(world, item);
       }
     }
@@ -441,7 +521,7 @@ if (window.visualViewport) {
       if(b.label==='good' || b.label==='bad'){
         if(b.position.y > canvas.height+40){
           World.remove(world, b);
-          if(b.label==='good'){
+          if(b.label==='good' && !tutorialMode){
             lives -= 1;
             updateHud();
             flashDamage();
@@ -454,11 +534,11 @@ if (window.visualViewport) {
     if(spawnAccum >= nextSpawnIn){
       spawnAccum = 0;
       nextSpawnIn = randomSpawnInterval();
-      spawn();
+      if (!(tutorialMode && tutorialWaiting)) spawn();
     }
 
     clockAccum += dtReloj;
-    while(clockAccum >= 1000 && timeLeft > 0){
+    while(!tutorialMode && clockAccum >= 1000 && timeLeft > 0){
       clockAccum -= 1000;
       timeLeft -= 1;
     }
@@ -585,8 +665,10 @@ if (window.visualViewport) {
           ${jt('jue.diff.hard', '🔴 Difícil')}
           <div class="difficulty-desc">${jt('jue.card1.diff.hardDesc', 'Caída más rápida y seguida')}</div>
         </button>
-      </div>`);
-    
+      </div>
+      <button class="btn-tutorial" id="btn-tutorial-pupusa">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
+
+    document.getElementById('btn-tutorial-pupusa').onclick = startTutorial;
     document.getElementById('btn-easy').onclick = ()=>{
       gameDifficulty = 'easy';
       totalLives = gameConfig.easy.initialLives;
@@ -720,6 +802,73 @@ if (window.visualViewport) {
     }
   };
 
+  // ================= MODO TUTORIAL =================
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'move', text: () => esTactilJuegos
+        ? jt('jue.tutorial.trompos.move.tap', 'Arrastrá el dedo por la calle para mover tu trompo. ¡Probalo!')
+        : jt('jue.tutorial.trompos.move.key', 'Usá WASD para mover tu trompo. ¡Probalo!') },
+    { action: 'hit', text: () => jt('jue.tutorial.trompos.hit', 'El rival está quieto. Empujá tu trompo contra el suyo para golpearlo.') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() { canvasWrap?.querySelector('.tutorial-bubble')?.remove(); }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    cancelAnimationFrame(rafId);
+    showOverlay(`
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés pelear con el trompo!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la batalla de verdad: elegí el modo de juego.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-trompos">⚡ ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
+    `);
+    document.getElementById('btn-tutorial-done-trompos').onclick = showModeSelector;
+  }
+
+  function startTutorial() {
+    gameMode = 'pve';
+    npcDifficulty = 'easy';
+    maxRounds = 1;
+    currentRound = 1;
+    playerWins = 0;
+    rivalWins = 0;
+    start();
+    tutorialMode = true;
+    showTutorialStep(0);
+  }
+
   function showOverlay(html){
     overlayCard.innerHTML = html;
     overlay.classList.remove('hidden');
@@ -827,7 +976,10 @@ if (window.visualViewport) {
   World.add(world, [top.body, bottom.body]);
 
   let keys = {};
-  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (['w','a','s','d'].includes(e.key.toLowerCase())) notifyTutorial('move');
+  });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
   // Control táctil para el jugador 1 (WASD): arrastrá el dedo y el trompo
@@ -843,6 +995,7 @@ if (window.visualViewport) {
       x: (t.clientX - r.left) * (canvas.width / r.width),
       y: (t.clientY - r.top) * (canvas.height / r.height)
     };
+    notifyTutorial('move');
   }
   canvas.addEventListener('touchstart', updateTouchTarget, { passive: false });
   canvas.addEventListener('touchmove', updateTouchTarget, { passive: false });
@@ -955,8 +1108,9 @@ if (window.visualViewport) {
           
           const impactForce = Math.sqrt(Math.pow(vel1.x - vel2.x, 2) + Math.pow(vel1.y - vel2.y, 2));
           const damage = Math.min(35, Math.max(8, Math.round(impactForce * 2.8)));
-          
+
           flashDamage();
+          notifyTutorial('hit');
 
           if (speed1 > speed2 + 0.3) {
             bottom.energy = Math.max(0, bottom.energy - damage);
@@ -1000,7 +1154,9 @@ if (window.visualViewport) {
       if(moveX2 !== 0 || moveY2 !== 0){
         Body.setVelocity(bottom.body, { x: moveX2 * 4, y: moveY2 * 4 });
       }
-    } else {
+    } else if (!tutorialMode) {
+      // El rival queda quieto durante el tutorial para que sea fácil
+      // acertarle a propósito mientras se practica.
       updateNPC(timestamp);
     }
 
@@ -1024,12 +1180,12 @@ if (window.visualViewport) {
     const offsetX = (canvas.width - mapWidth) / 2;
     const offsetY = (canvas.height - mapHeight) / 2;
 
-    if(top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40){
+    if(!tutorialMode && (top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40)){
       running = false;
       handleRoundEnd('bottom');
       return;
     }
-    if(bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40){
+    if(!tutorialMode && (bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40)){
       running = false;
       handleRoundEnd('top');
       return;
@@ -1226,6 +1382,7 @@ if (window.visualViewport) {
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
+    if (tutorialMode) hideTutorialBubble();
   }
 
   function resumeGame(){
@@ -1239,21 +1396,24 @@ if (window.visualViewport) {
       bgMusicTrompos.volume = savedVolume || volume;
       if (volume > 0) bgMusicTrompos.play().catch(()=>{});
     }
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
 
   function returnToMenu(){
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     cancelAnimationFrame(rafId);
     // stopMusic();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    
+
     Body.setVelocity(top.body, { x: 0, y: 0 });
     Body.setVelocity(bottom.body, { x: 0, y: 0 });
-    
+
     showModeSelector();
   }
 
@@ -1372,8 +1532,10 @@ if (window.visualViewport) {
           ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
           <div class="difficulty-desc">${jt('jue.card2.mode.pveDesc', 'Enfrenta la IA de práctica')}</div>
         </button>
-      </div>`);
-    
+      </div>
+      <button class="btn-tutorial" id="btn-tutorial-trompos">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
+
+    document.getElementById('btn-tutorial-trompos').onclick = startTutorial;
     document.getElementById('btn-pvp-trompos').onclick = ()=>{
       gameMode = 'pvp';
       document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
@@ -1718,6 +1880,166 @@ if (window.visualViewport) {
   // tanto el dibujo como el tamaño real de colisión de cada entidad).
   const ENTITY_SCALE = 1.35;
 
+  // ================= IMPACTO DINÁMICO (chispas + sacudida + sonido) =================
+  // Antes un choque solo restaba velocidad y hacía un flash rojo en la
+  // pantalla: se sentía plano. Ahora cada choque lanza chispas/escombros
+  // desde el punto exacto del golpe, sacude la cámara según la fuerza del
+  // impacto, y suena un golpe sintetizado con Web Audio.
+  let impactParticles = [];
+  let shakeTime = 0;
+  let shakeMag = 0;
+
+  function spawnImpact(x, y, power = 1, color = '#ffcc33') {
+    const count = Math.round(10 + power * 6);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = (1.5 + Math.random() * 3.5) * power;
+      impactParticles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1,
+        life: 22 + Math.random() * 16,
+        maxLife: 22 + Math.random() * 16,
+        size: 2 + Math.random() * 3,
+        color
+      });
+    }
+  }
+
+  function triggerShake(power = 1) {
+    shakeTime = Math.max(shakeTime, 14 * power);
+    shakeMag = Math.max(shakeMag, 5 * power);
+  }
+
+  function stepImpactParticles() {
+    impactParticles = impactParticles.filter(p => p.life > 0);
+    impactParticles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.18; // gravedad leve
+      p.vx *= 0.96;
+      p.life--;
+    });
+    if (shakeTime > 0) { shakeTime--; shakeMag *= 0.9; } else { shakeMag = 0; }
+  }
+
+  function drawImpactParticles() {
+    impactParticles.forEach(p => {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  let crashAudioCtx = null;
+  function playCrashSound(power = 1) {
+    if (volume <= 0) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!crashAudioCtx && AudioCtx) crashAudioCtx = new AudioCtx();
+      if (!crashAudioCtx) return;
+      if (crashAudioCtx.state === 'suspended') crashAudioCtx.resume();
+      const t = crashAudioCtx.currentTime;
+      const bufferSize = Math.floor(crashAudioCtx.sampleRate * 0.18);
+      const buffer = crashAudioCtx.createBuffer(1, bufferSize, crashAudioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      const noise = crashAudioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = crashAudioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1400 * power, t);
+      const gain = crashAudioCtx.createGain();
+      gain.gain.setValueAtTime(0.35 * volume * power, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(crashAudioCtx.destination);
+      noise.start(t);
+    } catch (e) {}
+  }
+
+  // ================= MODO TUTORIAL =================
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'lane', text: () => esTactilJuegos
+        ? jt('jue.tutorial.coasters.lane.tap', 'El bus acelera solo. Tocá cualquier carril de la calle para moverte hacia ahí. ¡Probalo!')
+        : jt('jue.tutorial.coasters.lane.key', 'Usá A/D o las flechas ⬅️➡️ para cambiar de carril. ¡Probalo!') },
+    { action: 'lane', text: () => jt('jue.tutorial.coasters.lane2', '¡Bien! Cambiá una vez más para esquivar como en la calle de verdad.') },
+    { action: 'passenger', text: () => jt('jue.tutorial.coasters.passenger', 'Cuando aparezca un pasajero brillante en el borde de la calle, metete a ese carril para recogerlo.') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() { canvasWrap?.querySelector('.tutorial-bubble')?.remove(); }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+    if (tutorialSteps[i].action === 'passenger' && passengers.length === 0) {
+      const onLeft = Math.random() > 0.5;
+      passengers.push({ x: onLeft ? 15 : canvas.width - 15, y: -50, collected: false });
+    }
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    cancelAnimationFrame(rafId);
+    showOverlay(`
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés manejar el bus!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la carrera de verdad: elegí la distancia y la dificultad del rival.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-coasters">🚌 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
+    `);
+    document.getElementById('btn-tutorial-done-coasters').onclick = showDistanceSelector;
+  }
+
+  function startTutorial() {
+    botDifficulty = 'easy';
+    targetDistance = 999999;
+    resetGame();
+    hideOverlay();
+    cancelAnimationFrame(rafId);
+    tutorialMode = true;
+    running = true;
+    paused = false;
+    playMusic();
+    rafId = requestAnimationFrame(step);
+    showTutorialStep(0);
+  }
+
   const engine = Engine.create();
   engine.gravity.y = 0;
   const world = engine.world;
@@ -1791,22 +2113,34 @@ if (window.visualViewport) {
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-  // Control táctil: tocar la mitad izquierda o derecha del canvas cambia de
-  // carril hacia ese lado. Sin esto el juego solo respondía al teclado y
-  // era imposible de jugar en celular.
+  // Control táctil: tocar directamente el carril de la calle manda el bus a
+  // ESE carril (antes solo se movía un carril hacia el lado tocado, lo que
+  // obligaba a tocar varias veces para cruzar la calle).
   canvas.addEventListener('touchstart', e => {
     if (!running || paused) return;
     e.preventDefault();
     const r = canvas.getBoundingClientRect();
-    const touchX = e.touches[0].clientX - r.left;
-    moveLane(touchX < r.width / 2 ? -1 : 1);
+    const touchX = (e.touches[0].clientX - r.left) * (canvas.width / r.width);
+    goToLane(laneFromX(touchX));
   }, { passive: false });
+
+  function laneFromX(x) {
+    if (!laneWidth) return player.lane;
+    const lane = Math.floor(x / laneWidth);
+    return Math.min(lanesCount - 1, Math.max(0, lane));
+  }
+
+  function goToLane(lane) {
+    if (lane >= 0 && lane < lanesCount) player.lane = lane;
+    notifyTutorial('lane');
+  }
 
   function moveLane(direction) {
     let nextLane = player.lane + direction;
     if(nextLane >= 0 && nextLane < lanesCount) {
       player.lane = nextLane;
     }
+    notifyTutorial('lane');
   }
 
   function pushToFreeLane(currentLane) {
@@ -1977,11 +2311,13 @@ if (window.visualViewport) {
   }
 
 function spawnEntities() {
-    if(Math.random() < 0.005 && (countBodies('bache') + countBodies('tumulo')) < 5) {
+    if (tutorialMode && tutorialWaiting) return; // Congela obstáculos nuevos mientras se espera la acción del tutorial
+
+    if(!tutorialMode && Math.random() < 0.005 && (countBodies('bache') + countBodies('tumulo')) < 5) {
       if(Math.random() > 0.5) spawnBache(); else spawnTumulo();
     }
 
-    if(Math.random() < 0.015 && passengers.length < 4) {
+    if(!tutorialMode && Math.random() < 0.015 && passengers.length < 4) {
       passengers.push({
         x: Math.random() > 0.5 ? 15 : canvas.width - 15,
         y: -50,
@@ -1989,7 +2325,7 @@ function spawnEntities() {
       });
     }
 
-    if(Math.random() < 0.003 && countBodies('traffic') < 2) {
+    if(!tutorialMode && Math.random() < 0.003 && countBodies('traffic') < 2) {
       spawnTraffic();
     }
   }
@@ -2007,19 +2343,41 @@ function spawnEntities() {
       if(hitCooldown.get(obstacle) && now - hitCooldown.get(obstacle) < 300) continue;
       hitCooldown.set(obstacle, now);
 
-      const kickX = (Math.random() - 0.5) * 0.05;
-      Body.applyForce(obstacle, obstacle.position, { x: kickX, y: -0.015 });
-      Body.setAngularVelocity(obstacle, (Math.random() - 0.5) * 0.45);
-
+      // Antes esto era un Body.applyForce minúsculo, y cada frame el bucle
+      // de scroll (más abajo) le volvía a fijar la velocidad al toque —
+      // la fuerza nunca alcanzaba a separar al obstáculo del bus, así que
+      // quedaba "pegado" viajando junto al bus o el bus lo atravesaba
+      // visualmente. Ahora se le da una velocidad real de golpe (no una
+      // fuerza) que lo empuja lejos del carril del bus, y se marca un
+      // período de gracia (knockbackUntil) durante el cual el bucle de
+      // scroll no le pisa la velocidad, para que el golpe se note.
+      const hitBusX = (busHit === playerBody) ? player.x : bot.x;
+      const pushDir = Math.sign(obstacle.position.x - hitBusX) || (Math.random() > 0.5 ? 1 : -1);
       const isTraffic = obstacle.label === 'traffic';
+      const knockPower = isTraffic ? 1.4 : 1;
+      Body.setVelocity(obstacle, {
+        x: pushDir * (3.5 + Math.random() * 2.5) * knockPower,
+        y: -(2 + Math.random() * 2) * knockPower
+      });
+      Body.setAngularVelocity(obstacle, (Math.random() - 0.5) * 0.5);
+      obstacle.knockbackUntil = now + 400;
+
+      const power = isTraffic ? 1.6 : 1;
+      spawnImpact(obstacle.position.x, obstacle.position.y, power, isTraffic ? '#ff3b3b' : '#ffcc33');
       if(busHit === playerBody) {
         player.speed = isTraffic ? 1.5 : Math.max(1, player.speed - 3);
         flashDamage();
+        triggerShake(power);
+        playCrashSound(power);
       } else {
         bot.speed = isTraffic ? 1.5 : Math.max(1, bot.speed - 2.5);
       }
     }
   });
+
+  // --- Choque entre buses: también dispara chispas/sacudida, para que se
+  // sienta tan brusco como chocar contra un obstáculo del camino.
+  let lastBusBumpAt = 0;
 
  function step(timestamp){
     if(!running || !isGameVisible) return;
@@ -2084,6 +2442,13 @@ function spawnEntities() {
     const busMinGap = 30 * ENTITY_SCALE; // distancia horizontal mínima antes de considerarse "tocándose"
     if (player.lane === bot.lane && Math.abs(player.x - bot.x) < busMinGap) {
       const playerAhead = player.distance >= bot.distance;
+      const now = Date.now();
+      if (now - lastBusBumpAt > 350) {
+        lastBusBumpAt = now;
+        spawnImpact((player.x + bot.x) / 2, (player.y + bot.y) / 2, 1.3, '#ffcc33');
+        triggerShake(1.1);
+        playCrashSound(1.1);
+      }
       if (playerAhead) {
         // El jugador va adelante: empuja al bot a un carril libre
         bot.lane = pushToFreeLane(bot.lane);
@@ -2092,18 +2457,25 @@ function spawnEntities() {
         // El bot va adelante: empuja al jugador a un carril libre
         player.lane = pushToFreeLane(player.lane);
         player.targetX = lanePositions[player.lane];
+        player.speed = Math.max(1.5, player.speed - 1.2);
       }
     }
 
     Body.setPosition(playerBody, { x: player.x, y: player.y });
     Body.setPosition(botBody, { x: bot.x, y: bot.y });
 
+    const nowTs = Date.now();
     Composite.allBodies(world).forEach(b => {
+      // Mientras un obstáculo está en su ventana de golpe (recién chocado
+      // contra un bus), se le deja conservar la velocidad del empujón en
+      // vez de forzarlo de vuelta al ritmo del scroll — si no, nunca
+      // alcanza a notarse el golpe y el bus lo atraviesa sin más.
+      const inKnockback = b.knockbackUntil && nowTs < b.knockbackUntil;
       if(b.label === 'bache' || b.label === 'tumulo') {
-        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed });
+        if(!inKnockback) Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed });
         if(b.position.y > canvas.height + 60) World.remove(world, b);
       } else if(b.label === 'traffic') {
-        Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed - (b.trafficSpeed * 0.5) });
+        if(!inKnockback) Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed - (b.trafficSpeed * 0.5) });
         if(b.position.y > canvas.height + 60 || b.position.y < -250) World.remove(world, b);
       }
     });
@@ -2115,12 +2487,15 @@ function spawnEntities() {
           p.collected = true;
           player.passengers++;
           player.speed = Math.min(player.maxSpeed + 2, player.speed + 1.8);
+          spawnImpact(p.x, p.y, 0.6, '#ffe066');
+          notifyTutorial('passenger');
           passengers.splice(idx, 1);
         }
       }
       if(p.y > canvas.height) passengers.splice(idx, 1);
     });
 
+    stepImpactParticles();
     Engine.update(engine, 16.667);
 
     if(player.distance >= targetDistance || bot.distance >= targetDistance) {
@@ -2134,6 +2509,10 @@ function spawnEntities() {
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    if (shakeMag > 0.1) {
+      ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
+    }
     drawRoad();
 
     Composite.allBodies(world).forEach(b => {
@@ -2142,11 +2521,13 @@ function spawnEntities() {
       else if(b.label === 'traffic') drawTrafficCar(b);
     });
     passengers.forEach(drawPassenger);
+    drawImpactParticles();
 
     drawBus(player.x, player.y, '#d62828', 'R-44');
     drawBus(bot.x, bot.y, '#003049', 'R-101D');
     drawPlayerArrow(player.x, player.y);
     drawSpeedometer(player.speed);
+    ctx.restore();
 
     updateHud();
     rafId = requestAnimationFrame(step);
@@ -2299,15 +2680,35 @@ function spawnEntities() {
     ctx.restore();
   }
 
+  // Obstáculos = "malos": halo rojo de peligro pulsante para que se
+  // distingan del camino de un vistazo, aunque estén quietos en el asfalto.
+  function drawDangerHalo(radiusX, radiusY) {
+    const pulse = 0.55 + Math.sin(Date.now() / 160) * 0.25;
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.strokeStyle = '#ff2d2d';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#ff2d2d';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawBache(b) {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
     ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
+    drawDangerHalo(22, 14);
     ctx.fillStyle = '#222222';
     ctx.beginPath();
     ctx.ellipse(0, 0, 18, 10, 0, 0, Math.PI*2);
     ctx.fill();
+    ctx.strokeStyle = 'rgba(255,45,45,.65)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -2316,6 +2717,7 @@ function spawnEntities() {
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
     ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
+    drawDangerHalo(26, 10);
     ctx.fillStyle = '#ffb300';
     ctx.fillRect(-22, -4, 44, 8);
     ctx.fillStyle = '#000000';
@@ -2325,15 +2727,32 @@ function spawnEntities() {
     ctx.restore();
   }
 
+  // Pasajeros = "puntos buenos": brillo dorado pulsante bien visible contra
+  // el asfalto, para que se noten a la distancia y no se confundan con nada.
   function drawPassenger(p) {
+    const pulse = 0.7 + Math.sin(Date.now() / 140 + p.x) * 0.3;
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = 'rgba(255, 230, 102, .5)';
+    ctx.shadowColor = '#ffe066';
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.shadowColor = '#ffe066';
+    ctx.shadowBlur = 10;
     ctx.fillStyle = '#ff5722';
     ctx.beginPath();
     ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
     ctx.fill();
-    ctx.fillStyle = '#ffcc80';
+    ctx.fillStyle = '#ffe066';
     ctx.beginPath();
     ctx.arc(p.x, p.y - 4, 4, 0, Math.PI*2);
     ctx.fill();
+    ctx.restore();
   }
 
   function drawTrafficCar(b) {
@@ -2341,10 +2760,14 @@ function spawnEntities() {
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
     ctx.scale(ENTITY_SCALE, ENTITY_SCALE);
+    drawDangerHalo(20, 26);
     ctx.fillStyle = b.trafficColor || '#3a86c8';
     ctx.beginPath();
     ctx.roundRect(-12, -22, 24, 44, 3);
     ctx.fill();
+    ctx.strokeStyle = 'rgba(255,45,45,.7)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -2517,15 +2940,17 @@ function spawnEntities() {
       <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card3.controlsTapLane', 'El bus acelera solo. Tocá el lado <strong>izquierdo</strong> o <strong>derecho</strong> de la pantalla para cambiar de carril hacia ese lado.')}</li>
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card3.controlsTapLane', 'El bus acelera solo. Tocá directamente el <strong>carril</strong> al que querés moverte.')}</li>
         ` : `
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel', '<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.')}</li>
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
         `}
       </ul>
       <button class="btn-primary" id="btn-start-coasters">${jt('jue.next', 'Siguiente')}</button>
+      <button class="btn-tutorial" id="btn-tutorial-coasters">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
     `);
     document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
+    document.getElementById('btn-tutorial-coasters').onclick = startTutorial;
   }
 
   const pauseBtn = document.getElementById('pauseBtn-coasters');
@@ -2546,6 +2971,7 @@ function spawnEntities() {
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
+    if (tutorialMode) hideTutorialBubble();
   }
 
   function resumeGame() {
@@ -2559,12 +2985,15 @@ function spawnEntities() {
       bgMusic.volume = savedVolume || volume;
       if (volume > 0) bgMusic.play().catch(()=>{});
     }
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
 
   function returnToMenu() {
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     cancelAnimationFrame(rafId);
     // bgMusic?.pause();  // ELIMINADO
     canvasWrap?.classList.remove('is-paused');
@@ -2697,6 +3126,75 @@ function spawnEntities() {
   // Input tracking
   let keys = {};
   let touchJoystick = { x: 0, y: 0, active: false };
+
+  // ================= MODO TUTORIAL =================
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'move', text: () => esTactilJuegos
+        ? jt('jue.tutorial.mica.move.tap', 'Arrastrá el dedo desde tu personaje para moverte hacia ahí. ¡Probalo!')
+        : jt('jue.tutorial.mica.move.key', 'Usá WASD/flechas, o movete hacia donde apunta el mouse. ¡Probalo!') },
+    { action: 'tag', text: () => jt('jue.tutorial.mica.tag', 'Vos tenés la mica. Acercate al amiguito y tocalo para pasársela.') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() { canvasWrap?.querySelector('.tutorial-bubble')?.remove(); }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+    if (tutorialSteps[i].action === 'tag' && player && kids[0]) {
+      micaBearerIndex = 0; // te dan la mica a vos para practicar cómo pasarla
+      immunityTimer = 0;
+      previousBearerIndex = -1;
+      avoidPrevBearerTimer = 0;
+      Body.setPosition(kids[0], { x: player.position.x + 110, y: player.position.y });
+      Body.setVelocity(kids[0], { x: 0, y: 0 });
+    }
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    cancelAnimationFrame(rafId);
+    showOverlay(`
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar a la mica!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la ronda de verdad: elegí la duración.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-mica">🏃 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
+    `);
+    document.getElementById('btn-tutorial-done-mica').onclick = showTimeSelector;
+  }
+
+  function startTutorial() {
+    startGame(999999);
+    tutorialMode = true;
+    showTutorialStep(0);
+  }
 
   // Canvas resizing. Antes, al entrar en pantalla completa se reusaba la
   // resolución chica de la ventana normal y el navegador solo la estiraba
@@ -3052,6 +3550,8 @@ function spawnEntities() {
     playSFX('tag');
     createParticles(newBearer.position.x, newBearer.position.y, 22);
 
+    if (fromIndex === 0) notifyTutorial('tag');
+
     if (toIndex === 0) {
       // Player received the mica!
       timesCarriedMica++;
@@ -3073,6 +3573,9 @@ function spawnEntities() {
   // ================= INPUT HANDLING =================
   window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
+    if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) {
+      notifyTutorial('move');
+    }
     if (e.code === 'Space' && running && !paused) {
       e.preventDefault();
       // Quick dash boost
@@ -3102,6 +3605,7 @@ function spawnEntities() {
       });
       player.angleFacing = Math.atan2(dy, dx);
       clampVelocity(player, 2.4 * MICA_SPEED_MULT);
+      notifyTutorial('move');
     }
   }, { passive: false });
 
@@ -3126,6 +3630,7 @@ function spawnEntities() {
       });
       player.angleFacing = Math.atan2(dy, dx);
       clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
+      notifyTutorial('move');
       return true;
     }
     return false;
@@ -3374,13 +3879,15 @@ function spawnEntities() {
     lastTime = timestamp;
     const dtSec = dt / 1000;
 
-    timeLeft -= dtSec;
-    if (micaBearerIndex !== 0) {
-      timeWithoutMica += dtSec;
-      score += 0.25 * (dtSec / 0.0166);
+    if (!tutorialMode) {
+      timeLeft -= dtSec;
+      if (micaBearerIndex !== 0) {
+        timeWithoutMica += dtSec;
+        score += 0.25 * (dtSec / 0.0166);
+      }
     }
 
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0 && !tutorialMode) {
       endGame();
       return;
     }
@@ -3758,8 +4265,10 @@ function spawnEntities() {
         <li class="rule-bad"><span class="rule-icon">⏳</span> ${jt('jue.card4.rule3', '<b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!')}</li>
       </ul>
       <button class="btn-primary" id="btn-start-mica">${jt('jue.card4.continueBtn', 'Continuar')}</button>
+      <button class="btn-tutorial" id="btn-tutorial-mica">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
     `);
     document.getElementById('btn-start-mica').onclick = showTimeSelector;
+    document.getElementById('btn-tutorial-mica').onclick = startTutorial;
   }
 
   // ================= PAUSE / RESUME / MENU =================
@@ -3781,6 +4290,7 @@ function spawnEntities() {
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if (pauseIcon) pauseIcon.textContent = '▶️';
+    if (tutorialMode) hideTutorialBubble();
   }
 
   function resumeGame() {
@@ -3795,12 +4305,15 @@ function spawnEntities() {
       bgMusic.volume = savedVolume || volume;
       if (volume > 0) bgMusic.play().catch(() => {});
     }
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
 
   function returnToMenu() {
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     cancelAnimationFrame(rafId);
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
@@ -3882,6 +4395,71 @@ function spawnEntities() {
     easy: { marbles: 8,  shots: 5, circleRadiusFactor: 0.28 },
     hard: { marbles: 14, shots: 4, circleRadiusFactor: 0.28 }
   };
+
+  // ================= MODO TUTORIAL =================
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'shoot', text: () => jt('jue.tutorial.canicas.shoot', 'Jalá el tirador dorado hacia atrás y soltá para disparar. ¡Probalo!') },
+    { action: 'out', text: () => jt('jue.tutorial.canicas.out', '¡Bien! Seguí disparando hasta sacar una canica fuera del círculo.') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() { canvasWrap?.querySelector('.tutorial-bubble')?.remove(); }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    overlayCard.innerHTML = `
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar canicas!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-canicas">🔮 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
+    `;
+    overlay.classList.remove('hidden');
+    if (window.gsap) gsap.fromTo(overlayCard, { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' });
+    document.getElementById('btn-tutorial-done-canicas').onclick = showDifficultySelector;
+  }
+
+  function startTutorial() {
+    startGame('easy');
+    tutorialMode = true;
+    setTimeout(() => {
+      shotsLeft = 999;
+      updateHUD();
+      showTutorialStep(0);
+    }, 350); // espera a que termine la transición GSAP de startGame()
+  }
 
   // ── Canvas sizing ─────────────────────────────────────────────
   // Antes, al entrar en pantalla completa se reusaba la resolución chica de
@@ -4184,6 +4762,7 @@ function spawnEntities() {
     gamePhase = 'shooting';
     aimStart = null;
     aimCurrent = null;
+    notifyTutorial('shoot');
     e.preventDefault();
   }
 
@@ -4235,6 +4814,7 @@ function spawnEntities() {
         m.plugin.isOut = true;
         score++;
         updateHUD();
+        notifyTutorial('out');
         spawnParticles(m.position.x, m.position.y, '#C4B5FD');
         // Animación GSAP de score pop
         const elScore = document.getElementById('can-score');
@@ -4570,12 +5150,14 @@ function spawnEntities() {
         <button class="difficulty-btn hard" id="btn-hard-canicas">
           ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '14 canicas · 4 tiros')}</small>
         </button>
-      </div>`;
+      </div>
+      <button class="btn-tutorial" id="btn-tutorial-canicas">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`;
     overlay.classList.remove('hidden');
     gsap.fromTo(overlayCard, { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' });
 
     document.getElementById('btn-easy-canicas').onclick = () => startGame('easy');
     document.getElementById('btn-hard-canicas').onclick = () => startGame('hard');
+    document.getElementById('btn-tutorial-canicas').onclick = () => startTutorial();
   }
 
   function startGame(diff) {
@@ -4674,6 +5256,7 @@ function spawnEntities() {
     if (pauseIcon) pauseIcon.textContent = '▶️';
     pauseOverlay?.classList.remove('hidden');
     bgMusic?.pause();
+    if (tutorialMode) hideTutorialBubble();
   }
   function resumeGame() {
     if (!running || !paused) return;
@@ -4683,11 +5266,14 @@ function spawnEntities() {
     pauseOverlay?.classList.add('hidden');
     bgMusic?.play().catch(() => {});
     lastTs = null;
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
   function returnToMenu() {
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
@@ -4782,6 +5368,85 @@ function spawnEntities() {
   let particles = [];
   let spectators = [];
   let sparks = [];
+
+  // ================= MODO TUTORIAL =================
+  // Corrida súper fácil y guiada: el juego no genera obstáculos nuevos
+  // (spawnEntities se congela) mientras se espera que el jugador haga la
+  // acción pedida. Al lograrla, se muestra un "¡Bien!" y pasa al próximo
+  // paso; al terminar todos los pasos, invita a jugar la partida real.
+  let tutorialMode = false;
+  let tutorialStep = -1;
+  let tutorialWaiting = false;
+  const tutorialSteps = [
+    { action: 'lane', text: () => esTactilJuegos
+        ? jt('jue.tutorial.torito.lane.tap', 'Tocá cualquier carril de la calle para que el torito salte hacia ahí. ¡Probá ahora!')
+        : jt('jue.tutorial.torito.lane.key', 'Usá A/D o las flechas ⬅️➡️ para cambiar de carril. ¡Probá ahora!') },
+    { action: 'lane', text: () => jt('jue.tutorial.torito.lane2', '¡Muy bien! Cambiá una vez más de carril para seguir practicando.') },
+    { action: 'dash', text: () => esTactilJuegos
+        ? jt('jue.tutorial.torito.dash.tap', 'Doble toque en la calle = ráfaga de chispas para animar a la gente cercana. ¡Probalo!')
+        : jt('jue.tutorial.torito.dash.key', 'Presioná la barra espaciadora para lanzar una ráfaga de chispas. ¡Probalo!') }
+  ];
+
+  function tutorialBubble(html) {
+    let el = canvasWrap?.querySelector('.tutorial-bubble');
+    if (!el && canvasWrap) {
+      el = document.createElement('div');
+      el.className = 'tutorial-bubble';
+      canvasWrap.appendChild(el);
+    }
+    if (el) el.innerHTML = html;
+  }
+  function hideTutorialBubble() {
+    canvasWrap?.querySelector('.tutorial-bubble')?.remove();
+  }
+
+  function showTutorialStep(i) {
+    tutorialStep = i;
+    if (i >= tutorialSteps.length) { finishTutorial(); return; }
+    tutorialWaiting = true;
+    const n = i + 1, total = tutorialSteps.length;
+    tutorialBubble(`
+      <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
+      <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
+    `);
+  }
+
+  function notifyTutorial(action) {
+    if (!tutorialMode || !tutorialWaiting) return;
+    if (tutorialSteps[tutorialStep].action !== action) return;
+    tutorialWaiting = false;
+    tutorialBubble(`<span class="tutorial-bubble__tag good">✅ ${jt('jue.tutorial.good', '¡Bien hecho!')}</span>`);
+    setTimeout(() => { if (tutorialMode) showTutorialStep(tutorialStep + 1); }, 1000);
+  }
+
+  function finishTutorial() {
+    tutorialMode = false;
+    hideTutorialBubble();
+    running = false;
+    cancelAnimationFrame(rafId);
+    showOverlay(`
+      <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
+      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés correr el Torito!')}</h3>
+      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la corrida de verdad: elegí tu destino y la dificultad.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-torito">${jt('jue.tutorial.playReal', '🐂 Jugar de verdad')}</button>
+    `);
+    document.getElementById('btn-tutorial-done-torito').onclick = showDistanceSelector;
+  }
+
+  function startTutorial() {
+    gameDifficulty = 'easy';
+    targetDistance = 999999; // nunca se llega mientras dura el tutorial
+    destinationName = jt('jue.tutorial.destName', 'Práctica');
+    resetGame();
+    hideOverlay();
+    cancelAnimationFrame(rafId);
+    tutorialMode = true;
+    running = true;
+    paused = false;
+    playMusic();
+    rafId = requestAnimationFrame(step);
+    showTutorialStep(0);
+  }
 
   // ================= WEB AUDIO SFX SYNTHESIZER =================
   let audioCtx = null;
@@ -5026,10 +5691,29 @@ function spawnEntities() {
     } else {
       const r = canvas.getBoundingClientRect();
       const touchX = e.touches[0].clientX - r.left;
-      moveLane(touchX < r.width / 2 ? -1 : 1);
+      // Tocar directamente el carril (izquierdo/centro/derecho de la calle):
+      // el torito salta a ESE carril, en vez de solo moverse un carril hacia
+      // el lado tocado. Si el toque cae fuera de la calle (aceras), se usa
+      // el carril más cercano a ese borde.
+      goToLane(laneFromX(touchX));
     }
     lastTapTime = now;
   }, { passive: true });
+
+  function laneFromX(x) {
+    if (!laneWidth) return toritoLane;
+    const clampedX = Math.min(streetRight - 1, Math.max(streetLeft, x));
+    const lane = Math.floor((clampedX - streetLeft) / laneWidth);
+    return Math.min(lanesCount - 1, Math.max(0, lane));
+  }
+
+  function goToLane(lane) {
+    if(lane !== toritoLane && lane >= 0 && lane < lanesCount) {
+      toritoLane = lane;
+      playSound('spark');
+    }
+    notifyTutorial('lane');
+  }
 
   function moveLane(direction) {
     const nextLane = toritoLane + direction;
@@ -5037,10 +5721,12 @@ function spawnEntities() {
       toritoLane = nextLane;
       playSound('spark');
     }
+    notifyTutorial('lane');
   }
 
   function performSparkDash() {
     if (energy < 10) return;
+    notifyTutorial('dash');
     energy = Math.max(0, energy - 8);
     playSound('dash');
     createFireworkBurst(toritoBody.position.x, toritoY, 18);
@@ -5253,6 +5939,7 @@ function spawnEntities() {
 
   function spawnEntities() {
     if (isArriving) return; // Stop spawning obstacles when entering church plaza!
+    if (tutorialMode && tutorialWaiting) return; // Congela obstáculos mientras se espera la acción del tutorial
 
     const config = gameConfig[gameDifficulty];
     let lane = Math.floor(Math.random() * lanesCount);
@@ -5418,8 +6105,8 @@ function spawnEntities() {
     const config = gameConfig[gameDifficulty];
     const currentSpeed = (isTurboActive ? config.turboSpeed : config.baseSpeed);
 
-    distance += currentSpeed * 0.16;
-    energy = Math.max(0, energy - config.energyDrainRate);
+    distance += tutorialMode ? 0 : currentSpeed * 0.16;
+    energy = tutorialMode ? 100 : Math.max(0, energy - config.energyDrainRate);
 
     // Combo timer decay
     if (comboTimer > 0) {
@@ -5488,7 +6175,7 @@ function spawnEntities() {
       toRemove.clear();
     }
 
-    if(energy <= 0) { endRun('sinEnergia'); return; }
+    if(energy <= 0 && !tutorialMode) { endRun('sinEnergia'); return; }
 
     // ================= DRAWING =================
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -6159,7 +6846,7 @@ function spawnEntities() {
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá izquierda/derecha para cambiar de carril · doble toque = ráfaga')}</li>
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá directamente el carril al que querés saltar · doble toque = ráfaga')}</li>
         ` : `
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', 'A/D o ⬅️➡️: cambiar de carril · Espacio: ráfaga de chispas')}</li>
         `}
@@ -6167,8 +6854,10 @@ function spawnEntities() {
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', 'Esquivá carretas y baldes de agua')}</li>
       </ul>
       <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
+      <button class="btn-tutorial" id="btn-tutorial-torito">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
     `);
     document.getElementById('btn-start-torito').onclick = showDistanceSelector;
+    document.getElementById('btn-tutorial-torito').onclick = startTutorial;
   }
 
   const pauseBtn = document.getElementById('pauseBtn-torito');
@@ -6189,6 +6878,7 @@ function spawnEntities() {
     canvasWrap?.classList.add('is-paused');
     pauseOverlay?.classList.remove('hidden');
     if(pauseIcon) pauseIcon.textContent = '▶️';
+    if (tutorialMode) hideTutorialBubble();
   }
 
   function resumeGame() {
@@ -6202,12 +6892,15 @@ function spawnEntities() {
       bgMusic.volume = savedVolume || volume;
       if (volume > 0) bgMusic.play().catch(()=>{});
     }
+    if (tutorialMode && tutorialStep >= 0) showTutorialStep(tutorialStep);
     rafId = requestAnimationFrame(step);
   }
 
   function returnToMenu() {
     running = false;
     paused = false;
+    tutorialMode = false;
+    hideTutorialBubble();
     cancelAnimationFrame(rafId);
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
