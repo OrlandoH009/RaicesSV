@@ -13,7 +13,8 @@ const BASE_SELECT = `
         p.created_at,
         u.name AS author_name,
         u.avatar_url AS author_avatar_url,
-        u.id_rol AS author_id_rol
+        u.id_rol AS author_id_rol,
+        (SELECT COUNT(*) FROM publication_likes pl WHERE pl.id_publication = p.id_publication) AS like_count
     FROM publications p
     INNER JOIN users u ON u.id_user = p.id_user
 `;

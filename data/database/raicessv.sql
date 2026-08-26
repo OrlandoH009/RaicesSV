@@ -65,6 +65,16 @@ CREATE TABLE IF NOT EXISTS publications(
     FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS publication_likes(
+    id_like INT AUTO_INCREMENT PRIMARY KEY,
+    id_publication INT NOT NULL,
+    id_user INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_publication_user (id_publication, id_user),
+    FOREIGN KEY (id_publication) REFERENCES publications(id_publication) ON DELETE CASCADE,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS password_resets (
     id_reset INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,
