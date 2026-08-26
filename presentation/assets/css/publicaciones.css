@@ -293,6 +293,54 @@
       -webkit-box-orient: vertical;
     }
 
+    /* ── Pie de tarjeta: botón de like ── */
+    .publication-card__footer {
+      display: flex;
+      align-items: center;
+      padding: .5rem .7rem .7rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .publication-like-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: .3rem .5rem;
+      border-radius: 999px;
+      color: var(--white);
+      font-family: var(--font-body, inherit);
+      font-weight: 700;
+      font-size: .85rem;
+      transition: background .2s ease, transform .15s ease;
+    }
+    [data-theme="light"] .publication-like-btn { color: var(--navy); }
+
+    .publication-like-btn:hover {
+      background: rgba(190, 142, 86, 0.15);
+    }
+
+    .publication-like-btn:active {
+      transform: scale(0.92);
+    }
+
+    .publication-like-btn .publication-like-icon {
+      font-size: 1.05rem;
+      line-height: 1;
+      transition: transform .2s ease;
+    }
+
+    .publication-like-btn.is-liked .publication-like-icon {
+      transform: scale(1.15);
+    }
+
+    .publication-like-btn .publication-like-count {
+      min-width: 1ch;
+    }
+
     /* ── Botón de acción ── */
     .publication-action {
       margin-top: 1rem;

@@ -147,6 +147,12 @@ function renderPublications(publications) {
           <span class="publication-image-overlay-text">${escapeHtml(pub.title)}</span>
         </div>
       </div>
+      <div class="publication-card__footer">
+        <button type="button" class="publication-like-btn${pub.isLiked ? ' is-liked' : ''}" data-id="${escapeHtml(pub.id)}" aria-label="${escapeHtml(t('pub.likeBtn'))}">
+          <span class="publication-like-icon">${pub.isLiked ? '❤️' : '🤍'}</span>
+          <span class="publication-like-count">${escapeHtml(pub.likeCount)}</span>
+        </button>
+      </div>
     </article>
   `;
   }).join('');
@@ -154,6 +160,54 @@ function renderPublications(publications) {
   document.querySelectorAll('.publication-card').forEach(card => {
     card.addEventListener('click', () => openPublicationDetail(card.dataset.id));
   });
+
+  document.querySelectorAll('.publication-card .publication-like-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleLike(btn.dataset.id);
+    });
+  });
+}
+
+// ════════════════════════════════════
+// LIKES
+// ════════════════════════════════════
+function updateLikeUI(id) {
+  const pub = lastPublications.find(p => String(p.id) === String(id));
+  if (!pub) return;
+
+  document.querySelectorAll(`.publication-like-btn[data-id="${CSS.escape(String(id))}"]`).forEach(btn => {
+    btn.classList.toggle('is-liked', pub.isLiked);
+    btn.querySelector('.publication-like-icon').textContent = pub.isLiked ? '❤️' : '🤍';
+    btn.querySelector('.publication-like-count').textContent = pub.likeCount;
+  });
+}
+
+async function toggleLike(id) {
+  if (!isUserLoggedIn) {
+    showGuestModal();
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/publications/${id}/like`, { method: 'POST' });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || t('pub.alertErrorLike'));
+    }
+
+    const data = await response.json();
+    const pub = lastPublications.find(p => String(p.id) === String(id));
+    if (pub) {
+      pub.isLiked = data.liked;
+      pub.likeCount = data.likeCount;
+    }
+    updateLikeUI(id);
+  } catch (error) {
+    console.error(error);
+    alert(error.message || t('pub.alertErrorLike'));
+  }
 }
 
 // ════════════════════════════════════
@@ -190,9 +244,16 @@ function openPublicationDetail(id) {
 
   const actionsWrap = document.getElementById('pubDetailActions');
   actionsWrap.innerHTML = `
+    <button type="button" class="publication-like-btn${pub.isLiked ? ' is-liked' : ''}" data-id="${escapeHtml(pub.id)}" aria-label="${escapeHtml(t('pub.likeBtn'))}">
+      <span class="publication-like-icon">${pub.isLiked ? '❤️' : '🤍'}</span>
+      <span class="publication-like-count">${escapeHtml(pub.likeCount)}</span>
+    </button>
     ${pub.canEdit ? `<button type="button" class="publication-edit-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.editBtn'))}</button>` : ''}
     ${pub.canDelete ? `<button type="button" class="publication-delete-btn" data-id="${escapeHtml(pub.id)}">${escapeHtml(t('pub.deleteBtn'))}</button>` : ''}
   `;
+  actionsWrap.querySelector('.publication-like-btn')?.addEventListener('click', () => {
+    toggleLike(pub.id);
+  });
   actionsWrap.querySelector('.publication-edit-btn')?.addEventListener('click', () => {
     closePublicationDetail();
     startEditPublication(pub.id);

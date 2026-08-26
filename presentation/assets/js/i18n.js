@@ -1805,6 +1805,7 @@
       "pub.clearBtn": "Limpiar",
       "pub.editBtn": "Editar",
       "pub.deleteBtn": "Eliminar",
+      "pub.likeBtn": "Me gusta",
 
       "pub.guestBlockerTitle": "¿Quieres compartir un lugar?",
       "pub.guestBlockerText": "Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.",
@@ -1825,6 +1826,7 @@
       "pub.alertError": "Ocurrió un error al guardar la publicación.",
       "pub.alertErrorLoad": "No se pudo cargar la publicación para editar.",
       "pub.alertErrorDelete": "No se pudo eliminar esta publicación.",
+      "pub.alertErrorLike": "No se pudo registrar el like. Inténtalo de nuevo.",
       "pub.alertImageFormat": "Formato no soportado. Usa JPG, PNG o WEBP.",
       "pub.alertImageSize": "La imagen no puede pesar más de 3 MB.",
 
@@ -3606,6 +3608,7 @@
         "pub.clearBtn": "Clear",
         "pub.editBtn": "Edit",
         "pub.deleteBtn": "Delete",
+        "pub.likeBtn": "Like",
 
         "pub.guestBlockerTitle": "Want to share a place?",
         "pub.guestBlockerText": "Log in or sign up to upload your own photos of El Salvador.",
@@ -3626,6 +3629,7 @@
         "pub.alertError": "An error occurred while saving the publication.",
         "pub.alertErrorLoad": "Could not load the publication for editing.",
         "pub.alertErrorDelete": "Could not delete this publication.",
+        "pub.alertErrorLike": "Could not register the like. Please try again.",
         "pub.alertImageFormat": "Unsupported format. Use JPG, PNG or WEBP.",
         "pub.alertImageSize": "The image cannot exceed 3 MB.",
 

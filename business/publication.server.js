@@ -1,4 +1,5 @@
 const publicationRepository = require('../data/repositories/publication.repository');
+const publicationLikeRepository = require('../data/repositories/publicationLike.repository');
 
 const MAX_TITLE_LENGTH = 125;
 const MAX_LOCATION_LENGTH = 125;
@@ -15,7 +16,7 @@ const parseCoordinate = (value) => {
     return Number.isFinite(num) ? num : NaN;
 };
 
-const sanitizePublication = (row, currentUser) => {
+const sanitizePublication = (row, currentUser, likedPublicationIds) => {
     const isOwner = Boolean(currentUser) && currentUser.id === row.id_user;
     const isAdmin = Boolean(currentUser) && (currentUser.role === 'Admin' || currentUser.role === 'Fundador');
 
@@ -33,6 +34,8 @@ const sanitizePublication = (row, currentUser) => {
             name: row.author_name,
             avatarUrl: row.author_avatar_url || null
         },
+        likeCount: Number(row.like_count) || 0,
+        isLiked: Boolean(likedPublicationIds) && likedPublicationIds.has(row.id_publication),
         canEdit: isOwner,
         canDelete: isOwner || isAdmin
     };
@@ -43,7 +46,11 @@ const listPublications = async (currentUser, { location } = {}) => {
         ? await publicationRepository.findByLocation(location)
         : await publicationRepository.findAll();
 
-    return rows.map((row) => sanitizePublication(row, currentUser));
+    const likedPublicationIds = currentUser
+        ? new Set(await publicationLikeRepository.findLikedPublicationIds(currentUser.id))
+        : new Set();
+
+    return rows.map((row) => sanitizePublication(row, currentUser, likedPublicationIds));
 };
 
 const getPublication = async (id_publication, currentUser) => {
@@ -53,7 +60,31 @@ const getPublication = async (id_publication, currentUser) => {
         const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
     }
 
-    return sanitizePublication(row, currentUser);
+    const likedPublicationIds = currentUser
+        ? new Set(await publicationLikeRepository.findLikedPublicationIds(currentUser.id))
+        : new Set();
+
+    return sanitizePublication(row, currentUser, likedPublicationIds);
+};
+
+const toggleLike = async (id_publication, currentUser) => {
+    const row = await publicationRepository.findById(id_publication);
+
+    if (!row) {
+        const err = new Error('Publicación no encontrada.'); err.expose = true; throw err;
+    }
+
+    const alreadyLiked = await publicationLikeRepository.exists(id_publication, currentUser.id);
+
+    if (alreadyLiked) {
+        await publicationLikeRepository.remove(id_publication, currentUser.id);
+    } else {
+        await publicationLikeRepository.create(id_publication, currentUser.id);
+    }
+
+    const likeCount = await publicationLikeRepository.countByPublication(id_publication);
+
+    return { liked: !alreadyLiked, likeCount };
 };
 
 const createPublication = async (id_user, { title, description, location, lat, lng, image }) => {
@@ -184,5 +215,6 @@ module.exports = {
     getPublication,
     createPublication,
     updatePublication,
-    deletePublication
+    deletePublication,
+    toggleLike
 };
