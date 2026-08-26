@@ -819,6 +819,84 @@ canvas {
   border-color: rgba(36,33,29,.4);
 }
 
+/* ── Botón "Tutorial" en la pantalla de instrucciones ── */
+.btn-tutorial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+  padding: .6rem 1.4rem;
+  background: transparent;
+  border: 2px dashed var(--gold-hover, #be8e56);
+  border-radius: var(--r-sm, 8px);
+  color: var(--gold-hover, #be8e56);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .85rem;
+  letter-spacing: .03em;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+.btn-tutorial:hover { background: rgba(190,142,86,.14); transform: translateY(-2px); }
+
+/* ── Burbuja flotante del Modo Tutorial: se muestra sobre el canvas mientras
+   el juego está en pausa "lógica" esperando que el jugador haga la acción
+   pedida. Vive por encima del HUD/canvas pero debajo de los controles
+   (pausa/volumen), para que siempre se pueda salir del tutorial. ── */
+.tutorial-bubble {
+  position: absolute;
+  top: .8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 18;
+  max-width: min(420px, 92%);
+  text-align: center;
+  background: rgba(11, 26, 51, .92);
+  border: 2px solid var(--gold-hover, #be8e56);
+  border-radius: var(--r-sm, 10px);
+  padding: .65rem 1.1rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 0 0 4px rgba(190,142,86,.12);
+  pointer-events: none;
+  animation: tutorialBubbleIn .35s ease;
+}
+.tutorial-bubble__tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold-hover, #be8e56);
+  margin-bottom: .25rem;
+}
+.tutorial-bubble__tag.good { color: #5fd88a; }
+.tutorial-bubble p {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  line-height: 1.4;
+}
+.tutorial-bubble .tutorial-pulse {
+  display: inline-block;
+  width: 9px; height: 9px;
+  margin-left: .4rem;
+  border-radius: 50%;
+  background: #ffea00;
+  box-shadow: 0 0 8px #ffea00;
+  animation: tutorialPulse 1s ease-in-out infinite;
+  vertical-align: middle;
+}
+@keyframes tutorialBubbleIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.94); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes tutorialPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(1.5); }
+}
+
 .games-footnote {
   position: relative;
   z-index: 1;
@@ -843,7 +921,7 @@ canvas {
   }
 
  canvas {
-    height: 64vh; /* Más alto en celular: aprovecha el formato vertical de la pantalla */
+    height: 76vh; /* Más alto en celular: aprovecha el formato vertical de la pantalla */
     min-height: 440px;
   }
 
@@ -874,13 +952,13 @@ canvas {
      juego (las barras de progreso). */
   .hud--overlay { top: .5rem; left: .5rem; right: 82px; gap: .35rem; max-width: none; }
   .hud--overlay .hud-item {
-    background: rgba(17,48,104,.6);
+    background: rgba(17,48,104,.38);
     min-width: 62px;
     padding: .28rem .5rem;
     font-size: .66rem;
   }
-  .hud--overlay .hud-item span { color: var(--white); }
-  .hud--overlay .hud-item b { color: var(--white); font-size: .92rem; }
+  .hud--overlay .hud-item span { color: var(--white); text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+  .hud--overlay .hud-item b { color: var(--white); font-size: .92rem; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
 
   /* Las barras de progreso de Coasters son más anchas que el resto del
      contenido del HUD; las achicamos para que no fuercen tarjetas
@@ -890,9 +968,41 @@ canvas {
   #hud-coasters .hud-item b { font-size: .68rem; }
   #hud-coasters .hud-item .coasters-progress-bar { width: 52px; margin-left: 5px; }
 
+  /* Interfaz de juego (HUD, botones de pausa/pantalla completa, control de
+     volumen, barras del Torito) más transparente en celular: en pantallas
+     chicas esta interfaz siempre está encima del juego, así que antes
+     tapaba bastante más de lo que le corresponde. Se le baja la opacidad
+     del fondo para que se note que hay controles ahí sin esconder la
+     acción detrás. */
   .canvas-controls { top: .5rem; right: .5rem; gap: .4rem; }
-  .icon-btn { width: 32px; height: 32px; font-size: .85rem; }
+  .icon-btn { width: 32px; height: 32px; font-size: .85rem; background: rgba(17,48,104,.42); }
   .icon-btn svg { width: 15px; height: 15px; }
+  .volume-group { background: rgba(17,48,104,.42); }
+  .torito-hud-bar-container { background: rgba(14,10,24,.42); }
+  .torito-meter-track { background: rgba(0,0,0,.35); }
+
+  /* Botones y textos de las tarjetas de menú (instrucciones, dificultad,
+     modo, tutorial, fin de partida) más chicos en celular: estaban usando
+     el mismo tamaño que en escritorio y en pantallas angostas se sentían
+     enormes, empujando el contenido y obligando a hacer scroll. */
+  .overlay-card { padding: 1.1rem 1.1rem; }
+  .overlay-tag { font-size: .6rem; padding: .25rem .6rem; margin-bottom: .5rem; }
+  .overlay-card h3 { font-size: 1.05rem; margin-bottom: .35rem; }
+  .overlay-card p { font-size: .76rem; margin-bottom: .65rem; }
+  .overlay-score { font-size: 1.7rem; }
+  .overlay-best-score { font-size: .8rem; }
+  .rules-title { font-size: .68rem; }
+  .rules-list { font-size: .76rem; }
+
+  .difficulty-buttons, .mode-buttons { gap: .6rem; }
+  .difficulty-btn { padding: .6rem .8rem; font-size: .76rem; }
+  .mode-btn { padding: .75rem .9rem; font-size: .82rem; }
+  .difficulty-desc { font-size: .68rem; min-height: 0; }
+
+  .overlay-card .btn-primary { font-size: .85rem; padding: .6rem 1.5rem; }
+  .overlay-card--pause .btn-primary { font-size: .72rem; padding: .42rem 1rem; }
+  .btn-tutorial { font-size: .74rem; padding: .5rem 1.1rem; }
+  .btn-back-selector { font-size: .72rem; padding: .3rem .75rem; margin-bottom: .6rem; }
 }
 
 /* Además del ancho, en celulares y tablets con poca ALTURA (apaisados,
@@ -901,7 +1011,7 @@ canvas {
    por altura reduce el canvas a algo que siempre entra en la pantalla. */
 @media (max-height: 700px) {
   canvas {
-    height: 46vh;
+    height: 58vh;
     min-height: 260px;
   }
   .game-panel { padding: .8rem .8rem 1rem; }
@@ -918,8 +1028,18 @@ canvas {
   .game-tab-btn { flex-basis: 48%; padding: 0.7rem 0.8rem; font-size: 0.8rem; }
   .game-tab-btn .tab-text { font-size: 0.75rem; }
 
-  .difficulty-buttons, .mode-buttons { flex-direction: column; gap: .8rem; }
-  .difficulty-btn, .mode-btn { min-width: auto; width: 100%; }
+  .difficulty-buttons, .mode-buttons { flex-direction: column; gap: .5rem; }
+  .difficulty-btn, .mode-btn { min-width: auto; width: 100%; padding: .55rem .7rem; font-size: .72rem; }
+  .mode-btn { font-size: .78rem; }
+
+  /* En pantallas muy angostas los textos y botones de las tarjetas de
+     menú se achican un poco más todavía. */
+  .overlay-card { padding: .95rem .9rem; }
+  .overlay-card h3 { font-size: .95rem; }
+  .overlay-card p, .rules-list { font-size: .72rem; }
+  .overlay-score { font-size: 1.5rem; }
+  .overlay-card .btn-primary { font-size: .8rem; padding: .55rem 1.3rem; }
+  .btn-tutorial { font-size: .7rem; padding: .45rem .9rem; }
 }
 
 /* ── DISEÑO DE TARJETAS (PORTADAS) ── */
