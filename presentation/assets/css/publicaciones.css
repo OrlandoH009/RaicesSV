@@ -169,7 +169,7 @@
     /* ── Cuadrícula estilo Instagram: recuadros apretados ── */
     .publications-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 4px;
       position: relative;
       z-index: 2;
