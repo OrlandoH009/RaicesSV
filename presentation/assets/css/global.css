@@ -3,7 +3,7 @@
    Variables, Navbar, Footer, Botones, Animaciones compartidas
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ── Variables Adaptables ── */
 :root {
@@ -18,8 +18,9 @@
   --overlay:     rgba(15, 47, 102, 0.45);
   --card-dim:    rgba(85, 84, 84, 0.45);
 
-  --font-display: 'Playfair Display', serif;
-  --font-body:    'Lato', sans-serif;
+  --font-display: 'Fraunces', serif;
+  --font-body:    'Inter', sans-serif;
+  --ease-elegant: cubic-bezier(.4,0,.2,1);
 
   /* Radios de borde que escalan fluidamente con la pantalla */
   --r-sm:  clamp(10px, 1.2vw, 15px);
@@ -102,10 +103,32 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; }
-body  { font-family: var(--font-body); background: var(--bg-body); color: var(--text-main); overflow-x: hidden; font-size: clamp(0.9rem, 1vw, 1rem); transition: background .6s ease, color .6s ease; }
+body  {
+  font-family: var(--font-body);
+  background: var(--bg-body);
+  color: var(--text-main);
+  overflow-x: hidden;
+  font-size: clamp(0.9rem, 1vw, 1rem);
+  line-height: 1.6;
+  transition: background .6s ease, color .6s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
 a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 ul    { list-style: none; }
+
+/* ── Tipografía elegante y homogénea para todos los títulos del sitio ──
+   Cualquier <h1>-<h6> hereda la serif de acento por defecto, sin que
+   cada página tenga que declarar font-family en su propia hoja. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+p { line-height: 1.65; }
 
 html, body {
   max-width: 100vw;
@@ -237,8 +260,11 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-size: clamp(0.95rem, 1.1vw, 1.25rem);
   color: var(--white);
   position: relative;
-  transition: color .2s;
+  letter-spacing: 0;
+  transition: color .25s var(--ease-elegant), letter-spacing .25s var(--ease-elegant);
 }
+.navbar__links a:hover,
+.navbar__links a.active { letter-spacing: .02em; }
 [data-theme="light"] .navbar__links a { color: var(--navy); }
 [data-theme="light"] .navbar__links a:hover,
 [data-theme="light"] .navbar__links a.active { color: var(--accent-sunset); }
@@ -485,9 +511,10 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
   padding: .8rem .5rem;
   border-bottom: 1px solid rgba(255,255,255,.08);
   display: block;
-  transition: color .35s ease, padding-left .2s, border-color .35s ease;
+  letter-spacing: 0;
+  transition: color .35s ease, padding-left .2s var(--ease-elegant), border-color .35s ease, letter-spacing .2s var(--ease-elegant);
 }
-.nav-drawer a.drawer-link:hover { color: var(--gold); padding-left: .75rem; }
+.nav-drawer a.drawer-link:hover { color: var(--gold); padding-left: .75rem; letter-spacing: .015em; }
 
 .drawer-divider {
   height: 1px;
@@ -686,9 +713,10 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
   font-family: var(--font-body);
   font-size: clamp(0.78rem, 1vw, 0.88rem);
   color: var(--navy);
-  transition: color .2s;
+  letter-spacing: 0;
+  transition: color .2s, letter-spacing .2s var(--ease-elegant);
 }
-.footer__links a:hover { color: var(--gold); }
+.footer__links a:hover { color: var(--gold); letter-spacing: .015em; }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
 .footer__disclaimer { font-size: 0.7rem; color: #777; margin-top: 0.1rem; max-width: 560px; }
 

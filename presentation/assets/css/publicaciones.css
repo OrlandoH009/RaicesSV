@@ -8,8 +8,8 @@
       --black: #1d1919;
       --white: #ffffff;
       --overlay: rgba(15, 47, 102, 0.45);
-      --font-display: 'Playfair Display', serif;
-      --font-body: 'Lato', sans-serif;
+      --font-display: 'Fraunces', serif;
+      --font-body: 'Inter', sans-serif;
       --r-sm: 15px;
       --r-md: 25px;
     }
