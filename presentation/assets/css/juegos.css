@@ -273,20 +273,20 @@
 
 .hud-item {
   background: var(--white);
-  border: 2px solid var(--navy);
+  border: 1.5px solid var(--navy);
   border-radius: var(--r-sm);
-  padding: .4rem .8rem;
+  padding: .28rem .55rem;
   font-family: var(--font-body);
-  font-size: .78rem;
+  font-size: .64rem;
   color: var(--navy);
-  min-width: 82px;
+  min-width: 60px;
   text-align: center;
 }
 
 .hud-item b {
   display: block;
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: .92rem;
   color: var(--gold-hover);
 }
 
@@ -483,45 +483,45 @@ canvas {
 /* ── HUD superpuesto ── */
 .hud--overlay {
   position: absolute;
-  top: .8rem;
-  left: .8rem;
+  top: .5rem;
+  left: .5rem;
   z-index: 6; /* Detrás del menú de overlays pero visible en juego */
   display: flex;
   flex-wrap: wrap;
-  gap: .5rem;
-  max-width: 55%;
+  gap: .3rem;
+  max-width: 46%;
   pointer-events: auto;
 }
 
 .hud--overlay .hud-item {
   background: rgba(255,255,255,0.98);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  min-width: 88px;
-  border: 2px solid var(--navy);
-  border-radius: 8px;
-  padding: 0.5rem 0.7rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  min-width: 60px;
+  border: 1.5px solid var(--navy);
+  border-radius: 7px;
+  padding: 0.3rem 0.5rem;
 }
 
 .hud-item span {
   display: block;
-  font-size: .75rem;
+  font-size: .58rem;
   color: var(--navy);
-  margin-bottom: .2rem;
+  margin-bottom: .12rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .hud-item b {
   color: var(--navy);
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: .92rem;
 }
 
 .hud-item.lives b {
   display: flex;
   justify-content: center;
-  gap: .18rem;
+  gap: .14rem;
   flex-wrap: wrap;
   letter-spacing: 0;
 }
@@ -530,11 +530,43 @@ canvas {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: .78rem;
   transition: transform .2s ease, opacity .2s ease;
 }
 
 .hud-item .heart.broken { opacity: .65; }
+
+/* ── Joystick virtual (Mica y Guerra de Trompos) ── */
+.virtual-joystick {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+  margin-top: -46px;
+  border-radius: 50%;
+  background: rgba(20, 20, 30, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  z-index: 8;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+.virtual-joystick.is-active {
+  opacity: 1;
+  background: rgba(20, 20, 30, 0.4);
+}
+.virtual-joystick__knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
 
 .damage-overlay {
   position: absolute;
@@ -718,6 +750,21 @@ canvas {
 
 .difficulty-btn.hard { border-color: #d63c3c; color: #d63c3c; }
 .difficulty-btn.hard:hover { background: rgba(214, 60, 60, 0.1); }
+
+/* La descripción (small) heredaba el uppercase + letter-spacing pensado
+   para el texto corto del botón ("FÁCIL"), lo que sobre una frase más
+   larga ("8 canicas · 5 tiros") quedaba apretado y costaba leer. */
+.difficulty-btn small {
+  display: block;
+  margin-top: .3rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: .7rem;
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: .82;
+  line-height: 1.3;
+}
 
 /* ── Botones de modo ── */
 .mode-buttons {
@@ -950,15 +997,15 @@ canvas {
      blanco casi opaco) para que el juego siga viéndose detrás.
      Ver #hud-coasters más abajo para lo que sí es específico de ese
      juego (las barras de progreso). */
-  .hud--overlay { top: .5rem; left: .5rem; right: 82px; gap: .35rem; max-width: none; }
+  .hud--overlay { top: .4rem; left: .4rem; right: 74px; gap: .25rem; max-width: none; }
   .hud--overlay .hud-item {
     background: rgba(17,48,104,.38);
-    min-width: 62px;
-    padding: .28rem .5rem;
-    font-size: .66rem;
+    min-width: 50px;
+    padding: .2rem .4rem;
+    font-size: .58rem;
   }
   .hud--overlay .hud-item span { color: var(--white); text-shadow: 0 1px 3px rgba(0,0,0,.7); }
-  .hud--overlay .hud-item b { color: var(--white); font-size: .92rem; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+  .hud--overlay .hud-item b { color: var(--white); font-size: .78rem; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
 
   /* Las barras de progreso de Coasters son más anchas que el resto del
      contenido del HUD; las achicamos para que no fuercen tarjetas
@@ -1246,8 +1293,8 @@ canvas {
 
 /* --- ESTILOS DEL JUEGO DE COASTERS --- */
 .hud-item .coasters-progress-bar {
-  width: 120px;
-  height: 8px;
+  width: 80px;
+  height: 6px;
   background: rgba(255,255,255,0.2);
   border-radius: 4px;
   overflow: hidden;
@@ -1313,8 +1360,8 @@ canvas {
   vertical-align: middle;
 }
 .encantados-round-dots .dot {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: rgba(255,255,255,0.25);
   border: 1px solid rgba(255,255,255,0.4);
@@ -1323,6 +1370,17 @@ canvas {
   background: #00e676;
   border-color: #00e676;
 }
+
+/* --- ESTILOS DEL JUEGO DE CANICAS --- */
+#hud-elotes.hud--overlay {
+  gap: .22rem;
+}
+#hud-elotes .hud-item {
+  min-width: 46px;
+  padding: .22rem .4rem;
+}
+#hud-elotes .hud-item span { font-size: .52rem; margin-bottom: .08rem; }
+#hud-elotes .hud-item b { font-size: .8rem; }
 
 /* --- ESTILOS DEL JUEGO ELOTES Y OLÉ --- */
 .hud-item .elotes-combo {
@@ -1357,27 +1415,27 @@ canvas {
 .torito-hud-bar-container {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: rgba(14, 10, 24, 0.7);
   border: 1px solid rgba(255, 215, 0, 0.4);
-  border-radius: 14px;
-  padding: 3px 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  padding: 2px 7px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .torito-hud-label {
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: #ffea00;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   white-space: nowrap;
 }
 
 .torito-meter-track {
-  width: 90px;
-  height: 9px;
+  width: 62px;
+  height: 7px;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 6px;
   overflow: hidden;
@@ -1404,15 +1462,15 @@ canvas {
 .torito-combo-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: linear-gradient(135deg, #ff007f, #ff3d00);
   border: 1.5px solid #ffffff;
-  border-radius: 14px;
-  padding: 2px 8px;
+  border-radius: 12px;
+  padding: 1px 6px;
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.66rem;
   color: #fff;
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+  box-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
 }
 
 /* Floating Slang Popups en Torito Pinto */
@@ -1492,20 +1550,20 @@ canvas {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   max-width: 95%;
-  padding: 6px 12px;
+  padding: 4px 8px;
 }
 
 .mica-hud-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 14px;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 12px;
   font-weight: 800;
-  font-size: 0.82rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  font-size: 0.66rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   transition: background 0.2s, border-color 0.2s;
 }
 
@@ -1530,12 +1588,12 @@ canvas {
 .mica-time-box {
   background: rgba(14, 10, 24, 0.7);
   border: 1.5px solid rgba(255, 215, 0, 0.4);
-  border-radius: 14px;
-  padding: 4px 12px;
+  border-radius: 12px;
+  padding: 3px 9px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: #ffd700;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.68rem;
 }
