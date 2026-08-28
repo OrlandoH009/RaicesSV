@@ -34,39 +34,75 @@ function jt(key, fallback) {
    y devuelve un vector normalizado (-1..1 en cada eje) mientras arrastrás,
    igual que el stick analógico de un control — así el jugador no necesita
    ver dónde está su personaje para saber a dónde tocar. */
-function createVirtualJoystick(canvas, canvasWrap) {
+function createVirtualJoystick(canvas, canvasWrap, options = {}) {
   if (!canvas || !canvasWrap) return { getVector: () => ({ x: 0, y: 0 }), isActive: () => false };
 
+  // Modo "fijo": en vez de aparecer donde tocás, el joystick vive anclado
+  // siempre abajo a la izquierda (como el stick de un control físico), así
+  // el jugador puede apoyar el pulgar ahí sin tener que mirar la pantalla.
+  const fixed = !!options.fixed;
+
   const base = document.createElement('div');
-  base.className = 'virtual-joystick';
+  base.className = fixed ? 'virtual-joystick virtual-joystick--fixed' : 'virtual-joystick';
   const knob = document.createElement('div');
   knob.className = 'virtual-joystick__knob';
   base.appendChild(knob);
   canvasWrap.appendChild(base);
 
   const maxRadius = 34;
+  // Radio de "agarre": en modo fijo, cualquier toque que empiece dentro de
+  // este radio alrededor del centro del joystick lo activa (más grande que
+  // el círculo visual para que sea fácil de encontrar con el pulgar sin
+  // mirar).
+  const catchRadius = 62;
   let dragging = false;
   let originX = 0, originY = 0;
   let vec = { x: 0, y: 0 };
+  let activeTouchId = null;
 
   function setKnob(dx, dy) {
     knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
   }
 
   function pointFromEvent(e) {
-    return e.touches && e.touches.length ? e.touches[0] : e;
+    if (e.touches && e.touches.length) {
+      if (activeTouchId != null) {
+        for (let i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === activeTouchId) return e.touches[i];
+        }
+      }
+      return e.touches[0];
+    }
+    return e;
+  }
+
+  function withinFixedZone(clientX, clientY) {
+    const r = base.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = clientX - cx, dy = clientY - cy;
+    return Math.sqrt(dx * dx + dy * dy) <= catchRadius;
   }
 
   function onDown(e) {
+    const pt0 = e.changedTouches ? e.changedTouches[0] : (e.touches && e.touches[0]) || e;
+    if (fixed && !withinFixedZone(pt0.clientX, pt0.clientY)) return;
     e.preventDefault();
     dragging = true;
+    if (e.changedTouches) activeTouchId = e.changedTouches[0].identifier;
     base.classList.add('is-active');
-    const pt = pointFromEvent(e);
     const r = canvasWrap.getBoundingClientRect();
-    originX = pt.clientX - r.left;
-    originY = pt.clientY - r.top;
-    base.style.left = originX + 'px';
-    base.style.top = originY + 'px';
+    if (fixed) {
+      const br = base.getBoundingClientRect();
+      originX = br.left - r.left + br.width / 2;
+      originY = br.top - r.top + br.height / 2;
+    } else {
+      const pt = pointFromEvent(e);
+      originX = pt.clientX - r.left;
+      originY = pt.clientY - r.top;
+      base.style.left = originX + 'px';
+      base.style.top = originY + 'px';
+    }
     onMove(e);
   }
 
@@ -86,20 +122,34 @@ function createVirtualJoystick(canvas, canvasWrap) {
     vec = { x: dx / maxRadius, y: dy / maxRadius };
   }
 
-  function onUp() {
+  function onUp(e) {
+    if (dragging && fixed && e && e.changedTouches && activeTouchId != null) {
+      const stillTouching = e.touches && Array.from(e.touches).some(t => t.identifier === activeTouchId);
+      if (stillTouching) return;
+    }
     dragging = false;
+    activeTouchId = null;
     base.classList.remove('is-active');
-    base.style.left = '';
-    base.style.top = '';
+    if (!fixed) {
+      base.style.left = '';
+      base.style.top = '';
+    }
     setKnob(0, 0);
     vec = { x: 0, y: 0 };
   }
 
-  canvas.addEventListener('touchstart', onDown, { passive: false });
-  canvas.addEventListener('touchmove', onMove, { passive: false });
-  canvas.addEventListener('touchend', onUp, { passive: false });
-  canvas.addEventListener('touchcancel', onUp, { passive: false });
-  canvas.addEventListener('mousedown', onDown);
+  // En modo fijo el joystick tiene su propia zona (abajo-izquierda) y debe
+  // seguir recibiendo touchmove/touchend aunque el dedo se arrastre fuera
+  // del canvas, así que escuchamos en window en vez de solo en el canvas.
+  const moveTarget = fixed ? window : canvas;
+  const upTarget = fixed ? window : canvas;
+  const downTarget = fixed ? canvasWrap : canvas;
+
+  downTarget.addEventListener('touchstart', onDown, { passive: false });
+  moveTarget.addEventListener('touchmove', onMove, { passive: false });
+  upTarget.addEventListener('touchend', onUp, { passive: false });
+  upTarget.addEventListener('touchcancel', onUp, { passive: false });
+  downTarget.addEventListener('mousedown', onDown);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup', onUp);
 
@@ -2181,14 +2231,20 @@ if (window.visualViewport) {
 
   // Control táctil: tocar directamente el carril de la calle manda el bus a
   // ESE carril (antes solo se movía un carril hacia el lado tocado, lo que
-  // obligaba a tocar varias veces para cruzar la calle).
-  canvas.addEventListener('touchstart', e => {
+  // obligaba a tocar varias veces para cruzar la calle). Además, mientras
+  // el dedo se mantiene abajo y se arrastra (touchmove), el carril se sigue
+  // actualizando en tiempo real: antes solo el toque inicial contaba, así
+  // que un arrastre continuo (lo más natural en celular) no respondía hasta
+  // soltar y volver a tocar.
+  function updateLaneFromTouch(e) {
     if (!running || paused) return;
     e.preventDefault();
     const r = canvas.getBoundingClientRect();
     const touchX = (e.touches[0].clientX - r.left) * (canvas.width / r.width);
     goToLane(laneFromX(touchX));
-  }, { passive: false });
+  }
+  canvas.addEventListener('touchstart', updateLaneFromTouch, { passive: false });
+  canvas.addEventListener('touchmove', updateLaneFromTouch, { passive: false });
 
   function laneFromX(x) {
     if (!laneWidth) return player.lane;
@@ -3691,7 +3747,7 @@ function spawnEntities() {
   // hacia dónde tocar. El joystick aparece justo donde tocás y funciona
   // como un stick analógico: la dirección/distancia respecto al centro
   // controla hacia dónde y qué tan fuerte se mueve.
-  const joystick = createVirtualJoystick(canvas, canvasWrap);
+  const joystick = createVirtualJoystick(canvas, canvasWrap, { fixed: esTactilJuegos });
 
   function handleJoystickMovement() {
     if (!player) return false;
@@ -4757,7 +4813,7 @@ function spawnEntities() {
   function placeMarbles(count) {
     const placed = [];
     let attempts = 0;
-    while (placed.length < count && attempts < 2000) {
+    while (placed.length < count && attempts < 6000) {
       attempts++;
       const angle = Math.random() * Math.PI * 2;
       // Raíz cuadrada de un random uniforme reparte los puntos por ÁREA
@@ -4772,7 +4828,7 @@ function spawnEntities() {
       let ok = true;
       for (const p of placed) {
         const dx = p.x - px, dy = p.y - py;
-        if (Math.sqrt(dx * dx + dy * dy) < marbleRadius * 2.4) { ok = false; break; }
+        if (Math.sqrt(dx * dx + dy * dy) < marbleRadius * 3.2) { ok = false; break; }
       }
       if (!ok) continue;
       placed.push({ x: px, y: py });
@@ -4802,7 +4858,7 @@ function spawnEntities() {
     // arriba, así que no hace falta nada de esto.
   }
 
-  const TIRADOR_SCALE = 1.15; // 15% más grande que las canicas del círculo (antes era 1.4x, muy grande)
+  const TIRADOR_SCALE = 0.75; // Más chica que las canicas del círculo, para distinguirla como "la que se tira"
 
   function spawnTirador() {
     if (tirador) { try { World.remove(world, tirador); } catch(e){} }
@@ -5792,12 +5848,14 @@ function spawnEntities() {
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
   let lastTapTime = 0;
+  let toritoTouchDragging = false;
   canvas.addEventListener('touchstart', e => {
     if(!running || paused) return;
     const now = Date.now();
     if (now - lastTapTime < 300) {
       // Doble toque = ráfaga de chispas (equivalente táctil de la barra espaciadora)
       performSparkDash();
+      toritoTouchDragging = false;
     } else {
       const r = canvas.getBoundingClientRect();
       const touchX = e.touches[0].clientX - r.left;
@@ -5806,9 +5864,22 @@ function spawnEntities() {
       // el lado tocado. Si el toque cae fuera de la calle (aceras), se usa
       // el carril más cercano a ese borde.
       goToLane(laneFromX(touchX));
+      toritoTouchDragging = true;
     }
     lastTapTime = now;
   }, { passive: true });
+  // Mientras se arrastra el dedo (sin haber sido el segundo toque de un
+  // doble-toque), el carril sigue al dedo en tiempo real, igual que en el
+  // juego de los buses: antes solo el toque inicial movía el carril y había
+  // que soltar y volver a tocar para seguir cambiando, lo que se sentía
+  // poco responsivo en celular.
+  canvas.addEventListener('touchmove', e => {
+    if (!running || paused || !toritoTouchDragging) return;
+    const r = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - r.left;
+    goToLane(laneFromX(touchX));
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => { toritoTouchDragging = false; }, { passive: true });
 
   function laneFromX(x) {
     if (!laneWidth) return toritoLane;
