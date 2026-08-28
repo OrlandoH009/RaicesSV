@@ -555,6 +555,19 @@ canvas {
   opacity: 1;
   background: rgba(20, 20, 30, 0.4);
 }
+/* Joystick anclado (no aparece donde tocás, vive siempre abajo-izquierda):
+   se ve tenue en reposo para no tapar el juego y se resalta al usarse. */
+.virtual-joystick--fixed {
+  left: 20px;
+  top: auto;
+  bottom: 20px;
+  margin: 0;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.virtual-joystick--fixed.is-active {
+  opacity: 0.95;
+}
 .virtual-joystick__knob {
   position: absolute;
   top: 50%;

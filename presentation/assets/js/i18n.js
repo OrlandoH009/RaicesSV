@@ -96,6 +96,29 @@
       "footer.copy": "© 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.",
       "footer.disclaimer": "Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.",
       "footer.juegos": "Juegos",
+      "footer.brand": "Salvadorean Roots",
+
+      "backNav.categorias": "Volver a categorías",
+      "backNav.calendario": "Volver al calendario",
+      "backNav.sitios-culturales": "Volver a sitios culturales",
+      "backNav.gastronomia": "Volver a gastronomía",
+      "backNav.recetas": "Volver al recetario",
+      "backNav.eventos": "Volver a eventos",
+      "backNav.historia": "Volver a historia",
+      "backNav.leyendas": "Volver a leyendas",
+      "backNav.mapa": "Volver al mapa",
+      "backNav.publicaciones": "Volver a publicaciones",
+
+      "error404.meta.title": "Página no encontrada — Salvadorean Roots",
+      "error404.eyebrow": "Error 404",
+      "error404.title": "Esta página se perdió en el camino",
+      "error404.subtitle": "El enlace al que intentaste entrar no existe, fue movido o ya no está disponible. Elegí una opción para seguir explorando.",
+      "error404.backHome": "Volver al inicio",
+      "error404.goBack": "Volver a la página anterior",
+
+      "nav.breadcrumbLabel": "Ruta de navegación",
+
+      "cal.catalog.showLess": "Mostrar menos",
 
       "lang.switchTo": "EN",
       "lang.label": "Idioma",
@@ -791,7 +814,7 @@
       "cat.filter.pasado": "Pasado",
       "cat.filter.mitologia": "Mitología",
       "cat.card.sitios.desc": "Explora los lugares históricos y arqueológicos que definen nuestra identidad.",
-      "cat.card.gastronomia.desc": "Saborea los sabores tradicionales que cuentan historias de nuestro pueblo.",
+      "cat.card.gastronomia.desc": "Descubre los platillos tradicionales que cuentan historias de nuestro pueblo.",
       "cat.card.eventos.desc": "Vive las celebraciones y tradiciones que unen a nuestra comunidad.",
       "cat.card.historia.desc": "Conoce el pasado que ha forjado el presente de El Salvador.",
       "cat.card.leyendas.desc": "Sumérgete en las historias míticas que han sido transmitidas de generación en generación.",
@@ -854,6 +877,7 @@
 
       /* ── Página: Mapa ── */
       "map.meta.title": "Mapa Cultural — Salvadorean Roots",
+      "map.meta.description": "Explora el mapa interactivo de El Salvador y descubre sitios culturales, gastronomía y tradiciones por departamento.",
       "map.sidebar.close": "Cerrar información",
       "map.sidebar.desc": "Descripción",
       "map.sidebar.details": "Detalles",
@@ -1300,6 +1324,7 @@
       "lock.close": "Cerrar",
 
       "recetas.meta.title": "Recetario Tradicional — Salvadorean Roots",
+      "recetas.meta.description": "Descubre las recetas tradicionales de la gastronomía salvadoreña, paso a paso.",
       "recetas.pageTitle": "Recetario de Nuestra Tierra",
       "recetas.search.placeholder": "Buscar una receta...",
       "recetas.search.empty": "No encontramos ninguna receta con ese nombre.",
@@ -1604,6 +1629,7 @@
       "login.password_hide": "Ocultar contraseña",
 
       // ——— Página: Quiz Cultural ———
+      "quiz.closeQuiz": "Cerrar quiz",
       "quiz.heroEyebrow": "Aprender jugando",
       "quiz.meta.title": "Quiz Cultural — Salvadorean Roots",
       "quiz.heroTitle": "Quiz de Salvadorean Roots",
@@ -1906,6 +1932,29 @@
       "footer.copy": "© 2026 Salvadorean Roots — Our heritage, our pride.",
       "footer.disclaimer": "Material used exclusively for educational, non-profit purposes. All rights belong to their original author.",
       "footer.juegos": "Games",
+      "footer.brand": "Salvadorean Roots",
+
+      "backNav.categorias": "Back to categories",
+      "backNav.calendario": "Back to calendar",
+      "backNav.sitios-culturales": "Back to cultural sites",
+      "backNav.gastronomia": "Back to gastronomy",
+      "backNav.recetas": "Back to recipes",
+      "backNav.eventos": "Back to events",
+      "backNav.historia": "Back to history",
+      "backNav.leyendas": "Back to legends",
+      "backNav.mapa": "Back to map",
+      "backNav.publicaciones": "Back to publications",
+
+      "error404.meta.title": "Page Not Found — Salvadorean Roots",
+      "error404.eyebrow": "Error 404",
+      "error404.title": "This page got lost along the way",
+      "error404.subtitle": "The link you tried to open doesn't exist, was moved, or is no longer available. Pick an option to keep exploring.",
+      "error404.backHome": "Back to home",
+      "error404.goBack": "Go back to the previous page",
+
+      "nav.breadcrumbLabel": "Breadcrumb navigation",
+
+      "cal.catalog.showLess": "Show less",
 
       "lang.switchTo": "ES",
       "lang.label": "Language",
@@ -2663,6 +2712,7 @@
 
       /* ── Page: Map ── */
       "map.meta.title": "Cultural Map — Salvadorean Roots",
+      "map.meta.description": "Explore the interactive map of El Salvador and discover cultural sites, gastronomy and traditions by department.",
       "map.sidebar.close": "Close information",
       "map.sidebar.desc": "Description",
       "map.sidebar.details": "Details",
@@ -3108,6 +3158,7 @@
       "lock.close": "Close",
 
       "recetas.meta.title": "Traditional Recipes — Salvadorean Roots",
+      "recetas.meta.description": "Discover traditional Salvadoran recipes, step by step.",
       "recetas.pageTitle": "Recipe Book of Our Land",
       "recetas.search.placeholder": "Search a recipe...",
       "recetas.search.empty": "We couldn't find any recipe with that name.",
@@ -3407,6 +3458,7 @@
       "login.password_hide": "Hide password",
 
       // ——— Quiz page ———
+        "quiz.closeQuiz": "Close quiz",
         "quiz.heroEyebrow": "Learn while playing",
         "quiz.meta.title": "Cultural Quiz — Salvadorean Roots",
         "quiz.heroTitle": "Salvadorean Roots Quiz",
