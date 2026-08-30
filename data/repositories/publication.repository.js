@@ -14,7 +14,8 @@ const BASE_SELECT = `
         u.name AS author_name,
         u.avatar_url AS author_avatar_url,
         u.id_rol AS author_id_rol,
-        (SELECT COUNT(*) FROM publication_likes pl WHERE pl.id_publication = p.id_publication) AS like_count
+        (SELECT COUNT(*) FROM publication_likes pl WHERE pl.id_publication = p.id_publication) AS like_count,
+        (SELECT COUNT(*) FROM coments c WHERE c.id_publication = p.id_publication AND c.is_flagged = 0) AS comment_count
     FROM publications p
     INNER JOIN users u ON u.id_user = p.id_user
 `;

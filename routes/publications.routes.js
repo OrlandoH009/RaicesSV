@@ -10,6 +10,9 @@ const createPublication = require('../business/publication.create');
 const updatePublication = require('../business/publication.update');
 const deletePublication = require('../business/publication.delete');
 const toggleLikePublication = require('../business/publication.like');
+const listComments = require('../business/comment.list');
+const createComment = require('../business/comment.create');
+const deleteComment = require('../business/comment.delete');
 
 router.get('/api/publications', listPublications);
 router.get('/api/publications/:id', getPublication);
@@ -18,5 +21,9 @@ router.post('/api/publications', requireApiAuth, upload.single('image'), createP
 router.put('/api/publications/:id', requireApiAuth, upload.single('image'), updatePublication);
 router.delete('/api/publications/:id', requireApiAuth, deletePublication);
 router.post('/api/publications/:id/like', requireApiAuth, toggleLikePublication);
+
+router.get('/api/publications/:id/comments', listComments);
+router.post('/api/publications/:id/comments', requireApiAuth, createComment);
+router.delete('/api/comments/:id', requireApiAuth, deleteComment);
 
 module.exports = router;

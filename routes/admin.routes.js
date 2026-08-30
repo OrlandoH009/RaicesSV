@@ -4,6 +4,7 @@ const router = express.Router();
 const requireAdminApiAuth = require('../middleware/auth.adminApiGuard');
 const { rateLimit } = require('../middleware/security.middleware');
 const adminService = require('../business/admin.server');
+const commentService = require('../business/comment.server');
 
 const handle = (fn) => async (req, res) => {
     try {
@@ -92,6 +93,21 @@ router.get('/api/admin/appeals', requireAdminApiAuth, handle(async () => {
 router.patch('/api/admin/appeals/:id/review', requireAdminApiAuth, handle(async (req) => {
     const appeal = await adminService.markAppealAsReviewed(req.params.id);
     return { appeal };
+}));
+
+router.get('/api/admin/comments/flagged', requireAdminApiAuth, handle(async () => {
+    const comments = await commentService.listFlaggedComments();
+    return { comments };
+}));
+
+router.patch('/api/admin/comments/:id/approve', requireAdminApiAuth, handle(async (req) => {
+    await commentService.approveFlaggedComment(req.params.id);
+    return { approved: true };
+}));
+
+router.delete('/api/admin/comments/:id', requireAdminApiAuth, handle(async (req) => {
+    await commentService.deleteComment(req.params.id, req.session.user);
+    return { deleted: true };
 }));
 
 module.exports = router;

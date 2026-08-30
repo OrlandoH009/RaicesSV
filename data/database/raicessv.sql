@@ -4,12 +4,12 @@ USE raicessv;
 CREATE TABLE IF NOT EXISTS rols(
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
     rol VARCHAR(50) NOT NULL UNIQUE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS user_status(
     id_status INT AUTO_INCREMENT PRIMARY KEY,
     status VARCHAR(50) NOT NULL UNIQUE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS users(
     id_user INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users(
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_rol) REFERENCES rols(id_rol),
     FOREIGN KEY (id_status) REFERENCES user_status(id_status)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS properties(
     id_property INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,14 +36,6 @@ CREATE TABLE IF NOT EXISTS properties(
     image VARCHAR(125) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS coments(
-    id_coment INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
-    id_property INT NOT NULL,
-    coment TEXT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES users(id_user),
-    FOREIGN KEY (id_property) REFERENCES properties(id_property)
-);
 
 CREATE TABLE IF NOT EXISTS scores(
     id_score INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,7 +55,7 @@ CREATE TABLE IF NOT EXISTS publications(
     image VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS publication_likes(
     id_like INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +65,7 @@ CREATE TABLE IF NOT EXISTS publication_likes(
     UNIQUE KEY uq_publication_user (id_publication, id_user),
     FOREIGN KEY (id_publication) REFERENCES publications(id_publication) ON DELETE CASCADE,
     FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS password_resets (
     id_reset INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,6 +116,18 @@ CREATE TABLE IF NOT EXISTS appeals (
     INDEX idx_appeals_user (id_user),
     INDEX idx_appeals_reviewed (reviewed_at)
 );
+
+CREATE TABLE IF NOT EXISTS coments(
+    id_coment INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_publication INT NOT NULL,
+    coment TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_flagged TINYINT(1) NOT NULL DEFAULT 0,
+    flag_reason VARCHAR(255) NULL,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    FOREIGN KEY (id_publication) REFERENCES publications(id_publication) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 INSERT IGNORE INTO rols(rol) VALUES ('Fundador');
 INSERT IGNORE INTO rols(rol) VALUES ('Admin');
