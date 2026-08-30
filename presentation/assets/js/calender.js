@@ -52,7 +52,7 @@ const DICCIONARIO_FALLBACK = {
   "ev.chicharron.title": "Festival del Chicharrón",
   "ev.chicharron.desc": "Feria gastronómica dedicada al chicharrón, con concursos de cocina y degustaciones en La Libertad.",
   "ev.launion.title": "Fiestas Patronales de La Unión",
-  "ev.launion.desc": "Fiestas patronales en honor a la Virgen de la Candelaria en La Unión, con actividades religiosas y culturales.",
+  "ev.launion.desc": "Fiestas patronales en honor a la Inmaculada Concepción en La Unión, con actividades religiosas, comerciales y culturales del 3 al 13 de diciembre.",
   "ev.navidad.title": "Navidad",
   "ev.navidad.desc": "Celebración de la Navidad con villancicos, pesebres y reuniones familiares en todo El Salvador.",
   "ev.posadas.title": "Posadas",
@@ -71,7 +71,7 @@ const DICCIONARIO_FALLBACK = {
   "ev.juventudes.desc": "Festival en El Mozote, Morazán, que promueve la participación juvenil y la memoria histórica.",
   "ev.primicia.title": "Primicia de la Cosecha",
   "ev.primicia.desc": "Tradición de ofrecer los primeros frutos de la cosecha en La Unión, con ceremonias y música.",
-  "ev.semanaSanta.title": "Semana Santa Nacional",
+  "ev.semanaSantaCal.title": "Semana Santa Nacional",
   "ev.semanaSanta.desc": "Celebración de la Semana Santa en todo El Salvador, con procesiones y representaciones de la Pasión.",
   "ev.independencia.title": "Día de la Independencia",
   "ev.independencia.desc": "Fiestas patrias con desfiles cívicos, actos culturales y presentaciones artísticas el 15 de septiembre.",
@@ -80,7 +80,67 @@ const DICCIONARIO_FALLBACK = {
   "ev.invierno.title": "Festival de Invierno de Perquín",
   "ev.invierno.desc": "Festival en las montañas de Morazán con danzas folclóricas, feria del café, artesanías y gastronomía típica.",
   "ev.hamaca.title": "Feria de la Hamaca",
-  "ev.hamaca.desc": "Feria en San Sebastián, San Vicente, cuna de las hamacas tejidas a mano, con exhibiciones de tejedores y venta artesanal."
+  "ev.hamaca.desc": "Feria en San Sebastián, San Vicente, cuna de las hamacas tejidas a mano, con exhibiciones de tejedores y venta artesanal.",
+  "ev.bolasfuego.title": "Bolas de Fuego de Nejapa",
+  "ev.bolasfuego.desc": "Tradición declarada Bien Cultural que conmemora la erupción del volcán de 1658: una batalla nocturna de bolas de trapo encendidas entre los \"boleros\" del distrito de Nejapa, San Salvador.",
+  "ev.calabiuza.title": "Día de la Calabiuza",
+  "ev.calabiuza.desc": "Desfile nocturno de leyendas salvadoreñas (la Siguanaba, el Cadejo, el Cipitío) por las calles de Tonacatepeque, con música, antorchas y coloridos disfraces cada 1 de noviembre.",
+  "ev.patronalesSantaTecla.title": "Fiestas Patronales de Santa Tecla",
+  "ev.patronalesSantaTecla.desc": "Fiestas patronales de Santa Tecla en honor al Niño Jesús, con feria, carnaval y actos culturales del 1 al 25 de diciembre.",
+  "ev.patronalesAntiguoCuscatlan.title": "Fiestas Patronales de Antiguo Cuscatlán",
+  "ev.patronalesAntiguoCuscatlan.desc": "Fiestas patronales de Antiguo Cuscatlán en honor a los Santos Niños Inocentes, con carnaval, feria y gastronomía del 26 al 28 de diciembre.",
+  "ev.patronalesCojutepeque.title": "Fiestas Patronales de Cojutepeque",
+  "ev.patronalesCojutepeque.desc": "Fiestas patronales de Cojutepeque en honor a la Virgen de la Concepción y San Sebastián, con la tradicional coronación de la Reina de la Caña.",
+  "ev.feriaSanJuanDegollado.title": "Feria de San Juan Degollado",
+  "ev.feriaSanJuanDegollado.desc": "Feria patronal secundaria de Cojutepeque, tradición de larga data celebrada desde el siglo XIX.",
+  "ev.patronalesIlopango.title": "Fiestas Patronales de Ilopango",
+  "ev.patronalesIlopango.desc": "Fiestas patronales de Ilopango en honor a San Cristóbal Mártir, con desfiles, procesiones y coronación de reina.",
+  "ev.patronalesSoyapango.title": "Fiestas Patronales de Soyapango",
+  "ev.patronalesSoyapango.desc": "Fiestas patronales de Soyapango en honor a Nuestra Señora del Rosario, con desfile de correos, feria comercial y concursos gastronómicos.",
+  "ev.patronalesSuchitoto.title": "Fiestas Patronales de Suchitoto",
+  "ev.patronalesSuchitoto.desc": "Fiestas patronales de Suchitoto en honor a Santa Lucía, con desfile de correo, carrozas y fuegos artificiales.",
+  "ev.patronalesZacatecoluca.title": "Fiestas Patronales de Zacatecoluca",
+  "ev.patronalesZacatecoluca.desc": "Fiestas patronales de Zacatecoluca en honor a la Virgen de los Pobres y San Pablo Apóstol, con actos religiosos y feria.",
+  "ev.patronalesSensuntepeque.title": "Fiestas Patronales de Sensuntepeque",
+  "ev.patronalesSensuntepeque.desc": "Fiestas patronales de Sensuntepeque en honor a Santa Bárbara, con actividades religiosas y culturales.",
+  "ev.patronalesUsulutan.title": "Fiestas Patronales de Usulután",
+  "ev.patronalesUsulutan.desc": "Fiestas patronales de Usulután en honor a Santa Catarina de Alejandría, con quince días de festejos.",
+  "ev.diaPupusa.title": "Día Nacional de la Pupusa",
+  "ev.diaPupusa.desc": "Celebración en Olocuilta, cuna de la pupusa salvadoreña, con degustaciones y actividades culturales el segundo domingo de noviembre.",
+  "ev.patronalesSanVicente.title": "Fiestas Patronales de San Vicente",
+  "ev.patronalesSanVicente.desc": "Fiestas patronales de San Vicente en honor a San Vicente Abad y Mártir, con alboradas y elección de reinas indias.",
+  "ev.patronalesAhuachapan.title": "Fiestas Patronales de Ahuachapán",
+  "ev.patronalesAhuachapan.desc": "Fiestas patronales de Ahuachapán en honor al Dulce Nombre de Jesús, con el tradicional Desfile del Correo.",
+  "ev.carnavalCandelareno.title": "Carnaval Candelareño",
+  "ev.carnavalCandelareno.desc": "Fiesta patronal de Sonsonate en honor a la Virgen de Candelaria, con alboradas, Desfile del Correo y el tradicional carnaval.",
+  "ev.fiestasMetapanecas.title": "Fiestas Metapanecas",
+  "ev.fiestasMetapanecas.desc": "Feria y rodeo internacional en Metapán, con conciertos y actividades para toda la familia.",
+  "ev.patronalesSanMiguel.title": "Fiestas Patronales de San Miguel",
+  "ev.patronalesSanMiguel.desc": "Fiestas patronales de San Miguel en honor a la Virgen de la Paz, previas al tradicional Carnaval migueleño.",
+  "ev.patronalesChinameca.title": "Fiestas Patronales de Chinameca",
+  "ev.patronalesChinameca.desc": "Fiestas patronales de Chinameca en honor al Divino Salvador del Mundo.",
+  "ev.patronalesSanJorge.title": "Fiestas Patronales de San Jorge",
+  "ev.patronalesSanJorge.desc": "Fiestas patronales de San Jorge en honor a su santo patrono, con actos religiosos y populares.",
+  "ev.patronalesMoncagua.title": "Fiestas Patronales de Moncagua",
+  "ev.patronalesMoncagua.desc": "Fiestas patronales de Moncagua en honor a la Virgen de Candelaria.",
+  "ev.patronalesChirilagua.title": "Fiestas Patronales de Chirilagua",
+  "ev.patronalesChirilagua.desc": "Fiestas patronales de Chirilagua en honor a la Virgen de Guadalupe.",
+  "ev.patronalesGuatajiagua.title": "Fiestas Patronales de Guatajiagua",
+  "ev.patronalesGuatajiagua.desc": "Fiestas patronales de Guatajiagua en honor a San Sebastián Mártir, pueblo reconocido por su artesanía de barro negro.",
+  "ev.patronalesPerquin.title": "Fiestas Patronales de Perquín",
+  "ev.patronalesPerquin.desc": "Fiestas patronales de Perquín en honor a San Sebastián Mártir.",
+  "ev.patronalesCorinto.title": "Fiestas Patronales de Corinto",
+  "ev.patronalesCorinto.desc": "Fiestas patronales de Corinto en honor a San Pedro Apóstol.",
+  "ev.patronalesCacaopera.title": "Fiestas Patronales de Cacaopera",
+  "ev.patronalesCacaopera.desc": "Fiestas patronales de Cacaopera en honor a la Virgen del Tránsito, municipio de cultura indígena Kakawira.",
+  "ev.patronalesSanAlejo.title": "Fiestas Patronales de San Alejo",
+  "ev.patronalesSanAlejo.desc": "Fiestas patronales de San Alejo en honor al Señor de los Milagros.",
+  "ev.patronalesConchagua.title": "Fiestas Patronales de Conchagua",
+  "ev.patronalesConchagua.desc": "Fiestas patronales de Conchagua en honor a Santiago Apóstol.",
+  "ev.patronalesIntipuca.title": "Fiestas Patronales de Intipucá",
+  "ev.patronalesIntipuca.desc": "Fiestas patronales de Intipucá en honor a la Inmaculada Concepción.",
+  "ev.maizSuchitoto.title": "Festival del Maíz de Suchitoto",
+  "ev.maizSuchitoto.desc": "Tradición de más de 30 años que agradece la cosecha del maíz con desfile de carrozas, coronación de la Reina del Maíz y comida típica."
 };
 
 function t(clave, textoPorDefecto = "") {
@@ -114,7 +174,12 @@ const TRADUCTOR_A_LANDMARK = {
   34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
   44: 45, 45: 57, 46: 58, 47: 25,
   100: 60, 101: 60,
-  200: 71, 201: 72
+  200: 71, 201: 72, 202: 73, 203: 29,
+  204: 74, 205: 75, 206: 76, 207: 77, 208: 78, 209: 79, 210: 80,
+  211: 81, 212: 82, 213: 83, 214: 84, 215: 85, 216: 86, 217: 87,
+  218: 88, 219: 89, 220: 90, 221: 91, 222: 92, 223: 93, 224: 94,
+  225: 95, 226: 96, 227: 97, 228: 98, 229: 99, 230: 100,
+  231: 101
 };
 
 // ============================================================
@@ -129,14 +194,14 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   { id: 8, keyNombre: "ev.julias.title", keyDesc: "ev.julias.desc", dia: 26, mes: 7, depto: "Santa Ana", tipo: "Fiesta Patronal", lat: 13.9942, lng: -89.5597 },
   // Fiestas Agostinas - 5 de agosto
   { id: 10, keyNombre: "ev.agostinas.title", keyDesc: "ev.agostinas.desc", dia: 5, mes: 8, depto: "San Salvador", tipo: "Fiesta Patronal", lat: 13.6984, lng: -89.1915 },
-  // Feria del Jocote Corona - 15 de septiembre
-  { id: 12, keyNombre: "ev.jocote.title", keyDesc: "ev.jocote.desc", dia: 15, mes: 9, depto: "Santa Ana", tipo: "Feria Gastronómica", lat: 13.8494, lng: -89.6314 },
+  // Feria del Jocote Corona - 18 de octubre de 2026, Cerro Verde (corregido para coincidir con eventos.html; en años previos se ha celebrado a inicios de octubre)
+  { id: 12, keyNombre: "ev.jocote.title", keyDesc: "ev.jocote.desc", dia: 18, mes: 10, anio: 2026, depto: "Santa Ana", tipo: "Feria Gastronómica", lat: 13.8494, lng: -89.6314 },
   // Fiesta de la Calabaza - 1 de octubre
   { id: 13, keyNombre: "ev.calabaza.title", keyDesc: "ev.calabaza.desc", dia: 1, mes: 10, depto: "Cuscatlán", tipo: "Tradición Popular", lat: 13.7167, lng: -88.9333 },
   // Día de los Difuntos - 2 de noviembre
   { id: 16, keyNombre: "ev.difuntos.title", keyDesc: "ev.difuntos.desc", dia: 2, mes: 11, depto: "Todos", tipo: "Conmemoración", lat: 13.6929, lng: -89.2182 },
-  // Festival del Añil - 4 de octubre
-  { id: 17, keyNombre: "ev.anil.title", keyDesc: "ev.anil.desc", dia: 4, mes: 10, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
+  // Festival del Añil (VIII edición) - 26 de septiembre de 2026, Suchitoto (corroborado en elsalvador.travel/agenda)
+  { id: 17, keyNombre: "ev.anil.title", keyDesc: "ev.anil.desc", dia: 26, mes: 9, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 },
   // Día de los Farolitos - 7 de septiembre
   { id: 22, keyNombre: "ev.farolitos.title", keyDesc: "ev.farolitos.desc", dia: 7, mes: 9, depto: "Ahuachapán", tipo: "Celebración Tradicional", lat: 13.9214, lng: -89.845 },
   // Danza de los Encuentros - 24 de septiembre
@@ -147,12 +212,12 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   { id: 30, keyNombre: "ev.gotera.title", keyDesc: "ev.gotera.desc", dia: 15, mes: 10, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.7, lng: -88.1 },
   // Fiesta de San Miguel Arcángel - 24 de octubre
   { id: 31, keyNombre: "ev.cuisnahuat.title", keyDesc: "ev.cuisnahuat.desc", dia: 24, mes: 10, depto: "Sonsonate", tipo: "Celebración Religiosa", lat: 13.6167, lng: -89.6667 },
-  // Gran Carnaval de San Miguel - 28 de octubre
-  { id: 32, keyNombre: "ev.carnaval_2026.title", keyDesc: "ev.carnaval_2026.desc", dia: 28, mes: 10, depto: "San Miguel", tipo: "Festividad Nacional", lat: 13.4833, lng: -88.1833 },
-  // Festival del Chicharrón - 12 de noviembre
-  { id: 34, keyNombre: "ev.chicharron.title", keyDesc: "ev.chicharron.desc", dia: 12, mes: 11, depto: "La Libertad", tipo: "Feria Municipal", lat: 13.6769, lng: -89.2797 },
-  // Fiestas Patronales de La Unión - 12 de noviembre
-  { id: 35, keyNombre: "ev.launion.title", keyDesc: "ev.launion.desc", dia: 12, mes: 11, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.3369, lng: -87.8442 },
+  // Gran Carnaval de San Miguel - 28 de noviembre de 2026 (último sábado de noviembre; corregido, no octubre)
+  { id: 32, keyNombre: "ev.carnaval_2026.title", keyDesc: "ev.carnaval_2026.desc", dia: 28, mes: 11, anio: 2026, depto: "San Miguel", tipo: "Festividad Nacional", lat: 13.4833, lng: -88.1833 },
+  // Festival del Chicharrón - 12 de diciembre de 2026, Santa Tecla (corregido para coincidir con eventos.html)
+  { id: 34, keyNombre: "ev.chicharron.title", keyDesc: "ev.chicharron.desc", dia: 12, mes: 12, anio: 2026, depto: "La Libertad", tipo: "Feria Municipal", lat: 13.6769, lng: -89.2797 },
+  // Fiestas Patronales de La Unión - 13 de diciembre (culminación del 3-13/19 dic, corregido: era noviembre)
+  { id: 35, keyNombre: "ev.launion.title", keyDesc: "ev.launion.desc", dia: 13, mes: 12, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.3369, lng: -87.8442 },
   // Navidad - 24 de diciembre
   { id: 36, keyNombre: "ev.navidad.title", keyDesc: "ev.navidad.desc", dia: 24, mes: 12, depto: "San Salvador", tipo: "Celebración Religiosa", lat: 13.6929, lng: -89.2182 },
   // Posadas - 16 de noviembre
@@ -170,15 +235,50 @@ const EVENTOS_CALENDARIO_ORIGINAL = [
   // Primicia de la Cosecha - 15 de julio
   { id: 44, keyNombre: "ev.primicia.title", keyDesc: "ev.primicia.desc", dia: 15, mes: 7, depto: "La Unión", tipo: "Tradición Popular", lat: 13.3, lng: -87.85 },
   // Semana Santa Nacional - 3 de abril
-  { id: 45, keyNombre: "ev.semanaSanta.title", keyDesc: "ev.semanaSanta.desc", dia: 3, mes: 4, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6980, lng: -89.1901 },
+  { id: 45, keyNombre: "ev.semanaSantaCal.title", keyDesc: "ev.semanaSanta.desc", dia: 3, mes: 4, depto: "Todos", tipo: "Celebración Religiosa", lat: 13.6980, lng: -89.1901 },
   // Día de la Independencia - 15 de septiembre
   { id: 46, keyNombre: "ev.independencia.title", keyDesc: "ev.independencia.desc", dia: 15, mes: 9, depto: "Todos", tipo: "Festividad Nacional", lat: 13.7005, lng: -89.1898 },
-  // Festival de las Flores y Palmas - 10 de abril
-  { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 4, depto: "La Libertad", tipo: "Celebración Tradicional", lat: 13.6769, lng: -89.2797 },
+  // Festival de las Flores y Palmas - 10 de mayo de 2026, Panchimalco (corregido: mes y departamento, coincide con eventos.html)
+  { id: 47, keyNombre: "ev.floresPalmas.title", keyDesc: "ev.floresPalmas.desc", dia: 10, mes: 5, anio: 2026, depto: "San Salvador", tipo: "Celebración Tradicional", lat: 13.6158, lng: -89.1797 },
   // Festival de Invierno de Perquín - 1 de agosto de 2026 (edición XXXII, del 1 al 4 de agosto)
   { id: 200, keyNombre: "ev.invierno.title", keyDesc: "ev.invierno.desc", dia: 1, mes: 8, anio: 2026, depto: "Morazán", tipo: "Festival Cultural", lat: 13.9667, lng: -88.1667 },
   // Feria de la Hamaca - 29 de agosto de 2026, San Sebastián, San Vicente
-  { id: 201, keyNombre: "ev.hamaca.title", keyDesc: "ev.hamaca.desc", dia: 29, mes: 8, anio: 2026, depto: "San Vicente", tipo: "Feria Artesanal", lat: 13.85, lng: -88.8167 }
+  { id: 201, keyNombre: "ev.hamaca.title", keyDesc: "ev.hamaca.desc", dia: 29, mes: 8, anio: 2026, depto: "San Vicente", tipo: "Feria Artesanal", lat: 13.85, lng: -88.8167 },
+  // Bolas de Fuego de Nejapa - 31 de agosto (fecha fija anual, tradición desde 1922)
+  { id: 202, keyNombre: "ev.bolasfuego.title", keyDesc: "ev.bolasfuego.desc", dia: 31, mes: 8, depto: "San Salvador", tipo: "Tradición Popular", lat: 13.7864, lng: -89.2508 },
+  // Día de la Calabiuza - 1 de noviembre, Tonacatepeque
+  { id: 203, keyNombre: "ev.calabiuza.title", keyDesc: "ev.calabiuza.desc", dia: 1, mes: 11, depto: "San Salvador", tipo: "Festival Cultural", lat: 13.7825, lng: -89.2614 },
+
+  // ── Fiestas patronales municipales (investigación de alcaldías 2026) ──
+  { id: 204, keyNombre: "ev.patronalesSantaTecla.title", keyDesc: "ev.patronalesSantaTecla.desc", dia: 25, mes: 12, anio: 2026, depto: "La Libertad", tipo: "Fiesta Patronal", lat: 13.6769, lng: -89.2797 },
+  { id: 205, keyNombre: "ev.patronalesAntiguoCuscatlan.title", keyDesc: "ev.patronalesAntiguoCuscatlan.desc", dia: 28, mes: 12, anio: 2026, depto: "La Libertad", tipo: "Fiesta Patronal", lat: 13.6725, lng: -89.2436 },
+  { id: 206, keyNombre: "ev.patronalesCojutepeque.title", keyDesc: "ev.patronalesCojutepeque.desc", dia: 29, mes: 1, anio: 2026, depto: "Cuscatlán", tipo: "Fiesta Patronal", lat: 13.7167, lng: -88.9333 },
+  { id: 207, keyNombre: "ev.feriaSanJuanDegollado.title", keyDesc: "ev.feriaSanJuanDegollado.desc", dia: 30, mes: 8, anio: 2026, depto: "Cuscatlán", tipo: "Feria Municipal", lat: 13.7167, lng: -88.9333 },
+  { id: 208, keyNombre: "ev.patronalesIlopango.title", keyDesc: "ev.patronalesIlopango.desc", dia: 16, mes: 11, anio: 2026, depto: "San Salvador", tipo: "Fiesta Patronal", lat: 13.7017, lng: -89.1097 },
+  { id: 209, keyNombre: "ev.patronalesSoyapango.title", keyDesc: "ev.patronalesSoyapango.desc", dia: 19, mes: 10, anio: 2026, depto: "San Salvador", tipo: "Fiesta Patronal", lat: 13.7089, lng: -89.1400 },
+  { id: 210, keyNombre: "ev.patronalesSuchitoto.title", keyDesc: "ev.patronalesSuchitoto.desc", dia: 13, mes: 12, anio: 2026, depto: "Cuscatlán", tipo: "Fiesta Patronal", lat: 14.0311, lng: -89.0281 },
+  { id: 211, keyNombre: "ev.patronalesZacatecoluca.title", keyDesc: "ev.patronalesZacatecoluca.desc", dia: 26, mes: 12, anio: 2026, depto: "La Paz", tipo: "Fiesta Patronal", lat: 13.5058, lng: -88.8667 },
+  { id: 212, keyNombre: "ev.patronalesSensuntepeque.title", keyDesc: "ev.patronalesSensuntepeque.desc", dia: 4, mes: 12, anio: 2026, depto: "Cabañas", tipo: "Fiesta Patronal", lat: 13.8756, lng: -88.6353 },
+  { id: 213, keyNombre: "ev.patronalesUsulutan.title", keyDesc: "ev.patronalesUsulutan.desc", dia: 25, mes: 11, anio: 2026, depto: "Usulután", tipo: "Fiesta Patronal", lat: 13.35, lng: -88.45 },
+  { id: 214, keyNombre: "ev.diaPupusa.title", keyDesc: "ev.diaPupusa.desc", dia: 8, mes: 11, anio: 2026, depto: "La Paz", tipo: "Feria Gastronómica", lat: 13.5686, lng: -89.1197 },
+  { id: 215, keyNombre: "ev.patronalesSanVicente.title", keyDesc: "ev.patronalesSanVicente.desc", dia: 31, mes: 12, anio: 2026, depto: "San Vicente", tipo: "Fiesta Patronal", lat: 13.6411, lng: -88.7861 },
+  { id: 216, keyNombre: "ev.patronalesAhuachapan.title", keyDesc: "ev.patronalesAhuachapan.desc", dia: 1, mes: 3, anio: 2026, depto: "Ahuachapán", tipo: "Fiesta Patronal", lat: 13.9214, lng: -89.845 },
+  { id: 217, keyNombre: "ev.carnavalCandelareno.title", keyDesc: "ev.carnavalCandelareno.desc", dia: 2, mes: 2, anio: 2026, depto: "Sonsonate", tipo: "Fiesta Patronal", lat: 13.7186, lng: -89.7244 },
+  { id: 218, keyNombre: "ev.fiestasMetapanecas.title", keyDesc: "ev.fiestasMetapanecas.desc", dia: 29, mes: 6, anio: 2026, depto: "Santa Ana", tipo: "Feria Municipal", lat: 14.3333, lng: -89.45 },
+  { id: 219, keyNombre: "ev.patronalesSanMiguel.title", keyDesc: "ev.patronalesSanMiguel.desc", dia: 21, mes: 11, anio: 2026, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.4833, lng: -88.1833 },
+  { id: 220, keyNombre: "ev.patronalesChinameca.title", keyDesc: "ev.patronalesChinameca.desc", dia: 15, mes: 8, anio: 2026, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.5044, lng: -88.3494 },
+  { id: 221, keyNombre: "ev.patronalesSanJorge.title", keyDesc: "ev.patronalesSanJorge.desc", dia: 23, mes: 4, anio: 2026, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.4696, lng: -88.1794 },
+  { id: 222, keyNombre: "ev.patronalesMoncagua.title", keyDesc: "ev.patronalesMoncagua.desc", dia: 4, mes: 2, anio: 2026, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.5333, lng: -88.2667 },
+  { id: 223, keyNombre: "ev.patronalesChirilagua.title", keyDesc: "ev.patronalesChirilagua.desc", dia: 12, mes: 12, anio: 2026, depto: "San Miguel", tipo: "Fiesta Patronal", lat: 13.2333, lng: -88.1333 },
+  { id: 224, keyNombre: "ev.patronalesGuatajiagua.title", keyDesc: "ev.patronalesGuatajiagua.desc", dia: 20, mes: 1, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.6833, lng: -88.3333 },
+  { id: 225, keyNombre: "ev.patronalesPerquin.title", keyDesc: "ev.patronalesPerquin.desc", dia: 22, mes: 1, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.9667, lng: -88.1667 },
+  { id: 226, keyNombre: "ev.patronalesCorinto.title", keyDesc: "ev.patronalesCorinto.desc", dia: 29, mes: 6, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.7833, lng: -87.9667 },
+  { id: 227, keyNombre: "ev.patronalesCacaopera.title", keyDesc: "ev.patronalesCacaopera.desc", dia: 15, mes: 8, anio: 2026, depto: "Morazán", tipo: "Fiesta Patronal", lat: 13.7333, lng: -88.2333 },
+  { id: 228, keyNombre: "ev.patronalesSanAlejo.title", keyDesc: "ev.patronalesSanAlejo.desc", dia: 14, mes: 1, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.4167, lng: -87.75 },
+  { id: 229, keyNombre: "ev.patronalesConchagua.title", keyDesc: "ev.patronalesConchagua.desc", dia: 25, mes: 7, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.2833, lng: -87.75 },
+  { id: 230, keyNombre: "ev.patronalesIntipuca.title", keyDesc: "ev.patronalesIntipuca.desc", dia: 8, mes: 12, anio: 2026, depto: "La Unión", tipo: "Fiesta Patronal", lat: 13.1975, lng: -88.0578 },
+  // Festival del Maíz de Suchitoto - fin de semana de agosto (fecha aproximada, varía año a año); 2026 se celebró ~22 de agosto
+  { id: 231, keyNombre: "ev.maizSuchitoto.title", keyDesc: "ev.maizSuchitoto.desc", dia: 22, mes: 8, anio: 2026, depto: "Cuscatlán", tipo: "Festival Cultural", lat: 14.0311, lng: -89.0281 }
 ];
 
 // FILTRAR EVENTOS: solo aquellos que tienen mapeo en TRADUCTOR_A_LANDMARK
