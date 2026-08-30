@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'admin-pub-card';
         card.innerHTML = `
-          <img class="admin-pub-card__image" src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" />
+          <img class="admin-pub-card__image" src="${escapeHtml(pub.image || '/assets/media/publications/default-publication.svg')}" alt="${escapeHtml(pub.title)}" />
           <div class="admin-pub-card__body">
             <div class="admin-pub-card__title">${escapeHtml(pub.title)}</div>
             <div class="admin-pub-card__location">${escapeHtml(pub.location)}</div>
@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
     publicationDetailCard.innerHTML = `
       <div class="admin-detail-head">
         <div class="admin-detail-head__avatar">
-          <img src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" style="width:100%;height:100%;object-fit:cover;" />
+          <img src="${escapeHtml(pub.image || '/assets/media/publications/default-publication.svg')}" alt="${escapeHtml(pub.title)}" style="width:100%;height:100%;object-fit:cover;" />
         </div>
         <div>
           <h2>${escapeHtml(pub.title)}</h2>

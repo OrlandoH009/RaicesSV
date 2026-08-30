@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#113068"/>
+      <stop offset="55%" stop-color="#1c3f7f"/>
+      <stop offset="100%" stop-color="#0f2f66"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e0bd8a"/>
+      <stop offset="100%" stop-color="#be8e56"/>
+    </linearGradient>
+    <linearGradient id="volcanoFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d4fa0"/>
+      <stop offset="100%" stop-color="#2a3a72"/>
+    </linearGradient>
+    <linearGradient id="volcanoNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87a42"/>
+      <stop offset="100%" stop-color="#7c5c33"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="300" fill="url(#sky)"/>
+
+  <circle cx="300" cy="90" r="46" fill="url(#sun)" opacity="0.9"/>
+  <circle cx="300" cy="90" r="60" fill="none" stroke="#e0bd8a" stroke-width="1" opacity="0.25"/>
+
+  <path d="M0 175 L70 95 L100 130 L150 70 L210 175 Z" fill="url(#volcanoFar)" opacity="0.55"/>
+
+  <path d="M60 210 L150 90 L165 112 L185 88 L280 210 Z" fill="url(#volcanoNear)"/>
+  <path d="M150 90 L165 112 L172 103 L162 84 Z" fill="#e0bd8a" opacity="0.85"/>
+  <ellipse cx="165" cy="80" rx="10" ry="6" fill="#cfd7ea" opacity="0.5"/>
+
+  <path d="M0 230 Q100 205 200 225 T400 218 V300 H0 Z" fill="#0d2452"/>
+  <path d="M0 245 Q120 222 220 240 T400 232 V300 H0 Z" fill="#0a1d42"/>
+
+  <g opacity="0.7" fill="none" stroke="#e5eaff" stroke-width="2.5" stroke-linecap="round">
+    <path d="M40 55 q8 -8 16 0 q8 -8 16 0"/>
+    <path d="M320 50 q7 -7 14 0 q7 -7 14 0"/>
+  </g>
+
+  <g fill="#f3f1e8" opacity="0.9">
+    <path d="M198 270 q4 -22 0 -34 q-4 12 -10 16 q6 4 10 18 Z"/>
+    <path d="M198 270 q-4 -22 0 -34 q4 12 10 16 q-6 4 -10 18 Z"/>
+  </g>
+</svg>

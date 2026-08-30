@@ -618,7 +618,7 @@ function obtenerEtiquetaCategoria(cat, forcedLang = null) {
 }
 
 function getImgUrl(lm) {
-  if (!lm || !lm.id) return '../assets/media/mapa/default.webp';
+  if (!lm || !lm.id) return '../assets/media/publications/default-publication.svg';
   return `../assets/media/mapa/${lm.id}.webp?v=1.0.0`;
 }
 
@@ -647,6 +647,10 @@ let activeLandmark = null;
 function abrirSidebar(lm, marker, forcedLang = null) {
   const lang = forcedLang || (window.SRi18n ? window.SRi18n.getLang() : 'es');
 
+  sbImage.onerror = () => {
+    sbImage.onerror = null;
+    sbImage.src = '../assets/media/publications/default-publication.svg';
+  };
   sbImage.src = getImgUrl(lm);
   sbImage.alt = lm.nombre;
   sbEmojiBadge.textContent = lm.emoji;
@@ -857,7 +861,7 @@ function generarHtmlTooltip(lm, lang) {
 
   return `
     <div class="marker-tooltip">
-       <img src="${getImgUrl(lm)}" alt="${nombreTooltip}" loading="lazy" />
+       <img src="${getImgUrl(lm)}" alt="${nombreTooltip}" loading="lazy" onerror="this.onerror=null;this.src='../assets/media/publications/default-publication.svg';" />
        <div class="marker-tooltip__info">
          <span class="marker-tooltip__cat" style="color:${CAT_COLORS[lm.cat]}">${lm.emoji} ${catTraducida}</span>
          <span class="marker-tooltip__name">${nombreTooltip}</span>
@@ -1013,6 +1017,7 @@ function actualizarListaResultados(categoria, query) {
         const marker = markers.find(m => m._landmarkId === id);
         if (lm && marker) {
           container.style.display = 'none';
+          cerrarFiltrosSheet();
           mapa.flyTo(marker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
           abrirSidebar(lm, marker);
           setTimeout(invalidateMapSize, 500);
@@ -1048,6 +1053,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     actualizarFiltro(btn.dataset.cat);
+    cerrarFiltrosSheet();
   });
 });
 
@@ -1186,9 +1192,7 @@ document.addEventListener("langchange", (e) => {
   }
 
   function construirPopupPublicacion(pub) {
-    const imagenHtml = pub.image
-      ? `<img class="popup-pub-image" src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" loading="lazy">`
-      : '';
+    const imagenHtml = `<img class="popup-pub-image" src="${escapeHtml(pub.image || '/assets/media/publications/default-publication.svg')}" alt="${escapeHtml(pub.title)}" loading="lazy">`;
 
     return `
       ${imagenHtml}
@@ -1381,16 +1385,37 @@ const TRADUCTOR_A_LANDMARK = {
 })();
 
 /* ══════════════════════════════════════════════════════════
-   MOSTRAR / OCULTAR BARRA DE FILTROS
+   PANEL DE FILTROS/BÚSQUEDA COMO HOJA MODAL (botón flotante +
+   overlay), igual en PC y en celular.
    ══════════════════════════════════════════════════════════ */
-const filtersToggle = document.getElementById('filtersToggle');
+const mapaFiltersFab = document.getElementById('mapaFiltersFab');
 const mapaFiltersFloat = document.getElementById('mapaFiltersFloat');
-if (filtersToggle && mapaFiltersFloat) {
-  filtersToggle.addEventListener('click', () => {
-    const isCollapsed = mapaFiltersFloat.classList.toggle('collapsed');
-    filtersToggle.setAttribute('aria-expanded', String(!isCollapsed));
-    filtersToggle.setAttribute('aria-label', isCollapsed ? 'Mostrar filtros' : 'Ocultar filtros');
-    setTimeout(invalidateMapSize, 300);
+const mapaFiltersOverlay = document.getElementById('mapaFiltersSheetOverlay');
+const mapaFiltersClose = document.getElementById('mapaFiltersClose');
+
+function abrirFiltrosSheet() {
+  mapaFiltersFloat?.classList.add('is-open');
+  mapaFiltersOverlay?.classList.add('is-open');
+  mapaFiltersFab?.setAttribute('aria-expanded', 'true');
+  setTimeout(() => document.getElementById('mapSearchInput')?.focus(), 320);
+}
+function cerrarFiltrosSheet() {
+  mapaFiltersFloat?.classList.remove('is-open');
+  mapaFiltersOverlay?.classList.remove('is-open');
+  mapaFiltersFab?.setAttribute('aria-expanded', 'false');
+}
+if (mapaFiltersFab && mapaFiltersFloat) {
+  mapaFiltersFab.addEventListener('click', () => {
+    if (mapaFiltersFloat.classList.contains('is-open')) {
+      cerrarFiltrosSheet();
+    } else {
+      abrirFiltrosSheet();
+    }
+  });
+  mapaFiltersClose?.addEventListener('click', cerrarFiltrosSheet);
+  mapaFiltersOverlay?.addEventListener('click', cerrarFiltrosSheet);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mapaFiltersFloat.classList.contains('is-open')) cerrarFiltrosSheet();
   });
 }
 /* ══════════════════════════════════════════════════════════
@@ -1672,6 +1697,10 @@ if (navigator.permissions && navigator.permissions.query) {
 // ── Botón Diana ──
 if (btnCentrar) {
   btnCentrar.addEventListener('click', () => {
+    // Cerrar cualquier panel abierto (sidebar de un lugar o la hoja de
+    // filtros) para que se vea el mapa al centrar en la ubicación.
+    cerrarSidebar();
+    cerrarFiltrosSheet();
     if (miUbicacionActual) {
       mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
       setTimeout(invalidateMapSize, 500);

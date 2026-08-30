@@ -1,4 +1,9 @@
 // ════════════════════════════════════
+// IMAGEN POR DEFECTO (cuando la publicación no tiene imagen)
+// ════════════════════════════════════
+const DEFAULT_PUBLICATION_IMAGE = '/assets/media/publications/default-publication.svg';
+
+// ════════════════════════════════════
 // MAPA DE SLUGS DE SITIO (usados en las URLs con ?sitio=slug)
 // ════════════════════════════════════
 const SITE_SLUG_TO_LOCATION = {
@@ -142,7 +147,7 @@ function renderPublications(publications) {
         <span class="publication-card__username">${escapeHtml(pub.author?.name || '')}</span>
       </div>
       <div class="publication-image-container">
-        <img src="${escapeHtml(pub.image)}" alt="${escapeHtml(pub.title)}" loading="lazy">
+        <img src="${escapeHtml(pub.image || DEFAULT_PUBLICATION_IMAGE)}" alt="${escapeHtml(pub.title)}" loading="lazy">
         <div class="publication-image-overlay">
           <span class="publication-image-overlay-text">${escapeHtml(pub.title)}</span>
         </div>
@@ -223,7 +228,7 @@ function openPublicationDetail(id) {
   const overlay = document.getElementById('pubDetailOverlay');
   const modal = document.getElementById('pubDetailModal');
 
-  document.getElementById('pubDetailImage').src = pub.image;
+  document.getElementById('pubDetailImage').src = pub.image || DEFAULT_PUBLICATION_IMAGE;
   document.getElementById('pubDetailImage').alt = pub.title;
   document.getElementById('pubDetailTitle').textContent = pub.title;
   document.getElementById('pubDetailDescription').textContent = pub.description;
@@ -519,7 +524,7 @@ async function startEditPublication(id) {
     window.LocationPicker?.loadExisting(pub.location, pub.lat, pub.lng);
 
     document.getElementById('pubImage').value = '';
-    document.getElementById('previewImg').src = pub.image;
+    document.getElementById('previewImg').src = pub.image || DEFAULT_PUBLICATION_IMAGE;
     document.getElementById('imagePreview').classList.add('show');
 
     document.getElementById('publicationFormTitle').textContent = t('pub.formTitleEdit');

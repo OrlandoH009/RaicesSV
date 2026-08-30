@@ -256,6 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
       filterChips.forEach((c) => c.classList.remove('active'));
       chip.classList.add('active');
       applyFiltersAnimated();
+      // Cerrar la hoja de filtros (celular) para que se vea el resultado filtrado
+      if (filtersPanel?.classList.contains('is-open')) closeFiltersSheet();
     });
   });
 
