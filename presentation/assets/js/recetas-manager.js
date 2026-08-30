@@ -1,4 +1,21 @@
 // ============================================================
+// Imagen por defecto (cuando la receta no tiene imagen)
+// ============================================================
+const DEFAULT_RECIPE_IMAGE = '../assets/media/publications/default-publication.svg';
+
+// ============================================================
+// Cerrar la hoja de filtros (celular) al elegir una categoría o
+// buscar una receta, para que se vea el resultado filtrado.
+// ============================================================
+function cerrarRecetasFiltersSheet() {
+  document.getElementById('recipeFiltersSheet')?.classList.remove('is-open');
+  document.getElementById('filtersSheetOverlay')?.classList.remove('is-open');
+  document.getElementById('filtersFabBtn')?.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('filters-open');
+  document.body.style.overflow = '';
+}
+
+// ============================================================
 // Base de datos local de recetas (ESPAÑOL)
 // ============================================================
 const recetasData = {
@@ -767,7 +784,7 @@ function renderGrid(filtro = "Todas", langOverride = null, searchTerm = null) {
     .map(([key, receta]) => `
       <article class="recipe-mini-card" data-key="${key}" tabindex="0">
         <div class="recipe-mini-card__img">
-          <img src="${receta.imagen}" alt="${receta.titulo}" loading="lazy" />
+          <img src="${receta.imagen || DEFAULT_RECIPE_IMAGE}" alt="${receta.titulo}" loading="lazy" />
           <span class="recipe-mini-card__badge">${receta.categoria}</span>
         </div>
         <div class="recipe-mini-card__body">
@@ -815,6 +832,7 @@ function renderFilters(langOverride = null) {
       // Al hacer clic en un filtro, usar el idioma actual
       const currentLang = window.SRi18n ? window.SRi18n.getLang() : 'es';
       renderGrid(btn.getAttribute("data-filter"), currentLang);
+      cerrarRecetasFiltersSheet();
     });
   });
 }
@@ -886,7 +904,7 @@ function renderRecipe(key) {
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
       <div class="recipe-image-container">
-        <img src="${receta.imagen}" alt="${receta.titulo}" class="recipe-image" />
+        <img src="${receta.imagen || DEFAULT_RECIPE_IMAGE}" alt="${receta.titulo}" class="recipe-image" />
         <span class="recipe-card__badge">${receta.categoria}</span>
       </div>
       <div class="recipe-content-wrapper">
@@ -954,7 +972,7 @@ function generateAndDownloadPDF() {
 
     const tempImg = new Image();
     tempImg.crossOrigin = "anonymous";
-    tempImg.src = receta.imagen;
+    tempImg.src = receta.imagen || DEFAULT_RECIPE_IMAGE;
     const absoluteImgSrc = tempImg.src;
 
     const printHTML = `
@@ -1166,18 +1184,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add('filters-open');
     document.body.style.overflow = 'hidden';
   }
-  function closeFiltersSheet() {
-    filtersPanel?.classList.remove('is-open');
-    filtersOverlay?.classList.remove('is-open');
-    filtersFab?.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('filters-open');
-    document.body.style.overflow = '';
-  }
   filtersFab?.addEventListener('click', openFiltersSheet);
-  filtersClose?.addEventListener('click', closeFiltersSheet);
-  filtersOverlay?.addEventListener('click', closeFiltersSheet);
+  filtersClose?.addEventListener('click', cerrarRecetasFiltersSheet);
+  filtersOverlay?.addEventListener('click', cerrarRecetasFiltersSheet);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && filtersPanel?.classList.contains('is-open')) closeFiltersSheet();
+    if (e.key === 'Escape' && filtersPanel?.classList.contains('is-open')) cerrarRecetasFiltersSheet();
   });
 
   // Buscador de recetas (mismo patrón que Categorías): filtra la
@@ -1187,6 +1198,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentLang = window.SRi18n ? window.SRi18n.getLang() : 'es';
     const filtro = activeChip ? activeChip.getAttribute('data-filter') : (currentLang === 'en' ? 'All' : 'Todas');
     renderGrid(filtro, currentLang);
+  });
+  // Al buscar y presionar Enter, cerrar el panel para ver el resultado
+  document.getElementById('recipeSearch')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') cerrarRecetasFiltersSheet();
   });
 
   // Botón de descarga PDF

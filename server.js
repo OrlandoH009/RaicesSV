@@ -86,10 +86,6 @@ const sendView = (name) => (req, res) => {
 
 app.get(['/', '/index', '/index.html', '/views/index.html'], sendView('index.html'));
 
-app.get('/publicaciones.html', sendView('publicaciones.html'));
-app.get('/publicaciones', sendView('publicaciones.html'));
-app.get('/views/publicaciones.html', sendView('publicaciones.html'));
-
 app.get(['/login.html', '/views/login.html'], (req, res) => {
     if (req.session && req.session.user) {
         const redirect = req.query.redirect;
@@ -163,7 +159,8 @@ const protectedViews = [
     'recetas.html',
     'sitios-culturales.html',
     'juegos.html',
-    'perfil.html'
+    'perfil.html',
+    'publicaciones.html'
 ];
 protectedViews.forEach((fileName) => {
     const base = fileName.replace(/\.html$/, '');

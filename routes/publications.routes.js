@@ -3,6 +3,9 @@ const router = express.Router();
 
 const requireApiAuth = require('../middleware/auth.apiGuard');
 const upload = require('../middleware/upload.publications.middleware');
+const compressImage = require('../middleware/compress-image.middleware');
+const uploadToR2 = require('../middleware/upload-to-r2.middleware');
+const rateLimitUploads = require('../middleware/upload-rate-limit.middleware');
 
 const listPublications = require('../business/publication.list');
 const getPublication = require('../business/publication.get');
@@ -17,8 +20,8 @@ const deleteComment = require('../business/comment.delete');
 router.get('/api/publications', listPublications);
 router.get('/api/publications/:id', getPublication);
 
-router.post('/api/publications', requireApiAuth, upload.single('image'), createPublication);
-router.put('/api/publications/:id', requireApiAuth, upload.single('image'), updatePublication);
+router.post('/api/publications', requireApiAuth, upload.single('image'), rateLimitUploads('publication', 20, 24), compressImage(), uploadToR2('publications', 'pub'), createPublication);
+router.put('/api/publications/:id', requireApiAuth, upload.single('image'), rateLimitUploads('publication', 20, 24), compressImage(), uploadToR2('publications', 'pub'), updatePublication);
 router.delete('/api/publications/:id', requireApiAuth, deletePublication);
 router.post('/api/publications/:id/like', requireApiAuth, toggleLikePublication);
 
