@@ -157,6 +157,7 @@ function renderPublications(publications) {
           <span class="publication-like-icon">${pub.isLiked ? '❤️' : '🤍'}</span>
           <span class="publication-like-count">${escapeHtml(pub.likeCount)}</span>
         </button>
+        <span class="publication-comment-count" aria-hidden="true">💬 ${escapeHtml(pub.commentCount ?? 0)}</span>
       </div>
     </article>
   `;
@@ -211,7 +212,7 @@ async function toggleLike(id) {
     updateLikeUI(id);
   } catch (error) {
     console.error(error);
-    alert(error.message || t('pub.alertErrorLike'));
+    window.showToast(error.message || t('pub.alertErrorLike'), 'error');
   }
 }
 
@@ -295,6 +296,9 @@ function openPublicationDetail(id) {
     mapEl.style.display = 'none';
   }
 
+  currentDetailPublicationId = pub.id;
+  loadComments(pub.id);
+
   overlay.classList.add('is-open');
   document.body.style.overflow = 'hidden';
 }
@@ -302,6 +306,151 @@ function openPublicationDetail(id) {
 function closePublicationDetail() {
   document.getElementById('pubDetailOverlay')?.classList.remove('is-open');
   document.body.style.overflow = '';
+  currentDetailPublicationId = null;
+}
+
+// ════════════════════════════════════
+// COMENTARIOS
+// ════════════════════════════════════
+let currentDetailPublicationId = null;
+
+let lastPostedCommentId = null;
+
+function renderComments(comments) {
+  const list = document.getElementById('pubCommentsList');
+  const emptyEl = document.getElementById('pubCommentsEmpty');
+  if (!list) return;
+
+  if (!comments.length) {
+    list.innerHTML = '';
+    if (emptyEl) emptyEl.hidden = false;
+    return;
+  }
+  if (emptyEl) emptyEl.hidden = true;
+
+  list.innerHTML = comments.map((c, i) => {
+    const initial = escapeHtml((c.author?.name || '?').trim().charAt(0).toUpperCase());
+    const avatarHtml = c.author?.avatarUrl
+      ? `<img src="${escapeHtml(c.author.avatarUrl)}" alt="">`
+      : `<span>${initial}</span>`;
+    const isNew = lastPostedCommentId !== null && String(c.id) === String(lastPostedCommentId);
+    return `
+      <div class="pub-comment-item${isNew ? ' is-new' : ''}" data-id="${escapeHtml(c.id)}" style="--i:${i}">
+        <div class="pub-comment-item__avatar">${avatarHtml}</div>
+        <div class="pub-comment-item__body">
+          <div class="pub-comment-item__header">
+            <span class="pub-comment-item__author">${escapeHtml(c.author?.name || '')}</span>
+            <span class="pub-comment-item__date">${new Date(c.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div class="pub-comment-item__text">${escapeHtml(c.text)}</div>
+        </div>
+        ${c.canDelete ? `<button type="button" class="pub-comment-item__delete" data-id="${escapeHtml(c.id)}" aria-label="${escapeHtml(t('pub.commentDeleteBtn'))}">&times;</button>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.pub-comment-item__delete').forEach((btn) => {
+    btn.addEventListener('click', () => confirmDeleteComment(btn.dataset.id));
+  });
+
+  if (lastPostedCommentId !== null) {
+    const newEl = list.querySelector('.pub-comment-item.is-new');
+    if (newEl) newEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    lastPostedCommentId = null;
+  }
+}
+
+async function loadComments(publicationId) {
+  const list = document.getElementById('pubCommentsList');
+  if (list) list.innerHTML = '';
+
+  try {
+    const response = await fetch(`/api/publications/${publicationId}/comments`);
+    if (!response.ok) throw new Error('No se pudieron cargar los comentarios');
+    const data = await response.json();
+    if (currentDetailPublicationId === publicationId) {
+      renderComments(data.comments || []);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+document.getElementById('pubCommentForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!isUserLoggedIn) {
+    showGuestModal();
+    return;
+  }
+
+  const input = document.getElementById('pubCommentInput');
+  const submitBtn = document.querySelector('#pubCommentForm .pub-comment-submit-btn');
+  const text = input.value.trim();
+  if (!text || !currentDetailPublicationId) return;
+
+  submitBtn?.classList.add('is-sending');
+
+  try {
+    const response = await fetch(`/api/publications/${currentDetailPublicationId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || t('pub.alertErrorPostComment'));
+    }
+
+    const data = await response.json();
+    input.value = '';
+    lastPostedCommentId = data.comment?.id ?? null;
+    await loadComments(currentDetailPublicationId);
+
+    const pub = lastPublications.find(p => String(p.id) === String(currentDetailPublicationId));
+    if (pub) {
+      pub.commentCount = (pub.commentCount || 0) + 1;
+      document.querySelectorAll(`.publication-card[data-id="${CSS.escape(String(pub.id))}"] .publication-comment-count`).forEach(el => {
+        el.textContent = `💬 ${pub.commentCount}`;
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    window.showToast(error.message || t('pub.alertErrorPostComment'), 'error');
+  } finally {
+    submitBtn?.classList.remove('is-sending');
+  }
+});
+
+async function confirmDeleteComment(commentId) {
+  const confirmed = await window.showConfirm(t('pub.alertCommentDeleteConfirm'), {
+    title: t('pub.commentDeleteBtn'),
+    confirmText: t('pub.deleteBtn'),
+    cancelText: t('perfil.deleteModal.cancelBtn')
+  });
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(`/api/comments/${commentId}`, { method: 'DELETE' });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || t('pub.alertErrorDeleteComment'));
+    }
+
+    await loadComments(currentDetailPublicationId);
+
+    const pub = lastPublications.find(p => String(p.id) === String(currentDetailPublicationId));
+    if (pub) {
+      pub.commentCount = Math.max(0, (pub.commentCount || 1) - 1);
+      document.querySelectorAll(`.publication-card[data-id="${CSS.escape(String(pub.id))}"] .publication-comment-count`).forEach(el => {
+        el.textContent = `💬 ${pub.commentCount}`;
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    window.showToast(error.message || t('pub.alertErrorDeleteComment'), 'error');
+  }
 }
 
 document.getElementById('pubDetailClose')?.addEventListener('click', closePublicationDetail);
@@ -439,17 +588,17 @@ document.getElementById('publicationForm').addEventListener('submit', async func
   const imageFile = document.getElementById('pubImage').files[0];
 
   if (!location) {
-    alert(t('pub.alertNoLocation'));
+    window.showToast(t('pub.alertNoLocation'), 'error');
     return;
   }
 
   if (!lat || !lng) {
-    alert(t('pub.alertNoCoords'));
+    window.showToast(t('pub.alertNoCoords'), 'error');
     return;
   }
 
   if (!editingPublicationId && !imageFile) {
-    alert(t('pub.alertNoImage'));
+    window.showToast(t('pub.alertNoImage'), 'error');
     return;
   }
 
@@ -479,10 +628,10 @@ document.getElementById('publicationForm').addEventListener('submit', async func
     await fetchPublications();
 
     document.querySelector('.publications-section').scrollIntoView({ behavior: 'smooth' });
-    alert(isEditing ? t('pub.alertUpdateSuccess') : t('pub.alertCreateSuccess'));
+    window.showToast(isEditing ? t('pub.alertUpdateSuccess') : t('pub.alertCreateSuccess'), 'success');
   } catch (error) {
     console.error(error);
-    alert(error.message || t('pub.alertError'));
+    window.showToast(error.message || t('pub.alertError'), 'error');
   }
 });
 
@@ -534,7 +683,7 @@ async function startEditPublication(id) {
     document.querySelector('.create-publication-section').scrollIntoView({ behavior: 'smooth' });
   } catch (error) {
     console.error(error);
-    alert(error.message || t('pub.alertErrorLoad'));
+    window.showToast(error.message || t('pub.alertErrorLoad'), 'error');
   }
 }
 
@@ -543,7 +692,11 @@ async function startEditPublication(id) {
 // ════════════════════════════════════
 
 async function confirmDeletePublication(id) {
-  const confirmed = window.confirm(t('pub.alertDeleteConfirm'));
+  const confirmed = await window.showConfirm(t('pub.alertDeleteConfirm'), {
+    title: t('pub.deleteBtn'),
+    confirmText: t('pub.deleteBtn'),
+    cancelText: t('perfil.deleteModal.cancelBtn')
+  });
   if (!confirmed) return;
 
   try {
@@ -559,10 +712,10 @@ async function confirmDeletePublication(id) {
     }
 
     await fetchPublications();
-    alert(t('pub.alertDeleteSuccess'));
+    window.showToast(t('pub.alertDeleteSuccess'), 'success');
   } catch (error) {
     console.error(error);
-    alert(error.message || t('pub.alertErrorDelete'));
+    window.showToast(error.message || t('pub.alertErrorDelete'), 'error');
   }
 }
 
@@ -575,12 +728,12 @@ document.getElementById('pubImage').addEventListener('change', function(e) {
   if (file) {
     // Validaciones básicas (opcional, pero se pueden mostrar mensajes traducidos)
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      alert(t('pub.alertImageFormat'));
+      window.showToast(t('pub.alertImageFormat'), 'error');
       this.value = '';
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      alert(t('pub.alertImageSize'));
+      window.showToast(t('pub.alertImageSize'), 'error');
       this.value = '';
       return;
     }
