@@ -41,6 +41,16 @@
     }
     [data-theme="light"] .mapa-section { background: var(--bg-body); }
     #mapa-leaflet { width: 100%; height: 100%; }
+    /* Leaflet pinta su contenedor de #ddd (gris casi blanco) por defecto.
+       Ese color se asoma en cualquier hueco -tiles que aún no cargan,
+       tiles que fallan, bordes durante un zoom/paneo rápido- y contra el
+       estilo oscuro del mapa se ve como un destello blanco. Un fondo
+       oscuro a juego hace que esos huecos pasen desapercibidos. */
+    #mapa-leaflet.leaflet-container { background: #0d0d0d; }
+    /* En modo claro los tiles se invierten por CSS (ver .leaflet-tile-pane
+       más abajo) para verse claros; el fondo de respaldo debe invertirse
+       junto con ellos o los huecos se verían oscuros sobre un mapa claro. */
+    [data-theme="light"] #mapa-leaflet.leaflet-container { background: #e9e4da; }
 
     /* ── Botón flotante ("FAB") que abre el panel de filtros/búsqueda
        como una hoja modal — igual en PC y en celular, para que no
@@ -337,6 +347,10 @@
     }
 
     /* ── Custom marker icon ── */
+    .leaflet-marker-icon {
+      transition: opacity .25s ease;
+    }
+
     .custom-marker {
       position: relative;
       width: 34px; height: 34px; border-radius: 50%; /* Aumentado de 24px a 34px */

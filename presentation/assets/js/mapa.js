@@ -470,7 +470,10 @@ const FOCUS_ZOOM = 14;
 
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
-  zoom: 10.45,
+  // Zoom entero: con un zoom fraccionario Leaflet no tiene tiles nativos
+  // para ese nivel exacto, así que agranda con CSS los del entero más
+  // cercano y el mapa arranca borroso/pixelado. Un entero se ve nítido.
+  zoom: 10,
   zoomControl: false,
   attributionControl: true,
   preferCanvas: true,
@@ -484,14 +487,19 @@ const mapa = L.map('mapa-leaflet', {
 
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
-// Capa de tiles optimizada
-const tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3', {
+// Capa de tiles optimizada. Se pide a través de nuestro propio servidor
+// (routes/tiles.routes.js), que agrega la API key de Stadia Maps server-side
+// -así nunca queda expuesta en el JS del cliente ni en las peticiones que
+// hace el navegador.
+const tileLayer = L.tileLayer('/api/tiles/{z}/{x}/{y}{r}.png', {
   maxZoom: 16.5,
+  // Pide la imagen @2x en pantallas de alta densidad (la mayoría de
+  // celulares/laptops actuales) en vez de estirar la de 1x con CSS.
+  detectRetina: true,
   updateWhenZooming: false,
   updateWhenIdle: true,
   keepBuffer: esDispositivoMovil ? 2 : 4,
   crossOrigin: true,
-  errorTileUrl: '',
   opacity: 1,
   zIndex: 1
 }).addTo(mapa);
@@ -640,12 +648,21 @@ const sbCenter      = document.getElementById('sbCenter');
 
 let activeMarker = null;
 let activeLandmark = null;
+// Vista (centro + zoom) justo antes de seleccionar el primer lugar de esta
+// "sesión" de exploración; al cerrar la ficha volvemos aquí. Se guarda solo
+// una vez (no en cada cambio de lugar mientras la ficha sigue abierta) y se
+// limpia al cerrar, para no pisarla con el zoom de acercamiento.
+let vistaAntesDeSeleccion = null;
 
 /* ══════════════════════════════════════════════════════════
    ABRIR / CERRAR SIDEBAR CON ANIMACIÓN Y PULSO GSAP
    ══════════════════════════════════════════════════════════ */
-function abrirSidebar(lm, marker, forcedLang = null) {
+function abrirSidebar(lm, marker, forcedLang = null, volar = true) {
   const lang = forcedLang || (window.SRi18n ? window.SRi18n.getLang() : 'es');
+
+  if (volar && !activeMarker) {
+    vistaAntesDeSeleccion = { center: mapa.getCenter(), zoom: mapa.getZoom() };
+  }
 
   sbImage.onerror = () => {
     sbImage.onerror = null;
@@ -700,6 +717,15 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
   sbChips.innerHTML = chipsFinales.map(c => `<span class="popup-chip">${c}</span>`).join('');
 
+  // Volamos al lugar ANTES de animar la ficha, usando ya el punto elevado
+  // en móvil (calculado con el alto real de la ficha, que en este punto ya
+  // tiene el contenido de este lugar). Así el mapa se mueve una sola vez,
+  // directo al destino final, en vez de centrar el marcador primero y
+  // luego corregirlo hacia arriba en un segundo salto.
+  if (volar) {
+    volarAMarcador(marker.getLatLng(), FOCUS_ZOOM);
+  }
+
   if (activeMarker && activeMarker !== marker) {
     if (activeMarker._pulseAnim) {
       activeMarker._pulseAnim.kill();
@@ -710,9 +736,18 @@ function abrirSidebar(lm, marker, forcedLang = null) {
       }
     }
     activeMarker._icon?.querySelector('.custom-marker')?.classList.remove('custom-marker--active');
+    activeMarker.setZIndexOffset(0);
   }
   activeMarker = marker;
   activeLandmark = lm;
+
+  // Atenuar el resto de marcadores y traer al frente el seleccionado, para
+  // que se distinga claramente de los demás en vez de mezclarse con ellos.
+  markers.forEach(m => {
+    m.setOpacity(m === marker ? 1 : 0.35);
+  });
+  marker.setZIndexOffset(1000);
+
   const iconEl = marker._icon?.querySelector('.custom-marker');
   if (iconEl) {
     iconEl.classList.add('custom-marker--active');
@@ -769,6 +804,63 @@ function abrirSidebar(lm, marker, forcedLang = null) {
   }
 }
 
+/* La sidebar tapa parte del mapa: en móvil es una ficha que sube desde
+   abajo (tapa la parte de abajo), en PC es un panel fijo a la izquierda
+   (tapa la parte de la izquierda). Si voláramos directo al lugar
+   (centrándolo en el mapa completo) y luego corrigiéramos la vista para
+   destaparlo de la sidebar, se vería como un doble salto. Esta función
+   calcula de una vez el centro correcto -el punto que, al centrar el mapa
+   en él, deja el marcador bien ubicado en el espacio libre que sí se ve-
+   para volar ahí directamente en un solo movimiento.
+
+   Se basa en las coordenadas reales del lugar (con project/unproject) en
+   vez de desplazar la vista actual de forma relativa, para que llamarla
+   más de una vez (p. ej. al cambiar de idioma, que cambia el alto/ancho de
+   la ficha) siempre converja al mismo lugar en vez de acumular saltos. */
+function calcularCentroElevado(latlng, zoom) {
+  const esMovil = window.matchMedia('(max-width: 600px)').matches;
+  const alturaMapa = mapa.getSize().y;
+  const anchoMapa = mapa.getSize().x;
+  const puntoLugar = mapa.project(latlng, zoom);
+  let offsetX = 0;
+  let offsetY = 0;
+
+  if (esMovil) {
+    // Ficha inferior: subimos el marcador bien por encima de su borde.
+    const alturaFicha = mapaSidebar.getBoundingClientRect().height;
+    if (alturaFicha > 0 && alturaMapa > 0) {
+      const alturaLibre = Math.max(alturaMapa - alturaFicha, 0);
+      const posicionDeseada = Math.min(alturaLibre * 0.2 + 160, alturaLibre);
+      offsetY = (alturaMapa / 2) - posicionDeseada;
+    }
+  } else {
+    // Panel lateral izquierdo: centramos el marcador en el ancho libre
+    // que queda a la derecha del panel, sin que quede tapado ni a medias.
+    const anchoFicha = mapaSidebar.getBoundingClientRect().width;
+    if (anchoFicha > 0 && anchoMapa > 0) {
+      const anchoLibre = Math.max(anchoMapa - anchoFicha, 0);
+      const posicionXDeseada = anchoFicha + (anchoLibre / 2);
+      offsetX = (anchoMapa / 2) - posicionXDeseada;
+    }
+  }
+
+  if (offsetX === 0 && offsetY === 0) return latlng;
+  const puntoCentroDeseado = L.point(puntoLugar.x + offsetX, puntoLugar.y + offsetY);
+  return mapa.unproject(puntoCentroDeseado, zoom);
+}
+
+function volarAMarcador(latlng, zoom, opciones = { animate: true, duration: 1 }) {
+  mapa.flyTo(calcularCentroElevado(latlng, zoom), zoom, opciones);
+}
+
+// Reajuste sin vuelo: para cuando el contenido de la ficha ya abierta
+// cambia de alto (p. ej. al cambiar de idioma) y solo hace falta corregir
+// un poco la posición, sin repetir la animación completa de acercamiento.
+function centrarMarcadorSobreFichaMovil() {
+  if (!mapaSidebar.classList.contains('open') || !activeMarker) return;
+  mapa.panTo(calcularCentroElevado(activeMarker.getLatLng(), mapa.getZoom()), { animate: true, duration: 0.4 });
+}
+
 function cerrarSidebar() {
   if (activeMarker && activeMarker._pulseAnim) {
     activeMarker._pulseAnim.kill();
@@ -777,6 +869,14 @@ function cerrarSidebar() {
     if (iconEl && window.gsap) {
       gsap.set(iconEl, { scale: 1, boxShadow: '0 4px 12px rgba(0,0,0,0.6)' });
     }
+  }
+
+  markers.forEach(m => m.setOpacity(1));
+  if (activeMarker) activeMarker.setZIndexOffset(0);
+
+  if (vistaAntesDeSeleccion) {
+    mapa.flyTo(vistaAntesDeSeleccion.center, vistaAntesDeSeleccion.zoom, { animate: true, duration: 1 });
+    vistaAntesDeSeleccion = null;
   }
 
   if (window.gsap) {
@@ -815,7 +915,7 @@ sidebarClose.addEventListener('click', cerrarSidebar);
 
 sbCenter.addEventListener('click', () => {
   if (activeMarker) {
-    mapa.flyTo(activeMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
+    volarAMarcador(activeMarker.getLatLng(), FOCUS_ZOOM);
     setTimeout(invalidateMapSize, 500);
   }
 });
@@ -889,7 +989,6 @@ function crearMarker(lm) {
 
   marker.on('click', () => {
     abrirSidebar(lm, marker);
-    mapa.flyTo(marker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
     setTimeout(invalidateMapSize, 500);
   });
 
@@ -1018,7 +1117,6 @@ function actualizarListaResultados(categoria, query) {
         if (lm && marker) {
           container.style.display = 'none';
           cerrarFiltrosSheet();
-          mapa.flyTo(marker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
           abrirSidebar(lm, marker);
           setTimeout(invalidateMapSize, 500);
         }
@@ -1137,7 +1235,8 @@ window.addEventListener('DOMContentLoaded', () => {
           }
         });
         if (activeLandmark) {
-          abrirSidebar(activeLandmark, activeMarker, idiomaDefinitivo);
+          abrirSidebar(activeLandmark, activeMarker, idiomaDefinitivo, false);
+          centrarMarcadorSobreFichaMovil();
         }
       }
     }
@@ -1148,7 +1247,8 @@ window.addEventListener('DOMContentLoaded', () => {
 document.addEventListener("langchange", (e) => {
   const idiomaActual = e.detail.lang;
   if (activeLandmark) {
-    abrirSidebar(activeLandmark, activeMarker, idiomaActual);
+    abrirSidebar(activeLandmark, activeMarker, idiomaActual, false);
+    centrarMarcadorSobreFichaMovil();
   }
 
   markers.forEach(m => {
@@ -1309,7 +1409,6 @@ const TRADUCTOR_A_LANDMARK = {
           });
           targetMarker.setIcon(iconoDestacado);
           targetMarker.setZIndexOffset(1000);
-          mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
           abrirSidebar(lmDirecto, targetMarker);
           setTimeout(invalidateMapSize, 500);
         }
@@ -1346,7 +1445,6 @@ const TRADUCTOR_A_LANDMARK = {
             });
             targetMarker.setIcon(iconoDestacado);
             targetMarker.setZIndexOffset(1000);
-            mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
             abrirSidebar(lmCercano, targetMarker);
             setTimeout(invalidateMapSize, 500);
           }
@@ -1374,7 +1472,6 @@ const TRADUCTOR_A_LANDMARK = {
             });
             targetMarker.setIcon(iconoDestacado);
             targetMarker.setZIndexOffset(1000);
-            mapa.flyTo(targetMarker.getLatLng(), FOCUS_ZOOM, { animate: true, duration: 1 });
             abrirSidebar(lm, targetMarker);
             setTimeout(invalidateMapSize, 500);
           }
