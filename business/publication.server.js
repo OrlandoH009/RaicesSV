@@ -35,6 +35,7 @@ const sanitizePublication = (row, currentUser, likedPublicationIds) => {
             avatarUrl: row.author_avatar_url || null
         },
         likeCount: Number(row.like_count) || 0,
+        commentCount: Number(row.comment_count) || 0,
         isLiked: Boolean(likedPublicationIds) && likedPublicationIds.has(row.id_publication),
         canEdit: isOwner,
         canDelete: isOwner || isAdmin

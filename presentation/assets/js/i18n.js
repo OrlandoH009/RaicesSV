@@ -1806,6 +1806,11 @@
       "pub.editBtn": "Editar",
       "pub.deleteBtn": "Eliminar",
       "pub.likeBtn": "Me gusta",
+      "pub.commentsTitle": "Comentarios",
+      "pub.commentsEmpty": "Todavía no hay comentarios. ¡Sé el primero!",
+      "pub.commentPlaceholder": "Escribe un comentario...",
+      "pub.commentSubmit": "Comentar",
+      "pub.commentDeleteBtn": "Eliminar comentario",
 
       "pub.guestBlockerTitle": "¿Quieres compartir un lugar?",
       "pub.guestBlockerText": "Inicia sesión o regístrate en la plataforma para poder subir tus propias fotos de El Salvador.",
@@ -1827,6 +1832,9 @@
       "pub.alertErrorLoad": "No se pudo cargar la publicación para editar.",
       "pub.alertErrorDelete": "No se pudo eliminar esta publicación.",
       "pub.alertErrorLike": "No se pudo registrar el like. Inténtalo de nuevo.",
+      "pub.alertErrorPostComment": "No se pudo publicar el comentario. Inténtalo de nuevo.",
+      "pub.alertCommentDeleteConfirm": "¿Seguro que quieres eliminar este comentario?",
+      "pub.alertErrorDeleteComment": "No se pudo eliminar el comentario.",
       "pub.alertImageFormat": "Formato no soportado. Usa JPG, PNG o WEBP.",
       "pub.alertImageSize": "La imagen no puede pesar más de 3 MB.",
 
@@ -3609,6 +3617,11 @@
         "pub.editBtn": "Edit",
         "pub.deleteBtn": "Delete",
         "pub.likeBtn": "Like",
+        "pub.commentsTitle": "Comments",
+        "pub.commentsEmpty": "No comments yet. Be the first!",
+        "pub.commentPlaceholder": "Write a comment...",
+        "pub.commentSubmit": "Comment",
+        "pub.commentDeleteBtn": "Delete comment",
 
         "pub.guestBlockerTitle": "Want to share a place?",
         "pub.guestBlockerText": "Log in or sign up to upload your own photos of El Salvador.",
@@ -3630,6 +3643,9 @@
         "pub.alertErrorLoad": "Could not load the publication for editing.",
         "pub.alertErrorDelete": "Could not delete this publication.",
         "pub.alertErrorLike": "Could not register the like. Please try again.",
+        "pub.alertErrorPostComment": "Could not post the comment. Please try again.",
+        "pub.alertCommentDeleteConfirm": "Are you sure you want to delete this comment?",
+        "pub.alertErrorDeleteComment": "Could not delete the comment.",
         "pub.alertImageFormat": "Unsupported format. Use JPG, PNG or WEBP.",
         "pub.alertImageSize": "The image cannot exceed 3 MB.",
 

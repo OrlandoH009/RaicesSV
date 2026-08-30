@@ -217,27 +217,43 @@
         <img id="pubDetailImage" src="" alt="">
       </div>
 
-      <div class="pub-detail-modal__body">
-        <div class="pub-detail-modal__author">
-          <div class="pub-detail-modal__avatar" id="pubDetailAvatarWrap">
-            <img id="pubDetailAvatar" src="" alt="" style="display:none;">
-            <span id="pubDetailAvatarInitial"></span>
+      <div class="pub-detail-modal__panel">
+        <div class="pub-detail-modal__scroll">
+          <div class="pub-detail-modal__author">
+            <div class="pub-detail-modal__avatar" id="pubDetailAvatarWrap">
+              <img id="pubDetailAvatar" src="" alt="" style="display:none;">
+              <span id="pubDetailAvatarInitial"></span>
+            </div>
+            <span class="pub-detail-modal__author-name" id="pubDetailAuthorName"></span>
           </div>
-          <span class="pub-detail-modal__author-name" id="pubDetailAuthorName"></span>
+
+          <h3 class="pub-detail-modal__title" id="pubDetailTitle"></h3>
+          <p class="pub-detail-modal__description" id="pubDetailDescription"></p>
+
+          <div class="pub-detail-modal__location">
+            <span class="pub-detail-modal__location-icon">📍</span>
+            <span id="pubDetailLocationText"></span>
+            <a class="pub-detail-modal__map-link" id="pubDetailMapLink" href="#" style="display:none;" data-i18n="pub.viewOnMap">Ver en el mapa</a>
+          </div>
+
+          <div class="pub-detail-modal__map" id="pubDetailMap"></div>
+
+          <div class="pub-detail-modal__actions" id="pubDetailActions"></div>
+
+          <div class="pub-detail-modal__comments">
+            <h4 class="pub-detail-modal__comments-title" data-i18n="pub.commentsTitle">Comentarios</h4>
+            <div class="pub-comments-list" id="pubCommentsList"></div>
+            <p class="pub-comments-empty" id="pubCommentsEmpty" data-i18n="pub.commentsEmpty" hidden>Todavía no hay comentarios. ¡Sé el primero!</p>
+          </div>
         </div>
 
-        <h3 class="pub-detail-modal__title" id="pubDetailTitle"></h3>
-        <p class="pub-detail-modal__description" id="pubDetailDescription"></p>
-
-        <div class="pub-detail-modal__location">
-          <span class="pub-detail-modal__location-icon">📍</span>
-          <span id="pubDetailLocationText"></span>
-          <a class="pub-detail-modal__map-link" id="pubDetailMapLink" href="#" style="display:none;" data-i18n="pub.viewOnMap">Ver en el mapa</a>
-        </div>
-
-        <div class="pub-detail-modal__map" id="pubDetailMap"></div>
-
-        <div class="pub-detail-modal__actions" id="pubDetailActions"></div>
+        <form class="pub-comment-form" id="pubCommentForm">
+          <textarea id="pubCommentInput" rows="1" maxlength="500" data-i18n-attr="placeholder:pub.commentPlaceholder" placeholder="Escribe un comentario..."></textarea>
+          <button type="submit" class="pub-comment-submit-btn">
+            <span class="pub-comment-submit-btn__label" data-i18n="pub.commentSubmit">Comentar</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="pub-comment-submit-btn__icon"><path d="m3 3 18 9-18 9V3Z"/></svg>
+          </button>
+        </form>
       </div>
     </div>
   </div>

@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     publications: [],
     metrics: null,
     appeals: null,
+    flaggedComments: null,
     activeSection: 'resumen'
   };
 
@@ -108,7 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
     usuarios: 'Usuarios',
     publicaciones: 'Publicaciones',
     equipo: 'Equipo',
-    apelaciones: 'Apelaciones'
+    apelaciones: 'Apelaciones',
+    comentarios: 'Comentarios reportados'
   };
 
   function moveIndicatorTo(button) {
@@ -720,6 +722,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="admin-pub-card__title">${escapeHtml(pub.title)}</div>
             <div class="admin-pub-card__location">${escapeHtml(pub.location)}</div>
             <div class="admin-pub-card__author">Por ${escapeHtml(pub.author.name)}</div>
+            <div class="admin-pub-card__stats">
+              <span>❤️ ${escapeHtml(pub.likeCount ?? 0)}</span>
+              <span>💬 ${escapeHtml(pub.commentCount ?? 0)}</span>
+            </div>
           </div>
         `;
         card.addEventListener('click', () => openPublicationDetail(pub.id));
@@ -764,6 +770,14 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-detail-row">
           <span class="admin-detail-row__label">Publicado</span>
           <span class="admin-detail-row__value">${formatDate(pub.createdAt)}</span>
+        </div>
+        <div class="admin-detail-row">
+          <span class="admin-detail-row__label">Likes</span>
+          <span class="admin-detail-row__value">❤️ ${escapeHtml(pub.likeCount ?? 0)}</span>
+        </div>
+        <div class="admin-detail-row">
+          <span class="admin-detail-row__label">Comentarios</span>
+          <span class="admin-detail-row__value">💬 ${escapeHtml(pub.commentCount ?? 0)}</span>
         </div>
         <div class="admin-detail-row">
           <span class="admin-detail-row__label">Descripción</span>
@@ -1185,12 +1199,107 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ── Comentarios reportados (bloqueados por el filtro de lenguaje ofensivo) ──
+
+  const commentsBadge = document.getElementById('commentsBadge');
+  const commentsListBody = document.getElementById('commentsListBody');
+  const commentsEmptyState = document.getElementById('commentsEmptyState');
+
+  function renderCommentsBadge() {
+    if (!commentsBadge) return;
+    const count = state.flaggedComments ? state.flaggedComments.length : 0;
+    if (count > 0) {
+      commentsBadge.textContent = count > 99 ? '99+' : String(count);
+      commentsBadge.hidden = false;
+    } else {
+      commentsBadge.hidden = true;
+    }
+  }
+
+  function renderCommentsList() {
+    if (!commentsListBody) return;
+
+    const items = state.flaggedComments || [];
+    commentsListBody.innerHTML = '';
+
+    if (items.length === 0) {
+      if (commentsEmptyState) commentsEmptyState.hidden = false;
+      return;
+    }
+    if (commentsEmptyState) commentsEmptyState.hidden = true;
+
+    items.forEach((comment) => {
+      const card = document.createElement('div');
+      card.className = 'admin-comment-card';
+      card.innerHTML = `
+        <div class="admin-comment-card__meta">
+          <span class="admin-comment-card__author">${escapeHtml(comment.author.name)}</span>
+          <span class="admin-comment-card__publication">${escapeHtml(comment.publication.title)}</span>
+          <span class="admin-comment-card__date">${formatDateTime(comment.createdAt)}</span>
+        </div>
+        <div class="admin-comment-card__text">${escapeHtml(comment.text)}</div>
+        <div class="admin-comment-card__reason">${escapeHtml(comment.flagReason || '')}</div>
+        <div class="admin-comment-card__actions">
+          <button type="button" class="admin-btn admin-btn--jade" data-action="approve">Aprobar (falso positivo)</button>
+          <button type="button" class="admin-btn admin-btn--danger" data-action="delete">Eliminar definitivamente</button>
+        </div>
+      `;
+
+      card.querySelector('[data-action="approve"]')?.addEventListener('click', () => approveFlaggedComment(comment.id));
+      card.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
+        confirmAction({
+          title: 'Eliminar comentario',
+          text: 'Este comentario se eliminará de forma permanente.',
+          onConfirm: () => deleteFlaggedComment(comment.id)
+        });
+      });
+
+      commentsListBody.appendChild(card);
+    });
+  }
+
+  async function approveFlaggedComment(commentId) {
+    try {
+      await apiFetch(`/api/admin/comments/${commentId}/approve`, { method: 'PATCH' });
+      state.flaggedComments = state.flaggedComments.filter((c) => c.id !== commentId);
+      renderCommentsBadge();
+      renderCommentsList();
+      showToast('Comentario aprobado y publicado.', 'success');
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteFlaggedComment(commentId) {
+    try {
+      await apiFetch(`/api/admin/comments/${commentId}`, { method: 'DELETE' });
+      state.flaggedComments = state.flaggedComments.filter((c) => c.id !== commentId);
+      renderCommentsBadge();
+      renderCommentsList();
+      showToast('Comentario eliminado.', 'success');
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function loadFlaggedComments() {
+    try {
+      const data = await apiFetch('/api/admin/comments/flagged');
+      state.flaggedComments = data.comments;
+      renderCommentsBadge();
+      renderCommentsList();
+    } catch (error) {
+      showToast('No se pudieron cargar los comentarios reportados.', 'error');
+    }
+  }
+
   async function refreshAll() {
     await Promise.all([
       loadMetrics(),
       loadUsers(),
       loadPublications(),
-      loadAppeals()
+      loadAppeals(),
+      loadFlaggedComments()
     ]);
   }
 

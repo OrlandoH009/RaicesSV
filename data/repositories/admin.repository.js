@@ -351,8 +351,25 @@ const countPublicationsByMonth = () => {
     });
 };
 
+const findAdminEmails = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT u.email, u.name
+            FROM users u
+            INNER JOIN rols r ON r.id_rol = u.id_rol
+            INNER JOIN user_status s ON s.id_status = u.id_status
+            WHERE r.rol IN ('Admin', 'Fundador') AND s.status = 'Activo'`,
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
 module.exports = {
     findAllUsers,
+    findAdminEmails,
     countUsersByStatus,
     countUsersByRole,
     countUsersByMonth,
