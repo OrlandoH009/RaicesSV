@@ -16,6 +16,7 @@ El proyecto está construido en **Node.js con Express** bajo el patrón de **Arq
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación y Configuración](#-instalación-y-configuración)
 - [Variables de Entorno](#-variables-de-entorno)
+- [Almacenamiento de Imágenes](#-almacenamiento-de-imágenes)
 - [Modelo de Base de Datos](#-modelo-de-base-de-datos)
 - [Endpoints y Rutas de la API](#-endpoints-y-rutas-de-la-api)
 - [Seguridad](#-seguridad)
@@ -58,7 +59,7 @@ El proyecto está construido en **Node.js con Express** bajo el patrón de **Arq
    - Registro e inicio de sesión local (correo y contraseña hasheada con `bcrypt`).
    - Autenticación OAuth 2.0 con **Google** mediante Passport.js.
    - Recuperación de contraseña segura vía correo electrónico (SMTP con tokens SHA-256 temporales).
-   - Gestión de perfil: edición de información personal, biografía y avatar (local vía Multer o sincronizado con Google).
+   - Gestión de perfil: edición de información personal, biografía y avatar (subido a Cloudflare R2 o sincronizado con Google).
 
 8. **👑 Panel de Administración y Moderación**:
    - Dashboard con métricas globales en tiempo real.
@@ -152,8 +153,14 @@ RaicesSV/
 ├── middleware/                        # MIDDLEWARES TRANSVERSALES
 │   ├── auth.protectedRoutes.js        # Protección de vistas HTML por sesión y rol
 │   ├── auth.apiGuard.js               # Protección de endpoints API (401 Unauthorized)
+│   ├── auth.adminApiGuard.js          # Protección de endpoints de administración
+│   ├── auth.adminRoutes.js            # Protección de vistas de administración
 │   ├── security.middleware.js         # Headers de seguridad, mitigación CSRF y rate limit
-│   └── upload.middleware.js           # Subida de imágenes con Multer (avatares y posts)
+│   ├── upload.middleware.js           # Multer en memoria para avatares
+│   ├── upload.publications.middleware.js # Multer en memoria para fotos de publicaciones
+│   ├── compress-image.middleware.js   # Compresión/redimensionado automático con Sharp
+│   ├── upload-to-r2.middleware.js     # Subida del buffer comprimido a Cloudflare R2
+│   └── upload-rate-limit.middleware.js # Límite de subidas por usuario (anti-abuso)
 │
 ├── business/                          # CAPA DE LÓGICA DE NEGOCIO
 │   ├── auth.server.js                 # Métodos centrales de autenticación
@@ -174,11 +181,15 @@ RaicesSV/
     │   ├── database.config.js         # Conexión a MySQL2 con soporte de migraciones
     │   ├── passport.config.js         # Configuración de Google OAuth 2.0
     │   ├── mailer.config.js           # Transporte SMTP con Nodemailer
-    │   └── emailVerifier.config.js    # Verificación de dominios MX para correos
+    │   ├── emailVerifier.config.js    # Verificación de dominios MX para correos
+    │   └── r2.config.js               # Cliente S3 configurado para Cloudflare R2
     ├── repositories/
     │   ├── user.repository.js         # Operaciones SQL sobre la tabla `users`
     │   ├── admin.repository.js        # Operaciones SQL de administración y suspensiones
-    │   └── publication.repository.js  # Operaciones SQL de publicaciones y comentarios
+    │   ├── publication.repository.js  # Operaciones SQL de publicaciones
+    │   ├── publicationLike.repository.js # Operaciones SQL de likes en publicaciones
+    │   ├── comment.repository.js      # Operaciones SQL de comentarios
+    │   └── uploadLog.repository.js    # Registro de subidas para el límite anti-abuso
     ├── api/
     │   └── chat-proxy.js              # Conector HTTP hacia la API de OpenRouter
     └── database/
@@ -196,7 +207,9 @@ RaicesSV/
 - **Passport.js & passport-google-oauth20**: Autenticación federada con Google.
 - **bcrypt**: Encriptación y hashing seguro de contraseñas.
 - **MySQL2**: Driver de alto rendimiento para MySQL con soporte de promesas.
-- **Multer**: Middleware para subida y procesamiento de imágenes.
+- **Multer**: Middleware para recepción de imágenes en memoria (avatares y publicaciones).
+- **Sharp**: Compresión y redimensionado automático de imágenes antes de subirlas.
+- **Cloudflare R2 (`@aws-sdk/client-s3`)**: Almacenamiento de objetos S3-compatible para fotos de publicaciones y avatares, con transferencia (egress) sin costo.
 - **Nodemailer**: Envío de correos transaccionales por protocolo SMTP.
 - **@ngrok/ngrok**: Soporte para túneles de desarrollo y exposición local.
 
@@ -211,8 +224,9 @@ RaicesSV/
 ## 📋 Requisitos Previos
 
 - **Node.js**: Versión 18.0.0 o superior instalada.
-- **MySQL Server**: Versión 8.0 o superior.
+- **MySQL Server**: Versión 8.0 o superior (local) o un proveedor compatible como TiDB Cloud / Aiven para producción.
 - **NPM**: Gestor de paquetes incluido con Node.js.
+- **Cuenta de Cloudflare con un bucket R2** *(opcional en local, requerido en producción)*: Para almacenar las fotos de publicaciones y avatares — ver [Almacenamiento de Imágenes](#-almacenamiento-de-imágenes).
 - **Cuenta de OpenRouter** *(opcional)*: Para habilitar el asistente de IA.
 - **Credenciales de Google Cloud Console** *(opcional)*: Para habilitar el inicio de sesión con Google.
 - **Servidor SMTP** *(opcional)*: Para el envío de correos de recuperación de contraseña (e.g. Gmail, Mailtrap o Sendgrid).
@@ -257,26 +271,46 @@ RaicesSV/
 
 | Variable | Tipo | Descripción |
 |---|---|---|
-| `PORT` | Numérico | Puerto de escucha del servidor (por defecto: `3000`). |
-| `NODE_ENV` | String | Modo de ejecución (`development` o `production`). |
-| `SESSION_SECRET` | String | Clave secreta para firmar las cookies de sesión. |
-| `DB_HOST` | String | Host del servidor MySQL (e.g., `localhost` o `127.0.0.1`). |
-| `DB_PORT` | Numérico | Puerto de conexión a MySQL (por defecto: `3306`). |
-| `DB_USER` | String | Usuario de MySQL. |
-| `DB_PASSWORD` | String | Contraseña de MySQL. |
-| `DB_NAME` | String | Nombre de la base de datos (`raicessv`). |
+| `DB_URL` | String | Cadena de conexión completa a MySQL (`mysql://usuario:password@host:puerto/basedatos`). En local apunta a tu MySQL de XAMPP/WAMP; en producción, a TiDB Cloud/Aiven u otro proveedor. |
+| `R2_ACCOUNT_ID` | String | Account ID de Cloudflare (usado para construir el endpoint S3 de R2). |
+| `R2_ACCESS_KEY_ID` | String | Access Key ID del token de API de R2. |
+| `R2_SECRET_ACCESS_KEY` | String | Secret Access Key del token de API de R2. |
+| `R2_BUCKET_NAME` | String | Nombre del bucket de R2 donde se guardan las imágenes. |
+| `R2_PUBLIC_URL` | String | URL pública del bucket (Public Development URL `https://pub-xxxx.r2.dev` o dominio propio). |
 | `OPENROUTER_API_KEY` | String | API Key de OpenRouter para el chatbot con IA. |
+| `PORT` | Numérico | Puerto de escucha del servidor en local (por defecto: `3000`). |
+| `NGROK_ENABLED` | Booleano | Activar túnel de Ngrok en desarrollo (`true`/`false`). |
+| `NGROK_AUTHTOKEN` | String | Token de autenticación de Ngrok. |
 | `GOOGLE_CLIENT_ID` | String | Client ID obtenido en Google Cloud Console. |
 | `GOOGLE_CLIENT_SECRET` | String | Client Secret obtenido en Google Cloud Console. |
-| `GOOGLE_CALLBACK_URL` | String | URL de retorno de OAuth (e.g., `/auth/google/callback`). |
 | `SMTP_HOST` | String | Servidor SMTP para envío de correos (e.g., `smtp.gmail.com`). |
 | `SMTP_PORT` | Numérico | Puerto del servidor SMTP (`465` o `587`). |
 | `SMTP_SECURE` | Booleano | `true` para TLS/SSL directo, `false` para STARTTLS. |
 | `SMTP_USER` | String | Usuario o correo del servidor SMTP. |
 | `SMTP_PASS` | String | Contraseña o App Password del servidor SMTP. |
 | `MAIL_FROM` | String | Remitente visible en los correos de recuperación. |
-| `NGROK_ENABLED` | Booleano | Activar túnel de Ngrok en desarrollo (`true`/`false`). |
-| `NGROK_AUTHTOKEN` | String | Token de autenticación de Ngrok. |
+
+> En Vercel, estas mismas variables se configuran en **Settings → Environment Variables** (no se leen desde `.env`). Marca `R2_ACCESS_KEY_ID` y `R2_SECRET_ACCESS_KEY` como **Secret** para que no queden visibles después de guardarlas.
+
+---
+
+## 📦 Almacenamiento de Imágenes
+
+Las fotos de publicaciones y avatares no se guardan en el disco del servidor: se suben a **Cloudflare R2** (almacenamiento de objetos S3-compatible, sin costo de transferencia/egress). Esto es necesario porque en Vercel el sistema de archivos de las funciones serverless es efímero — cualquier archivo guardado en disco se perdería en el siguiente despliegue o al escalar a otra instancia.
+
+**Flujo de subida** (`middleware/`):
+1. `upload.middleware.js` / `upload.publications.middleware.js` — Multer recibe el archivo en memoria (`memoryStorage`), valida tipo (JPEG/PNG/WEBP) y tamaño (máx. 3MB).
+2. `upload-rate-limit.middleware.js` — verifica que el usuario no haya superado su límite de subidas recientes (20 publicaciones / 10 avatares cada 24h, tabla `upload_logs`) antes de continuar.
+3. `compress-image.middleware.js` — redimensiona (máx. 1600px de ancho) y recomprime la imagen con **Sharp**.
+4. `upload-to-r2.middleware.js` — sube el buffer comprimido al bucket de R2 y adjunta la URL pública resultante (`req.file.publicUrl`).
+5. El controlador de negocio (`business/publication.create.js`, `profile.avatar.js`, etc.) guarda esa URL pública directamente en la base de datos.
+
+**Configuración del bucket** (ver [Variables de Entorno](#-variables-de-entorno)):
+1. Crear un bucket en el dashboard de Cloudflare → **R2 Object Storage**.
+2. Activar el acceso público del bucket (**Settings → Public Development URL**) para obtener `R2_PUBLIC_URL`.
+3. Generar un API Token con permisos **Object Read & Write** (**R2 → Manage API Tokens**) para obtener `R2_ACCESS_KEY_ID` y `R2_SECRET_ACCESS_KEY`.
+
+Los assets estáticos propios del sitio (historia, leyendas, sitios, mapa, etc.) siguen sirviéndose desde `presentation/assets/`, pero en producción `vercel.json` los enruta como archivos estáticos servidos por el CDN de Vercel (no por la función serverless), salvo `presentation/assets/media/publications/` y `presentation/assets/media/avatars/`, que ya no se usan para servir contenido nuevo pero se mantienen por compatibilidad con imágenes antiguas.
 
 ---
 
@@ -288,12 +322,14 @@ El esquema relacional incluye las siguientes tablas clave:
 - **`user_status`**: Estados de cuenta (`Activo`, `Suspendido`).
 - **`users`**: Datos de usuarios locales y federados (Google ID, avatar, biografía, contraseña hasheada).
 - **`properties` / `publications`**: Publicaciones culturales y sitios turísticos registrados por la comunidad.
+- **`publication_likes`**: Likes de usuarios sobre publicaciones.
 - **`coments`**: Comentarios asociados a publicaciones culturales.
 - **`scores`**: Registro histórico de puntajes obtenidos en el Quiz cultural por usuario, categoría y nivel.
 - **`password_resets`**: Tokens SHA-256 de recuperación de contraseña con expiración.
 - **`admin_invitations`**: Invitaciones generadas por administradores para promover nuevos miembros del equipo.
 - **`user_suspensions`**: Historial y motivos de suspensiones aplicadas a usuarios.
 - **`appeals`**: Solicitudes de apelación enviadas por usuarios sancionados.
+- **`upload_logs`**: Registro de subidas de imágenes por usuario, usado para aplicar el límite anti-abuso (ver [Almacenamiento de Imágenes](#-almacenamiento-de-imágenes)).
 
 ---
 
@@ -312,7 +348,7 @@ El esquema relacional incluye las siguientes tablas clave:
 ### 👤 Perfil (`routes/profile.routes.js`)
 - `GET /api/profile` — Obtiene los datos del perfil en sesión.
 - `PUT /api/profile` — Actualiza nombre, descripción y datos personales.
-- `POST /api/profile/avatar` — Sube una foto de avatar personalizada (Multer).
+- `POST /api/profile/avatar` — Sube una foto de avatar personalizada (comprimida y almacenada en Cloudflare R2).
 - `POST /api/profile/avatar/google` — Sincroniza la foto de perfil con la cuenta de Google.
 - `DELETE /api/profile` — Elimina permanentemente la cuenta de usuario.
 
@@ -344,6 +380,7 @@ El esquema relacional incluye las siguientes tablas clave:
 ## 🛡️ Seguridad
 
 - **Protección contra Fuerza Bruta**: Rate limiting en memoria para `/login`, `/register`, `/forgot-password` y endpoints sensibles.
+- **Límite de Subida de Archivos**: Cada usuario puede subir un máximo de 20 fotos de publicación y 10 avatares por 24 horas (`upload-rate-limit.middleware.js`), además del límite de 3MB por archivo, para evitar abuso de la cuota gratuita de Cloudflare R2.
 - **Protección CSRF**: Validación estricta de cabeceras `Origin` y `Referer` en todas las peticiones de mutación (`POST`, `PUT`, `DELETE`).
 - **Cabeceras HTTP de Seguridad**: Inyección de `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin` y `Permissions-Policy`.
 - **Almacenamiento de Contraseñas**: Cifrado irreversible mediante `bcrypt` con factor de coste de trabajo seguro.

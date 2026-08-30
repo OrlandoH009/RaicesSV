@@ -42,62 +42,109 @@
     [data-theme="light"] .mapa-section { background: var(--bg-body); }
     #mapa-leaflet { width: 100%; height: 100%; }
 
-    /* ── Filtros flotando, centrados y en una sola línea ── */
-    .mapa-filters-float {
+    /* ── Botón flotante ("FAB") que abre el panel de filtros/búsqueda
+       como una hoja modal — igual en PC y en celular, para que no
+       estorbe una barra suelta encima del mapa todo el tiempo. ── */
+    .mapa-filters-fab {
       position: absolute;
       top: 1.25rem; left: 50%;
       transform: translateX(-50%);
       z-index: 1200;
-      width: max-content;
-      max-width: min(90%, 900px); /* Evita que se deforme en monitores ultra-wide */
-      display: flex; flex-wrap: nowrap; gap: .4rem;
-      justify-content: center; align-items: center;
+      display: flex; align-items: center; gap: .5rem;
       background: rgba(10,10,10,.65);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(190,142,86,.35);
       border-radius: 50px;
-      padding: .45rem .6rem;
+      padding: .55rem 1.1rem .55rem .9rem;
+      color: var(--white);
+      font-family: var(--font-display); font-weight: 700; font-size: .8rem;
+      cursor: pointer;
       box-shadow: 0 8px 32px rgba(0,0,0,.6);
-      transition: padding .25s ease, left .35s cubic-bezier(.4, 0, .2, 1), transform .35s cubic-bezier(.4, 0, .2, 1), background .4s ease;
+      transition: background .2s, border-color .2s, transform .15s, left .35s cubic-bezier(.4, 0, .2, 1);
+    }
+    [data-theme="light"] .mapa-filters-fab {
+      background: rgba(255,253,248,.9);
+      color: var(--navy);
+      box-shadow: 0 8px 32px rgba(17,48,104,.18);
+    }
+    .mapa-filters-fab:hover { border-color: var(--gold); transform: translateX(-50%) translateY(-2px); }
+    .mapa-filters-fab svg { width: 15px; height: 15px; fill: var(--gold); flex-shrink: 0; }
+
+    /* ── Fondo oscuro detrás del panel de filtros, para cerrarlo al
+       tocar/hacer clic fuera ── */
+    .mapa-filters-sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,.55);
+      backdrop-filter: blur(3px);
+      z-index: 1650;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .mapa-filters-sheet-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+    /* ── Panel de filtros/búsqueda, ahora como hoja modal centrada
+       (en vez de una barra flotante siempre visible) ── */
+    .mapa-filters-float {
+      position: fixed;
+      top: 0; left: 50%;
+      transform: translate(-50%, -30px);
+      margin-top: calc(var(--nav-h) + .9rem);
+      width: min(92vw, 460px);
+      max-height: min(75vh, 75dvh);
+      overflow-y: auto;
+      z-index: 1700;
+      display: flex; flex-direction: column; gap: .5rem;
+      background: #242427;
+      border: 1px solid rgba(190,142,86,.35);
+      border-radius: var(--r-md);
+      padding: 1rem 1.1rem 1.2rem;
+      box-shadow: 0 16px 44px rgba(0,0,0,.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .3s cubic-bezier(.32,.72,.24,1), opacity .25s ease;
+    }
+    .mapa-filters-float.is-open {
+      transform: translate(-50%, 0);
+      opacity: 1;
+      pointer-events: auto;
     }
     [data-theme="light"] .mapa-filters-float {
-      background: rgba(255,253,248,.9);
-      box-shadow: 0 8px 32px rgba(17,48,104,.18);
+      background: #fffdf8;
+      border-color: rgba(17,48,104,.15);
+      box-shadow: 0 16px 44px rgba(17,48,104,.2);
     }
     [data-theme="light"] .filter-btn {
       color: rgba(36,33,29,.75);
       background: rgba(17,48,104,.05);
       border-color: rgba(17,48,104,.14);
     }
-    .filters-toggle {
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: rgba(190,142,86,.18);
-      border: 2px solid rgba(190,142,86,.4);
-      color: var(--gold);
-      cursor: pointer;
-      transition: background .2s, border-color .2s, transform .3s;
+
+    .filters-sheet-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .3rem;
     }
-    .filters-toggle:hover { background: rgba(190,142,86,.3); border-color: var(--gold); }
-    .filters-toggle svg { width: 13px; height: 13px; fill: currentColor; transition: transform .3s ease; }
-    .mapa-filters-float.collapsed .filters-toggle svg { transform: rotate(-90deg); }
-    
+    .filters-sheet-head__title {
+      font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+      color: var(--white);
+    }
+    [data-theme="light"] .filters-sheet-head__title { color: var(--navy); }
+    .filters-sheet-close {
+      background: none; border: none;
+      font-size: 1.5rem; line-height: 1;
+      color: rgba(255,255,255,.8);
+      opacity: .8; cursor: pointer; padding: .2rem .4rem;
+    }
+    [data-theme="light"] .filters-sheet-close { color: var(--navy); }
+    .filters-sheet-close:hover { opacity: 1; }
+
     .filters-list {
       position: relative;
-      display: flex; flex-wrap: nowrap; gap: .4rem; align-items: center;
-      overflow: hidden;
-      max-width: 900px;
-      opacity: 1;
-      transition: max-width .35s ease, opacity .25s ease, margin .35s ease;
+      display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
     }
-    .mapa-filters-float.collapsed .filters-list {
-      max-width: 0;
-      opacity: 0;
-      margin: 0;
-      pointer-events: none;
-    }
+    .filters-list .search-wrapper { flex: 1 0 100%; }
+    .filters-list .search-wrapper #mapSearchInput { flex: 1; width: auto; }
     /* Indicador deslizante (GSAP) detrás del filtro activo */
     .filter-pill {
       position: absolute;
@@ -483,7 +530,10 @@
 
     .mapa-sidebar__hero {
       position: relative;
-      padding: 1.75rem 1.5rem 1rem;
+      /* Padding superior extra para que el botón flotante "Volver a
+         categorías" (fixed, arriba a la izquierda) no quede encima
+         de la imagen/título del sidebar. */
+      padding: calc(1.75rem + 2.75rem) 1.5rem 1rem;
       flex-shrink: 0;
     }
     .mapa-sidebar__image {
@@ -618,7 +668,7 @@
 
     /* [COMPUTADORAS] Empujar elementos cuando la sidebar se abre para evitar colisiones */
     @media (min-width: 901px) {
-      .mapa-section.sidebar-open .mapa-filters-float { 
+      .mapa-section.sidebar-open .mapa-filters-fab {
         left: calc(50% + 200px); /* El cálculo usa exactamente la mitad del ancho de la sidebar (400px / 2 = 200px) */
       }
       .mapa-section.sidebar-open .mapa-count-float { 
@@ -631,8 +681,8 @@
       .mapa-sidebar {
         width: 440px; /* Más espacioso para pantallas gigantes */
       }
-      .mapa-section.sidebar-open .mapa-filters-float { 
-        left: calc(50% + 220px); 
+      .mapa-section.sidebar-open .mapa-filters-fab {
+        left: calc(50% + 220px);
       }
       .mapa-section.sidebar-open .mapa-count-float { 
         left: calc(2rem + 440px); 
@@ -655,21 +705,16 @@
         top: calc(var(--nav-h) + .6rem);
       }
 
+      .mapa-filters-fab {
+        top: 3.1rem;
+        font-size: .75rem;
+        padding: .5rem 1rem .5rem .8rem;
+      }
       .mapa-filters-float {
-        top: 3.1rem; left: .6rem; right: .6rem;
-        transform: none;
-        width: auto; max-width: none;
-        justify-content: flex-start;
-        gap: .35rem; padding: .35rem .5rem;
-        border-radius: 30px;
+        width: min(94vw, 420px);
+        margin-top: calc(var(--nav-h) + 3.9rem);
       }
-      .filters-list {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .filters-list::-webkit-scrollbar { display: none; }
-      .filter-btn { font-size: .68rem; padding: .3rem .7rem; flex-shrink: 0; }
+      .filter-btn { font-size: .68rem; padding: .3rem .7rem; }
       .mapa-count-float { left: .75rem; bottom: .75rem; font-size: .78rem; }
     }
 
@@ -699,7 +744,7 @@
       .mapa-sidebar__btn { padding: 0.55rem 0.8rem; font-size: 0.75rem; }
 
       /* Ajuste dinámico de las posiciones de los filtros por el cambio de ancho */
-      .mapa-section.sidebar-open .mapa-filters-float { left: calc(50% + 180px); }
+      .mapa-section.sidebar-open .mapa-filters-fab { left: calc(50% + 180px); }
       .mapa-section.sidebar-open .mapa-count-float { left: calc(2rem + 360px); }
 
       /* 3. Ajustes en los Popups de Leaflet (por si se abren allí) */
@@ -768,17 +813,17 @@
       }
 
       /* Recalcular posición de filtros y contador por la sidebar más angosta (320px) */
-      .mapa-section.sidebar-open .mapa-filters-float { 
-        left: calc(50% + 160px); 
+      .mapa-section.sidebar-open .mapa-filters-fab {
+        left: calc(50% + 160px);
       }
-      .mapa-section.sidebar-open .mapa-count-float { 
-        left: calc(1.5rem + 320px); 
+      .mapa-section.sidebar-open .mapa-count-float {
+        left: calc(1.5rem + 320px);
       }
 
-      /* Reducir también los filtros flotantes para que no colisionen */
-      .mapa-filters-float {
+      /* Reducir también el botón de filtros para que no colisione */
+      .mapa-filters-fab {
         top: 0.75rem;
-        padding: 0.35rem 0.5rem;
+        padding: 0.4rem .9rem .4rem .7rem;
       }
       .filter-btn {
         font-size: 0.7rem;
@@ -855,55 +900,41 @@
   flex: 1;
 }
 
-/* Botón flotante de geolocalización */
+/* Botón flotante de geolocalización — círculo simple con ícono, sin
+   texto, al estilo del botón "Mi ubicación" de Google Maps. Mismo
+   aspecto en PC y celular; su posición no depende de si hay un
+   sidebar/panel abierto porque al pulsarlo se cierran solos (ver JS). */
 .btn-geo-float {
   position: absolute;
-  bottom: 120px; /* Subido levemente para evitar pisar el control de zoom grande */
+  bottom: 96px;
   right: 12px;
-  z-index: 1000;
-  width: 52px; height: 52px;
-  background-color: #1e1e1e;
-  border: 1.5px solid #be8e56;
-  border-radius: 50%; /* Convertido a círculo para mejor ergonomía */
+  /* Por encima del sidebar y de la hoja de filtros: así el botón sigue
+     siendo visible y clicable aunque haya algo abierto encima — al
+     pulsarlo, ese panel se cierra solo (ver JS). */
+  z-index: 1800;
+  width: 42px; height: 42px;
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  transition: background-color .2s, box-shadow .2s, transform .15s;
 }
+.btn-geo-float:hover { background-color: #f2f2f2; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+.btn-geo-float:active { transform: scale(.94); }
 
 .btn-geo-float__icon {
-  font-size: 24px; /* Icono de objetivo/mira más grande */
+  width: 22px; height: 22px;
+  fill: #4a4a4a;
 }
 
-/* En escritorio el texto queda oculto (solo ícono + tooltip nativo vía
-   title/aria-label). En pantallas táctiles no hay :hover para mostrar
-   un tooltip, así que el botón se convierte en una píldora con el
-   texto "¿Dónde estoy?" siempre visible. */
-.btn-geo-float__label {
-  display: none;
-}
-
-.btn-geo-float:hover {
-  background-color: #2a2a2a;
-  transform: scale(1.05);
-
-}
+.btn-geo-float__label { display: none; }
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
   .btn-geo-float {
-    width: auto;
-    height: auto;
-    border-radius: 30px;
-    padding: .55rem .9rem .55rem .7rem;
-    gap: .45rem;
-  }
-  .btn-geo-float__icon { font-size: 19px; }
-  .btn-geo-float__label {
-    display: inline-block;
-    color: #f0e6d3;
-    font-size: .82rem;
-    font-weight: 600;
-    white-space: nowrap;
+    bottom: 84px;
+    right: .75rem;
   }
 }
 
@@ -921,15 +952,6 @@
     max-width: 85vw;
   }
   
-  .mapa-filters-float {
-    top: .6rem; left: .6rem; right: .6rem;
-    transform: none;
-    width: auto; max-width: none;
-    justify-content: flex-start;
-    gap: .35rem; padding: .45rem .6rem;
-    border-radius: 30px;
-  }
-
   .filter-btn {
     font-size: .8rem; /* Mantiene legibilidad táctil en pantallas chicas */
     padding: .4rem .9rem;
@@ -943,10 +965,6 @@
     padding: .5rem 1rem;
   }
 
-  .btn-geo-float {
-    bottom: 80px; /* Se reposiciona para no chocar con atribuciones o barras inferiores */
-    right: .75rem;
-  }
 }
 /* ═══════════════════════════════════════════════════
    OPTIMIZACIÓN ULTRA-RESPONSIVE PARA MÓVILES (≤ 600px)
@@ -1035,12 +1053,15 @@
 
   /* 3. Reacomodo de Elementos Flotantes para evitar colisiones */
   
-  /* Filtros superiores: Más compactos y con scroll suave con el dedo */
+  /* Botón de filtros: más compacto en pantallas pequeñas (el "top" se
+     hereda del breakpoint de 900px para no chocar con "Volver") */
+  .mapa-filters-fab {
+    font-size: 0.72rem;
+    padding: 0.4rem 0.8rem 0.4rem 0.65rem;
+  }
   .mapa-filters-float {
-    top: 0.5rem;
-    left: 0.5rem;
-    right: 0.5rem;
-    padding: 0.3rem 0.5rem;
+    width: min(94vw, 380px);
+    margin-top: calc(var(--nav-h) + 3.3rem);
   }
 
   .filter-btn {
@@ -1063,17 +1084,6 @@
     bottom: auto; /* Quitamos del bottom para que no choque con la sidebar */
     font-size: 0.72rem !important;
     padding: 0.4rem 0.8rem !important;
-  }
-
-  /* El botón de geolocalización sube para no quedar debajo de la sidebar móvil */
-  .btn-geo-float {
-    bottom: calc(72vh + 15px); /* Si la sidebar está abierta, queda justo arriba (usa el mismo tope que max-height de la sidebar) */
-    right: 0.5rem;
-  }
-  
-  /* Si la sidebar está cerrada, bajamos el botón de geo para que sea ergonómico */
-  .mapa-section:not(.sidebar-open) .btn-geo-float {
-    bottom: 20px;
   }
 
   /* 4. Popups de Leaflet optimizados para pantallas diminutas */
@@ -1179,13 +1189,15 @@
 [data-theme="light"] .search-clear:hover {
   color: var(--navy);
 }
-/* ── Lista de resultados de búsqueda (dentro de la barra) ── */
+/* ── Lista de resultados de búsqueda (dentro del panel de filtros) ──
+   Antes flotaba en "position: absolute" debajo de la barra suelta;
+   ahora el panel es una hoja modal con scroll propio, así que la lista
+   vive en el flujo normal (in-flow), justo bajo el buscador. */
 .search-results-container {
-  position: absolute;
-  top: calc(100% + 6px);  /* Justo debajo de la barra */
-  left: 0;
+  position: static;
   width: 100%;
-  max-height: 320px;
+  margin-top: .5rem;
+  max-height: 280px;
   overflow-y: auto;
   background: rgba(20, 18, 16, 0.97);
   backdrop-filter: blur(10px);
@@ -1193,7 +1205,6 @@
   border-radius: 14px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
   padding: 0.4rem 0;
-  z-index: 9999;  /* Muy alto para estar sobre el mapa */
   display: none;  /* Oculto por defecto */
 }
 [data-theme="light"] .search-results-container {

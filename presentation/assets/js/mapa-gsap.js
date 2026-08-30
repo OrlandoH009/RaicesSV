@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const filtersFloat = document.getElementById('mapaFiltersFloat');
   const filtersList = document.getElementById('filtersList');
-  const filtersToggle = document.getElementById('filtersToggle');
+  const filtersToggle = document.getElementById('mapaFiltersFab');
   const buttons = Array.from(document.querySelectorAll('.filter-btn'));
-  const searchWrapper = document.querySelector('.search-wrapper');
 
   /* ── Indicador deslizante detrás del filtro activo ── */
   if (filtersList && buttons.length) {
@@ -73,18 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ── Entrada escalonada de la barra de filtros al cargar ── */
-  if (!prefersReducedMotion && filtersFloat) {
-    const piezas = [filtersToggle, searchWrapper, ...buttons].filter(Boolean);
-    // clearProps al terminar por la misma razón: varios de estos elementos
-    // usan transform propio en :hover/:focus vía CSS.
-    gsap.from(filtersFloat, {
+  /* ── Entrada del botón de filtros al cargar ── */
+  /* El panel (filtersFloat) ahora es una hoja modal oculta por defecto
+     (CSS controla su opacity/transform vía .is-open), así que sólo se
+     anima el botón flotante que la abre — animar el panel oculto dejaría
+     estilos inline de GSAP que taparían la clase .is-open al abrirlo. */
+  if (!prefersReducedMotion && filtersToggle) {
+    gsap.from(filtersToggle, {
       opacity: 0, y: -18, duration: .5, ease: 'power2.out',
-      onComplete: () => gsap.set(filtersFloat, { clearProps: 'transform' })
-    });
-    gsap.from(piezas, {
-      opacity: 0, y: -10, duration: .45, stagger: .04, delay: .15, ease: 'power2.out',
-      onComplete: () => gsap.set(piezas, { clearProps: 'transform' })
+      onComplete: () => gsap.set(filtersToggle, { clearProps: 'transform' })
     });
   }
 

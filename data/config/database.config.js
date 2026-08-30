@@ -215,6 +215,25 @@ const ensurePublicationLocationColumns = () => {
     return Promise.all(migrations.map(runMigration));
 };
 
+const ensureUploadLogsTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS upload_logs (
+            id_upload_log INT AUTO_INCREMENT PRIMARY KEY,
+            id_user INT NOT NULL,
+            type ENUM('publication', 'avatar') NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+            INDEX idx_upload_logs_user_type_created (id_user, type, created_at)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla upload_logs:', err);
+            }
+            resolve();
+        }
+    );
+});
+
 db.getConnection((err, connection) => {
     if (err) {
         console.error('No se pudo conectar a MySQL:', err);
@@ -247,6 +266,10 @@ db.getConnection((err, connection) => {
         })
         .then(() => {
             console.log('Columnas de ubicación (lat/lng) de publicaciones verificadas');
+            return ensureUploadLogsTable();
+        })
+        .then(() => {
+            console.log('Tabla de registro de subidas (upload_logs) verificada');
         })
         .catch((error) => {
             console.error('Error al verificar la migración de perfil:', error);

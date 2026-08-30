@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" }
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "presentation/assets/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/assets/media/(publications|avatars)/(.*)", "dest": "server.js" },
+    { "src": "/assets/(.*)", "dest": "/presentation/assets/$1" },
     { "src": "/(.*)", "dest": "server.js" }
   ]
 }

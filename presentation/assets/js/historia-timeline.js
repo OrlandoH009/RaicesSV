@@ -76,7 +76,7 @@
 
   function openModal(ev) {
     currentOpenId = ev.id;
-    modalImg.src = ev.img;
+    modalImg.src = ev.img || '../assets/media/publications/default-publication.svg';
     modalImg.alt = ev.title;
     modalEra.textContent = ev.eraLabel;
     modalTitle.textContent = ev.title;

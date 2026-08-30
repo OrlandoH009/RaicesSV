@@ -7,7 +7,7 @@ const createPublication = async (req, res) => {
         }
 
         const { title, description, location, lat, lng } = req.body;
-        const imagePath = `/assets/media/publications/${req.file.filename}`;
+        const imagePath = req.file.publicUrl;
 
         const publication = await publicationService.createPublication(req.session.user.id, {
             title,
