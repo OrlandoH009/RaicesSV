@@ -876,3 +876,9 @@ window.addEventListener('pageshow', (event) => {
     if (isOverlayOpen()) e.preventDefault();
   }, { passive: false });
 })();
+
+/* ── Vercel Speed Insights ── */
+(function() {
+  // Initialize Speed Insights queue for Vercel
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+})();
