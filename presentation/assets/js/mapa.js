@@ -506,7 +506,7 @@ const LANDMARKS = [
     coords: [13.3500, -88.4500]
   },
   {
-    id: 84, cat: 'evento', emoji: '🎪', color: '#52a0e0',
+    id: 84, cat: 'gastronomia', emoji: '🫓', color: '#e05252',
     nombre: 'Día Nacional de la Pupusa',
     lugar: 'Olocuilta, La Paz',
     coords: [13.5686, -89.1197]
@@ -608,7 +608,7 @@ const LANDMARKS = [
     coords: [13.1975, -88.0578]
   },
   {
-    id: 101, cat: 'evento', emoji: '🌽', color: '#52a0e0',
+    id: 101, cat: 'gastronomia', emoji: '🌽', color: '#e05252',
     nombre: 'Festival del Maíz de Suchitoto',
     lugar: 'Suchitoto, Cuscatlán',
     desc: 'Tradición de más de 30 años que agradece la cosecha del maíz con desfile de carrozas, coronación de la Reina del Maíz, marimba y comida típica.',
