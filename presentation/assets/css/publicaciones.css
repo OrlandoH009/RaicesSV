@@ -169,7 +169,7 @@
     /* ── Cuadrícula estilo Instagram: recuadros apretados ── */
     .publications-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 4px;
       position: relative;
       z-index: 2;
@@ -1519,9 +1519,30 @@ body {
   border-top: 1px solid rgba(190, 142, 86, 0.2);
   padding: 4rem 2rem;
 }
+/* En modo oscuro (el de por defecto) el footer aquí usa fondo negro, distinto
+   al resto de las páginas (que mantienen el footer siempre claro). Los
+   colores de texto que vienen de global.css (.footer__name, .footer__copy,
+   .footer__disclaimer, .footer__links a) están pensados para un fondo claro
+   — navy y grises oscuros — así que sobre este fondo negro quedaban casi
+   invisibles. Se aclaran solo para esta página. */
+.footer .footer__name,
+.footer .footer__links a {
+  color: var(--white);
+}
+.footer .footer__links a:hover { color: var(--gold); }
+.footer .footer__copy { color: rgba(255, 255, 255, .65); }
+.footer .footer__disclaimer { color: rgba(255, 255, 255, .45); }
+
 [data-theme="light"] .footer {
   background-color: var(--footer-bg-cur, #f3ecdd) !important;
 }
+[data-theme="light"] .footer .footer__name,
+[data-theme="light"] .footer .footer__links a {
+  color: var(--navy);
+}
+[data-theme="light"] .footer .footer__links a:hover { color: var(--gold); }
+[data-theme="light"] .footer .footer__copy { color: #555; }
+[data-theme="light"] .footer .footer__disclaimer { color: #777; }
 /* ══════════════════════════════════
    BLOQUEO ELEGANTE PARA INVITADOS
    ══════════════════════════════════ */

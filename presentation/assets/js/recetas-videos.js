@@ -16,7 +16,7 @@
 
 const RECETAS_VIDEOS = {
   pupusas: {
-    id: 'Bm9pcy9BF-g',
+    id: 'CIi9gnXlJWs',
     titulo: 'Cómo hacer Pupusas',
     caption: 'Aprende la técnica tradicional para palmear y rellenar pupusas como en El Salvador.'
   },
