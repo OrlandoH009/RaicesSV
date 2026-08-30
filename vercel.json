@@ -6,7 +6,11 @@
   ],
   "routes": [
     { "src": "/assets/media/(publications|avatars)/(.*)", "dest": "server.js" },
-    { "src": "/assets/(.*)", "dest": "/presentation/assets/$1" },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/presentation/assets/$1",
+      "headers": { "cache-control": "public, max-age=604800" }
+    },
     { "src": "/(.*)", "dest": "server.js" }
   ]
 }
