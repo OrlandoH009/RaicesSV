@@ -5,7 +5,7 @@ const updatePublication = async (req, res) => {
         const { id } = req.params;
         const { title, description, location, lat, lng } = req.body;
 
-        const imagePath = req.file ? `/assets/media/publications/${req.file.filename}` : undefined;
+        const imagePath = req.file ? req.file.publicUrl : undefined;
 
         const publication = await publicationService.updatePublication(id, req.session.user, {
             title,

@@ -10,7 +10,7 @@ const uploadAvatar = async (req, res) => {
             return res.status(400).send('No se recibió ninguna imagen.');
         }
 
-        const avatarUrl = `/assets/media/avatars/${req.file.filename}`;
+        const avatarUrl = req.file.publicUrl;
         const updated = await authService.setLocalAvatar(req.session.user.id, avatarUrl);
 
         syncSessionAvatar(req, updated.avatarUrl);
