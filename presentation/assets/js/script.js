@@ -2,6 +2,104 @@
   Salvadorean Roots — script.js   (compartido en todas las páginas)
    ============================================================ */
 
+/* ── Toast global de notificaciones (reemplaza alert()) ──
+   Disponible como window.showToast(message, type) en cualquier página
+   que cargue este archivo. type: 'success' | 'error' | 'info' */
+(function () {
+  const ICONS = { success: '✓', error: '✕', info: 'ℹ' };
+  let container = null;
+
+  function getContainer() {
+    if (container && document.body.contains(container)) return container;
+    container = document.createElement('div');
+    container.id = 'sr-toast-container';
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(container);
+    return container;
+  }
+
+  function dismiss(el) {
+    if (!el.isConnected) return;
+    el.classList.remove('is-visible');
+    el.classList.add('is-leaving');
+    setTimeout(() => el.remove(), 260);
+  }
+
+  window.showToast = function showToast(message, type) {
+    if (!message) return;
+    const kind = ICONS[type] ? type : 'info';
+
+    const el = document.createElement('div');
+    el.className = 'sr-toast sr-toast--' + kind;
+    el.innerHTML =
+      '<span class="sr-toast__icon">' + ICONS[kind] + '</span>' +
+      '<span class="sr-toast__text"></span>';
+    el.querySelector('.sr-toast__text').textContent = message;
+
+    getContainer().appendChild(el);
+    requestAnimationFrame(() => el.classList.add('is-visible'));
+
+    const timer = setTimeout(() => dismiss(el), 3200);
+    el.addEventListener('click', () => { clearTimeout(timer); dismiss(el); });
+  };
+})();
+
+/* ── Confirmación global (reemplaza window.confirm) ──
+   window.showConfirm(message, options) devuelve una Promise<boolean>.
+   options: { title, confirmText, cancelText, danger } */
+(function () {
+  window.showConfirm = function showConfirm(message, options = {}) {
+    const {
+      title = '¿Estás seguro?',
+      confirmText = 'Confirmar',
+      cancelText = 'Cancelar',
+      danger = true
+    } = options;
+
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'sr-confirm-overlay';
+      overlay.innerHTML = `
+        <div class="sr-confirm" role="alertdialog" aria-modal="true" aria-labelledby="sr-confirm-title">
+          <h3 class="sr-confirm__title" id="sr-confirm-title"></h3>
+          <p class="sr-confirm__text"></p>
+          <div class="sr-confirm__actions">
+            <button type="button" class="sr-confirm__btn sr-confirm__btn--cancel"></button>
+            <button type="button" class="sr-confirm__btn sr-confirm__btn--confirm${danger ? ' is-danger' : ''}"></button>
+          </div>
+        </div>
+      `;
+      overlay.querySelector('.sr-confirm__title').textContent = title;
+      overlay.querySelector('.sr-confirm__text').textContent = message;
+      overlay.querySelector('.sr-confirm__btn--cancel').textContent = cancelText;
+      overlay.querySelector('.sr-confirm__btn--confirm').textContent = confirmText;
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => overlay.classList.add('is-open'));
+
+      const settle = (result) => {
+        overlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+        setTimeout(() => overlay.remove(), 220);
+        document.removeEventListener('keydown', onKeydown);
+        resolve(result);
+      };
+
+      const onKeydown = (e) => {
+        if (e.key === 'Escape') settle(false);
+        if (e.key === 'Enter') settle(true);
+      };
+      document.addEventListener('keydown', onKeydown);
+
+      overlay.querySelector('.sr-confirm__btn--cancel').addEventListener('click', () => settle(false));
+      overlay.querySelector('.sr-confirm__btn--confirm').addEventListener('click', () => settle(true));
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) settle(false); });
+    });
+  };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ── Navbar scroll effect ── */
@@ -141,23 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const authContainer = document.querySelector('.drawer-auth');
-  const showNotice = (message) => {
-    let toast = document.getElementById('raices-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'raices-toast';
-      toast.style.cssText = 'position:fixed; right:1rem; top:1rem; z-index:9999; background:#1f4d3f; color:#fff; padding:0.8rem 1rem; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,0.2); opacity:0; transform:translateY(-8px); transition:all .25s ease; pointer-events:none;';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';  
-    clearTimeout(showNotice.timeout);
-    showNotice.timeout = setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-8px)';
-    }, 2600);
-  };
+  const showNotice = (message, type = 'success') => window.showToast(message, type);
 
   const renderAuthMenu = async (overrideUser) => {
     if (!authContainer) return;
@@ -265,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showNotice(data.message || 'Sesión cerrada correctamente');
       window.location.href = data.redirect || '/login.html?loggedout=1';
     } catch (error) {
-      showNotice('No se pudo cerrar la sesión');
+      showNotice('No se pudo cerrar la sesión', 'error');
     }
   });
 
@@ -277,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotice('Tu cuenta fue eliminada correctamente');
   }
   if (params.get('suspendido') === '1') {
-    showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.');
+    showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.', 'error');
   }
 
   /* ── Verificar protección de rutas ── */

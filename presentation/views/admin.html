@@ -45,6 +45,11 @@
           <span>Apelaciones</span>
           <span class="admin-nav__badge" id="appealsBadge" hidden>0</span>
         </button>
+        <button type="button" class="admin-nav__item" data-section="comentarios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+          <span>Comentarios</span>
+          <span class="admin-nav__badge" id="commentsBadge" hidden>0</span>
+        </button>
 
         <div class="admin-nav__indicator" id="adminNavIndicator"></div>
       </nav>
@@ -264,6 +269,18 @@
 
         <div class="admin-view" id="apelaciones-view-detail">
           <div class="admin-detail-card" id="appealDetailCard"></div>
+        </div>
+      </section>
+
+      <section class="admin-section" id="section-comentarios" data-section-panel="comentarios">
+
+        <div class="admin-view is-active" id="comentarios-view-list">
+          <p class="admin-team-header__desc">Comentarios bloqueados automáticamente por lenguaje inapropiado. Apruébalos si fue un error, o elimínalos definitivamente.</p>
+
+          <div class="admin-comments-list" id="commentsListBody"></div>
+          <div class="admin-empty-state" id="commentsEmptyState" hidden>
+            <span>No hay comentarios reportados por revisar.</span>
+          </div>
         </div>
       </section>
 

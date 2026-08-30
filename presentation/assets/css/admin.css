@@ -603,6 +603,16 @@
   color: var(--text-main);
   opacity: .6;
 }
+.admin-pub-card__stats {
+  display: flex;
+  gap: .8rem;
+  margin-top: .5rem;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: .75;
+}
+.admin-pub-card__stats span { display: inline-flex; align-items: center; gap: .3rem; }
 
 /* ═══════════════════ EQUIPO ═══════════════════ */
 .admin-team-header {
@@ -1063,6 +1073,71 @@
   font-size: .72rem;
   color: var(--text-main);
   opacity: .5;
+}
+
+/* ═══════════════════ COMENTARIOS REPORTADOS ═══════════════════ */
+.admin-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.admin-comment-card {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-surface-border);
+  border-left: 3px solid var(--admin-danger);
+  border-radius: var(--r-md);
+  padding: 1rem 1.2rem;
+}
+
+.admin-comment-card__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.admin-comment-card__author {
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--text-main);
+}
+
+.admin-comment-card__publication {
+  font-size: .78rem;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+.admin-comment-card__date {
+  font-size: .72rem;
+  color: var(--text-main);
+  opacity: .5;
+}
+
+.admin-comment-card__text {
+  font-size: .88rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: var(--search-bg);
+  border-radius: var(--r-sm);
+  padding: .7rem .9rem;
+  white-space: pre-wrap;
+}
+
+.admin-comment-card__reason {
+  font-size: .76rem;
+  color: var(--admin-danger);
+  font-weight: 700;
+}
+
+.admin-comment-card__actions {
+  display: flex;
+  gap: .6rem;
 }
 
 /* ═══════════════════ DETALLE DE UNA APELACIÓN ═══════════════════ */
