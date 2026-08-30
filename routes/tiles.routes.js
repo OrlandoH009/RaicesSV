@@ -73,7 +73,12 @@ router.get('/api/tiles/:z/:x/:y', limitarTilesPorIp, async (req, res) => {
         }
 
         res.setHeader('Content-Type', upstreamRes.headers.get('content-type') || 'image/png');
-        res.setHeader('Cache-Control', upstreamRes.headers.get('cache-control') || 'public, max-age=21600');
+        // max-age: cuánto lo guarda el navegador. s-maxage: cuánto lo guarda
+        // la CDN de Vercel. Sin s-maxage, Vercel nunca cachea la respuesta de
+        // esta función -cada usuario que pide el mismo tile vuelve a invocar
+        // la función y a pedírselo a Stadia, duplicando el tráfico. El estilo
+        // del mapa no cambia, así que un tile ya descargado sirve por días.
+        res.setHeader('Cache-Control', 'public, max-age=21600, s-maxage=604800, stale-while-revalidate=86400');
 
         const buffer = Buffer.from(await upstreamRes.arrayBuffer());
         res.end(buffer);
