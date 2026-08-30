@@ -64,10 +64,19 @@
     <section class="mapa-section reveal" style="transition-delay:.1s" id="mapaSection">
       <div id="mapa-leaflet"></div>
 
-      <div class="mapa-filters-float" id="mapaFiltersFloat">
-        <button class="filters-toggle" id="filtersToggle" type="button" data-i18n-attr="aria-label:map.filters.toggle" aria-expanded="true">
-          <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
-        </button>
+      <!-- Botón flotante que abre el panel de filtros/búsqueda como una hoja modal
+           (en vez de una barra suelta encima del mapa) — igual en PC y en celular. -->
+      <button class="mapa-filters-fab" id="mapaFiltersFab" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="mapaFiltersFloat" data-i18n-attr="aria-label:cat.filters.title">
+        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+        <span data-i18n="cat.filters.open">Filtros</span>
+      </button>
+      <div class="mapa-filters-sheet-overlay" id="mapaFiltersSheetOverlay"></div>
+
+      <div class="mapa-filters-float" id="mapaFiltersFloat" role="dialog" aria-modal="false" aria-label="Filtros" data-i18n-attr="aria-label:cat.filters.title">
+        <div class="filters-sheet-head">
+          <span class="filters-sheet-head__title" data-i18n="cat.filters.title">Filtros</span>
+          <button class="filters-sheet-close" id="mapaFiltersClose" type="button" aria-label="Cerrar filtros" data-i18n-attr="aria-label:nav.cerrar">&times;</button>
+        </div>
         <div class="filters-list" id="filtersList">
           <!-- Buscador -->
           <div class="search-wrapper">
@@ -94,7 +103,7 @@
             <span class="filter-dot dot-leyenda"></span> <span data-i18n="nav.leyendas">Leyendas</span>
           </button>
         </div>
-        <!-- 🔽 Lista de resultados de búsqueda (AHORA DENTRO DE LA BARRA) -->
+        <!-- 🔽 Lista de resultados de búsqueda (AHORA DENTRO DEL PANEL) -->
         <div class="search-results-container" id="searchResultsContainer" style="display:none;">
           <ul class="search-results-list" id="searchResultsList"></ul>
         </div>
@@ -139,10 +148,9 @@
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
       </button>
 
-      <!-- Botón de geolocalización -->
+      <!-- Botón de geolocalización, estilo "ubicación actual" de Google Maps -->
       <button id="btn-mi-ubicacion" class="btn-geo-float" data-i18n-attr="aria-label:map.geo.label,title:map.geo.label">
-        <span class="btn-geo-float__icon">🎯</span>
-        <span class="btn-geo-float__label" data-i18n="map.geo.label">¿Dónde estoy?</span>
+        <svg class="btn-geo-float__icon" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.94 3H23v2h-2.06A9.005 9.005 0 0 1 13 20.94V23h-2v-2.06A9.005 9.005 0 0 1 3.06 13H1v-2h2.06A9.005 9.005 0 0 1 11 3.06V1h2v2.06A9.005 9.005 0 0 1 20.94 11zM12 5a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/></svg>
       </button>
       
     </section>
