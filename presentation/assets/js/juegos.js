@@ -28,6 +28,134 @@ function jt(key, fallback) {
   return fallback;
 }
 
+/* Joystick virtual compartido: antes varios juegos movían al jugador hacia
+   el punto exacto donde tocabas la pantalla (sentía "click a donde quiero
+   ir" en vez de un control continuo). Este joystick se ancla donde tocás
+   y devuelve un vector normalizado (-1..1 en cada eje) mientras arrastrás,
+   igual que el stick analógico de un control — así el jugador no necesita
+   ver dónde está su personaje para saber a dónde tocar. */
+function createVirtualJoystick(canvas, canvasWrap, options = {}) {
+  if (!canvas || !canvasWrap) return { getVector: () => ({ x: 0, y: 0 }), isActive: () => false };
+
+  // Modo "fijo": en vez de aparecer donde tocás, el joystick vive anclado
+  // siempre abajo a la izquierda (como el stick de un control físico), así
+  // el jugador puede apoyar el pulgar ahí sin tener que mirar la pantalla.
+  const fixed = !!options.fixed;
+
+  const base = document.createElement('div');
+  base.className = fixed ? 'virtual-joystick virtual-joystick--fixed' : 'virtual-joystick';
+  const knob = document.createElement('div');
+  knob.className = 'virtual-joystick__knob';
+  base.appendChild(knob);
+  canvasWrap.appendChild(base);
+
+  const maxRadius = 34;
+  // Radio de "agarre": en modo fijo, cualquier toque que empiece dentro de
+  // este radio alrededor del centro del joystick lo activa (más grande que
+  // el círculo visual para que sea fácil de encontrar con el pulgar sin
+  // mirar).
+  const catchRadius = 62;
+  let dragging = false;
+  let originX = 0, originY = 0;
+  let vec = { x: 0, y: 0 };
+  let activeTouchId = null;
+
+  function setKnob(dx, dy) {
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  }
+
+  function pointFromEvent(e) {
+    if (e.touches && e.touches.length) {
+      if (activeTouchId != null) {
+        for (let i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === activeTouchId) return e.touches[i];
+        }
+      }
+      return e.touches[0];
+    }
+    return e;
+  }
+
+  function withinFixedZone(clientX, clientY) {
+    const r = base.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = clientX - cx, dy = clientY - cy;
+    return Math.sqrt(dx * dx + dy * dy) <= catchRadius;
+  }
+
+  function onDown(e) {
+    const pt0 = e.changedTouches ? e.changedTouches[0] : (e.touches && e.touches[0]) || e;
+    if (fixed && !withinFixedZone(pt0.clientX, pt0.clientY)) return;
+    e.preventDefault();
+    dragging = true;
+    if (e.changedTouches) activeTouchId = e.changedTouches[0].identifier;
+    base.classList.add('is-active');
+    const r = canvasWrap.getBoundingClientRect();
+    if (fixed) {
+      const br = base.getBoundingClientRect();
+      originX = br.left - r.left + br.width / 2;
+      originY = br.top - r.top + br.height / 2;
+    } else {
+      const pt = pointFromEvent(e);
+      originX = pt.clientX - r.left;
+      originY = pt.clientY - r.top;
+      base.style.left = originX + 'px';
+      base.style.top = originY + 'px';
+    }
+    onMove(e);
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const pt = pointFromEvent(e);
+    const r = canvasWrap.getBoundingClientRect();
+    let dx = (pt.clientX - r.left) - originX;
+    let dy = (pt.clientY - r.top) - originY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > maxRadius) {
+      dx = (dx / dist) * maxRadius;
+      dy = (dy / dist) * maxRadius;
+    }
+    setKnob(dx, dy);
+    vec = { x: dx / maxRadius, y: dy / maxRadius };
+  }
+
+  function onUp(e) {
+    if (dragging && fixed && e && e.changedTouches && activeTouchId != null) {
+      const stillTouching = e.touches && Array.from(e.touches).some(t => t.identifier === activeTouchId);
+      if (stillTouching) return;
+    }
+    dragging = false;
+    activeTouchId = null;
+    base.classList.remove('is-active');
+    if (!fixed) {
+      base.style.left = '';
+      base.style.top = '';
+    }
+    setKnob(0, 0);
+    vec = { x: 0, y: 0 };
+  }
+
+  // En modo fijo el joystick tiene su propia zona (abajo-izquierda) y debe
+  // seguir recibiendo touchmove/touchend aunque el dedo se arrastre fuera
+  // del canvas, así que escuchamos en window en vez de solo en el canvas.
+  const moveTarget = fixed ? window : canvas;
+  const upTarget = fixed ? window : canvas;
+  const downTarget = fixed ? canvasWrap : canvas;
+
+  downTarget.addEventListener('touchstart', onDown, { passive: false });
+  moveTarget.addEventListener('touchmove', onMove, { passive: false });
+  upTarget.addEventListener('touchend', onUp, { passive: false });
+  upTarget.addEventListener('touchcancel', onUp, { passive: false });
+  downTarget.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+
+  return { getVector: () => vec, isActive: () => dragging, el: base };
+}
+
 /* ══════════════════════════════════════════════════════════
    GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
    ══════════════════════════════════════════════════════════ */
@@ -176,7 +304,8 @@ if (window.visualViewport) {
   let rafId = null;
   let totalLives = 3;
   let isGameVisible = true;
-  
+  let tutorialMode = false;
+
   hud.innerHTML = `
     <div class="hud-item">
       <span>${jt('jue.hud.points', 'Puntos')}</span>
@@ -196,6 +325,7 @@ if (window.visualViewport) {
     </div>`;
 
   function renderLives(count){
+    if(tutorialMode) return `<span class="heart">❤️♾️</span>`;
     const hearts = [];
     for(let i = 0; i < totalLives; i++){
       const active = i < count;
@@ -211,7 +341,7 @@ if (window.visualViewport) {
     const levelEl = document.getElementById('p-level');
     if(scoreEl) scoreEl.textContent = score;
     if(livesEl) livesEl.innerHTML = renderLives(lives);
-    if(timeEl) timeEl.textContent = Math.max(0, timeLeft);
+    if(timeEl) timeEl.textContent = tutorialMode ? '∞' : Math.max(0, timeLeft);
     if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? jt('jue.diff.easy', '🟢 Fácil') : jt('jue.diff.hard', '🔴 Difícil');
   }
 
@@ -281,7 +411,6 @@ if (window.visualViewport) {
   }
 
   // ================= MODO TUTORIAL =================
-  let tutorialMode = false;
   let tutorialStep = -1;
   let tutorialWaiting = false;
   const tutorialSteps = [
@@ -958,15 +1087,15 @@ if (window.visualViewport) {
   }
 
   const top = {
-    body: Bodies.circle(150, 240, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
+    body: Bodies.circle(canvas.width/2, 140, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
     color: '#D4A373'
   };
-  
+
   const bottom = {
-    body: Bodies.circle(550, 240, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
+    body: Bodies.circle(canvas.width/2, canvas.height - 140, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
@@ -982,25 +1111,12 @@ if (window.visualViewport) {
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-  // Control táctil para el jugador 1 (WASD): arrastrá el dedo y el trompo
-  // se mueve hacia donde apuntás. Sin esto el juego era imposible de jugar
-  // en celular, ya que solo respondía al teclado.
-  let touchTarget = null;
-  function updateTouchTarget(e){
-    if (!e.touches || !e.touches.length) return;
-    e.preventDefault();
-    const r = canvas.getBoundingClientRect();
-    const t = e.touches[0];
-    touchTarget = {
-      x: (t.clientX - r.left) * (canvas.width / r.width),
-      y: (t.clientY - r.top) * (canvas.height / r.height)
-    };
-    notifyTutorial('move');
-  }
-  canvas.addEventListener('touchstart', updateTouchTarget, { passive: false });
-  canvas.addEventListener('touchmove', updateTouchTarget, { passive: false });
-  canvas.addEventListener('touchend', () => { touchTarget = null; }, { passive: false });
-  canvas.addEventListener('touchcancel', () => { touchTarget = null; }, { passive: false });
+  // Joystick virtual para el jugador 1 (celular): antes tocar cualquier
+  // punto de la pantalla mandaba el trompo directo hacia ahí (como un
+  // click). Ahora el joystick aparece donde tocás y funciona como un stick
+  // analógico — dirección y distancia respecto al centro controlan el
+  // movimiento, sin importar dónde esté el trompo en pantalla.
+  const joystick = createVirtualJoystick(canvas, canvasWrap);
 
   let npcLastAction = 0;
   let lastCollisionTime = 0;
@@ -1139,12 +1255,12 @@ if (window.visualViewport) {
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
       Body.setVelocity(top.body, { x: moveX1 * 4, y: moveY1 * 4 });
-    } else if (touchTarget) {
-      const dx = touchTarget.x - top.body.position.x;
-      const dy = touchTarget.y - top.body.position.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > 6) {
-        Body.setVelocity(top.body, { x: (dx / dist) * 4, y: (dy / dist) * 4 });
+    } else if (joystick.isActive()) {
+      const vec = joystick.getVector();
+      const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+      if (len > 0.15) {
+        Body.setVelocity(top.body, { x: (vec.x / len) * 4 * Math.min(1, len), y: (vec.y / len) * 4 * Math.min(1, len) });
+        notifyTutorial('move');
       }
     }
     
@@ -1205,8 +1321,8 @@ if (window.visualViewport) {
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(canvas.width/2, offsetY);
-    ctx.lineTo(canvas.width/2, canvas.height - offsetY);
+    ctx.moveTo(offsetX, canvas.height/2);
+    ctx.lineTo(canvas.width - offsetX, canvas.height/2);
     ctx.stroke();
     ctx.setLineDash([]);
 
@@ -1319,11 +1435,11 @@ if (window.visualViewport) {
   }
 
   function resetPositions() {
-    const mapWidth = canvas.width * 0.85;
-    const offsetX = (canvas.width - mapWidth) / 2;
-    
-    Body.setPosition(top.body, { x: offsetX + 100, y: canvas.height/2 });
-    Body.setPosition(bottom.body, { x: canvas.width - offsetX - 100, y: canvas.height/2 });
+    const mapHeight = canvas.height * 0.85;
+    const offsetY = (canvas.height - mapHeight) / 2;
+
+    Body.setPosition(top.body, { x: canvas.width/2, y: offsetY + 100 });
+    Body.setPosition(bottom.body, { x: canvas.width/2, y: canvas.height - offsetY - 100 });
     Body.setVelocity(top.body, { x: 0, y: 0 });
     Body.setVelocity(bottom.body, { x: 0, y: 0 });
     
@@ -2115,14 +2231,20 @@ if (window.visualViewport) {
 
   // Control táctil: tocar directamente el carril de la calle manda el bus a
   // ESE carril (antes solo se movía un carril hacia el lado tocado, lo que
-  // obligaba a tocar varias veces para cruzar la calle).
-  canvas.addEventListener('touchstart', e => {
+  // obligaba a tocar varias veces para cruzar la calle). Además, mientras
+  // el dedo se mantiene abajo y se arrastra (touchmove), el carril se sigue
+  // actualizando en tiempo real: antes solo el toque inicial contaba, así
+  // que un arrastre continuo (lo más natural en celular) no respondía hasta
+  // soltar y volver a tocar.
+  function updateLaneFromTouch(e) {
     if (!running || paused) return;
     e.preventDefault();
     const r = canvas.getBoundingClientRect();
     const touchX = (e.touches[0].clientX - r.left) * (canvas.width / r.width);
     goToLane(laneFromX(touchX));
-  }, { passive: false });
+  }
+  canvas.addEventListener('touchstart', updateLaneFromTouch, { passive: false });
+  canvas.addEventListener('touchmove', updateLaneFromTouch, { passive: false });
 
   function laneFromX(x) {
     if (!laneWidth) return player.lane;
@@ -2174,9 +2296,9 @@ if (window.visualViewport) {
     const bDist = document.getElementById('b-dist');
     const pPass = document.getElementById('p-passengers');
 
-    if(pProg) pProg.style.width = Math.min(100, (player.distance / targetDistance) * 100) + '%';
-    if(bProg) bProg.style.width = Math.min(100, (bot.distance / targetDistance) * 100) + '%';
-    if(pDist) pDist.textContent = Math.round(player.distance) + 'm / ' + targetDistance + 'm';
+    if(pProg) pProg.style.width = tutorialMode ? '0%' : Math.min(100, (player.distance / targetDistance) * 100) + '%';
+    if(bProg) bProg.style.width = tutorialMode ? '0%' : Math.min(100, (bot.distance / targetDistance) * 100) + '%';
+    if(pDist) pDist.textContent = tutorialMode ? Math.round(player.distance) + 'm' : Math.round(player.distance) + 'm / ' + targetDistance + 'm';
     if(bDist) bDist.textContent = Math.round(bot.distance) + 'm';
     if(pPass) pPass.textContent = player.passengers;
   }
@@ -2279,10 +2401,17 @@ if (window.visualViewport) {
     Body.setPosition(botBody, { x: bot.x, y: bot.y });
   }
 
+  // Los obstáculos comparten este mismo grupo negativo para que Matter
+  // nunca resuelva físicamente colisiones entre ellos (no se empujan ni se
+  // salen de su carril al tocarse) — solo siguen colisionando con los buses,
+  // que no pertenecen a este grupo.
+  const OBSTACLE_GROUP = -1;
+
   function spawnBache(){
     const lane = Math.floor(Math.random() * lanesCount);
     const body = Bodies.circle(lanePositions[lane], -50, 16 * ENTITY_SCALE, {
-      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache'
+      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache',
+      collisionFilter: { group: OBSTACLE_GROUP }
     });
     World.add(world, body);
   }
@@ -2290,7 +2419,8 @@ if (window.visualViewport) {
   function spawnTumulo(){
     const lane = Math.floor(Math.random() * lanesCount);
     const body = Bodies.rectangle(lanePositions[lane], -50, 44 * ENTITY_SCALE, 10 * ENTITY_SCALE, {
-      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo'
+      restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo',
+      collisionFilter: { group: OBSTACLE_GROUP }
     });
     World.add(world, body);
   }
@@ -2299,7 +2429,8 @@ if (window.visualViewport) {
     const lane = Math.floor(Math.random() * lanesCount);
     const color = ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)];
     const body = Bodies.rectangle(lanePositions[lane], -100, 24 * ENTITY_SCALE, 44 * ENTITY_SCALE, {
-      restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic'
+      restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic',
+      collisionFilter: { group: OBSTACLE_GROUP }
     });
     body.trafficColor = color;
     body.trafficSpeed = 2 + Math.random() * 2;
@@ -2479,6 +2610,27 @@ function spawnEntities() {
         if(b.position.y > canvas.height + 60 || b.position.y < -250) World.remove(world, b);
       }
     });
+
+    // Choque cosmético entre obstáculos: como comparten OBSTACLE_GROUP,
+    // Matter nunca los empuja ni los descarrila al tocarse — si dos quedan
+    // solapados solo se muestran chispas encima, sin tocar su velocidad ni
+    // su carril, para no afectar al bus del jugador ni al del bot.
+    const obstacleBodies = Composite.allBodies(world).filter(b => b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic');
+    for (let i = 0; i < obstacleBodies.length; i++) {
+      for (let j = i + 1; j < obstacleBodies.length; j++) {
+        const oa = obstacleBodies[i], ob = obstacleBodies[j];
+        const dx = oa.position.x - ob.position.x;
+        const dy = oa.position.y - ob.position.y;
+        const touchDist = 30 * ENTITY_SCALE;
+        if ((dx * dx + dy * dy) < touchDist * touchDist) {
+          if (!oa.obstacleCrashAt || nowTs - oa.obstacleCrashAt > 300) {
+            oa.obstacleCrashAt = nowTs;
+            ob.obstacleCrashAt = nowTs;
+            spawnImpact((oa.position.x + ob.position.x) / 2, (oa.position.y + ob.position.y) / 2, 0.8, '#ffcc33');
+          }
+        }
+      }
+    }
 
     passengers.forEach((p, idx) => {
       p.y += visualSpeed;
@@ -3356,7 +3508,7 @@ function spawnEntities() {
         <span>${isPlayerMica ? jt('jue.card4.hudHasMica', '🔥 ¡LLEVÁS LA MICA!') : jt('jue.card4.hudSafe', '🛡️ ¡ESTÁS A SALVO!')}</span>
       </div>
       <div class="mica-time-box">
-        <span>⏳ ${Math.max(0, Math.ceil(timeLeft))}s</span>
+        <span>⏳ ${tutorialMode ? '∞' : Math.max(0, Math.ceil(timeLeft))}s</span>
       </div>
       <div class="torito-hud-bar-container">
         <span class="torito-hud-label">⭐ <b>${Math.round(score)} pts</b></span>
@@ -3589,25 +3741,29 @@ function spawnEntities() {
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (!running || paused || !player) return;
-    const r = canvas.getBoundingClientRect();
-    const touchX = e.touches[0].clientX - r.left;
-    const touchY = e.touches[0].clientY - r.top;
-    const dx = touchX - player.position.x;
-    const dy = touchY - player.position.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len > 10) {
-      Body.applyForce(player, player.position, {
-        x: (dx / len) * 0.0035 * MICA_SPEED_MULT,
-        y: (dy / len) * 0.0035 * MICA_SPEED_MULT
-      });
-      player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, 2.4 * MICA_SPEED_MULT);
-      notifyTutorial('move');
-    }
-  }, { passive: false });
+  // ================= JOYSTICK VIRTUAL (táctil) =================
+  // Antes el dedo arrastraba al jugador hacia el punto exacto tocado en la
+  // pantalla, lo que obligaba a mirar dónde estaba el personaje para saber
+  // hacia dónde tocar. El joystick aparece justo donde tocás y funciona
+  // como un stick analógico: la dirección/distancia respecto al centro
+  // controla hacia dónde y qué tan fuerte se mueve.
+  const joystick = createVirtualJoystick(canvas, canvasWrap, { fixed: esTactilJuegos });
+
+  function handleJoystickMovement() {
+    if (!player) return false;
+    const vec = joystick.getVector();
+    const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+    if (!joystick.isActive() || len < 0.15) return false;
+    const force = 0.0035 * MICA_SPEED_MULT;
+    Body.applyForce(player, player.position, {
+      x: (vec.x / len) * force * Math.min(1, len),
+      y: (vec.y / len) * force * Math.min(1, len)
+    });
+    player.angleFacing = Math.atan2(vec.y, vec.x);
+    clampVelocity(player, 2.4 * MICA_SPEED_MULT * Math.min(1, len));
+    notifyTutorial('move');
+    return true;
+  }
 
   // ================= MOUSE CONTROL =================
   let mousePos = null;
@@ -3643,6 +3799,8 @@ function spawnEntities() {
     if (keys['w'] || keys['a'] || keys['s'] || keys['d'] ||
         keys['arrowup'] || keys['arrowdown'] || keys['arrowleft'] || keys['arrowright']) {
       // teclado tiene prioridad
+    } else if (handleJoystickMovement()) {
+      return;
     } else if (handleMouseMovement()) {
       return;
     }
@@ -4387,14 +4545,24 @@ function spawnEntities() {
   let score = 0, round = 1, shotsLeft = 0, totalRounds = 3;
   let difficulty = null;
   let gamePhase = 'idle'; // idle | aiming | shooting | watching | roundEnd | gameOver
+  // Cantidad fija de canicas en las 3 rondas y en ambas dificultades — solo
+  // cambian los tiros disponibles.
+  const TOTAL_MARBLES = 20;
   let gameConfig = {
     // Mismo tamaño de juego (circleRadiusFactor) en ambos niveles: antes
     // fácil usaba un círculo más grande que difícil, así que no era un
     // cambio de dificultad limpio (también achicaba el área de juego).
-    // La dificultad ahora solo la marcan la cantidad de canicas y tiros.
-    easy: { marbles: 8,  shots: 5, circleRadiusFactor: 0.28 },
-    hard: { marbles: 14, shots: 4, circleRadiusFactor: 0.28 }
+    // La dificultad ahora solo la marca la cantidad de tiros.
+    easy: { shots: 5, circleRadiusFactor: 0.33 },
+    hard: { shots: 4, circleRadiusFactor: 0.33 }
   };
+
+  // Tiempo que tarda el jugador en terminar el nivel (todas las rondas de
+  // la dificultad elegida), reemplaza el marcador de puntos en el HUD.
+  let playedMs = 0;
+  function formatTime(ms) {
+    return (ms / 1000).toFixed(1) + 's';
+  }
 
   // ================= MODO TUTORIAL =================
   let tutorialMode = false;
@@ -4505,12 +4673,9 @@ function spawnEntities() {
 
   // ── HUD ───────────────────────────────────────────────────────
   hud.innerHTML = `
-    <div class="hud-item" style="grid-column:span 3;text-align:center;font-weight:bold;font-size:1.1rem;color:#A78BFA;">
-      🔮 ${jt('jue.card5.title', 'Canicas')}
-    </div>
     <div class="hud-item">
-      <span>${jt('jue.hud.points','Puntos')}</span>
-      <b id="can-score">0</b>
+      <span>${jt('jue.hud.time','Tiempo')}</span>
+      <b id="can-time">0.0s</b>
     </div>
     <div class="hud-item">
       <span>${jt('jue.hud.round','Ronda')}</span>
@@ -4522,14 +4687,12 @@ function spawnEntities() {
     </div>`;
 
   function updateHUD() {
-    const elScore = document.getElementById('can-score');
+    const elTime = document.getElementById('can-time');
     const elRound = document.getElementById('can-round');
     const elShots = document.getElementById('can-shots');
-    if (elScore) elScore.textContent = score;
+    if (elTime) elTime.textContent = formatTime(playedMs);
     if (elRound) elRound.textContent = `${round}/${totalRounds}`;
-    if (elShots) elShots.textContent = shotsLeft;
-    // GSAP pulse on score
-    if (elScore) gsap.fromTo(elScore, { scale: 1.5, color: '#C4B5FD' }, { scale: 1, color: '#fff', duration: 0.4, ease: 'back.out(2)' });
+    if (elShots) elShots.textContent = tutorialMode ? '∞' : shotsLeft;
   }
 
   // ── Física: variables ─────────────────────────────────────────
@@ -4604,17 +4767,16 @@ function spawnEntities() {
     aimStart = null;
     aimCurrent = null;
 
-    // Dimensiones del círculo (ronda). El círculo crece un poco más por
-    // ronda (antes 5%, ahora 9%) para darle espacio a las canicas extra
-    // que ahora se agregan (+3 por ronda en vez de +2): si no, el
-    // acomodo aleatorio de canicas sin solaparse podía quedarse corto
-    // de espacio y terminar colocando menos canicas de las configuradas.
+    // Dimensiones del círculo (ronda). La cantidad de canicas ya no crece
+    // por ronda (siempre son 20), así que el círculo tampoco necesita
+    // crecer para darles espacio — se mantiene del mismo tamaño en las 3
+    // rondas.
     const cfg = gameConfig[difficulty];
-    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor * (1 + (round - 1) * 0.09);
+    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor;
     circleCenter = { x: W / 2, y: H / 2 - H * 0.04 };
-    // Radio un poco más grande (antes 5.5 / 6.5): canicas y tirador más
-    // visibles sin dejar de entrar dentro del círculo de la ronda.
-    marbleRadius = circleRadius / (cfg.marbles <= 8 ? 4.7 : 5.5);
+    // Mismo radio relativo (círculo / 5.5) que ya se probó capaz de acomodar
+    // 20 canicas sin solaparse dentro de los intentos aleatorios disponibles.
+    marbleRadius = circleRadius / 5.5;
 
     // Posición de spawn del tirador (abajo del círculo). Antes quedaba
     // pegado al borde inferior del canvas/modal (especialmente en
@@ -4637,13 +4799,10 @@ function spawnEntities() {
     ];
     World.add(world, walls);
 
-    // Distribuir canicas dentro del círculo (sin solaparse). Antes crecía
-    // de a 2 por ronda; ahora crece de a 3 en ambos niveles para que se
-    // sienta más difícil ronda a ronda, con un piso mínimo por si algún
-    // día se ajusta la base de canicas hacia abajo (4 en fácil, 7 en difícil).
-    const marblesFloor = difficulty === 'hard' ? 7 : 4;
-    const marblesCount = Math.max(marblesFloor, cfg.marbles + (round - 1) * 3);
-    placeMarbles(marblesCount);
+    // Cantidad de canicas fija en las 3 rondas y en ambas dificultades
+    // (antes crecía por ronda y variaba entre fácil/difícil, con lo cual
+    // "20 canicas" nunca era un número real de referencia para el jugador).
+    placeMarbles(TOTAL_MARBLES);
 
     // Spawn del tirador
     spawnTirador();
@@ -4654,17 +4813,22 @@ function spawnEntities() {
   function placeMarbles(count) {
     const placed = [];
     let attempts = 0;
-    while (placed.length < count && attempts < 2000) {
+    while (placed.length < count && attempts < 6000) {
       attempts++;
       const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * (circleRadius - marbleRadius * 2.5);
+      // Raíz cuadrada de un random uniforme reparte los puntos por ÁREA
+      // (no por radio): sortear la distancia de forma lineal amontonaba
+      // las canicas cerca del centro, porque los anillos externos del
+      // círculo tienen más área pero recibían la misma densidad de puntos
+      // que los internos.
+      const dist = Math.sqrt(Math.random()) * (circleRadius - marbleRadius * 2.5);
       const px = circleCenter.x + Math.cos(angle) * dist;
       const py = circleCenter.y + Math.sin(angle) * dist;
       // Verificar no solapamiento
       let ok = true;
       for (const p of placed) {
         const dx = p.x - px, dy = p.y - py;
-        if (Math.sqrt(dx * dx + dy * dy) < marbleRadius * 2.4) { ok = false; break; }
+        if (Math.sqrt(dx * dx + dy * dy) < marbleRadius * 3.2) { ok = false; break; }
       }
       if (!ok) continue;
       placed.push({ x: px, y: py });
@@ -4694,12 +4858,11 @@ function spawnEntities() {
     // arriba, así que no hace falta nada de esto.
   }
 
+  const TIRADOR_SCALE = 0.75; // Más chica que las canicas del círculo, para distinguirla como "la que se tira"
+
   function spawnTirador() {
     if (tirador) { try { World.remove(world, tirador); } catch(e){} }
-    // El tirador debe ser del mismo tamaño que las demás canicas (antes
-    // era 1.4x más grande, lo cual además de verse inconsistente le daba
-    // una ventaja física injusta al golpear).
-    tirador = Bodies.circle(tiradorSpawnPos.x, tiradorSpawnPos.y, marbleRadius, {
+    tirador = Bodies.circle(tiradorSpawnPos.x, tiradorSpawnPos.y, marbleRadius * TIRADOR_SCALE, {
       restitution: 0.65,
       friction: 0.01,
       frictionAir: 0.008,
@@ -4801,6 +4964,14 @@ function spawnEntities() {
     const dt = lastTs ? Math.min(ts - lastTs, 50) : 16;
     lastTs = ts;
 
+    // El tiempo del nivel solo avanza mientras se juega de verdad (no
+    // durante la pausa, ya que step() no vuelve a llamarse a sí mismo
+    // mientras paused === true).
+    if (!tutorialMode) {
+      playedMs += dt;
+      updateHUD();
+    }
+
     // Actualizar física
     Engine.update(engine, dt);
     updateParticles(dt);
@@ -4813,12 +4984,8 @@ function spawnEntities() {
       if (Math.sqrt(dx * dx + dy * dy) > circleRadius + marbleRadius) {
         m.plugin.isOut = true;
         score++;
-        updateHUD();
         notifyTutorial('out');
         spawnParticles(m.position.x, m.position.y, '#C4B5FD');
-        // Animación GSAP de score pop
-        const elScore = document.getElementById('can-score');
-        if (elScore) gsap.fromTo(elScore, { scale: 2, color: '#7C3AED' }, { scale: 1, color: '#fff', duration: 0.5, ease: 'elastic.out(1,0.5)' });
       }
     });
 
@@ -4973,7 +5140,7 @@ function spawnEntities() {
     // Dibujar tirador
     if (tirador) {
       const { x, y } = tirador.position;
-      drawTirador(x, y, marbleRadius * 1.4);
+      drawTirador(x, y, marbleRadius * TIRADOR_SCALE);
     }
 
     // Dibujar línea de aiming
@@ -5130,25 +5297,25 @@ function spawnEntities() {
     paused = false;
     gamePhase = 'idle';
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    score = 0; round = 1;
+    score = 0; round = 1; playedMs = 0;
 
     overlayCard.innerHTML = `
       <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
       <h3 style="margin:.4rem 0 .15rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
       <p style="font-size:.85rem;opacity:.85;margin-bottom:.55rem;">
-        ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá canicas del círculo para sumar puntos.')}
+        ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá las 20 canicas del círculo lo más rápido que puedas.')}
       </p>
       <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
-        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', 'Canica fuera → +1 punto · 3 rondas, cada vez más difícil')}</li>
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
       </ul>
       <p style="font-weight:600;margin-bottom:.4rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-canicas">
-          ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '8 canicas · 5 tiros')}</small>
+          ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 tiros')}</small>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-canicas">
-          ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '14 canicas · 4 tiros')}</small>
+          ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 4 tiros')}</small>
         </button>
       </div>
       <button class="btn-tutorial" id="btn-tutorial-canicas">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`;
@@ -5164,6 +5331,7 @@ function spawnEntities() {
     difficulty = diff;
     shotsLeft = gameConfig[diff].shots;
     score = 0; round = 1;
+    playedMs = 0;
     particles = [];
 
     gsap.to(overlayCard, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in', onComplete: () => {
@@ -5218,10 +5386,9 @@ function spawnEntities() {
     setTimeout(() => {
       overlayCard.innerHTML = `
         <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
-        <h3 style="margin:.5rem 0;">${jt('jue.card5.end.finished', '¡Partida terminada!')}</h3>
-        <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${score} canicas</p>
-        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'sacadas en {n} rondas').replace('{n}', totalRounds)}</p>
-        <p class="overlay-best-score" id="can-best-score"></p>
+        <h3 style="margin:.5rem 0;">${jt('jue.card5.end.finished', '¡Nivel completado!')}</h3>
+        <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${formatTime(playedMs)}</p>
+        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'en {n} rondas').replace('{n}', totalRounds)}</p>
         <div style="display:flex;gap:10px;justify-content:center;">
           <button class="btn-primary" id="can-replay">🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>
           <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">${jt('jue.pause.menu', 'Menú')}</button>
@@ -5233,12 +5400,11 @@ function spawnEntities() {
       document.getElementById('can-replay').onclick = showDifficultySelector;
       document.getElementById('can-menu').onclick = showDifficultySelector;
 
-      guardarPuntajeJuego(gameName, score).then(() => {
-        obtenerMejorPuntajeJuego(gameName).then((best) => {
-          const el = document.getElementById('can-best-score');
-          if (el && best) el.textContent = jt('jue.card5.end.best', 'Mejor: {n}').replace('{n}', best.score);
-        });
-      });
+      // El marcador que se guarda en el servidor sigue siendo la cantidad
+      // de canicas sacadas (mismo formato que usa el resto del backend de
+      // puntajes); ya no se muestra en pantalla porque la interfaz ahora
+      // se enfoca en el tiempo, no en los puntos.
+      guardarPuntajeJuego(gameName, score);
     }, 800);
   }
 
@@ -5682,12 +5848,14 @@ function spawnEntities() {
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
   let lastTapTime = 0;
+  let toritoTouchDragging = false;
   canvas.addEventListener('touchstart', e => {
     if(!running || paused) return;
     const now = Date.now();
     if (now - lastTapTime < 300) {
       // Doble toque = ráfaga de chispas (equivalente táctil de la barra espaciadora)
       performSparkDash();
+      toritoTouchDragging = false;
     } else {
       const r = canvas.getBoundingClientRect();
       const touchX = e.touches[0].clientX - r.left;
@@ -5696,9 +5864,22 @@ function spawnEntities() {
       // el lado tocado. Si el toque cae fuera de la calle (aceras), se usa
       // el carril más cercano a ese borde.
       goToLane(laneFromX(touchX));
+      toritoTouchDragging = true;
     }
     lastTapTime = now;
   }, { passive: true });
+  // Mientras se arrastra el dedo (sin haber sido el segundo toque de un
+  // doble-toque), el carril sigue al dedo en tiempo real, igual que en el
+  // juego de los buses: antes solo el toque inicial movía el carril y había
+  // que soltar y volver a tocar para seguir cambiando, lo que se sentía
+  // poco responsivo en celular.
+  canvas.addEventListener('touchmove', e => {
+    if (!running || paused || !toritoTouchDragging) return;
+    const r = canvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - r.left;
+    goToLane(laneFromX(touchX));
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => { toritoTouchDragging = false; }, { passive: true });
 
   function laneFromX(x) {
     if (!laneWidth) return toritoLane;

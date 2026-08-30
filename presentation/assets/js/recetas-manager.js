@@ -934,7 +934,7 @@ function generateAndDownloadPDF() {
 
   const originalText = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = '⏳ Opening preview...';
+  btn.textContent = '⏳ Generando PDF...';
 
   try {
     const container = document.getElementById("recipe-dynamic-content");
@@ -948,7 +948,12 @@ function generateAndDownloadPDF() {
       throw new Error('Recipe not found');
     }
 
+    if (typeof html2pdf === "undefined") {
+      throw new Error('No se pudo cargar el generador de PDF.');
+    }
+
     const tempImg = new Image();
+    tempImg.crossOrigin = "anonymous";
     tempImg.src = receta.imagen;
     const absoluteImgSrc = tempImg.src;
 
@@ -1088,35 +1093,41 @@ function generateAndDownloadPDF() {
     </div>
   </div>
 
-  <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => { window.print(); }, 500);
-    });
-  </script>
 </body>
 </html>
     `;
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      throw new Error('No se pudo abrir la ventana de impresión. Por favor, permite los pop-ups para este sitio.');
-    }
-    printWindow.document.write(printHTML);
-    printWindow.document.close();
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = '-99999px';
+    wrapper.style.top = '0';
+    wrapper.innerHTML = printHTML;
+    document.body.appendChild(wrapper);
 
-    printWindow.addEventListener('afterprint', () => {
-      printWindow.close();
+    const fileName = `${(receta.titulo || 'receta').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-')}.pdf`;
+
+    const cleanup = () => {
+      wrapper.remove();
       btn.disabled = false;
       btn.innerHTML = originalText;
-    });
+    };
 
-    window.addEventListener('focus', function windowFocusHandler() {
-      if (printWindow.closed || !printWindow.document) {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        window.removeEventListener('focus', windowFocusHandler);
-      }
-    }, { once: true });
+    html2pdf()
+      .set({
+        margin: 0,
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      })
+      .from(wrapper.querySelector('.pdf-container'))
+      .save()
+      .then(cleanup)
+      .catch((error) => {
+        console.error('Error generando PDF:', error);
+        btn.textContent = '❌ Error';
+        setTimeout(cleanup, 2000);
+      });
 
   } catch (error) {
     console.error('Error generando PDF:', error);

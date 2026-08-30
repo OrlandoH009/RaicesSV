@@ -606,7 +606,7 @@ function initCatalogAndFilters() {
   if (applyFilter) {
     applyFilter.addEventListener("click", () => {
       currentLimit = 6;
-      if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+      if (loadMoreBtn) loadMoreBtn.textContent = t("cal.catalog.loadMore", "Mostrar más celebraciones");
       filtrarFestividades();
     });
   }
@@ -618,7 +618,7 @@ function initCatalogAndFilters() {
       document.getElementById("f-type").value = "";
       document.getElementById("f-search").value = "";
       currentLimit = 6;
-      if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+      if (loadMoreBtn) loadMoreBtn.textContent = t("cal.catalog.loadMore", "Mostrar más celebraciones");
       filtrarFestividades();
     });
   }
@@ -629,7 +629,7 @@ function initCatalogAndFilters() {
 
       if (currentLimit === 6) {
         currentLimit = 999;
-        loadMoreBtn.textContent = "Mostrar menos";
+        loadMoreBtn.textContent = t("cal.catalog.showLess", "Mostrar menos");
         renderCatalogo(listaEventosFiltrados);
       } else {
         tarjetas.forEach((tarjeta, index) => {
@@ -660,7 +660,7 @@ function initCatalogAndFilters() {
       searchInput._timer = setTimeout(() => {
         currentLimit = 6;
         const loadMoreBtn = document.getElementById("loadMoreBtn");
-        if (loadMoreBtn) loadMoreBtn.textContent = "Mostrar más celebraciones";
+        if (loadMoreBtn) loadMoreBtn.textContent = t("cal.catalog.loadMore", "Mostrar más celebraciones");
         filtrarFestividades();
       }, 300);
     });
