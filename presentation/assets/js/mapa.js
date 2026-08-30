@@ -1081,6 +1081,7 @@ function crearMarker(lm) {
    en blanco/congelada por un instante. Repartir el trabajo en lotes
    pequeños entre frames deja que el primer paint (tiles + UI) ocurra
    antes, y el resultado final es idéntico. */
+window.srMarkersReady = false;
 (function crearMarkersEnLotes(lista) {
   const LOTE = 12;
   let i = 0;
@@ -1089,6 +1090,9 @@ function crearMarker(lm) {
     for (; i < fin; i++) crearMarker(lista[i]);
     if (i < lista.length) {
       (window.requestIdleCallback || window.requestAnimationFrame)(procesarLote);
+    } else {
+      window.srMarkersReady = true;
+      window.dispatchEvent(new Event('srMarkersReady'));
     }
   }
   procesarLote();
@@ -1442,20 +1446,18 @@ document.addEventListener("langchange", (e) => {
 })();
 
 /* ══════════════════════════════════════════════════════════
-   TABLA DE TRADUCCIÓN: EVENTO DEL CALENDARIO → LANDMARK REAL
-   ══════════════════════════════════════════════════════════ */
-const TRADUCTOR_A_LANDMARK = {
-  3: 46, 5: 31, 8: 23, 10: 21, 12: 28, 13: 47, 16: 59, 17: 48, 22: 22,
-  24: 48, 25: 28, 26: 34, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26,
-  34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
-  44: 45, 45: 57, 46: 58, 47: 25
-};
-
-/* ══════════════════════════════════════════════════════════
    RESALTAR LANDMARK DESDE URL
    ══════════════════════════════════════════════════════════ */
 (function resaltarLandmarkDesdeURL() {
-  window.addEventListener('load', () => {
+  function ejecutarCuandoListo(cb) {
+    if (window.srMarkersReady) {
+      cb();
+    } else {
+      window.addEventListener('srMarkersReady', cb, { once: true });
+    }
+  }
+
+  window.addEventListener('load', () => ejecutarCuandoListo(() => {
     const params = new URLSearchParams(window.location.search);
     const latParam = params.get('lat');
     const lngParam = params.get('lng');
@@ -1553,7 +1555,7 @@ const TRADUCTOR_A_LANDMARK = {
         }
       }
     }
-  });
+  }));
 })();
 
 /* ══════════════════════════════════════════════════════════
