@@ -151,8 +151,8 @@ const LANDMARKS = [
   {
     id: 25, cat: 'evento', emoji: '🌴', color: '#52a0e0',
     nombre: 'Festival de las Flores y Palmas',
-    lugar: 'La Libertad, El Salvador',
-    coords: [13.6769, -89.2797]
+    lugar: 'Panchimalco, San Salvador',
+    coords: [13.6158, -89.1797]
   },
   {
     id: 26, cat: 'evento', emoji: '🎷', color: '#52a0e0',
@@ -175,7 +175,7 @@ const LANDMARKS = [
   {
     id: 29, cat: 'evento', emoji: '💀', color: '#52a0e0',
     nombre: 'Día de la Calabiuza',
-    lugar: 'Cuscatlán, El Salvador',
+    lugar: 'Tonacatepeque, San Salvador',
     coords: [13.7825, -89.2614]
   },
   {
@@ -437,6 +437,182 @@ const LANDMARKS = [
     lugar: 'San Sebastián, San Vicente',
     desc: 'Feria en el pueblo cuna de las hamacas tejidas a mano de El Salvador, con exhibiciones de tejedores artesanales y venta de textiles tradicionales.',
     coords: [13.8500, -88.8167]
+  },
+  {
+    id: 73, cat: 'evento', emoji: '🔥', color: '#52a0e0',
+    nombre: 'Bolas de Fuego de Nejapa',
+    lugar: 'Nejapa, San Salvador',
+    desc: 'Tradición declarada Bien Cultural que conmemora la erupción del volcán de 1658, con una batalla nocturna de bolas de trapo encendidas entre los "boleros" del distrito de Nejapa.',
+    coords: [13.7864, -89.2508]
+  },
+  {
+    id: 74, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Santa Tecla',
+    lugar: 'Santa Tecla, La Libertad',
+    coords: [13.6769, -89.2797]
+  },
+  {
+    id: 75, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Antiguo Cuscatlán',
+    lugar: 'Antiguo Cuscatlán, La Libertad',
+    coords: [13.6725, -89.2436]
+  },
+  {
+    id: 76, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Cojutepeque',
+    lugar: 'Cojutepeque, Cuscatlán',
+    coords: [13.7167, -88.9333]
+  },
+  {
+    id: 77, cat: 'evento', emoji: '🎪', color: '#52a0e0',
+    nombre: 'Feria de San Juan Degollado',
+    lugar: 'Cojutepeque, Cuscatlán',
+    coords: [13.7167, -88.9333]
+  },
+  {
+    id: 78, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Ilopango',
+    lugar: 'Ilopango, San Salvador',
+    coords: [13.7017, -89.1097]
+  },
+  {
+    id: 79, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Soyapango',
+    lugar: 'Soyapango, San Salvador',
+    coords: [13.7089, -89.1400]
+  },
+  {
+    id: 80, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Suchitoto',
+    lugar: 'Suchitoto, Cuscatlán',
+    coords: [14.0311, -89.0281]
+  },
+  {
+    id: 81, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Zacatecoluca',
+    lugar: 'Zacatecoluca, La Paz',
+    coords: [13.5058, -88.8667]
+  },
+  {
+    id: 82, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Sensuntepeque',
+    lugar: 'Sensuntepeque, Cabañas',
+    coords: [13.8756, -88.6353]
+  },
+  {
+    id: 83, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Usulután',
+    lugar: 'Usulután, Usulután',
+    coords: [13.3500, -88.4500]
+  },
+  {
+    id: 84, cat: 'evento', emoji: '🎪', color: '#52a0e0',
+    nombre: 'Día Nacional de la Pupusa',
+    lugar: 'Olocuilta, La Paz',
+    coords: [13.5686, -89.1197]
+  },
+  {
+    id: 85, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de San Vicente',
+    lugar: 'San Vicente, San Vicente',
+    coords: [13.6411, -88.7861]
+  },
+  {
+    id: 86, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Ahuachapán',
+    lugar: 'Ahuachapán, Ahuachapán',
+    coords: [13.9214, -89.8450]
+  },
+  {
+    id: 87, cat: 'evento', emoji: '🎭', color: '#52a0e0',
+    nombre: 'Carnaval Candelareño',
+    lugar: 'Sonsonate, Sonsonate',
+    coords: [13.7186, -89.7244]
+  },
+  {
+    id: 88, cat: 'evento', emoji: '🐎', color: '#52a0e0',
+    nombre: 'Fiestas Metapanecas',
+    lugar: 'Metapán, Santa Ana',
+    coords: [14.3333, -89.4500]
+  },
+  {
+    id: 89, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de San Miguel',
+    lugar: 'San Miguel, San Miguel',
+    coords: [13.4833, -88.1833]
+  },
+  {
+    id: 90, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Chinameca',
+    lugar: 'Chinameca, San Miguel',
+    coords: [13.5044, -88.3494]
+  },
+  {
+    id: 91, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de San Jorge',
+    lugar: 'San Jorge, San Miguel',
+    coords: [13.4696, -88.1794]
+  },
+  {
+    id: 92, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Moncagua',
+    lugar: 'Moncagua, San Miguel',
+    coords: [13.5333, -88.2667]
+  },
+  {
+    id: 93, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Chirilagua',
+    lugar: 'Chirilagua, San Miguel',
+    coords: [13.2333, -88.1333]
+  },
+  {
+    id: 94, cat: 'evento', emoji: '🏺', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Guatajiagua',
+    lugar: 'Guatajiagua, Morazán',
+    coords: [13.6833, -88.3333]
+  },
+  {
+    id: 95, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Perquín',
+    lugar: 'Perquín, Morazán',
+    coords: [13.9667, -88.1667]
+  },
+  {
+    id: 96, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Corinto',
+    lugar: 'Corinto, Morazán',
+    coords: [13.7833, -87.9667]
+  },
+  {
+    id: 97, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Cacaopera',
+    lugar: 'Cacaopera, Morazán',
+    coords: [13.7333, -88.2333]
+  },
+  {
+    id: 98, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de San Alejo',
+    lugar: 'San Alejo, La Unión',
+    coords: [13.4167, -87.7500]
+  },
+  {
+    id: 99, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Conchagua',
+    lugar: 'Conchagua, La Unión',
+    coords: [13.2833, -87.7500]
+  },
+  {
+    id: 100, cat: 'evento', emoji: '🎉', color: '#52a0e0',
+    nombre: 'Fiestas Patronales de Intipucá',
+    lugar: 'Intipucá, La Unión',
+    coords: [13.1975, -88.0578]
+  },
+  {
+    id: 101, cat: 'evento', emoji: '🌽', color: '#52a0e0',
+    nombre: 'Festival del Maíz de Suchitoto',
+    lugar: 'Suchitoto, Cuscatlán',
+    desc: 'Tradición de más de 30 años que agradece la cosecha del maíz con desfile de carrozas, coronación de la Reina del Maíz, marimba y comida típica.',
+    coords: [14.0311, -89.0281]
   }
 ];
 
@@ -1008,6 +1184,7 @@ function crearMarker(lm) {
    en blanco/congelada por un instante. Repartir el trabajo en lotes
    pequeños entre frames deja que el primer paint (tiles + UI) ocurra
    antes, y el resultado final es idéntico. */
+window.srMarkersReady = false;
 (function crearMarkersEnLotes(lista) {
   const LOTE = 12;
   let i = 0;
@@ -1016,6 +1193,9 @@ function crearMarker(lm) {
     for (; i < fin; i++) crearMarker(lista[i]);
     if (i < lista.length) {
       (window.requestIdleCallback || window.requestAnimationFrame)(procesarLote);
+    } else {
+      window.srMarkersReady = true;
+      window.dispatchEvent(new Event('srMarkersReady'));
     }
   }
   procesarLote();
@@ -1370,20 +1550,18 @@ document.addEventListener("langchange", (e) => {
 })();
 
 /* ══════════════════════════════════════════════════════════
-   TABLA DE TRADUCCIÓN: EVENTO DEL CALENDARIO → LANDMARK REAL
-   ══════════════════════════════════════════════════════════ */
-const TRADUCTOR_A_LANDMARK = {
-  3: 46, 5: 31, 8: 23, 10: 21, 12: 28, 13: 47, 16: 59, 17: 48, 22: 22,
-  24: 48, 25: 28, 26: 34, 28: 59, 29: 41, 30: 49, 31: 27, 32: 26,
-  34: 50, 35: 35, 36: 60, 39: 4, 40: 33, 41: 40, 42: 38, 43: 43,
-  44: 45, 45: 57, 46: 58, 47: 25
-};
-
-/* ══════════════════════════════════════════════════════════
    RESALTAR LANDMARK DESDE URL
    ══════════════════════════════════════════════════════════ */
 (function resaltarLandmarkDesdeURL() {
-  window.addEventListener('load', () => {
+  function ejecutarCuandoListo(cb) {
+    if (window.srMarkersReady) {
+      cb();
+    } else {
+      window.addEventListener('srMarkersReady', cb, { once: true });
+    }
+  }
+
+  window.addEventListener('load', () => ejecutarCuandoListo(() => {
     const params = new URLSearchParams(window.location.search);
     const latParam = params.get('lat');
     const lngParam = params.get('lng');
@@ -1478,7 +1656,7 @@ const TRADUCTOR_A_LANDMARK = {
         }
       }
     }
-  });
+  }));
 })();
 
 /* ══════════════════════════════════════════════════════════
