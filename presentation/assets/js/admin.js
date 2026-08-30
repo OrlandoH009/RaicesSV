@@ -1307,3 +1307,24 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCurrentUser();
 
 });
+
+/* ============================================================
+   Blindaje contra el botón "atrás/adelante" del navegador (BFCache)
+   Si el panel se restaura desde bfcache tras cerrar sesión (o con
+   un rol que ya no es admin/fundador), se fuerza una recarga real.
+   ============================================================ */
+window.addEventListener('pageshow', (event) => {
+  if (!event.persisted) return;
+
+  fetch('/auth/status', { credentials: 'same-origin', cache: 'no-store' })
+    .then((r) => r.json())
+    .then((data) => {
+      const isAdmin = data.loggedIn && data.user && (data.user.role === 'Admin' || data.user.role === 'Fundador');
+      if (!isAdmin) {
+        window.location.reload();
+      }
+    })
+    .catch(() => {
+      window.location.reload();
+    });
+});
