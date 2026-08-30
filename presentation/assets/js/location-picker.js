@@ -67,8 +67,11 @@
       zoomControl: true
     });
 
-    L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=65f24655-4886-4f79-844c-b55cf976acd3", {
+    // Mismo proxy que mapa.js: la API key de Stadia Maps vive en el
+    // servidor (routes/tiles.routes.js), nunca en el JS del cliente.
+    L.tileLayer("/api/tiles/{z}/{x}/{y}{r}.png", {
       maxZoom: 18,
+      detectRetina: true,
       attribution: '&copy; OpenStreetMap &copy; Stadia Maps'
     }).addTo(m);
 
