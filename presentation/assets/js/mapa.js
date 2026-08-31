@@ -1523,31 +1523,12 @@ document.addEventListener("langchange", (e) => {
     });
 })();
 
-/* ══════════════════════════════════════════════════════════
-   BOTÓN "VOLVER"
-   ══════════════════════════════════════════════════════════ */
-(function configurarBotonVolver() {
-  const params = new URLSearchParams(window.location.search);
-  const from = params.get('from');
-  const backBtn = document.getElementById('mapaBackBtn');
-  const backBtnLabel = document.getElementById('mapaBackBtnLabel');
-  if (!from || !backBtn) return;
-  const esRutaSegura = /^[a-zA-Z0-9_\-]+\.html$/.test(from);
-  if (!esRutaSegura) return;
-  const etiquetas = {
-    'calendario.html': 'Volver al calendario',
-    'sitios-culturales.html': 'Volver a sitios culturales',
-    'gastronomia.html': 'Volver a gastronomía',
-    'eventos.html': 'Volver a eventos',
-    'historia.html': 'Volver a historia',
-    'leyendas.html': 'Volver a leyendas'
-  };
-  backBtnLabel.textContent = etiquetas[from] || 'Volver';
-  backBtn.style.display = 'flex';
-  backBtn.addEventListener('click', () => {
-    window.location.href = from;
-  });
-})();
+/* El botón "Volver" de esta página es el mismo #infoBackBtn compartido con
+   el resto del sitio (categorías, calendario, eventos, etc.), configurado
+   por assets/js/back-nav.js según el "?from=" de la URL. Mapa solía tener
+   además su propio botón "mapaBackBtn" con la misma función, lo que hacía
+   aparecer dos flechas de volver a la vez — se eliminó para quedar
+   consistente con el resto de páginas. */
 
 /* ══════════════════════════════════════════════════════════
    RESALTAR LANDMARK DESDE URL

@@ -441,36 +441,6 @@
       font-size: 1.1rem; color: var(--white); line-height: 1.3; /* Incrementado */
     }
 
-    /* ── Botón flotante "Volver" (esquina superior derecha) ── */
-    .mapa-back-btn {
-      position: absolute;
-      top: 1.25rem; right: 1.25rem;
-      z-index: 1250;
-      display: flex; align-items: center; gap: .5rem;
-      font-family: var(--font-display); font-weight: 700; font-size: .85rem;
-      color: var(--white);
-      background: rgba(10,10,10,.65);
-      backdrop-filter: blur(10px);
-      border: 1.5px solid rgba(190,142,86,.4);
-      border-radius: 50px;
-      padding: .6rem .9rem .6rem 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0,0,0,.5);
-      transition: background .2s, border-color .2s, transform .15s, color .4s ease;
-      animation: backBtnIn .4s cubic-bezier(.34,1.56,.64,1);
-    }
-    [data-theme="light"] .mapa-back-btn {
-      background: rgba(255,253,248,.9);
-      color: var(--navy);
-      box-shadow: 0 8px 24px rgba(17,48,104,.18);
-    }
-    .mapa-back-btn:hover { background: rgba(190,142,86,.22); border-color: var(--gold); transform: translateY(-2px); }
-    .mapa-back-btn svg { width: 16px; height: 16px; fill: var(--gold); flex-shrink: 0; }
-
-    @keyframes backBtnIn {
-      from { opacity: 0; transform: translateX(12px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
 
     /* ═══════════════════════════════════════════════════
        SIDEBAR IZQUIERDA ESTILO GOOGLE MAPS
@@ -709,8 +679,6 @@
 
     /* [PANTALLAS MEDIANAS / TABLETS (Hasta 900px)] */
     @media (max-width: 900px) {
-      .mapa-back-btn { top: .75rem; right: .75rem; font-size: .75rem; padding: .5rem .7rem .5rem .9rem; }
-
       /* En este breakpoint la barra de búsqueda/filtros pasa a ocupar todo
          el ancho arriba del mapa, en la misma zona donde "Volver a
          categorías" estaba fijo — se pisaban. "Volver a categorías" va
@@ -1081,14 +1049,6 @@
   .filter-btn {
     font-size: 0.72rem !important;
     padding: 0.35rem 0.75rem !important;
-  }
-
-  /* El botón "Volver" se encoge para no tapar los filtros */
-  .mapa-back-btn {
-    top: 3.8rem; /* Se baja un nivel para no solaparse con los filtros */
-    right: 0.5rem;
-    font-size: 0.7rem;
-    padding: 0.4rem 0.7rem;
   }
 
   /* Mover el contador a la parte superior izquierda (debajo de los filtros) */
