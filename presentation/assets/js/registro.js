@@ -227,7 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json().catch(() => null);
+      const rawText = await response.text();
+      let data = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch (_) {
+        data = null;
+      }
 
       if (response.ok) {
         showMessage((data && data.message) || tt('register.success', 'Cuenta creada correctamente'), false);
@@ -237,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const text = (data && (data.message || data.error)) || (await response.text().catch(() => ''));
+      const text = (data && (data.message || data.error)) || rawText;
       showMessage(text || tt('register.error_generic', 'No se pudo crear la cuenta. Inténtalo de nuevo.'));
 
     } catch (error) {
