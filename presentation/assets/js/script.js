@@ -361,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (params.get('suspendido') === '1') {
     showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.', 'error');
   }
+  if (params.get('google_error') === 'no_email') {
+    showNotice('No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.', 'error');
+  }
 
   /* ── Verificar protección de rutas ── */
   const protectedPages = ['mapa.html', 'mapa', '/mapa'];
