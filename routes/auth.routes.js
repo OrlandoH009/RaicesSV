@@ -22,9 +22,17 @@ router.get('/auth/google', (req, res, next) => {
 
 router.get('/auth/google/callback', (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user) => {
-        if (err || !user) {
-            const isSuspended = err && /suspendida/i.test(err.message);
-            return res.redirect(isSuspended ? '/login.html?suspendido=1' : '/login.html');
+        if (err) {
+            if (/suspendida/i.test(err.message)) {
+                return res.redirect('/login.html?suspendido=1');
+            }
+            if (err.expose === true) {
+                return res.redirect('/login.html?google_error=no_email');
+            }
+            return res.redirect('/login.html');
+        }
+        if (!user) {
+            return res.redirect('/login.html');
         }
         req.user = user;
         next();

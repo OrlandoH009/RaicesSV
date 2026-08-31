@@ -361,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (params.get('suspendido') === '1') {
     showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.', 'error');
   }
+  if (params.get('google_error') === 'no_email') {
+    showNotice('No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.', 'error');
+  }
 
   /* ── Verificar protección de rutas ── */
   const protectedPages = ['mapa.html', 'mapa', '/mapa'];
@@ -418,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
      AHORA con control de volumen en el navbar (slider visible siempre)
   */
   (function initBackgroundMusic() {
-    const MUSIC_SRC = '../assets/media/El Carbonero.mp3';
+    const MUSIC_SRC = '../assets/media/juegos/Mi Pais - Los Hermanos Flores.mp3';
     const STORAGE_KEY = 'raices-bgmusic-state';
 
     const readState = () => {
