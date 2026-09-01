@@ -337,3 +337,23 @@ button.auth-submit {
   color: var(--navy);
   text-decoration: underline;
 }
+.auth-terms-link {
+  display: block;
+  width: 100%;
+  margin: 1.3rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0,0,0,.08);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: .78rem;
+  color: rgba(0,0,0,.5);
+}
+.auth-terms-link a {
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+  transition: text-decoration .18s ease;
+}
+.auth-terms-link a:hover {
+  text-decoration: underline;
+}
