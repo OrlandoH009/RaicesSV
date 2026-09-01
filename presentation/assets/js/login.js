@@ -184,14 +184,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (!form) return;
-
   const showMessage = (message, isError = true) => {
     if (!messageBox) return;
     messageBox.textContent = message;
     messageBox.style.color = isError ? '#d9534f' : '#2e7d32';
     messageBox.style.display = 'block';
   };
+
+  const googleError = new URLSearchParams(window.location.search).get('google_error');
+  const isSuspended = new URLSearchParams(window.location.search).get('suspendido');
+
+  if (googleError === 'no_email') {
+    showMessage(tt('login.google_error_no_email', 'No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.'));
+  } else if (isSuspended === '1') {
+    showMessage(tt('login.account_suspended', 'Tu cuenta ha sido suspendida. Contacta a un administrador.'));
+  }
+
+  if (!form) return;
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -232,10 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const text = await response.text();
-      showMessage(text || window.SRi18n.t('login.error_generic', window.SRi18n.getLang()));
-      
+      showMessage(text || (window.SRi18n ? window.SRi18n.t('login.error_generic', window.SRi18n.getLang()) : 'No se pudo iniciar sesión. Inténtalo de nuevo.'));
+
     } catch (error) {
-      showMessage(window.SRi18n.t('login.error_server', window.SRi18n.getLang()));
+      showMessage(window.SRi18n ? window.SRi18n.t('login.error_server', window.SRi18n.getLang()) : 'Ocurrió un error de conexión. Inténtalo de nuevo.');
     }
   });
 
