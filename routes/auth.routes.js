@@ -29,6 +29,7 @@ router.get('/auth/google/callback', (req, res, next) => {
             if (err.expose === true) {
                 return res.redirect('/login.html?google_error=no_email');
             }
+            console.error('Error en el callbach de google:', err);
             return res.redirect('/login.html');
         }
         if (!user) {
