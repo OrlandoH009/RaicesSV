@@ -66,6 +66,7 @@ const ensureProfileColumns = () => {
         { name: 'description', definition: 'VARCHAR(300) NULL' },
         { name: 'avatar_url', definition: 'VARCHAR(255) NULL' },
         { name: 'avatar_source', definition: "ENUM('local', 'google') NULL" },
+        {name: 'google_id', definition: 'VARCHAR(191) UNIQUE NULL'},
         { name: 'google_avatar_url', definition: 'VARCHAR(255) NULL' },
         { name: 'id_status', definition: 'INT NOT NULL DEFAULT 1' },
         { name: 'created_at', definition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP' }
