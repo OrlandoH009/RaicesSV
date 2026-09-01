@@ -1866,7 +1866,7 @@ if (window.visualViewport) {
       // dentro del modal hacía burbujear este mismo evento hasta ese
       // listener, que volvía a reproducir la música del juego justo
       // cuando se estaba pausando al cerrar — y como esa música "seguía
-      // sonando", la música de fondo global (El Carbonero) nunca
+      // sonando", la música de fondo global (Mi Pais) nunca
       // recuperaba el turno para reanudarse.
       e.stopPropagation();
       const gameId = btn.dataset.closeModal;

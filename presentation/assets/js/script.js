@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
      AHORA con control de volumen en el navbar (slider visible siempre)
   */
   (function initBackgroundMusic() {
-    const MUSIC_SRC = '../assets/media/El Carbonero.mp3';
+    const MUSIC_SRC = '../assets/media/juegos/Mi Pais - Los Hermanos Flores.mp3';
     const STORAGE_KEY = 'raices-bgmusic-state';
 
     const readState = () => {

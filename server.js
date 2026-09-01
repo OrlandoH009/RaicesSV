@@ -49,12 +49,12 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'raices-secret-dev-only',
     resave: false,
     saveUninitialized: false,
-    rolling: true,
+    rolling: false,
     cookie: {
         httpOnly: true,
         sameSite: 'lax',
         secure: isProduction,
-        maxAge: 1000 * 60 * 60 * 4 // 4 horas
+        maxAge: 1000 * 60 * 60 * 24 // 24 horas desde el inicio de sesión, sin renovarse con la actividad
     }
 }));
 
