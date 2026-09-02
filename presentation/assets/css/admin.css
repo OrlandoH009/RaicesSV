@@ -56,7 +56,21 @@
   border-right: 1px solid rgba(255,255,255,.06);
 }
 [data-theme="light"] .admin-sidebar {
-  background: linear-gradient(180deg, var(--navy) 0%, #0a1f45 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f3ecdd 100%);
+  border-right: 1px solid rgba(17,48,104,.10);
+}
+[data-theme="light"] .admin-sidebar__brand-title { color: var(--navy); }
+[data-theme="light"] .admin-sidebar__brand-sub { color: var(--gold-hover); }
+[data-theme="light"] .admin-sidebar__brand { border-bottom-color: rgba(17,48,104,.10); }
+[data-theme="light"] .admin-nav__item { color: rgba(17,48,104,.62); }
+[data-theme="light"] .admin-nav__item:hover { color: var(--navy); }
+[data-theme="light"] .admin-sidebar__site-link {
+  border-color: rgba(17,48,104,.16);
+  color: var(--navy);
+}
+[data-theme="light"] .admin-sidebar__site-link:hover {
+  background: rgba(17,48,104,.05);
+  border-color: var(--gold);
 }
 
 .admin-sidebar__brand {
@@ -187,6 +201,11 @@
   text-transform: uppercase;
   color: var(--gold-light);
   margin-bottom: .25rem;
+}
+[data-theme="light"] .admin-header__eyebrow,
+[data-theme="light"] .admin-pub-card__location,
+[data-theme="light"] .admin-comment-card__publication {
+  color: var(--gold-hover);
 }
 .admin-header h1 {
   font-family: var(--font-display);
@@ -550,6 +569,35 @@
   border: 1px solid rgba(192,72,59,.3);
 }
 
+/* Modo claro: los tintes de bajo alpha pensados para negro se ven lavados
+   sobre blanco/crema — se sube el alpha y se oscurece el texto para mantener
+   el contraste sin perder la identidad de cada color. */
+[data-theme="light"] .admin-badge--role-usuario {
+  background: linear-gradient(135deg, rgba(190,142,86,.28), rgba(224,189,138,.20));
+  color: var(--gold-hover);
+  border-color: rgba(190,142,86,.5);
+}
+[data-theme="light"] .admin-badge--role-admin {
+  background: linear-gradient(135deg, rgba(111,155,214,.28), rgba(17,48,104,.16));
+  color: #3f6690;
+  border-color: rgba(111,155,214,.5);
+}
+[data-theme="light"] .admin-badge--role-fundador {
+  background: linear-gradient(120deg, rgba(61,79,160,.24), rgba(155,90,220,.22), rgba(61,79,160,.24));
+  color: #5b4fa0;
+  border-color: rgba(123,95,201,.5);
+}
+[data-theme="light"] .admin-badge--status-activo {
+  background: linear-gradient(135deg, rgba(79,143,107,.24), rgba(47,158,110,.16));
+  color: #2f6a49;
+  border-color: rgba(79,143,107,.5);
+}
+[data-theme="light"] .admin-badge--status-suspendido {
+  background: linear-gradient(135deg, rgba(192,72,59,.20), rgba(166,60,49,.14));
+  color: var(--admin-danger-hover);
+  border-color: rgba(192,72,59,.45);
+}
+
 .admin-empty-state {
   padding: 3rem 1rem;
   text-align: center;
@@ -614,6 +662,7 @@
   display: block;
   background: rgba(255,255,255,.05);
 }
+[data-theme="light"] .admin-pub-card__image { background: rgba(17,48,104,.06); }
 .admin-pub-card__body { padding: .95rem 1.1rem 1.1rem; }
 .admin-pub-card__title {
   font-family: var(--font-display);
