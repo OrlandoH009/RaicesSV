@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isAdminRole = user?.role === 'Admin' || user?.role === 'Fundador';
         const adminLinkHtml = isAdminRole
-          ? `<a href="/admin" class="btn-login">Panel de administración</a>`
+          ? `<a href="/admin" class="btn-login" data-i18n="nav.panelAdmin">Panel de administración</a>`
           : '';
 
         authContainer.innerHTML = `
