@@ -17,6 +17,8 @@
   --admin-danger-hover:   #a63c31;
   --admin-steel:          #6f9bd6;
   --admin-steel-bg:       rgba(111, 155, 214, .16);
+  --admin-founder:        #9d9ad2;
+  --admin-founder-violet: #7b5fc9;
   --admin-sidebar-w:      272px;
 }
 
@@ -257,7 +259,9 @@
   text-transform: uppercase;
   color: var(--gold);
 }
-.admin-whoami__role[data-role="Fundador"] { color: var(--admin-jade); }
+.admin-whoami__role[data-role="Fundador"] {
+  color: var(--admin-founder);
+}
 
 /* ── Toasts (mismo espíritu que el toast global de script.js) ── */
 #admin-toast {
@@ -512,11 +516,39 @@
   border-radius: 50%;
   background: currentColor;
 }
-.admin-badge--role-usuario  { background: var(--admin-steel-bg); color: var(--admin-steel); }
-.admin-badge--role-admin    { background: rgba(190,142,86,.16); color: var(--gold); }
-.admin-badge--role-fundador { background: var(--admin-jade-bg); color: var(--admin-jade); }
-.admin-badge--status-activo     { background: var(--admin-jade-bg); color: var(--admin-jade); }
-.admin-badge--status-suspendido { background: var(--admin-danger-bg); color: var(--admin-danger); }
+.admin-badge--role-usuario  {
+  background: linear-gradient(135deg, rgba(190,142,86,.20), rgba(224,189,138,.12));
+  color: var(--gold);
+  border: 1px solid rgba(190,142,86,.35);
+}
+.admin-badge--role-admin {
+  background: linear-gradient(135deg, var(--admin-steel-bg), rgba(17,48,104,.18));
+  color: var(--admin-steel);
+  border: 1px solid rgba(111,155,214,.3);
+}
+.admin-badge--role-fundador {
+  position: relative;
+  background: linear-gradient(120deg, rgba(61,79,160,.36), rgba(155,90,220,.32), rgba(61,79,160,.36));
+  background-size: 300% 300%;
+  color: var(--admin-founder);
+  border: 1px solid rgba(157,154,210,.45);
+  animation: founderAura 8s ease-in-out infinite;
+}
+
+@keyframes founderAura {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.admin-badge--status-activo {
+  background: linear-gradient(135deg, var(--admin-jade-bg), rgba(47,158,110,.10));
+  color: var(--admin-jade);
+  border: 1px solid rgba(79,143,107,.3);
+}
+.admin-badge--status-suspendido {
+  background: linear-gradient(135deg, var(--admin-danger-bg), rgba(166,60,49,.10));
+  color: var(--admin-danger);
+  border: 1px solid rgba(192,72,59,.3);
+}
 
 .admin-empty-state {
   padding: 3rem 1rem;
