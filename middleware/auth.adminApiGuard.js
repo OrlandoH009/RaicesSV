@@ -5,12 +5,6 @@ const requireAdminApiAuth = async (req, res, next) => {
         return res.status(401).json({ message: 'Debes iniciar sesión' });
     }
 
-    const role = req.session.user.role;
-
-    if (role !== 'Admin' && role !== 'Fundador') {
-        return res.status(403).json({ message: 'No tienes permisos para acceder a esta sección.' });
-    }
-
     try {
         const user = await userRepository.findById(req.session.user.id);
 
@@ -25,8 +19,12 @@ const requireAdminApiAuth = async (req, res, next) => {
         if (user.status_name === 'Suspendido') {
             return res.status(403).json({ message: 'Tu cuenta ha sido suspendida.', suspended: true });
         }
+        
+        if (user.role_name !== 'Admin' && user.role_name !== 'Fundador') {
+            return res.status(403).json({ message: 'No tienes permisos para acceder a esta sección.' });
+        }
 
-        next();
+        next(); 
     } catch (error) {
         console.error('Error verificando estado de usuario en requireAdminApiAuth:', error);
         next();
