@@ -15,6 +15,8 @@
   --admin-danger:         #c0483b;
   --admin-danger-bg:      rgba(192, 72, 59, .14);
   --admin-danger-hover:   #a63c31;
+  --admin-steel:          #6f9bd6;
+  --admin-steel-bg:       rgba(111, 155, 214, .16);
   --admin-sidebar-w:      272px;
 }
 
@@ -510,7 +512,7 @@
   border-radius: 50%;
   background: currentColor;
 }
-.admin-badge--role-usuario  { background: rgba(255,255,255,.08); color: var(--text-main); }
+.admin-badge--role-usuario  { background: var(--admin-steel-bg); color: var(--admin-steel); }
 .admin-badge--role-admin    { background: rgba(190,142,86,.16); color: var(--gold); }
 .admin-badge--role-fundador { background: var(--admin-jade-bg); color: var(--admin-jade); }
 .admin-badge--status-activo     { background: var(--admin-jade-bg); color: var(--admin-jade); }
