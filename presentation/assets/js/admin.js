@@ -299,8 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('chartUsersByStatus');
     if (!canvas || !window.Chart) return;
 
+    const statusColors = { Activo: '#4f8f6b', Suspendido: '#c0483b' };
     const labels = metrics.usersByStatus.map((row) => statusLabel(row.status));
     const values = metrics.usersByStatus.map((row) => row.total);
+    const backgroundColor = metrics.usersByStatus.map((row) => statusColors[row.status] || '#8a8f98');
     const textColor = buildChartTextColor();
 
     if (charts.status) charts.status.destroy();
@@ -310,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         labels,
         datasets: [{
           data: values,
-          backgroundColor: ['#4f8f6b', '#c0483b'],
+          backgroundColor,
           borderWidth: 0
         }]
       },
@@ -324,8 +326,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('chartUsersByRole');
     if (!canvas || !window.Chart) return;
 
+    const roleColors = { Usuario: '#8a8f98', Admin: '#be8e56', Fundador: '#4f8f6b' };
     const labels = metrics.usersByRole.map((row) => roleLabel(row.role));
     const values = metrics.usersByRole.map((row) => row.total);
+    const backgroundColor = metrics.usersByRole.map((row) => roleColors[row.role] || '#8a8f98');
     const textColor = buildChartTextColor();
 
     if (charts.role) charts.role.destroy();
@@ -335,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         labels,
         datasets: [{
           data: values,
-          backgroundColor: ['#8a8f98', '#be8e56', '#4f8f6b'],
+          backgroundColor,
           borderWidth: 0
         }]
       },
@@ -451,8 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function appealInitials(text) {
-    if (!text) return '?';
-    return text.trim()[0].toUpperCase();
+    const trimmed = (text || '').trim();
+    if (!trimmed) return '?';
+    return trimmed[0].toUpperCase();
   }
 
   function applyUserFilters() {
@@ -1181,6 +1186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const relatedUser = isValid ? state.users.find((u) => u.id === appeal.userId) : null;
+    const relatedUserPerms = relatedUser ? canActOnUser(relatedUser) : null;
 
     appealDetailCard.innerHTML = `
       <div class="admin-detail-head">
@@ -1202,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="admin-appeal-detail__message">${escapeHtml(appeal.message)}</div>
       <div class="admin-detail-actions" style="margin-top:1.4rem;">
-        ${(isValid && relatedUser && relatedUser.status === 'Suspendido') ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">${t('admin.actions.reactivateAccount')}</button>` : ''}
+        ${(isValid && relatedUser && relatedUser.status === 'Suspendido' && relatedUserPerms?.canSuspend) ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">${t('admin.actions.reactivateAccount')}</button>` : ''}
       </div>
     `;
 
