@@ -193,10 +193,8 @@ const promoteToAdmin = async (id_user, requestingUser, { appBaseUrl } = {}) => {
 
     const rawToken = crypto.randomBytes(INVITATION_TOKEN_BYTES).toString('hex');
     const tokenHash = hashToken(rawToken);
-    const expiresAt = new Date(Date.now() + INVITATION_TTL_MINUTES * 60 * 1000);
-    const expiresAtSql = expiresAt.toISOString().slice(0, 19).replace('T', ' ');
 
-    await adminRepository.createAdminInvitation(idUserNum, requestingUser.id, tokenHash, expiresAtSql);
+    await adminRepository.createAdminInvitation(idUserNum, requestingUser.id, tokenHash, INVITATION_TTL_MINUTES);
 
     const invitationLink = `${appBaseUrl}/aceptar-invitacion.html?token=${rawToken}`;
     const targetName = escapeHtml(target.name || '');
