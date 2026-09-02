@@ -6,12 +6,6 @@ async function requireAdmin(req, res, next) {
         return res.redirect(`/login.html?redirect=${encodeURIComponent(originalUrl)}`);
     }
 
-    const role = req.session.user.role;
-
-    if (role !== 'Admin' && role !== 'Fundador') {
-        return res.redirect('/');
-    }
-
     try {
         const user = await userRepository.findById(req.session.user.id);
 
@@ -26,6 +20,12 @@ async function requireAdmin(req, res, next) {
         if (user.status_name === 'Suspendido') {
             return res.redirect('/?suspendido=1');
         }
+
+        if (user.role_name !== 'Admin' && user.role_name !== 'Fundador') {
+            return res.redirect('/');
+        }
+
+        req.session.user.role = user.role_name;
 
         return next();
     } catch (error) {
