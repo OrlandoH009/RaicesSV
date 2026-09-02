@@ -280,6 +280,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return readThemeColor('--text-main') || '#ffffff';
   }
 
+  function shadeColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    let r = (num >> 16) & 0xff, g = (num >> 8) & 0xff, b = num & 0xff;
+    if (percent >= 0) {
+      r = Math.round(r + (255 - r) * percent / 100);
+      g = Math.round(g + (255 - g) * percent / 100);
+      b = Math.round(b + (255 - b) * percent / 100);
+    } else {
+      const p = -percent / 100;
+      r = Math.round(r * (1 - p));
+      g = Math.round(g * (1 - p));
+      b = Math.round(b * (1 - p));
+    }
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function metalGradient(canvas, hex) {
+    const ctx = canvas.getContext('2d');
+    const size = Math.max(canvas.width, canvas.height, 200);
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    gradient.addColorStop(0, shadeColor(hex, 45));
+    gradient.addColorStop(.45, shadeColor(hex, -12));
+    gradient.addColorStop(.55, shadeColor(hex, -12));
+    gradient.addColorStop(1, shadeColor(hex, 30));
+    return gradient;
+  }
+
   function renderMetricCards(metrics) {
     const totalUsersEl = document.querySelector('[data-metric="totalUsers"]');
     const activeUsersEl = document.querySelector('[data-metric="activeUsers"]');
@@ -302,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusColors = { Activo: '#4f8f6b', Suspendido: '#c0483b' };
     const labels = metrics.usersByStatus.map((row) => statusLabel(row.status));
     const values = metrics.usersByStatus.map((row) => row.total);
-    const backgroundColor = metrics.usersByStatus.map((row) => statusColors[row.status] || '#8a8f98');
+    const backgroundColor = metrics.usersByStatus.map((row) => metalGradient(canvas, statusColors[row.status] || '#8a8f98'));
     const textColor = buildChartTextColor();
 
     if (charts.status) charts.status.destroy();
@@ -313,11 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           data: values,
           backgroundColor,
-          borderWidth: 0
+          borderColor: 'rgba(255,255,255,.25)',
+          borderWidth: 1.5,
+          hoverOffset: 6
         }]
       },
       options: {
-        plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
@@ -326,10 +355,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('chartUsersByRole');
     if (!canvas || !window.Chart) return;
 
-    const roleColors = { Usuario: '#8a8f98', Admin: '#be8e56', Fundador: '#4f8f6b' };
+    const roleColors = { Usuario: '#be8e56', Admin: '#6f9bd6', Fundador: '#7b5fc9' };
     const labels = metrics.usersByRole.map((row) => roleLabel(row.role));
     const values = metrics.usersByRole.map((row) => row.total);
-    const backgroundColor = metrics.usersByRole.map((row) => roleColors[row.role] || '#8a8f98');
+    const backgroundColor = metrics.usersByRole.map((row) => metalGradient(canvas, roleColors[row.role] || '#8a8f98'));
     const textColor = buildChartTextColor();
 
     if (charts.role) charts.role.destroy();
@@ -340,11 +369,13 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           data: values,
           backgroundColor,
-          borderWidth: 0
+          borderColor: 'rgba(255,255,255,.25)',
+          borderWidth: 1.5,
+          hoverOffset: 6
         }]
       },
       options: {
-        plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
@@ -361,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usersMap = Object.fromEntries(metrics.usersByMonth.map((row) => [row.month, row.total]));
     const pubsMap = Object.fromEntries(metrics.publicationsByMonth.map((row) => [row.month, row.total]));
     const textColor = buildChartTextColor();
+    const gridColor = readThemeColor('--admin-surface-border') || 'rgba(255,255,255,.06)';
 
     if (charts.activity) charts.activity.destroy();
     charts.activity = new Chart(canvas, {
@@ -368,16 +400,16 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: months,
         datasets: [
-          { label: t('admin.charts.newUsers'), data: months.map((m) => usersMap[m] || 0), backgroundColor: '#be8e56' },
-          { label: t('admin.charts.publications'), data: months.map((m) => pubsMap[m] || 0), backgroundColor: '#4f8f6b' }
+          { label: t('admin.charts.newUsers'), data: months.map((m) => usersMap[m] || 0), backgroundColor: metalGradient(canvas, '#be8e56'), borderColor: 'rgba(255,255,255,.25)', borderWidth: 1 },
+          { label: t('admin.charts.publications'), data: months.map((m) => pubsMap[m] || 0), backgroundColor: metalGradient(canvas, '#4f8f6b'), borderColor: 'rgba(255,255,255,.25)', borderWidth: 1 }
         ]
       },
       options: {
         scales: {
-          x: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,.06)' } },
-          y: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,.06)' } }
+          x: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } },
+          y: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } }
         },
-        plugins: { legend: { labels: { color: textColor } } }
+        plugins: { legend: { labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
