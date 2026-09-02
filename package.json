@@ -42,5 +42,9 @@
   "allowScripts": {
     "bcrypt@6.0.0": true,
     "puppeteer@25.2.1": true
+  },
+  "overrides": {
+    "mysql2": "^3.22.5",
+    "qs": "^6.16.0"
   }
 }
