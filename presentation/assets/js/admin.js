@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navIndicator.style.transform = `translateY(${offsetTop}px)`;
       return;
     }
-    gsap.to(navIndicator, { y: offsetTop, duration: .45, ease: 'power3.out' });
+    gsap.to(navIndicator, { x: 0, y: offsetTop, duration: .45, ease: 'power3.out' });
   }
 
   function setActiveSection(sectionName) {
@@ -160,13 +160,46 @@ document.addEventListener('DOMContentLoaded', () => {
     showListView(sectionName);
   }
 
+  // ── Menú deslizante móvil (≤980px): botón de hamburguesa + backdrop ──
+  const sidebar = document.getElementById('adminSidebar');
+  const sidebarToggle = document.getElementById('adminSidebarToggle');
+  const sidebarClose = document.getElementById('adminSidebarClose');
+  const sidebarBackdrop = document.getElementById('adminSidebarBackdrop');
+
+  function openDrawer() {
+    if (!sidebar) return;
+    sidebar.classList.add('is-open');
+    sidebarBackdrop?.classList.add('is-open');
+    document.body.classList.add('admin-drawer-open');
+    sidebarToggle?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeDrawer() {
+    if (!sidebar) return;
+    sidebar.classList.remove('is-open');
+    sidebarBackdrop?.classList.remove('is-open');
+    document.body.classList.remove('admin-drawer-open');
+    sidebarToggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  sidebarToggle?.addEventListener('click', openDrawer);
+  sidebarClose?.addEventListener('click', closeDrawer);
+  sidebarBackdrop?.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
   navItems.forEach((btn) => {
-    btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
+    btn.addEventListener('click', () => {
+      setActiveSection(btn.dataset.section);
+      closeDrawer();
+    });
   });
 
   window.addEventListener('resize', () => {
     const activeBtn = navItems.find((btn) => btn.dataset.section === state.activeSection);
     if (activeBtn) moveIndicatorTo(activeBtn);
+    if (window.innerWidth > 980) closeDrawer();
   });
 
   function showListView(sectionName) {
@@ -346,6 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
@@ -375,6 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
@@ -405,6 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
           x: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } },
           y: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } }
@@ -535,10 +574,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="admin-user-cell__name">${escapeHtml(user.name)}</span>
             </div>
           </td>
-          <td>${escapeHtml(user.email)}</td>
-          <td><span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span></td>
-          <td><span class="admin-badge ${statusBadgeClass(user.status)}">${statusLabel(user.status)}</span></td>
-          <td>${formatDate(user.createdAt)}</td>
+          <td data-label="${escapeHtml(t('admin.users.table.email'))}">${escapeHtml(user.email)}</td>
+          <td data-label="${escapeHtml(t('admin.users.table.role'))}"><span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span></td>
+          <td data-label="${escapeHtml(t('admin.users.table.status'))}"><span class="admin-badge ${statusBadgeClass(user.status)}">${statusLabel(user.status)}</span></td>
+          <td data-label="${escapeHtml(t('admin.users.table.registered'))}">${formatDate(user.createdAt)}</td>
         `;
         row.addEventListener('click', () => openUserDetail(user.id));
         usersTableBody.appendChild(row);

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de administración — Salvadorean Roots</title>
   <link rel="stylesheet" href="../assets/css/global.css" />
-  <link rel="stylesheet" href="../assets/css/admin.css?v=3" />
+  <link rel="stylesheet" href="../assets/css/admin.css?v=7" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#0f2f66" />
@@ -14,6 +14,15 @@
 
   <div class="admin-shell">
 
+    <div class="admin-mobile-topbar" id="adminMobileTopbar">
+      <button type="button" class="admin-mobile-topbar__toggle" id="adminSidebarToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="adminSidebar" data-i18n-attr="aria-label:admin.nav.openMenuAria">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Salvadorean Roots" class="admin-mobile-topbar__logo" />
+      <span class="admin-mobile-topbar__title">Salvadorean Roots</span>
+    </div>
+    <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop"></div>
+
     <aside class="admin-sidebar" id="adminSidebar">
       <div class="admin-sidebar__brand">
         <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Salvadorean Roots" />
@@ -21,6 +30,7 @@
           <span class="admin-sidebar__brand-title">Salvadorean Roots</span>
           <span class="admin-sidebar__brand-sub" data-i18n="admin.sidebar.brandSub">Panel de administración</span>
         </div>
+        <button type="button" class="admin-sidebar__close" id="adminSidebarClose" aria-label="Cerrar menú" data-i18n-attr="aria-label:admin.nav.closeMenuAria">&times;</button>
       </div>
 
       <nav class="admin-nav" id="adminNav">
@@ -358,7 +368,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="../assets/js/i18n.js?v=2"></script>
-  <script src="../assets/js/admin.js?v=2"></script>
+  <script src="../assets/js/i18n.js?v=3"></script>
+  <script src="../assets/js/admin.js?v=5"></script>
 </body>
 </html>
