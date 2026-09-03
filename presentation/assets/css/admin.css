@@ -367,7 +367,7 @@
 /* ═══════════════════ GRÁFICOS ═══════════════════ */
 .admin-charts {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.1rem;
 }
 
@@ -376,6 +376,7 @@
   border: 1px solid var(--admin-surface-border);
   border-radius: var(--r-md);
   padding: 1.3rem 1.4rem 1.1rem;
+  min-width: 0;
 }
 .admin-chart-card--wide { grid-column: 1 / -1; }
 
@@ -390,7 +391,9 @@
 .admin-chart-card__body {
   position: relative;
   height: 240px;
+  min-width: 0;
 }
+.admin-chart-card__body canvas { max-width: 100%; }
 .admin-chart-card--wide .admin-chart-card__body { height: 200px; }
 
 /* ═══════════════════ TOOLBAR: BÚSQUEDA + FILTROS ═══════════════════ */
@@ -465,10 +468,12 @@
   border: 1px solid var(--admin-surface-border);
   border-radius: var(--r-md);
   overflow: hidden;
+  overflow-x: auto;
 }
 
 .admin-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
 }
 .admin-table thead th {
@@ -527,6 +532,7 @@
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: .02em;
+  white-space: nowrap;
 }
 .admin-badge::before {
   content: '';
@@ -1010,38 +1016,187 @@
   justify-content: center;
 }
 
+/* ═══════════════════ BARRA SUPERIOR MÓVIL + MENÚ DESLIZANTE ═══════════════════
+   En pantallas ≤980px el sidebar deja de ser una fila de íconos (obligaba a
+   hacer scroll horizontal para ver todas las secciones) y pasa a ser un panel
+   deslizante de ancho completo, abierto con un botón de hamburguesa. Mismo
+   layout vertical con ícono + texto que el sidebar de escritorio: nada que
+   memorizar, nada que deslizar. */
+.admin-mobile-topbar { display: none; }
+.admin-sidebar-backdrop { display: none; }
+.admin-sidebar__close { display: none; }
+
 /* ═══════════════════ RESPONSIVE ═══════════════════ */
 @media (max-width: 980px) {
   .admin-shell { flex-direction: column; }
-  .admin-sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    flex-direction: row;
+
+  .admin-mobile-topbar {
+    display: flex;
     align-items: center;
-    padding: 1rem;
-    overflow-x: auto;
+    gap: .7rem;
+    padding: .8rem 1.1rem;
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    position: sticky;
+    top: 0;
+    z-index: 500;
   }
-  .admin-sidebar__brand { border-bottom: none; padding-bottom: 0; margin-bottom: 0; margin-right: .8rem; }
-  .admin-sidebar__brand-sub { display: none; }
-  .admin-nav { flex-direction: row; flex: 0; }
-  .admin-nav__item span { display: none; }
-  .admin-nav__indicator { height: 100%; width: 44px; }
-  .admin-sidebar__site-link { margin-top: 0; margin-left: .5rem; }
-  .admin-sidebar__site-link span { display: none; }
+  [data-theme="light"] .admin-mobile-topbar {
+    background: linear-gradient(180deg, #ffffff 0%, #f3ecdd 100%);
+    border-bottom: 1px solid rgba(17,48,104,.10);
+  }
+  .admin-mobile-topbar__toggle {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: var(--r-sm);
+    color: #fff;
+    cursor: pointer;
+    transition: background .2s ease;
+  }
+  .admin-mobile-topbar__toggle:hover { background: rgba(255,255,255,.14); }
+  .admin-mobile-topbar__toggle svg { width: 20px; height: 20px; }
+  [data-theme="light"] .admin-mobile-topbar__toggle {
+    background: rgba(17,48,104,.06);
+    border-color: rgba(17,48,104,.16);
+    color: var(--navy);
+  }
+  .admin-mobile-topbar__logo { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; }
+  .admin-mobile-topbar__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: .92rem;
+    color: #fff;
+  }
+  [data-theme="light"] .admin-mobile-topbar__title { color: var(--navy); }
+
+  .admin-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .admin-sidebar-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(300px, 84vw);
+    height: 100vh;
+    z-index: 800;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    box-shadow: 8px 0 32px rgba(0,0,0,.35);
+  }
+  .admin-sidebar.is-open { transform: translateX(0); }
+
+  .admin-sidebar__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: auto;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  [data-theme="light"] .admin-sidebar__close {
+    background: rgba(17,48,104,.06);
+    border-color: rgba(17,48,104,.16);
+    color: var(--navy);
+  }
+
   .admin-main { padding: 1.4rem 1.2rem 3rem; }
-  .admin-charts { grid-template-columns: 1fr; }
+  .admin-charts { grid-template-columns: minmax(0, 1fr); }
+  .admin-chart-card__body,
+  .admin-chart-card--wide .admin-chart-card__body { height: 220px; }
+  .admin-detail-card { padding: 1.5rem; }
 }
 
+body.admin-drawer-open { overflow: hidden; }
+
 @media (max-width: 640px) {
+  .admin-main { padding: 1.1rem .9rem 2.6rem; }
+  .admin-header { align-items: center; margin-bottom: 1.6rem; }
+  .admin-header__actions { gap: .6rem; }
   .admin-whoami__text { display: none; }
-  .admin-header { align-items: center; }
+  .admin-whoami { padding: .3rem; }
+  #admin-toast { left: .8rem; right: .8rem; top: .8rem; }
+  .admin-toast-item { max-width: none; }
+
+  .admin-metrics { grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+  .admin-metric-card { padding: 1.05rem 1.1rem; }
+  .admin-metric-card__value { font-size: clamp(1.5rem, 7vw, 2rem); }
+
+  .admin-chart-card { padding: 1.05rem 1.1rem .9rem; }
+  .admin-chart-card__body,
+  .admin-chart-card--wide .admin-chart-card__body { height: 200px; }
+
   .admin-toolbar { flex-direction: column; align-items: stretch; }
   .admin-search { max-width: none; }
+  .admin-filters { flex-wrap: wrap; }
+  .admin-filters select { flex: 1; min-width: 140px; }
+
+  .admin-table-wrap { border-radius: var(--r-sm); overflow-x: hidden; }
+  .admin-table { min-width: 0; }
   .admin-table thead { display: none; }
   .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display: block; width: 100%; }
   .admin-table tr { padding: .8rem 1.1rem; }
-  .admin-table td { padding: .25rem 0; border: none; }
+  .admin-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    padding: .4rem 0;
+    border: none;
+    text-align: right;
+  }
+  .admin-table td::before {
+    content: attr(data-label);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-main);
+    opacity: .5;
+    flex-shrink: 0;
+  }
+  .admin-table td:first-child { justify-content: flex-start; padding-top: 0; }
+  .admin-table td:first-child::before { display: none; }
+  .admin-table td:first-child .admin-user-cell { width: 100%; }
+
+  .admin-pubs-grid,
+  .admin-team-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; }
+
+  .admin-detail-card { padding: 1.2rem; }
+  .admin-detail-row { flex-wrap: wrap; }
+  .admin-detail-row__value { text-align: left; }
+  .admin-detail-actions .admin-btn { flex: 1; min-width: 140px; }
+
+  .admin-appeal-card { flex-wrap: wrap; }
+  .admin-appeal-card__meta { flex-direction: row; align-items: center; margin-left: auto; }
+
+  .admin-drawer { padding: 1.3rem; }
+}
+
+@media (max-width: 400px) {
+  .admin-metrics { grid-template-columns: 1fr; }
 }
 
 /* ═══════════════════ ACCESIBILIDAD: reduced motion ═══════════════════ */
