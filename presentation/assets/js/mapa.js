@@ -644,8 +644,14 @@ const mapa = L.map('mapa-leaflet', {
   attributionControl: true,
   preferCanvas: true,
   fadeAnimation: !esDispositivoMovil,
-  zoomAnimation: true,
-  markerZoomAnimation: true,
+  // Desactivado: la transición CSS acelerada por GPU que Leaflet aplica a
+  // cada ícono durante zoomAnimation/markerZoomAnimation puede quedar mal
+  // compuesta en Chrome con ~100 marcadores (el navegador pinta posiciones
+  // viejas aunque el transform ya quedó actualizado al valor correcto —
+  // verificado comparando el transform real contra el calculado). Sin
+  // animación, cada zoom reposiciona los marcadores de una sola vez.
+  zoomAnimation: false,
+  markerZoomAnimation: false,
   inertia: true,
   inertiaDeceleration: 3000,
   inertiaMaxSpeed: 1500
