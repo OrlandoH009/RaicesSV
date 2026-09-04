@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameId = pauseBtn.id.replace('pauseBtn-', '');
     const wrap = controls.closest('.canvas-wrap');
     const overlay = document.getElementById(`overlay-${gameId}`);
+    const hud = document.getElementById(`hud-${gameId}`);
     const pauseOverlay = document.getElementById(`pauseOverlay-${gameId}`);
     const pauseCard = pauseOverlay?.querySelector('.overlay-card--pause');
     if (!wrap || !overlay) return;
@@ -75,14 +76,38 @@ document.addEventListener('DOMContentLoaded', () => {
       return cs.display !== 'none' && parseFloat(cs.opacity || '1') > 0.4;
     };
 
+    // El HUD (puntos/vidas/nivel/etc.) vive en la esquina superior y en
+    // celular llega a ocupar casi todo el ancho del canvas (ver
+    // .hud--overlay en juegos.css). El control flotante usaba un `top`
+    // fijo en CSS pensado para cuando no había nada arriba, así que en
+    // pantallas angostas terminaba dibujándose encima del HUD en vez de
+    // arriba de la tarjeta. Acá se calcula su posición real debajo del
+    // HUD (si existe y tiene contenido) en vez de un valor fijo.
+    const positionFloating = () => {
+      if (!hud || !isShown(hud)) { volumeGroup.style.top = ''; return; }
+      const hudRect = hud.getBoundingClientRect();
+      const overlayRect = overlay.getBoundingClientRect();
+      // Se lo deja siempre debajo del HUD (nunca encima): en pantallas muy
+      // bajitas puede terminar pegado al borde superior de la tarjeta de
+      // instrucciones, pero eso es preferible a tapar los datos en vivo
+      // del HUD (puntos/vidas/tiempo), que es lo que se ve mientras se
+      // juega de verdad.
+      volumeGroup.style.top = Math.max(0, hudRect.bottom - overlayRect.top + 8) + 'px';
+    };
+
     let currentSpot = 'home';
     const setSpot = (spot) => {
-      if (spot === currentSpot) return;
+      if (spot === currentSpot) {
+        if (spot === 'floating') positionFloating();
+        return;
+      }
       currentSpot = spot;
       volumeGroup.classList.remove('volume-floating', 'volume-inline-pause', 'volume-hidden');
+      volumeGroup.style.top = '';
       if (spot === 'floating') {
         volumeGroup.classList.add('volume-floating');
         overlay.appendChild(volumeGroup);
+        positionFloating();
       } else if (spot === 'pause' && pauseCard) {
         volumeGroup.classList.add('volume-inline-pause');
         pauseCard.appendChild(volumeGroup);
