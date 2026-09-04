@@ -6,30 +6,52 @@ const isSafeRedirect = (path) => {
 }
 
 const register = async (req, res) => {
-
     try {
-
         const {
             name,
             email,
             password,
             redirect
         } = req.body;
-
-        const safeRedirect = isSafeRedirect(redirect) ? redirect : '/';
-
-        await authService.register(
+        
+        const user = await authService.register(
             name,
             email,
             password
         );
 
-        const loginUrl = '/login.html' + (safeRedirect !== '/' ? '?redirect=' + encodeURIComponent(safeRedirect) : '');
+        const sessionData = {
+            id: user.id_user,
+            name: user.name,
+            email: user.email,
+            avatarUrl: user.avatar_url || null,
+            role: user.role_name
+        };
 
-        res.json({
-            success: true,
-            message: 'Cuenta creada correctamente',
-            redirect: loginUrl
+        const isAdminRole = sessionData.role === 'Admin' || sessionData.role === 'Fundador';
+        const defaultRedirect = isAdminRole ? '/admin' : '/';
+        const safeRedirect = isSafeRedirect(redirect) ? redirect : defaultRedirect;
+
+        req.session.regenerate((err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('La cuenta se creó, pero no se pudo iniciar sesión. Inténtalo de nuevo.');
+            }
+
+            req.session.user = sessionData;
+
+            req.session.save((saveErr) => {
+                if (saveErr) {
+                    console.error(saveErr);
+                    return res.status(500).send('La cuenta se creó, pero no se pudo iniciar sesión. Inténtalo de nuevo.');
+                }
+
+                res.json({
+                    success: true,
+                    message: 'Cuenta creada correctamente',
+                    redirect: safeRedirect
+                });
+            });
         });
 
     } catch (error) {
