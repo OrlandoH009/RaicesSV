@@ -75,6 +75,17 @@
             "let\u0027s say {texto}",
             "the plan will be {texto}"
           ]
+        },
+        {
+          "slots": [],
+          "name": "ModifyPlanIntent",
+          "samples": [
+            "modify plan",
+            "modify the plan",
+            "change the plan",
+            "I want to modify my plan",
+            "adjust the plan"
+          ]
         }
       ],
       "types": [],

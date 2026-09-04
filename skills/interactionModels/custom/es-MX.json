@@ -111,6 +111,17 @@
             "digamos {texto}",
             "la planificación será {texto}"
           ]
+        },
+        {
+          "slots": [],
+          "name": "ModificarPlanIntent",
+          "samples": [
+            "modificar plan",
+            "modificar el plan",
+            "cambiar el plan",
+            "quiero modificar mi plan",
+            "ajustar el plan"
+          ]
         }
       ],
       "types": [],
