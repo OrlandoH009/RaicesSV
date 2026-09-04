@@ -71,7 +71,7 @@ const LANDMARKS = [
     coords: [13.7739, -89.7256]
   },
   {
-    id: 12, cat: 'evento', emoji: '🎆', color: '#52a0e0',
+    id: 12, cat: 'cultural', emoji: '⛲', color: '#be8e56',
     nombre: 'Plaza las Américas',
     lugar: 'San Salvador',
     coords: [13.6995, -89.2200]
@@ -89,7 +89,7 @@ const LANDMARKS = [
     coords: [14.0322, -89.0269]
   },
   {
-    id: 15, cat: 'evento', emoji: '✝️', color: '#52a0e0',
+    id: 15, cat: 'cultural', emoji: '✝️', color: '#be8e56',
     nombre: 'Catedral de Santa Ana',
     lugar: 'Santa Ana',
     coords: [13.9958, -89.5582]
@@ -105,12 +105,6 @@ const LANDMARKS = [
     nombre: 'Ex-Casa Presidencial',
     lugar: 'San Jacinto, San Salvador',
     coords: [13.6868, -89.1932]
-  },
-  {
-    id: 18, cat: 'historia', emoji: '⛪', color: '#7c52e0',
-    nombre: 'Iglesia El Rosario',
-    lugar: 'San Salvador',
-    coords: [13.6972, -89.1905]
   },
   {
     id: 19, cat: 'leyenda', emoji: '👻', color: '#52c07c',
@@ -215,7 +209,7 @@ const LANDMARKS = [
     coords: [13.3372, -87.8447]
   },
   {
-    id: 36, cat: 'gastronomia', emoji: '🏮', color: '#e05252',
+    id: 36, cat: 'evento', emoji: '🏮', color: '#52a0e0',
     nombre: 'Festival de los Farolitos en Ataco',
     lugar: 'Ahuachapán, El Salvador',
     coords: [13.8722, -89.8494]
@@ -279,12 +273,6 @@ const LANDMARKS = [
     nombre: 'Carnaval de la Panela',
     lugar: 'Verapaz, San Vicente',
     coords: [13.65, -88.85]
-  },
-  {
-    id: 47, cat: 'gastronomia', emoji: '🌭', color: '#e05252',
-    nombre: 'Fiestas de Cojutepeque',
-    lugar: 'Cuscatlán, El Salvador',
-    coords: [13.7179, -88.9318]
   },
   {
     id: 48, cat: 'evento', emoji: '👕', color: '#52a0e0',
@@ -389,7 +377,7 @@ const LANDMARKS = [
     coords: [13.6885, -89.1902]
   },
   {
-    id: 65, cat: 'historia', emoji: '🛡️', color: '#7c52e0',
+    id: 65, cat: 'cultural', emoji: '🛡️', color: '#be8e56',
     nombre: 'Sitio Arqueológico Cihuatán',
     lugar: 'Aguilares, San Salvador',
     coords: [13.9612, -89.1685]
@@ -464,12 +452,6 @@ const LANDMARKS = [
     coords: [13.7167, -88.9333]
   },
   {
-    id: 77, cat: 'evento', emoji: '🎪', color: '#52a0e0',
-    nombre: 'Feria de San Juan Degollado',
-    lugar: 'Cojutepeque, Cuscatlán',
-    coords: [13.7167, -88.9333]
-  },
-  {
     id: 78, cat: 'evento', emoji: '🎉', color: '#52a0e0',
     nombre: 'Fiestas Patronales de Ilopango',
     lugar: 'Ilopango, San Salvador',
@@ -510,12 +492,6 @@ const LANDMARKS = [
     nombre: 'Día Nacional de la Pupusa',
     lugar: 'Olocuilta, La Paz',
     coords: [13.5686, -89.1197]
-  },
-  {
-    id: 85, cat: 'evento', emoji: '🎉', color: '#52a0e0',
-    nombre: 'Fiestas Patronales de San Vicente',
-    lugar: 'San Vicente, San Vicente',
-    coords: [13.6411, -88.7861]
   },
   {
     id: 86, cat: 'evento', emoji: '🎉', color: '#52a0e0',
@@ -787,7 +763,11 @@ function invalidateMapSize() {
 function crearIcono(emoji, color) {
   return L.divIcon({
     className: '',
-    html: `<div class="custom-marker" style="background:${color};">${emoji}</div>`,
+    // El wrapper .custom-marker-shift existe solo para el desplazamiento de
+    // "despliegue" (ver declutterMarkers más abajo): así el transform que usa
+    // para separar marcadores solapados no pisa el transform de escala que
+    // usan GSAP y .custom-marker--active sobre .custom-marker.
+    html: `<div class="custom-marker-shift"><div class="custom-marker" style="background:${color};">${emoji}</div></div>`,
     iconSize: [34, 34],
     iconAnchor: [17, 17],
     popupAnchor: [0, -20]
@@ -817,7 +797,7 @@ function obtenerEtiquetaCategoria(cat, forcedLang = null) {
 
 function getImgUrl(lm) {
   if (!lm || !lm.id) return '../assets/media/publications/default-publication.svg';
-  return `../assets/media/mapa/${lm.id}.webp?v=1.0.0`;
+  return `../assets/media/mapa/${lm.id}.webp?v=1.1.0`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1177,6 +1157,18 @@ function crearMarker(lm) {
     sticky: false
   });
 
+  // El tooltip de Leaflet se posiciona según la coordenada real del marcador,
+  // no según el desplazamiento visual que aplica declutterMarkers() para
+  // separar marcadores solapados. Si el marcador está desplazado, corregimos
+  // el tooltip con el mismo offset para que aparezca sobre el ícono visible.
+  marker.on('tooltipopen', () => {
+    const off = marker._declutterOffset;
+    const tip = marker.getTooltip()?.getElement();
+    if (off && tip) {
+      tip.style.transform += ` translate(${off.dx}px, ${off.dy}px)`;
+    }
+  });
+
   marker.on('click', () => {
     abrirSidebar(lm, marker);
     setTimeout(invalidateMapSize, 500);
@@ -1210,10 +1202,90 @@ window.srMarkersReady = false;
     } else {
       window.srMarkersReady = true;
       window.dispatchEvent(new Event('srMarkersReady'));
+      declutterMarkers();
     }
   }
   procesarLote();
 })(LANDMARKS);
+
+/* ══════════════════════════════════════════════════════════
+   SEPARAR MARCADORES SOLAPADOS ("despliegue" en abanico)
+   ══════════════════════════════════════════════════════════
+   Varios lugares/eventos comparten coordenadas iguales o muy cercanas
+   (ej. varias fiestas patronales del mismo pueblo). A un zoom en el que
+   el usuario puede tocar un marcador, esos puntos caen literalmente unos
+   encima de otros y el de más arriba tapa a los demás, haciendo imposible
+   abrir su ficha. Para arreglarlo, agrupamos por cercanía en PANTALLA
+   (no en coordenadas, porque la distancia en píxeles entre dos puntos fijos
+   cambia con el zoom) y separamos cada grupo en un pequeño abanico/círculo
+   mediante un transform CSS puramente visual: la posición geográfica real
+   del marcador (y por tanto a dónde vuela el mapa al abrir su ficha) no
+   cambia, solo su dibujo en pantalla. */
+const DECLUTTER_PIXEL_THRESHOLD = 32; // si dos marcadores caen a menos de esto, se consideran solapados
+const DECLUTTER_BASE_RADIUS = 20;     // px de radio para un grupo de 2
+const DECLUTTER_RADIUS_STEP = 5;      // px extra de radio por cada miembro adicional del grupo
+
+function declutterMarkers() {
+  if (!mapa) return;
+
+  // Solo tiene sentido separar marcadores que están realmente visibles
+  // (capa de su categoría activa en el mapa).
+  const visibles = markers.filter(m => {
+    const grupo = gruposCategoria[m._landmarkCat];
+    return grupo ? mapa.hasLayer(grupo) : mapa.hasLayer(m);
+  });
+
+  const puntos = visibles.map(m => ({ marker: m, pt: mapa.latLngToContainerPoint(m.getLatLng()) }));
+
+  // Agrupar por cercanía en píxeles (unión simple: cualquier par a menos de
+  // DECLUTTER_PIXEL_THRESHOLD queda en el mismo grupo, transitivamente).
+  const grupos = [];
+  const asignado = new Array(puntos.length).fill(-1);
+  for (let i = 0; i < puntos.length; i++) {
+    if (asignado[i] !== -1) continue;
+    const grupoIdx = grupos.length;
+    grupos.push([i]);
+    asignado[i] = grupoIdx;
+    // BFS: cualquier punto cercano a alguno ya en el grupo se suma también.
+    const pendientes = [i];
+    while (pendientes.length) {
+      const actual = pendientes.pop();
+      for (let j = 0; j < puntos.length; j++) {
+        if (asignado[j] !== -1) continue;
+        if (puntos[actual].pt.distanceTo(puntos[j].pt) <= DECLUTTER_PIXEL_THRESHOLD) {
+          asignado[j] = grupoIdx;
+          grupos[grupoIdx].push(j);
+          pendientes.push(j);
+        }
+      }
+    }
+  }
+
+  grupos.forEach(indices => {
+    const n = indices.length;
+    indices.forEach((idx, orden) => {
+      const marker = puntos[idx].marker;
+      const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
+      if (!shiftEl) return;
+      if (n === 1) {
+        shiftEl.style.transform = '';
+        marker._declutterOffset = null;
+        return;
+      }
+      const angulo = (2 * Math.PI * orden) / n - Math.PI / 2; // el primero apunta hacia arriba
+      const radio = DECLUTTER_BASE_RADIUS + DECLUTTER_RADIUS_STEP * (n - 2);
+      const dx = Math.round(Math.cos(angulo) * radio);
+      const dy = Math.round(Math.sin(angulo) * radio);
+      shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      marker._declutterOffset = { dx, dy };
+    });
+  });
+}
+
+// La distancia en píxeles entre dos coordenadas fijas cambia con el zoom
+// (más separación visual al acercarse), así que hay que recalcular ahí.
+// No hace falta en 'move' puro: paneo sin cambiar zoom no altera esa distancia.
+mapa.on('zoomend', declutterMarkers);
 
 let categoriaActiva = 'todas';
 
@@ -1241,6 +1313,7 @@ function aplicarFiltro(categoria) {
   }
   actualizarContador(categoria);
   setTimeout(invalidateMapSize, 200);
+  if (window.srMarkersReady) declutterMarkers();
 }
 
 // Pequeño "pop" escalonado en los marcadores que quedan visibles tras
@@ -1537,31 +1610,12 @@ document.addEventListener("langchange", (e) => {
     });
 })();
 
-/* ══════════════════════════════════════════════════════════
-   BOTÓN "VOLVER"
-   ══════════════════════════════════════════════════════════ */
-(function configurarBotonVolver() {
-  const params = new URLSearchParams(window.location.search);
-  const from = params.get('from');
-  const backBtn = document.getElementById('mapaBackBtn');
-  const backBtnLabel = document.getElementById('mapaBackBtnLabel');
-  if (!from || !backBtn) return;
-  const esRutaSegura = /^[a-zA-Z0-9_\-]+\.html$/.test(from);
-  if (!esRutaSegura) return;
-  const etiquetas = {
-    'calendario.html': 'Volver al calendario',
-    'sitios-culturales.html': 'Volver a sitios culturales',
-    'gastronomia.html': 'Volver a gastronomía',
-    'eventos.html': 'Volver a eventos',
-    'historia.html': 'Volver a historia',
-    'leyendas.html': 'Volver a leyendas'
-  };
-  backBtnLabel.textContent = etiquetas[from] || 'Volver';
-  backBtn.style.display = 'flex';
-  backBtn.addEventListener('click', () => {
-    window.location.href = from;
-  });
-})();
+/* El botón "Volver" de esta página es el mismo #infoBackBtn compartido con
+   el resto del sitio (categorías, calendario, eventos, etc.), configurado
+   por assets/js/back-nav.js según el "?from=" de la URL. Mapa solía tener
+   además su propio botón "mapaBackBtn" con la misma función, lo que hacía
+   aparecer dos flechas de volver a la vez — se eliminó para quedar
+   consistente con el resto de páginas. */
 
 /* ══════════════════════════════════════════════════════════
    RESALTAR LANDMARK DESDE URL

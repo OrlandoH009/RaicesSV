@@ -7,6 +7,7 @@
   <meta name="description" content="Pon a prueba tus conocimientos sobre la cultura, historia y gastronomía salvadoreña." />
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/quiz.css" />
+  <link rel="stylesheet" href="../assets/css/info-shared.css" />
   <link rel="icon" href="../assets/favicon/favicon.ico" />
   <link rel="manifest" href="../assets/favicon/site.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
@@ -56,6 +57,11 @@
       <span data-lang-toggle-flag>🇸🇻</span>
     </button>
   </nav>
+
+  <a href="../views/categorias.html" class="info-back-btn" id="infoBackBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+    <span id="infoBackBtnLabel" data-i18n="backNav.volver">Volver</span>
+  </a>
 
 <main>
 
@@ -302,6 +308,7 @@
   <script src="../assets/js/quiz-waves.js"></script>
   <!-- Cargar i18n antes de quiz.js para que estén las traducciones -->
   <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/back-nav.js" defer></script>
   <script src="../assets/js/quiz.js"></script>
   <script src="../assets/js/chatbot.js"></script>
 </body>
