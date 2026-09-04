@@ -32,16 +32,24 @@
 
   const PROXY_URL = '/chat-proxy';
   const STORAGE_KEY = 'rs_chat_history';
-  const MAX_HISTORY = 6;
+  // MAX_HISTORY: cuántos mensajes se guardan, muestran y traducen (todo el chat visible).
+  const MAX_HISTORY = 60;
+  // MAX_CONTEXT_MESSAGES: cuántos mensajes recientes se envían al modelo como contexto
+  // en cada pregunta normal, para no disparar el costo/latencia de cada llamada.
+  const MAX_CONTEXT_MESSAGES = 10;
 
   // ==========================================
   // 2. DETECCIÓN DE IDIOMA
   // ==========================================
-  const RAICES_LANDMARKS_INFO = `SITIOS CULTURALES: Tazumal (Chalchuapa, Santa Ana), Joya de Cerén (San Juan Opico, La Libertad), Salvador del Mundo (San Salvador), Suchitoto (Cuscatlán), Catedral Metropolitana (San Salvador), MUNA (San Salvador), Ruinas de San Andrés (Ciudad Arce, La Libertad), El Boquerón (Volcán de San Salvador, San Salvador).
-GASTRONOMÍA: Pupusería El Caserío (Santa Ana), Semitas de Cojutepeque (Cuscatlán), Mercado Central de San Salvador (San Salvador), Nahuizalco - Mercado Nocturno (Sonsonate).
-EVENTOS Y FESTIVIDADES: Plaza las Américas (San Salvador), Panchimalco (San Salvador), Festival de Suchitoto (Cuscatlán), Catedral de Santa Ana (Santa Ana), Fiestas Agostinas (San Salvador), Día de los Farolitos (Ahuachapán), Fiestas Julias (Santa Ana), Fiestas Patronales de San Vicente (San Vicente), Festival de las Flores y Palmas (La Libertad), Gran Carnaval de San Miguel (San Miguel), Fiestas de los Historiantes de Cuisnahuat (Sonsonate), Festival del Jocote Corona (Santa Ana), Día de la Calabiuza (Cuscatlán), Festival de los Canastos (Cabañas), Día de la Cruz (San Salvador), Festival del Maíz (Chalatenango), Fiestas del Bálsamo (La Libertad), Feria del Membrillo (Morazán), Fiestas Patronales de La Unión (La Unión), Festival de los Farolitos en Ataco (Ahuachapán), Festival de la Panela (Cuscatlán), Fiestas del Rey Guajactial (Sonsonate), Festival del Cangrejo (La Paz), Romería de Esquipulas (Chalatenango), Festival del Barro (Cabañas), Fiestas del Arroz (San Vicente), Festival de la Juventudes Populares (Morazán), Feria del Marisco (Usulután), Fiesta de la Primicia de la Cosecha (La Unión), Carnaval de la Panela de Verapaz (San Vicente), Fiestas Patronales de Cojutepeque (Cuscatlán), Festival del Añil (Cuscatlán), Fiestas Patronales de Gotera (Morazán), Festival Internacional del Chicharrón (La Libertad).
-HISTORIA: Casa de la Cultura de Izalco (Sonsonate), Casa de la Independencia (San Salvador), Iglesia El Rosario (San Salvador).
-LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco).`.trim();
+  // IMPORTANTE: todos los nombres de esta lista deben existir EXACTAMENTE igual
+  // en el dataset del mapa (presentation/assets/js/mapa.js). Si se agrega o
+  // renombra un lugar aquí, debe reflejarse también en LANDMARKS_MINI más abajo
+  // para que el enlace "Ver en el mapa" funcione.
+  const RAICES_LANDMARKS_INFO = `SITIOS CULTURALES: Tazumal (Chalchuapa, Santa Ana), Joya de Cerén (San Juan Opico, La Libertad), Salvador del Mundo (San Salvador), Suchitoto (Cuscatlán), Catedral Metropolitana (San Salvador), MUNA (San Salvador), Ruinas de San Andrés (Ciudad Arce, La Libertad), El Boquerón (Volcán de San Salvador), Casa Blanca (Chalchuapa, Santa Ana), Palacio Nacional (Centro Histórico, San Salvador), Teatro Nacional (Centro Histórico, San Salvador).
+GASTRONOMÍA: Pupusodromo El Triángulo (Olocuilta, La Paz), Semitas de Cojutepeque (Cuscatlán), Mercado Central (Centro Histórico, San Salvador), Nahuizalco — Mercado Nocturno (Sonsonate), Día Nacional de la Pupusa (Olocuilta, La Paz).
+EVENTOS Y FESTIVIDADES: Plaza las Américas (San Salvador), Panchimalco (San Salvador), Festival de Suchitoto (Cuscatlán), Catedral de Santa Ana (Santa Ana), Fiestas Agostinas (San Salvador), Día de los Farolitos (Ahuachapán), Fiestas Julias (Santa Ana), Fiestas Patronales de San Vicente (San Vicente), Festival de las Flores y Palmas (La Libertad), Gran Carnaval de San Miguel (San Miguel), Fiestas de los Historiantes (Cuisnahuat, Sonsonate), Festival del Jocote Corona (Santa Ana), Día de la Calabiuza (Cuscatlán), Día de la Cruz (San Salvador), Festival del Maíz (Chalatenango), Tradición del Bálsamo (Jayaque, La Libertad), Fiestas Patronales de La Unión (La Unión), Festival de los Farolitos en Ataco (Ahuachapán), Festival de la Panela (Cuscatlán), Fiestas del Rey Guajactial (Sonsonate), Festival del Cangrejo (La Paz), Romería de Esquipulas (Chalatenango), Festival del Barro (Cabañas), Fiestas del Arroz (San Vicente), Festival de las Juventudes (El Mozote, Morazán), Feria del Marisco (Usulután), Primicia de la Cosecha (La Unión), Carnaval de la Panela (Verapaz, San Vicente), Fiestas Patronales de Cojutepeque (Cuscatlán), Festival del Añil (Cuscatlán), Fiestas Patronales de Gotera (Morazán), Festival del Chicharrón (La Libertad), Día de la Independencia (Plaza Cívica, San Salvador), Bolas de Fuego de Nejapa (Nejapa, San Salvador), Feria de la Hamaca (San Sebastián, San Vicente).
+HISTORIA: Casa de la Cultura de Izalco (Izalco, Sonsonate), Iglesia El Rosario (San Salvador), Museo Militar (San Jacinto, San Salvador), Sitio Arqueológico Cihuatán (Aguilares, San Salvador).
+LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco), Laguna de Alegría (Usulután).`.trim();
 
   function detectLanguage() {
     if (window.SRi18n && typeof window.SRi18n.getLang === 'function') {
@@ -61,9 +69,10 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
   let isOpen = false;
   let isLoading = false;
   let bubbleHidden = false;
-  let plannerMode = false;   
-  let plannerStep = null;    
+  let plannerMode = false;
+  let plannerStep = null;
   let plannerData = {};
+  let plannerLastPlan = '';
   let isTranslating = false;
   let pendingTranslationLang = null;
   let historyLang = currentLang;
@@ -82,10 +91,12 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       inputPlaceholder: 'Escribe tu pregunta...',
       inputPlaceholderPlanner: 'Ej. Gastronomía, historia, museos...',
       inputPlaceholderLocation: 'Ej. San Salvador, Santa Ana...',
+      inputPlaceholderPeople: 'Ej. 2 personas, 5 (toda la familia)...',
       inputPlaceholderBudget: 'Ej. $20, económico...',
       inputPlaceholderDuration: 'Ej. 4 horas, medio día...',
       inputPlaceholderDetails: 'Escribe detalles o escribe "omitir"...',
       inputPlaceholderGenerating: 'Generando tu plan...',
+      inputPlaceholderModify: 'Describe qué deseas cambiar del plan...',
       mapLinkText: '📍 Ver {name} en el mapa',
       welcomeMessage: "¡Hola! Soy **Pupusita**, tu guía cultural de Salvadorean Roots. 🌿\n\nPuedo ayudarte con información sobre la historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador. ¿Qué deseas saber?\n\n💡 Tip: activa el botón **Planificar** de arriba y te ayudo a armar una salida según lo que quieras hacer y tu presupuesto.",
       lockedMessage: "🔒 **Acceso restringido**\n\nPara usar el asistente Pupusita, necesitas **iniciar sesión** en Salvadorean Roots.\n\n¡Regístrate o inicia sesión para descubrir toda la cultura salvadoreña! 🇸🇻",
@@ -94,10 +105,15 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       plannerStart: "¡Perfecto! Activaste el **Planificador de salidas**. 🧭\n\nVamos a armar tu plan ideal por El Salvador. Primero, **¿qué tipo de actividad te gustaría hacer?** (Puedes escribir: *gastronomía, historia, leyendas, playas o un poco de todo*).",
       errValidation: "❌ **Esa no es la información que he solicitado.** Por favor, sigue las indicaciones descritas.",
       plannerLocationPrompt: "Entendido. Ahora, **¿desde qué ciudad o municipio vas a iniciar tu salida?**",
-      plannerBudgetPrompt: "Anotado tu punto de partida. **¿Cuál es tu presupuesto aproximado en dólares ($ USD) para esta salida?**",
+      plannerPeoplePrompt: "Genial. **¿Cuántas personas van a participar en la salida?** Así calculo bien los costos de transporte y comida para el grupo.",
+      plannerBudgetPrompt: "Anotado. **¿Cuál es tu presupuesto aproximado en dólares ($ USD) para toda la salida (grupo completo)?**",
       plannerDurationPrompt: "Perfecto. **¿Cuánto tiempo tienes disponible para tu salida?**",
       plannerDetailsPrompt: "Una última cosa 🙂: **¿Hay algún platillo, lugar específico o preferencia que quieras incluir sí o sí?** Si no, escribe *\"omitir\"*.",
       plannerSuccess: "¡Tu plan ha sido generado con éxito! El planificador se ha desactivado automáticamente. Puedes seguir haciéndome preguntas normales.",
+      plannerModifyOffer: "¿Quieres ajustar algo del plan? Puedo cambiar actividades, el presupuesto, el transporte o cualquier detalle.",
+      modifyPlanBtn: '✏️ Modificar plan',
+      plannerModifyPrompt: "Cuéntame qué te gustaría cambiar del plan (por ejemplo: cambiar una actividad, ajustar el presupuesto, el número de personas o agregar un lugar) y lo actualizo.",
+      plannerModifySuccess: "¡Listo! Actualicé tu plan según lo que pediste.",
       errGeneric: "Hubo un problema. Por favor intenta de nuevo.",
       quickQuestions: ['¿Qué son las pupusas?', '¿Qué es Joya de Cerén?', '¿Quién es la Siguanaba?', '¿Cuándo son las Fiestas Agostinas?'],
       sharePlan: '📤 Compartir plan',
@@ -114,10 +130,12 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       inputPlaceholder: 'Type your question...',
       inputPlaceholderPlanner: 'E.g., Food, history, museums...',
       inputPlaceholderLocation: 'E.g., San Salvador, Santa Ana...',
+      inputPlaceholderPeople: 'E.g., 2 people, 5 (whole family)...',
       inputPlaceholderBudget: 'E.g., $20, budget...',
       inputPlaceholderDuration: 'E.g., 4 hours, half day...',
       inputPlaceholderDetails: 'Type details or write "skip"...',
       inputPlaceholderGenerating: 'Generating your plan...',
+      inputPlaceholderModify: 'Describe what you want to change about the plan...',
       mapLinkText: '📍 See {name} on the map',
       welcomeMessage: "Hello! I am **Pupusita**, your cultural guide from Salvadorean Roots. 🌿\n\nI can help you with information about history, gastronomy, legends, cultural sites, and events in El Salvador. What do you want to know?\n\n💡 Tip: activate the **Plan Trip** button above and I will help you build an itinerary based on your preferences and budget.",
       lockedMessage: "🔒 **Access restricted**\n\nTo use the Pupusita assistant, you need to **log in** to Salvadorean Roots.\n\nSign up or log in to discover all Salvadoran culture! 🇸🇻",
@@ -126,10 +144,15 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       plannerStart: "Perfect! You activated the **Trip Planner**. 🧭\n\nLet's plan your ideal trip around El Salvador. First, **what kind of activity would you like to do?**",
       errValidation: "❌ **That is not the information I requested.** Please follow the instructions provided.",
       plannerLocationPrompt: "Understood. Now, **from which city or town will you start your trip?**",
-      plannerBudgetPrompt: "Starting point noted. **What is your approximate budget in dollars ($ USD) for this trip?**",
+      plannerPeoplePrompt: "Great. **How many people will be going on the trip?** That way I can calculate transport and food costs for the whole group.",
+      plannerBudgetPrompt: "Noted. **What is your approximate budget in dollars ($ USD) for the whole trip (entire group)?**",
       plannerDurationPrompt: "Perfect. **How much time do you have available for your trip?**",
       plannerDetailsPrompt: "One last thing 🙂: **Is there any specific dish, place, or preference you want to include no matter what?** If not, write *\"skip\"*.",
       plannerSuccess: "Your plan has been generated successfully! The planner has turned off automatically. You can keep asking me regular questions.",
+      plannerModifyOffer: "Want to tweak anything about the plan? I can change activities, budget, transport, or any detail.",
+      modifyPlanBtn: '✏️ Modify plan',
+      plannerModifyPrompt: "Tell me what you'd like to change about the plan (e.g., swap an activity, adjust the budget, the number of people, or add a place) and I'll update it.",
+      plannerModifySuccess: "Done! I updated your plan based on your request.",
       errGeneric: "There was a problem. Please try again.",
       quickQuestions: ['What are pupusas?', 'What is Joya de Cerén?', 'Who is the Siguanaba?', 'When are the August Festivals?'],
       sharePlan: '📤 Share plan',
@@ -141,9 +164,17 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
   // ==========================================
   // 4. SISTEMA DE PROMPTS
   // ==========================================
+  function getCurrentDateInfo(lang) {
+    const now = new Date();
+    const locale = lang === 'en' ? 'en-US' : 'es-SV';
+    const formatted = now.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    return { formatted, year: now.getFullYear() };
+  }
+
   function getSystemPrompt(lang) {
-    const basePrompt = lang === 'en' ? 
-      `You are "Pupusita", assistant for Salvadorean Roots. ALWAYS respond in English. Only talk about culture, history, gastronomy, tourism, and legends of El Salvador (Current year: 2026).
+    const { formatted: todayStr, year } = getCurrentDateInfo(lang);
+    const basePrompt = lang === 'en' ?
+      `You are "Pupusita", assistant for Salvadorean Roots. ALWAYS respond in English. Only talk about culture, history, gastronomy, tourism, and legends of El Salvador (Current date: ${todayStr}).
 CRITICAL RESPONSE RULES:
 1. Ultra direct and minimalist: Respond in telegraphic style. Forbidden to use introductions. Go straight to the data in the very first word.
 2. Maximum length: Strict limit of 1 to 2 short sentences (max 25 words total).
@@ -152,8 +183,9 @@ CRITICAL RESPONSE RULES:
 5. Exact names: If you cite places from the verified list, write them EXACTLY the same way.
 ${RAICES_LANDMARKS_INFO}
 6. Filter: If greeted, say only: "Hello, I am Pupusita. What info are you looking for?". If unrelated to El Salvador, respond ONLY: "I don't have answers for topics unrelated to the site."
-7. Language: ALWAYS respond in the same language the user writes to you.` :
-      `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Año actual: 2026).
+7. Language: ALWAYS respond in the same language the user writes to you.
+8. Dates: Today is ${todayStr}. If asked about festivals, fairs, or patron saint celebrations "coming up" or "soon", only mention ones whose date is on or after today in the ${year} calendar; if one already happened this year, say so and mention it happens again next year instead of presenting it as upcoming.` :
+      `Eres "Pupusita", asistente de Salvadorean Roots. Responde SIEMPRE en español. Solo hablas sobre cultura, historia, gastronomía, turismo y leyendas de El Salvador (Fecha actual: ${todayStr}).
 REGLAS CRÍTICAS DE RESPUESTA:
 1. Ultra directo y minimalist: Responde con estilo telegráfico. Prohibido usar introducciones. Ve directo al dato en la primera palabra.
 2. Extensión máxima: Límite estricto de 1 a 2 frases cortas (máximo 25 palabras en total).
@@ -162,32 +194,40 @@ REGLAS CRÍTICAS DE RESPUESTA:
 5. Nombres exactos: Si citas lugares de la lista verificada, escríbelos EXACTAMENTE igual.
 ${RAICES_LANDMARKS_INFO}
 6. Filtro: Si te saludan, di solo: "Hola, soy Pupusita. ¿Qué dato buscas?". Si es ajeno a El Salvador, responde ÚNICAMENTE: "No tengo respuesta a temas no relacionados al sitio."
-7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.`;
+7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.
+8. Fechas: Hoy es ${todayStr}. Si te preguntan por festivales, ferias o fiestas patronales "próximas" o "que se acercan", menciona solo las que caen en o después de hoy dentro del calendario ${year}; si una ya pasó este año, acláralo y di que se celebra de nuevo el próximo año en vez de presentarla como próxima.`;
 
     return basePrompt;
   }
 
   function getPlannerSystemPrompt(lang) {
+    const { formatted: todayStr, year } = getCurrentDateInfo(lang);
     if (lang === 'en') {
-      return `You are "Pupusita" in "Trip Planner" mode. ALWAYS respond in English. Create quick and real itineraries in El Salvador using dollars ($ USD).
+      return `You are "Pupusita" in "Trip Planner" mode. ALWAYS respond in English. Create detailed, realistic itineraries in El Salvador using dollars ($ USD), based on the group size given by the user. Today's date is ${todayStr}.
 CRITICAL PLAN RULES:
 1. Strict format: Zero paragraphs, zero introductory texts. Respond DIRECTLY with the numbered list.
-2. Radical brevity: Max 3 activities per plan plus the transport section. Each line must be short.
-3. Costs: Write the price next to each activity and detail a specific line for estimated **Transport** cost. Put the general total at the end.
-4. Exact names: Use EXACTLY the names from this list if included:
+2. Detail level: 3 to 4 concrete activities/stops, each with a one-line description of what to do there and its cost (TOTAL for the whole group, based on the number of people given).
+3. Costs breakdown: After the activities, include separate itemized lines for **🚗 Transporte** (estimated for the whole group, considering distance from the starting point and group size) and **🍽️ Comida** (estimated per meal for the whole group). If food is already covered inside an activity, do not duplicate it in this line.
+4. Totals: End with **Total del grupo** (sum of everything) and **Total por persona** (group total divided by the number of people).
+5. Exact names: Use EXACTLY the names from this list if included:
 ${RAICES_LANDMARKS_INFO}
-5. Closure: No farewells or recommendations. End immediately right after the total.
-6. Language: ALWAYS respond in the same language the user writes to you.`;
+6. Closure: No farewells or recommendations. End immediately right after the per-person total.
+7. Language: ALWAYS respond in the same language the user writes to you.
+8. Modifications: If the user asks to modify a previously generated plan, keep the same format and rules above, apply ONLY the requested change, and keep the rest of the plan consistent (people count, budget, location) unless the change says otherwise.
+9. Dates: Only include a seasonal festival/fair/patron-saint event in the plan if it is realistically happening on or around today (${todayStr}, ${year}) or the trip is explicitly planned around it; do not suggest an event that already passed this year as if it were happening now.`;
     }
-    return `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios rápidos y reales en El Salvador usando dólares ($ USD).
+    return `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios detallados y realistas en El Salvador usando dólares ($ USD), basados en la cantidad de personas indicada por el usuario. La fecha de hoy es ${todayStr}.
 REGLAS CRÍTICAS DEL PLAN:
 1. Formato estricto: Cero párrafos, cero textos introductorios. Responde DIRECTAMENTE con la lista numerada.
-2. Brevedad radical: Máximo 3 actividades por plan más el apartado de transporte. Cada línea debe ser corta.
-3. Costos: Escribe el precio al lado de cada actividad y detalla una línea específica para el costo estimado de **Transporte**. Pon el total general al final.
-4. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
+2. Nivel de detalle: De 3 a 4 actividades/paradas concretas, cada una con una línea describiendo qué hacer ahí y su costo (TOTAL para todo el grupo, según el número de personas indicado).
+3. Desglose de costos: Después de las actividades, incluye líneas separadas para **🚗 Transporte** (estimado para todo el grupo, considerando la distancia desde el punto de partida y el número de personas) y **🍽️ Comida** (estimado por comida para todo el grupo). Si la comida ya está incluida en una actividad, no la dupliques en esta línea.
+4. Totales: Termina con **Total del grupo** (suma de todo) y **Total por persona** (total del grupo dividido entre el número de personas).
+5. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
 ${RAICES_LANDMARKS_INFO}
-5. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total.
-6. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.`;
+6. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total por persona.
+7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.
+8. Modificaciones: Si el usuario pide modificar un plan ya generado, mantén el mismo formato y reglas anteriores, aplica SOLO el cambio pedido y conserva el resto del plan consistente (número de personas, presupuesto, ubicación) salvo que el cambio indique lo contrario.
+9. Fechas: Solo incluye una festividad, feria o fiesta patronal de temporada en el plan si realmente ocurre en o cerca de hoy (${todayStr}, ${year}) o si la salida se está planificando explícitamente alrededor de ella; no sugieras como vigente un evento que ya pasó este año.`;
   }
 
   // ==========================================
@@ -227,12 +267,30 @@ ${RAICES_LANDMARKS_INFO}
     saveHistory();
   }
 
+  // Debe cubrir TODOS los nombres listados en RAICES_LANDMARKS_INFO, con el
+  // mismo id que usa presentation/assets/js/mapa.js, para que el enlace
+  // "Ver en el mapa" siempre apunte a un lugar que sí existe ahí.
   const LANDMARKS_MINI = [
     { id: 1,  nombre: 'Tazumal' }, { id: 2,  nombre: 'Joya de Cerén' }, { id: 3,  nombre: 'Salvador del Mundo' },
     { id: 4,  nombre: 'Suchitoto' }, { id: 5,  nombre: 'Catedral Metropolitana' }, { id: 6,  nombre: 'MUNA' },
-    { id: 7,  nombre: 'Ruinas de San Andrés' }, { id: 8,  nombre: 'Pupusería El Caserío' }, { id: 9,  nombre: 'Semitas de Cojutepeque' },
-    { id: 10, nombre: 'Mercado Central de San Salvador' }, { id: 11, nombre: 'Nahuizalco — Mercado Nocturno' },
-    { id: 12, nombre: 'Plaza las Américas' }, { id: 51, nombre: 'El Boquerón' }, { id: 52, nombre: 'Puerta del Diablo' },
+    { id: 7,  nombre: 'Ruinas de San Andrés' }, { id: 8,  nombre: 'Pupusodromo El Triángulo' }, { id: 9,  nombre: 'Semitas de Cojutepeque' },
+    { id: 10, nombre: 'Mercado Central' }, { id: 11, nombre: 'Nahuizalco — Mercado Nocturno' },
+    { id: 12, nombre: 'Plaza las Américas' }, { id: 13, nombre: 'Panchimalco' }, { id: 14, nombre: 'Festival de Suchitoto' },
+    { id: 15, nombre: 'Catedral de Santa Ana' }, { id: 16, nombre: 'Casa de la Cultura de Izalco' }, { id: 18, nombre: 'Iglesia El Rosario' },
+    { id: 19, nombre: 'Lago de Coatepeque' }, { id: 20, nombre: 'Bosque El Imposible' }, { id: 21, nombre: 'Fiestas Agostinas' },
+    { id: 22, nombre: 'Día de los Farolitos' }, { id: 23, nombre: 'Fiestas Julias' }, { id: 24, nombre: 'Fiestas Patronales de San Vicente' },
+    { id: 25, nombre: 'Festival de las Flores y Palmas' }, { id: 26, nombre: 'Gran Carnaval de San Miguel' }, { id: 27, nombre: 'Fiestas de los Historiantes' },
+    { id: 28, nombre: 'Festival del Jocote Corona' }, { id: 29, nombre: 'Día de la Calabiuza' }, { id: 31, nombre: 'Día de la Cruz' },
+    { id: 32, nombre: 'Festival del Maíz' }, { id: 33, nombre: 'Tradición del Bálsamo' }, { id: 35, nombre: 'Fiestas Patronales de La Unión' },
+    { id: 36, nombre: 'Festival de los Farolitos en Ataco' }, { id: 37, nombre: 'Festival de la Panela' }, { id: 38, nombre: 'Fiestas del Rey Guajactial' },
+    { id: 39, nombre: 'Festival del Cangrejo' }, { id: 40, nombre: 'Romería de Esquipulas' }, { id: 41, nombre: 'Festival del Barro' },
+    { id: 42, nombre: 'Fiestas del Arroz' }, { id: 43, nombre: 'Festival de las Juventudes' }, { id: 44, nombre: 'Feria del Marisco' },
+    { id: 45, nombre: 'Primicia de la Cosecha' }, { id: 46, nombre: 'Carnaval de la Panela' }, { id: 48, nombre: 'Festival del Añil' },
+    { id: 49, nombre: 'Fiestas Patronales de Gotera' }, { id: 50, nombre: 'Festival del Chicharrón' }, { id: 51, nombre: 'El Boquerón' },
+    { id: 52, nombre: 'Puerta del Diablo' }, { id: 53, nombre: 'Casa Blanca' }, { id: 54, nombre: 'Palacio Nacional' },
+    { id: 55, nombre: 'Teatro Nacional' }, { id: 58, nombre: 'Día de la Independencia' }, { id: 64, nombre: 'Museo Militar' },
+    { id: 65, nombre: 'Sitio Arqueológico Cihuatán' }, { id: 66, nombre: 'Laguna de Alegría' }, { id: 72, nombre: 'Feria de la Hamaca' },
+    { id: 73, nombre: 'Bolas de Fuego de Nejapa' }, { id: 76, nombre: 'Fiestas Patronales de Cojutepeque' }, { id: 84, nombre: 'Día Nacional de la Pupusa' },
   ];
 
   // ==========================================
@@ -698,6 +756,19 @@ ${RAICES_LANDMARKS_INFO}
       return;
     }
     plannerData.startLocation = text;
+    plannerStep = 'people';
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderPeople);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerPeoplePrompt);
+  }
+
+  function procesarPasoPersonas(text) {
+    const match = text.match(/\d+/);
+    const count = match ? parseInt(match[0], 10) : NaN;
+    if (!count || count < 1 || count > 100) {
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
+      return;
+    }
+    plannerData.people = count;
     plannerStep = 'budget';
     setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderBudget);
     addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerBudgetPrompt);
@@ -733,35 +804,83 @@ ${RAICES_LANDMARKS_INFO}
       plannerData.details = text;
     }
     plannerStep = 'generating';
-    generatePlan();
+    generatePlan(false);
   }
 
-  async function generatePlan() {
+  function procesarPasoModificar(text) {
+    if (text.trim().length < 3) {
+      addBotMessage(TRANSLATABLE_TEXTS[currentLang].errValidation);
+      return;
+    }
+    plannerData.modification = text;
+    plannerStep = 'generating';
+    generatePlan(true);
+  }
+
+  function startModifyFlow() {
+    if (!isAuthenticated() || isLoading) return;
+    plannerMode = true;
+    setPlannerToggle(true);
+    plannerStep = 'modify';
+    setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderModify);
+    addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerModifyPrompt);
+    document.getElementById('rs-chat-input')?.focus();
+  }
+
+  function addModifyOfferMessage() {
+    const msgs = document.getElementById('rs-chat-messages');
+    if (!msgs || !isAuthenticated()) return;
+    const div = document.createElement('div');
+    div.className = 'rs-msg bot';
+    div.innerHTML = `<div class="rs-msg-bubble">${formatMessageText(TRANSLATABLE_TEXTS[currentLang].plannerModifyOffer)}</div>`;
+    const qWrap = document.createElement('div');
+    qWrap.className = 'rs-quick-btns';
+    const b = document.createElement('button');
+    b.className = 'rs-quick-btn';
+    b.textContent = TRANSLATABLE_TEXTS[currentLang].modifyPlanBtn;
+    b.addEventListener('click', () => startModifyFlow());
+    qWrap.appendChild(b);
+    div.appendChild(qWrap);
+    msgs.appendChild(div);
+    animateMessageNode(div);
+    gsap.to(qWrap, { opacity: 1, y: 0, duration: 0.3, delay: 0.15 });
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  async function generatePlan(isModification) {
     if (!isAuthenticated()) return;
     setInputEnabled(false, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderGenerating);
     showTyping();
 
     const isEn = currentLang === 'en';
-    const userPrompt = isEn ? 
+    const basePrompt = isEn ?
 `Plan a trip with these preferences:
 - Starting Location: ${plannerData.startLocation}
+- Number of people: ${plannerData.people}
 - Desired Activity: ${plannerData.activity}
-- Total Budget: ${plannerData.budget}
+- Total Budget (for the whole group): ${plannerData.budget}
 - Time Available: ${plannerData.duration}${plannerData.details ? `\n- Specific Preferences: ${plannerData.details}` : ''}
-Provide a concrete and realistic plan inside El Salvador.` 
-: 
+Provide a concrete, detailed and realistic plan inside El Salvador for this group size.`
+:
 `Planifícame una salida con estas preferencias:
 - Punto de inicio/Ciudad origen: ${plannerData.startLocation}
+- Número de personas: ${plannerData.people}
 - Actividad deseada: ${plannerData.activity}
-- Presupuesto total: ${plannerData.budget}
+- Presupuesto total (para todo el grupo): ${plannerData.budget}
 - Tiempo disponible: ${plannerData.duration}${plannerData.details ? `\n- Preferencias específicas: ${plannerData.details}` : ''}
-Dame un plan concreto y realista dentro de El Salvador.`;
+Dame un plan concreto, detallado y realista dentro de El Salvador para este número de personas.`;
+
+    const userPrompt = isModification
+      ? (isEn
+          ? `Here is the previously generated plan:\n${plannerLastPlan}\n\nOriginal preferences:\n${basePrompt}\n\nRequested change: ${plannerData.modification}\n\nReturn the FULL updated plan (same format), applying only the requested change.`
+          : `Este es el plan generado anteriormente:\n${plannerLastPlan}\n\nPreferencias originales:\n${basePrompt}\n\nCambio solicitado: ${plannerData.modification}\n\nDevuelve el plan COMPLETO actualizado (mismo formato), aplicando solo el cambio solicitado.`)
+      : basePrompt;
 
     try {
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system: getPlannerSystemPrompt(currentLang), messages: [{ role: 'user', content: userPrompt }] })
+        body: JSON.stringify({ system: getPlannerSystemPrompt(currentLang), messages: [{ role: 'user', content: userPrompt }], max_tokens: 900 })
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
@@ -820,10 +939,13 @@ Dame un plan concreto y realista dentro de El Salvador.`;
         shareBtn.onclick = () => sharePlan(replyText);
       }
 
+      plannerLastPlan = replyText;
+      plannerData.modification = '';
       plannerStep = null;
       setPlannerToggle(false);
       setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
-      addBotMessage(TRANSLATABLE_TEXTS[currentLang].plannerSuccess);
+      addBotMessage(isModification ? TRANSLATABLE_TEXTS[currentLang].plannerModifySuccess : TRANSLATABLE_TEXTS[currentLang].plannerSuccess);
+      addModifyOfferMessage();
 
     } catch (err) {
       hideTyping();
@@ -928,9 +1050,9 @@ Dame un plan concreto y realista dentro de El Salvador.`;
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          system: getSystemPrompt(currentLang), 
-          messages: conversationHistory
+        body: JSON.stringify({
+          system: getSystemPrompt(currentLang),
+          messages: conversationHistory.slice(-MAX_CONTEXT_MESSAGES)
         })
       });
 
@@ -1081,9 +1203,11 @@ Dame un plan concreto y realista dentro de El Salvador.`;
       addUserMessageUI(text);
       if (plannerStep === 'activity') procesarPasoActividad(text);
       else if (plannerStep === 'startLocation') procesarPasoUbicacion(text);
+      else if (plannerStep === 'people') procesarPasoPersonas(text);
       else if (plannerStep === 'budget') procesarPasoPresupuesto(text);
       else if (plannerStep === 'duration') procesarPasoDuracion(text);
       else if (plannerStep === 'details') procesarPasoDetalles(text);
+      else if (plannerStep === 'modify') procesarPasoModificar(text);
       return;
     }
 
@@ -1230,21 +1354,29 @@ Dame un plan concreto y realista dentro de El Salvador.`;
     isTranslating = true;
     showTranslateSpinner();
 
-    // Si la respuesta viene truncada (JSON incompleto) o falla el parseo,
-    // reintentamos con un presupuesto de tokens cada vez mayor para evitar
-    // que la traduccion falle silenciosamente.
-    const tokenBudgets = [4000, 8000, 12000];
-    let success = false;
+    // Se traduce TODO el historial guardado (no solo un par de mensajes),
+    // dividido en bloques pequeños para que cada peticion sea rapida y no
+    // se trunque, sin importar cuan largo sea el chat.
+    const CHUNK_SIZE = 8;
+    // Si la respuesta de un bloque viene truncada (JSON incompleto) o falla
+    // el parseo, reintentamos ese bloque con mas presupuesto de tokens.
+    const tokenBudgets = [3000, 6000, 12000];
+    const targetLangName = targetLang === 'es' ? 'Spanish' : 'English';
+    const translatedHistory = [];
+    let anySuccess = false;
 
-    for (let i = 0; i < tokenBudgets.length && !success; i++) {
-      try {
-        const targetLangName = targetLang === 'es' ? 'Spanish' : 'English';
+    for (let start = 0; start < conversationHistory.length; start += CHUNK_SIZE) {
+      const chunk = conversationHistory.slice(start, start + CHUNK_SIZE);
+      let chunkTranslated = null;
+
+      for (let i = 0; i < tokenBudgets.length && !chunkTranslated; i++) {
+        try {
         const translationPrompt = `Translate the following JSON array of chat messages into ${targetLangName}.
-Return ONLY valid JSON array with the same structure.
+Return ONLY valid JSON array with the same structure and the same number of items (${chunk.length}).
 IMPORTANT: Keep all markdown formatting like **bold** and emojis.
 Only translate the text content, not the structure.
 
-${JSON.stringify(conversationHistory)}`;
+${JSON.stringify(chunk)}`;
 
         const response = await fetch(PROXY_URL, {
           method: 'POST',
@@ -1279,29 +1411,40 @@ ${JSON.stringify(conversationHistory)}`;
         cleanJson = cleanJson.substring(firstBracket, lastBracket + 1);
 
         // Intentar parsear con manejo de errores
-        let translatedHistory;
+        let parsed;
         try {
-          translatedHistory = JSON.parse(cleanJson);
+          parsed = JSON.parse(cleanJson);
         } catch (parseError) {
           // Si falla, intentar limpiar caracteres no validos
           cleanJson = cleanJson.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
-          translatedHistory = JSON.parse(cleanJson);
+          parsed = JSON.parse(cleanJson);
         }
 
-        if (!Array.isArray(translatedHistory) || translatedHistory.length !== conversationHistory.length) {
+        if (!Array.isArray(parsed) || parsed.length !== chunk.length) {
           throw new Error('La traduccion no devolvio un array valido o completo');
         }
 
-        // Mantener solo los ultimos MAX_HISTORY mensajes
-        conversationHistory = translatedHistory.slice(-MAX_HISTORY);
-        saveHistory();
-        historyLang = targetLang;
-        success = true;
+        chunkTranslated = parsed;
       } catch (err) {
-        console.error(`Error en traduccion del historial (intento ${i + 1}/${tokenBudgets.length}, max_tokens=${tokenBudgets[i]}):`, err);
-        // Si quedan reintentos, el bucle sigue con mas tokens.
-        // Si no, se sale sin marcar success y se conserva el idioma original.
+        console.error(`Error traduciendo bloque ${start}-${start + chunk.length} (intento ${i + 1}/${tokenBudgets.length}, max_tokens=${tokenBudgets[i]}):`, err);
+        // Si quedan reintentos, el bucle sigue con mas tokens para este bloque.
       }
+      }
+
+      if (chunkTranslated) {
+        anySuccess = true;
+        translatedHistory.push.apply(translatedHistory, chunkTranslated);
+      } else {
+        // Si un bloque falla tras todos los reintentos, se conserva tal cual
+        // para no perder ese fragmento de la conversacion.
+        translatedHistory.push.apply(translatedHistory, chunk);
+      }
+    }
+
+    if (anySuccess) {
+      conversationHistory = translatedHistory;
+      saveHistory();
+      historyLang = targetLang;
     }
 
     hideTranslateSpinner();
