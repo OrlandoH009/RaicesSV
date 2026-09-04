@@ -644,12 +644,26 @@ const esDispositivoMovil = window.matchMedia('(max-width: 900px)').matches || ('
 // o publicación), para que la sensación de acercamiento sea siempre la misma.
 const FOCUS_ZOOM = 14;
 
+// Límites geográficos del mapa (El Salvador + margen). Sin esto se puede
+// alejar el zoom hasta ver medio continente: además de no tener sentido
+// para un mapa cultural de un solo país, deja visibles a la vez todos los
+// marcadores (que están agrupados en un área pequeña) formando un arco
+// que parece un bug, y hace que el flyTo al hacer clic en uno tenga que
+// recorrer una distancia de zoom enorme y "vuele" de forma exagerada.
+const EL_SALVADOR_BOUNDS = [
+  [12.3, -91.0],  // suroeste
+  [15.2, -87.0]   // noreste
+];
+
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
   // Zoom entero: con un zoom fraccionario Leaflet no tiene tiles nativos
   // para ese nivel exacto, así que agranda con CSS los del entero más
   // cercano y el mapa arranca borroso/pixelado. Un entero se ve nítido.
   zoom: 10,
+  minZoom: 8,
+  maxBounds: EL_SALVADOR_BOUNDS,
+  maxBoundsViscosity: 0.7,
   zoomControl: false,
   attributionControl: true,
   preferCanvas: true,
