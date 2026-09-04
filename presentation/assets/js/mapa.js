@@ -1222,21 +1222,11 @@ window.srMarkersReady = false;
    del marcador (y por tanto a dónde vuela el mapa al abrir su ficha) no
    cambia, solo su dibujo en pantalla. */
 const DECLUTTER_PIXEL_THRESHOLD = 32; // si dos marcadores caen a menos de esto, se consideran solapados
-const DECLUTTER_BASE_RADIUS = 14;     // px de radio para un grupo de 2
-const DECLUTTER_RADIUS_STEP = 3;      // px extra de radio por cada miembro adicional del grupo
-// A zoom bajo (país completo) decenas de marcadores pueden quedar a menos de
-// DECLUTTER_PIXEL_THRESHOLD unos de otros y encadenarse (transitivamente) en
-// un solo grupo enorme. El radio está topado para que el abanico nunca supere
-// el tamaño de un par de marcadores en pantalla: con un radio grande (antes
-// llegaba a 70px), un marcador de un grupo numeroso -como el de San
-// Salvador, con más de 15 sitios cercanos- queda a decenas de píxeles de su
-// coordenada real, y como esos grupos cambian de tamaño en cada zoom (se
-// dividen en grupos más chicos al acercarse), el marcador salta de golpe a
-// otra posición del abanico y da la sensación de que "se movió de lugar".
-// Un radio chico mantiene el desplazamiento casi imperceptible -apenas lo
-// necesario para poder tocar cada marcador por separado- sin importar cómo
-// cambie el tamaño del grupo entre un zoom y otro.
-const DECLUTTER_MAX_RADIUS = 30;      // px de radio máximo, sin importar el tamaño del grupo
+const DECLUTTER_RADIUS = 16;          // px de radio del desplazamiento, siempre el mismo
+// Ángulo de oro: separa bien ids consecutivos (no los deja casi pegados como
+// pasaría con una fracción simple de 2π) sin tener que saber cuántos vecinos
+// tiene cada marcador.
+const DECLUTTER_GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 function declutterMarkers() {
   if (!mapa) return;
@@ -1250,53 +1240,28 @@ function declutterMarkers() {
 
   const puntos = visibles.map(m => ({ marker: m, pt: mapa.latLngToContainerPoint(m.getLatLng()) }));
 
-  // Agrupar por cercanía en píxeles (unión simple: cualquier par a menos de
-  // DECLUTTER_PIXEL_THRESHOLD queda en el mismo grupo, transitivamente).
-  const grupos = [];
-  const asignado = new Array(puntos.length).fill(-1);
-  for (let i = 0; i < puntos.length; i++) {
-    if (asignado[i] !== -1) continue;
-    const grupoIdx = grupos.length;
-    grupos.push([i]);
-    asignado[i] = grupoIdx;
-    // BFS: cualquier punto cercano a alguno ya en el grupo se suma también.
-    const pendientes = [i];
-    while (pendientes.length) {
-      const actual = pendientes.pop();
-      for (let j = 0; j < puntos.length; j++) {
-        if (asignado[j] !== -1) continue;
-        if (puntos[actual].pt.distanceTo(puntos[j].pt) <= DECLUTTER_PIXEL_THRESHOLD) {
-          asignado[j] = grupoIdx;
-          grupos[grupoIdx].push(j);
-          pendientes.push(j);
-        }
-      }
+  // Un marcador necesita desplazarse si cae a menos de DECLUTTER_PIXEL_THRESHOLD
+  // de CUALQUIER otro marcador visible -sin agruparlos ni depender de cuántos
+  // vecinos tiene, que es justo lo que antes hacía que el desplazamiento
+  // cambiara (y el marcador "saltara") cada vez que el zoom cambiaba el
+  // tamaño de esos grupos. Con este criterio, el desplazamiento de un
+  // marcador es siempre el mismo (fijo por su id): solo se prende o apaga
+  // según si en ese momento tiene un vecino encima, nunca gira ni crece.
+  puntos.forEach((punto, i) => {
+    const solapado = puntos.some((otro, j) => j !== i && punto.pt.distanceTo(otro.pt) <= DECLUTTER_PIXEL_THRESHOLD);
+    const marker = punto.marker;
+    const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
+    if (!shiftEl) return;
+    if (!solapado) {
+      shiftEl.style.transform = '';
+      marker._declutterOffset = null;
+      return;
     }
-  }
-
-  grupos.forEach(indices => {
-    const n = indices.length;
-    // Ordenamos por id de landmark (fijo) en vez de dejar el orden en que el
-    // BFS los fue encontrando: así, si dos marcadores siguen cayendo juntos
-    // de un zoom a otro, mantienen su posición relativa dentro del abanico
-    // en vez de reordenarse sin motivo aparente.
-    const ordenados = [...indices].sort((a, b) => puntos[a].marker._landmarkId - puntos[b].marker._landmarkId);
-    ordenados.forEach((idx, orden) => {
-      const marker = puntos[idx].marker;
-      const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
-      if (!shiftEl) return;
-      if (n === 1) {
-        shiftEl.style.transform = '';
-        marker._declutterOffset = null;
-        return;
-      }
-      const angulo = (2 * Math.PI * orden) / n - Math.PI / 2; // el primero apunta hacia arriba
-      const radio = Math.min(DECLUTTER_BASE_RADIUS + DECLUTTER_RADIUS_STEP * (n - 2), DECLUTTER_MAX_RADIUS);
-      const dx = Math.round(Math.cos(angulo) * radio);
-      const dy = Math.round(Math.sin(angulo) * radio);
-      shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
-      marker._declutterOffset = { dx, dy };
-    });
+    const angulo = (marker._landmarkId * DECLUTTER_GOLDEN_ANGLE) % (2 * Math.PI);
+    const dx = Math.round(Math.cos(angulo) * DECLUTTER_RADIUS);
+    const dy = Math.round(Math.sin(angulo) * DECLUTTER_RADIUS);
+    shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
+    marker._declutterOffset = { dx, dy };
   });
 }
 
