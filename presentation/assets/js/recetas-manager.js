@@ -337,7 +337,7 @@ const recetasData = {
     porciones: "6 tazas",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/recetas/chilate-con-nuegados.webp",
+    imagen: "../assets/media/gastronomia/chilate-nuegado.jpg",
     ingredientes: [
       "1 libra de maíz blanco tostado y molido",
       "1 raja de canela y unos clavos de olor",
@@ -703,7 +703,7 @@ const recetasDataEN = {
     porciones: "6 cups",
     tiempo: "1 hour",
     dificultad: "Medium",
-    imagen: "../assets/media/recetas/chilate-con-nuegados.webp",
+    imagen: "../assets/media/gastronomia/chilate-nuegado.jpg",
     ingredientes: [
       "1 lb of toasted white corn, ground",
       "1 cinnamon stick and a few cloves",
