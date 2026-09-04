@@ -1246,10 +1246,20 @@ if (window.visualViewport) {
     }
   });
 
+  let lastTime = null;
   function step(timestamp){
     if(!running || !isGameVisible) return;
 
-    Engine.update(engine, 1000/60);
+    // Antes se avanzaba la física una cantidad fija (1000/60) por cada
+    // frame, asumiendo 60fps. En pantallas de 90/120/144Hz requestAnimationFrame
+    // dispara más seguido, así que los trompos terminaban moviéndose mucho
+    // más rápido de lo esperado. Usamos el tiempo real transcurrido (topado
+    // para evitar saltos tras una pausa larga) para que la velocidad sea
+    // siempre la misma sin importar el dispositivo.
+    if (lastTime === null) lastTime = timestamp;
+    const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
+    lastTime = timestamp;
+    Engine.update(engine, dt);
 
     const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
@@ -2152,6 +2162,8 @@ if (window.visualViewport) {
     running = true;
     paused = false;
     playMusic();
+    lastTime = null;
+    physicsAccum = 0;
     rafId = requestAnimationFrame(step);
     showTutorialStep(0);
   }
@@ -2510,6 +2522,9 @@ function spawnEntities() {
   // sienta tan brusco como chocar contra un obstáculo del camino.
   let lastBusBumpAt = 0;
 
+ let lastTime = null, physicsAccum = 0;
+ const FIXED_STEP = 1000 / 60;
+
  function step(timestamp){
     if(!running || !isGameVisible) return;
 
@@ -2519,6 +2534,58 @@ function spawnEntities() {
       return;
     }
 
+    // Toda la simulación (velocidad del bus, distancia recorrida, spawns de
+    // baches/pasajeros) está calibrada asumiendo 60 ticks por segundo. Antes
+    // cada llamada de requestAnimationFrame corría exactamente un tick, así
+    // que en pantallas de 90/120/144Hz (que llaman a RAF más seguido que
+    // 60veces/s) el bus aceleraba y recorría la ruta mucho más rápido de lo
+    // esperado. Ahora se desacopla la simulación del refresco de pantalla:
+    // se acumula el tiempo real transcurrido y se corren tantos ticks fijos
+    // de 16.667ms como corresponda (topado para no colgar el navegador tras
+    // una pausa larga o una pestaña en segundo plano).
+    if (lastTime === null) lastTime = timestamp;
+    const frameTime = Math.min(Math.max(timestamp - lastTime, 0), 250);
+    lastTime = timestamp;
+    physicsAccum += frameTime;
+
+    let ticks = 0;
+    while (physicsAccum >= FIXED_STEP && ticks < 6 && !arriving) {
+      simulateTick();
+      physicsAccum -= FIXED_STEP;
+      ticks++;
+    }
+
+    if (arriving) {
+      rafId = requestAnimationFrame(step);
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    if (shakeMag > 0.1) {
+      ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
+    }
+    drawRoad();
+
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'bache') drawBache(b);
+      else if(b.label === 'tumulo') drawTumulo(b);
+      else if(b.label === 'traffic') drawTrafficCar(b);
+    });
+    passengers.forEach(drawPassenger);
+    drawImpactParticles();
+
+    drawBus(player.x, player.y, '#d62828', 'R-44');
+    drawBus(bot.x, bot.y, '#003049', 'R-101D');
+    drawPlayerArrow(player.x, player.y);
+    drawSpeedometer(player.speed);
+    ctx.restore();
+
+    updateHud();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function simulateTick(){
     const speedMultiplier = player.speed;
     // El scroll visual va más rápido que antes (se "siente" más veloz) pero
     // la distancia recorrida (lo que decide cuándo se llega a la meta) usa
@@ -2648,7 +2715,7 @@ function spawnEntities() {
     });
 
     stepImpactParticles();
-    Engine.update(engine, 16.667);
+    Engine.update(engine, FIXED_STEP);
 
     if(player.distance >= targetDistance || bot.distance >= targetDistance) {
       // En vez de cortar directo al resultado, entra a la escena de la
@@ -2656,33 +2723,7 @@ function spawnEntities() {
       arriving = true;
       arrivalTimer = 0;
       arrivalWinner = player.distance >= targetDistance ? 'player' : 'bot';
-      rafId = requestAnimationFrame(step);
-      return;
     }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    if (shakeMag > 0.1) {
-      ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
-    }
-    drawRoad();
-
-    Composite.allBodies(world).forEach(b => {
-      if(b.label === 'bache') drawBache(b);
-      else if(b.label === 'tumulo') drawTumulo(b);
-      else if(b.label === 'traffic') drawTrafficCar(b);
-    });
-    passengers.forEach(drawPassenger);
-    drawImpactParticles();
-
-    drawBus(player.x, player.y, '#d62828', 'R-44');
-    drawBus(bot.x, bot.y, '#003049', 'R-101D');
-    drawPlayerArrow(player.x, player.y);
-    drawSpeedometer(player.speed);
-    ctx.restore();
-
-    updateHud();
-    rafId = requestAnimationFrame(step);
   }
 
   // ── Escena de llegada a la terminal ──────────────────────────
@@ -3081,6 +3122,8 @@ function spawnEntities() {
     paused = false;
     playMusic();
 
+    lastTime = null;
+    physicsAccum = 0;
     rafId = requestAnimationFrame(step);
   }
 
@@ -3130,6 +3173,7 @@ function spawnEntities() {
     if(!paused) return;
     paused = false;
     running = true;
+    lastTime = null;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -3169,7 +3213,7 @@ function spawnEntities() {
       resizeCanvas();
       playMusic();
       if(paused && running) resumeGame();
-      else if(running) rafId = requestAnimationFrame(step);
+      else if(running) { lastTime = null; rafId = requestAnimationFrame(step); }
     }
   });
 
@@ -4416,6 +4460,14 @@ function spawnEntities() {
       <span class="overlay-tag">${jt('jue.card4.overlayTag', 'Juego Tradicional')}</span>
       <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
       <p>${jt('jue.card4.intro', 'El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.')}</p>
+      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <ul class="rules-list">
+        ${esTactilJuegos ? `
+        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card4.controlsTap', 'Arrastrá el dedo desde tu personaje para mover el joystick virtual.')}</li>
+        ` : `
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card4.controlsKeys', '<strong>WASD</strong> o <strong>flechas</strong> ⬅️⬆️➡️⬇️ para moverte.')}</li>
+        `}
+      </ul>
       <p class="rules-title">${jt('jue.card4.rulesTitle', 'Reglas del juego')}</p>
       <ul class="rules-list">
         <li class="rule-good"><span class="rule-icon">👀</span> ${jt('jue.card4.rule1', '<b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!')}</li>
@@ -4772,21 +4824,27 @@ function spawnEntities() {
     // crecer para darles espacio — se mantiene del mismo tamaño en las 3
     // rondas.
     const cfg = gameConfig[difficulty];
-    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor;
     circleCenter = { x: W / 2, y: H / 2 - H * 0.04 };
+    // El tirador vive debajo del círculo, separado por 2.2 radios de canica
+    // y sin quedar a menos de 5 radios del borde inferior real del canvas.
+    // Si el círculo "ideal" (Math.min(W,H) * factor) no deja hueco vertical
+    // suficiente para eso — pantallas bajitas/angostas, modal chico — antes
+    // el tope de abajo terminaba empujando al tirador por ENCIMA del borde
+    // del círculo, es decir, spawneando adentro. Por eso acá el radio se
+    // limita también por el espacio vertical realmente disponible debajo
+    // del centro, reservando sitio para el tirador antes de fijar el radio.
+    const gapFactor = 2.2;
+    const bottomMarginFactor = 5;
+    const maxRadiusForTiradorGap = (H - circleCenter.y) / (1 + (gapFactor + bottomMarginFactor) / 5.5);
+    circleRadius = Math.min(W, H) * cfg.circleRadiusFactor;
+    circleRadius = Math.min(circleRadius, maxRadiusForTiradorGap);
     // Mismo radio relativo (círculo / 5.5) que ya se probó capaz de acomodar
     // 20 canicas sin solaparse dentro de los intentos aleatorios disponibles.
     marbleRadius = circleRadius / 5.5;
 
-    // Posición de spawn del tirador (abajo del círculo). Antes quedaba
-    // pegado al borde inferior del canvas/modal (especialmente en
-    // celular, donde hay menos alto disponible), lo que hacía muy difícil
-    // agarrarlo y arrastrarlo para apuntar. Lo acercamos más al círculo y
-    // además lo topamos para que nunca quede a menos de 5 radios del
-    // borde inferior real del canvas.
     tiradorSpawnPos = {
       x: circleCenter.x,
-      y: Math.min(circleCenter.y + circleRadius + marbleRadius * 2.2, H - marbleRadius * 5)
+      y: Math.min(circleCenter.y + circleRadius + marbleRadius * gapFactor, H - marbleRadius * bottomMarginFactor)
     };
 
     // Muros invisibles del canvas
@@ -5610,6 +5668,8 @@ function spawnEntities() {
     running = true;
     paused = false;
     playMusic();
+    lastTime = null;
+    physicsAccum = 0;
     rafId = requestAnimationFrame(step);
     showTutorialStep(0);
   }
@@ -6280,9 +6340,61 @@ function spawnEntities() {
   });
 
   // ================= MAIN STEP LOOP =================
-  function step(){
+  let lastTime = null, physicsAccum = 0;
+  const FIXED_STEP = 1000 / 60;
+
+  function step(timestamp){
     if(!running || !isGameVisible) return;
 
+    // Toda la simulación (velocidad del torito, distancia recorrida, spawns,
+    // timers de combo/turbo) está calibrada asumiendo 60 ticks por segundo.
+    // Antes cada llamada de requestAnimationFrame corría exactamente un
+    // tick, así que en pantallas de 90/120/144Hz el torito corría mucho más
+    // rápido de lo esperado. Se desacopla la simulación del refresco de
+    // pantalla acumulando el tiempo real transcurrido y corriendo tantos
+    // ticks fijos de 16.667ms como corresponda (topado para no colgar el
+    // navegador tras una pausa larga o una pestaña en segundo plano).
+    if (lastTime === null) lastTime = timestamp;
+    const frameTime = Math.min(Math.max(timestamp - lastTime, 0), 250);
+    lastTime = timestamp;
+    physicsAccum += frameTime;
+
+    let ticks = 0;
+    while (physicsAccum >= FIXED_STEP && ticks < 6 && running) {
+      simulateTick();
+      physicsAccum -= FIXED_STEP;
+      ticks++;
+    }
+
+    if (!running) return;
+
+    // ================= DRAWING =================
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawStreet();
+    stalls.forEach(drawStall);
+
+    Composite.allBodies(world).forEach(b => {
+      if(b.label === 'carreta') drawCarreta(b);
+      else if(b.label === 'persona') drawPersona(b);
+      else if(b.label === 'silbador') drawSilbador(b);
+      else if(b.label === 'cuetillo') drawCuetillo(b);
+      else if(b.label === 'pupusa') drawPupusa(b);
+      else if(b.label === 'agua') drawAgua(b);
+    });
+
+    drawTorito(toritoBody.position.x, toritoY);
+    drawParticles();
+
+    // Destination Church Atrium drawing when nearing the end
+    if (distance >= targetDistance - 300) {
+      drawChurchDestination(distance - (targetDistance - 300));
+    }
+
+    updateHud();
+    rafId = requestAnimationFrame(step);
+  }
+
+  function simulateTick(){
     const config = gameConfig[gameDifficulty];
     const currentSpeed = (isTurboActive ? config.turboSpeed : config.baseSpeed);
 
@@ -6349,7 +6461,7 @@ function spawnEntities() {
       if(s.y > canvas.height + 60) stalls.splice(idx, 1);
     });
 
-    Engine.update(engine, 16.667);
+    Engine.update(engine, FIXED_STEP);
 
     if(toRemove.size){
       toRemove.forEach(b => World.remove(world, b));
@@ -6357,31 +6469,6 @@ function spawnEntities() {
     }
 
     if(energy <= 0 && !tutorialMode) { endRun('sinEnergia'); return; }
-
-    // ================= DRAWING =================
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawStreet();
-    stalls.forEach(drawStall);
-
-    Composite.allBodies(world).forEach(b => {
-      if(b.label === 'carreta') drawCarreta(b);
-      else if(b.label === 'persona') drawPersona(b);
-      else if(b.label === 'silbador') drawSilbador(b);
-      else if(b.label === 'cuetillo') drawCuetillo(b);
-      else if(b.label === 'pupusa') drawPupusa(b);
-      else if(b.label === 'agua') drawAgua(b);
-    });
-
-    drawTorito(toritoBody.position.x, toritoY);
-    drawParticles();
-
-    // Destination Church Atrium drawing when nearing the end
-    if (distance >= targetDistance - 300) {
-      drawChurchDestination(distance - (targetDistance - 300));
-    }
-
-    updateHud();
-    rafId = requestAnimationFrame(step);
   }
 
   // ================= GRAPHICS & RENDERING =================
@@ -7016,6 +7103,8 @@ function spawnEntities() {
     paused = false;
     playMusic();
 
+    lastTime = null;
+    physicsAccum = 0;
     rafId = requestAnimationFrame(step);
   }
 
@@ -7066,6 +7155,7 @@ function spawnEntities() {
     if(!paused) return;
     paused = false;
     running = true;
+    lastTime = null;
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
@@ -7104,7 +7194,7 @@ function spawnEntities() {
       resizeCanvas();
       playMusic();
       if(paused && running) resumeGame();
-      else if(running) rafId = requestAnimationFrame(step);
+      else if(running) { lastTime = null; rafId = requestAnimationFrame(step); }
     }
   });
 
