@@ -633,14 +633,7 @@ const EL_SALVADOR_BOUNDS = [
 
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
-  // Zoom entero: con un zoom fraccionario Leaflet no tiene tiles nativos
-  // para ese nivel exacto, así que agranda con CSS los del entero más
-  // cercano y el mapa arranca borroso/pixelado. Un entero se ve nítido.
   zoom: 10,
-  // Antes en 8: a ese nivel se alcanzaba a ver Guatemala y Honduras enteros,
-  // no solo El Salvador. En 10 (mismo nivel que el zoom inicial) el
-  // deszoomeo máximo sigue mostrando el país completo sin salirse a los
-  // vecinos.
   minZoom: 10,
   maxBounds: EL_SALVADOR_BOUNDS,
   maxBoundsViscosity: 0.7,
@@ -1954,6 +1947,54 @@ function solicitarUbicacionConVerificacion(centrar = true) {
   }
 }
 
+function manejarPosicionObtenida(position, centrar) {
+  const userLat = position.coords.latitude;
+  const userLng = position.coords.longitude;
+  miUbicacionActual = [userLat, userLng];
+
+  if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
+  ocultarBannerGeo();
+
+  const userMarkerIcon = L.divIcon({
+    className: 'user-location-marker',
+    html: '<div class="user-pulse"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+
+  marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
+    .addTo(mapa)
+    .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
+
+  if (centrar) {
+    // invalidateSize() síncrono antes del flyTo: si el tamaño interno que
+    // Leaflet tiene cacheado no coincide con el del contenedor real (p. ej.
+    // porque el mapa se creó antes de que el layout terminara de asentarse),
+    // flyTo calcula su curva de animación con ese tamaño y lanza
+    // "Invalid LatLng (NaN, NaN)" -sin capturar, dentro del callback de
+    // getCurrentPosition- cortando todo lo que sigue (el watchPosition y el
+    // toast de confirmación nunca se ejecutan, así que para el usuario
+    // "no pasa nada" aunque el permiso ya esté concedido).
+    mapa.invalidateSize();
+    mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
+    setTimeout(invalidateMapSize, 800);
+  }
+
+  // enableHighAccuracy:false aquí también -en escritorio sin GPS, pedir alta
+  // precisión de forma continua solo hace que cada actualización vuelva a
+  // fallar en silencio (este watch no tiene callback de error).
+  watchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
+      if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
+    },
+    null,
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+  );
+
+  mostrarToast('Ubicación activada correctamente.', 'info');
+}
+
 function ejecutarGeolocalizacion(centrar = true) {
   if (watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
@@ -1961,49 +2002,33 @@ function ejecutarGeolocalizacion(centrar = true) {
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
-      miUbicacionActual = [userLat, userLng];
-
-      if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
-      ocultarBannerGeo();
-
-      const userMarkerIcon = L.divIcon({
-        className: 'user-location-marker',
-        html: '<div class="user-pulse"></div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-      });
-
-      marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
-        .addTo(mapa)
-        .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
-
-      if (centrar) {
-        mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
-        setTimeout(invalidateMapSize, 800);
-      }
-
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
-          if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
-        },
-        null,
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-
-      mostrarToast('Ubicación activada correctamente.', 'info');
-    },
+    (position) => manejarPosicionObtenida(position, centrar),
     (err) => {
-      console.warn('Error al obtener geolocalización:', err);
-      mostrarBannerGeo(true);
+      console.warn('Error al obtener geolocalización (alta precisión):', err);
+
+      // La alta precisión (GPS) suele fallar por timeout en escritorio/laptop
+      // sin GPS ni triangulación Wi-Fi (p. ej. conectados por cable Ethernet).
+      // Antes de darnos por vencidos, reintentamos una vez con precisión
+      // estándar (ubicación por IP/red), que en ese caso sí suele resolver.
       if (err.code === err.PERMISSION_DENIED) {
+        mostrarBannerGeo(true);
         mostrarModalInstrucciones();
-      } else {
-        mostrarToast('No se pudo obtener tu posición actual.', 'error');
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => manejarPosicionObtenida(position, centrar),
+        (err2) => {
+          console.warn('Error al obtener geolocalización (reintento sin alta precisión):', err2);
+          mostrarBannerGeo(true);
+          if (err2.code === err2.PERMISSION_DENIED) {
+            mostrarModalInstrucciones();
+          } else {
+            mostrarToast('No se pudo obtener tu posición actual.', 'error');
+          }
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
     },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
@@ -2032,6 +2057,13 @@ if (btnCentrar) {
     cerrarSidebar();
     cerrarFiltrosSheet();
     if (miUbicacionActual) {
+      // cerrarSidebar()/cerrarFiltrosSheet() arriba pueden cambiar el tamaño
+      // real del contenedor del mapa en el mismo instante (el panel que se
+      // cierra le devuelve ese espacio al mapa). Sin este invalidateSize()
+      // síncrono, flyTo usaría el tamaño cacheado antiguo y lanzaría
+      // "Invalid LatLng (NaN, NaN)" -ver el mismo fix arriba en
+      // ejecutarGeolocalizacion.
+      mapa.invalidateSize();
       mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
       setTimeout(invalidateMapSize, 500);
     } else {
