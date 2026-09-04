@@ -33,7 +33,8 @@ const countUsersByStatus = () => {
             `SELECT s.status AS status_name, COUNT(u.id_user) AS total
             FROM user_status s
             LEFT JOIN users u ON u.id_status = s.id_status
-            GROUP BY s.id_status, s.status`,
+            GROUP BY s.id_status, s.status
+            ORDER BY s.status`,
             (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
@@ -48,7 +49,8 @@ const countUsersByRole = () => {
             `SELECT r.rol AS role_name, COUNT(u.id_user) AS total
             FROM rols r
             LEFT JOIN users u ON u.id_rol = r.id_rol
-            GROUP BY r.id_rol, r.rol`,
+            GROUP BY r.id_rol, r.rol
+            ORDER BY r.rol`,
             (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
@@ -268,11 +270,11 @@ const findSuspendedUserByEmail = (email) => {
 
 
 
-const createAdminInvitation = (id_user, invited_by, tokenHash, expiresAt) => {
+const createAdminInvitation = (id_user, invited_by, tokenHash, ttlMinutes) => {
     return new Promise((resolve, reject) => {
         db.query(
-            'INSERT INTO admin_invitations(id_user, invited_by, token_hash, expires_at) VALUES (?, ?, ?, ?)',
-            [id_user, invited_by, tokenHash, expiresAt],
+            'INSERT INTO admin_invitations(id_user, invited_by, token_hash, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL ? MINUTE))',
+            [id_user, invited_by, tokenHash, ttlMinutes],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);

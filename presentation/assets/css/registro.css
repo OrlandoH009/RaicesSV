@@ -302,6 +302,51 @@ button.auth-submit {
 .auth-footer-link a:hover {
   text-decoration: underline;
 }
+
+/* Checkbox de Términos y Condiciones */
+.form-group--checkbox {
+  margin-top: -.4rem;
+  margin-bottom: 1.1rem;
+}
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  font-family: var(--font-body);
+  font-size: .82rem;
+  line-height: 1.4;
+  color: rgba(0,0,0,.7);
+  cursor: pointer;
+  user-select: none;
+}
+/* .form-group input aplica estilos de campo de texto (width:100%, padding,
+   borde, appearance:none) a cualquier <input> anidado en un .form-group,
+   checkbox incluido. Sobreescribimos con selector más específico para que
+   vuelva a verse como una casilla normal. */
+.form-group--checkbox .terms-checkbox input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  padding: 0;
+  margin: .2rem 0 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  accent-color: var(--gold);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.terms-checkbox a {
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+  transition: text-decoration .18s ease;
+}
+.terms-checkbox a:hover {
+  text-decoration: underline;
+}
 @media (max-width: 520px) {
   .auth-card { padding: 2rem 1.25rem; }
   .form-row { grid-template-columns: 1fr; }

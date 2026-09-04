@@ -121,6 +121,8 @@ app.get(['/restablecer.html', '/views/restablecer.html'], (req, res) => {
 
 app.get(['/categorias.html', '/categorias', '/views/categorias.html'], sendView('categorias.html'));
 
+app.get(['/terminos.html', '/views/terminos.html'], sendView('terminos.html'));
+
 app.get('/views', (req, res) => {
     res.redirect('/');
 });

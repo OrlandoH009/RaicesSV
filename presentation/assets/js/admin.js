@@ -12,6 +12,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const reduceMotion = false;
 
+  function t(key, params) {
+    const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+    let text = window.SRi18n ? window.SRi18n.t(key, lang) : key;
+    if (params) {
+      Object.keys(params).forEach((k) => {
+        text = text.replace(`{${k}}`, params[k]);
+      });
+    }
+    return text;
+  }
+
+  function roleLabel(role) {
+    if (role === 'Admin') return t('admin.role.admin');
+    if (role === 'Fundador') return t('admin.role.fundador');
+    return t('admin.role.usuario');
+  }
+
+  function statusLabel(status) {
+    return status === 'Suspendido' ? t('admin.status.suspendido') : t('admin.status.activo');
+  }
+
   const state = {
     currentUser: null,
     users: [],
@@ -37,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!response.ok) {
-      const message = (data && data.message) || 'No se pudo completar la acción.';
+      const message = (data && data.message) || t('admin.toast.genericError');
       throw new Error(message);
     }
 
@@ -104,14 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const sectionTitle = document.getElementById('adminSectionTitle');
   const backBtn = document.getElementById('adminBackBtn');
 
-  const sectionLabels = {
-    resumen: 'Resumen',
-    usuarios: 'Usuarios',
-    publicaciones: 'Publicaciones',
-    equipo: 'Equipo',
-    apelaciones: 'Apelaciones',
-    comentarios: 'Comentarios reportados'
-  };
+  function sectionLabel(sectionName) {
+    return t(`admin.section.${sectionName}`);
+  }
 
   function moveIndicatorTo(button) {
     if (!navIndicator || !button || !nav) return;
@@ -123,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navIndicator.style.transform = `translateY(${offsetTop}px)`;
       return;
     }
-    gsap.to(navIndicator, { y: offsetTop, duration: .45, ease: 'power3.out' });
+    gsap.to(navIndicator, { x: 0, y: offsetTop, duration: .45, ease: 'power3.out' });
   }
 
   function setActiveSection(sectionName) {
@@ -139,18 +155,51 @@ document.addEventListener('DOMContentLoaded', () => {
       section.classList.toggle('is-active', section.dataset.sectionPanel === sectionName);
     });
 
-    if (sectionTitle) sectionTitle.textContent = sectionLabels[sectionName] || sectionName;
+    if (sectionTitle) sectionTitle.textContent = sectionLabel(sectionName) || sectionName;
 
     showListView(sectionName);
   }
 
+  // ── Menú deslizante móvil (≤980px): botón de hamburguesa + backdrop ──
+  const sidebar = document.getElementById('adminSidebar');
+  const sidebarToggle = document.getElementById('adminSidebarToggle');
+  const sidebarClose = document.getElementById('adminSidebarClose');
+  const sidebarBackdrop = document.getElementById('adminSidebarBackdrop');
+
+  function openDrawer() {
+    if (!sidebar) return;
+    sidebar.classList.add('is-open');
+    sidebarBackdrop?.classList.add('is-open');
+    document.body.classList.add('admin-drawer-open');
+    sidebarToggle?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeDrawer() {
+    if (!sidebar) return;
+    sidebar.classList.remove('is-open');
+    sidebarBackdrop?.classList.remove('is-open');
+    document.body.classList.remove('admin-drawer-open');
+    sidebarToggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  sidebarToggle?.addEventListener('click', openDrawer);
+  sidebarClose?.addEventListener('click', closeDrawer);
+  sidebarBackdrop?.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
   navItems.forEach((btn) => {
-    btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
+    btn.addEventListener('click', () => {
+      setActiveSection(btn.dataset.section);
+      closeDrawer();
+    });
   });
 
   window.addEventListener('resize', () => {
     const activeBtn = navItems.find((btn) => btn.dataset.section === state.activeSection);
     if (activeBtn) moveIndicatorTo(activeBtn);
+    if (window.innerWidth > 980) closeDrawer();
   });
 
   function showListView(sectionName) {
@@ -208,9 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderWhoAmI(user) {
-    if (adminNameEl) adminNameEl.textContent = user.name || user.email || 'Sin nombre';
+    if (adminNameEl) adminNameEl.textContent = user.name || user.email || t('admin.whoami.noName');
     if (adminRoleBadgeEl) {
-      adminRoleBadgeEl.textContent = user.role;
+      adminRoleBadgeEl.textContent = roleLabel(user.role);
       adminRoleBadgeEl.setAttribute('data-role', user.role);
     }
     if (adminAvatarEl) {
@@ -232,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.currentUser = data.user;
       renderWhoAmI(data.user);
     } catch (error) {
-      showToast('No se pudo cargar tu sesión.', 'error');
+      showToast(t('admin.toast.sessionError'), 'error');
     }
   }
 
@@ -264,6 +313,33 @@ document.addEventListener('DOMContentLoaded', () => {
     return readThemeColor('--text-main') || '#ffffff';
   }
 
+  function shadeColor(hex, percent) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    let r = (num >> 16) & 0xff, g = (num >> 8) & 0xff, b = num & 0xff;
+    if (percent >= 0) {
+      r = Math.round(r + (255 - r) * percent / 100);
+      g = Math.round(g + (255 - g) * percent / 100);
+      b = Math.round(b + (255 - b) * percent / 100);
+    } else {
+      const p = -percent / 100;
+      r = Math.round(r * (1 - p));
+      g = Math.round(g * (1 - p));
+      b = Math.round(b * (1 - p));
+    }
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function metalGradient(canvas, hex) {
+    const ctx = canvas.getContext('2d');
+    const size = Math.max(canvas.width, canvas.height, 200);
+    const gradient = ctx.createLinearGradient(0, 0, size, size);
+    gradient.addColorStop(0, shadeColor(hex, 45));
+    gradient.addColorStop(.45, shadeColor(hex, -12));
+    gradient.addColorStop(.55, shadeColor(hex, -12));
+    gradient.addColorStop(1, shadeColor(hex, 30));
+    return gradient;
+  }
+
   function renderMetricCards(metrics) {
     const totalUsersEl = document.querySelector('[data-metric="totalUsers"]');
     const activeUsersEl = document.querySelector('[data-metric="activeUsers"]');
@@ -283,8 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('chartUsersByStatus');
     if (!canvas || !window.Chart) return;
 
-    const labels = metrics.usersByStatus.map((row) => row.status);
+    const statusColors = { Activo: '#4f8f6b', Suspendido: '#c0483b' };
+    const labels = metrics.usersByStatus.map((row) => statusLabel(row.status));
     const values = metrics.usersByStatus.map((row) => row.total);
+    const backgroundColor = metrics.usersByStatus.map((row) => metalGradient(canvas, statusColors[row.status] || '#8a8f98'));
     const textColor = buildChartTextColor();
 
     if (charts.status) charts.status.destroy();
@@ -294,12 +372,16 @@ document.addEventListener('DOMContentLoaded', () => {
         labels,
         datasets: [{
           data: values,
-          backgroundColor: ['#4f8f6b', '#c0483b'],
-          borderWidth: 0
+          backgroundColor,
+          borderColor: 'rgba(255,255,255,.25)',
+          borderWidth: 1.5,
+          hoverOffset: 6
         }]
       },
       options: {
-        plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
@@ -308,8 +390,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('chartUsersByRole');
     if (!canvas || !window.Chart) return;
 
-    const labels = metrics.usersByRole.map((row) => row.role);
+    const roleColors = { Usuario: '#be8e56', Admin: '#6f9bd6', Fundador: '#7b5fc9' };
+    const labels = metrics.usersByRole.map((row) => roleLabel(row.role));
     const values = metrics.usersByRole.map((row) => row.total);
+    const backgroundColor = metrics.usersByRole.map((row) => metalGradient(canvas, roleColors[row.role] || '#8a8f98'));
     const textColor = buildChartTextColor();
 
     if (charts.role) charts.role.destroy();
@@ -319,12 +403,16 @@ document.addEventListener('DOMContentLoaded', () => {
         labels,
         datasets: [{
           data: values,
-          backgroundColor: ['#8a8f98', '#be8e56', '#4f8f6b'],
-          borderWidth: 0
+          backgroundColor,
+          borderColor: 'rgba(255,255,255,.25)',
+          borderWidth: 1.5,
+          hoverOffset: 6
         }]
       },
       options: {
-        plugins: { legend: { position: 'bottom', labels: { color: textColor } } }
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
@@ -341,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usersMap = Object.fromEntries(metrics.usersByMonth.map((row) => [row.month, row.total]));
     const pubsMap = Object.fromEntries(metrics.publicationsByMonth.map((row) => [row.month, row.total]));
     const textColor = buildChartTextColor();
+    const gridColor = readThemeColor('--admin-surface-border') || 'rgba(255,255,255,.06)';
 
     if (charts.activity) charts.activity.destroy();
     charts.activity = new Chart(canvas, {
@@ -348,16 +437,18 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: months,
         datasets: [
-          { label: 'Usuarios nuevos', data: months.map((m) => usersMap[m] || 0), backgroundColor: '#be8e56' },
-          { label: 'Publicaciones', data: months.map((m) => pubsMap[m] || 0), backgroundColor: '#4f8f6b' }
+          { label: t('admin.charts.newUsers'), data: months.map((m) => usersMap[m] || 0), backgroundColor: metalGradient(canvas, '#be8e56'), borderColor: 'rgba(255,255,255,.25)', borderWidth: 1 },
+          { label: t('admin.charts.publications'), data: months.map((m) => pubsMap[m] || 0), backgroundColor: metalGradient(canvas, '#4f8f6b'), borderColor: 'rgba(255,255,255,.25)', borderWidth: 1 }
         ]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
-          x: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,.06)' } },
-          y: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,.06)' } }
+          x: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } },
+          y: { ticks: { color: textColor, font: { weight: '600' } }, grid: { color: gridColor } }
         },
-        plugins: { legend: { labels: { color: textColor } } }
+        plugins: { legend: { labels: { color: textColor, font: { weight: '600' } } } }
       }
     });
   }
@@ -371,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderRoleChart(metrics);
       renderActivityChart(metrics);
     } catch (error) {
-      showToast('No se pudieron cargar las métricas.', 'error');
+      showToast(t('admin.toast.metricsError'), 'error');
     }
   }
 
@@ -399,18 +490,22 @@ document.addEventListener('DOMContentLoaded', () => {
   let usersFiltered = [];
   let usersPage = 1;
 
+  function localeForLang() {
+    return (window.SRi18n && window.SRi18n.getLang() === 'en') ? 'en-US' : 'es-SV';
+  }
+
   function formatDate(value) {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('es-SV', { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString(localeForLang(), { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   function formatDateTime(value) {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('es-SV', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString(localeForLang(), { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
   function roleBadgeClass(role) {
@@ -431,8 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function appealInitials(text) {
-    if (!text) return '?';
-    return text.trim()[0].toUpperCase();
+    const trimmed = (text || '').trim();
+    if (!trimmed) return '?';
+    return trimmed[0].toUpperCase();
   }
 
   function applyUserFilters() {
@@ -478,17 +574,17 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="admin-user-cell__name">${escapeHtml(user.name)}</span>
             </div>
           </td>
-          <td>${escapeHtml(user.email)}</td>
-          <td><span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span></td>
-          <td><span class="admin-badge ${statusBadgeClass(user.status)}">${user.status}</span></td>
-          <td>${formatDate(user.createdAt)}</td>
+          <td data-label="${escapeHtml(t('admin.users.table.email'))}">${escapeHtml(user.email)}</td>
+          <td data-label="${escapeHtml(t('admin.users.table.role'))}"><span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span></td>
+          <td data-label="${escapeHtml(t('admin.users.table.status'))}"><span class="admin-badge ${statusBadgeClass(user.status)}">${statusLabel(user.status)}</span></td>
+          <td data-label="${escapeHtml(t('admin.users.table.registered'))}">${formatDate(user.createdAt)}</td>
         `;
         row.addEventListener('click', () => openUserDetail(user.id));
         usersTableBody.appendChild(row);
       });
     }
 
-    if (usersPageInfo) usersPageInfo.textContent = `Página ${usersPage} de ${totalPages}`;
+    if (usersPageInfo) usersPageInfo.textContent = t('admin.pagination.pageInfo', { current: usersPage, total: totalPages });
     if (usersPrevPage) usersPrevPage.disabled = usersPage <= 1;
     if (usersNextPage) usersNextPage.disabled = usersPage >= totalPages;
   }
@@ -521,7 +617,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  let lastUserDetailId = null;
+
   function openUserDetail(userId) {
+    lastUserDetailId = userId;
     const user = state.users.find((u) => u.id === userId);
     if (!user || !userDetailCard) return;
 
@@ -537,37 +636,37 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="admin-detail-rows">
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Rol</span>
-          <span class="admin-detail-row__value"><span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span></span>
+          <span class="admin-detail-row__label">${t('admin.detail.role')}</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span></span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Estado</span>
-          <span class="admin-detail-row__value"><span class="admin-badge ${statusBadgeClass(user.status)}">${user.status}</span></span>
+          <span class="admin-detail-row__label">${t('admin.detail.status')}</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${statusBadgeClass(user.status)}">${statusLabel(user.status)}</span></span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Registrado</span>
+          <span class="admin-detail-row__label">${t('admin.detail.registered')}</span>
           <span class="admin-detail-row__value">${formatDate(user.createdAt)}</span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Cuenta de Google</span>
-          <span class="admin-detail-row__value">${user.hasGoogle ? 'Sí' : 'No'}</span>
+          <span class="admin-detail-row__label">${t('admin.detail.google')}</span>
+          <span class="admin-detail-row__value">${user.hasGoogle ? t('admin.detail.yes') : t('admin.detail.no')}</span>
         </div>
       </div>
       <div class="admin-detail-actions">
-        ${perms.canSuspend ? `<button type="button" class="admin-btn ${user.status === 'Suspendido' ? 'admin-btn--jade' : 'admin-btn--danger'}" id="detailToggleStatusBtn">${user.status === 'Suspendido' ? 'Reactivar' : 'Suspender'}</button>` : ''}
-        ${perms.canPromote ? `<button type="button" class="admin-btn admin-btn--primary" id="detailPromoteBtn">Ascender a Admin</button>` : ''}
-        ${perms.canDemote ? `<button type="button" class="admin-btn admin-btn--ghost" id="detailDemoteBtn">Quitar rol Admin</button>` : ''}
-        ${perms.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="detailDeleteBtn">Eliminar administrador</button>` : ''}
+        ${perms.canSuspend ? `<button type="button" class="admin-btn ${user.status === 'Suspendido' ? 'admin-btn--jade' : 'admin-btn--danger'}" id="detailToggleStatusBtn">${user.status === 'Suspendido' ? t('admin.actions.reactivate') : t('admin.actions.suspend')}</button>` : ''}
+        ${perms.canPromote ? `<button type="button" class="admin-btn admin-btn--primary" id="detailPromoteBtn">${t('admin.actions.promote')}</button>` : ''}
+        ${perms.canDemote ? `<button type="button" class="admin-btn admin-btn--ghost" id="detailDemoteBtn">${t('admin.actions.demote')}</button>` : ''}
+        ${perms.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="detailDeleteBtn">${t('admin.actions.deleteAdmin')}</button>` : ''}
       </div>
     `;
 
     document.getElementById('detailToggleStatusBtn')?.addEventListener('click', () => {
       const nextStatus = user.status === 'Suspendido' ? 'activo' : 'suspendido';
       confirmAction({
-        title: nextStatus === 'suspendido' ? 'Suspender usuario' : 'Reactivar usuario',
+        title: nextStatus === 'suspendido' ? t('admin.confirm.suspendTitle') : t('admin.confirm.reactivateTitle'),
         text: nextStatus === 'suspendido'
-          ? `${user.name} no podrá acceder al sitio hasta que lo reactives.`
-          : `${user.name} podrá volver a acceder al sitio.`,
+          ? t('admin.confirm.suspendText', { name: user.name })
+          : t('admin.confirm.reactivateText', { name: user.name }),
         requireReason: nextStatus === 'suspendido',
         onConfirm: (reason) => setUserStatus(user.id, nextStatus, reason)
       });
@@ -575,24 +674,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('detailPromoteBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Ascender a administrador',
-        text: `${user.name} pasará a tener acceso al panel de administración.`,
+        title: t('admin.confirm.promoteTitle'),
+        text: t('admin.confirm.promoteText', { name: user.name }),
         onConfirm: () => promoteUser(user.id)
       });
     });
 
     document.getElementById('detailDemoteBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Quitar rol de administrador',
-        text: `${user.name} volverá a ser un usuario normal.`,
+        title: t('admin.confirm.demoteTitle'),
+        text: t('admin.confirm.demoteText', { name: user.name }),
         onConfirm: () => demoteUser(user.id)
       });
     });
 
     document.getElementById('detailDeleteBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Eliminar administrador',
-        text: `Esta acción elimina la cuenta de ${user.name} de forma permanente.`,
+        title: t('admin.confirm.deleteAdminTitle'),
+        text: t('admin.confirm.deleteAdminText', { name: user.name }),
         onConfirm: () => deleteAdminUser(user.id)
       });
     });
@@ -607,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ status, reason })
       });
       updateUserInState(result.user);
-      showToast('Estado actualizado.', 'success');
+      showToast(t('admin.toast.statusUpdated'), 'success');
       showListView('usuarios');
       refreshAll();
     } catch (error) {
@@ -619,10 +718,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const result = await apiFetch(`/api/admin/users/${userId}/promote`, { method: 'PATCH' });
       if (result.pending) {
-        showToast('Se envió una invitación por correo para completar el ascenso.', 'success');
+        showToast(t('admin.toast.promotePending'), 'success');
       } else {
         updateUserInState(result.user);
-        showToast('Usuario ascendido a administrador.', 'success');
+        showToast(t('admin.toast.promoted'), 'success');
         refreshAll();
       }
       showListView('usuarios');
@@ -635,7 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const result = await apiFetch(`/api/admin/users/${userId}/demote`, { method: 'PATCH' });
       updateUserInState(result.user);
-      showToast('Se quitó el rol de administrador.', 'success');
+      showToast(t('admin.toast.demoted'), 'success');
       showListView('usuarios');
       refreshAll();
     } catch (error) {
@@ -648,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
       state.users = state.users.filter((u) => u.id !== userId);
       applyUserFilters();
-      showToast('Administrador eliminado.', 'success');
+      showToast(t('admin.toast.adminDeleted'), 'success');
       showListView('usuarios');
       refreshAll();
     } catch (error) {
@@ -669,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
       applyUserFilters();
       renderTeamGrid();
     } catch (error) {
-      showToast('No se pudieron cargar los usuarios.', 'error');
+      showToast(t('admin.toast.usersError'), 'error');
     }
   }
 
@@ -721,7 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="admin-pub-card__body">
             <div class="admin-pub-card__title">${escapeHtml(pub.title)}</div>
             <div class="admin-pub-card__location">${escapeHtml(pub.location)}</div>
-            <div class="admin-pub-card__author">Por ${escapeHtml(pub.author.name)}</div>
+            <div class="admin-pub-card__author">${t('admin.publications.by', { name: escapeHtml(pub.author.name) })}</div>
             <div class="admin-pub-card__stats">
               <span>❤️ ${escapeHtml(pub.likeCount ?? 0)}</span>
               <span>💬 ${escapeHtml(pub.commentCount ?? 0)}</span>
@@ -733,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    if (publicationsPageInfo) publicationsPageInfo.textContent = `Página ${publicationsPage} de ${totalPages}`;
+    if (publicationsPageInfo) publicationsPageInfo.textContent = t('admin.pagination.pageInfo', { current: publicationsPage, total: totalPages });
     if (publicationsPrevPage) publicationsPrevPage.disabled = publicationsPage <= 1;
     if (publicationsNextPage) publicationsNextPage.disabled = publicationsPage >= totalPages;
   }
@@ -748,7 +847,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (publicationsPage < totalPages) { publicationsPage++; renderPublicationsGrid(); }
   });
 
+  let lastPublicationDetailId = null;
+
   function openPublicationDetail(pubId) {
+    lastPublicationDetailId = pubId;
     const pub = state.publications.find((p) => p.id === pubId);
     if (!pub || !publicationDetailCard) return;
 
@@ -759,40 +861,40 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div>
           <h2>${escapeHtml(pub.title)}</h2>
-          <p>Por ${escapeHtml(pub.author.name)}</p>
+          <p>${t('admin.publications.by', { name: escapeHtml(pub.author.name) })}</p>
         </div>
       </div>
       <div class="admin-detail-rows">
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Ubicación</span>
+          <span class="admin-detail-row__label">${t('admin.detail.location')}</span>
           <span class="admin-detail-row__value">${escapeHtml(pub.location)}</span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Publicado</span>
+          <span class="admin-detail-row__label">${t('admin.detail.published')}</span>
           <span class="admin-detail-row__value">${formatDate(pub.createdAt)}</span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Likes</span>
+          <span class="admin-detail-row__label">${t('admin.detail.likes')}</span>
           <span class="admin-detail-row__value">❤️ ${escapeHtml(pub.likeCount ?? 0)}</span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Comentarios</span>
+          <span class="admin-detail-row__label">${t('admin.detail.comments')}</span>
           <span class="admin-detail-row__value">💬 ${escapeHtml(pub.commentCount ?? 0)}</span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Descripción</span>
+          <span class="admin-detail-row__label">${t('admin.detail.description')}</span>
           <span class="admin-detail-row__value">${escapeHtml(pub.description)}</span>
         </div>
       </div>
       <div class="admin-detail-actions">
-        ${pub.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="detailDeletePubBtn">Eliminar publicación</button>` : ''}
+        ${pub.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="detailDeletePubBtn">${t('admin.actions.deletePublication')}</button>` : ''}
       </div>
     `;
 
     document.getElementById('detailDeletePubBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Eliminar publicación',
-        text: `"${pub.title}" se eliminará de forma permanente.`,
+        title: t('admin.confirm.deletePublicationTitle'),
+        text: t('admin.confirm.deletePublicationText', { title: pub.title }),
         onConfirm: () => deletePublicationAction(pub.id)
       });
     });
@@ -805,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await apiFetch(`/api/publications/${pubId}`, { method: 'DELETE' });
       state.publications = state.publications.filter((p) => p.id !== pubId);
       applyPublicationFilters();
-      showToast('Publicación eliminada.', 'success');
+      showToast(t('admin.toast.publicationDeleted'), 'success');
       showListView('publicaciones');
     } catch (error) {
       showToast(error.message, 'error');
@@ -818,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.publications = data.publications;
       applyPublicationFilters();
     } catch (error) {
-      showToast('No se pudieron cargar las publicaciones.', 'error');
+      showToast(t('admin.toast.publicationsError'), 'error');
     }
   }
 
@@ -868,14 +970,17 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-team-card__avatar">${avatarCellHtml(user)}</div>
         <div class="admin-team-card__name">${escapeHtml(user.name)}</div>
         <div class="admin-team-card__email">${escapeHtml(user.email)}</div>
-        <span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span>
+        <span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span>
       `;
       card.addEventListener('click', () => openTeamDetail(user.id));
       teamListBody.appendChild(card);
     });
   }
 
+  let lastTeamDetailId = null;
+
   function openTeamDetail(userId) {
+    lastTeamDetailId = userId;
     const user = state.users.find((u) => u.id === userId);
     if (!user || !teamDetailCard) return;
 
@@ -891,28 +996,28 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="admin-detail-rows">
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Rol</span>
-          <span class="admin-detail-row__value"><span class="admin-badge ${roleBadgeClass(user.role)}">${user.role}</span></span>
+          <span class="admin-detail-row__label">${t('admin.detail.role')}</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${roleBadgeClass(user.role)}">${roleLabel(user.role)}</span></span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Estado</span>
-          <span class="admin-detail-row__value"><span class="admin-badge ${statusBadgeClass(user.status)}">${user.status}</span></span>
+          <span class="admin-detail-row__label">${t('admin.detail.status')}</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${statusBadgeClass(user.status)}">${statusLabel(user.status)}</span></span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Registrado</span>
+          <span class="admin-detail-row__label">${t('admin.detail.registered')}</span>
           <span class="admin-detail-row__value">${formatDate(user.createdAt)}</span>
         </div>
       </div>
       <div class="admin-detail-actions">
-        ${perms.canDemote ? `<button type="button" class="admin-btn admin-btn--ghost" id="teamDemoteBtn">Quitar rol Admin</button>` : ''}
-        ${perms.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="teamDeleteBtn">Eliminar administrador</button>` : ''}
+        ${perms.canDemote ? `<button type="button" class="admin-btn admin-btn--ghost" id="teamDemoteBtn">${t('admin.actions.demote')}</button>` : ''}
+        ${perms.canDelete ? `<button type="button" class="admin-btn admin-btn--danger" id="teamDeleteBtn">${t('admin.actions.deleteAdmin')}</button>` : ''}
       </div>
     `;
 
     document.getElementById('teamDemoteBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Quitar rol de administrador',
-        text: `${user.name} volverá a ser un usuario normal.`,
+        title: t('admin.confirm.demoteTitle'),
+        text: t('admin.confirm.demoteText', { name: user.name }),
         onConfirm: async () => {
           await demoteUser(user.id);
           renderTeamGrid();
@@ -922,8 +1027,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('teamDeleteBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Eliminar administrador',
-        text: `Esta acción elimina la cuenta de ${user.name} de forma permanente.`,
+        title: t('admin.confirm.deleteAdminTitle'),
+        text: t('admin.confirm.deleteAdminText', { name: user.name }),
         onConfirm: async () => {
           await deleteAdminUser(user.id);
           renderTeamGrid();
@@ -1006,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.users.push(result.user);
       applyUserFilters();
       renderTeamGrid();
-      showToast('Administrador creado.', 'success');
+      showToast(t('admin.toast.adminCreated'), 'success');
       closeCreateAdminDrawer();
       refreshAll();
     } catch (error) {
@@ -1059,7 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reasonVisible) {
       const reason = (adminConfirmReasonInput?.value || '').trim();
       if (!reason) {
-        showToast('Debes indicar el motivo de la suspensión.', 'error');
+        showToast(t('admin.toast.reasonRequired'), 'error');
         return;
       }
       closeConfirmModal();
@@ -1118,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="admin-appeal-card__excerpt">${escapeHtml(appeal.message)}</div>
           </div>
           <div class="admin-appeal-card__meta">
-            <span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? 'Válida' : 'Sin resolver'}</span>
+            <span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? t('admin.appeals.valid') : t('admin.appeals.unresolved')}</span>
             <span class="admin-appeal-card__date">${formatDateTime(appeal.createdAt)}</span>
           </div>
         `;
@@ -1130,7 +1235,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   appealsFilter?.addEventListener('change', renderAppealsList);
 
+  let lastAppealDetail = null;
+
   async function openAppealDetail(appealId, isValid) {
+    lastAppealDetail = { appealId, isValid };
     if (!appealDetailCard) return;
 
     let appeal = state.appeals.valid.find((a) => a.id === appealId) || state.appeals.invalid.find((a) => a.id === appealId);
@@ -1149,6 +1257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const relatedUser = isValid ? state.users.find((u) => u.id === appeal.userId) : null;
+    const relatedUserPerms = relatedUser ? canActOnUser(relatedUser) : null;
 
     appealDetailCard.innerHTML = `
       <div class="admin-detail-head">
@@ -1160,24 +1269,24 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="admin-detail-rows">
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Estado</span>
-          <span class="admin-detail-row__value"><span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? 'Válida' : 'Sin resolver'}</span></span>
+          <span class="admin-detail-row__label">${t('admin.detail.status')}</span>
+          <span class="admin-detail-row__value"><span class="admin-badge ${appeal.isValid ? 'admin-badge--status-activo' : 'admin-badge--status-suspendido'}">${appeal.isValid ? t('admin.appeals.valid') : t('admin.appeals.unresolved')}</span></span>
         </div>
         <div class="admin-detail-row">
-          <span class="admin-detail-row__label">Enviada</span>
+          <span class="admin-detail-row__label">${t('admin.detail.sent')}</span>
           <span class="admin-detail-row__value">${formatDateTime(appeal.createdAt)}</span>
         </div>
       </div>
       <div class="admin-appeal-detail__message">${escapeHtml(appeal.message)}</div>
       <div class="admin-detail-actions" style="margin-top:1.4rem;">
-        ${(isValid && relatedUser && relatedUser.status === 'Suspendido') ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">Reactivar cuenta</button>` : ''}
+        ${(isValid && relatedUser && relatedUser.status === 'Suspendido' && relatedUserPerms?.canSuspend) ? `<button type="button" class="admin-btn admin-btn--jade" id="appealReactivateBtn">${t('admin.actions.reactivateAccount')}</button>` : ''}
       </div>
     `;
 
     document.getElementById('appealReactivateBtn')?.addEventListener('click', () => {
       confirmAction({
-        title: 'Reactivar usuario',
-        text: `${relatedUser.name} podrá volver a acceder al sitio.`,
+        title: t('admin.confirm.reactivateTitle'),
+        text: t('admin.confirm.reactivateText', { name: relatedUser.name }),
         onConfirm: async () => {
           await setUserStatus(relatedUser.id, 'activo');
           showListView('apelaciones');
@@ -1195,7 +1304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderAppealsBadge();
       renderAppealsList();
     } catch (error) {
-      showToast('No se pudieron cargar las apelaciones.', 'error');
+      showToast(t('admin.toast.appealsError'), 'error');
     }
   }
 
@@ -1240,16 +1349,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-comment-card__text">${escapeHtml(comment.text)}</div>
         <div class="admin-comment-card__reason">${escapeHtml(comment.flagReason || '')}</div>
         <div class="admin-comment-card__actions">
-          <button type="button" class="admin-btn admin-btn--jade" data-action="approve">Aprobar (falso positivo)</button>
-          <button type="button" class="admin-btn admin-btn--danger" data-action="delete">Eliminar definitivamente</button>
+          <button type="button" class="admin-btn admin-btn--jade" data-action="approve">${t('admin.actions.approveComment')}</button>
+          <button type="button" class="admin-btn admin-btn--danger" data-action="delete">${t('admin.actions.deleteCommentPermanent')}</button>
         </div>
       `;
 
       card.querySelector('[data-action="approve"]')?.addEventListener('click', () => approveFlaggedComment(comment.id));
       card.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
         confirmAction({
-          title: 'Eliminar comentario',
-          text: 'Este comentario se eliminará de forma permanente.',
+          title: t('admin.confirm.deleteCommentTitle'),
+          text: t('admin.confirm.deleteCommentText'),
           onConfirm: () => deleteFlaggedComment(comment.id)
         });
       });
@@ -1264,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.flaggedComments = state.flaggedComments.filter((c) => c.id !== commentId);
       renderCommentsBadge();
       renderCommentsList();
-      showToast('Comentario aprobado y publicado.', 'success');
+      showToast(t('admin.toast.commentApproved'), 'success');
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -1276,7 +1385,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.flaggedComments = state.flaggedComments.filter((c) => c.id !== commentId);
       renderCommentsBadge();
       renderCommentsList();
-      showToast('Comentario eliminado.', 'success');
+      showToast(t('admin.toast.commentDeleted'), 'success');
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -1289,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCommentsBadge();
       renderCommentsList();
     } catch (error) {
-      showToast('No se pudieron cargar los comentarios reportados.', 'error');
+      showToast(t('admin.toast.commentsError'), 'error');
     }
   }
 
@@ -1302,6 +1411,30 @@ document.addEventListener('DOMContentLoaded', () => {
       loadFlaggedComments()
     ]);
   }
+
+  document.addEventListener('langchange', () => {
+    if (sectionTitle) sectionTitle.textContent = sectionLabel(state.activeSection) || state.activeSection;
+
+    if (state.metrics) {
+      renderMetricCards(state.metrics);
+      renderStatusChart(state.metrics);
+      renderRoleChart(state.metrics);
+      renderActivityChart(state.metrics);
+    }
+
+    renderUsersTable();
+    renderPublicationsGrid();
+    renderTeamGrid();
+    renderAppealsList();
+    renderCommentsList();
+
+    const isDetailOpen = (section) => document.getElementById(`${section}-view-detail`)?.classList.contains('is-active');
+
+    if (isDetailOpen('usuarios') && lastUserDetailId) openUserDetail(lastUserDetailId);
+    if (isDetailOpen('publicaciones') && lastPublicationDetailId) openPublicationDetail(lastPublicationDetailId);
+    if (isDetailOpen('equipo') && lastTeamDetailId) openTeamDetail(lastTeamDetailId);
+    if (isDetailOpen('apelaciones') && lastAppealDetail) openAppealDetail(lastAppealDetail.appealId, lastAppealDetail.isValid);
+  });
 
   refreshAll();
   loadCurrentUser();

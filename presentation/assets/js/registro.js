@@ -211,6 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const acceptTerms = document.getElementById('acceptTerms');
+    if (acceptTerms && !acceptTerms.checked) {
+      showMessage(tt('register.error_terms', 'Debes aceptar los Términos y Condiciones para continuar.'));
+      return;
+    }
+
     const payload = {
       name: [nombre, apellido].filter(Boolean).join(' '),
       email: formData.get('email'),
