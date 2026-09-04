@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Términos y Condiciones — Salvadorean Roots</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/terminos.css" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#ffffff" />
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo"><a href="../views/index.html"><img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" /></a></div>
+    <ul class="navbar__links">
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
+    </ul>
+
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
+    <div class="drawer-divider"></div>
+
+    <button class="lang-toggle" id="langToggleMobile" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+      <span class="lang-toggle__label" data-lang-toggle-label>ES</span>
+    </button>
+
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
+    </div>
+  </nav>
+
+  <a href="#" id="termsBackBtn" class="terms-back-btn" hidden>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="termsBackBtnLabel" data-i18n="terms.back">Volver</span>
+  </a>
+
+  <header class="terms-hero">
+    <div class="terms-hero__badge" data-reveal>
+      <h1 data-i18n="terms.hero.title">Términos y Condiciones</h1>
+    </div>
+    <p class="terms-hero__meta" data-reveal data-i18n="terms.hero.meta">Última actualización: 31 de agosto de 2026</p>
+    <a class="terms-hero__pdf" id="termsPdfLink" href="../assets/docs/terminos-y-condiciones.pdf" data-pdf-es="../assets/docs/terminos-y-condiciones.pdf" data-pdf-en="../assets/docs/terms-and-conditions.pdf" target="_blank" rel="noopener" data-reveal>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span data-i18n="terms.hero.pdf">Descargar en PDF</span>
+    </a>
+  </header>
+
+  <div class="terms-wrap">
+    <aside class="terms-toc" data-reveal>
+      <p class="terms-toc__label" data-i18n="terms.toc.label">Contenido</p>
+      <ol id="termsToc">
+        <li><a href="#sec-1" data-i18n="terms.toc.1">1. Sobre la Plataforma</a></li>
+        <li><a href="#sec-2" data-i18n="terms.toc.2">2. Cuentas de usuario</a></li>
+        <li><a href="#sec-3" data-i18n="terms.toc.3">3. Contenido generado por usuarios</a></li>
+        <li><a href="#sec-4" data-i18n="terms.toc.4">4. Asistente de IA (Chatbot)</a></li>
+        <li><a href="#sec-5" data-i18n="terms.toc.5">5. Mapa interactivo y ubicación</a></li>
+        <li><a href="#sec-6" data-i18n="terms.toc.6">6. Quiz cultural y minijuegos</a></li>
+        <li><a href="#sec-7" data-i18n="terms.toc.7">7. Servicios de terceros</a></li>
+        <li><a href="#sec-8" data-i18n="terms.toc.8">8. Asistente de voz en Alexa</a></li>
+        <li><a href="#sec-9" data-i18n="terms.toc.9">9. Privacidad y datos</a></li>
+        <li><a href="#sec-10" data-i18n="terms.toc.10">10. Cookies y navegador</a></li>
+        <li><a href="#sec-11" data-i18n="terms.toc.11">11. Propiedad intelectual</a></li>
+        <li><a href="#sec-12" data-i18n="terms.toc.12">12. Uso aceptable</a></li>
+        <li><a href="#sec-13" data-i18n="terms.toc.13">13. Disponibilidad del servicio</a></li>
+        <li><a href="#sec-14" data-i18n="terms.toc.14">14. Limitación de responsabilidad</a></li>
+        <li><a href="#sec-15" data-i18n="terms.toc.15">15. Modificaciones</a></li>
+        <li><a href="#sec-16" data-i18n="terms.toc.16">16. Ley aplicable</a></li>
+        <li><a href="#sec-17" data-i18n="terms.toc.17">17. Contacto</a></li>
+      </ol>
+    </aside>
+
+    <main class="terms-article" data-reveal>
+      <p class="terms-article__intro" data-i18n="terms.intro">
+        Bienvenido/a a <strong>Salvadorean Roots</strong> (en adelante, "la Plataforma", "el Sitio" o "nosotros"), un portal web dedicado a la preservación, exploración y celebración de la cultura de El Salvador. Al acceder, registrarte o utilizar cualquier funcionalidad de la Plataforma, aceptas quedar vinculado/a por estos Términos y Condiciones ("Términos"). Si no estás de acuerdo, por favor no utilices el Sitio.
+        <br><br>
+        Estos Términos se rigen por las leyes de la <strong>República de El Salvador</strong>.
+      </p>
+
+      <section class="terms-section" id="sec-1">
+        <h2 data-i18n="terms.s1.title">1. Sobre la Plataforma</h2>
+        <p data-i18n="terms.s1.p1">Salvadorean Roots es un proyecto cultural e informativo, sin perjuicio de que en el futuro pueda operar bajo una figura legal específica (persona natural o jurídica). Cuando en este documento se hace referencia a "nosotros" o "el equipo", se entiende como quienes administran y operan la Plataforma en su nombre.</p>
+        <p data-i18n="terms.s1.p2">La Plataforma ofrece, entre otras funciones:</p>
+        <ul>
+          <li data-i18n="terms.s1.li1">Contenido informativo sobre historia, gastronomía, leyendas, sitios culturales y eventos de El Salvador.</li>
+          <li data-i18n="terms.s1.li2">Un mapa interactivo georreferenciado.</li>
+          <li data-i18n="terms.s1.li3">Un quiz cultural gamificado y minijuegos interactivos.</li>
+          <li data-i18n="terms.s1.li4">Un muro comunitario de publicaciones, fotografías y comentarios generados por usuarios.</li>
+          <li data-i18n="terms.s1.li5">Registro de cuentas, perfiles de usuario e inicio de sesión (local o mediante Google).</li>
+          <li data-i18n="terms.s1.li6">Un asistente conversacional de inteligencia artificial ("chatbot cultural").</li>
+          <li data-i18n="terms.s1.li7">Un panel de administración y moderación de contenido.</li>
+        </ul>
+        <p data-i18n="terms.s1.p3">Nos reservamos el derecho de agregar, modificar, suspender o eliminar cualquier funcionalidad del Sitio en cualquier momento, sin que ello genere responsabilidad hacia los usuarios, en la medida permitida por la ley.</p>
+      </section>
+
+      <section class="terms-section" id="sec-2">
+        <h2 data-i18n="terms.s2.title">2. Cuentas de usuario</h2>
+        <h3 data-i18n="terms.s2.h1">2.1 Registro</h3>
+        <p data-i18n="terms.s2.p1">Para acceder a ciertas funciones (publicar contenido, comentar, jugar el quiz con registro de puntajes, editar tu perfil) debes crear una cuenta, ya sea:</p>
+        <ul>
+          <li data-i18n="terms.s2.li1">Mediante correo electrónico y contraseña (almacenada de forma cifrada, nunca en texto plano), o</li>
+          <li data-i18n="terms.s2.li2">Mediante inicio de sesión con tu cuenta de <strong>Google</strong> (OAuth).</li>
+        </ul>
+        <h3 data-i18n="terms.s2.h2">2.2 Veracidad de la información</h3>
+        <p data-i18n="terms.s2.p2">Te comprometes a proporcionar información verídica y a mantenerla actualizada. Eres responsable de la confidencialidad de tus credenciales y de toda actividad realizada desde tu cuenta.</p>
+        <h3 data-i18n="terms.s2.h3">2.3 Edad mínima</h3>
+        <p data-i18n="terms.s2.p3">La Plataforma no está dirigida a menores de 13 años. Si tienes entre 13 y 18 años, debes contar con la autorización de tu padre, madre o tutor legal para usar el Sitio.</p>
+        <h3 data-i18n="terms.s2.h4">2.4 Roles</h3>
+        <p data-i18n="terms.s2.p4">Existen distintos niveles de acceso dentro de la Plataforma (por ejemplo, Usuario, Administrador y Fundador). Los roles administrativos son asignados internamente y conllevan responsabilidades adicionales de moderación.</p>
+        <h3 data-i18n="terms.s2.h5">2.5 Eliminación de cuenta</h3>
+        <p data-i18n="terms.s2.p5">Puedes solicitar la eliminación permanente de tu cuenta desde la configuración de tu perfil. Esta acción es irreversible y eliminará tu información de perfil según lo descrito en la sección de Privacidad.</p>
+      </section>
+
+      <section class="terms-section" id="sec-3">
+        <h2 data-i18n="terms.s3.title">3. Contenido generado por usuarios</h2>
+        <h3 data-i18n="terms.s3.h1">3.1 Qué puedes publicar</h3>
+        <p data-i18n="terms.s3.p1">La sección de publicaciones comunitarias te permite compartir fotografías, descripciones, ubicaciones geográficas y comentarios relacionados con la cultura salvadoreña.</p>
+        <h3 data-i18n="terms.s3.h2">3.2 Reglas de contenido</h3>
+        <p data-i18n="terms.s3.p2">Al publicar, garantizas que tu contenido:</p>
+        <ul>
+          <li data-i18n="terms.s3.li1">Es de tu autoría o cuentas con los derechos necesarios para compartirlo.</li>
+          <li data-i18n="terms.s3.li2">No contiene material ilegal, difamatorio, discriminatorio, violento, sexualmente explícito, o que incite al odio.</li>
+          <li data-i18n="terms.s3.li3">No infringe derechos de propiedad intelectual, privacidad o imagen de terceros.</li>
+          <li data-i18n="terms.s3.li4">No constituye spam, publicidad no autorizada o suplantación de identidad.</li>
+          <li data-i18n="terms.s3.li5">Corresponde razonablemente al propósito cultural y comunitario de la Plataforma.</li>
+        </ul>
+        <h3 data-i18n="terms.s3.h3">3.3 Licencia sobre tu contenido</h3>
+        <p data-i18n="terms.s3.p3">Al publicar contenido en la Plataforma, nos otorgas una licencia no exclusiva, mundial y libre de regalías para almacenar, mostrar, reproducir y distribuir dicho contenido dentro del Sitio, con el único fin de operar y promocionar la Plataforma. Conservas la propiedad de tu contenido y puedes eliminarlo en cualquier momento, salvo copias ya almacenadas en respaldos técnicos, que se purgan en los ciclos normales de respaldo.</p>
+        <h3 data-i18n="terms.s3.h4">3.4 Moderación</h3>
+        <p data-i18n="terms.s3.p4">Nos reservamos el derecho de revisar, ocultar o eliminar cualquier publicación o comentario que incumpla estos Términos, sin necesidad de aviso previo. Las cuentas que incumplan reiteradamente pueden ser suspendidas temporal o permanentemente.</p>
+        <h3 data-i18n="terms.s3.h5">3.5 Apelaciones</h3>
+        <p data-i18n="terms.s3.p5">Si tu cuenta es suspendida, puedes enviar una solicitud de apelación a través del formulario habilitado en el Sitio. El equipo de moderación revisará tu caso, sin garantía de un plazo de respuesta específico.</p>
+        <h3 data-i18n="terms.s3.h6">3.6 Límites técnicos de subida</h3>
+        <p data-i18n="terms.s3.p6">Por motivos de seguridad y buen uso de los recursos del Sitio, existen límites técnicos a la subida de imágenes (actualmente hasta 20 fotografías de publicación y 10 avatares por usuario cada 24 horas, con un tamaño máximo de 3MB por archivo, en formatos JPEG, PNG o WEBP). Estos límites pueden cambiar sin previo aviso.</p>
+      </section>
+
+      <section class="terms-section" id="sec-4">
+        <h2 data-i18n="terms.s4.title">4. Asistente de inteligencia artificial (Chatbot cultural)</h2>
+        <p data-i18n="terms.s4.p1">La Plataforma incluye un asistente conversacional que utiliza modelos de lenguaje de terceros (a través de proveedores compatibles, como OpenRouter) para responder preguntas sobre historia y cultura salvadoreña. Este mismo motor también da soporte a la skill de voz para Amazon Alexa descrita en la sección 8.</p>
+        <ul>
+          <li data-i18n="terms.s4.li1">Las respuestas del asistente son generadas automáticamente y <strong>pueden contener imprecisiones</strong>. No debes considerarlas como fuente académica, legal, médica o de otra naturaleza especializada sin verificación adicional.</li>
+          <li data-i18n="terms.s4.li2">Los mensajes que envíes al chatbot pueden ser transmitidos al proveedor de inteligencia artificial correspondiente para generar una respuesta, conforme a lo descrito en la sección de Privacidad.</li>
+          <li data-i18n="terms.s4.li3">Evita compartir con el chatbot información personal sensible que no sea necesaria para tu consulta.</li>
+        </ul>
+      </section>
+
+      <section class="terms-section" id="sec-5">
+        <h2 data-i18n="terms.s5.title">5. Mapa interactivo y datos de ubicación</h2>
+        <p data-i18n="terms.s5.p1">Si utilizas el mapa cultural o creas publicaciones con ubicación, podrás seleccionar o compartir coordenadas geográficas asociadas a tu contenido, usando <strong>Leaflet</strong> junto con los mapas ("tiles") de <strong>OpenStreetMap</strong>. Estas coordenadas se muestran públicamente junto a la publicación correspondiente.</p>
+        <p data-i18n="terms.s5.p2">Si usas la opción de <strong>"usar mi ubicación"</strong>, tu navegador solicitará permiso para acceder a tu posición (GPS o red) y, una vez obtenida, la coordenada se envía al servicio de geocodificación <strong>Nominatim (OpenStreetMap)</strong> para convertirla en un nombre de lugar legible. Puedes elegir no otorgar este permiso e indicar la ubicación manualmente sobre el mapa o por texto.</p>
+        <p data-i18n="terms.s5.p3">No compartas ubicaciones que puedan comprometer tu privacidad o seguridad (por ejemplo, tu domicilio particular) si no deseas hacerlas públicas.</p>
+      </section>
+
+      <section class="terms-section" id="sec-6">
+        <h2 data-i18n="terms.s6.title">6. Quiz cultural y minijuegos</h2>
+        <p data-i18n="terms.s6.p1">El quiz cultural y los minijuegos son ofrecidos con fines de entretenimiento y educación cultural. Los puntajes obtenidos pueden almacenarse asociados a tu cuenta para fines de historial personal. No garantizamos la exactitud absoluta de cada pregunta del quiz, aunque procuramos que el contenido sea fidedigno; si detectas un error, puedes reportarlo.</p>
+      </section>
+
+      <section class="terms-section" id="sec-7">
+        <h2 data-i18n="terms.s7.title">7. Servicios e integraciones de terceros</h2>
+        <p data-i18n="terms.s7.p1">Para funcionar correctamente, la Plataforma se apoya en proveedores externos. Al usar el Sitio, reconoces que ciertas funciones dependen de estos terceros y están sujetas también a sus propios términos y políticas:</p>
+        <div class="terms-table-wrap">
+          <table class="terms-table">
+            <thead><tr><th data-i18n="terms.tbl.th1">Servicio</th><th data-i18n="terms.tbl.th2">Función en la Plataforma</th></tr></thead>
+            <tbody>
+              <tr><td>Google (OAuth 2.0)</td><td data-i18n="terms.tbl.row1">Inicio de sesión con tu cuenta de Google.</td></tr>
+              <tr><td>Proveedor de IA compatible con OpenRouter</td><td data-i18n="terms.tbl.row2">Procesamiento de mensajes del chatbot cultural.</td></tr>
+              <tr><td>Cloudflare R2</td><td data-i18n="terms.tbl.row3">Almacenamiento de imágenes de perfil (avatares) y de publicaciones.</td></tr>
+              <tr><td>Proveedor de base de datos (MySQL compatible, ej. TiDB Cloud / Aiven)</td><td data-i18n="terms.tbl.row4">Almacenamiento de datos de cuentas, publicaciones, comentarios y puntajes.</td></tr>
+              <tr><td>Proveedor de correo SMTP</td><td data-i18n="terms.tbl.row5">Envío de correos de recuperación de contraseña y notificaciones transaccionales.</td></tr>
+              <tr><td>Vercel (u otro proveedor de hosting)</td><td data-i18n="terms.tbl.row6">Alojamiento y entrega del Sitio.</td></tr>
+              <tr><td>Amazon Alexa</td><td data-i18n="terms.tbl.row7">Plataforma de voz sobre la que corre la skill "Pupusita" (ver sección 8). Amazon procesa la voz y transcripción bajo sus propios términos.</td></tr>
+              <tr><td>OpenStreetMap / Leaflet</td><td data-i18n="terms.tbl.row8">Renderizado de mapas y "tiles" (mosaicos de imagen del mapa) en el mapa cultural y en publicaciones.</td></tr>
+              <tr><td>Nominatim (OpenStreetMap)</td><td data-i18n="terms.tbl.row9">Búsqueda de direcciones y geocodificación inversa al seleccionar una ubicación para una publicación.</td></tr>
+              <tr><td>YouTube</td><td data-i18n="terms.tbl.row10">Reproducción de videos demostrativos incrustados en la sección de recetas.</td></tr>
+              <tr><td>Google Fonts</td><td data-i18n="terms.tbl.row11">Entrega de las tipografías del sitio (Fraunces, Inter).</td></tr>
+              <tr><td>cdnjs, jsDelivr, unpkg</td><td data-i18n="terms.tbl.row12">Distribución de librerías de interfaz: GSAP y ScrollTrigger, Chart.js, Matter.js y Leaflet.</td></tr>
+              <tr><td>html2pdf.js</td><td data-i18n="terms.tbl.row13">Generación de un PDF de una receta directamente en tu navegador; no se envían datos a un servidor externo para esta función.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p data-i18n="terms.s7.p2">No controlamos las políticas de privacidad ni disponibilidad de estos terceros, y no somos responsables por interrupciones del servicio derivadas de fallas ajenas a nuestra plataforma. Estas integraciones pueden cambiar conforme evolucione el proyecto.</p>
+      </section>
+
+      <section class="terms-section" id="sec-8">
+        <h2 data-i18n="terms.s8.title">8. Asistente de voz en Amazon Alexa ("Pupusita")</h2>
+        <p data-i18n="terms.s8.p1">Además del chatbot disponible en el Sitio, Salvadorean Roots ofrece una skill (habilidad) para <strong>Amazon Alexa</strong> llamada <strong>"Pupusita"</strong>, que permite consultar información cultural sobre El Salvador y armar itinerarios de viaje por voz, en dispositivos compatibles con Alexa.</p>
+        <h3 data-i18n="terms.s8.h1">8.1 Cómo funciona</h3>
+        <p data-i18n="terms.s8.p2">La skill de Alexa es un componente independiente del portal web: se ejecuta en la infraestructura de Amazon (AWS Lambda) y no requiere ni utiliza una cuenta de usuario de Salvadorean Roots. No es necesario iniciar sesión en el Sitio para usarla, y el uso de la skill no crea ni modifica ninguna cuenta del portal.</p>
+        <p data-i18n="terms.s8.p3">Cuando realizas una consulta por voz, Alexa la transcribe a texto y la skill puede reenviar esa consulta a nuestro asistente de inteligencia artificial (el mismo motor descrito en la sección 4) para generar una respuesta hablada. No asociamos estas consultas a tu identidad personal ni las vinculamos con ninguna cuenta del Sitio.</p>
+        <h3 data-i18n="terms.s8.h2">8.2 Datos gestionados por Amazon</h3>
+        <p data-i18n="terms.s8.p4">Todo lo relacionado con la grabación de voz, su transcripción, la gestión de tu cuenta de Amazon/Alexa, los permisos del dispositivo y el almacenamiento de dicha información <strong>es responsabilidad exclusiva de Amazon</strong> y se rige por los términos de uso, condiciones del servicio y política de privacidad de Amazon Alexa, no por estos Términos. Te recomendamos revisar dichos documentos directamente en los canales oficiales de Amazon.</p>
+        <h3 data-i18n="terms.s8.h3">8.3 Alcance y limitaciones</h3>
+        <p data-i18n="terms.s8.p5">La skill está pensada para brindar datos culturales y turísticos de referencia (sitios, gastronomía, festividades, leyendas) y sugerencias de itinerario con costos aproximados. Las respuestas son generadas automáticamente por un modelo de lenguaje y <strong>pueden contener imprecisiones o desactualizaciones</strong>, especialmente en cifras de costos o disponibilidad de eventos. Esta funcionalidad depende de la disponibilidad de nuestros servidores y de los servicios de Amazon; puede no estar disponible en todo momento.</p>
+        <blockquote data-i18n="terms.s8.bq">Al usar la skill de Alexa "Pupusita", tu interacción con el ecosistema Alexa (activación por voz, cuenta de Amazon, dispositivo, permisos) queda sujeta a los términos y políticas de privacidad propios de Amazon, adicionales a estos Términos.</blockquote>
+      </section>
+
+      <section class="terms-section" id="sec-9">
+        <h2 data-i18n="terms.s9.title">9. Privacidad y tratamiento de datos (resumen)</h2>
+        <p data-i18n="terms.s9.p1">Este apartado resume cómo tratamos tus datos personales. Podremos publicar en el futuro una Política de Privacidad independiente y más detallada; mientras tanto, este resumen forma parte integral de estos Términos.</p>
+        <h3 data-i18n="terms.s9.h1">9.1 Datos que recopilamos</h3>
+        <ul>
+          <li data-i18n="terms.s9.li1"><strong>Datos de cuenta:</strong> nombre, correo electrónico, contraseña (cifrada) o identificador de Google, biografía y foto de perfil.</li>
+          <li data-i18n="terms.s9.li2"><strong>Contenido que publicas:</strong> fotografías, descripciones, comentarios y coordenadas de ubicación.</li>
+          <li data-i18n="terms.s9.li3"><strong>Datos de uso técnico:</strong> dirección IP y metadatos de sesión (incluida la cookie de sesión descrita en la sección 10), utilizados para seguridad (prevención de fuerza bruta, límites de subida) y para mantener tu sesión iniciada.</li>
+          <li data-i18n="terms.s9.li4"><strong>Mensajes enviados al chatbot</strong> (por el Sitio o transcritos por voz a través de la skill de Alexa), en la medida necesaria para obtener una respuesta del proveedor de IA. Las consultas hechas por voz no se asocian a tu cuenta del Sitio ni se identifican personalmente de nuestro lado.</li>
+          <li data-i18n="terms.s9.li5"><strong>Historial de puntajes</strong> del quiz cultural, asociado a tu cuenta.</li>
+        </ul>
+        <h3 data-i18n="terms.s9.h2">9.2 Finalidad del tratamiento</h3>
+        <p data-i18n="terms.s9.p2">Utilizamos estos datos para: operar tu cuenta, mostrar tu contenido en el muro comunitario y el mapa, permitirte recuperar tu contraseña, prevenir abuso de la Plataforma, moderar contenido y mejorar el servicio.</p>
+        <h3 data-i18n="terms.s9.h3">9.3 Con quién se comparten</h3>
+        <p data-i18n="terms.s9.p3">Tus datos pueden ser procesados por los proveedores externos listados en la sección 7 (por ejemplo, tu foto de perfil se almacena en Cloudflare R2, y tus mensajes al chatbot se procesan a través del proveedor de IA), únicamente en la medida necesaria para prestarte el servicio. No vendemos tus datos personales a terceros.</p>
+        <h3 data-i18n="terms.s9.h4">9.4 Seguridad</h3>
+        <p data-i18n="terms.s9.p4">Aplicamos medidas razonables de seguridad, incluyendo cifrado de contraseñas, cookies de sesión seguras, límites de intentos de acceso y cabeceras de seguridad HTTP. Ninguna plataforma en internet puede garantizar seguridad absoluta.</p>
+        <h3 data-i18n="terms.s9.h5">9.5 Tus derechos</h3>
+        <p data-i18n="terms.s9.p5">Puedes acceder, actualizar o eliminar tu información desde tu perfil, o solicitándolo directamente al equipo del Sitio. La eliminación de tu cuenta borra tu información personal identificable, salvo cuando la ley o motivos de seguridad legítimos exijan conservarla por un periodo razonable adicional.</p>
+        <h3 data-i18n="terms.s9.h6">9.6 Menores de edad</h3>
+        <p data-i18n="terms.s9.p6">No recopilamos intencionalmente datos de menores de 13 años. Si detectamos una cuenta de un menor de esa edad, procederemos a eliminarla.</p>
+      </section>
+
+      <section class="terms-section" id="sec-10">
+        <h2 data-i18n="terms.s10.title">10. Cookies y tecnologías del navegador</h2>
+        <p data-i18n="terms.s10.p1">El Sitio utiliza una <strong>cookie de sesión</strong> (necesaria y de carácter técnico) para mantenerte identificado mientras usas tu cuenta. Esta cookie está marcada como <code>httpOnly</code> y con <code>sameSite: lax</code>, y en producción se transmite únicamente por conexiones seguras (<code>secure</code>). No utilizamos cookies de publicidad ni de rastreo de terceros.</p>
+        <p data-i18n="terms.s10.p2">Además de la cookie de sesión, tu preferencia de <strong>idioma</strong> (español/inglés) y de <strong>tema visual</strong> (claro/oscuro) se guardan localmente en tu navegador (<code>localStorage</code>), no en nuestros servidores, y puedes borrarlas en cualquier momento desde la configuración de tu navegador.</p>
+        <p data-i18n="terms.s10.p3">Algunas funciones cargan recursos directamente desde servidores de terceros, lo que puede implicar que dichos terceros reciban tu dirección IP y datos técnicos básicos de tu navegador al momento de cargar la página:</p>
+        <ul>
+          <li data-i18n="terms.s10.li1"><strong>Google Fonts</strong>, para las tipografías del Sitio.</li>
+          <li data-i18n="terms.s10.li2"><strong>cdnjs, jsDelivr y unpkg</strong>, para librerías de interfaz (animaciones, gráficas, físicas de los minijuegos y mapas).</li>
+          <li data-i18n="terms.s10.li3"><strong>OpenStreetMap</strong>, para los mosaicos visuales del mapa, y <strong>Nominatim</strong>, si usas la búsqueda o geolocalización de direcciones.</li>
+          <li data-i18n="terms.s10.li4"><strong>YouTube</strong>, si reproduces un video demostrativo en la sección de recetas.</li>
+        </ul>
+        <p data-i18n="terms.s10.p4">Si tu navegador o dispositivo lo permite, puedes bloquear cookies o el acceso a estos recursos externos mediante su configuración, aunque esto podría afectar el funcionamiento de algunas partes visuales o interactivas del Sitio.</p>
+      </section>
+
+      <section class="terms-section" id="sec-11">
+        <h2 data-i18n="terms.s11.title">11. Propiedad intelectual</h2>
+        <p data-i18n="terms.s11.p1">El contenido original de la Plataforma (textos históricos, diseño, código, marcas, logotipos e ilustraciones propias) es propiedad de Salvadorean Roots o de sus respectivos titulares y está protegido por las leyes de propiedad intelectual aplicables. Se permite el uso personal y no comercial del contenido informativo del Sitio, siempre citando la fuente. Queda prohibida la reproducción total o parcial con fines comerciales sin autorización previa.</p>
+        <p data-i18n="terms.s11.p2">El contenido generado por usuarios se rige por lo dispuesto en la sección 3.</p>
+      </section>
+
+      <section class="terms-section" id="sec-12">
+        <h2 data-i18n="terms.s12.title">12. Uso aceptable</h2>
+        <p data-i18n="terms.s12.p1">Está prohibido usar la Plataforma (incluyendo el chatbot y la skill de Alexa) para:</p>
+        <ul>
+          <li data-i18n="terms.s12.li1">Intentar vulnerar la seguridad del Sitio, sus bases de datos o cuentas de otros usuarios.</li>
+          <li data-i18n="terms.s12.li2">Automatizar el acceso o extracción masiva de datos (scraping) sin autorización.</li>
+          <li data-i18n="terms.s12.li3">Subir contenido malicioso (virus, malware) o intentar explotar vulnerabilidades.</li>
+          <li data-i18n="terms.s12.li4">Suplantar la identidad de otra persona o entidad.</li>
+          <li data-i18n="terms.s12.li5">Usar el chatbot o la skill de Alexa con fines de abuso, generación de contenido ilegal o para intentar extraer información interna del sistema.</li>
+        </ul>
+        <p data-i18n="terms.s12.p2">El incumplimiento de esta sección puede resultar en suspensión inmediata de la cuenta o restricción de acceso a la skill, sin perjuicio de otras acciones legales que correspondan.</p>
+      </section>
+
+      <section class="terms-section" id="sec-13">
+        <h2 data-i18n="terms.s13.title">13. Disponibilidad del servicio</h2>
+        <p data-i18n="terms.s13.p1">Salvadorean Roots es un proyecto en desarrollo activo. No garantizamos que el Sitio, el chatbot o la skill de Alexa estén disponibles de forma ininterrumpida, libres de errores o sin interrupciones por mantenimiento, actualizaciones o fallas de los proveedores mencionados en las secciones 7 y 8. Podemos modificar, suspender temporalmente o descontinuar el Sitio o la skill de Alexa, total o parcialmente, en cualquier momento.</p>
+      </section>
+
+      <section class="terms-section" id="sec-14">
+        <h2 data-i18n="terms.s14.title">14. Limitación de responsabilidad</h2>
+        <p data-i18n="terms.s14.p1">En la máxima medida permitida por la ley:</p>
+        <ul>
+          <li data-i18n="terms.s14.li1">El Sitio se ofrece "tal cual" y "según disponibilidad", sin garantías de ningún tipo, expresas o implícitas.</li>
+          <li data-i18n="terms.s14.li2">No garantizamos la exactitud absoluta del contenido cultural, histórico o educativo, aunque procuramos su veracidad.</li>
+          <li data-i18n="terms.s14.li3">No somos responsables por contenido publicado por otros usuarios, ni por las respuestas generadas por el chatbot de inteligencia artificial o su versión disponible en Amazon Alexa.</li>
+          <li data-i18n="terms.s14.li4">No seremos responsables por daños indirectos, incidentales o consecuentes derivados del uso o la imposibilidad de uso del Sitio o de la skill de Alexa.</li>
+        </ul>
+      </section>
+
+      <section class="terms-section" id="sec-15">
+        <h2 data-i18n="terms.s15.title">15. Modificaciones a estos Términos</h2>
+        <p data-i18n="terms.s15.p1">Podemos actualizar estos Términos en cualquier momento para reflejar cambios en la Plataforma, en las integraciones con terceros o en la normativa aplicable. Publicaremos la fecha de "Última actualización" al inicio de este documento. El uso continuado del Sitio después de una modificación implica la aceptación de los nuevos Términos.</p>
+      </section>
+
+      <section class="terms-section" id="sec-16">
+        <h2 data-i18n="terms.s16.title">16. Ley aplicable y jurisdicción</h2>
+        <p data-i18n="terms.s16.p1">Estos Términos se rigen e interpretan de acuerdo con las leyes de la <strong>República de El Salvador</strong>. Cualquier controversia derivada del uso de la Plataforma se someterá a los tribunales competentes de El Salvador, salvo que la ley disponga expresamente lo contrario.</p>
+      </section>
+
+      <section class="terms-section" id="sec-17">
+        <h2 data-i18n="terms.s17.title">17. Contacto</h2>
+        <p data-i18n="terms.s17.p1">Si tienes dudas, comentarios o deseas ejercer tus derechos sobre tus datos personales, puedes contactarnos a través de los canales de contacto habilitados en el Sitio.</p>
+      </section>
+
+      <p class="terms-article__footnote" data-i18n="terms.footnote">Este documento es un modelo de referencia elaborado con base en las funcionalidades actuales de la Plataforma. Se recomienda su revisión por un profesional del derecho salvadoreño antes de su publicación definitiva, especialmente en lo relativo a protección de datos personales y responsabilidad por contenido de terceros.</p>
+    </main>
+  </div>
+
+  <div class="terms-cta" data-reveal>
+    <button type="button" class="terms-cta__btn terms-cta__btn--ghost" id="termsScrollTopBtn" data-i18n="terms.scrollTop">Ir arriba</button>
+    <a href="#" class="terms-cta__btn terms-cta__btn--primary" id="termsCtaBackBtn" data-i18n="terms.back">Volver</a>
+  </div>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
+      <p class="footer__name" data-i18n="footer.brand">Salvadorean Roots</p>
+      <ul class="footer__links">
+        <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li><li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+        <li><a href="../views/sitios-culturales.html" data-i18n="nav.sitios">Sitios Culturales</a></li>
+        <li><a href="../views/gastronomia.html" data-i18n="nav.gastronomia">Gastronomía</a></li>
+        <li><a href="../views/eventos.html" data-i18n="nav.eventos">Eventos</a></li><li><a href="../views/historia.html" data-i18n="nav.historia">Historia</a></li>
+        <li><a href="../views/leyendas.html" data-i18n="nav.leyendas">Leyendas</a></li><li><a href="../views/quiz.html" data-i18n="nav.quiz">Quiz</a></li>
+      </ul>
+      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <p class="footer__disclaimer" data-i18n="footer.disclaimer">Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/terminos.js"></script>
+</body>
+</html>
