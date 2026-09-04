@@ -637,7 +637,11 @@ const mapa = L.map('mapa-leaflet', {
   // para ese nivel exacto, así que agranda con CSS los del entero más
   // cercano y el mapa arranca borroso/pixelado. Un entero se ve nítido.
   zoom: 10,
-  minZoom: 8,
+  // Antes en 8: a ese nivel se alcanzaba a ver Guatemala y Honduras enteros,
+  // no solo El Salvador. En 10 (mismo nivel que el zoom inicial) el
+  // deszoomeo máximo sigue mostrando el país completo sin salirse a los
+  // vecinos.
+  minZoom: 10,
   maxBounds: EL_SALVADOR_BOUNDS,
   maxBoundsViscosity: 0.7,
   zoomControl: false,
