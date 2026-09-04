@@ -351,6 +351,14 @@
       transition: opacity .25s ease;
     }
 
+    /* Wrapper que separa visualmente marcadores que caen en el mismo punto
+       (o muy cerca) sin interferir con las animaciones de escala de
+       .custom-marker. Ver declutterMarkers() en mapa.js. */
+    .custom-marker-shift {
+      width: 100%; height: 100%;
+      transition: transform .25s cubic-bezier(.4, 0, .2, 1);
+    }
+
     .custom-marker {
       position: relative;
       width: 34px; height: 34px; border-radius: 50%; /* Aumentado de 24px a 34px */
