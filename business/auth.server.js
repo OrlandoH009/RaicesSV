@@ -94,8 +94,9 @@ const register = async (name, email, password) => {
 
     const hash = await bcrypt.hash(password, 10);
 
+    let result; 
     try {
-        await userRepository.createUser(
+        result = await userRepository.createUser(
             name.trim(),
             normalizedEmail,
             hash
@@ -106,8 +107,9 @@ const register = async (name, email, password) => {
         }
         throw error;
     }
-};
 
+    return await userRepository.findById(result.insertId);
+};
 const loginOrRegisterWithGoogle = async (name, email, googleId, googlePhotoUrl) => {
     if (typeof name !== 'string' || typeof googleId !== 'string' || !googleId.trim()) {
         const e = new Error('No se logró terminar el incio de sesión con Google'); e.expose = true; throw e;
