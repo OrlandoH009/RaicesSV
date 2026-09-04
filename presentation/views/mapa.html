@@ -57,7 +57,7 @@
 
   <a href="../views/categorias.html" class="info-back-btn" id="infoBackBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
-    <span id="infoBackBtnLabel">Volver a categorías</span>
+    <span id="infoBackBtnLabel" data-i18n="backNav.volver">Volver</span>
   </a>
 
   <main>
@@ -141,12 +141,6 @@
           </div>
         </div>
       </aside>
-
-      <!-- Botón Volver -->
-      <button class="mapa-back-btn" id="mapaBackBtn" type="button" style="display:none;">
-        <span id="mapaBackBtnLabel" data-i18n="map.backBtn">Volver</span>
-        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
-      </button>
 
       <!-- Botón de geolocalización, estilo "ubicación actual" de Google Maps -->
       <button id="btn-mi-ubicacion" class="btn-geo-float" data-i18n-attr="aria-label:map.geo.label,title:map.geo.label">

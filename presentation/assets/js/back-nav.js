@@ -1,39 +1,30 @@
 /* ══════════════════════════════════════════════════════════
-   BOTÓN "VOLVER" — compartido entre eventos, historia,
-   sitios-culturales, gastronomía, leyendas, recetas,
-   calendario y publicaciones.
+   BOTÓN "VOLVER" — compartido en todo el sitio (categorías,
+   calendario, eventos, historia, sitios-culturales, gastronomía,
+   leyendas, recetas, mapa, publicaciones, quiz, juegos).
 
    Comportamiento:
-   - Si la URL trae ?from=pagina.html, el botón regresa ahí
-     (y muestra la etiqueta correspondiente, ej. "Volver a gastronomía").
+   - Si la URL trae ?from=pagina.html (una de las páginas conocidas),
+     el botón regresa ahí.
    - Si no trae "from", el botón por defecto regresa a categorias.html.
+   - La etiqueta es siempre la palabra "Volver", sin importar el
+     destino — solo cambia a dónde te lleva el clic.
    ══════════════════════════════════════════════════════════ */
 (function configurarBotonVolverInfo() {
-  const claves = {
-    'categorias.html': 'backNav.categorias',
-    'calendario.html': 'backNav.calendario',
-    'sitios-culturales.html': 'backNav.sitios-culturales',
-    'gastronomia.html': 'backNav.gastronomia',
-    'recetas.html': 'backNav.recetas',
-    'eventos.html': 'backNav.eventos',
-    'historia.html': 'backNav.historia',
-    'leyendas.html': 'backNav.leyendas',
-    'mapa.html': 'backNav.mapa',
-    'publicaciones.html': 'backNav.publicaciones'
-  };
-
-  const etiquetasFallback = {
-    'categorias.html': 'Volver a categorías',
-    'calendario.html': 'Volver al calendario',
-    'sitios-culturales.html': 'Volver a sitios culturales',
-    'gastronomia.html': 'Volver a gastronomía',
-    'recetas.html': 'Volver al recetario',
-    'eventos.html': 'Volver a eventos',
-    'historia.html': 'Volver a historia',
-    'leyendas.html': 'Volver a leyendas',
-    'mapa.html': 'Volver al mapa',
-    'publicaciones.html': 'Volver a publicaciones'
-  };
+  const destinosConocidos = [
+    'categorias.html',
+    'calendario.html',
+    'sitios-culturales.html',
+    'gastronomia.html',
+    'recetas.html',
+    'eventos.html',
+    'historia.html',
+    'leyendas.html',
+    'mapa.html',
+    'publicaciones.html',
+    'quiz.html',
+    'juegos.html'
+  ];
 
   function traducir(clave, fallback) {
     if (window.SRi18n && typeof window.SRi18n.t === 'function') {
@@ -44,11 +35,9 @@
     return fallback;
   }
 
-  let destinoActual = 'categorias.html';
-
   function actualizarEtiqueta() {
     const labelEl = document.getElementById('infoBackBtnLabel');
-    if (labelEl) labelEl.textContent = traducir(claves[destinoActual], etiquetasFallback[destinoActual]);
+    if (labelEl) labelEl.textContent = traducir('backNav.volver', 'Volver');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -59,14 +48,14 @@
     const from = params.get('from');
 
     const esRutaSegura = from && /^[a-zA-Z0-9_\-]+\.html$/.test(from);
-    destinoActual = (esRutaSegura && claves[from]) ? from : 'categorias.html';
+    const destino = (esRutaSegura && destinosConocidos.includes(from)) ? from : 'categorias.html';
 
     actualizarEtiqueta();
-    backBtn.setAttribute('href', destinoActual);
+    backBtn.setAttribute('href', destino);
 
     backBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.location.href = destinoActual;
+      window.location.href = destino;
     });
 
     // El texto del botón depende del idioma actual; cuando el usuario cambia
