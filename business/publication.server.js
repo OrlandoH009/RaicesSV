@@ -120,7 +120,10 @@ const createPublication = async (id_user, { title, description, location, lat, l
         const err = new Error('Las coordenadas de la ubicación no son válidas.'); err.expose = true; throw err;
     }
 
-    if (parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX || parsedLng < LNG_MIN || parsedLng > LNG_MAX)) {
+    const latOutOfRange = parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX);
+    const lngOutOfRange = parsedLng !== null && (parsedLng < LNG_MIN || parsedLng > LNG_MAX);
+
+    if (latOutOfRange || lngOutOfRange) {
         const err = new Error('La ubicación seleccionada está fuera de El Salvador.'); err.expose = true; throw err;
     }
 
@@ -176,7 +179,10 @@ const updatePublication = async (id_publication, requestingUser, { title, descri
         const err = new Error('Las coordenadas de la ubicación no son válidas.'); err.expose = true; throw err;
     }
 
-    if (parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX || parsedLng < LNG_MIN || parsedLng > LNG_MAX)) {
+    const latOutOfRange = parsedLat !== null && (parsedLat < LAT_MIN || parsedLat > LAT_MAX);
+    const lngOutOfRange = parsedLng !== null && (parsedLng < LNG_MIN || parsedLng > LNG_MAX);
+
+    if (latOutOfRange || lngOutOfRange) {
         const err = new Error('La ubicación seleccionada está fuera de El Salvador.'); err.expose = true; throw err;
     }
 
