@@ -644,14 +644,8 @@ const mapa = L.map('mapa-leaflet', {
   attributionControl: true,
   preferCanvas: true,
   fadeAnimation: !esDispositivoMovil,
-  // Desactivado: la transición CSS acelerada por GPU que Leaflet aplica a
-  // cada ícono durante zoomAnimation/markerZoomAnimation puede quedar mal
-  // compuesta en Chrome con ~100 marcadores (el navegador pinta posiciones
-  // viejas aunque el transform ya quedó actualizado al valor correcto —
-  // verificado comparando el transform real contra el calculado). Sin
-  // animación, cada zoom reposiciona los marcadores de una sola vez.
-  zoomAnimation: false,
-  markerZoomAnimation: false,
+  zoomAnimation: true,
+  markerZoomAnimation: true,
   inertia: true,
   inertiaDeceleration: 3000,
   inertiaMaxSpeed: 1500
@@ -1230,6 +1224,15 @@ window.srMarkersReady = false;
 const DECLUTTER_PIXEL_THRESHOLD = 32; // si dos marcadores caen a menos de esto, se consideran solapados
 const DECLUTTER_BASE_RADIUS = 20;     // px de radio para un grupo de 2
 const DECLUTTER_RADIUS_STEP = 5;      // px extra de radio por cada miembro adicional del grupo
+// A zoom bajo (país completo) decenas de marcadores pueden quedar a menos de
+// DECLUTTER_PIXEL_THRESHOLD unos de otros y encadenarse (transitivamente) en
+// un solo grupo enorme. Sin tope, el radio crecía sin límite (20 + 5*(n-2)
+// con n≈90 daba ~460px), esparciendo el círculo tan lejos que a esa escala
+// de zoom representaba varios grados de distancia real -pareciendo que los
+// marcadores se movían a otro país. El radio ya no sirve para "desplegar en
+// abanico" grupos así de grandes (no se alcanzan a distinguir de todos
+// modos), así que lo topamos a un tamaño siempre clicable en pantalla.
+const DECLUTTER_MAX_RADIUS = 70;      // px de radio máximo, sin importar el tamaño del grupo
 
 function declutterMarkers() {
   if (!mapa) return;
@@ -1279,7 +1282,7 @@ function declutterMarkers() {
         return;
       }
       const angulo = (2 * Math.PI * orden) / n - Math.PI / 2; // el primero apunta hacia arriba
-      const radio = DECLUTTER_BASE_RADIUS + DECLUTTER_RADIUS_STEP * (n - 2);
+      const radio = Math.min(DECLUTTER_BASE_RADIUS + DECLUTTER_RADIUS_STEP * (n - 2), DECLUTTER_MAX_RADIUS);
       const dx = Math.round(Math.cos(angulo) * radio);
       const dy = Math.round(Math.sin(angulo) * radio);
       shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
