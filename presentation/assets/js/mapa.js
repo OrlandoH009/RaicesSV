@@ -1222,17 +1222,21 @@ window.srMarkersReady = false;
    del marcador (y por tanto a dónde vuela el mapa al abrir su ficha) no
    cambia, solo su dibujo en pantalla. */
 const DECLUTTER_PIXEL_THRESHOLD = 32; // si dos marcadores caen a menos de esto, se consideran solapados
-const DECLUTTER_BASE_RADIUS = 20;     // px de radio para un grupo de 2
-const DECLUTTER_RADIUS_STEP = 5;      // px extra de radio por cada miembro adicional del grupo
+const DECLUTTER_BASE_RADIUS = 14;     // px de radio para un grupo de 2
+const DECLUTTER_RADIUS_STEP = 3;      // px extra de radio por cada miembro adicional del grupo
 // A zoom bajo (país completo) decenas de marcadores pueden quedar a menos de
 // DECLUTTER_PIXEL_THRESHOLD unos de otros y encadenarse (transitivamente) en
-// un solo grupo enorme. Sin tope, el radio crecía sin límite (20 + 5*(n-2)
-// con n≈90 daba ~460px), esparciendo el círculo tan lejos que a esa escala
-// de zoom representaba varios grados de distancia real -pareciendo que los
-// marcadores se movían a otro país. El radio ya no sirve para "desplegar en
-// abanico" grupos así de grandes (no se alcanzan a distinguir de todos
-// modos), así que lo topamos a un tamaño siempre clicable en pantalla.
-const DECLUTTER_MAX_RADIUS = 70;      // px de radio máximo, sin importar el tamaño del grupo
+// un solo grupo enorme. El radio está topado para que el abanico nunca supere
+// el tamaño de un par de marcadores en pantalla: con un radio grande (antes
+// llegaba a 70px), un marcador de un grupo numeroso -como el de San
+// Salvador, con más de 15 sitios cercanos- queda a decenas de píxeles de su
+// coordenada real, y como esos grupos cambian de tamaño en cada zoom (se
+// dividen en grupos más chicos al acercarse), el marcador salta de golpe a
+// otra posición del abanico y da la sensación de que "se movió de lugar".
+// Un radio chico mantiene el desplazamiento casi imperceptible -apenas lo
+// necesario para poder tocar cada marcador por separado- sin importar cómo
+// cambie el tamaño del grupo entre un zoom y otro.
+const DECLUTTER_MAX_RADIUS = 30;      // px de radio máximo, sin importar el tamaño del grupo
 
 function declutterMarkers() {
   if (!mapa) return;
@@ -1272,7 +1276,12 @@ function declutterMarkers() {
 
   grupos.forEach(indices => {
     const n = indices.length;
-    indices.forEach((idx, orden) => {
+    // Ordenamos por id de landmark (fijo) en vez de dejar el orden en que el
+    // BFS los fue encontrando: así, si dos marcadores siguen cayendo juntos
+    // de un zoom a otro, mantienen su posición relativa dentro del abanico
+    // en vez de reordenarse sin motivo aparente.
+    const ordenados = [...indices].sort((a, b) => puntos[a].marker._landmarkId - puntos[b].marker._landmarkId);
+    ordenados.forEach((idx, orden) => {
       const marker = puntos[idx].marker;
       const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
       if (!shiftEl) return;
