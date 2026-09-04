@@ -62,8 +62,12 @@ app.use(verifyOrigin);
 
 // Solo se sirven como estáticos los recursos públicos (css/js/imágenes/favicons).
 // Las vistas HTML NUNCA se sirven aquí.
+// maxAge:0 + ETag (activado por defecto) fuerza al navegador a revalidar en
+// cada carga en vez de reusar una copia local por días: así un deploy con un
+// JS/CSS corregido se ve de inmediato (sin pedir un hard refresh), y si el
+// archivo no cambió el servidor responde 304 sin volver a enviar el contenido.
 app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets'), {
-    maxAge: '7d'
+    maxAge: 0
 }));
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
