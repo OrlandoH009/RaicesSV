@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const requireApiAuth = require('../middleware/auth.apiGuard');
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const MODEL = 'meta-llama/llama-3.1-8b-instruct';
 const TIMEOUT_MS = 30000;
 
-router.post('/chat-proxy', async (req, res) => {
+router.post('/chat-proxy', requireApiAuth, async (req, res) => {
   if (!OPENROUTER_API_KEY) {
     return res.status(500).json({ error: 'API key no configurada en el servidor' });
   }
