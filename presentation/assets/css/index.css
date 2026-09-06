@@ -6,6 +6,10 @@
 :root {
   --gold-light:  #f0c98a;
   --gradient-brand: linear-gradient(120deg, var(--navy) 0%, var(--navy-dark) 45%, var(--gold-hover) 78%, var(--gold) 100%);
+  --marquee-start: var(--navy);
+}
+[data-theme="light"] {
+  --marquee-start: var(--accent-indigo);
 }
 
 /* ── Hero ── */
@@ -72,6 +76,16 @@
   background: rgba(190, 142, 86, 0.4);
   border: 1px solid rgba(240, 201, 138, 0.7);
   box-shadow: 0 0 10px rgba(190, 142, 86, 0.35);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: clamp(70px, 12vw, 150px);
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--marquee-start) 100%);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .hero__content {
@@ -199,13 +213,19 @@
   background: var(--gradient-brand);
   background-size: 300% 300%;
   animation: gradientShift 12s ease infinite;
-  border-top: 1px solid rgba(190, 142, 86, 0.3);
-  border-bottom: 1px solid rgba(190, 142, 86, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
 }
 [data-theme="light"] .marquee {
-  background: linear-gradient(120deg, var(--accent-indigo) 0%, var(--accent-sky) 40%, var(--gold) 75%, var(--accent-sunset) 100%);
+  background: linear-gradient(120deg, var(--accent-indigo) 0%, var(--accent-sky) 55%, var(--gold) 100%);
   background-size: 300% 300%;
+}
+.marquee::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0), var(--bg-body));
+  pointer-events: none;
 }
 @keyframes gradientShift {
   0%   { background-position: 0% 50%; }
@@ -294,9 +314,25 @@
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
   transition: width 0.4s ease;
+  z-index: 1;
 }
 .stat:hover::before {
   width: 90%;
+}
+.stat::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 40%, rgba(240, 201, 138, 0.2) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+.stat:hover::after {
+  transform: translateX(100%);
 }
 .stat:hover {
   transform: translateY(-8px) scale(1.03);
@@ -360,6 +396,11 @@
   border: 1px solid rgba(190, 142, 86, 0.25);
   animation: glowPulse 4s ease-in-out infinite;
   overflow: hidden;
+  transition: transform .35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color .3s ease;
+}
+.fact-box:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
 }
 .fact-box__progress {
   position: absolute;
@@ -521,26 +562,56 @@
   transform: scale(1.15);
 }
 
-/* ── Blobs ambientales (decorativos, detrás del contenido) ── */
-.ambient-blob {
+/* ══════════════════════════════════
+   ENREDADERAS DECORATIVAS — mismo motivo (liana + hojas) del hero de
+   Categorías, reutilizado como acento de esquina en las secciones del
+   inicio. Un solo color apagado (jade) y un vaivén sutil en vez de
+   manchas de color de fondo: menos saturado, más "hecho a mano".
+   ══════════════════════════════════ */
+.section-vine {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: .3;
+  width: clamp(90px, 12vw, 150px);
+  height: clamp(90px, 12vw, 150px);
+  overflow: visible;
+  opacity: .4;
   pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-  transition: opacity .35s ease;
+  z-index: 1;
 }
-[data-theme="light"] .ambient-blob { opacity: .6; }
-.about .ambient-blob--a { width: 380px; height: 380px; background: var(--accent-indigo); top: -120px; left: -100px; }
-.about .ambient-blob--b { width: 320px; height: 320px; background: var(--navy-dark); bottom: -140px; right: -80px; }
-.stats .ambient-blob--a { width: 340px; height: 340px; background: var(--accent-sky); top: -100px; right: -60px; }
-.home-grid .ambient-blob--a { width: 420px; height: 420px; background: var(--navy); top: -160px; left: 50%; opacity: .35; }
-[data-theme="light"] .home-grid .ambient-blob--a { opacity: .22; }
-[data-theme="light"] .about .ambient-blob--a  { background: var(--accent-indigo); }
-[data-theme="light"] .about .ambient-blob--b  { background: var(--accent-sky); }
-[data-theme="light"] .stats .ambient-blob--a  { background: var(--accent-indigo); }
+.section-vine--tl { top: 10px; left: 10px; transform-origin: 0% 0%; }
+.section-vine--br { bottom: 10px; right: 10px; transform-origin: 100% 100%; }
+[data-theme="light"] .section-vine { opacity: .55; }
+
+/* ── Brillo constante y sutil en las tarjetas de información ──
+   Un único tono (dorado) que respira detrás de la tarjeta, en vez de
+   varios blobs de colores distintos alrededor. Vive en un ::before
+   propio (no en el box-shadow real de la tarjeta) para no pelear con
+   el box-shadow que ya cambia al hacer hover. */
+@keyframes cardGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(190,142,86,0); }
+  50%      { box-shadow: 0 0 32px 4px rgba(190,142,86,.32); }
+}
+@keyframes cardGlowPulseLight {
+  0%, 100% { box-shadow: 0 0 0 rgba(242,121,79,0); }
+  50%      { box-shadow: 0 0 28px 4px rgba(242,121,79,.26); }
+}
+.card-glow-pulse {
+  position: relative;
+}
+.card-glow-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  animation: cardGlowPulse 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+[data-theme="light"] .card-glow-pulse::before {
+  animation-name: cardGlowPulseLight;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-glow-pulse::before { animation: none; }
+}
 
 .about__card h2 {
   font-family: var(--font-display);
@@ -574,16 +645,16 @@
   background: var(--card-alt-bg);
   border-radius: var(--r-md);
   padding: 1.1rem 4rem;
-  box-shadow: 0 8px 24px rgba(255,255,255,.15), 0 0 50px 26px var(--bg-body);
+  box-shadow: 0 8px 24px rgba(255,255,255,.15), 0 22px 55px -15px rgba(0,0,0,.65);
   border: 1px solid rgba(190, 142, 86, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .info-badge__inner:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(190, 142, 86, 0.3), 0 0 50px 26px var(--bg-body);
+  box-shadow: 0 12px 32px rgba(190, 142, 86, 0.3), 0 22px 55px -15px rgba(0,0,0,.65);
 }
 [data-theme="light"] .info-badge__inner {
-  box-shadow: 0 8px 24px rgba(17,48,104,.1), 0 0 50px 26px var(--bg-body);
+  box-shadow: 0 8px 24px rgba(17,48,104,.1), 0 22px 55px -15px rgba(17,48,104,.2);
 }
 .info-badge__inner h2 {
   font-family: var(--font-display);

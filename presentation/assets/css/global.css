@@ -31,11 +31,12 @@
   --nav-h: clamp(60px, 5.5vw, 80px);
 
   /* ── Colores "semánticos" del tema (modo oscuro = valores por defecto) ── */
-  --bg-body:        var(--black);
+  --bg-body:        #14121e;
   --bg-surface:     var(--cream);
   --text-main:      var(--white);
   --text-on-surface: var(--black);
-  --navbar-bg:      var(--navy);
+  --navbar-bg:      rgba(17, 48, 104, .68);
+  --navbar-bg-solid: var(--navy);
   --drawer-bg:      var(--navy);
  --footer-bg-cur:  var(--footer-bg);
   --gold-light:     #e0bd8a;
@@ -70,7 +71,8 @@
 
   /* Navbar en modo claro: superficie blanca translúcida en vez del navy sólido,
      para que se note claramente el cambio de tema en cada página */
-  --navbar-bg:      rgba(255, 253, 248, .88);
+  --navbar-bg:      rgba(255, 253, 248, .72);
+  --navbar-bg-solid: rgba(255, 253, 248, .96);
   --drawer-bg:      #ffffff;
   --navbar-border:  rgba(17, 48, 104, .08);
 
@@ -149,18 +151,19 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(1.1rem, 2.3vw, 1.75rem);
-  background: var(--gold);
-  color: var(--white);
-  border: 3px solid var(--black);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--navy-dark);
+  border: none;
   border-radius: var(--r-lg);
   padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.8rem, 3.5vw, 3rem);
   cursor: pointer;
+  box-shadow: 0 10px 26px rgba(190,142,86,.35), inset 0 1px 0 rgba(255,255,255,.4);
   transition: background .25s, transform .2s, box-shadow .2s;
 }
 .btn-primary:hover {
-  background: var(--gold-hover);
+  background: linear-gradient(135deg, var(--gold), var(--gold-hover));
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+  box-shadow: 0 14px 32px rgba(190,142,86,.45), inset 0 1px 0 rgba(255,255,255,.4);
 }
 
 /* ══════════════════════════════════
@@ -175,6 +178,13 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  /* Sin esto, una mancha grande recortada por el overflow:hidden de un
+     contenedor bajo (badges, franjas cortas) terminaba en una línea recta
+     a media mancha - un "corte" visible en vez de un desvanecido. El mask
+     difumina siempre el borde del propio contenedor, sin importar dónde
+     caiga el recorte real. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
 }
 .bg-blob {
   position: absolute;
@@ -220,23 +230,26 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   width: 100%;
   height: var(--nav-h);
   background: var(--navbar-bg);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border-bottom: 1px solid var(--navbar-border);
   display: flex;
   align-items: center;
   padding: 0 clamp(1rem, 3vw, 2.5rem);
   z-index: 5000;
-  box-shadow: 0 2px 20px rgba(0,0,0,.45);
-  transition: background .6s ease, border-color .6s ease, box-shadow .6s ease;
+  box-shadow: 0 2px 20px rgba(0,0,0,.25);
+  transition: background .5s ease, border-color .5s ease, box-shadow .5s ease, backdrop-filter .5s ease;
 }
 [data-theme="light"] .navbar {
-  box-shadow: 0 2px 18px rgba(17,48,104,.08);
+  box-shadow: 0 2px 18px rgba(17,48,104,.06);
 }
 .navbar.scrolled {
-  background: var(--navbar-bg);
-  backdrop-filter: blur(10px);
+  background: var(--navbar-bg-solid);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 4px 26px rgba(0,0,0,.4);
 }
 [data-theme="light"] .navbar.scrolled {
-  background: rgba(255, 253, 248, .96);
+  background: var(--navbar-bg-solid);
   box-shadow: 0 4px 22px rgba(17,48,104,.1);
 }
 
@@ -261,25 +274,31 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
   color: var(--white);
   position: relative;
   letter-spacing: 0;
-  transition: color .25s var(--ease-elegant), letter-spacing .25s var(--ease-elegant);
+  padding: .5rem 1rem;
+  border-radius: 999px;
+  transition: color .25s var(--ease-elegant), background .25s var(--ease-elegant), letter-spacing .25s var(--ease-elegant);
+}
+.navbar__links a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(190, 142, 86, .16);
+  opacity: 0;
+  transform: scale(.85);
+  transition: opacity .25s var(--ease-elegant), transform .25s var(--ease-elegant);
+  z-index: -1;
 }
 .navbar__links a:hover,
-.navbar__links a.active { letter-spacing: .02em; }
+.navbar__links a.active { letter-spacing: .01em; }
+.navbar__links a:hover::before,
+.navbar__links a.active::before { opacity: 1; transform: scale(1); }
 [data-theme="light"] .navbar__links a { color: var(--navy); }
+[data-theme="light"] .navbar__links a::before { background: rgba(242, 121, 79, .12); }
 [data-theme="light"] .navbar__links a:hover,
 [data-theme="light"] .navbar__links a.active { color: var(--accent-sunset); }
-.navbar__links a::after {
-  content:'';
-  position: absolute;
-  bottom: -4px; left: 0;
-  width: 0; height: 2px;
-  background: var(--gold);
-  transition: width .3s;
-}
 .navbar__links a:hover,
 .navbar__links a.active { color: var(--gold); }
-.navbar__links a:hover::after,
-.navbar__links a.active::after { width: 100%; }
 
 /* Hamburguesa */
 .navbar__burger {
@@ -878,8 +897,8 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
 .lock-modal__text { font-family: var(--font-body); font-size: .96rem; color: rgba(0,0,0,.65); line-height: 1.5; margin-bottom: 1.6rem; }
 .lock-modal__actions { display: flex; flex-direction: column; gap: .7rem; }
 .lock-modal__btn { display: block; padding: .8rem 1rem; border-radius: var(--r-lg); font-family: var(--font-display); font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform .2s ease, background-color .2s ease; }
-.lock-modal__btn--primary { background: var(--gold); color: var(--white); border: 3px solid var(--black); }
-.lock-modal__btn--primary:hover { background: var(--gold-hover); }
+.lock-modal__btn--primary { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: var(--navy-dark); border: none; box-shadow: 0 8px 20px rgba(190,142,86,.35); }
+.lock-modal__btn--primary:hover { background: linear-gradient(135deg, var(--gold), var(--gold-hover)); }
 .lock-modal__btn--secondary { background: transparent; color: var(--navy); border: 2px solid rgba(17,48,104,.35); }
 .lock-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
 
