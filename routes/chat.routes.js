@@ -5,6 +5,9 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const MODEL = 'meta-llama/llama-3.1-8b-instruct';
 const TIMEOUT_MS = 30000;
 
+// Sin requireApiAuth: la skill de Alexa (Lambda) llama a esta ruta como
+// servidor a servidor, sin sesión de navegador con la que autenticarse, así
+// que exigir login la dejaba siempre en 401.
 router.post('/chat-proxy', async (req, res) => {
   if (!OPENROUTER_API_KEY) {
     return res.status(500).json({ error: 'API key no configurada en el servidor' });

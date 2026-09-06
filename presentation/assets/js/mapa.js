@@ -633,11 +633,8 @@ const EL_SALVADOR_BOUNDS = [
 
 const mapa = L.map('mapa-leaflet', {
   center: [13.7, -88.95],
-  // Zoom entero: con un zoom fraccionario Leaflet no tiene tiles nativos
-  // para ese nivel exacto, así que agranda con CSS los del entero más
-  // cercano y el mapa arranca borroso/pixelado. Un entero se ve nítido.
   zoom: 10,
-  minZoom: 8,
+  minZoom: 10,
   maxBounds: EL_SALVADOR_BOUNDS,
   maxBoundsViscosity: 0.7,
   zoomControl: false,
@@ -1222,17 +1219,11 @@ window.srMarkersReady = false;
    del marcador (y por tanto a dónde vuela el mapa al abrir su ficha) no
    cambia, solo su dibujo en pantalla. */
 const DECLUTTER_PIXEL_THRESHOLD = 32; // si dos marcadores caen a menos de esto, se consideran solapados
-const DECLUTTER_BASE_RADIUS = 20;     // px de radio para un grupo de 2
-const DECLUTTER_RADIUS_STEP = 5;      // px extra de radio por cada miembro adicional del grupo
-// A zoom bajo (país completo) decenas de marcadores pueden quedar a menos de
-// DECLUTTER_PIXEL_THRESHOLD unos de otros y encadenarse (transitivamente) en
-// un solo grupo enorme. Sin tope, el radio crecía sin límite (20 + 5*(n-2)
-// con n≈90 daba ~460px), esparciendo el círculo tan lejos que a esa escala
-// de zoom representaba varios grados de distancia real -pareciendo que los
-// marcadores se movían a otro país. El radio ya no sirve para "desplegar en
-// abanico" grupos así de grandes (no se alcanzan a distinguir de todos
-// modos), así que lo topamos a un tamaño siempre clicable en pantalla.
-const DECLUTTER_MAX_RADIUS = 70;      // px de radio máximo, sin importar el tamaño del grupo
+const DECLUTTER_RADIUS = 16;          // px de radio del desplazamiento, siempre el mismo
+// Ángulo de oro: separa bien ids consecutivos (no los deja casi pegados como
+// pasaría con una fracción simple de 2π) sin tener que saber cuántos vecinos
+// tiene cada marcador.
+const DECLUTTER_GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 function declutterMarkers() {
   if (!mapa) return;
@@ -1246,48 +1237,28 @@ function declutterMarkers() {
 
   const puntos = visibles.map(m => ({ marker: m, pt: mapa.latLngToContainerPoint(m.getLatLng()) }));
 
-  // Agrupar por cercanía en píxeles (unión simple: cualquier par a menos de
-  // DECLUTTER_PIXEL_THRESHOLD queda en el mismo grupo, transitivamente).
-  const grupos = [];
-  const asignado = new Array(puntos.length).fill(-1);
-  for (let i = 0; i < puntos.length; i++) {
-    if (asignado[i] !== -1) continue;
-    const grupoIdx = grupos.length;
-    grupos.push([i]);
-    asignado[i] = grupoIdx;
-    // BFS: cualquier punto cercano a alguno ya en el grupo se suma también.
-    const pendientes = [i];
-    while (pendientes.length) {
-      const actual = pendientes.pop();
-      for (let j = 0; j < puntos.length; j++) {
-        if (asignado[j] !== -1) continue;
-        if (puntos[actual].pt.distanceTo(puntos[j].pt) <= DECLUTTER_PIXEL_THRESHOLD) {
-          asignado[j] = grupoIdx;
-          grupos[grupoIdx].push(j);
-          pendientes.push(j);
-        }
-      }
+  // Un marcador necesita desplazarse si cae a menos de DECLUTTER_PIXEL_THRESHOLD
+  // de CUALQUIER otro marcador visible -sin agruparlos ni depender de cuántos
+  // vecinos tiene, que es justo lo que antes hacía que el desplazamiento
+  // cambiara (y el marcador "saltara") cada vez que el zoom cambiaba el
+  // tamaño de esos grupos. Con este criterio, el desplazamiento de un
+  // marcador es siempre el mismo (fijo por su id): solo se prende o apaga
+  // según si en ese momento tiene un vecino encima, nunca gira ni crece.
+  puntos.forEach((punto, i) => {
+    const solapado = puntos.some((otro, j) => j !== i && punto.pt.distanceTo(otro.pt) <= DECLUTTER_PIXEL_THRESHOLD);
+    const marker = punto.marker;
+    const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
+    if (!shiftEl) return;
+    if (!solapado) {
+      shiftEl.style.transform = '';
+      marker._declutterOffset = null;
+      return;
     }
-  }
-
-  grupos.forEach(indices => {
-    const n = indices.length;
-    indices.forEach((idx, orden) => {
-      const marker = puntos[idx].marker;
-      const shiftEl = marker._icon?.querySelector('.custom-marker-shift');
-      if (!shiftEl) return;
-      if (n === 1) {
-        shiftEl.style.transform = '';
-        marker._declutterOffset = null;
-        return;
-      }
-      const angulo = (2 * Math.PI * orden) / n - Math.PI / 2; // el primero apunta hacia arriba
-      const radio = Math.min(DECLUTTER_BASE_RADIUS + DECLUTTER_RADIUS_STEP * (n - 2), DECLUTTER_MAX_RADIUS);
-      const dx = Math.round(Math.cos(angulo) * radio);
-      const dy = Math.round(Math.sin(angulo) * radio);
-      shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
-      marker._declutterOffset = { dx, dy };
-    });
+    const angulo = (marker._landmarkId * DECLUTTER_GOLDEN_ANGLE) % (2 * Math.PI);
+    const dx = Math.round(Math.cos(angulo) * DECLUTTER_RADIUS);
+    const dy = Math.round(Math.sin(angulo) * DECLUTTER_RADIUS);
+    shiftEl.style.transform = `translate(${dx}px, ${dy}px)`;
+    marker._declutterOffset = { dx, dy };
   });
 }
 
@@ -1976,6 +1947,54 @@ function solicitarUbicacionConVerificacion(centrar = true) {
   }
 }
 
+function manejarPosicionObtenida(position, centrar) {
+  const userLat = position.coords.latitude;
+  const userLng = position.coords.longitude;
+  miUbicacionActual = [userLat, userLng];
+
+  if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
+  ocultarBannerGeo();
+
+  const userMarkerIcon = L.divIcon({
+    className: 'user-location-marker',
+    html: '<div class="user-pulse"></div>',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+
+  marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
+    .addTo(mapa)
+    .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
+
+  if (centrar) {
+    // invalidateSize() síncrono antes del flyTo: si el tamaño interno que
+    // Leaflet tiene cacheado no coincide con el del contenedor real (p. ej.
+    // porque el mapa se creó antes de que el layout terminara de asentarse),
+    // flyTo calcula su curva de animación con ese tamaño y lanza
+    // "Invalid LatLng (NaN, NaN)" -sin capturar, dentro del callback de
+    // getCurrentPosition- cortando todo lo que sigue (el watchPosition y el
+    // toast de confirmación nunca se ejecutan, así que para el usuario
+    // "no pasa nada" aunque el permiso ya esté concedido).
+    mapa.invalidateSize();
+    mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
+    setTimeout(invalidateMapSize, 800);
+  }
+
+  // enableHighAccuracy:false aquí también -en escritorio sin GPS, pedir alta
+  // precisión de forma continua solo hace que cada actualización vuelva a
+  // fallar en silencio (este watch no tiene callback de error).
+  watchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
+      if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
+    },
+    null,
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+  );
+
+  mostrarToast('Ubicación activada correctamente.', 'info');
+}
+
 function ejecutarGeolocalizacion(centrar = true) {
   if (watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
@@ -1983,49 +2002,33 @@ function ejecutarGeolocalizacion(centrar = true) {
   }
 
   navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
-      miUbicacionActual = [userLat, userLng];
-
-      if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
-      ocultarBannerGeo();
-
-      const userMarkerIcon = L.divIcon({
-        className: 'user-location-marker',
-        html: '<div class="user-pulse"></div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
-      });
-
-      marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
-        .addTo(mapa)
-        .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
-
-      if (centrar) {
-        mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
-        setTimeout(invalidateMapSize, 800);
-      }
-
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
-          if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
-        },
-        null,
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-
-      mostrarToast('Ubicación activada correctamente.', 'info');
-    },
+    (position) => manejarPosicionObtenida(position, centrar),
     (err) => {
-      console.warn('Error al obtener geolocalización:', err);
-      mostrarBannerGeo(true);
+      console.warn('Error al obtener geolocalización (alta precisión):', err);
+
+      // La alta precisión (GPS) suele fallar por timeout en escritorio/laptop
+      // sin GPS ni triangulación Wi-Fi (p. ej. conectados por cable Ethernet).
+      // Antes de darnos por vencidos, reintentamos una vez con precisión
+      // estándar (ubicación por IP/red), que en ese caso sí suele resolver.
       if (err.code === err.PERMISSION_DENIED) {
+        mostrarBannerGeo(true);
         mostrarModalInstrucciones();
-      } else {
-        mostrarToast('No se pudo obtener tu posición actual.', 'error');
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => manejarPosicionObtenida(position, centrar),
+        (err2) => {
+          console.warn('Error al obtener geolocalización (reintento sin alta precisión):', err2);
+          mostrarBannerGeo(true);
+          if (err2.code === err2.PERMISSION_DENIED) {
+            mostrarModalInstrucciones();
+          } else {
+            mostrarToast('No se pudo obtener tu posición actual.', 'error');
+          }
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
     },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
@@ -2054,6 +2057,13 @@ if (btnCentrar) {
     cerrarSidebar();
     cerrarFiltrosSheet();
     if (miUbicacionActual) {
+      // cerrarSidebar()/cerrarFiltrosSheet() arriba pueden cambiar el tamaño
+      // real del contenedor del mapa en el mismo instante (el panel que se
+      // cierra le devuelve ese espacio al mapa). Sin este invalidateSize()
+      // síncrono, flyTo usaría el tamaño cacheado antiguo y lanzaría
+      // "Invalid LatLng (NaN, NaN)" -ver el mismo fix arriba en
+      // ejecutarGeolocalizacion.
+      mapa.invalidateSize();
       mapa.flyTo(miUbicacionActual, FOCUS_ZOOM, { animate: true, duration: 1 });
       setTimeout(invalidateMapSize, 500);
     } else {
