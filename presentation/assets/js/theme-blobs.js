@@ -21,25 +21,31 @@
     return span;
   }
 
+  // Posiciones/tamaños para secciones altas tipo hero: pueden permitirse
+  // manchas grandes que se salgan bastante sin recortarse de forma brusca
+  // (el .bg-blobs que las contiene ya trae su propio mask de desvanecido).
+  const HERO_POSITIONS = [
+    { top: '-8%', left: '-6%' },
+    { top: '55%', left: '85%' },
+    { top: '78%', left: '8%' },
+    { top: '-10%', left: '70%' },
+    { top: '30%', left: '40%' }
+  ];
+  const HERO_SIZES = ['lg', 'md', 'sm', 'md', 'sm'];
+
   function injectBlobSet(container, count) {
     if (!container || container.querySelector(':scope > .bg-blobs')) return;
     const wrap = document.createElement('div');
     wrap.className = 'bg-blobs';
     wrap.setAttribute('aria-hidden', 'true');
 
-    const positions = [
-      { top: '-8%', left: '-6%' },
-      { top: '55%', left: '85%' },
-      { top: '78%', left: '8%' },
-      { top: '-10%', left: '70%' },
-      { top: '30%', left: '40%' }
-    ];
-    const sizes = ['lg', 'md', 'sm', 'md', 'sm'];
+    const positions = HERO_POSITIONS;
+    const sizes = HERO_SIZES;
 
     for (let i = 0; i < count; i++) {
-      const variant = COLOR_VARIANTS[i % COLOR_VARIANTS.length];
+      const colorVariant = COLOR_VARIANTS[i % COLOR_VARIANTS.length];
       const pos = positions[i % positions.length];
-      wrap.appendChild(makeBlob(variant, sizes[i % sizes.length], pos.top, pos.left));
+      wrap.appendChild(makeBlob(colorVariant, sizes[i % sizes.length], pos.top, pos.left));
     }
 
     // El contenedor destino necesita position relative/absolute para que los blobs floten dentro
@@ -82,15 +88,9 @@
       });
     });
 
-    // Secciones de contenido genéricas que se beneficien de un toque de color
-    const sectionSelectors = ['.about', '.stats', '.home-grid', '.info-badge'];
-    sectionSelectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        if (el.querySelector(':scope > .ambient-blob')) return; // ya tiene su propio sistema de blobs
-        const wrap = injectBlobSet(el, 3);
-        animateBlobs(wrap);
-      });
-    });
+    // Las secciones de contenido del inicio (about/stats/fact-wrap/info-badge/
+    // home-grid) ya no usan manchas de color de fondo — ver .section-vine en
+    // index.css/index-gsap.js para su acento decorativo actual.
   }
 
   // La transición de tema tipo "onda" vive ahora en runThemeTransition

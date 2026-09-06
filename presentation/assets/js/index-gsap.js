@@ -394,19 +394,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.querySelectorAll('.hero__cta, .home-cta-final .btn-primary, .fact-nav').forEach((el) => magnetize(el));
 
-  /* ── 10. Ambient blobs: deriva lenta tipo "onda" ── */
+  /* ── 9b. Enredaderas decorativas: mismo arte (liana + hojas) del hero de
+     Categorías, inyectado como acento de esquina en las secciones del
+     inicio en vez de las manchas de color de fondo. ── */
+  const VINE_PATH = 'M-10,-10 C60,40 40,120 120,150 C200,180 180,260 260,300';
+  const VINE_LEAVES = [
+    { t: 'translate(48,34) rotate(35)',   d: 'M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z' },
+    { t: 'translate(108,146) rotate(-20)', d: 'M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z' },
+    { t: 'translate(172,258) rotate(50)',  d: 'M0,0 C7,-11 20,-11 27,0 C20,11 7,11 0,0 Z' },
+    { t: 'translate(248,296) rotate(-10)', d: 'M0,0 C6,-9 17,-9 23,0 C17,9 6,9 0,0 Z' }
+  ];
+  function vineSVG(corner) {
+    const leaves = VINE_LEAVES.map(l => `<path transform="${l.t}" d="${l.d}" />`).join('');
+    const inner = `<path d="${VINE_PATH}" fill="none" stroke="var(--accent-jade)" stroke-width="3" stroke-linecap="round" opacity=".45" /><g fill="var(--accent-jade)" opacity=".5">${leaves}</g>`;
+    const body = corner === 'br' ? `<g transform="translate(300,300) scale(-1,-1)">${inner}</g>` : inner;
+    return `<svg class="section-vine section-vine--${corner}" viewBox="0 0 300 300" aria-hidden="true" focusable="false">${body}</svg>`;
+  }
+  document.querySelectorAll('.about, .stats, .fact-wrap, .info-badge, .home-grid').forEach(section => {
+    if (getComputedStyle(section).position === 'static') section.style.position = 'relative';
+    section.insertAdjacentHTML('afterbegin', vineSVG('tl') + vineSVG('br'));
+  });
+
+  /* ── 10. Enredaderas decorativas: vaivén sutil ── */
   if (!prefersReducedMotion) {
-    gsap.utils.toArray('.ambient-blob').forEach((blob, i) => {
-      gsap.to(blob, {
-        x: gsap.utils.random(-40, 40),
-        y: gsap.utils.random(-30, 30),
-        scale: gsap.utils.random(0.92, 1.12),
-        rotate: gsap.utils.random(-15, 15),
-        duration: gsap.utils.random(8, 14),
+    gsap.utils.toArray('.section-vine').forEach((vine, i) => {
+      gsap.to(vine, {
+        rotate: 'random(-2, 2)',
+        duration: gsap.utils.random(6, 9),
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
-        delay: i * .4
+        delay: i * .5
       });
     });
   }
