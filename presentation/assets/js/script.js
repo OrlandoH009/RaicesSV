@@ -45,6 +45,67 @@
   };
 })();
 
+/* ── Overlay de carga al navegar entre páginas ──
+   El sitio es multi-página (cada sección es un .html distinto, cargado
+   con recarga completa del navegador vía <a href>). Sin ninguna señal
+   visual, el clic en un enlace se siente "sin respuesta" mientras el
+   navegador pide la siguiente página, y el usuario termina haciendo
+   clic varias veces por si acaso. Este overlay se muestra apenas se
+   detecta el clic; no hace falta ocultarlo "a mano" porque el documento
+   completo se reemplaza en cuanto la página siguiente termina de cargar. */
+(function () {
+  let loaderEl = null;
+
+  function getLoader() {
+    if (loaderEl) return loaderEl;
+    loaderEl = document.createElement('div');
+    loaderEl.className = 'sr-page-loader';
+    loaderEl.innerHTML =
+      '<div class="sr-page-loader__spinner"></div>' +
+      '<div class="sr-page-loader__text">Cargando...</div>';
+    document.body.appendChild(loaderEl);
+    return loaderEl;
+  }
+
+  function mostrarCargaDePagina() {
+    getLoader().classList.add('is-active');
+    // Salvaguarda: si por lo que sea la navegación no llegó a pasar
+    // (bloqueada, cancelada, popup blocker), no dejamos el overlay
+    // pegado para siempre.
+    setTimeout(() => {
+      if (loaderEl) loaderEl.classList.remove('is-active');
+    }, 12000);
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    const link = e.target.closest('a[href]');
+    if (!link || link.target === '_blank' || link.hasAttribute('download') || link.hasAttribute('data-no-loader')) return;
+
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+
+    let url;
+    try {
+      url = new URL(href, window.location.href);
+    } catch {
+      return;
+    }
+    if (url.origin !== window.location.origin) return;
+    if (url.href === window.location.href) return;
+
+    mostrarCargaDePagina();
+  }, true);
+
+  // Si el usuario vuelve con el botón "atrás" del navegador y la página
+  // se restauró desde bfcache, el overlay podría haber quedado activo
+  // en ese snapshot -lo ocultamos al recuperar la página.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && loaderEl) loaderEl.classList.remove('is-active');
+  });
+})();
+
 /* ── Confirmación global (reemplaza window.confirm) ──
    window.showConfirm(message, options) devuelve una Promise<boolean>.
    options: { title, confirmText, cancelText, danger } */
