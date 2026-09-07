@@ -40,7 +40,17 @@
       transition: background .4s ease;
     }
     [data-theme="light"] .mapa-section { background: var(--bg-body); }
-    #mapa-leaflet { width: 100%; height: 100%; }
+    #mapa-leaflet {
+      width: 100%; height: 100%;
+      /* clientWidth/clientHeight (lo que usa Leaflet para medir su
+         contenedor) no se ven afectados por transform, así que esta
+         animación no interfiere con el cálculo interno del mapa. */
+      animation: mapaLeafletEntrada .35s var(--ease-elegant, ease) both;
+    }
+    @keyframes mapaLeafletEntrada {
+      from { opacity: 0; transform: scale(.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
     /* Leaflet pinta su contenedor de #ddd (gris casi blanco) por defecto.
        Ese color se asoma en cualquier hueco -tiles que aún no cargan,
        tiles que fallan, bordes durante un zoom/paneo rápido- y contra el
@@ -51,6 +61,49 @@
        más abajo) para verse claros; el fondo de respaldo debe invertirse
        junto con ellos o los huecos se verían oscuros sobre un mapa claro. */
     [data-theme="light"] #mapa-leaflet.leaflet-container { background: #e9e4da; }
+
+    /* ── Overlay de carga: spinner mientras Leaflet pide los tiles ── */
+    .mapa-loading {
+      position: absolute; inset: 0; z-index: 1100;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: .9rem;
+      background: rgba(10,10,10,.55); backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    [data-theme="light"] .mapa-loading { background: rgba(233,228,218,.7); }
+    .mapa-loading__spinner {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 4px solid rgba(190,142,86,.2);
+      border-top-color: var(--gold, #be8e56);
+      animation: mapaLoadingSpin .9s linear infinite;
+    }
+    @keyframes mapaLoadingSpin { to { transform: rotate(360deg); } }
+    .mapa-loading__text {
+      font-family: var(--font-display); font-weight: 600; font-style: italic;
+      color: var(--white); font-size: 1rem;
+    }
+    [data-theme="light"] .mapa-loading__text { color: var(--black); }
+
+    /* ── Overlay de error: no se pudieron cargar los tiles ── */
+    .mapa-error {
+      position: absolute; inset: 0; z-index: 1150;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: .8rem; text-align: center; padding: 2rem;
+      background: rgba(10,10,10,.75); backdrop-filter: blur(4px);
+    }
+    [data-theme="light"] .mapa-error { background: rgba(233,228,218,.9); }
+    .mapa-error__text {
+      font-family: var(--font-display); font-weight: 600;
+      color: var(--white); font-size: 1.05rem; max-width: 320px;
+    }
+    [data-theme="light"] .mapa-error__text { color: var(--black); }
+    .mapa-error__retry {
+      font-family: var(--font-display); font-weight: 700; font-size: .85rem;
+      color: var(--black); background: var(--gold, #be8e56);
+      border: none; border-radius: 50px; padding: .6rem 1.6rem;
+      cursor: pointer; transition: transform .2s ease, filter .2s ease;
+    }
+    .mapa-error__retry:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
     /* ── Botón flotante ("FAB") que abre el panel de filtros/búsqueda
        como una hoja modal — igual en PC y en celular, para que no
@@ -410,9 +463,12 @@
       border: none !important;
       box-shadow: none !important;
       padding: 0 !important;
-      opacity: 1 !important;
     }
     .leaflet-tooltip.marker-tooltip-wrap::before { display: none !important; }
+    /* Leaflet crea el contenedor del tooltip desde cero cada vez que se
+       abre (lo destruye al cerrarlo), así que una animación por keyframes
+       -en vez de una transition, que necesitaría un cambio de estado para
+       dispararse- se reproduce sola cada vez que aparece. */
     .marker-tooltip {
       width: 240px; /* Incrementado de 200px */
       background: #0d0d0d;
@@ -421,6 +477,11 @@
       overflow: hidden;
       box-shadow: 0 8px 28px rgba(0,0,0,.65);
       transition: background .4s ease;
+      animation: markerTooltipIn .22s var(--ease-elegant, ease) both;
+    }
+    @keyframes markerTooltipIn {
+      from { opacity: 0; transform: translateY(6px) scale(.94); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
     [data-theme="light"] .marker-tooltip {
       background: #fffdf8;

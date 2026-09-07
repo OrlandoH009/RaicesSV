@@ -632,9 +632,9 @@ const EL_SALVADOR_BOUNDS = [
 ];
 
 const mapa = L.map('mapa-leaflet', {
-  center: [13.7, -88.95],
-  zoom: 10,
-  minZoom: 10,
+  center: [13.7, -88.83],
+  zoom: 9.5,
+  minZoom: 9.5,
   maxBounds: EL_SALVADOR_BOUNDS,
   maxBoundsViscosity: 0.7,
   zoomControl: false,
@@ -644,7 +644,9 @@ const mapa = L.map('mapa-leaflet', {
   zoomAnimation: true,
   markerZoomAnimation: true,
   inertia: true,
-  inertiaDeceleration: 3000,
+  // Desaceleración más baja = el mapa sigue deslizándose más tiempo (y
+  // más suave) después de soltar el arrastre, en vez de frenar en seco.
+  inertiaDeceleration: 2200,
   inertiaMaxSpeed: 1500
 });
 
@@ -667,36 +669,98 @@ const tileLayer = L.tileLayer('/api/tiles/{z}/{x}/{y}{r}.png', {
   zIndex: 1
 }).addTo(mapa);
 
-// ── Preloader y optimización de carga ──
+// ── Preloader, detección de error y optimización de carga ──
 (function initMapOptimizations() {
   const mapContainer = document.getElementById('mapa-leaflet');
   if (!mapContainer) return;
 
   const loadingDiv = document.createElement('div');
   loadingDiv.className = 'mapa-loading';
-  loadingDiv.textContent = 'Cargando mapa...';
+  loadingDiv.innerHTML =
+    '<div class="mapa-loading__spinner"></div>' +
+    '<div class="mapa-loading__text">Cargando mapa...</div>';
   mapContainer.appendChild(loadingDiv);
 
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'mapa-error';
+  errorDiv.innerHTML =
+    '<div class="mapa-error__text">No se pudo cargar el mapa. Verifica tu conexión a internet.</div>' +
+    '<button type="button" class="mapa-error__retry">Reintentar</button>';
+  mapContainer.appendChild(errorDiv);
+
   let tileLoadCount = 0;
-  const totalTilesExpected = 20;
+  let tileErrorCount = 0;
+  // Una vez que el mapa logró mostrar tiles reales una vez, dejamos de
+  // interrumpir con el spinner/error en cada zoom o paneo -ahí Leaflet
+  // pide tiles nuevos todo el tiempo y sería un estorbo constante. El
+  // overlay solo tiene sentido para la carga inicial: si arrancó bien,
+  // confiamos en que el resto de tiles vayan llegando solos.
+  let cargaInicialResuelta = false;
+
+  function mostrarCargando() {
+    errorDiv.style.display = 'none';
+    loadingDiv.style.display = 'flex';
+  }
+
+  function ocultarOverlays() {
+    loadingDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+  }
+
+  function mostrarError() {
+    loadingDiv.style.display = 'none';
+    errorDiv.style.display = 'flex';
+  }
 
   tileLayer.on('loading', () => {
-    loadingDiv.style.display = 'flex';
+    if (cargaInicialResuelta) return;
+    tileLoadCount = 0;
+    tileErrorCount = 0;
+    mostrarCargando();
   });
 
-  tileLayer.on('load', () => {
+  tileLayer.on('tileload', () => {
     tileLoadCount++;
-    if (tileLoadCount > 1) {
-      loadingDiv.style.display = 'none';
+  });
+
+  tileLayer.on('tileerror', () => {
+    tileErrorCount++;
+  });
+
+  // Leaflet dispara 'load' cuando todos los tiles visibles terminaron
+  // (ya sea que cargaron o fallaron). Si ninguno cargó y hubo errores,
+  // toda la tanda falló -probablemente por conexión/DNS- así que mostramos
+  // el estado de error en vez de dejar el mapa en negro sin explicación.
+  tileLayer.on('load', () => {
+    if (cargaInicialResuelta) return;
+    if (tileLoadCount === 0 && tileErrorCount > 0) {
+      mostrarError();
+    } else {
+      ocultarOverlays();
+      cargaInicialResuelta = true;
     }
   });
 
   setTimeout(() => {
-    loadingDiv.style.display = 'none';
-  }, 5000);
+    if (cargaInicialResuelta) return;
+    if (loadingDiv.style.display === 'flex' && tileLoadCount === 0) {
+      mostrarError();
+    } else {
+      loadingDiv.style.display = 'none';
+    }
+  }, 8000);
 
   mapa.on('zoomend moveend', () => {
-    loadingDiv.style.display = 'none';
+    if (!cargaInicialResuelta && errorDiv.style.display !== 'flex') {
+      loadingDiv.style.display = 'none';
+    }
+  });
+
+  errorDiv.querySelector('.mapa-error__retry').addEventListener('click', () => {
+    tileLoadCount = 0;
+    tileErrorCount = 0;
+    mostrarCargando();
+    tileLayer.redraw();
   });
 
   mapa.whenReady(() => {
@@ -1016,7 +1080,7 @@ function calcularCentroElevado(latlng, zoom) {
   return mapa.unproject(puntoCentroDeseado, zoom);
 }
 
-function volarAMarcador(latlng, zoom, opciones = { animate: true, duration: 1 }) {
+function volarAMarcador(latlng, zoom, opciones = { animate: true, duration: 1.8, easeLinearity: 0.15 }) {
   mapa.flyTo(calcularCentroElevado(latlng, zoom), zoom, opciones);
 }
 
@@ -1152,6 +1216,23 @@ function crearMarker(lm) {
     opacity: 1,
     className: 'marker-tooltip-wrap',
     sticky: false
+  });
+
+  // bindTooltip() deja el tooltip abriéndose/cerrándose de inmediato en los
+  // mouseover/mouseout que Leaflet le acaba de registrar al marcador -se
+  // siente ruidoso si el usuario solo está paseando el cursor por el mapa.
+  // Los quitamos y los reemplazamos por una versión con 3s de espera: si el
+  // mouse se va antes de que se cumplan, el tooltip nunca llega a abrirse.
+  marker.off('mouseover');
+  marker.off('mouseout');
+  let hoverTimer = null;
+  marker.on('mouseover', () => {
+    clearTimeout(hoverTimer);
+    hoverTimer = setTimeout(() => marker.openTooltip(), 1200);
+  });
+  marker.on('mouseout', () => {
+    clearTimeout(hoverTimer);
+    marker.closeTooltip();
   });
 
   // El tooltip de Leaflet se posiciona según la coordenada real del marcador,
