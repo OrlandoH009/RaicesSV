@@ -42,10 +42,12 @@ const sanitizePublication = (row, currentUser, likedPublicationIds) => {
     };
 };
 
-const listPublications = async (currentUser, { location } = {}) => {
+const listPublications = async (currentUser, { location, onlyWithCoords } = {}) => {
     const rows = location
         ? await publicationRepository.findByLocation(location)
-        : await publicationRepository.findAll();
+        : onlyWithCoords
+            ? await publicationRepository.findWithCoordinates()
+            : await publicationRepository.findAll();
 
     const likedPublicationIds = currentUser
         ? new Set(await publicationLikeRepository.findLikedPublicationIds(currentUser.id))

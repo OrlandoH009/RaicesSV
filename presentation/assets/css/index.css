@@ -331,6 +331,11 @@
   display: inline-flex;
   align-items: center;
   gap: .6rem;
+  /* Más chico que el .btn-primary genérico (usado en el resto del sitio):
+     acá se ve al lado de "Ver el mapa" y con el tamaño por defecto quedaba
+     demasiado grande para un botón "hero". */
+  font-size: clamp(0.9rem, 1.8vw, 1.35rem);
+  padding: clamp(0.6rem, 1.1vw, 0.9rem) clamp(1.3rem, 2.6vw, 2.2rem);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 /* Anillo que late alrededor del botón */
@@ -378,7 +383,7 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.4rem, 2.6vw, 2.1rem);
+  padding: clamp(0.6rem, 1.1vw, 0.9rem) clamp(1rem, 2vw, 1.6rem);
   border-radius: var(--r-lg);
   border: 1px solid rgba(255,255,255,.35);
   background: rgba(255,255,255,.07);
@@ -386,7 +391,7 @@
   color: var(--white);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(.95rem, 1.7vw, 1.25rem);
+  font-size: clamp(.8rem, 1.3vw, 1rem);
   text-decoration: none;
   text-shadow: 0 2px 8px rgba(0,0,0,.45);
   transition: background .3s ease, border-color .3s ease, transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);

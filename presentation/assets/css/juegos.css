@@ -581,6 +581,37 @@ canvas {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
+/* ── Pantalla de "girá tu celular" (Trompos y Mica en vertical) ── */
+.rotate-gate {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(5, 5, 10, 0.96);
+  color: #fff;
+  text-align: center;
+  padding: 24px;
+}
+.rotate-gate.is-visible { display: flex; }
+.rotate-gate__icon {
+  font-size: 3rem;
+  animation: rotate-gate-spin 1.6s ease-in-out infinite;
+}
+.rotate-gate p {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  max-width: 260px;
+}
+@keyframes rotate-gate-spin {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+
 .damage-overlay {
   position: absolute;
   inset: 0;

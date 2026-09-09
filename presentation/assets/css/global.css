@@ -3,7 +3,11 @@
    Variables, Navbar, Footer, Botones, Animaciones compartidas
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Las fuentes Urbanist/Inter se cargan desde un <link> en el <head> de cada
+   página (no desde un @import aquí), porque @import bloquea el render: el
+   navegador no puede empezar a pedir la fuente hasta haber descargado y
+   parseado todo este archivo primero. Ver el <link rel="preconnect"> +
+   <link rel="stylesheet"> junto al de global.css en cada .html. */
 
 /* ── Variables Adaptables ── */
 :root {
@@ -18,7 +22,7 @@
   --overlay:     rgba(15, 47, 102, 0.45);
   --card-dim:    rgba(85, 84, 84, 0.45);
 
-  --font-display: 'Fraunces', serif;
+  --font-display: 'Urbanist', sans-serif;
   --font-body:    'Inter', sans-serif;
   --ease-elegant: cubic-bezier(.4,0,.2,1);
 

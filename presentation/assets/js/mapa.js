@@ -1634,7 +1634,7 @@ document.addEventListener("langchange", (e) => {
     `;
   }
 
-  fetch('/api/publications')
+  fetch('/api/publications?hasCoords=1')
     .then((res) => res.ok ? res.json() : { publications: [] })
     .then((data) => {
       const publicaciones = (data.publications || []).filter(
@@ -1833,91 +1833,10 @@ let toastTimeout = null;
 const btnCentrar = document.getElementById('btn-mi-ubicacion');
 
 // ── Inyectar estilos (marcador, banner y modal) ──
-(function injectUserMarkerStyles() {
-  if (!document.getElementById('user-marker-styles')) {
-    const style = document.createElement('style');
-    style.id = 'user-marker-styles';
-    style.textContent = `
-      .user-location-marker { background: none; border: none; }
-      .user-pulse {
-        width: 20px; height: 20px;
-        background: #be8e56; border-radius: 50%;
-        box-shadow: 0 0 0 0 rgba(190, 142, 86, 0.7);
-        animation: userPulse 1.5s infinite;
-      }
-      @keyframes userPulse {
-        0% { box-shadow: 0 0 0 0 rgba(190, 142, 86, 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(190, 142, 86, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(190, 142, 86, 0); }
-      }
-      .geo-floating-banner {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        background: rgba(30, 30, 42, 0.95);
-        color: #fff;
-        padding: 8px 16px;
-        border-radius: 30px;
-        border: 1px solid rgba(190, 142, 86, 0.4);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-        backdrop-filter: blur(8px);
-        font-size: 0.88rem;
-      }
-      .geo-floating-banner button {
-        background: #be8e56;
-        color: #fff;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
-      }
-      .geo-floating-banner button:hover {
-        background: #a67848;
-        transform: scale(1.04);
-      }
-      .geo-consent-modal {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.75);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999;
-        backdrop-filter: blur(4px);
-      }
-      .geo-consent-modal-content {
-        background: #1e1e2a;
-        color: #fff;
-        padding: 2rem;
-        border-radius: 16px;
-        max-width: 420px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        border: 1px solid rgba(255,255,255,0.08);
-      }
-      .geo-consent-modal-content h3 { margin-top: 0; font-size: 1.3rem; color: #f0e6d3; }
-      .geo-consent-buttons { display: flex; gap: 0.8rem; justify-content: center; }
-      .geo-consent-btn {
-        padding: 0.6rem 1.4rem; border: none; border-radius: 40px;
-        font-size: 0.95rem; font-weight: 600; cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
-      }
-      .geo-consent-btn.allow { background: #be8e56; color: #fff; }
-      .geo-consent-btn.allow:hover { background: #a67848; transform: scale(1.03); }
-      .geo-consent-btn.deny { background: #3a3a4a; color: #ccc; }
-      .geo-consent-btn.deny:hover { background: #4a4a5a; transform: scale(1.03); }
-    `;
-    document.head.appendChild(style);
-  }
-})();
+// ── Traducción de los textos de geolocalización (toast, banner y modal) ──
+function tGeo(key, fallback) {
+  return window.SRi18n ? window.SRi18n.t(key, window.SRi18n.getLang()) : fallback;
+}
 
 // ── Toast Notificador ──
 function mostrarToast(mensaje, tipo = 'info') {
@@ -1947,8 +1866,8 @@ function mostrarBannerGeo(esDenegado = false) {
   }
   
   banner.innerHTML = `
-    <span>📍 ${esDenegado ? 'Ubicación deshabilitada' : 'Activa tu ubicación para ver sitios cercanos'}</span>
-    <button id="btnGeoBannerActivar" type="button">${esDenegado ? '¿Cómo activar?' : 'Habilitar ubicación'}</button>
+    <span>📍 ${esDenegado ? tGeo('map.geo.bannerDisabled', 'Ubicación deshabilitada') : tGeo('map.geo.bannerPrompt', 'Activa tu ubicación para ver sitios cercanos')}</span>
+    <button id="btnGeoBannerActivar" type="button">${esDenegado ? tGeo('map.geo.bannerHowTo', '¿Cómo activar?') : tGeo('map.geo.bannerEnable', 'Habilitar ubicación')}</button>
   `;
   banner.style.display = 'flex';
 
@@ -1978,18 +1897,18 @@ function mostrarModalInstrucciones() {
   
   modal.innerHTML = `
     <div class="geo-consent-modal-content">
-      <h3>🔒 Habilitar permisos del navegador</h3>
+      <h3>${tGeo('map.geo.modalTitle', '🔒 Habilitar permisos del navegador')}</h3>
       <p style="text-align: left; font-size: 0.9rem; margin-bottom: 0.8rem; color: #d0c8b8;">
-        Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:
+        ${tGeo('map.geo.modalDesc', 'Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:')}
       </p>
       <ol style="text-align: left; font-size: 0.85rem; color: #d0c8b8; padding-left: 1.2rem; line-height: 1.6; margin-bottom: 1.2rem;">
-        <li>Haz clic en el icono de <b>candado 🔒</b> o ajustes junto a la URL arriba.</li>
-        <li>Busca <b>Permisos del sitio</b> o <b>Ubicación</b>.</li>
-        <li>Cambia la opción a <b>Permitir</b>.</li>
+        <li>${tGeo('map.geo.modalStep1', 'Haz clic en el icono de <b>candado 🔒</b> o ajustes junto a la URL arriba.')}</li>
+        <li>${tGeo('map.geo.modalStep2', 'Busca <b>Permisos del sitio</b> o <b>Ubicación</b>.')}</li>
+        <li>${tGeo('map.geo.modalStep3', 'Cambia la opción a <b>Permitir</b>.')}</li>
       </ol>
       <div class="geo-consent-buttons">
-        <button id="geoRetryBtn" class="geo-consent-btn allow" type="button">Probar de nuevo</button>
-        <button id="geoCloseInst" class="geo-consent-btn deny" type="button">Cerrar</button>
+        <button id="geoRetryBtn" class="geo-consent-btn allow" type="button">${tGeo('map.geo.retryBtn', 'Probar de nuevo')}</button>
+        <button id="geoCloseInst" class="geo-consent-btn deny" type="button">${tGeo('map.geo.closeBtn', 'Cerrar')}</button>
       </div>
     </div>
   `;
@@ -2008,7 +1927,7 @@ function mostrarModalInstrucciones() {
 // ── Solicitud y Verificación en Tiempo Real ──
 function solicitarUbicacionConVerificacion(centrar = true) {
   if (!navigator.geolocation) {
-    mostrarToast('Tu navegador no soporta geolocalización.', 'error');
+    mostrarToast(tGeo('map.geo.noSupport', 'Tu navegador no soporta geolocalización.'), 'error');
     return;
   }
 
@@ -2073,7 +1992,7 @@ function manejarPosicionObtenida(position, centrar) {
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
   );
 
-  mostrarToast('Ubicación activada correctamente.', 'info');
+  mostrarToast(tGeo('map.geo.activated', 'Ubicación activada correctamente.'), 'info');
 }
 
 function ejecutarGeolocalizacion(centrar = true) {
@@ -2105,7 +2024,7 @@ function ejecutarGeolocalizacion(centrar = true) {
           if (err2.code === err2.PERMISSION_DENIED) {
             mostrarModalInstrucciones();
           } else {
-            mostrarToast('No se pudo obtener tu posición actual.', 'error');
+            mostrarToast(tGeo('map.geo.noPosition', 'No se pudo obtener tu posición actual.'), 'error');
           }
         },
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }

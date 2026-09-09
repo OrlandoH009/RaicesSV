@@ -892,6 +892,20 @@
       "map.filters.toggle": "Ocultar filtros",
       "map.filters.all": "Todos",
       "map.geo.label": "¿Dónde estoy?",
+      "map.geo.noSupport": "Tu navegador no soporta geolocalización.",
+      "map.geo.activated": "Ubicación activada correctamente.",
+      "map.geo.noPosition": "No se pudo obtener tu posición actual.",
+      "map.geo.bannerDisabled": "Ubicación deshabilitada",
+      "map.geo.bannerPrompt": "Activa tu ubicación para ver sitios cercanos",
+      "map.geo.bannerHowTo": "¿Cómo activar?",
+      "map.geo.bannerEnable": "Habilitar ubicación",
+      "map.geo.modalTitle": "🔒 Habilitar permisos del navegador",
+      "map.geo.modalDesc": "Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:",
+      "map.geo.modalStep1": "Haz clic en el icono de <b>candado 🔒</b> o ajustes junto a la URL arriba.",
+      "map.geo.modalStep2": "Busca <b>Permisos del sitio</b> o <b>Ubicación</b>.",
+      "map.geo.modalStep3": "Cambia la opción a <b>Permitir</b>.",
+      "map.geo.retryBtn": "Probar de nuevo",
+      "map.geo.closeBtn": "Cerrar",
 
       // Agrega esto dentro del objeto "es" en tu i18n.js
       "cal": {
@@ -2062,7 +2076,7 @@
       "terms.tbl.row8": "Renderizado de mapas y \"tiles\" (mosaicos de imagen del mapa) en el mapa cultural y en publicaciones.",
       "terms.tbl.row9": "Búsqueda de direcciones y geocodificación inversa al seleccionar una ubicación para una publicación.",
       "terms.tbl.row10": "Reproducción de videos demostrativos incrustados en la sección de recetas.",
-      "terms.tbl.row11": "Entrega de las tipografías del sitio (Fraunces, Inter).",
+      "terms.tbl.row11": "Entrega de las tipografías del sitio (Urbanist, Inter).",
       "terms.tbl.row12": "Distribución de librerías de interfaz: GSAP y ScrollTrigger, Chart.js, Matter.js y Leaflet.",
       "terms.tbl.row13": "Generación de un PDF de una receta directamente en tu navegador; no se envían datos a un servidor externo para esta función.",
 
@@ -3143,6 +3157,20 @@
       "map.filters.toggle": "Hide filters",
       "map.filters.all": "All",
       "map.geo.label": "Where am I?",
+      "map.geo.noSupport": "Your browser does not support geolocation.",
+      "map.geo.activated": "Location enabled successfully.",
+      "map.geo.noPosition": "We couldn't get your current position.",
+      "map.geo.bannerDisabled": "Location disabled",
+      "map.geo.bannerPrompt": "Enable your location to see nearby places",
+      "map.geo.bannerHowTo": "How to enable?",
+      "map.geo.bannerEnable": "Enable location",
+      "map.geo.modalTitle": "🔒 Enable browser permissions",
+      "map.geo.modalDesc": "Permissions are blocked in your browser. Follow these steps to enable them:",
+      "map.geo.modalStep1": "Click the <b>lock icon 🔒</b> or settings next to the URL above.",
+      "map.geo.modalStep2": "Look for <b>Site permissions</b> or <b>Location</b>.",
+      "map.geo.modalStep3": "Change the setting to <b>Allow</b>.",
+      "map.geo.retryBtn": "Try again",
+      "map.geo.closeBtn": "Close",
 
       // Agrega esto dentro del objeto "en" en tu i18n.js
       "cal": {
@@ -4307,7 +4335,7 @@
         "terms.tbl.row8": "Rendering of maps and tiles (map image mosaics) on the cultural map and in posts.",
         "terms.tbl.row9": "Address search and reverse geocoding when selecting a location for a post.",
         "terms.tbl.row10": "Playback of demo videos embedded in the recipes section.",
-        "terms.tbl.row11": "Delivery of the Site's typefaces (Fraunces, Inter).",
+        "terms.tbl.row11": "Delivery of the Site's typefaces (Urbanist, Inter).",
         "terms.tbl.row12": "Distribution of UI libraries: GSAP and ScrollTrigger, Chart.js, Matter.js, and Leaflet.",
         "terms.tbl.row13": "Generating a recipe PDF directly in your browser; no data is sent to an external server for this feature.",
 

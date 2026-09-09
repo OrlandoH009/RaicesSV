@@ -3,9 +3,12 @@ const publicationService = require('./publication.server');
 const listPublications = async (req, res) => {
     try {
         const currentUser = req.session && req.session.user ? req.session.user : null;
-        const { location } = req.query;
+        const { location, hasCoords } = req.query;
 
-        const publications = await publicationService.listPublications(currentUser, { location });
+        const publications = await publicationService.listPublications(currentUser, {
+            location,
+            onlyWithCoords: hasCoords === '1' || hasCoords === 'true'
+        });
 
         // Se pide en cada carga del mapa; un caché corto en el borde de
         // Vercel evita golpear la base de datos por cada visita sin que se
