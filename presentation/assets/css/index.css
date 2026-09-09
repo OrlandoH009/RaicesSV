@@ -27,7 +27,7 @@
 
 .hero__bg {
   position: absolute;
-  inset: 0;
+  inset: -4%;
   background-image: url('../media/Santa Ana Volcan.jpg');
   background-size: cover;
   background-position: center;
@@ -46,11 +46,94 @@
   background: linear-gradient(160deg, rgba(74,94,194,.35), rgba(47,182,221,.22) 55%, rgba(17,48,104,.28));
 }
 
+/* ── Aurora: manchas de luz que respiran detrás del contenido ── */
+.hero__aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  opacity: .75;
+}
+.hero__blob {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+}
+.hero__blob--1 {
+  width: 46vw; height: 46vw;
+  min-width: 320px; min-height: 320px;
+  top: -12%; left: -8%;
+  background: radial-gradient(circle, rgba(240,201,138,.55) 0%, rgba(190,142,86,0) 70%);
+  animation: heroBlob1 18s ease-in-out infinite;
+}
+.hero__blob--2 {
+  width: 40vw; height: 40vw;
+  min-width: 280px; min-height: 280px;
+  bottom: -14%; right: -6%;
+  background: radial-gradient(circle, rgba(47,182,221,.42) 0%, rgba(74,94,194,0) 70%);
+  animation: heroBlob2 22s ease-in-out infinite;
+}
+.hero__blob--3 {
+  width: 34vw; height: 34vw;
+  min-width: 240px; min-height: 240px;
+  top: 30%; left: 45%;
+  background: radial-gradient(circle, rgba(234,88,12,.32) 0%, rgba(239,68,68,0) 72%);
+  animation: heroBlob3 26s ease-in-out infinite;
+}
+@keyframes heroBlob1 {
+  0%, 100% { transform: translate3d(0,0,0) scale(1); }
+  50%      { transform: translate3d(12vw, 8vh, 0) scale(1.18); }
+}
+@keyframes heroBlob2 {
+  0%, 100% { transform: translate3d(0,0,0) scale(1.05); }
+  50%      { transform: translate3d(-14vw, -10vh, 0) scale(.85); }
+}
+@keyframes heroBlob3 {
+  0%, 100% { transform: translate3d(-50%,-50%,0) scale(.9); }
+  50%      { transform: translate3d(-70%,-30%,0) scale(1.25); }
+}
+
+/* ── Rayos de luz volumétricos ── */
+.hero__rays {
+  position: absolute;
+  top: -40%; left: 50%;
+  width: 160vmax; height: 160vmax;
+  transform: translate(-50%, 0);
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: .55;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(255,255,255,.16) 0deg 3deg,
+    rgba(255,255,255,0) 3deg 14deg
+  );
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 62%);
+          mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 62%);
+  animation: heroRays 60s linear infinite;
+}
+@keyframes heroRays {
+  to { transform: translate(-50%, 0) rotate(360deg); }
+}
+
+/* Viñeta para dar profundidad y concentrar la mirada en el centro */
+.hero__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 38%, rgba(0,0,0,.42) 100%);
+}
+
 /* Partículas doradas y culturales flotantes */
 .hero__particles {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   overflow: hidden;
   pointer-events: none;
 }
@@ -84,22 +167,56 @@
   left: 0; right: 0; bottom: 0;
   height: clamp(70px, 12vw, 150px);
   background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, var(--marquee-start) 100%);
-  z-index: 2;
+  z-index: 4;
   pointer-events: none;
 }
 
 .hero__content {
   position: relative;
-  z-index: 3;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.35rem;
   padding: 0 1rem;
   text-align: center;
   perspective: 1000px;
 }
 
+/* ── Eyebrow ── */
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .42rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 201, 138, .42);
+  background: rgba(17, 24, 48, .38);
+  backdrop-filter: blur(10px);
+  color: var(--gold-light);
+  font-family: var(--font-body);
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  box-shadow: 0 6px 22px rgba(0,0,0,.35), inset 0 0 18px rgba(240,201,138,.08);
+  opacity: 0;
+}
+.hero__eyebrow-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  box-shadow: 0 0 0 0 rgba(240,201,138,.7);
+  animation: heroDotPulse 2.2s ease-out infinite;
+}
+@keyframes heroDotPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(240,201,138,.65); }
+  70%  { box-shadow: 0 0 0 10px rgba(240,201,138,0); }
+  100% { box-shadow: 0 0 0 0 rgba(240,201,138,0); }
+}
+
+/* ── Marco del título con borde de luz giratorio ── */
 .hero__title-wrap {
   background: var(--card-dim);
   border-radius: var(--r-sm);
@@ -120,13 +237,17 @@
   background-size: 220% 100%;
   background-position: 130% 0;
   pointer-events: none;
+  z-index: 1;
 }
-.hero__title-wrap.shine::before { animation: shineSweep 2.6s ease .2s 1; }
+.hero__title-wrap.shine::before { animation: shineSweep 4.5s ease .2s infinite; }
 @keyframes shineSweep {
   0%   { background-position: 130% 0; }
+  45%  { background-position: -30% 0; }
   100% { background-position: -30% 0; }
 }
 .hero__title {
+  position: relative;
+  z-index: 2;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(2.4rem, 5.5vw, 4.5rem);
@@ -154,26 +275,128 @@
   opacity: 0;
 }
 
+/* ── Rotador de palabras ── */
+.hero__rotator {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: var(--font-body);
+  font-size: clamp(.95rem, 1.6vw, 1.15rem);
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.82);
+  text-shadow: 0 2px 10px rgba(0,0,0,.55);
+  opacity: 0;
+}
+.hero__rotator-label {
+  text-transform: uppercase;
+  font-size: .72em;
+  letter-spacing: .2em;
+  color: rgba(255,255,255,.6);
+}
+.hero__rotator-mask {
+  position: relative;
+  display: inline-block;
+  height: 1.6em;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.hero__rotator-words {
+  display: block;
+  will-change: transform;
+}
+.hero__rotator-word {
+  display: block;
+  height: 1.6em;
+  line-height: 1.6em;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.hero__rotator-src { display: none !important; }
+
+/* ── Acciones ── */
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: .35rem;
+}
+
 .hero__cta {
   opacity: 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+/* Anillo que late alrededor del botón */
+.hero__cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid rgba(240, 201, 138, .8);
+  animation: heroCtaRing 2.6s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes heroCtaRing {
+  0%   { transform: scale(1);    opacity: .75; }
+  70%  { transform: scale(1.22); opacity: 0; }
+  100% { transform: scale(1.22); opacity: 0; }
 }
 .hero__cta::after {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
-  transform: translateX(-100%);
-  transition: transform 0.8s ease;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.55) 50%, transparent 60%);
+  background-size: 260% 100%;
+  background-position: 140% 0;
+  animation: heroCtaSheen 3.6s ease-in-out infinite;
+  transform: none;
+  transition: none;
   pointer-events: none;
 }
-.hero__cta:hover::after {
-  transform: translateX(100%);
+@keyframes heroCtaSheen {
+  0%, 12%  { background-position: 140% 0; }
+  55%      { background-position: -40% 0; }
+  100%     { background-position: -40% 0; }
+}
+.hero__cta-arrow {
+  width: .8em; height: .8em; flex-shrink: 0;
+  transition: transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hero__cta:hover .hero__cta-arrow { transform: translateX(5px); }
+
+.hero__cta-ghost {
+  opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.4rem, 2.6vw, 2.1rem);
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.07);
+  backdrop-filter: blur(10px);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(.95rem, 1.7vw, 1.25rem);
+  text-decoration: none;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+  transition: background .3s ease, border-color .3s ease, transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hero__cta-ghost svg { width: 1.05em; height: 1.05em; flex-shrink: 0; }
+.hero__cta-ghost:hover {
+  background: rgba(255,255,255,.16);
+  border-color: rgba(240,201,138,.7);
+  color: var(--gold-light);
+  transform: translateY(-2px);
 }
 
 /* Cursor descendente animado */
@@ -181,11 +404,11 @@
   position: absolute;
   bottom: 30px; left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
+  z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .4rem;
+  gap: .55rem;
   color: var(--white);
   opacity: 0;
   font-family: var(--font-body);
@@ -199,10 +422,42 @@
 .hero__scroll-cue:hover {
   color: var(--gold);
 }
-.hero__scroll-cue svg {
-  width: 20px;
-  height: 20px;
+/* Ratoncito con la ruedita que baja */
+.hero__mouse {
+  position: relative;
+  width: 24px;
+  height: 38px;
+  border: 2px solid currentColor;
+  border-radius: 13px;
+  opacity: .9;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+.hero__mouse i {
+  position: absolute;
+  top: 7px; left: 50%;
+  width: 3px; height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  animation: heroWheel 1.6s cubic-bezier(.25,.8,.25,1) infinite;
+}
+@keyframes heroWheel {
+  0%   { transform: translateY(0);    opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { transform: translateY(13px); opacity: 0; }
+  100% { transform: translateY(13px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__blob,
+  .hero__rays,
+  .hero__eyebrow-dot,
+  .hero__title-wrap.shine::before,
+  .hero__cta::before,
+  .hero__cta::after,
+  .hero__mouse i {
+    animation: none !important;
+  }
 }
 
 /* ── Franja marquee cultural ── */
@@ -891,6 +1146,22 @@
   }
   .hero__subtitle { font-size: clamp(1.05rem, 4.5vw, 1.4rem); }
   .hero__title-wrap { padding: .8rem 1.1rem; }
+  .hero__content { gap: 1rem; }
+  .hero__eyebrow { font-size: .64rem; padding: .35rem .85rem; letter-spacing: .16em; }
+  .hero__rotator { font-size: .95rem; }
+  .hero__actions { gap: .6rem; width: 100%; flex-direction: column; }
+  .hero__actions > a { width: 100%; max-width: 300px; justify-content: center; }
+  .hero__rays { opacity: .35; }
+  .hero__blob { filter: blur(48px); }
+  .hero__scroll-cue { bottom: 16px; gap: .35rem; }
+  .hero__mouse { width: 20px; height: 32px; }
+  .hero__mouse i { animation-name: heroWheelSm; }
+  @keyframes heroWheelSm {
+    0%   { transform: translateY(0);    opacity: 0; }
+    25%  { opacity: 1; }
+    75%  { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(10px); opacity: 0; }
+  }
   .about__card { padding: 2rem 1.5rem; }
   .info-badge__inner { padding: 1rem 1.5rem; }
   .info-badge__inner h2 { white-space: normal; text-align: center; }

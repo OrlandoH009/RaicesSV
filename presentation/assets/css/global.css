@@ -739,6 +739,68 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
 .footer__disclaimer { font-size: 0.7rem; color: #777; margin-top: 0.1rem; max-width: 560px; }
 
+.footer__support {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--r-sm);
+  background: rgba(190, 142, 86, 0.08);
+  border: 1px solid rgba(190, 142, 86, 0.2);
+}
+
+.footer__support-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.footer__support-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer__support-link:hover {
+  color: var(--gold);
+}
+
+.footer__support-link > span {
+  display: block;
+}
+
+.footer__support-link > span:first-child {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  color: var(--navy);
+}
+
+.footer__support-link:hover > span:first-child {
+  color: var(--gold);
+}
+
+.footer__support-email {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--navy);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.footer__support-link:hover .footer__support-email {
+  color: var(--gold);
+}
+
 .card-spotlight {
   position: absolute;
   inset: 0;

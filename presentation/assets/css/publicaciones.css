@@ -1513,36 +1513,22 @@ body {
   padding-top: 80px; /* Ajusta este valor si tu navbar es más alto/bajo */
 }
 
-/* Unificación de estilos para el Footer dentro de la página de publicaciones */
+/* Unificación de estilos para el Footer dentro de la página de publicaciones:
+   fondo blanco en los dos temas (a diferencia del resto de páginas, donde
+   el footer varía entre gris claro y crema). Como el fondo ya no cambia,
+   el texto usa siempre los colores oscuros pensados para fondo claro. */
 .footer {
-  background-color: var(--black) !important;
+  background-color: var(--white) !important;
   border-top: 1px solid rgba(190, 142, 86, 0.2);
   padding: 4rem 2rem;
 }
-/* En modo oscuro (el de por defecto) el footer aquí usa fondo negro, distinto
-   al resto de las páginas (que mantienen el footer siempre claro). Los
-   colores de texto que vienen de global.css (.footer__name, .footer__copy,
-   .footer__disclaimer, .footer__links a) están pensados para un fondo claro
-   — navy y grises oscuros — así que sobre este fondo negro quedaban casi
-   invisibles. Se aclaran solo para esta página. */
 .footer .footer__name,
 .footer .footer__links a {
-  color: var(--white);
-}
-.footer .footer__links a:hover { color: var(--gold); }
-.footer .footer__copy { color: rgba(255, 255, 255, .65); }
-.footer .footer__disclaimer { color: rgba(255, 255, 255, .45); }
-
-[data-theme="light"] .footer {
-  background-color: var(--footer-bg-cur, #f3ecdd) !important;
-}
-[data-theme="light"] .footer .footer__name,
-[data-theme="light"] .footer .footer__links a {
   color: var(--navy);
 }
-[data-theme="light"] .footer .footer__links a:hover { color: var(--gold); }
-[data-theme="light"] .footer .footer__copy { color: #555; }
-[data-theme="light"] .footer .footer__disclaimer { color: #777; }
+.footer .footer__links a:hover { color: var(--gold); }
+.footer .footer__copy { color: #555; }
+.footer .footer__disclaimer { color: #777; }
 /* ══════════════════════════════════
    BLOQUEO ELEGANTE PARA INVITADOS
    ══════════════════════════════════ */

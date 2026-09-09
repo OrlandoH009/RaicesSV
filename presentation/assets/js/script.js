@@ -52,7 +52,13 @@
    navegador pide la siguiente página, y el usuario termina haciendo
    clic varias veces por si acaso. Este overlay se muestra apenas se
    detecta el clic; no hace falta ocultarlo "a mano" porque el documento
-   completo se reemplaza en cuanto la página siguiente termina de cargar. */
+   completo se reemplaza en cuanto la página siguiente termina de cargar.
+
+   Se escucha en fase de burbuja (no de captura): así, si el propio
+   enlace tiene un handler que cancela la navegación (p. ej. para
+   mostrar "debes iniciar sesión" en vez de navegar), ese preventDefault()
+   ya se ejecutó antes de llegar aquí y el `if (e.defaultPrevented)` de
+   abajo evita que el spinner aparezca por una navegación que no sucede. */
 (function () {
   let loaderEl = null;
 
@@ -67,14 +73,23 @@
     return loaderEl;
   }
 
+  // Antes de mostrarse, espera este tiempo por si la navegación es rápida:
+  // así no hay parpadeo del overlay en transiciones casi instantáneas.
+  const SHOW_DELAY_MS = 1800;
+
   function mostrarCargaDePagina() {
-    getLoader().classList.add('is-active');
-    // Salvaguarda: si por lo que sea la navegación no llegó a pasar
-    // (bloqueada, cancelada, popup blocker), no dejamos el overlay
-    // pegado para siempre.
+    // Si la página siguiente carga antes de este tiempo, el documento
+    // actual (y este timeout) desaparece con ella: el overlay nunca
+    // llega a mostrarse. Solo aparece cuando la navegación tarda de verdad.
     setTimeout(() => {
-      if (loaderEl) loaderEl.classList.remove('is-active');
-    }, 12000);
+      getLoader().classList.add('is-active');
+      // Salvaguarda: si por lo que sea la navegación no llegó a pasar
+      // (bloqueada, cancelada, popup blocker), no dejamos el overlay
+      // pegado para siempre.
+      setTimeout(() => {
+        if (loaderEl) loaderEl.classList.remove('is-active');
+      }, 12000);
+    }, SHOW_DELAY_MS);
   }
 
   document.addEventListener('click', (e) => {
@@ -96,7 +111,7 @@
     if (url.href === window.location.href) return;
 
     mostrarCargaDePagina();
-  }, true);
+  });
 
   // Si el usuario vuelve con el botón "atrás" del navegador y la página
   // se restauró desde bfcache, el overlay podría haber quedado activo

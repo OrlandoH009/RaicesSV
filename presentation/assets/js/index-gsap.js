@@ -18,14 +18,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── 2. Hero: partir el título en letras ── */
+  /* ── 2. Hero: partir el título en letras ──
+     Ojo: i18n reescribe el innerHTML de todo lo que tenga data-i18n (y
+     script.js vuelve a llamarlo al armar el drawer), lo que borra las
+     letras. Por eso el corte se rehace solo cuando eso pasa. ── */
   const heroTitle = document.getElementById('heroTitle');
-  if (heroTitle) {
-    const original = heroTitle.textContent.trim();
+  let titleObserver = null;
+  // Marca si el timeline de entrada ya reveló el título
+  let heroEntranceDone = false;
+
+  const splitHeroTitle = () => {
+    if (!heroTitle) return;
+    const original = (heroTitle.getAttribute('data-raw') || heroTitle.textContent).trim();
+    if (titleObserver) titleObserver.disconnect();
+    heroTitle.setAttribute('data-raw', original);
     heroTitle.setAttribute('aria-label', original);
     heroTitle.innerHTML = '';
-    const words = original.split(' ');
-    words.forEach((word, wi) => {
+    original.split(' ').forEach((word, wi, words) => {
       const wordSpan = document.createElement('span');
       wordSpan.className = 'word';
       [...word].forEach((ch) => {
@@ -37,24 +46,55 @@ document.addEventListener('DOMContentLoaded', () => {
       heroTitle.appendChild(wordSpan);
       if (wi < words.length - 1) heroTitle.appendChild(document.createTextNode(' '));
     });
+    if (titleObserver) titleObserver.observe(heroTitle, { childList: true });
+  };
+
+  const revealChars = (animate) => {
+    const chars = heroTitle ? heroTitle.querySelectorAll('.char') : [];
+    if (!chars.length) return;
+    if (animate && !prefersReducedMotion) {
+      gsap.fromTo(chars,
+        { opacity: 0, y: 26 },
+        { opacity: 1, y: 0, duration: .6, stagger: .025, ease: 'back.out(1.7)' }
+      );
+    } else {
+      gsap.set(chars, { opacity: 1, y: 0, rotate: 0 });
+    }
+  };
+
+  splitHeroTitle();
+
+  if (heroTitle && 'MutationObserver' in window) {
+    titleObserver = new MutationObserver(() => {
+      // El título quedó como texto plano: alguien reaplicó las traducciones
+      if (heroTitle.querySelector('.char')) return;
+      const fresh = heroTitle.textContent.trim();
+      if (fresh) heroTitle.setAttribute('data-raw', fresh);
+      splitHeroTitle();
+      // Si la entrada ya terminó, se muestran sin volver a animar
+      revealChars(!heroEntranceDone);
+    });
+    titleObserver.observe(heroTitle, { childList: true });
   }
 
   /* ── 3. Hero: partículas temáticas flotantes (doradas, ascuas de volcán y glifos) ── */
   const particleWrap = document.getElementById('heroParticles');
   if (particleWrap && !prefersReducedMotion) {
-    const total = window.innerWidth < 600 ? 14 : 26;
+    const total = window.innerWidth < 600 ? 18 : 38;
     const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
-    
+
     for (let i = 0; i < total; i++) {
       const p = document.createElement('span');
       const type = types[i % types.length];
       p.className = 'hero-particle ' + type;
-      
-      const size = type === 'hero-particle--glyph' ? gsap.utils.random(8, 14) : gsap.utils.random(4, 11);
+
+      const size = type === 'hero-particle--glyph' ? gsap.utils.random(8, 14) : gsap.utils.random(3, 11);
       p.style.width = size + 'px';
       p.style.height = size + 'px';
       p.style.left = gsap.utils.random(0, 100) + '%';
       particleWrap.appendChild(p);
+
+      const maxOpacity = gsap.utils.random(.45, .95);
 
       gsap.fromTo(p,
         { y: 40, opacity: 0, rotation: gsap.utils.random(0, 180) },
@@ -62,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
           y: -window.innerHeight * gsap.utils.random(0.75, 1.15),
           x: gsap.utils.random(-80, 80),
           rotation: `+=${gsap.utils.random(90, 360)}`,
-          opacity: gsap.utils.random(.45, .9),
+          opacity: maxOpacity,
           duration: gsap.utils.random(8, 16),
           delay: gsap.utils.random(0, 10),
           repeat: -1,
@@ -72,29 +112,109 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       );
+
+      // Titileo: las estrellas y ascuas parpadean mientras suben
+      if (type === 'hero-particle--star' || type === 'hero-particle--ember') {
+        gsap.to(p, {
+          scale: gsap.utils.random(.5, 1.5),
+          duration: gsap.utils.random(1.1, 2.4),
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: gsap.utils.random(0, 3)
+        });
+      }
     }
   }
 
   /* ── 4. Timeline de entrada del Hero ── */
   gsap.set('.hero__overlay', { opacity: 0 });
+  gsap.set('.hero__eyebrow', { y: -14, scale: .9 });
   gsap.set('.hero__subtitle', { y: 18, filter: 'blur(6px)' });
-  gsap.set('.hero__cta', { y: 18, scale: .92 });
+  gsap.set('.hero__rotator', { y: 14 });
+  gsap.set('.hero__cta, .hero__cta-ghost', { y: 18, scale: .92 });
   gsap.set('.hero__scroll-cue', { y: -8 });
   gsap.set('.hero__title .char', { y: 40, rotate: 6 });
+  gsap.set('.hero__aurora, .hero__rays', { opacity: 0 });
 
   const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
   heroTl
-    .fromTo('.hero__bg', { scale: 1.18 }, { scale: 1.05, duration: 2.6, ease: 'power2.out' }, 0)
+    .fromTo('.hero__bg', { scale: 1.25 }, { scale: 1.06, duration: 2.8, ease: 'power2.out' }, 0)
     .to('.hero__overlay', { opacity: 1, duration: 1.1, ease: 'power2.out' }, 0)
-    .to('.hero__title-wrap', { opacity: 1, duration: .5 }, .25)
+    .to('.hero__aurora', { opacity: .75, duration: 1.8, ease: 'power1.out' }, .2)
+    .to('.hero__rays', { opacity: .55, duration: 2.2, ease: 'power1.out' }, .4)
+    .to('.hero__eyebrow', { opacity: 1, y: 0, scale: 1, duration: .7, ease: 'back.out(2)' }, .15)
+    .to('.hero__title-wrap', { opacity: 1, duration: .5 }, .3)
     .to('.hero__title .char', {
       opacity: 1, y: 0, rotate: 0, duration: .8, stagger: .035,
       ease: 'back.out(1.7)'
-    }, .35)
-    .add(() => document.querySelector('.hero__title-wrap')?.classList.add('shine'), .45)
+    }, .4)
+    .add(() => {
+      document.querySelector('.hero__title-wrap')?.classList.add('shine');
+      heroEntranceDone = true;
+    }, .5)
     .to('.hero__subtitle', { opacity: 1, y: 0, filter: 'blur(0px)', duration: .8 }, '-=0.35')
+    .to('.hero__rotator', { opacity: 1, y: 0, duration: .6 }, '-=0.45')
     .to('.hero__cta', { opacity: 1, y: 0, scale: 1, duration: .65, ease: 'back.out(2.2)' }, '-=0.3')
+    .to('.hero__cta-ghost', { opacity: 1, y: 0, scale: 1, duration: .6, ease: 'back.out(2.2)' }, '-=0.45')
     .to('.hero__scroll-cue', { opacity: .85, y: 0, duration: .6 }, '-=0.2');
+
+  // Ken Burns: el fondo nunca se queda quieto, sigue acercándose y paneando
+  if (!prefersReducedMotion) {
+    heroTl.add(() => {
+      gsap.to('.hero__bg', {
+        scale: 1.16,
+        xPercent: 2.5,
+        duration: 20,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+    });
+  }
+
+  /* ── 4b. Rotador de palabras del hero ── */
+  const rotator = document.getElementById('heroRotator');
+  const rotatorSrc = document.querySelector('.hero__rotator-src');
+  if (rotator && rotatorSrc) {
+    let rotatorTl = null;
+
+    const buildRotator = () => {
+      if (rotatorTl) { rotatorTl.kill(); rotatorTl = null; }
+      const words = rotatorSrc.textContent.split('|').map((w) => w.trim()).filter(Boolean);
+      if (!words.length) return;
+
+      rotator.innerHTML = '';
+      // Se repite la primera palabra al final para que el ciclo cierre sin salto
+      [...words, words[0]].forEach((w) => {
+        const span = document.createElement('span');
+        span.className = 'hero__rotator-word';
+        span.textContent = w;
+        rotator.appendChild(span);
+      });
+      gsap.set(rotator, { yPercent: 0 });
+
+      if (prefersReducedMotion) return;
+
+      const step = 100 / (words.length + 1);
+      rotatorTl = gsap.timeline({ repeat: -1, delay: 1.6 });
+      for (let i = 1; i <= words.length; i++) {
+        rotatorTl
+          .to(rotator, { yPercent: -step * i, duration: .55, ease: 'power3.inOut' })
+          .to({}, { duration: 1.7 });
+      }
+      rotatorTl.set(rotator, { yPercent: 0 });
+    };
+
+    buildRotator();
+    document.addEventListener('langchange', () => {
+      // i18n ya reescribió los textos: se rearma el título y el rotador
+      heroTitle?.removeAttribute('data-raw');
+      splitHeroTitle();
+      revealChars(true);
+      buildRotator();
+    });
+  }
 
   // Rebote continuo del cursor de scroll
   if (!prefersReducedMotion) {
@@ -126,35 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });
 
-    // 3D Parallax suave en el contenido del hero con el movimiento del ratón
-    const heroSection = document.querySelector('.hero');
-    const heroTitleWrap = document.querySelector('.hero__title-wrap');
-    if (heroSection && heroTitleWrap) {
-      heroSection.addEventListener('mousemove', (e) => {
-        const { clientX, clientY } = e;
-        const xPos = (clientX / window.innerWidth - 0.5) * 2;
-        const yPos = (clientY / window.innerHeight - 0.5) * 2;
-        gsap.to(heroTitleWrap, {
-          rotateY: xPos * 8,
-          rotateX: -yPos * 8,
-          x: xPos * 12,
-          y: yPos * 8,
-          duration: 0.6,
-          ease: 'power2.out',
-          transformPerspective: 900
-        });
-      });
-      heroSection.addEventListener('mouseleave', () => {
-        gsap.to(heroTitleWrap, {
-          rotateY: 0,
-          rotateX: 0,
-          x: 0,
-          y: 0,
-          duration: 1,
-          ease: 'elastic.out(1, 0.4)'
-        });
-      });
-    }
+    // El contenido se aleja y se desvanece más rápido que el fondo al bajar
+    gsap.to('.hero__content', {
+      yPercent: -18,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: '70% top', scrub: true }
+    });
   }
 
   /* ── 5. Marquee cultural infinito con desaceleración interactiva ── */

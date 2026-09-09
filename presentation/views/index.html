@@ -73,17 +73,42 @@
     <section class="hero">
       <div class="hero__bg" id="heroBg"></div>
       <div class="hero__overlay"></div>
+      <div class="hero__aurora" aria-hidden="true">
+        <span class="hero__blob hero__blob--1"></span>
+        <span class="hero__blob hero__blob--2"></span>
+        <span class="hero__blob hero__blob--3"></span>
+      </div>
+      <div class="hero__rays" aria-hidden="true"></div>
       <div class="hero__particles" id="heroParticles"></div>
+      <div class="hero__vignette" aria-hidden="true"></div>
       <div class="hero__content">
+        <span class="hero__eyebrow">
+          <i class="hero__eyebrow-dot" aria-hidden="true"></i>
+          <span data-i18n="hero.eyebrow">Descubre El Salvador</span>
+        </span>
         <div class="hero__title-wrap">
           <h1 class="hero__title" id="heroTitle" data-i18n="hero.title">Bienvenid@ a Salvadorean Roots</h1>
         </div>
         <p class="hero__subtitle" data-i18n="hero.subtitle">Nuestra herencia, nuestro orgullo.</p>
-        <a href="../views/categorias.html" class="btn-primary hero__cta" data-i18n="hero.cta">Explorar Culturas</a>
+        <div class="hero__rotator" aria-hidden="true">
+          <span class="hero__rotator-label" data-i18n="hero.rotatorLabel">Explora</span>
+          <span class="hero__rotator-mask"><span class="hero__rotator-words" id="heroRotator"></span></span>
+        </div>
+        <span class="hero__rotator-src" data-i18n="hero.rotatorWords" hidden>Volcanes|Pupusas|Leyendas|Tradiciones|Pueblos Vivos</span>
+        <div class="hero__actions">
+          <a href="../views/categorias.html" class="btn-primary hero__cta" id="heroCta">
+            <span data-i18n="hero.cta">Explorar Culturas</span>
+            <svg class="hero__cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="../views/mapa.html" class="hero__cta-ghost" id="heroCtaGhost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <span data-i18n="hero.ctaMapa">Ver el mapa</span>
+          </a>
+        </div>
       </div>
       <div class="hero__scroll-cue" id="heroScrollCue" role="button" tabindex="0" aria-label="Desliza para ver más" data-i18n-attr="aria-label:hero.scrollAria">
         <span data-i18n="hero.scroll">Desliza</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+        <span class="hero__mouse" aria-hidden="true"><i></i></span>
       </div>
     </section>
 
@@ -218,7 +243,14 @@
         <li><a href="../views/eventos.html" data-i18n="cards.eventos">Eventos</a></li>
         <li><a href="../views/historia.html" data-i18n="cards.historia">Historia</a></li>
       </ul>
-      <p class="footer__copy" data-i18n="footer.copy">&copy; 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
+      <div class="footer__support">
+        <p class="footer__support-label" data-i18n="footer.supportLabel">¿Problemas técnicos?</p>
+        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=salvadorean.roots@gmail.com" target="_blank" rel="noopener noreferrer" class="footer__support-link">
+          <span data-i18n="footer.support">Soporte Técnico</span>
+          <span class="footer__support-email" data-i18n="footer.supportEmail">salvadorean.roots@gmail.com</span>
+        </a>
+      </div>
+      <p class="footer__copy" data-i18n="footer.copy">© 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.</p>
       <p class="footer__disclaimer" data-i18n="footer.disclaimer">Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.</p>
     </div>
   </footer>
@@ -229,7 +261,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="../assets/js/theme-blobs.js"></script>
-  <script src="../assets/js/index-gsap.js"></script>
+  <!-- i18n va antes que index-gsap: aplica las traducciones (que reescriben
+       el texto del h1) antes de que GSAP parta el título en letras. -->
   <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/index-gsap.js"></script>
 </body>
 </html>

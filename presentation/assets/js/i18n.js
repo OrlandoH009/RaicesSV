@@ -58,9 +58,13 @@
       "nav.modoOscuro": "Modo oscuro",
       "nav.modoClaro": "Modo claro",
 
+      "hero.eyebrow": "Descubre El Salvador",
       "hero.title": "Bienvenid@ a Salvadorean Roots",
       "hero.subtitle": "Nuestra herencia, nuestro orgullo.",
+      "hero.rotatorLabel": "Explora",
+      "hero.rotatorWords": "Volcanes|Pupusas|Leyendas|Tradiciones|Pueblos Vivos",
       "hero.cta": "Explorar Culturas",
+      "hero.ctaMapa": "Ver el mapa",
       "hero.scroll": "Desliza",
       "hero.scrollAria": "Desliza para ver más",
 
@@ -96,6 +100,9 @@
 
       "footer.copy": "© 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.",
       "footer.disclaimer": "Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.",
+      "footer.support": "Soporte Técnico",
+      "footer.supportEmail": "salvadorean.roots@gmail.com",
+      "footer.supportLabel": "¿Problemas técnicos?",
       "footer.juegos": "Juegos",
       "footer.brand": "Salvadorean Roots",
 
@@ -2303,9 +2310,13 @@
       "nav.modoOscuro": "Dark mode",
       "nav.modoClaro": "Light mode",
 
+      "hero.eyebrow": "Discover El Salvador",
       "hero.title": "Welcome to Salvadorean Roots",
       "hero.subtitle": "Our heritage, our pride.",
+      "hero.rotatorLabel": "Explore",
+      "hero.rotatorWords": "Volcanoes|Pupusas|Legends|Traditions|Living Towns",
       "hero.cta": "Explore Cultures",
+      "hero.ctaMapa": "See the map",
       "hero.scroll": "Scroll",
       "hero.scrollAria": "Scroll to see more",
 
@@ -2341,6 +2352,9 @@
 
       "footer.copy": "© 2026 Salvadorean Roots — Our heritage, our pride.",
       "footer.disclaimer": "Material used exclusively for educational, non-profit purposes. All rights belong to their original author.",
+      "footer.support": "Technical Support",
+      "footer.supportEmail": "salvadorean.roots@gmail.com",
+      "footer.supportLabel": "Technical issues?",
       "footer.juegos": "Games",
       "footer.brand": "Salvadorean Roots",
 
