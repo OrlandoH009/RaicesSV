@@ -35,7 +35,10 @@ function jt(key, fallback) {
    igual que el stick analógico de un control — así el jugador no necesita
    ver dónde está su personaje para saber a dónde tocar. */
 function createVirtualJoystick(canvas, canvasWrap, options = {}) {
-  if (!canvas || !canvasWrap) return { getVector: () => ({ x: 0, y: 0 }), isActive: () => false };
+  // El joystick es un control táctil: en PC el mouse ya tiene su propio
+  // control (teclado, o seguir el puntero), así que en PC ni se crea el
+  // elemento ni se escuchan sus eventos de mouse.
+  if (!canvas || !canvasWrap || !esTactilJuegos) return { getVector: () => ({ x: 0, y: 0 }), isActive: () => false };
 
   // Modo "fijo": en vez de aparecer donde tocás, el joystick vive anclado
   // siempre abajo a la izquierda (como el stick de un control físico), así
@@ -156,6 +159,55 @@ function createVirtualJoystick(canvas, canvasWrap, options = {}) {
   return { getVector: () => vec, isActive: () => dragging, el: base };
 }
 
+/* Bloqueo de orientación: Trompos y Mica necesitan bastante ancho para
+   jugarse cómodo con el pulgar (joystick fijo + esquivar rivales), así que
+   en celular (nunca en PC) se les exige horizontal. Mientras el celular
+   está en vertical se muestra una pantalla negra encima del juego pidiendo
+   girarlo, y se pausa la partida si ya estaba en curso; al girar a
+   horizontal se oculta sola y reanuda. */
+function setupRotateGate(gameId, canvasWrap) {
+  if (!esTactilJuegos || !canvasWrap) return;
+
+  const gate = document.createElement('div');
+  gate.className = 'rotate-gate';
+  gate.innerHTML = `
+    <span class="rotate-gate__icon" aria-hidden="true">📱</span>
+    <p>${jt('jue.rotate.text', 'Girá tu celular para jugar')}</p>
+  `;
+  canvasWrap.appendChild(gate);
+
+  let pausedByGate = false;
+
+  const isPortrait = () => window.innerHeight > window.innerWidth;
+
+  function update() {
+    const portrait = isPortrait();
+    gate.classList.toggle('is-visible', portrait);
+    const state = window.gameStates?.[gameId];
+    if (!state) return;
+    if (portrait) {
+      if (state.running?.() && !state.paused?.()) {
+        state.pause?.();
+        pausedByGate = true;
+      }
+    } else if (pausedByGate) {
+      state.resume?.();
+      pausedByGate = false;
+    }
+  }
+
+  window.addEventListener('resize', update);
+  window.addEventListener('orientationchange', update);
+  // El resize/orientationchange no alcanza solo: si el celular ya estaba
+  // en vertical y ahí mismo arranca una partida (sin cambiar de tamaño de
+  // pantalla), nada dispara esos eventos. Por eso también se revisa cada
+  // rato mientras el modal está abierto — barato (2 juegos como mucho).
+  setInterval(() => {
+    if (canvasWrap.closest('.game-modal')?.classList.contains('active')) update();
+  }, 300);
+  update();
+}
+
 /* ══════════════════════════════════════════════════════════
    GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
    ══════════════════════════════════════════════════════════ */
@@ -257,9 +309,20 @@ if (window.visualViewport) {
   const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
+  // En PC los objetos caen un poco más rápido y en celular un poco más
+  // lento. La gravedad de Matter.js es una aceleración fija en píxeles,
+  // no relativa al tamaño del canvas: sin este ajuste, como el canvas es
+  // más bajo en celular, ahí los objetos ya recorren esa distancia más
+  // rápido en tiempo real (~12% más rápido, medido con el motor físico
+  // en desktop 690px vs celular 617px de alto). Estos multiplicadores
+  // compensan esa diferencia para que la velocidad se sienta pareja.
+  const PUPUSA_GRAVITY_MULT = esTactilJuegos ? 0.95 : 1.06;
+  // Objeto que se atrapa un poco más grande en PC (físico y visual).
+  const PUPUSA_ITEM_RADIUS = esTactilJuegos ? 18 : 22;
+  const PUPUSA_ITEM_VISUAL_SIZE = esTactilJuegos ? 25 : 30;
   let gameConfig = {
-    easy: { gravity: 0.6, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 4 },
-    hard: { gravity: 0.9, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
+    easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 4 },
+    hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
   };
 
   function showOverlay(html){
@@ -346,7 +409,7 @@ if (window.visualViewport) {
   }
 
   const engine = Engine.create();
-  engine.gravity.y = 0.6;
+  engine.gravity.y = 0.6 * PUPUSA_GRAVITY_MULT;
   const world = engine.world;
 
   const paddleY = canvas.height - 60;
@@ -441,7 +504,7 @@ if (window.visualViewport) {
       <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
     `);
     if (tutorialSteps[i].action === 'catch') {
-      const body = Bodies.circle(canvas.width / 2, -20, 18, {
+      const body = Bodies.circle(canvas.width / 2, -20, PUPUSA_ITEM_RADIUS, {
         restitution: 0.1, friction: 0.6, frictionAir: 0.01, label: 'good'
       });
       body.foodEmoji = '🫓';
@@ -598,7 +661,7 @@ if (window.visualViewport) {
     const set = isBad ? BAD : GOOD;
     const item = set[Math.floor(Math.random()*set.length)];
     const x = 40 + Math.random()*(canvas.width-80);
-    const body = Bodies.circle(x, -20, 18, {
+    const body = Bodies.circle(x, -20, PUPUSA_ITEM_RADIUS, {
       restitution:0.1, friction:0.6, frictionAir: 0.01, label: isBad ? 'bad' : 'good'
     });
     body.foodEmoji = item.emoji;
@@ -689,7 +752,7 @@ if (window.visualViewport) {
       if(b.label==='comal'){
         drawComal(b.position.x, b.position.y);
       } else {
-        drawEmoji(b.foodEmoji, b.position.x, b.position.y, 25, b.angle);
+        drawEmoji(b.foodEmoji, b.position.x, b.position.y, PUPUSA_ITEM_VISUAL_SIZE, b.angle);
       }
     }
     rafId = requestAnimationFrame(step);
@@ -875,6 +938,7 @@ if (window.visualViewport) {
   if(!canvas || typeof Matter === 'undefined') return;
 
   const canvasWrap = canvas.closest('.canvas-wrap');
+  setupRotateGate('trompos', canvasWrap);
 
   // Antes, al entrar en pantalla completa se reusaba la resolución chica de
   // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
@@ -3245,6 +3309,7 @@ function spawnEntities() {
   const overlayCard = document.getElementById('overlay-card-encantados');
   const gameContent = document.getElementById('modal-encantados');
   const canvasWrap = document.getElementById('encantados-canvas-wrap');
+  setupRotateGate('encantados', canvasWrap);
   const popupsLayer = document.getElementById('mica-popups');
 
     function showOverlay(html){
@@ -5228,7 +5293,9 @@ function spawnEntities() {
       ctx.font = `${Math.max(12, canvas.width * 0.022)}px sans-serif`;
       ctx.fillStyle = 'rgba(196,181,253,0.85)';
       ctx.textAlign = 'center';
-      ctx.fillText(jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
+      ctx.fillText(esTactilJuegos
+        ? jt('jue.card5.aimHintTouch', '👆 Jalá desde el tirador para apuntar')
+        : jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
       ctx.restore();
     }
   }
