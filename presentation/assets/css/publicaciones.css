@@ -1032,6 +1032,15 @@
     .location-picker__results li:hover {
       background: rgba(190, 142, 86, 0.18);
     }
+    /* Lugares que ya publicó otro usuario antes (vienen de nuestra propia
+       base de datos, no de OpenStreetMap): un tinte sutil para distinguirlos
+       de los resultados de Nominatim sin competir con ellos. */
+    .location-picker__results li[data-own-index] {
+      background: rgba(190, 142, 86, 0.08);
+    }
+    .location-picker__results li[data-own-index]:hover {
+      background: rgba(190, 142, 86, 0.2);
+    }
     .location-picker__results li.location-picker__empty {
       cursor: default;
       opacity: 0.6;
@@ -1039,6 +1048,16 @@
     }
     .location-picker__results li.location-picker__empty:hover {
       background: transparent;
+    }
+    /* Opción "usar tal cual lo escribiste": se resalta en dorado para que
+       se note como una acción distinta de los resultados encontrados. */
+    .location-picker__results li.location-picker__use-typed {
+      color: var(--gold);
+      font-weight: 600;
+      border-top: 1px solid rgba(190, 142, 86, 0.25);
+    }
+    .location-picker__results li.location-picker__use-typed:hover {
+      background: rgba(190, 142, 86, 0.22);
     }
     .location-picker__result-icon {
       flex-shrink: 0;
@@ -1249,18 +1268,21 @@
     .location-picker__selected {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1rem;
-      background: rgba(190, 142, 86, 0.12);
-      border: 1px solid rgba(190, 142, 86, 0.3);
+      gap: 0.6rem;
+      padding: 0.75rem 1.1rem;
+      background: rgba(190, 142, 86, 0.16);
+      border: 1px solid rgba(190, 142, 86, 0.55);
+      border-left: 4px solid var(--gold);
       border-radius: var(--r-sm);
       color: var(--white);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 600;
     }
     [data-theme="light"] .location-picker__selected {
       color: var(--navy);
-      background: rgba(190, 142, 86, 0.1);
+      background: rgba(190, 142, 86, 0.14);
+      border-color: rgba(190, 142, 86, 0.5);
+      border-left-color: var(--gold);
     }
 
     /* Pin del picker (marcador Leaflet con emoji) */
