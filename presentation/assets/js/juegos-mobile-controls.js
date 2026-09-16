@@ -4,11 +4,14 @@
    se reubica según el contexto, en vez de vivir siempre en la esquina
    de canvas-controls.
 
-   En escritorio/con mouse se guarda dentro del botón de pausa: una
-   insignia de bocina sobre el botón despliega el control como ventana
-   emergente.
+   En escritorio/con mouse queda tal cual está en el HTML: un control
+   más, siempre visible, junto a pausa y pantalla completa (antes se
+   escondía detrás de una insignia sobre el botón de pausa y se abría
+   como ventana emergente, pero esa ventana se dibujaba más ancha que
+   el propio canvas-wrap —que recorta su contenido con overflow:hidden—
+   así que la mitad del control quedaba cortado feo contra el borde).
 
-   En celular no se usa esa insignia (para que tocar pausa siempre
+   En celular no se usa ninguna insignia (para que tocar pausa siempre
    pause "normal", sin nada más encima). En su lugar el control de
    volumen se reubica solo, siguiendo el estado del juego:
      - Mientras se ve la pantalla de instrucciones/selección/fin de
@@ -27,36 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const esTactil = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-    if (!esTactil) {
-      // ── Escritorio: insignia sobre el botón de pausa + ventana emergente ──
-      volumeGroup.classList.add('volume-popover');
-
-      const badge = document.createElement('span');
-      badge.className = 'pause-volume-badge';
-      badge.setAttribute('aria-label', 'Volumen de la música');
-      badge.setAttribute('role', 'button');
-      badge.textContent = '🔊';
-      pauseBtn.appendChild(badge);
-
-      const closePopover = () => volumeGroup.classList.remove('is-open');
-
-      badge.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        volumeGroup.classList.toggle('is-open');
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!volumeGroup.classList.contains('is-open')) return;
-        if (volumeGroup.contains(e.target) || badge.contains(e.target)) return;
-        closePopover();
-      });
-
-      // Al pausar/reanudar desde el propio botón, cerramos el popover
-      // para no dejarlo abierto tapando el juego.
-      pauseBtn.addEventListener('click', closePopover);
-      return;
-    }
+    // ── Escritorio: el control de volumen se deja como está en el HTML,
+    // visible siempre dentro de la barra de controles (junto a pausa y
+    // pantalla completa), como cualquier otro botón del menú. ──
+    if (!esTactil) return;
 
     // ── Celular: reubicar el control según el contexto del juego ──
     const gameId = pauseBtn.id.replace('pauseBtn-', '');
