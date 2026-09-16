@@ -82,16 +82,6 @@
   50% { transform: translate(20px, -20px) scale(1.05); }
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-}
-
 .games-section {
   position: relative;
   padding: 3.5rem 1rem 5rem;
@@ -122,97 +112,6 @@
     radial-gradient(circle at 20% 30%, rgba(190,142,86,.16) 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(74,94,194,.15) 0%, transparent 40%),
     radial-gradient(circle at 50% 0%, rgba(47,182,221,.12) 0%, transparent 50%);
-}
-
-/* ── TABS DE JUEGOS ── */
-.game-tabs-container {
-  position: relative;
-  z-index: 2;
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 85vw; /* Alineado al 85% del ancho de la pantalla */
-}
-
-.game-tabs {
-  display: flex;
-  gap: 0;
-  border-radius: var(--r-md) var(--r-md) 0 0;
-  background: var(--cream);
-  padding: 0.5rem;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0,0,0,.2);
-}
-
-.game-tab-btn {
-  flex: 1;
-  padding: 1rem 1.5rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
-  background: transparent;
-  color: rgba(17,48,104,.6);
-  cursor: pointer;
-  transition: all .3s ease;
-  border-radius: var(--r-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .6rem;
-  position: relative;
-  z-index: 2;
-}
-
-.game-tab-btn:hover {
-  background: rgba(17,48,104,.1);
-  color: var(--navy);
-}
-
-.game-tab-btn.active {
-  color: var(--white);
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-  box-shadow: 0 4px 12px rgba(17,48,104,.3);
-}
-
-.game-tab-btn .tab-icon {
-  font-size: 1.3rem;
-  display: inline-flex;
-  align-items: center;
-}
-
-.game-tab-btn .tab-text {
-  font-size: 0.95rem;
-}
-
-.tab-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-light));
-  border-radius: 3px 3px 0 0;
-  transition: all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 1;
-}
-
-/* ── CONTENEDOR DE JUEGOS AL 85% ── */
-.games-container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 85vw; /* Hace que el juego use el 85% del ancho de pantalla */
-}
-
-.game-content {
-  display: none;
-  opacity: 0;
-  animation: slideOut .3s ease forwards;
-}
-
-.game-content.active {
-  display: block;
-  opacity: 1;
-  animation: slideIn .4s ease forwards;
 }
 
 .game-panel {
@@ -372,33 +271,6 @@ canvas {
 .icon-btn:hover { background: var(--navy); transform: scale(1.08); }
 .icon-btn svg { width: 18px; height: 18px; }
 
-/* El volumen ya no vive suelto junto a pausa/pantalla-completa (ocupaba
-   espacio fijo en el flotante de controles en todas las pantallas). Ahora
-   se "guarda" dentro del propio botón de pausa: una insignia de bocina
-   sobre el botón y una ventana emergente que se abre al tocarla/clickearla
-   (ver juegos-mobile-controls.js, que arma este comportamiento sin
-   distinguir tamaño de pantalla). */
-.pause-volume-badge {
-  /* Antes medía 15x15px: apuntarle con precisión (sobre todo con mouse,
-     en un círculo tan chico pegado al borde del botón) costaba mucho y
-     a veces el clic caía justo afuera y no pasaba nada. La agrandamos
-     bastante para que sea un blanco fácil de acertar. */
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--gold-hover);
-  border: 2px solid var(--white);
-  font-size: .68rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
 .volume-group {
   display: flex;
   align-items: center;
@@ -427,25 +299,6 @@ canvas {
   border-radius: 999px;
   background: rgba(255,255,255,.55);
 }
-
-.volume-group.volume-popover {
-  position: absolute;
-  top: 44px;
-  left: 0;
-  z-index: 25;
-  width: auto;
-  opacity: 0;
-  transform: translateY(-6px) scale(.92);
-  transform-origin: top left;
-  pointer-events: none;
-  transition: opacity .18s ease, transform .18s ease;
-}
-.volume-group.volume-popover.is-open {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-.volume-group.volume-popover input[type="range"] { width: 90px; }
 
 /* ── Celular: el volumen se reubica solo (ver juegos-mobile-controls.js) ── */
 .volume-group.volume-hidden { display: none; }
@@ -592,7 +445,7 @@ canvas {
   justify-content: center;
   gap: 14px;
   background: rgba(5, 5, 10, 0.96);
-  color: #fff;
+  color: var(--white);
   text-align: center;
   padding: 24px;
 }
@@ -857,26 +710,6 @@ canvas {
   font-style: italic;
 }
 
-.controls-info {
-  background: rgba(0,0,0,.05);
-  border-left: 3px solid var(--gold);
-  padding: .7rem 1rem;
-  margin-top: 1rem;
-  border-radius: var(--r-sm);
-  text-align: left;
-  font-family: var(--font-body);
-  font-size: .75rem;
-  color: #333;
-}
-
-.controls-info strong {
-  color: var(--navy);
-  display: block;
-  margin-bottom: 0.4rem;
-}
-
-.controls-info p { margin: 0.3rem 0; }
-
 .overlay-card .btn-primary {
   font-size: 1rem;
   padding: .8rem 2.2rem;
@@ -964,7 +797,7 @@ canvas {
 .tutorial-bubble__tag.good { color: #5fd88a; }
 .tutorial-bubble p {
   margin: 0;
-  color: #fff;
+  color: var(--white);
   font-family: var(--font-body);
   font-size: .88rem;
   line-height: 1.4;
@@ -1001,10 +834,6 @@ canvas {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .game-tabs-container, .games-container {
-    max-width: 95vw;
-  }
-
   /* Modal más grande en celular: usa casi todo el ancho disponible
      en lugar del 85vw pensado para escritorio/tablet. */
   .game-modal__content {
@@ -1015,11 +844,6 @@ canvas {
     height: 76vh; /* Más alto en celular: aprovecha el formato vertical de la pantalla */
     min-height: 440px;
   }
-
-  .game-tabs { padding: 0.3rem; }
-  .game-tab-btn { padding: 0.8rem 1rem; font-size: 0.9rem; gap: 0.4rem; }
-  .game-tab-btn .tab-text { font-size: 0.85rem; }
-  .game-tab-btn .tab-icon { font-size: 1.1rem; }
 
   /* Interfaz general del juego más compacta en celular, y menos padding
      alrededor del canvas para que el juego en sí ocupe más ancho de
@@ -1041,7 +865,7 @@ canvas {
      blanco casi opaco) para que el juego siga viéndose detrás.
      Ver #hud-coasters más abajo para lo que sí es específico de ese
      juego (las barras de progreso). */
-  .hud--overlay { top: .4rem; left: .4rem; right: 74px; gap: .25rem; max-width: none; }
+  .hud--overlay { top: .4rem; left: .4rem; right: 102px; gap: .25rem; max-width: none; }
   .hud--overlay .hud-item {
     background: rgba(17,48,104,.38);
     min-width: 50px;
@@ -1066,9 +890,17 @@ canvas {
      del fondo para que se note que hay controles ahí sin esconder la
      acción detrás. */
   .canvas-controls { top: .5rem; right: .5rem; gap: .4rem; }
-  .icon-btn { width: 32px; height: 32px; font-size: .85rem; background: rgba(17,48,104,.42); }
-  .icon-btn svg { width: 15px; height: 15px; }
+  /* En celular el dedo necesita un blanco más grande que el mouse, no más
+     chico: antes estos botones se achicaban a 32px (y a 30px todavía más
+     abajo, @media max-width:600px) justo en la pantalla donde más cuesta
+     acertarles. Se agrandan a 40px (por encima del mínimo recomendado de
+     ~40-44px) y esa reducción posterior se elimina. */
+  .icon-btn { width: 40px; height: 40px; font-size: 1rem; background: rgba(17,48,104,.42); }
+  .icon-btn svg { width: 17px; height: 17px; }
   .volume-group { background: rgba(17,48,104,.42); }
+  /* El "agarradero" de la barra de volumen medía 15px: para arrastrarlo
+     con el dedo (no con la punta fina de un cursor) se agranda un poco. */
+  .volume-group input[type="range"]::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -7px; }
   .torito-hud-bar-container { background: rgba(14,10,24,.42); }
   .torito-meter-track { background: rgba(0,0,0,.35); }
 
@@ -1108,16 +940,44 @@ canvas {
   .game-panel { padding: .8rem .8rem 1rem; }
 }
 
+/* Celular rotado a horizontal: el ancho ya no entra en el breakpoint
+   "mobile" de arriba (que es por ancho, @media max-width:768px — un
+   celular apaisado suele medir 700-900px de ancho), así que sin esto la
+   tarjeta de instrucciones/dificultad/reglas usaba el tamaño de escritorio
+   en una pantalla de apenas ~360-430px de alto: el texto no entraba y no
+   había forma de hacer scroll para verlo completo. Acá se achica todo un
+   poco más y se le da scroll propio a la tarjeta como respaldo. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .overlay-card {
+    padding: .65rem .9rem;
+    max-height: 94%;
+    overflow-y: auto;
+  }
+  .overlay-tag { font-size: .58rem; padding: .2rem .55rem; margin-bottom: .3rem; }
+  .overlay-card h3 { font-size: .92rem; margin-bottom: .25rem; }
+  .overlay-card p { font-size: .68rem; margin-bottom: .4rem; line-height: 1.35; }
+  .overlay-score { font-size: 1.25rem; }
+  .overlay-best-score { font-size: .68rem; }
+  .rules-title { font-size: .6rem; margin-bottom: .25rem; }
+  .rules-list { font-size: .68rem; }
+  .rules-list li { margin-bottom: .15rem; }
+
+  .difficulty-buttons, .mode-buttons { gap: .4rem; }
+  .difficulty-btn { padding: .4rem .6rem; font-size: .68rem; }
+  .mode-btn { padding: .5rem .7rem; font-size: .72rem; }
+  .difficulty-desc { font-size: .6rem; min-height: 0; }
+
+  .overlay-card .btn-primary { font-size: .72rem; padding: .42rem 1rem; }
+  .overlay-card--pause .btn-primary { font-size: .66rem; padding: .32rem .85rem; }
+  .btn-tutorial { font-size: .66rem; padding: .38rem .85rem; }
+  .btn-back-selector { font-size: .64rem; padding: .22rem .55rem; margin-bottom: .4rem; }
+}
+
 @media (max-width: 600px) {
   .game-panel { padding: .7rem .5rem .9rem; }
-  .hud--overlay { right: 78px; max-width: none; gap: .3rem; }
+  .hud--overlay { right: 102px; max-width: none; gap: .3rem; }
   .hud--overlay .hud-item { min-width: 56px; padding: .26rem .45rem; font-size: .64rem; }
   .hud--overlay .hud-item b { font-size: .88rem; }
-  .icon-btn { width: 30px; height: 30px; }
-  
-  .game-tabs { flex-wrap: wrap; }
-  .game-tab-btn { flex-basis: 48%; padding: 0.7rem 0.8rem; font-size: 0.8rem; }
-  .game-tab-btn .tab-text { font-size: 0.75rem; }
 
   .difficulty-buttons, .mode-buttons { flex-direction: column; gap: .5rem; }
   .difficulty-btn, .mode-btn { min-width: auto; width: 100%; padding: .55rem .7rem; font-size: .72rem; }
@@ -1300,8 +1160,8 @@ canvas {
   z-index: 30;
   background: rgba(11, 26, 51, 0.55);
   border-radius: 50%;
-  width: 2.4rem;
-  height: 2.4rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1396,25 +1256,6 @@ canvas {
   }
 }
 
-/* --- ESTILOS DEL JUEGO ESCONDELERO --- */
-.hud-item .encantados-round-dots {
-  display: inline-flex;
-  gap: 4px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-.encantados-round-dots .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  border: 1px solid rgba(255,255,255,0.4);
-}
-.encantados-round-dots .dot.found {
-  background: #00e676;
-  border-color: #00e676;
-}
-
 /* --- ESTILOS DEL JUEGO DE CANICAS --- */
 #hud-elotes.hud--overlay {
   gap: .22rem;
@@ -1425,17 +1266,6 @@ canvas {
 }
 #hud-elotes .hud-item span { font-size: .52rem; margin-bottom: .08rem; }
 #hud-elotes .hud-item b { font-size: .8rem; }
-
-/* --- ESTILOS DEL JUEGO ELOTES Y OLÉ --- */
-.hud-item .elotes-combo {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: rgba(255, 153, 68, 0.2);
-  border: 1px solid #FF9944;
-  font-size: 0.85em;
-}
 
 /* 3. ¡EL HOVER CON CSS! */
 /* Cuando el usuario pasa el mouse sobre la TARJETA, el EMOJI reacciona */
@@ -1508,12 +1338,12 @@ canvas {
   align-items: center;
   gap: 3px;
   background: linear-gradient(135deg, #ff007f, #ff3d00);
-  border: 1.5px solid #ffffff;
+  border: 1.5px solid var(--white);
   border-radius: 12px;
   padding: 1px 6px;
   font-weight: 800;
   font-size: 0.66rem;
-  color: #fff;
+  color: var(--white);
   box-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
 }
 
@@ -1535,42 +1365,6 @@ canvas {
   pointer-events: none;
   white-space: nowrap;
   transform-origin: center center;
-}
-
-/* Touch controls en pantalla */
-.torito-touch-controls {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  display: flex;
-  justify-content: space-between;
-  pointer-events: none;
-  z-index: 12;
-}
-
-.torito-touch-btn {
-  pointer-events: auto;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: rgba(22, 16, 38, 0.75);
-  border: 2px solid rgba(255, 215, 0, 0.6);
-  color: #ffffff;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  transition: transform 0.1s, background 0.1s;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.torito-touch-btn:active {
-  transform: scale(0.92);
-  background: rgba(255, 215, 0, 0.3);
 }
 
 @media (min-width: 769px) {
@@ -1613,15 +1407,15 @@ canvas {
 
 .mica-hud-badge.has-mica {
   background: linear-gradient(135deg, #d50000, #ff5252);
-  border: 1.5px solid #ffffff;
-  color: #ffffff;
+  border: 1.5px solid var(--white);
+  color: var(--white);
   animation: pulseMica 0.8s infinite alternate;
 }
 
 .mica-hud-badge.safe {
   background: linear-gradient(135deg, #00796b, #00e676);
-  border: 1.5px solid #ffffff;
-  color: #ffffff;
+  border: 1.5px solid var(--white);
+  color: var(--white);
 }
 
 @keyframes pulseMica {

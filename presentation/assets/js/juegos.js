@@ -5646,7 +5646,6 @@ function spawnEntities() {
   let combo = 1;
   let comboTimer = 0;
   let maxCombo = 1;
-  let genteAnimada = 0;
   let silbadoresRecogidos = 0;
   let cuetillosRecogidos = 0;
 
@@ -6041,8 +6040,6 @@ function spawnEntities() {
     if (window.gsap) {
       gsap.fromTo(canvas, { x: -4 }, { x: 4, duration: 0.04, repeat: 4, yoyo: true, onComplete: () => gsap.set(canvas, { x: 0 }) });
     }
-    // Animate all nearby spectators instantly
-    animateNearbySpectators(toritoBody.position.x, toritoY, 160);
   }
 
   // ================= HUD & MUSIC =================
@@ -6150,7 +6147,6 @@ function spawnEntities() {
     combo = 1;
     comboTimer = 0;
     maxCombo = 1;
-    genteAnimada = 0;
     silbadoresRecogidos = 0;
     cuetillosRecogidos = 0;
     turboTimer = 0;
@@ -6162,7 +6158,7 @@ function spawnEntities() {
     sparks = [];
 
     Composite.allBodies(world).forEach(b => {
-      if(b.label === 'carreta' || b.label === 'persona' || b.label === 'silbador' || b.label === 'cuetillo' || b.label === 'pupusa' || b.label === 'agua') {
+      if(b.label === 'carreta' || b.label === 'silbador' || b.label === 'cuetillo' || b.label === 'pupusa' || b.label === 'agua') {
         World.remove(world, b);
       }
     });
@@ -6173,7 +6169,7 @@ function spawnEntities() {
     const laneX = lanePositions[lane];
     const bodies = Composite.allBodies(world);
     for (const b of bodies) {
-      if (['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
+      if (['carreta', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
         if (Math.abs(b.position.x - laneX) < 32 && b.position.y < threshold) {
           return true;
         }
@@ -6182,21 +6178,7 @@ function spawnEntities() {
     return false;
   }
 
-  // 1. Spawning Spectators / Dancers (Gente que se anima)
-  function spawnPersona(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 14, {
-      restitution: 0.6, friction: 0.25, frictionAir: 0.015, label: 'persona'
-    });
-    body.isCheering = false;
-    body.cheerTimer = 0;
-    body.personType = Math.random() > 0.5 ? 'volcanena' : 'campesino';
-    body.outfitColor = body.personType === 'volcanena'
-      ? ['#e63946', '#ff007f', '#3a86c8', '#2fbf9f', '#7d3ac1'][Math.floor(Math.random() * 5)]
-      : '#f8f4e6';
-    World.add(world, body);
-  }
-
-  // 2. Spawning Silbadores (Whistling rockets that recharge big energy & give speed)
+  // 1. Spawning Silbadores (Whistling rockets that recharge big energy & give speed)
   function spawnSilbador(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 12, {
       restitution: 0.7, friction: 0.1, isSensor: true, label: 'silbador'
@@ -6204,7 +6186,7 @@ function spawnEntities() {
     World.add(world, body);
   }
 
-  // 3. Spawning Cuetillos (Firecrackers that recharge energy & burst sparks)
+  // 2. Spawning Cuetillos (Firecrackers that recharge energy & burst sparks)
   function spawnCuetillo(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 10, {
       restitution: 0.6, friction: 0.2, isSensor: true, label: 'cuetillo'
@@ -6212,7 +6194,7 @@ function spawnEntities() {
     World.add(world, body);
   }
 
-  // 4. Spawning Pupusas (Bonus food pickup)
+  // 3. Spawning Pupusas (Bonus food pickup)
   function spawnPupusa(lane){
     const body = Bodies.circle(lanePositions[lane], -40, 11, {
       restitution: 0.5, friction: 0.2, isSensor: true, label: 'pupusa'
@@ -6220,7 +6202,7 @@ function spawnEntities() {
     World.add(world, body);
   }
 
-  // 5. Spawning Heavy Obstacles (Carretas) & Hazards (Baldes de agua)
+  // 4. Spawning Heavy Obstacles (Carretas) & Hazards (Baldes de agua)
   function spawnCarreta(lane){
     const body = Bodies.rectangle(lanePositions[lane], -40, 44, 24, {
       restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
@@ -6252,12 +6234,6 @@ function spawnEntities() {
     const config = gameConfig[gameDifficulty];
     let lane = Math.floor(Math.random() * lanesCount);
 
-    // High spawn rate for people so you can pass between them and cheer them!
-    if (!isLaneOccupied(lane) && Math.random() < 0.014 && countBodies('persona') < 5) {
-      spawnPersona(lane);
-    }
-
-    lane = Math.floor(Math.random() * lanesCount);
     // Silbadores (Rocket power)
     if (!isLaneOccupied(lane) && Math.random() < 0.009 && countBodies('silbador') < 2) {
       spawnSilbador(lane);
@@ -6281,66 +6257,30 @@ function spawnEntities() {
       spawnCarreta(lane);
     }
 
+    lane = Math.floor(Math.random() * lanesCount);
+    // Balde de agua obstacle
+    if (!isLaneOccupied(lane) && Math.random() < (gameDifficulty === 'hard' ? 0.007 : 0.004) && countBodies('agua') < 2) {
+      spawnAgua(lane);
+    }
+
     // Puestos along sidewalks
     if(Math.random() < 0.008 && stalls.length < 3) spawnStall();
   }
 
-  // ================= ANIMATING PEOPLE & COLLISIONS =================
+  // ================= COLLISIONS =================
   const toRemove = new Set();
-
-  function animateNearbySpectators(x, y, radius = 90) {
-    Composite.allBodies(world).forEach(b => {
-      if (b.label === 'persona' && !b.isCheering) {
-        const dx = b.position.x - x;
-        const dy = b.position.y - y;
-        if (Math.sqrt(dx * dx + dy * dy) < radius) {
-          b.isCheering = true;
-          b.cheerTimer = 80;
-          genteAnimada++;
-          score += 100 * combo;
-          combo = Math.min(15, combo + 1);
-          comboTimer = 160;
-          energy = Math.min(100, energy + 2.5); // Cheering people restores a little energy!
-          playSound('cheer');
-          createFireworkBurst(b.position.x, b.position.y, 10);
-          if (combo % 3 === 0) showSlangCallout(null, b.position.x, b.position.y);
-        }
-      }
-    });
-  }
 
   Events.on(engine, 'collisionStart', (evt) => {
     const config = gameConfig[gameDifficulty];
     for(const pair of evt.pairs){
       const bodies = [pair.bodyA, pair.bodyB];
       const toritoHit = bodies.find(b => b.label === 'torito');
-      const other = bodies.find(b => ['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label));
+      const other = bodies.find(b => ['carreta', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label));
       if(!toritoHit || !other || other.hit) continue;
 
       other.hit = true;
 
-      // 1. PERSONA: Animar a la gente alegremente
-      if(other.label === 'persona') {
-        other.isCheering = true;
-        other.cheerTimer = 90;
-        genteAnimada++;
-        score += 120 * combo;
-        combo = Math.min(15, combo + 1);
-        comboTimer = 180;
-        energy = Math.min(100, energy + 4);
-
-        // Apply playful push force
-        const angle = (other.position.x > toritoBody.position.x) ? 0.3 : -0.3;
-        Body.applyForce(other, other.position, { x: angle * 0.02, y: -0.015 });
-        Body.setAngularVelocity(other, angle * 0.2);
-
-        playSound('cheer');
-        createFireworkBurst(other.position.x, other.position.y, 14);
-        showSlangCallout(jt('jue.card6.calloutOle', '¡Olé Torito! 🎉'), other.position.x, other.position.y);
-        continue;
-      }
-
-      // 2. SILBADOR: Ganar energía y activar Turbo Silbador
+      // 1. SILBADOR: Ganar energía y activar Turbo Silbador
       if(other.label === 'silbador') {
         energy = Math.min(100, energy + 24);
         score += 250 * combo;
@@ -6355,7 +6295,7 @@ function spawnEntities() {
         continue;
       }
 
-      // 3. CUETILLO: Ganar energía y lluvia de chispas
+      // 2. CUETILLO: Ganar energía y lluvia de chispas
       if(other.label === 'cuetillo') {
         energy = Math.min(100, energy + 16);
         score += 180 * combo;
@@ -6364,12 +6304,11 @@ function spawnEntities() {
         playSound('pop');
         createFireworkBurst(other.position.x, other.position.y, 20);
         showSlangCallout(jt('jue.card6.calloutCuetillo', '🧨 ¡CUETILLO!'), other.position.x, other.position.y);
-        animateNearbySpectators(other.position.x, other.position.y, 130);
         toRemove.add(other);
         continue;
       }
 
-      // 4. PUPUSA: Deliciosa recarga de energía
+      // 3. PUPUSA: Deliciosa recarga de energía
       if(other.label === 'pupusa') {
         energy = Math.min(100, energy + 28);
         score += 300 * combo;
@@ -6380,7 +6319,7 @@ function spawnEntities() {
         continue;
       }
 
-      // 5. CARRETA / OBSTACULO: Choque que drena energía
+      // 4. CARRETA / OBSTACULO: Choque que drena energía
       if(other.label === 'carreta') {
         const kickX = (Math.random() - 0.5) * 0.045;
         Body.applyForce(other, other.position, { x: kickX, y: -0.02 });
@@ -6395,7 +6334,7 @@ function spawnEntities() {
         continue;
       }
 
-      // 6. AGUA: Balde de agua que apaga cohetes
+      // 5. AGUA: Balde de agua que apaga cohetes
       if(other.label === 'agua') {
         energy = Math.max(0, energy - 18);
         combo = 1;
@@ -6442,7 +6381,6 @@ function spawnEntities() {
 
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'carreta') drawCarreta(b);
-      else if(b.label === 'persona') drawPersona(b);
       else if(b.label === 'silbador') drawSilbador(b);
       else if(b.label === 'cuetillo') drawCuetillo(b);
       else if(b.label === 'pupusa') drawPupusa(b);
@@ -6483,9 +6421,6 @@ function spawnEntities() {
       if (turboTimer <= 0) isTurboActive = false;
     }
 
-    // Auto-animate people if passing right next to them
-    animateNearbySpectators(toritoBody.position.x, toritoY, isTurboActive ? 120 : 65);
-
     // Destination Arrival Check
     if (distance >= targetDistance && !isArriving) {
       isArriving = true;
@@ -6517,7 +6452,7 @@ function spawnEntities() {
 
     // Update Matter bodies
     Composite.allBodies(world).forEach(b => {
-      if(['carreta', 'persona', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
+      if(['carreta', 'silbador', 'cuetillo', 'pupusa', 'agua'].includes(b.label)) {
         Body.setVelocity(b, { x: b.velocity.x * 0.95, y: currentSpeed });
         if(b.position.y > canvas.height + 70) World.remove(world, b);
       }
@@ -6792,71 +6727,6 @@ function spawnEntities() {
     }
   }
 
-  function drawPersona(b){
-    ctx.save();
-    ctx.translate(b.position.x, b.position.y);
-    ctx.rotate(b.angle);
-
-    ctx.fillStyle = 'rgba(0,0,0,.2)';
-    ctx.beginPath();
-    ctx.ellipse(0, 18, 12, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    const sway = b.isCheering ? Math.sin(Date.now() / 80) * 4 : 0;
-
-    if (b.personType === 'volcanena') {
-      // Traditional Volcaneña Dress (falda floreada)
-      ctx.fillStyle = b.outfitColor;
-      ctx.beginPath();
-      ctx.ellipse(0, 2 + sway, 16, 12, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Blouse
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.roundRect(-7, -10 + sway, 14, 12, 3);
-      ctx.fill();
-
-      // Head & Flowers
-      ctx.fillStyle = '#e8b385';
-      ctx.beginPath();
-      ctx.arc(0, -16 + sway, 6, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#ff007f';
-      ctx.beginPath();
-      ctx.arc(-4, -20 + sway, 2.5, 0, Math.PI * 2);
-      ctx.arc(4, -20 + sway, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      // Traditional Campesino (Manta & Sombrero)
-      ctx.fillStyle = '#f8f4e6';
-      ctx.beginPath();
-      ctx.roundRect(-8, -4 + sway, 16, 18, 4);
-      ctx.fill();
-
-      // Red sash
-      ctx.fillStyle = '#d32f2f';
-      ctx.fillRect(-8, 2 + sway, 16, 3);
-
-      // Straw Hat
-      ctx.fillStyle = '#e0c068';
-      ctx.beginPath();
-      ctx.ellipse(0, -14 + sway, 16, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Reaction Balloon when cheered!
-    if (b.isCheering) {
-      ctx.fillStyle = '#ffd700';
-      ctx.font = 'bold 13px Fredoka, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(jt('jue.card6.oleShort', '¡Olé! 🎉'), 0, -26);
-    }
-
-    ctx.restore();
-  }
-
   function drawSilbador(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
@@ -7076,8 +6946,8 @@ function spawnEntities() {
       msg = jt('jue.card6.end.winMsg', '¡Qué gran corrida! El Torito Pinto llegó triunfante a <b>{dest}</b> y alegró a todo el pueblo salvadoreño.').replace('{dest}', destinationName);
     } else {
       title = jt('jue.card6.end.tiredTitle', '🧨 ¡El torito se quedó sin cohetes!');
-      msg = jt('jue.card6.end.tiredMsg', 'Recorriste <b>{dist}m</b> y animaste a <b>{n} personas</b>. ¡Recogé más silbadores y cuetillos para llegar al atrio la próxima vez!')
-        .replace('{dist}', Math.round(distance)).replace('{n}', genteAnimada);
+      msg = jt('jue.card6.end.tiredMsg', 'Recorriste <b>{dist}m</b>. ¡Recogé más silbadores y cuetillos para llegar al atrio la próxima vez!')
+        .replace('{dist}', Math.round(distance));
     }
 
     showOverlay(`
@@ -7087,7 +6957,7 @@ function spawnEntities() {
       <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
         <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">${jt('jue.card6.stat.distance', 'Distancia')}</span></div>
-        <div><b>${genteAnimada}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.animated', 'Animados')}</span></div>
+        <div><b>${silbadoresRecogidos + cuetillosRecogidos}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.rockets', 'Cohetes')}</span></div>
         <div><b>x${maxCombo}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.maxCombo', 'Max Combo')}</span></div>
       </div>
       <p class="overlay-best-score" id="t-best-score"></p>
@@ -7179,7 +7049,7 @@ function spawnEntities() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
       <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
-      <p>${jt('jue.card6.intro', 'Corré por las calles, animá a la gente y recogé cohetes para llegar a la iglesia.')}</p>
+      <p>${jt('jue.card6.intro', 'Corré por las calles, esquivá los obstáculos y recogé cohetes para llegar a la iglesia.')}</p>
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
@@ -7187,7 +7057,7 @@ function spawnEntities() {
         ` : `
         <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', 'A/D o ⬅️➡️: cambiar de carril · Espacio: ráfaga de chispas')}</li>
         `}
-        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', 'Animá gente y recogé silbadores/cuetillos → combo y energía')}</li>
+        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', 'Recogé silbadores y cuetillos seguidos → combo y energía')}</li>
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', 'Esquivá carretas y baldes de agua')}</li>
       </ul>
       <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
