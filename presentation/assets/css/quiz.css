@@ -1258,6 +1258,11 @@ body.quiz-modal-open {
   border: 1px solid rgba(190, 142, 86, 0.15);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
+[data-theme="light"] .quiz-results {
+  background: #ffffff;
+  border-color: rgba(17,48,104,.14);
+  box-shadow: 0 8px 24px rgba(17,48,104,.1);
+}
 
 .quiz-results.show {
   display: block;
@@ -1351,6 +1356,7 @@ body.quiz-modal-open {
   line-height: 1.7;
   margin-bottom: 2rem;
 }
+[data-theme="light"] .quiz-results__message { color: rgba(36,33,29,.75); }
 
 .quiz-results__best-score {
   font-size: 0.95rem;
