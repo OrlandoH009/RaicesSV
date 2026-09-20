@@ -729,7 +729,7 @@ function applyTheme(theme) {
    desvanece, como una gota de tinte esparciéndose en agua.
    ============================================================ */
 // Deben mantenerse sincronizados con --bg-body en global.css (:root y [data-theme="light"])
-const THEME_LIQUID_RGB = { dark: '29,25,25', light: '250,246,238' };
+const THEME_LIQUID_RGB = { dark: '20,18,30', light: '250,246,238' };
 
 function runThemeTransition(newTheme, originEvent) {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
