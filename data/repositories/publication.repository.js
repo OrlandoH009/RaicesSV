@@ -45,35 +45,6 @@ const findByLocation = (location) => {
     });
 };
 
-// Ubicaciones ya usadas por otras publicaciones que coinciden con el texto
-// buscado. Esto es lo que permite encontrar lugares que no están en
-// Nominatim/OpenStreetMap (una pupusería, un negocio pequeño, etc.): una vez
-// que alguien lo publicó una vez con su pin en el mapa, queda disponible acá
-// para que el resto de usuarios lo encuentre por nombre sin tener que
-// volver a ubicarlo a mano.
-const searchLocations = (query, limit) => {
-    const safeLimit = Number.isInteger(limit) && limit > 0 && limit <= 20 ? limit : 8;
-    return new Promise((resolve, reject) => {
-        db.query(
-            // Los nombres que empiezan igual que lo buscado ("Pupusería...")
-            // van antes que los que solo lo contienen en el medio, y dentro
-            // de cada grupo se prioriza lo más reciente.
-            `SELECT location, lat, lng, MAX(created_at) AS last_used,
-                    MIN(CASE WHEN location LIKE ? THEN 0 ELSE 1 END) AS match_rank
-             FROM publications
-             WHERE location LIKE ? AND lat IS NOT NULL AND lng IS NOT NULL
-             GROUP BY location, lat, lng
-             ORDER BY match_rank ASC, last_used DESC
-             LIMIT ${safeLimit}`,
-            [`${query}%`, `%${query}%`],
-            (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            }
-        );
-    });
-};
-
 const findById = (id_publication) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -129,7 +100,6 @@ const deleteById = (id_publication) => {
 module.exports = {
     findAll,
     findByLocation,
-    searchLocations,
     findById,
     create,
     updateById,
