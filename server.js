@@ -60,19 +60,15 @@ app.use(session({
 
 app.use(verifyOrigin);
 
-// Solo se sirven como estáticos los recursos públicos (css/js/imágenes/favicons).
-// Las vistas HTML NUNCA se sirven aquí.
-// maxAge:0 + ETag (activado por defecto) fuerza al navegador a revalidar en
-// cada carga en vez de reusar una copia local por días: así un deploy con un
-// JS/CSS corregido se ve de inmediato (sin pedir un hard refresh), y si el
-// archivo no cambió el servidor responde 304 sin volver a enviar el contenido.
+// Sirve los estaticos (css, js, imagenes) pero las vistas html no van por aca
+// Ponemos maxAge 0 para que no cachee a muerte y los cambios suban rapido
 app.use('/assets', express.static(path.join(__dirname, 'presentation', 'assets'), {
     maxAge: 0
 }));
 
 const viewsDir = path.join(__dirname, 'presentation', 'views');
 const sendView = (name) => (req, res) => {
-    // Evita que el navegador reutilice una versión previamente renderizada de esta vista.
+    // Matamos la cache para que la raza siempre vea la ultima version
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
@@ -87,7 +83,7 @@ const sendView = (name) => (req, res) => {
     });
 };
 
-/* ───────────── Páginas públicas ───────────── */
+// --- Rutas Publicas ---
 
 app.get(['/', '/index', '/index.html', '/views/index.html'], sendView('index.html'));
 
@@ -154,7 +150,7 @@ app.post('/logout', rateLimit({ windowMs: 15 * 60 * 1000, max: 30 }), (req, res)
     });
 });
 
-/* ───────────── Páginas protegidas (requieren sesión) ───────────── */
+// --- Rutas que requieren estar logueado ---
 const protectedViews = [
     'mapa.html',
     'calendario.html',
@@ -194,7 +190,7 @@ app.get(
     sendView('apelar.html')
 );
 
-/* ───────────── Rutas de autenticación (con límite de intentos) ───────────── */
+// --- Autenticacion (ojo con el limite de intentos para no saturar) ---
 
 app.use(
     ['/login', '/register'],

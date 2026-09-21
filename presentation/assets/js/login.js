@@ -76,13 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const tl = gsap.timeline({
         defaults: { ease: 'power3.out' },
         onComplete: () => {
-          // Red de seguridad: GSAP usa .from() para animar estos elementos,
-          // lo que les deja opacity:0 inline como estado de partida. Si por
-          // cualquier motivo la timeline no llega a completar del todo
-          // (pestaña en segundo plano, timing de red, etc.), esa opacidad
-          // inline se queda congelada y el contenido desaparece aunque su
-          // color/tamaño/fuente estén perfectamente bien. Al terminar,
-          // limpiamos cualquier opacity inline que GSAP haya dejado.
+          // Limpiamos los estilos inline que GSAP le mete (como opacity: 0).
+          // Si el usuario cambia de pestaña a medio animar, GSAP se pausa y deja
+          // todo invisible, así que mejor quitarle el estilo manual al terminar.
           gsap.set([card, logoImg, ...rest].filter(Boolean), { clearProps: 'opacity,transform' });
         }
       });
@@ -95,11 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       tl.from(rest, { opacity: 0, y: 22, duration: 0.55, stagger: 0.08 }, '-=0.35');
 
-      // Red de seguridad independiente de GSAP: si por cualquier motivo la
-      // timeline de entrada no llega a disparar onComplete (pestaña en
-      // segundo plano, timing de red al cargar, o cualquier otro corte),
-      // este timeout garantiza que el título, subtítulo y demás contenido
-      // de la tarjeta terminen visibles sí o sí, sin depender de GSAP.
+      // Timeout salvavidas: si GSAP se traba (por red o porque la pestaña
+      // quedó de fondo) forzamos a que todo aparezca después de 1.5s sí o sí.
       window.setTimeout(() => {
         [card, logoImg, ...rest].filter(Boolean).forEach((el) => {
           el.style.opacity = '';
@@ -228,13 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         const data = await response.json();
 
-        // ============================================================
-        // 🔥 PASO 3: ACTUALIZAR ESTADO PARA EL CHATBOT 🔥
-        // ============================================================
+        // Le avisamos al chatbot y al resto del sistema que ya estamos logueados
         window.USER_AUTH_STATE = 'autenticado';
         localStorage.setItem('userAuthState', 'autenticado');
         document.dispatchEvent(new CustomEvent('authchange'));
-        // ============================================================
 
         window.location.href = data.redirect || '/';
         return;
@@ -248,9 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Pasada final de traducción: garantiza que el botón de mostrar/ocultar
-  // contraseña y cualquier otro nodo creado dinámicamente en este handler
-  // queden traducidos, sin depender del orden de carga de otros scripts.
+  // Pasadita final de traduccion para que el ojito de la contraseña
+  // y cualquier otra cosa inyectada por JS quede en el idioma correcto.
   if (window.SRi18n) {
     window.SRi18n.applyTranslations(window.SRi18n.getLang());
   }

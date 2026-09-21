@@ -566,6 +566,204 @@ canvas {
 
 .rules-list li { margin-bottom: .45rem; }
 
+/* ── Diagrama animado de controles ──
+   Aviso visual (no solo texto) de cómo se controla el juego, mostrado en
+   la pantalla de instrucciones antes de empezar: teclas o gestos táctiles
+   en loop, según el dispositivo (ver esTactilJuegos en juegos.js). */
+.controls-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  margin: .3rem 0 1rem;
+  padding: .8rem .6rem;
+  background: rgba(11,26,51,.05);
+  border: 1.5px dashed var(--navy);
+  border-radius: var(--r-sm);
+}
+
+.controls-diagram--split {
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.controls-diagram-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+}
+
+.controls-diagram-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .74rem;
+  color: var(--navy);
+  text-align: center;
+}
+
+/* Teclado animado: las teclas "laten" en secuencia para simular que se
+   están presionando, sin depender de que el usuario ya sepa leer WASD. */
+.control-keys-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+}
+
+.control-keys-row { display: flex; gap: .25rem; }
+
+.control-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0 .4rem;
+  background: var(--white);
+  border: 2px solid var(--navy);
+  border-bottom-width: 3px;
+  border-radius: .3rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .78rem;
+  color: var(--navy);
+  box-shadow: 0 2px 0 rgba(11,26,51,.25);
+  animation: keyPress 1.8s ease-in-out infinite;
+}
+
+.control-key--space { min-width: 4.5rem; font-size: .68rem; }
+
+.control-keys-row .control-key:nth-child(2) { animation-delay: .25s; }
+.control-keys-row .control-key:nth-child(3) { animation-delay: .5s; }
+.control-key--space { animation-delay: .75s; }
+
+@keyframes keyPress {
+  0%, 60%, 100% { transform: translateY(0); background: var(--white); box-shadow: 0 2px 0 rgba(11,26,51,.25); }
+  75% { transform: translateY(2px); background: var(--gold); box-shadow: 0 0 0 rgba(11,26,51,.25); }
+}
+
+/* Gestos táctiles animados (dedo/mouse en loop) */
+.control-touch, .control-mouse {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  height: 2.6rem;
+}
+
+.control-touch-finger, .control-mouse-body {
+  position: relative;
+  font-size: 1.4rem;
+  z-index: 2;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+}
+
+.control-mouse-body { font-size: 1.5rem; }
+
+/* Deslizar el dedo / mover el mouse horizontalmente */
+.control-touch-track, .control-mouse-track {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--navy) 0 6px, transparent 6px 12px);
+  opacity: .5;
+  transform: translateY(-50%);
+}
+
+.control-touch--drag-h .control-touch-finger,
+.control-mouse-body {
+  animation: dragSlideH 1.6s ease-in-out infinite;
+}
+
+@keyframes dragSlideH {
+  0%, 100% { transform: translateX(-1.3rem); }
+  50% { transform: translateX(1.3rem); }
+}
+
+/* Jalar y soltar (honda / tirador) */
+.control-touch--drag-shoot .control-touch-track {
+  left: 20%; right: 20%; top: 15%; bottom: 15%; height: auto;
+  background: none;
+  border: 2px dashed var(--navy);
+  border-radius: 50%;
+  opacity: .35;
+}
+.control-touch--drag-shoot .control-touch-finger {
+  animation: dragShoot 1.6s ease-in-out infinite;
+}
+@keyframes dragShoot {
+  0%, 15% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-.8rem, .6rem) scale(1); }
+  65% { transform: translate(.9rem, -.7rem) scale(1.15); }
+  85%, 100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Tocar (tap simple / doble toque) */
+.control-touch--tap .control-touch-ring {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  animation: tapRipple 1.4s ease-out infinite;
+}
+@keyframes tapRipple {
+  0% { transform: scale(.4); opacity: 1; }
+  70%, 100% { transform: scale(1.6); opacity: 0; }
+}
+.control-touch--tap .control-touch-finger { animation: tapBounce 1.4s ease-in-out infinite; }
+@keyframes tapBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  15% { transform: translateY(3px) scale(.92); }
+  30% { transform: translateY(0) scale(1); }
+}
+
+/* Joystick virtual: el "stick" recorre un círculo para mostrar que se
+   puede mover en cualquier dirección arrastrando el dedo. */
+.control-touch--joystick .control-touch-base {
+  position: absolute;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  opacity: .35;
+}
+.control-touch--joystick .control-touch-stick {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: var(--gold);
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  animation: joystickMove 2.4s linear infinite;
+}
+@keyframes joystickMove {
+  0%   { transform: translate(0, -.55rem); }
+  25%  { transform: translate(.55rem, 0); }
+  50%  { transform: translate(0, .55rem); }
+  75%  { transform: translate(-.55rem, 0); }
+  100% { transform: translate(0, -.55rem); }
+}
+
+@media (max-width: 768px) {
+  .controls-diagram { padding: .6rem .5rem; margin-bottom: .7rem; }
+  .controls-diagram-label { font-size: .68rem; }
+  .control-key { min-width: 1.6rem; height: 1.6rem; font-size: .68rem; }
+  .control-key--space { min-width: 3.6rem; }
+  .control-touch, .control-mouse { width: 4.6rem; height: 2.2rem; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .controls-diagram { padding: .4rem .5rem; margin-bottom: .4rem; gap: .3rem; }
+  .controls-diagram-label { font-size: .62rem; }
+}
+
 .rules-title {
   text-align: left;
   font-family: var(--font-body);

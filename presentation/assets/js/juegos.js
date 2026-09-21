@@ -28,6 +28,91 @@ function jt(key, fallback) {
   return fallback;
 }
 
+/* Diagrama animado de controles, compartido por todos los juegos: se
+   muestra en la pantalla de instrucciones antes de empezar, como un aviso
+   visual (teclas o gestos animados en loop) en vez de solo texto — usa
+   esTactilJuegos para elegir teclado/mouse (PC) o gestos táctiles (celular). */
+function crearDiagramaControles(tipo) {
+  const tecla = (label, extra = '') => `<span class="control-key ${extra}">${label}</span>`;
+  const filaTeclas = (...teclas) => `<span class="control-keys-row">${teclas.join('')}</span>`;
+
+  const dedoArrastre = (variante = 'h') => `
+    <span class="control-touch control-touch--drag-${variante}">
+      <span class="control-touch-track"></span>
+      <span class="control-touch-finger">👆</span>
+    </span>`;
+
+  const dedoToque = () => `
+    <span class="control-touch control-touch--tap">
+      <span class="control-touch-ring"></span>
+      <span class="control-touch-finger">👆</span>
+    </span>`;
+
+  const joystick = () => `
+    <span class="control-touch control-touch--joystick">
+      <span class="control-touch-base"></span>
+      <span class="control-touch-stick"></span>
+    </span>`;
+
+  const mouse = () => `
+    <span class="control-mouse">
+      <span class="control-mouse-track"></span>
+      <span class="control-mouse-body">🖱️</span>
+    </span>`;
+
+  switch (tipo) {
+    case 'drag-h':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoArrastre('h')}<span class="controls-diagram-label">${jt('jue.diagram.dragFinger', 'Deslizá el dedo')}</span></div>`
+        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.dragMouse', 'Mové el mouse')}</span></div>`;
+
+    case 'wasd-arrows':
+      return `<div class="controls-diagram controls-diagram--split">
+        <div class="controls-diagram-group">
+          <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+          <span class="controls-diagram-label">${jt('jue.diagram.player1', 'Jugador 1')}</span>
+        </div>
+        <div class="controls-diagram-group">
+          <div class="control-keys-pad">${tecla('↑')}${filaTeclas(tecla('←'), tecla('↓'), tecla('→'))}</div>
+          <span class="controls-diagram-label">${jt('jue.diagram.player2', 'Jugador 2')}</span>
+        </div>
+      </div>`;
+
+    case 'lanes-accel':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoToque()}<span class="controls-diagram-label">${jt('jue.diagram.tapLane', 'Tocá el carril')}</span></div>`
+        : `<div class="controls-diagram">
+             <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+             <span class="controls-diagram-label">${jt('jue.diagram.accelLane', 'Acelerar / Carriles')}</span>
+           </div>`;
+
+    case 'move-4dir':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${joystick()}<span class="controls-diagram-label">${jt('jue.diagram.joystick', 'Arrastrá para moverte')}</span></div>`
+        : `<div class="controls-diagram">
+             <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+             <span class="controls-diagram-label">${jt('jue.diagram.move', 'Moverte')}</span>
+           </div>`;
+
+    case 'drag-shoot':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoArrastre('shoot')}<span class="controls-diagram-label">${jt('jue.diagram.pullShoot', 'Jalá y soltá')}</span></div>`
+        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.pullShootMouse', 'Jalá y soltá')}</span></div>`;
+
+    case 'lanes-dash':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoToque()}<span class="controls-diagram-label">${jt('jue.diagram.tapDoubleTap', 'Tocá el carril · doble toque = ráfaga')}</span></div>`
+        : `<div class="controls-diagram">
+             ${filaTeclas(tecla('A'), tecla('D'))}
+             ${tecla(jt('jue.diagram.space', 'Espacio'), 'control-key--space')}
+             <span class="controls-diagram-label">${jt('jue.diagram.laneBurst', 'Carriles · Ráfaga')}</span>
+           </div>`;
+
+    default:
+      return '';
+  }
+}
+
 /* Joystick virtual compartido: antes varios juegos movían al jugador hacia
    el punto exacto donde tocabas la pantalla (sentía "click a donde quiero
    ir" en vez de un control continuo). Este joystick se ancla donde tocás
@@ -271,10 +356,8 @@ if (window.visualViewport) {
 
   const canvasWrap = canvas.closest('.canvas-wrap');
 
-  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
-  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
-  // Ahora medimos siempre el tamaño real del canvas, así que en fullscreen el
-  // juego dibuja a la resolución completa de la pantalla.
+  // Cuando te metes en fullscreen, actualizamos el tamaño del canvas.
+  // Así evitamos que la pantalla se vea toda estirada y pixeleada como pasaba antes.
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -309,13 +392,10 @@ if (window.visualViewport) {
   const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
-  // En PC los objetos caen un poco más rápido y en celular un poco más
-  // lento. La gravedad de Matter.js es una aceleración fija en píxeles,
-  // no relativa al tamaño del canvas: sin este ajuste, como el canvas es
-  // más bajo en celular, ahí los objetos ya recorren esa distancia más
-  // rápido en tiempo real (~12% más rápido, medido con el motor físico
-  // en desktop 690px vs celular 617px de alto). Estos multiplicadores
-  // compensan esa diferencia para que la velocidad se sienta pareja.
+  // Truco sucio: En compu los objetos caen más rápido y en cel más lento.
+  // Como en Matter.js la gravedad es en píxeles fijos y en celular el canvas
+  // es más chaparro, sin esto sentirías que te caen misiles.
+  // Con este multiplicador se siente igual de perro en todos lados.
   const PUPUSA_GRAVITY_MULT = esTactilJuegos ? 0.95 : 1.06;
   // Objeto que se atrapa un poco más grande en PC (físico y visual).
   const PUPUSA_ITEM_RADIUS = esTactilJuegos ? 18 : 22;
@@ -441,13 +521,10 @@ if (window.visualViewport) {
     {emoji:'🦴', pts:-1}
   ];
 
-  /* ── Bolsa de aparición con proporción fija ──
-     Antes cada objeto era bueno/malo con Math.random() < 0.32 de forma
-     independiente: en muestras cortas eso a veces tiraba rachas de puros
-     objetos malos (o puros buenos) porque la probabilidad no garantiza
-     nada sobre la cantidad real. Con una "bolsa" que siempre contiene la
-     misma proporción (barajada) y se recarga al vaciarse, la cantidad de
-     buenos vs. malos es consistente partida tras partida. */
+  // Sistema de "bolsa" para que no salgan rachas asquerosas de puros
+  // objetos malos o puros buenos. Como si sacaras de una bolsa
+  // donde sabes que hay X buenos y Y malos, así la suerte no
+  // te revienta la partida tan feo.
   const SPAWN_BAG_SIZE = 25;
   const SPAWN_BAG_BAD_COUNT = 8; // 8 de 25 ≈ 32% malos, igual que antes pero fijo
   let spawnBag = [];
@@ -692,16 +769,12 @@ if (window.visualViewport) {
   function step(timestamp){
     if(!running || !isGameVisible) return;
     if(lastTime === null) lastTime = timestamp;
-    // dt para la física: recortado a 100ms para que un frame lento no haga
-    // "saltar" a los objetos ni desestabilice la simulación.
+    // dt para física: lo capamos a 100ms. Si la compu se traba,
+    // evitamos que los objetos se teletransporten y rompan todo.
     const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    // dtReloj: el tiempo real transcurrido, sin ese recorte (solo protegido
-    // contra saltos absurdos si la pestaña estuvo en segundo plano). Si el
-    // reloj usara el mismo dt recortado que la física, cada frame lento
-    // "perdería" tiempo real sin descontarlo del cronómetro, y la ronda
-    // terminaría durando más de los segundos configurados. Con esto el
-    // cronómetro siempre cumple el 100% del tiempo predispuesto, ni más
-    // ni menos, sin importar caídas de framerate.
+    // dtReloj: el tiempo real. Acá si dejamos que pase completo porque
+    // si no, el timer del juego se alargaría con el lag y terminarían
+    // jugando 40 segundos en lugar de 30.
     const dtReloj = Math.min(Math.max(timestamp - lastTime, 0), 2000);
     lastTime = timestamp;
 
@@ -880,6 +953,7 @@ if (window.visualViewport) {
     <span class="overlay-tag">${jt('jue.card1.tagModal', 'Ruta 01')}</span>
     <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
     <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
+    ${crearDiagramaControles('drag-h')}
     <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
       <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
@@ -1742,6 +1816,7 @@ if (window.visualViewport) {
     <span class="overlay-tag">${jt('jue.card2.tagModal', 'Ruta 02')}</span>
     <h3>⚡ ${jt('jue.card2.title', 'Batalla de Trompos')}</h3>
     <p>${jt('jue.card2.intro', 'Empujá tu trompo contra el de tu oponente para sacarlo del círculo. El primero en caer o salirse pierde la ronda.')}</p>
+    ${crearDiagramaControles('wasd-arrows')}
     <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
     <ul class="rules-list">
       <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP1', 'Jugador 1: teclas <strong>WASD</strong> para mover el trompo.')}</li>
@@ -3196,6 +3271,7 @@ function spawnEntities() {
       <span class="overlay-tag">${jt('jue.card3.prepareMotorTag', 'Preparar Motor')}</span>
       <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
       <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
+      ${crearDiagramaControles('lanes-accel')}
       <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
@@ -4525,6 +4601,7 @@ function spawnEntities() {
       <span class="overlay-tag">${jt('jue.card4.overlayTag', 'Juego Tradicional')}</span>
       <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
       <p>${jt('jue.card4.intro', 'El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.')}</p>
+      ${crearDiagramaControles('move-4dir')}
       <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
@@ -5430,6 +5507,7 @@ function spawnEntities() {
       <p style="font-size:.85rem;opacity:.85;margin-bottom:.55rem;">
         ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá las 20 canicas del círculo lo más rápido que puedas.')}
       </p>
+      ${crearDiagramaControles('drag-shoot')}
       <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
         <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
@@ -7050,6 +7128,7 @@ function spawnEntities() {
       <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
       <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
       <p>${jt('jue.card6.intro', 'Corré por las calles, esquivá los obstáculos y recogé cohetes para llegar a la iglesia.')}</p>
+      ${crearDiagramaControles('lanes-dash')}
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `

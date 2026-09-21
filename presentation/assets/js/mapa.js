@@ -612,20 +612,14 @@ const SLUG_TO_LANDMARK_ID = {
 /* ══════════════════════════════════════════════════════════
    INICIALIZACIÓN DEL MAPA CON LEAFLET (OPTIMIZADO)
    ══════════════════════════════════════════════════════════ */
-// En móvil/tablet reducimos animaciones y buffer de tiles para que el
-// primer render sea más rápido y no sature dispositivos de gama baja.
+// Bajamos el detalle y animaciones en celulares para que no se trabe en telefonos viejitos.
 const esDispositivoMovil = window.matchMedia('(max-width: 900px)').matches || ('ontouchstart' in window);
 
-// Nivel de zoom único al enfocar un lugar (marcador, búsqueda, enlace directo
-// o publicación), para que la sensación de acercamiento sea siempre la misma.
+// Un solo nivel de zoom para que siempre se sienta igual cuando te acercas a un lugar.
 const FOCUS_ZOOM = 14;
 
-// Límites geográficos del mapa (El Salvador + margen). Sin esto se puede
-// alejar el zoom hasta ver medio continente: además de no tener sentido
-// para un mapa cultural de un solo país, deja visibles a la vez todos los
-// marcadores (que están agrupados en un área pequeña) formando un arco
-// que parece un bug, y hace que el flyTo al hacer clic en uno tenga que
-// recorrer una distancia de zoom enorme y "vuele" de forma exagerada.
+// Le ponemos bordes al mapa para que la gente no se vaya hasta la otra mitad del mundo.
+// Aparte, si haces mucho zoom out, los pines se ven todos apelotonados en un solo punto y se ve feo.
 const EL_SALVADOR_BOUNDS = [
   [12.3, -91.0],  // suroeste
   [15.2, -87.0]   // noreste
@@ -652,14 +646,11 @@ const mapa = L.map('mapa-leaflet', {
 
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
 
-// Capa de tiles optimizada. Se pide a través de nuestro propio servidor
-// (routes/tiles.routes.js), que agrega la API key de Stadia Maps server-side
-// -así nunca queda expuesta en el JS del cliente ni en las peticiones que
-// hace el navegador.
+// Capa de tiles: los pedimos a nuestro propio server para no
+// regalar la API key de Stadia en el frontend. Así nos evitamos sustos.
 const tileLayer = L.tileLayer('/api/tiles/{z}/{x}/{y}{r}.png', {
   maxZoom: 16.5,
-  // Pide la imagen @2x en pantallas de alta densidad (la mayoría de
-  // celulares/laptops actuales) en vez de estirar la de 1x con CSS.
+  // Pedimos imagenes de alta res (@2x) si la pantalla lo soporta.
   detectRetina: true,
   updateWhenZooming: false,
   updateWhenIdle: true,
@@ -776,15 +767,11 @@ function invalidateMapSize() {
   }
 }
 
-/* ── Vigilancia robusta del tamaño del contenedor ──
-   El bug de "mapa en blanco" en móvil/tablet ocurre porque Leaflet solo
-   se entera de que su contenedor cambió de tamaño si se lo decimos
-   explícitamente. Eventos como mostrar/ocultar la barra de direcciones,
-   rotar el dispositivo, volver de otra pestaña o restaurar la página
-   desde el caché de retroceso (bfcache) cambian el tamaño real sin
-   disparar 'resize' de forma confiable en todos los navegadores. Un
-   ResizeObserver sobre el propio contenedor cubre todos esos casos de
-   una sola vez. */
+/* ── Chequeo de tamaño del mapa ──
+   En móviles a veces Leaflet se marea cuando la barra del navegador
+   aparece o desaparece y deja pedazos del mapa en blanco.
+   Con este ResizeObserver le avisamos a Leaflet apenas cambia el tamaño
+   para que vuelva a pintar, y así nos ahorramos el bug en todos lados. */
 (function vigilarTamanoMapa() {
   const contenedor = document.getElementById('mapa-leaflet');
   if (!contenedor) return;

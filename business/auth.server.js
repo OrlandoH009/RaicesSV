@@ -262,14 +262,11 @@ const deleteAccount = async (id_user, { currentPassword } = {}) => {
     await userRepository.deleteUser(id_user);
 };
 
-// ── Nuevo: recuperación de contraseña ──
+// --- Recuperacion de pass ---
 
-/**
- * Genera (si aplica) un token de recuperación y envía el correo.
- * Por seguridad, esta función NUNCA revela si el correo existe o no:
- * el controlador siempre responde el mismo mensaje genérico, exista o
- * no la cuenta, para evitar enumeración de usuarios.
- */
+// Arma el token y manda el correo de reseteo.
+// Ojo: nunca le decimos al frontend si el correo existe o no,
+// siempre mandamos el mismo mensaje para que no nos saquen la lista de usuarios reales.
 const requestPasswordReset = async (email, appBaseUrl) => {
     if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
         return;
@@ -319,10 +316,8 @@ const requestPasswordReset = async (email, appBaseUrl) => {
     });
 };
 
-/**
- * Valida el token recibido (comparando su hash) y, si es válido y no expiró,
- * actualiza la contraseña e invalida el token para que no pueda reutilizarse.
- */
+// Revisa si el token viene bien y no esta vencido.
+// Si todo en orden, cambia la pass y quema el token para que no lo reusen.
 const resetPassword = async (rawToken, newPassword) => {
     if (typeof rawToken !== 'string' || !rawToken.trim()) {
         const err = new Error('El enlace de recuperación no es válido o ya expiró.'); err.expose = true; throw err;
