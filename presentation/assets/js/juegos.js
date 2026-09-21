@@ -113,6 +113,24 @@ function crearDiagramaControles(tipo) {
   }
 }
 
+/* Fila de "ejemplos de objetos" compartida por los juegos que tienen una
+   distinción clara entre objetos buenos (a agarrar) y malos (a evitar):
+   se muestra en la pantalla de instrucciones con el ícono real de cada
+   objeto, para que la instrucción no dependa solo de leer texto. */
+function crearEjemplosObjetos(buenos, malos) {
+  const chip = (o, cls) => `<div class="objeto-chip objeto-chip--${cls}"><span class="objeto-chip-icon">${o.icon}</span>${o.label}</div>`;
+  return `<div class="objetos-ejemplos">
+    <div class="objetos-ejemplos-group">
+      <span class="objetos-ejemplos-title objetos-ejemplos-title--good">✅ ${jt('jue.examples.good', 'Agarrá')}</span>
+      <div class="objetos-ejemplos-row">${buenos.map(o => chip(o, 'good')).join('')}</div>
+    </div>
+    <div class="objetos-ejemplos-group">
+      <span class="objetos-ejemplos-title objetos-ejemplos-title--bad">❌ ${jt('jue.examples.bad', 'Evitá')}</span>
+      <div class="objetos-ejemplos-row">${malos.map(o => chip(o, 'bad')).join('')}</div>
+    </div>
+  </div>`;
+}
+
 /* Joystick virtual compartido: antes varios juegos movían al jugador hacia
    el punto exacto donde tocabas la pantalla (sentía "click a donde quiero
    ir" en vez de un control continuo). Este joystick se ancla donde tocás
@@ -954,6 +972,10 @@ if (window.visualViewport) {
     <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
     <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
     ${crearDiagramaControles('drag-h')}
+    ${crearEjemplosObjetos(
+      [{icon:'🫓', label: jt('jue.card1.examplePupusa','Pupusa')}, {icon:'🧀', label: jt('jue.card1.exampleQuesillo','Quesillo')}, {icon:'🌽', label: jt('jue.card1.exampleElote','Elote')}],
+      [{icon:'🩴', label: jt('jue.card1.exampleChancla','Chancla')}, {icon:'🪨', label: jt('jue.card1.examplePiedra','Piedra')}, {icon:'🦴', label: jt('jue.card1.exampleHueso','Hueso')}]
+    )}
     <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
     <ul class="rules-list">
       <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
@@ -3272,6 +3294,10 @@ function spawnEntities() {
       <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
       <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
       ${crearDiagramaControles('lanes-accel')}
+      ${crearEjemplosObjetos(
+        [{icon:'💛', label: jt('jue.card3.examplePasajero','Pasajero')}],
+        [{icon:'🕳️', label: jt('jue.card3.exampleBache','Bache')}, {icon:'🚧', label: jt('jue.card3.exampleTumulo','Túmulo')}, {icon:'🚗', label: jt('jue.card3.exampleTrafico','Tráfico')}]
+      )}
       <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `
@@ -4521,13 +4547,13 @@ function spawnEntities() {
 
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.roundEndTag', 'Fin de la Ronda')}</span>
-      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
-      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${finalScore} pts</div>
+      <h3 style="font-size: 1.35rem; color: var(--gold-hover); margin-bottom: 8px;">${title}</h3>
+      <div class="overlay-score" style="font-size: 2rem;">${finalScore} pts</div>
       <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(timeWithoutMica)}s</b><br><span style="color:#aaa;">${jt('jue.card4.statNoMica', 'Sin Mica')}</span></div>
-        <div><b>${timesPassedMica}</b><br><span style="color:#aaa;">${jt('jue.card4.statPassed', 'Pasadas')}</span></div>
-        <div><b>${selectedTimeLimit}s</b><br><span style="color:#aaa;">${jt('jue.card4.statRound', 'Ronda')}</span></div>
+        <div><b style="color:#fff;">${Math.round(timeWithoutMica)}s</b><br><span style="color:#ccc;">${jt('jue.card4.statNoMica', 'Sin Mica')}</span></div>
+        <div><b style="color:#fff;">${timesPassedMica}</b><br><span style="color:#ccc;">${jt('jue.card4.statPassed', 'Pasadas')}</span></div>
+        <div><b style="color:#fff;">${selectedTimeLimit}s</b><br><span style="color:#ccc;">${jt('jue.card4.statRound', 'Ronda')}</span></div>
       </div>
       <p class="overlay-best-score" id="m-best-score"></p>
       <button class="btn-primary" id="btn-restart-encantados">${jt('jue.rematch', 'Revancha')}</button>
@@ -4547,7 +4573,7 @@ function spawnEntities() {
   function showTimeSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.timeTag', 'Tiempo de Juego')}</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">⏱️ ${jt('jue.card4.timeTitle', 'Elige la Duración')}</h3>
+      <h3 style="font-size: 1.3rem; color: var(--gold-hover);">⏱️ ${jt('jue.card4.timeTitle', 'Elige la Duración')}</h3>
       <p style="font-size: 0.9rem;">${jt('jue.card4.timeDesc', '¿Cuánto tiempo querés que dure la ronda de la mica?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="time-20s" style="font-size: 0.95rem;">
@@ -5512,7 +5538,7 @@ function spawnEntities() {
         <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
         <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
       </ul>
-      <p style="font-weight:600;margin-bottom:.4rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
+      <p style="font-weight:600;margin-bottom:.4rem;color:#6d28d9;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-canicas">
           ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 tiros')}</small>
@@ -5590,7 +5616,7 @@ function spawnEntities() {
       overlayCard.innerHTML = `
         <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
         <h3 style="margin:.5rem 0;">${jt('jue.card5.end.finished', '¡Nivel completado!')}</h3>
-        <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${formatTime(playedMs)}</p>
+        <p style="font-size:2rem;font-weight:800;color:#6d28d9;margin:.3rem 0;">${formatTime(playedMs)}</p>
         <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'en {n} rondas').replace('{n}', totalRounds)}</p>
         <div style="display:flex;gap:10px;justify-content:center;">
           <button class="btn-primary" id="can-replay">🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>
@@ -5731,6 +5757,11 @@ function spawnEntities() {
   let isTurboActive = false;
   let isArriving = false;
   let arrivalTimer = 0;
+  let isEnteringFiesta = false;
+  let fiestaTransTimer = 0;
+  const FIESTA_TRANS_DURATION = 26; // ~0.43s de transición "entrando a la fiesta"
+  let isDancing = false;
+  let danceTimer = 0;
 
   let stalls = [];
   let particles = [];
@@ -6231,6 +6262,10 @@ function spawnEntities() {
     isTurboActive = false;
     isArriving = false;
     arrivalTimer = 0;
+    isEnteringFiesta = false;
+    fiestaTransTimer = 0;
+    isDancing = false;
+    danceTimer = 0;
     stalls = [];
     particles = [];
     sparks = [];
@@ -6258,7 +6293,7 @@ function spawnEntities() {
 
   // 1. Spawning Silbadores (Whistling rockets that recharge big energy & give speed)
   function spawnSilbador(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+    const body = Bodies.circle(lanePositions[lane], -40, 16, {
       restitution: 0.7, friction: 0.1, isSensor: true, label: 'silbador'
     });
     World.add(world, body);
@@ -6266,7 +6301,7 @@ function spawnEntities() {
 
   // 2. Spawning Cuetillos (Firecrackers that recharge energy & burst sparks)
   function spawnCuetillo(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 10, {
+    const body = Bodies.circle(lanePositions[lane], -40, 13, {
       restitution: 0.6, friction: 0.2, isSensor: true, label: 'cuetillo'
     });
     World.add(world, body);
@@ -6274,7 +6309,7 @@ function spawnEntities() {
 
   // 3. Spawning Pupusas (Bonus food pickup)
   function spawnPupusa(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 11, {
+    const body = Bodies.circle(lanePositions[lane], -40, 17, {
       restitution: 0.5, friction: 0.2, isSensor: true, label: 'pupusa'
     });
     World.add(world, body);
@@ -6282,7 +6317,7 @@ function spawnEntities() {
 
   // 4. Spawning Heavy Obstacles (Carretas) & Hazards (Baldes de agua)
   function spawnCarreta(lane){
-    const body = Bodies.rectangle(lanePositions[lane], -40, 44, 24, {
+    const body = Bodies.rectangle(lanePositions[lane], -40, 60, 32, {
       restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
     });
     Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.03);
@@ -6290,7 +6325,7 @@ function spawnEntities() {
   }
 
   function spawnAgua(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+    const body = Bodies.circle(lanePositions[lane], -40, 16, {
       restitution: 0.4, friction: 0.2, label: 'agua'
     });
     World.add(world, body);
@@ -6306,7 +6341,7 @@ function spawnEntities() {
   }
 
   function spawnEntities() {
-    if (isArriving) return; // Stop spawning obstacles when entering church plaza!
+    if (isArriving || isEnteringFiesta || isDancing) return; // Stop spawning obstacles when entering church plaza / dancing!
     if (tutorialMode && tutorialWaiting) return; // Congela obstáculos mientras se espera la acción del tutorial
 
     const config = gameConfig[gameDifficulty];
@@ -6454,6 +6489,22 @@ function spawnEntities() {
 
     // ================= DRAWING =================
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (isEnteringFiesta) {
+      const progress = 1 - (fiestaTransTimer / FIESTA_TRANS_DURATION);
+      drawFiestaTransition(progress);
+      updateHud();
+      rafId = requestAnimationFrame(step);
+      return;
+    }
+
+    if (isDancing) {
+      drawFiestaDance();
+      updateHud();
+      rafId = requestAnimationFrame(step);
+      return;
+    }
+
     drawStreet();
     stalls.forEach(drawStall);
 
@@ -6516,6 +6567,34 @@ function spawnEntities() {
         playSound('pop');
       }
       if (arrivalTimer <= 0) {
+        // En vez de cortar directo al resultado apenas se ve la iglesia,
+        // el torito entra por la puerta del atrio hacia una fiesta con
+        // baile: primero una transición tipo "iris" que se abre desde la
+        // puerta (drawFiestaTransition) y recién después la escena de
+        // baile completa, antes del resumen final.
+        isArriving = false;
+        isEnteringFiesta = true;
+        fiestaTransTimer = FIESTA_TRANS_DURATION;
+        playSound('cheer');
+      }
+    }
+
+    if (isEnteringFiesta) {
+      fiestaTransTimer--;
+      if (fiestaTransTimer <= 0) {
+        isEnteringFiesta = false;
+        isDancing = true;
+        danceTimer = 110; // ~1.8s de baile
+      }
+    }
+
+    if (isDancing) {
+      danceTimer--;
+      if (danceTimer % 18 === 0) {
+        const rx = 40 + Math.random() * (canvas.width - 80);
+        createFireworkBurst(rx, canvas.height * 0.25, 14);
+      }
+      if (danceTimer <= 0) {
         endRun('completo');
         return;
       }
@@ -6588,32 +6667,39 @@ function spawnEntities() {
   }
 
   function drawPapelPicado() {
-    const garlandInterval = 180;
+    // Antes esto se repetía cada 180px con 7 banderines a todo lo ancho de
+    // la calle: con la altura típica del canvas había 3-4 tiras visibles a
+    // la vez (~25 banderines) compitiendo con los obstáculos/coleccionables.
+    // Se espacía más, se reducen y achican los banderines, y se pegan más
+    // arriba (menos combado) para que quede como decorado de fondo y no
+    // estorbe la vista del carril de juego.
+    const garlandInterval = 340;
     const garlandY = (distance * 0.7) % garlandInterval;
     const colors = ['#ff007f', '#00e5ff', '#ffea00', '#00e676', '#ff9100'];
 
     for (let y = -garlandY; y < canvas.height; y += garlandInterval) {
       ctx.save();
+      ctx.globalAlpha = 0.55;
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 1;
       ctx.moveTo(streetLeft, y);
-      ctx.quadraticCurveTo(canvas.width / 2, y + 20, streetRight, y);
+      ctx.quadraticCurveTo(canvas.width / 2, y + 10, streetRight, y);
       ctx.stroke();
 
-      const flags = 7;
+      const flags = 5;
       const step = (streetRight - streetLeft) / flags;
       for (let i = 0; i < flags; i++) {
-        const fx = streetLeft + i * step + step * 0.15;
+        const fx = streetLeft + i * step + step * 0.2;
         const t = i / (flags - 1);
-        const fy = y + 20 * (4 * t * (1 - t));
+        const fy = y + 10 * (4 * t * (1 - t));
         ctx.fillStyle = colors[(i + Math.floor(distance / 100)) % colors.length];
         ctx.beginPath();
         ctx.moveTo(fx, fy);
-        ctx.lineTo(fx + step * 0.7, fy);
-        ctx.lineTo(fx + step * 0.7, fy + 16);
-        ctx.lineTo(fx + step * 0.35, fy + 12);
-        ctx.lineTo(fx, fy + 16);
+        ctx.lineTo(fx + step * 0.45, fy);
+        ctx.lineTo(fx + step * 0.45, fy + 9);
+        ctx.lineTo(fx + step * 0.225, fy + 7);
+        ctx.lineTo(fx, fy + 9);
         ctx.closePath();
         ctx.fill();
       }
@@ -6684,6 +6770,142 @@ function spawnEntities() {
     ctx.font = 'bold 12px Fredoka, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(jt('jue.card6.churchBanner', '¡FIESTAS PATRONALES!'), canvas.width / 2, 97);
+
+    ctx.restore();
+  }
+
+  // Transición "entrando a la fiesta": en vez de cortar de golpe de la
+  // calle/iglesia a la pista de baile, se abre un círculo de luz cálida
+  // desde la puerta del atrio (donde llegó el torito) que va revelando la
+  // fiesta de adentro a medida que crece, como si el torito estuviera
+  // cruzando el umbral hacia el salón donde ya está la gente bailando.
+  function drawFiestaTransition(progress) {
+    const doorX = canvas.width / 2;
+    const doorY = 160;
+    const maxRadius = Math.hypot(canvas.width, canvas.height) * 0.65;
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const radius = 16 + eased * maxRadius;
+
+    drawStreet();
+    drawChurchDestination(1000);
+    drawTorito(toritoBody.position.x, toritoY);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(doorX, doorY, radius, 0, Math.PI * 2);
+    ctx.clip();
+    drawFiestaDance();
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(doorX, doorY, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = `rgba(255, 220, 130, ${0.8 * (1 - progress)})`;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Escena corta de fiesta/baile en el atrio, mostrada al llegar en vez de
+  // cortar directo al resumen final: el torito y unas parejas bailan
+  // mientras cae papel picado y la iglesia queda de fondo.
+  function drawFiestaDance() {
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#2c1654');
+    grad.addColorStop(1, '#7d3ac1');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Guirnalda de luces
+    ctx.strokeStyle = 'rgba(255,255,255,.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 30);
+    ctx.quadraticCurveTo(canvas.width / 2, 60, canvas.width, 30);
+    ctx.stroke();
+    const bulbColors = ['#ffea00', '#ff3d00', '#00e5ff', '#ff007f', '#39ff14'];
+    for (let i = 0; i < 10; i++) {
+      const t = i / 9;
+      const bx = t * canvas.width;
+      const by = 30 + Math.sin(t * Math.PI) * 30;
+      ctx.fillStyle = bulbColors[i % bulbColors.length];
+      ctx.beginPath();
+      ctx.arc(bx, by + 6, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Iglesia de fondo, ya sin protagonismo
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(canvas.width / 2 - 30, 50, 60, 70);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2 - 34, 50);
+    ctx.lineTo(canvas.width / 2, 24);
+    ctx.lineTo(canvas.width / 2 + 34, 50);
+    ctx.closePath();
+    ctx.fill();
+
+    // Parejas bailando
+    const dancerY = canvas.height * 0.68;
+    const count = 5;
+    for (let i = 0; i < count; i++) {
+      const dx = (i + 0.5) * (canvas.width / count);
+      drawDancer(dx, dancerY, i);
+    }
+
+    // El torito se une al baile, al centro
+    drawTorito(canvas.width / 2, canvas.height * 0.48);
+
+    drawParticles();
+
+    // Banner
+    ctx.fillStyle = '#d32f2f';
+    ctx.fillRect(canvas.width / 2 - 110, canvas.height * 0.1, 220, 30);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px Fredoka, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(jt('jue.card6.fiestaBanner', '¡A BAILAR A LA FIESTA!'), canvas.width / 2, canvas.height * 0.1 + 21);
+  }
+
+  function drawDancer(x, y, seed) {
+    const phase = Date.now() / 220 + seed * 1.3;
+    const sway = Math.sin(phase) * 10;
+    const bob = Math.abs(Math.sin(phase * 2)) * 6;
+    const colors = ['#e63946', '#f2c744', '#3a86c8', '#2fbf9f', '#7d3ac1'];
+    const color = colors[seed % colors.length];
+
+    ctx.save();
+    ctx.translate(x, y - bob);
+
+    // Sombra
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.beginPath();
+    ctx.ellipse(0, 34, 13, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo / vestido balanceándose
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-10, 30);
+    ctx.quadraticCurveTo(sway * 0.6, -4, -6, -24);
+    ctx.lineTo(6, -24);
+    ctx.quadraticCurveTo(-sway * 0.6, -4, 10, 30);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cabeza
+    ctx.fillStyle = '#c98a5b';
+    ctx.beginPath();
+    ctx.arc(0, -30, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brazos en movimiento
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-6, -18); ctx.lineTo(-16 - sway * 0.4, -26 + sway * 0.3);
+    ctx.moveTo(6, -18); ctx.lineTo(16 + sway * 0.4, -26 - sway * 0.3);
+    ctx.stroke();
 
     ctx.restore();
   }
@@ -6808,6 +7030,7 @@ function spawnEntities() {
   function drawSilbador(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.35, 1.35);
     const pulse = Math.sin(Date.now() / 120) * 3;
 
     // Glowing aura
@@ -6845,6 +7068,7 @@ function spawnEntities() {
   function drawCuetillo(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.35, 1.35);
 
     // Glowing aura
     ctx.fillStyle = 'rgba(255, 85, 0, 0.35)';
@@ -6871,6 +7095,7 @@ function spawnEntities() {
   function drawPupusa(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.55, 1.55); // más grande que antes para que se note bien
     ctx.fillStyle = '#f4c542';
     ctx.beginPath();
     ctx.arc(0, 0, 12, 0, Math.PI * 2);
@@ -6891,6 +7116,7 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
+    ctx.scale(1.35, 1.35);
     ctx.fillStyle = '#5c3a21';
     ctx.fillRect(-20, -10, 40, 20);
     ctx.strokeStyle = '#2b1a0f';
@@ -6905,15 +7131,57 @@ function spawnEntities() {
   function drawAgua(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
-    ctx.fillStyle = '#00bcd4';
+    ctx.scale(1.35, 1.35);
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
     ctx.beginPath();
-    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.ellipse(0, 14, 11, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🪣', 0, 1);
+
+    // Cuerpo metálico del balde, achicado hacia la base
+    ctx.fillStyle = '#9aa5ab';
+    ctx.beginPath();
+    ctx.moveTo(-11, -6);
+    ctx.lineTo(-8, 13);
+    ctx.lineTo(8, 13);
+    ctx.lineTo(11, -6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Franjas de lámina
+    ctx.strokeStyle = 'rgba(0,0,0,.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-9.5, 1); ctx.lineTo(9.5, 1);
+    ctx.moveTo(-9, 7); ctx.lineTo(9, 7);
+    ctx.stroke();
+
+    // Agua adentro, con leve vaivén
+    const slosh = Math.sin(Date.now() / 160) * 1.6;
+    ctx.fillStyle = '#4fc3f7';
+    ctx.beginPath();
+    ctx.ellipse(slosh * 0.3, -6, 10.3, 3.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath();
+    ctx.ellipse(-3 + slosh, -6.8, 2.6, 1, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Borde metálico superior
+    ctx.strokeStyle = '#6b767b';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 11, 3.4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Asa
+    ctx.strokeStyle = '#5c4a3a';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(0, -9, 9, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.stroke();
+
     ctx.restore();
   }
 
@@ -7030,13 +7298,13 @@ function spawnEntities() {
 
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card6.end.tag', 'Fiestas Patronales')}</span>
-      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
-      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${scoreFinal} pts</div>
+      <h3 style="font-size: 1.35rem; color: var(--gold-hover); margin-bottom: 8px;">${title}</h3>
+      <div class="overlay-score" style="font-size: 2rem;">${scoreFinal} pts</div>
       <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">${jt('jue.card6.stat.distance', 'Distancia')}</span></div>
-        <div><b>${silbadoresRecogidos + cuetillosRecogidos}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.rockets', 'Cohetes')}</span></div>
-        <div><b>x${maxCombo}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.maxCombo', 'Max Combo')}</span></div>
+        <div><b style="color:#fff;">${Math.round(distance)}m</b><br><span style="color:#ccc;">${jt('jue.card6.stat.distance', 'Distancia')}</span></div>
+        <div><b style="color:#fff;">${silbadoresRecogidos + cuetillosRecogidos}</b><br><span style="color:#ccc;">${jt('jue.card6.stat.rockets', 'Cohetes')}</span></div>
+        <div><b style="color:#fff;">x${maxCombo}</b><br><span style="color:#ccc;">${jt('jue.card6.stat.maxCombo', 'Max Combo')}</span></div>
       </div>
       <p class="overlay-best-score" id="t-best-score"></p>
       <button class="btn-primary" id="btn-restart-torito">${jt('jue.rematch', 'Revancha')}</button>
@@ -7054,7 +7322,7 @@ function spawnEntities() {
   function showDistanceSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">🐂 ${jt('jue.card6.distance.title', 'Elige tu Destino')}</h3>
+      <h3 style="font-size: 1.3rem; color: var(--gold-hover);">🐂 ${jt('jue.card6.distance.title', 'Elige tu Destino')}</h3>
       <p style="font-size: 0.9rem;">${jt('jue.card6.distance.sub', '¿Hasta qué plaza colonial llevarás la fiesta del Torito?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="dist-corta-torito" style="font-size: 0.95rem;">
@@ -7129,6 +7397,10 @@ function spawnEntities() {
       <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
       <p>${jt('jue.card6.intro', 'Corré por las calles, esquivá los obstáculos y recogé cohetes para llegar a la iglesia.')}</p>
       ${crearDiagramaControles('lanes-dash')}
+      ${crearEjemplosObjetos(
+        [{icon:'🚀', label: jt('jue.card6.exampleSilbador', 'Silbador')}, {icon:'🧨', label: jt('jue.card6.exampleCuetillo', 'Cuetillo')}, {icon:'🫓', label: jt('jue.card6.examplePupusa', 'Pupusa')}],
+        [{icon:'🛺', label: jt('jue.card6.exampleCarreta', 'Carreta')}, {icon:'🪣', label: jt('jue.card6.exampleAgua', 'Balde')}]
+      )}
       <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
       <ul class="rules-list">
         ${esTactilJuegos ? `

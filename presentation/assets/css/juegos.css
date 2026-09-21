@@ -477,12 +477,21 @@ canvas {
 
 /* ── Capas de Overlay Sin Filtros de Borrosidad ── */
 .overlay {
-  position: absolute;
+  /* Antes "position: absolute" quedaba recortado por "overflow: hidden"
+     del .canvas-wrap, así que las instrucciones/reglas/selector de modo
+     vivían apretadas en el espacio chico del canvas (peor todavía en
+     celular, donde el canvas mide poco de alto) y con poco texto ya
+     desbordaba. .game-modal__content tiene "transform" (ver más abajo),
+     así que se vuelve el bloque contenedor de todo lo "fixed" dentro de
+     él: al cambiar a "fixed" el overlay pasa a cubrir el modal del juego
+     completo (título + HUD + canvas), no solo el recuadro del canvas,
+     dando mucho más espacio para mostrarlo como un modal real. */
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(11, 26, 51, 0.4); /* Transparencia limpia sin "backdrop-filter: blur" para que todo se vea claro de fondo */
+  background: rgba(11, 26, 51, 0.55);
   border-radius: var(--r-sm);
   padding: 1rem;
   z-index: 15;
@@ -514,8 +523,10 @@ canvas {
   border: 3px solid var(--navy);
   border-radius: var(--r-md);
   box-shadow: 0 12px 24px rgba(0,0,0,.35);
-  padding: 1.6rem 1.8rem;
-  max-width: min(560px, 88vw);
+  padding: 1.8rem 2rem;
+  max-width: min(640px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
   width: 100%;
   text-align: center;
   box-sizing: border-box;
@@ -539,7 +550,7 @@ canvas {
 .overlay-card h3 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.55rem;
   color: var(--navy);
   margin-bottom: .45rem;
 }
@@ -751,12 +762,64 @@ canvas {
   100% { transform: translate(0, -.55rem); }
 }
 
+/* ── Ejemplos de objetos (agarrar / evitar) ──
+   Fila de chips con el ícono real del objeto tal como aparece en el juego,
+   para que la instrucción no dependa solo de leer texto. */
+.objetos-ejemplos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .9rem;
+  margin: .2rem 0 1rem;
+}
+
+.objetos-ejemplos-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+}
+
+.objetos-ejemplos-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.objetos-ejemplos-title--good { color: #2e7d32; }
+.objetos-ejemplos-title--bad { color: #c62828; }
+
+.objetos-ejemplos-row { display: flex; gap: .4rem; }
+
+.objeto-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  min-width: 3.2rem;
+  padding: .35rem .3rem;
+  border-radius: var(--r-sm);
+  background: var(--white);
+  font-family: var(--font-body);
+  font-size: .62rem;
+  color: var(--navy);
+}
+
+.objeto-chip-icon { font-size: 1.2rem; }
+
+.objeto-chip--good { border: 2px solid #2e7d32; }
+.objeto-chip--bad { border: 2px solid #c62828; }
+
 @media (max-width: 768px) {
   .controls-diagram { padding: .6rem .5rem; margin-bottom: .7rem; }
   .controls-diagram-label { font-size: .68rem; }
   .control-key { min-width: 1.6rem; height: 1.6rem; font-size: .68rem; }
   .control-key--space { min-width: 3.6rem; }
   .control-touch, .control-mouse { width: 4.6rem; height: 2.2rem; }
+  .objetos-ejemplos { gap: .5rem; }
+  .objeto-chip { min-width: 2.7rem; font-size: .56rem; padding: .28rem .22rem; }
+  .objeto-chip-icon { font-size: 1rem; }
 }
 
 @media (max-height: 480px) and (orientation: landscape) {
