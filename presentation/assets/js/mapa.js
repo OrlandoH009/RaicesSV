@@ -1827,6 +1827,7 @@ if (mapaFiltersFab && mapaFiltersFloat) {
    ══════════════════════════════════════════════════════════ */
 let miUbicacionActual = null;
 let marcadorUbicacion = null;
+let circuloPrecisionUbicacion = null;
 let watchId = null;
 let toastTimeout = null;
 
@@ -1950,9 +1951,11 @@ function solicitarUbicacionConVerificacion(centrar = true) {
 function manejarPosicionObtenida(position, centrar) {
   const userLat = position.coords.latitude;
   const userLng = position.coords.longitude;
+  const accuracy = position.coords.accuracy;
   miUbicacionActual = [userLat, userLng];
 
   if (marcadorUbicacion) mapa.removeLayer(marcadorUbicacion);
+  if (circuloPrecisionUbicacion) mapa.removeLayer(circuloPrecisionUbicacion);
   ocultarBannerGeo();
 
   const userMarkerIcon = L.divIcon({
@@ -1965,6 +1968,27 @@ function manejarPosicionObtenida(position, centrar) {
   marcadorUbicacion = L.marker(miUbicacionActual, { icon: userMarkerIcon })
     .addTo(mapa)
     .bindPopup('<b style="color:#be8e56;">¡Estás aquí!</b>');
+
+  // Círculo de precisión: sin esto, una ubicación resuelta por IP/red (sin
+  // GPS ni Wi-Fi, típico en Linux vía GeoClue) se veía idéntica a una
+  // ubicación exacta, sin ninguna pista visual de que puede estar a varios
+  // kilómetros de la posición real.
+  if (typeof accuracy === 'number' && accuracy > 0) {
+    circuloPrecisionUbicacion = L.circle(miUbicacionActual, {
+      radius: accuracy,
+      color: '#be8e56',
+      weight: 1,
+      fillColor: '#be8e56',
+      fillOpacity: 0.12
+    }).addTo(mapa);
+
+    if (accuracy > 1000) {
+      mostrarToast(
+        tGeo('map.geo.lowAccuracy', 'Tu ubicación es aproximada (precisión de red/IP), no exacta por GPS.'),
+        'info'
+      );
+    }
+  }
 
   if (centrar) {
     // invalidateSize() síncrono antes del flyTo: si el tamaño interno que
@@ -1987,6 +2011,10 @@ function manejarPosicionObtenida(position, centrar) {
     (pos) => {
       miUbicacionActual = [pos.coords.latitude, pos.coords.longitude];
       if (marcadorUbicacion) marcadorUbicacion.setLatLng(miUbicacionActual);
+      if (circuloPrecisionUbicacion && typeof pos.coords.accuracy === 'number') {
+        circuloPrecisionUbicacion.setLatLng(miUbicacionActual);
+        circuloPrecisionUbicacion.setRadius(pos.coords.accuracy);
+      }
     },
     null,
     { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
