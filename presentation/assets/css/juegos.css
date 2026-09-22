@@ -242,6 +242,16 @@ canvas {
   cursor: crosshair;
 }
 
+/* Antes este canvas usaba el fondo compartido (cielo celeste → pasto
+   verde) igual que los demás juegos, pero acá el verde competía visualmente
+   con el aro verde de "objeto bueno" (drawItemBackdrop en juegos.js), así
+   que costaba distinguir uno de otro de un vistazo. Un cielo nocturno de
+   "puesto callejero" deja que sean los haces de luz (drawItemLightBeam,
+   también en juegos.js) los que marquen bueno/malo con color, no el fondo. */
+#canvas-pupusa {
+  background: linear-gradient(180deg, #16233f 0%, #101a30 55%, #0a1120 100%);
+}
+
 /* ── Controles del canvas ── */
 .canvas-controls {
   position: absolute;
@@ -302,18 +312,6 @@ canvas {
 
 /* ── Celular: el volumen se reubica solo (ver juegos-mobile-controls.js) ── */
 .volume-group.volume-hidden { display: none; }
-
-/* Flotando centrado, arriba de la tarjeta de instrucciones/selección/fin
-   de juego (no adentro: esa tarjeta reemplaza su contenido seguido y se
-   perdería). */
-.volume-group.volume-floating {
-  position: absolute;
-  top: .6rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 30;
-}
-.volume-group.volume-floating input[type="range"] { width: 90px; }
 
 /* Dentro de la propia tarjeta de pausa, debajo de "Reanudar"/"Menú". */
 .volume-group.volume-inline-pause {
@@ -523,8 +521,8 @@ canvas {
   border: 3px solid var(--navy);
   border-radius: var(--r-md);
   box-shadow: 0 12px 24px rgba(0,0,0,.35);
-  padding: 1.8rem 2rem;
-  max-width: min(640px, 92vw);
+  padding: 1.4rem 1.6rem;
+  max-width: min(600px, 92vw);
   max-height: 88vh;
   overflow-y: auto;
   width: 100%;
@@ -539,39 +537,39 @@ canvas {
   color: var(--white);
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: .68rem;
+  font-size: .62rem;
   letter-spacing: .1em;
   text-transform: uppercase;
-  padding: .3rem .7rem;
+  padding: .28rem .65rem;
   border-radius: var(--r-sm);
-  margin-bottom: .7rem;
+  margin-bottom: .55rem;
 }
 
 .overlay-card h3 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.55rem;
+  font-size: 1.3rem;
   color: var(--navy);
-  margin-bottom: .45rem;
+  margin-bottom: .4rem;
 }
 
 .overlay-card p {
   font-family: var(--font-body);
-  font-size: .82rem;
+  font-size: .78rem;
   color: #4a4a4a;
-  line-height: 1.55;
-  margin-bottom: .9rem;
+  line-height: 1.45;
+  margin-bottom: .7rem;
 }
 
 .rules-list {
   text-align: left;
   list-style: disc;
   padding-left: 1.15rem;
-  margin: 0 0 1rem;
+  margin: 0 0 .8rem;
   font-family: var(--font-body);
-  font-size: .82rem;
+  font-size: .78rem;
   color: #4a4a4a;
-  line-height: 1.55;
+  line-height: 1.45;
   word-break: break-word;
 }
 
@@ -608,9 +606,9 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .5rem;
-  margin: .3rem 0 1rem;
-  padding: .8rem .6rem;
+  gap: .4rem;
+  margin: .25rem 0 .8rem;
+  padding: .6rem .55rem;
   background: rgba(11,26,51,.05);
   border: 1.5px dashed var(--navy);
   border-radius: var(--r-sm);
@@ -633,7 +631,7 @@ canvas {
 .controls-diagram-label {
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: .74rem;
+  font-size: .68rem;
   color: var(--navy);
   text-align: center;
 }
@@ -653,22 +651,22 @@ canvas {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.9rem;
-  height: 1.9rem;
-  padding: 0 .4rem;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 .35rem;
   background: var(--white);
   border: 2px solid var(--navy);
   border-bottom-width: 3px;
   border-radius: .3rem;
   font-family: var(--font-body);
   font-weight: 700;
-  font-size: .78rem;
+  font-size: .7rem;
   color: var(--navy);
   box-shadow: 0 2px 0 rgba(11,26,51,.25);
   animation: keyPress 1.8s ease-in-out infinite;
 }
 
-.control-key--space { min-width: 4.5rem; font-size: .68rem; }
+.control-key--space { min-width: 3.8rem; font-size: .62rem; }
 
 .control-keys-row .control-key:nth-child(2) { animation-delay: .25s; }
 .control-keys-row .control-key:nth-child(3) { animation-delay: .5s; }
@@ -1096,6 +1094,16 @@ canvas {
 .result-actions .btn-secondary-result {
   background: var(--navy);
   border: 2px solid var(--white);
+  /* .btn-primary (global.css) pone texto navy oscuro pensado para su fondo
+     dorado por defecto; al pisarle el fondo a uno navy acá, ese texto
+     quedaba prácticamente invisible (navy sobre navy). También se fija el
+     hover para que no "parpadee" a dorado, ya que btn-primary:hover
+     redefine el fondo. */
+  color: var(--white);
+}
+.result-actions .btn-secondary-result:hover {
+  background: var(--navy);
+  color: var(--white);
 }
 
 /* ── Botones de dificultad ── */
@@ -1332,8 +1340,8 @@ canvas {
   }
 
  canvas {
-    height: 76vh; /* Más alto en celular: aprovecha el formato vertical de la pantalla */
-    min-height: 440px;
+    height: 64vh; /* Antes 76vh: dejaba muy poco margen alrededor del modal en celular */
+    min-height: 380px;
   }
 
   /* Interfaz general del juego más compacta en celular, y menos padding
@@ -1388,7 +1396,12 @@ canvas {
      ~40-44px) y esa reducción posterior se elimina. */
   .icon-btn { width: 40px; height: 40px; font-size: 1rem; background: rgba(17,48,104,.42); }
   .icon-btn svg { width: 17px; height: 17px; }
-  .volume-group { background: rgba(17,48,104,.42); }
+  /* Junto a pausa/pantalla completa (ver juegos-mobile-controls.js) en
+     vez de flotar aparte: se achica para que las tres quepan cómodas en
+     la franja angosta de la esquina, sin invadir el HUD. */
+  .volume-group { background: rgba(17,48,104,.42); padding: .22rem .4rem; gap: .25rem; }
+  .volume-group input[type="range"] { width: 62px; }
+  .volume-icon { font-size: .85rem; }
   /* El "agarradero" de la barra de volumen medía 15px: para arrastrarlo
      con el dedo (no con la punta fina de un cursor) se agranda un poco. */
   .volume-group input[type="range"]::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -7px; }
@@ -1399,21 +1412,21 @@ canvas {
      modo, tutorial, fin de partida) más chicos en celular: estaban usando
      el mismo tamaño que en escritorio y en pantallas angostas se sentían
      enormes, empujando el contenido y obligando a hacer scroll. */
-  .overlay-card { padding: 1.1rem 1.1rem; }
-  .overlay-tag { font-size: .6rem; padding: .25rem .6rem; margin-bottom: .5rem; }
-  .overlay-card h3 { font-size: 1.05rem; margin-bottom: .35rem; }
-  .overlay-card p { font-size: .76rem; margin-bottom: .65rem; }
-  .overlay-score { font-size: 1.7rem; }
-  .overlay-best-score { font-size: .8rem; }
-  .rules-title { font-size: .68rem; }
-  .rules-list { font-size: .76rem; }
+  .overlay-card { padding: .85rem .85rem; }
+  .overlay-tag { font-size: .58rem; padding: .22rem .55rem; margin-bottom: .4rem; }
+  .overlay-card h3 { font-size: .95rem; margin-bottom: .3rem; }
+  .overlay-card p { font-size: .72rem; margin-bottom: .5rem; line-height: 1.35; }
+  .overlay-score { font-size: 1.5rem; }
+  .overlay-best-score { font-size: .74rem; }
+  .rules-title { font-size: .64rem; margin-bottom: .35rem; }
+  .rules-list { font-size: .72rem; }
 
-  .difficulty-buttons, .mode-buttons { gap: .6rem; }
-  .difficulty-btn { padding: .6rem .8rem; font-size: .76rem; }
-  .mode-btn { padding: .75rem .9rem; font-size: .82rem; }
-  .difficulty-desc { font-size: .68rem; min-height: 0; }
+  .difficulty-buttons, .mode-buttons { gap: .45rem; }
+  .difficulty-btn { padding: .5rem .7rem; font-size: .72rem; }
+  .mode-btn { padding: .6rem .8rem; font-size: .76rem; }
+  .difficulty-desc { font-size: .64rem; min-height: 0; }
 
-  .overlay-card .btn-primary { font-size: .85rem; padding: .6rem 1.5rem; }
+  .overlay-card .btn-primary { font-size: .78rem; padding: .5rem 1.3rem; }
   .overlay-card--pause .btn-primary { font-size: .72rem; padding: .42rem 1rem; }
   .btn-tutorial { font-size: .74rem; padding: .5rem 1.1rem; }
   .btn-back-selector { font-size: .72rem; padding: .3rem .75rem; margin-bottom: .6rem; }
@@ -1439,6 +1452,12 @@ canvas {
    había forma de hacer scroll para verlo completo. Acá se achica todo un
    poco más y se le da scroll propio a la tarjeta como respaldo. */
 @media (max-height: 480px) and (orientation: landscape) {
+  /* El solape entre la tarjeta y pausa/pantalla completa/volumen (fijos en
+     la esquina del canvas) ya se corrige en runtime, ver
+     evitarSolapeConControles() en juegos-mobile-controls.js — ese fix
+     mide los rectángulos reales y empuja la tarjeta hacia abajo cuando
+     hace falta, así que no depende de un padding fijo calculado a ojo
+     para esta franja de poca altura. */
   .overlay-card {
     padding: .65rem .9rem;
     max-height: 94%;
@@ -1587,6 +1606,26 @@ canvas {
 
 .btn-play-trigger:active {
   transform: scale(1.03);
+}
+
+/* En celular las 6 tarjetas de juego (con su emoji grande de 200px de alto,
+   título de 1.6rem y bastante padding) obligaban a un scroll larguísimo
+   antes de llegar al juego que se quería abrir. Se achican de forma
+   proporcional (media/emoji, tipografía, padding) para que quepan más
+   tarjetas por pantalla sin perder legibilidad. */
+@media (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    width: 92vw;
+  }
+  .game-card__media { height: 110px; }
+  .game-card__emoji { font-size: 3.2rem; }
+  .game-card__body { padding: 1rem; }
+  .game-card__tag { font-size: .62rem; margin-bottom: .3rem; }
+  .game-card__title { font-size: 1.15rem; margin-bottom: .4rem; }
+  .game-card__desc { font-size: .78rem; margin-bottom: .8rem; }
+  .btn-play-trigger { padding: .6rem; font-size: .8rem; }
 }
 
 /* ── VENTANA FLOTANTE (MODAL JUEGOS) ── */

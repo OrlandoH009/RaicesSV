@@ -549,6 +549,18 @@ ${RAICES_LANDMARKS_INFO}
     [data-theme="light"] .rs-login-overlay { background: rgba(255,253,248,0.92); backdrop-filter: blur(4px); }
     [data-theme="light"] .rs-login-overlay .rs-lock-title { color: #113068; }
     [data-theme="light"] .rs-login-overlay .rs-lock-desc { color: rgba(44,38,32,0.7); }
+
+    /* Celular en horizontal: la ventana usaba el mismo alto pensado para
+       vertical (hasta 80% de la pantalla), así que en un celular acostado
+       (poca altura real) tapaba casi toda la pantalla. Acá se vuelve más
+       ancha que alta: aprovecha el ancho disponible y se achica en alto
+       para dejar ver más de lo que hay detrás. */
+    @media (max-height: 480px) and (orientation: landscape) {
+      #rs-chat-window {
+        width: clamp(320px, 92vw, 640px);
+        height: clamp(220px, 78vh, 360px);
+      }
+    }
   `;
 
   // ==========================================
