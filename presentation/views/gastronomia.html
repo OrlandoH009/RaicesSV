@@ -242,10 +242,10 @@
             <span class="info-chip" data-i18n="gas.pupusas.chip1">Masa de maíz o arroz</span>
             <span class="info-chip" data-i18n="gas.pupusas.chip2">Relleno variado</span>
             <span class="info-chip" data-i18n="gas.pupusas.chip3">Con curtido y salsa</span>
-            <span class="info-chip" data-i18n="gas.pupusas.chip4">Patrimonio Cultural UNESCO</span>
+            <button type="button" class="info-chip info-chip--link" id="chipPatrimonio" data-i18n="gas.pupusas.chip4">Patrimonio Cultural de El Salvador</button>
           </div>
           <h3 data-i18n="gas.pupusas.h1">El orgullo gastronómico</h3>
-          <p data-i18n="gas.pupusas.p1">La pupusa es el plato nacional de El Salvador y uno de los alimentos más emblemáticos de la gastronomía centroamericana. Esta tortilla gruesa de masa de maíz o arroz con relleno fue declarada Patrimonio Cultural Intangible por la UNESCO. Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.</p>
+          <p data-i18n="gas.pupusas.p1">La pupusa es el plato nacional de El Salvador y uno de los alimentos más emblemáticos de la gastronomía centroamericana. Esta tortilla gruesa de masa de maíz o arroz con relleno fue declarada Plato Típico y Patrimonio Cultural de El Salvador por la Asamblea Legislativa en 2005. Cada segundo domingo de noviembre se celebra el Día Nacional de la Pupusa.</p>
           <p data-i18n="gas.pupusas.p2">Sus orígenes se remontan a la cultura Pipil, quienes elaboraban estas tortillas rellenas mucho antes de la llegada de los españoles. La palabra "pupusa" proviene del náhuatl <em>pupushawa</em>, que significa "cosa inflada o abultada".</p>
           <h3 data-i18n="gas.pupusas.h2">Tipos de pupusas</h3>
           <p data-i18n="gas.pupusas.p3">Las pupusas más tradicionales son: de queso (el relleno clásico), de chicharrón (carne de cerdo molida con especias), de frijoles refritos, y la revuelta (combinación de queso, chicharrón y frijoles). También existen variaciones modernas con loroco, jalapeño, mariscos y vegetales.</p>
@@ -702,6 +702,16 @@
       </div>
     </div>
 
+    <div class="heritage-modal" id="heritageModal" aria-hidden="true">
+      <div class="heritage-modal__backdrop" id="heritageModalBackdrop"></div>
+      <div class="heritage-modal__panel" role="dialog" aria-modal="true" aria-labelledby="heritageModalTitle">
+        <button class="heritage-modal__close" id="heritageModalClose" aria-label="Cerrar" data-i18n-attr="aria-label:gas.heritage.close">✕</button>
+        <h3 id="heritageModalTitle" data-i18n="gas.heritage.title">¿Qué es este Patrimonio Cultural?</h3>
+        <p data-i18n="gas.heritage.body">El 12 de julio de 2005, la Asamblea Legislativa de El Salvador emitió el Decreto Legislativo que declara a la pupusa "Plato Típico y Patrimonio Cultural de El Salvador", y establece el segundo domingo de noviembre como el Día Nacional de la Pupusa. Se trata de una declaratoria del Estado salvadoreño, no de la UNESCO: actualmente el único elemento salvadoreño inscrito en las Listas de Patrimonio Cultural Inmaterial de la UNESCO es la Cofradía de las Flores y las Palmas de Panchimalco (2025), que podés conocer en la sección de Eventos.</p>
+        <a class="heritage-modal__link" href="eventos.html?tab=flores-palmas" data-i18n="gas.heritage.link">Ver la Cofradía de las Flores y las Palmas →</a>
+      </div>
+    </div>
+
     <div class="info-panel" id="tab-torrejas">
       <div class="info-content reveal">
         <div class="info-content__hero">
@@ -763,5 +773,30 @@
   <script src="../assets/js/animations.js"></script>
   <script src="../assets/js/chatbot.js"></script>
   <script src="../assets/js/i18n.js"></script>
+  <script>
+    (function () {
+      const modal = document.getElementById('heritageModal');
+      const chip = document.getElementById('chipPatrimonio');
+      if (!modal || !chip) return;
+      const closeBtn = document.getElementById('heritageModalClose');
+      const backdrop = document.getElementById('heritageModalBackdrop');
+
+      function openModal() {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+      function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      chip.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+      });
+    })();
+  </script>
 </body>
 </html>

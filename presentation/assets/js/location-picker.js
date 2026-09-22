@@ -22,8 +22,14 @@
     [12.9, -90.2],   // suroeste
     [14.6, -87.5]    // noreste
   ];
-  const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
-  const NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse";
+  // Antes esto apuntaba directo a nominatim.openstreetmap.org, pero la
+  // política de seguridad (CSP) del sitio solo permite conexiones a 'self',
+  // así que el navegador bloqueaba la petición en silencio -la búsqueda
+  // parecía "no encontrar nada" incluso para lugares muy conocidos. Ahora
+  // pasa por nuestro propio servidor (routes/geocode.routes.js), que además
+  // agrega el User-Agent que exige la política de uso de Nominatim.
+  const NOMINATIM_URL = "/api/geocode/search";
+  const NOMINATIM_REVERSE_URL = "/api/geocode/reverse";
 
   // Mapa mini (siempre visible en el formulario)
   let map = null;
@@ -85,10 +91,7 @@
 
     map = crearMapaBase(container);
 
-    map.on("click", (e) => {
-      placeMarker(e.latlng.lat, e.latlng.lng);
-      reverseGeocode(e.latlng.lat, e.latlng.lng);
-    });
+    map.on("click", (e) => handlePinPlacement(e.latlng.lat, e.latlng.lng));
 
     setTimeout(() => map.invalidateSize(), 200);
   }
@@ -100,10 +103,29 @@
 
     mapExpanded = crearMapaBase(container);
 
-    mapExpanded.on("click", (e) => {
-      placeMarker(e.latlng.lat, e.latlng.lng);
-      reverseGeocode(e.latlng.lat, e.latlng.lng);
-    });
+    mapExpanded.on("click", (e) => handlePinPlacement(e.latlng.lat, e.latlng.lng));
+  }
+
+  // ── Qué hacer cuando el usuario marca un punto (clic en el mapa, arrastre
+  //    del pin, o "usar mi ubicación") ──
+  // Si ya hay un nombre escrito a mano en el buscador (típicamente porque
+  // Nominatim no encontró ese restaurante/lugar puntual), lo respetamos y
+  // solo actualizamos las coordenadas: antes, marcar el punto en el mapa
+  // pisaba silenciosamente ese nombre con la dirección genérica de la calle
+  // (o directamente con las coordenadas), que era la causa real de que esto
+  // se sintiera como "pide coordenadas". Si el campo está vacío, sí buscamos
+  // un nombre automático por geocodificación inversa, para no dejar el lugar
+  // sin nombre cuando el usuario solo tocó el mapa.
+  function handlePinPlacement(lat, lng) {
+    placeMarker(lat, lng);
+    const searchInput = document.getElementById("pubLocationSearch");
+    const nombreEscrito = searchInput ? searchInput.value.trim() : "";
+    if (nombreEscrito) {
+      setSelectedLocation(nombreEscrito, lat, lng);
+      closeResultsList();
+    } else {
+      reverseGeocode(lat, lng);
+    }
   }
 
   function placeMarker(lat, lng) {
@@ -118,8 +140,7 @@
         marker = L.marker(latlng, { icon: crearIconoPicker(), draggable: true }).addTo(map);
         marker.on("dragend", () => {
           const pos = marker.getLatLng();
-          placeMarker(pos.lat, pos.lng);
-          reverseGeocode(pos.lat, pos.lng);
+          handlePinPlacement(pos.lat, pos.lng);
         });
       }
       map.setView(latlng, Math.max(map.getZoom(), 14), { animate: true });
@@ -133,8 +154,7 @@
         markerExpanded = L.marker(latlng, { icon: crearIconoPicker(), draggable: true }).addTo(mapExpanded);
         markerExpanded.on("dragend", () => {
           const pos = markerExpanded.getLatLng();
-          placeMarker(pos.lat, pos.lng);
-          reverseGeocode(pos.lat, pos.lng);
+          handlePinPlacement(pos.lat, pos.lng);
         });
       }
       mapExpanded.setView(latlng, Math.max(mapExpanded.getZoom(), 15), { animate: true });
@@ -178,22 +198,21 @@
   }
 
   // ── Búsqueda (autocompletar tipo Google Maps) ──
+  // El filtro por país, el límite de resultados, etc. ya los fija el proxy
+  // (routes/geocode.routes.js); acá solo mandamos el texto buscado y el
+  // idioma para que las direcciones vuelvan en español o inglés.
   async function searchPlaces(query) {
     if (lastSearchController) lastSearchController.abort();
     lastSearchController = new AbortController();
 
     const params = new URLSearchParams({
       q: query,
-      format: "jsonv2",
-      addressdetails: "1",
-      limit: "6",
-      countrycodes: "sv"
+      lang: window.SRi18n ? window.SRi18n.getLang() : "es"
     });
 
     try {
       const response = await fetch(`${NOMINATIM_URL}?${params.toString()}`, {
-        signal: lastSearchController.signal,
-        headers: { "Accept-Language": window.SRi18n ? window.SRi18n.getLang() : "es" }
+        signal: lastSearchController.signal
       });
       if (!response.ok) throw new Error("Nominatim error");
       return await response.json();
@@ -203,33 +222,124 @@
     }
   }
 
-  function renderResults(results) {
+  // ── Búsqueda entre lugares ya usados en otras publicaciones ──
+  // Nominatim/OpenStreetMap no tiene indexado cada negocio pequeño de El
+  // Salvador; esto cubre ese hueco: en cuanto alguien publica una vez con su
+  // ubicación puesta a mano en el mapa, ese lugar queda disponible acá para
+  // que cualquiera lo encuentre después con solo escribir el nombre.
+  async function searchOwnLocations(query) {
+    try {
+      const params = new URLSearchParams({ q: query });
+      const response = await fetch(`/api/publications/locations?${params.toString()}`);
+      if (!response.ok) throw new Error("Error buscando ubicaciones de Raíces");
+      const data = await response.json();
+      return Array.isArray(data.locations) ? data.locations : [];
+    } catch (error) {
+      console.error("Error buscando lugares ya publicados:", error);
+      return [];
+    }
+  }
+
+  // Normaliza para comparar nombres sin que espacios/acentos/mayúsculas
+  // hagan parecer distinto algo que es el mismo lugar.
+  function normalizarNombre(texto) {
+    return (texto || "")
+      .toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "") // quita acentos
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  function renderResults(ownResults, nominatimResultsCrudos, query) {
     const list = document.getElementById("pubLocationResults");
     const picker = document.getElementById("locationPicker");
     if (!list) return;
 
-    if (!results.length) {
-      list.innerHTML = `<li class="location-picker__empty">${t("pub.fieldLocationNoResults", "No se encontraron lugares")}</li>`;
-      list.style.display = "block";
-      picker?.classList.add("is-searching");
-      return;
-    }
+    // Si un lugar ya salió en "Ya publicado en Raíces", no lo repetimos con
+    // el resultado de Nominatim para el mismo sitio (puede estar mapeado en
+    // OpenStreetMap Y ya haber sido publicado antes).
+    const nombresPropios = new Set(ownResults.map((r) => normalizarNombre(r.name)));
+    const nominatimResults = nominatimResultsCrudos.filter((r) => {
+      const nombreCorto = normalizarNombre(buildShortName(r));
+      return !nombresPropios.has(nombreCorto);
+    });
 
-    list.innerHTML = results.map((r, i) => `
+    // Nominatim no tiene indexado cada restaurante/negocio pequeño de El
+    // Salvador, así que siempre dejamos una salida para usar el nombre tal
+    // cual lo escribió el usuario en vez de forzarlo a encontrar una
+    // coincidencia exacta en el buscador.
+    const opcionUsarTexto = query
+      ? `<li class="location-picker__use-typed" data-use-typed="1">
+           <span class="location-picker__result-icon">✍️</span>
+           <span class="location-picker__result-text">${t("pub.fieldLocationUseTyped", 'Usar "{q}" como nombre del lugar').replace("{q}", query)}</span>
+         </li>`
+      : "";
+
+    const htmlOwn = ownResults.map((r, i) => `
+      <li data-own-index="${i}">
+        <span class="location-picker__result-icon" title="${t("pub.fieldLocationOwnBadge", "Ya publicado en Raíces")}">⭐</span>
+        <span class="location-picker__result-text">${r.name}</span>
+      </li>
+    `).join("");
+
+    const htmlNominatim = nominatimResults.map((r, i) => `
       <li data-index="${i}">
         <span class="location-picker__result-icon">📍</span>
         <span class="location-picker__result-text">${r.display_name}</span>
       </li>
     `).join("");
+
+    if (!ownResults.length && !nominatimResults.length) {
+      list.innerHTML = `
+        <li class="location-picker__empty">${t("pub.fieldLocationNoResults", "No se encontraron lugares")}</li>
+        ${opcionUsarTexto}
+      `;
+    } else {
+      list.innerHTML = htmlOwn + htmlNominatim + opcionUsarTexto;
+    }
+
     list.style.display = "block";
     picker?.classList.add("is-searching");
 
+    list.querySelectorAll("li[data-own-index]").forEach((li) => {
+      li.addEventListener("click", () => {
+        const r = ownResults[Number(li.dataset.ownIndex)];
+        selectOwnResult(r);
+      });
+    });
+
     list.querySelectorAll("li[data-index]").forEach((li) => {
       li.addEventListener("click", () => {
-        const r = results[Number(li.dataset.index)];
+        const r = nominatimResults[Number(li.dataset.index)];
         selectResult(r);
       });
     });
+
+    list.querySelector("[data-use-typed]")?.addEventListener("click", () => {
+      useTypedName(query);
+    });
+  }
+
+  // ── Elegir un lugar ya usado antes en otra publicación ──
+  // Ya trae coordenadas guardadas (las puso a mano quien lo publicó primero),
+  // así que no hace falta geocodificar nada.
+  function selectOwnResult(r) {
+    document.getElementById("pubLocationSearch").value = r.name;
+    setSelectedLocation(r.name, r.lat, r.lng);
+    if (r.lat !== null && r.lng !== null) placeMarker(r.lat, r.lng);
+    closeResultsList();
+  }
+
+  // ── Aceptar el texto escrito tal cual como nombre del lugar ──
+  // Si ya había un pin puesto en el mapa (el usuario lo tocó antes o después
+  // de escribir), se conservan esas coordenadas; si no, queda pendiente de
+  // que toque el mapa para marcar el punto exacto.
+  function useTypedName(texto) {
+    setSelectedLocation(texto, currentLat, currentLng);
+    closeResultsList();
+    if (currentLat === null || currentLng === null) {
+      toggleMapHint(true);
+    }
   }
 
   function selectResult(r) {
@@ -262,18 +372,21 @@
     const searchInput = document.getElementById("pubLocationSearch");
     try {
       const params = new URLSearchParams({
-        lat, lon: lng, format: "jsonv2", addressdetails: "1"
+        lat, lon: lng, lang: window.SRi18n ? window.SRi18n.getLang() : "es"
       });
-      const response = await fetch(`${NOMINATIM_REVERSE_URL}?${params.toString()}`, {
-        headers: { "Accept-Language": window.SRi18n ? window.SRi18n.getLang() : "es" }
-      });
+      const response = await fetch(`${NOMINATIM_REVERSE_URL}?${params.toString()}`);
       const data = await response.json();
-      const shortName = data && data.display_name ? buildShortName(data) : `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      // Nunca mostramos coordenadas crudas como "nombre" del lugar: si no
+      // hay dirección legible, usamos un texto amigable y dejamos que el
+      // usuario lo reemplace por el nombre del lugar si quiere.
+      const shortName = data && data.display_name
+        ? buildShortName(data)
+        : t("pub.fieldLocationPinFallback", "Lugar marcado en el mapa");
       if (searchInput) searchInput.value = shortName;
       setSelectedLocation(shortName, lat, lng);
     } catch (error) {
       console.error("Error en reverse geocoding:", error);
-      const fallbackName = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      const fallbackName = t("pub.fieldLocationPinFallback", "Lugar marcado en el mapa");
       if (searchInput) searchInput.value = fallbackName;
       setSelectedLocation(fallbackName, lat, lng);
     }
@@ -288,8 +401,7 @@
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        placeMarker(latitude, longitude);
-        reverseGeocode(latitude, longitude);
+        handlePinPlacement(latitude, longitude);
       },
       () => {
         alert(t("pub.fieldLocationGeoError", "No se pudo obtener tu ubicación."));
@@ -356,8 +468,7 @@
           markerExpanded = L.marker([currentLat, currentLng], { icon: crearIconoPicker(), draggable: true }).addTo(mapExpanded);
           markerExpanded.on("dragend", () => {
             const pos = markerExpanded.getLatLng();
-            placeMarker(pos.lat, pos.lng);
-            reverseGeocode(pos.lat, pos.lng);
+            handlePinPlacement(pos.lat, pos.lng);
           });
         }
       }
@@ -389,8 +500,11 @@
         return;
       }
       searchTimeout = setTimeout(async () => {
-        const results = await searchPlaces(query);
-        renderResults(results);
+        const [ownResults, nominatimResults] = await Promise.all([
+          searchOwnLocations(query),
+          searchPlaces(query)
+        ]);
+        renderResults(ownResults, nominatimResults, query);
       }, 400);
     });
 
