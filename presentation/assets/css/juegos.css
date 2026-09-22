@@ -477,12 +477,21 @@ canvas {
 
 /* ── Capas de Overlay Sin Filtros de Borrosidad ── */
 .overlay {
-  position: absolute;
+  /* Antes "position: absolute" quedaba recortado por "overflow: hidden"
+     del .canvas-wrap, así que las instrucciones/reglas/selector de modo
+     vivían apretadas en el espacio chico del canvas (peor todavía en
+     celular, donde el canvas mide poco de alto) y con poco texto ya
+     desbordaba. .game-modal__content tiene "transform" (ver más abajo),
+     así que se vuelve el bloque contenedor de todo lo "fixed" dentro de
+     él: al cambiar a "fixed" el overlay pasa a cubrir el modal del juego
+     completo (título + HUD + canvas), no solo el recuadro del canvas,
+     dando mucho más espacio para mostrarlo como un modal real. */
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(11, 26, 51, 0.4); /* Transparencia limpia sin "backdrop-filter: blur" para que todo se vea claro de fondo */
+  background: rgba(11, 26, 51, 0.55);
   border-radius: var(--r-sm);
   padding: 1rem;
   z-index: 15;
@@ -514,8 +523,10 @@ canvas {
   border: 3px solid var(--navy);
   border-radius: var(--r-md);
   box-shadow: 0 12px 24px rgba(0,0,0,.35);
-  padding: 1.6rem 1.8rem;
-  max-width: min(560px, 88vw);
+  padding: 1.8rem 2rem;
+  max-width: min(640px, 92vw);
+  max-height: 88vh;
+  overflow-y: auto;
   width: 100%;
   text-align: center;
   box-sizing: border-box;
@@ -539,7 +550,7 @@ canvas {
 .overlay-card h3 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.55rem;
   color: var(--navy);
   margin-bottom: .45rem;
 }
@@ -566,6 +577,279 @@ canvas {
 
 .rules-list li { margin-bottom: .45rem; }
 
+/* ── Puntos de paginación de las instrucciones ──
+   Cuando las instrucciones de un juego no caben en una sola tarjeta se
+   reparten en varias páginas (ver mostrarInstrucciones en juegos.js);
+   estos puntitos muestran en cuál va el jugador. */
+.instrucciones-dots {
+  display: flex;
+  justify-content: center;
+  gap: .4rem;
+  margin: -.3rem 0 .9rem;
+}
+.instrucciones-dot {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: rgba(11,26,51,.22);
+  transition: background .25s ease, transform .25s ease;
+}
+[data-theme="light"] .instrucciones-dot { background: rgba(11,26,51,.18); }
+.instrucciones-dot.is-active {
+  background: var(--gold);
+  transform: scale(1.25);
+}
+
+/* ── Diagrama animado de controles ──
+   Aviso visual (no solo texto) de cómo se controla el juego, mostrado en
+   la pantalla de instrucciones antes de empezar: teclas o gestos táctiles
+   en loop, según el dispositivo (ver esTactilJuegos en juegos.js). */
+.controls-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  margin: .3rem 0 1rem;
+  padding: .8rem .6rem;
+  background: rgba(11,26,51,.05);
+  border: 1.5px dashed var(--navy);
+  border-radius: var(--r-sm);
+}
+
+.controls-diagram--split {
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.controls-diagram-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+}
+
+.controls-diagram-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .74rem;
+  color: var(--navy);
+  text-align: center;
+}
+
+/* Teclado animado: las teclas "laten" en secuencia para simular que se
+   están presionando, sin depender de que el usuario ya sepa leer WASD. */
+.control-keys-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+}
+
+.control-keys-row { display: flex; gap: .25rem; }
+
+.control-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  height: 1.9rem;
+  padding: 0 .4rem;
+  background: var(--white);
+  border: 2px solid var(--navy);
+  border-bottom-width: 3px;
+  border-radius: .3rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .78rem;
+  color: var(--navy);
+  box-shadow: 0 2px 0 rgba(11,26,51,.25);
+  animation: keyPress 1.8s ease-in-out infinite;
+}
+
+.control-key--space { min-width: 4.5rem; font-size: .68rem; }
+
+.control-keys-row .control-key:nth-child(2) { animation-delay: .25s; }
+.control-keys-row .control-key:nth-child(3) { animation-delay: .5s; }
+.control-key--space { animation-delay: .75s; }
+
+@keyframes keyPress {
+  0%, 60%, 100% { transform: translateY(0); background: var(--white); box-shadow: 0 2px 0 rgba(11,26,51,.25); }
+  75% { transform: translateY(2px); background: var(--gold); box-shadow: 0 0 0 rgba(11,26,51,.25); }
+}
+
+/* Gestos táctiles animados (dedo/mouse en loop) */
+.control-touch, .control-mouse {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5.5rem;
+  height: 2.6rem;
+}
+
+.control-touch-finger, .control-mouse-body {
+  position: relative;
+  font-size: 1.4rem;
+  z-index: 2;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.25));
+}
+
+.control-mouse-body { font-size: 1.5rem; }
+
+/* Deslizar el dedo / mover el mouse horizontalmente */
+.control-touch-track, .control-mouse-track {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--navy) 0 6px, transparent 6px 12px);
+  opacity: .5;
+  transform: translateY(-50%);
+}
+
+.control-touch--drag-h .control-touch-finger,
+.control-mouse-body {
+  animation: dragSlideH 1.6s ease-in-out infinite;
+}
+
+@keyframes dragSlideH {
+  0%, 100% { transform: translateX(-1.3rem); }
+  50% { transform: translateX(1.3rem); }
+}
+
+/* Jalar y soltar (honda / tirador) */
+.control-touch--drag-shoot .control-touch-track {
+  left: 20%; right: 20%; top: 15%; bottom: 15%; height: auto;
+  background: none;
+  border: 2px dashed var(--navy);
+  border-radius: 50%;
+  opacity: .35;
+}
+.control-touch--drag-shoot .control-touch-finger {
+  animation: dragShoot 1.6s ease-in-out infinite;
+}
+@keyframes dragShoot {
+  0%, 15% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-.8rem, .6rem) scale(1); }
+  65% { transform: translate(.9rem, -.7rem) scale(1.15); }
+  85%, 100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Tocar (tap simple / doble toque) */
+.control-touch--tap .control-touch-ring {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  animation: tapRipple 1.4s ease-out infinite;
+}
+@keyframes tapRipple {
+  0% { transform: scale(.4); opacity: 1; }
+  70%, 100% { transform: scale(1.6); opacity: 0; }
+}
+.control-touch--tap .control-touch-finger { animation: tapBounce 1.4s ease-in-out infinite; }
+@keyframes tapBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  15% { transform: translateY(3px) scale(.92); }
+  30% { transform: translateY(0) scale(1); }
+}
+
+/* Joystick virtual: el "stick" recorre un círculo para mostrar que se
+   puede mover en cualquier dirección arrastrando el dedo. */
+.control-touch--joystick .control-touch-base {
+  position: absolute;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  opacity: .35;
+}
+.control-touch--joystick .control-touch-stick {
+  position: absolute;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: var(--gold);
+  border: 2px solid var(--navy);
+  border-radius: 50%;
+  animation: joystickMove 2.4s linear infinite;
+}
+@keyframes joystickMove {
+  0%   { transform: translate(0, -.55rem); }
+  25%  { transform: translate(.55rem, 0); }
+  50%  { transform: translate(0, .55rem); }
+  75%  { transform: translate(-.55rem, 0); }
+  100% { transform: translate(0, -.55rem); }
+}
+
+/* ── Ejemplos de objetos (agarrar / evitar) ──
+   Fila de chips con el ícono real del objeto tal como aparece en el juego,
+   para que la instrucción no dependa solo de leer texto. */
+.objetos-ejemplos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .9rem;
+  margin: .2rem 0 1rem;
+}
+
+.objetos-ejemplos-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+}
+
+.objetos-ejemplos-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.objetos-ejemplos-title--good { color: #2e7d32; }
+.objetos-ejemplos-title--bad { color: #c62828; }
+
+.objetos-ejemplos-row { display: flex; gap: .4rem; }
+
+.objeto-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  min-width: 3.2rem;
+  padding: .35rem .3rem;
+  border-radius: var(--r-sm);
+  background: var(--white);
+  font-family: var(--font-body);
+  font-size: .62rem;
+  color: var(--navy);
+}
+
+.objeto-chip-icon { font-size: 1.2rem; }
+
+.objeto-chip--good { border: 2px solid #2e7d32; }
+.objeto-chip--bad { border: 2px solid #c62828; }
+
+@media (max-width: 768px) {
+  .controls-diagram { padding: .6rem .5rem; margin-bottom: .7rem; }
+  .controls-diagram-label { font-size: .68rem; }
+  .control-key { min-width: 1.6rem; height: 1.6rem; font-size: .68rem; }
+  .control-key--space { min-width: 3.6rem; }
+  .control-touch, .control-mouse { width: 4.6rem; height: 2.2rem; }
+  .objetos-ejemplos { gap: .5rem; }
+  .objeto-chip { min-width: 2.7rem; font-size: .56rem; padding: .28rem .22rem; }
+  .objeto-chip-icon { font-size: 1rem; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .controls-diagram { padding: .4rem .5rem; margin-bottom: .4rem; gap: .3rem; }
+  .controls-diagram-label { font-size: .62rem; }
+}
+
 .rules-title {
   text-align: left;
   font-family: var(--font-body);
@@ -590,10 +874,179 @@ canvas {
 .rule-bad { background: rgba(190,60,50,.1); }
 .rule-icon { margin-right: .3rem; }
 
+/* ── Animación de cierre: pupusa lista en su plato ──
+   SVG + CSS puro (sin imágenes externas), mostrada en la pantalla de fin
+   de juego de "Atrapa la Pupusa": entra con un salto, el queso gotea,
+   sale vapor en loop y un par de brillos destacan que está lista para
+   comer. Mismo patrón de "remate apetitoso" pensado para repetirse (con
+   su propia comida/escena) en el resto de los juegos. */
+.pupusa-final {
+  position: relative;
+  width: min(220px, 70%);
+  margin: .2rem auto .6rem;
+  animation: pupusaFinalPop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+.pupusa-final__svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+.pupusa-final__sombra { fill: rgba(11,26,51,.18); }
+.pupusa-final__plato-base { fill: #f4ede1; stroke: var(--navy); stroke-width: 2.5; }
+.pupusa-final__plato-borde { fill: #fffaf0; stroke: rgba(11,26,51,.25); stroke-width: 1.5; }
+.pupusa-final__plato-centro { fill: #fdf3df; }
+.pupusa-final__salsa { fill: #d64545; opacity: .55; }
+.pupusa-final__canto { fill: #a9702f; }
+.pupusa-final__cuerpo { fill: #e7b464; stroke: #a9702f; stroke-width: 2; }
+.pupusa-final__tostado1, .pupusa-final__tostado2, .pupusa-final__tostado3 { fill: #a9702f; opacity: .65; }
+.pupusa-final__mordisco { fill: #fdf3df; }
+.pupusa-final__queso, .pupusa-final__queso-mordisco { fill: none; stroke: #ffe08a; stroke-width: 4; stroke-linecap: round; }
+.pupusa-final__queso-mordisco { stroke-width: 3.5; }
+
+.pupusa-final__vapor {
+  fill: none;
+  stroke: rgba(255,255,255,.85);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  opacity: 0;
+  transform-origin: center bottom;
+  animation: pupusaFinalVapor 2.4s ease-in-out infinite;
+}
+.pupusa-final__vapor--2 { animation-delay: .35s; }
+.pupusa-final__vapor--3 { animation-delay: .7s; }
+
+.pupusa-final__brillo {
+  position: absolute;
+  font-size: .95rem;
+  opacity: 0;
+  animation: pupusaFinalBrillo 2.6s ease-in-out infinite;
+}
+.pupusa-final__brillo--1 { top: 8%; left: 14%; animation-delay: .5s; }
+.pupusa-final__brillo--2 { top: 14%; right: 12%; animation-delay: 1.4s; font-size: .8rem; }
+
+@keyframes pupusaFinalPop {
+  0% { transform: scale(.4) translateY(18px) rotate(-6deg); opacity: 0; }
+  70% { transform: scale(1.08) translateY(-3px) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) translateY(0) rotate(0); opacity: 1; }
+}
+@keyframes pupusaFinalVapor {
+  0% { opacity: 0; transform: translateY(6px) scaleY(.7); }
+  30% { opacity: .8; }
+  75% { opacity: 0; transform: translateY(-16px) scaleY(1.15); }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+@keyframes pupusaFinalBrillo {
+  0%, 100% { opacity: 0; transform: scale(.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(18deg); }
+}
+
+/* ── Animaciones de resultado de "La Mica" (estilo caricatura 2D) ──
+   Tres escenas SVG/CSS mostradas al terminar la ronda, según cuánto
+   tiempo pasó el jugador sin la mica: nunca lo agarraron (héroe estilo
+   Flash), la tuvo toda la ronda (personaje triste bajo su nube) o algo
+   en el medio (grupo festejando sorprendido). Ver crearAnimacionMicaFlash
+   / Asombro / Triste en juegos.js. */
+.mica-final {
+  position: relative;
+  width: min(200px, 62%);
+  margin: .1rem auto .5rem;
+  animation: micaFinalPop .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+.mica-final--grupo { width: min(280px, 78%); }
+.mica-final__svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+@keyframes micaFinalPop {
+  0% { transform: scale(.4) translateY(16px); opacity: 0; }
+  70% { transform: scale(1.08) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* — Flash (nunca lo agarraron) — */
+.mica-flash__streaks path { stroke: rgba(255,214,0,.55); stroke-width: 4; stroke-linecap: round; animation: micaFlashStreak 1s ease-in-out infinite; }
+.mica-flash__streaks path:nth-child(2) { animation-delay: .12s; }
+.mica-flash__streaks path:nth-child(3) { animation-delay: .24s; }
+@keyframes micaFlashStreak { 0%, 100% { opacity: .25; transform: translateX(0); } 50% { opacity: .8; transform: translateX(6px); } }
+
+.mica-flash__dust { fill: rgba(255,255,255,.35); animation: micaFlashDust 1.2s ease-in-out infinite; }
+@keyframes micaFlashDust { 0%, 100% { opacity: .3; transform: scaleX(1); } 50% { opacity: .6; transform: scaleX(1.15); } }
+
+.mica-flash__cape { fill: #d32f2f; transform-origin: 118px 92px; animation: micaFlashCape 1.4s ease-in-out infinite; }
+@keyframes micaFlashCape { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(6deg); } }
+
+.mica-flash__torso, .mica-flash__arm, .mica-flash__leg { fill: #d32f2f; }
+.mica-flash__boot { fill: #7a1010; }
+.mica-flash__emblem { fill: #ffd600; }
+.mica-flash__head { fill: #f2c9a0; }
+.mica-flash__mask { fill: #b71c1c; }
+.mica-flash__eye { fill: #fff; }
+.mica-flash__smile { fill: none; stroke: #7a1010; stroke-width: 2.4; stroke-linecap: round; }
+
+.mica-final__spark { font-size: 16px; opacity: 0; animation: micaFinalSpark 2.2s ease-in-out infinite; }
+.mica-final__spark--2 { animation-delay: .5s; }
+.mica-final__spark--3 { animation-delay: 1.1s; }
+@keyframes micaFinalSpark {
+  0%, 100% { opacity: 0; transform: scale(.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+}
+
+/* — Grupo festejando (resultado intermedio) — */
+.mica-kid { animation: micaKidBounce 1.1s ease-in-out infinite; transform-origin: bottom center; }
+.mica-kid:nth-child(2) { animation-delay: .18s; }
+.mica-kid:nth-child(3) { animation-delay: .36s; }
+@keyframes micaKidBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* — Triste (con la mica toda la ronda) — */
+.mica-triste__sombra { fill: rgba(0,0,0,.25); }
+.mica-triste__torso, .mica-triste__arm, .mica-triste__leg { fill: #3a6ea5; }
+.mica-triste__head { fill: #f2c9a0; }
+.mica-triste__ceja { fill: none; stroke: #6b4a2b; stroke-width: 2.2; stroke-linecap: round; }
+.mica-triste__eye { fill: #2b2b2b; }
+.mica-triste__boca { fill: none; stroke: #6b4a2b; stroke-width: 2.2; stroke-linecap: round; }
+.mica-triste__mica { fill: #ffca28; stroke: #a9702f; stroke-width: 1.5; }
+
+.mica-triste__nube { animation: micaTristeNube 3s ease-in-out infinite; transform-origin: center; }
+@keyframes micaTristeNube { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+.mica-triste__gota { fill: #64b5f6; opacity: 0; animation: micaTristeGota 1.6s ease-in infinite; }
+.mica-triste__gota--2 { animation-delay: .8s; }
+@keyframes micaTristeGota {
+  0% { opacity: 0; transform: translateY(0); }
+  15% { opacity: .9; }
+  85% { opacity: .5; transform: translateY(22px); }
+  100% { opacity: 0; transform: translateY(26px); }
+}
+
+.mica-triste__lagrima { fill: #4fc3f7; opacity: 0; animation: micaTristeGota 2.4s ease-in infinite; animation-delay: .4s; }
+
+/* ── Ilustraciones de cierre generadas por IA (estilo historieta) ──
+   Reemplazan las animaciones SVG hechas a mano para los juegos que ya
+   tienen su imagen (ver presentation/assets/media/juegos/finales/ y
+   crearAnimacionCanicasComic()/crearAnimacionTromposComic() en
+   juegos.js): entran con un salto y quedan flotando suavemente, con una
+   sombra proyectada para que no se vean "pegadas" sobre la tarjeta. */
+.result-comic-img {
+  width: min(260px, 78%);
+  margin: .1rem auto .5rem;
+  display: block;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,.35));
+  animation:
+    resultComicPop .6s cubic-bezier(.34,1.56,.64,1) both,
+    resultComicFloat 3.2s ease-in-out .6s infinite alternate;
+}
+@keyframes resultComicPop {
+  0% { transform: scale(.5) translateY(20px) rotate(-6deg); opacity: 0; }
+  70% { transform: scale(1.06) translateY(-4px) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) translateY(0) rotate(0); opacity: 1; }
+}
+@keyframes resultComicFloat {
+  0% { transform: translateY(0) rotate(-1.5deg); }
+  100% { transform: translateY(-8px) rotate(1.5deg); }
+}
+
 .overlay-score {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 2.3rem;
+  font-size: 2rem;
   color: var(--gold-hover);
   margin: .1rem 0 .8rem;
 }
@@ -606,6 +1059,44 @@ canvas {
   letter-spacing: .2px;
 }
 [data-theme="light"] .overlay-best-score { color: var(--gold-hover); }
+
+/* ── Pantalla de resultado final, compartida por los 6 juegos ──
+   Antes cada juego armaba su "fin de partida" a mano: algunos con esta
+   grilla de estadísticas (con estilos en línea repetidos casi igual de
+   un juego a otro), otros sin ella; el título a veces navy y a veces
+   dorado; el récord a veces no se mostraba. Ver mostrarResultado() en
+   juegos.js — ahora todos arman su pantalla de resultado con las mismas
+   clases, así se ven y se comportan igual sin importar el juego. */
+.result-title {
+  color: var(--gold-hover);
+  font-size: 1.35rem;
+  margin-bottom: .5rem;
+}
+.result-msg {
+  font-size: .95rem;
+  margin-bottom: .75rem;
+}
+.result-stats-grid {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: .8rem;
+  background: rgba(0,0,0,.3);
+  padding: 8px;
+  border-radius: 8px;
+}
+.result-stats-grid b { display: block; color: #fff; }
+.result-stats-grid span { color: #ccc; }
+.result-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.result-actions .btn-secondary-result {
+  background: var(--navy);
+  border: 2px solid var(--white);
+}
 
 /* ── Botones de dificultad ── */
 .difficulty-buttons {
@@ -971,6 +1462,8 @@ canvas {
   .overlay-card--pause .btn-primary { font-size: .66rem; padding: .32rem .85rem; }
   .btn-tutorial { font-size: .66rem; padding: .38rem .85rem; }
   .btn-back-selector { font-size: .64rem; padding: .22rem .55rem; margin-bottom: .4rem; }
+  .instrucciones-dots { margin: -.15rem 0 .5rem; gap: .3rem; }
+  .instrucciones-dot { width: .4rem; height: .4rem; }
 }
 
 @media (max-width: 600px) {
@@ -1136,6 +1629,12 @@ canvas {
   max-height: 100vh;
   max-height: 100dvh;
   overflow-y: auto;
+  /* Al fijar solo overflow-y, los navegadores calculan overflow-x como
+     "auto" (no "visible") por especificación — así que cualquier cosa que
+     se saliera un poco del ancho (p. ej. el botón ✕ agrandándose al hacer
+     hover, ver .game-modal__close) hacía aparecer una barra de scroll
+     horizontal indeseada. Nunca se necesitó scroll horizontal acá. */
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   transform: scale(0.9);
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
