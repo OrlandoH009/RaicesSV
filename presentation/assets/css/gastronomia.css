@@ -433,6 +433,82 @@ body.welcome-lock { overflow: hidden; }
   font-weight: 700;
 }
 
+.info-chip--link {
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  transition: color .2s ease;
+}
+.info-chip--link:hover,
+.info-chip--link:focus-visible {
+  color: var(--gold);
+  outline: none;
+}
+
+/* ============ Modal: Patrimonio Cultural ============ */
+.heritage-modal {
+  position: fixed; inset: 0;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.heritage-modal.is-open {
+  visibility: visible;
+  opacity: 1;
+}
+.heritage-modal__backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.6);
+}
+.heritage-modal__panel {
+  position: relative;
+  max-width: 480px;
+  width: calc(100% - 2.5rem);
+  background: var(--bg-body, #14110e);
+  border: 1px solid rgba(190,142,86,.35);
+  border-radius: var(--r-md, 14px);
+  padding: 1.8rem 1.6rem;
+  transform: translateY(12px);
+  transition: transform .25s ease;
+}
+.heritage-modal.is-open .heritage-modal__panel { transform: translateY(0); }
+.heritage-modal__close {
+  position: absolute; top: .8rem; right: .8rem;
+  width: 2rem; height: 2rem;
+  border: none; border-radius: 50%;
+  background: rgba(190,142,86,.15);
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.heritage-modal__panel h3 {
+  font-family: var(--font-display);
+  margin: 0 0 .8rem;
+  padding-right: 1.5rem;
+  color: var(--gold);
+}
+.heritage-modal__panel p {
+  font-family: var(--font-body);
+  font-size: .92rem;
+  line-height: 1.6;
+  opacity: .9;
+  margin: 0 0 1rem;
+}
+.heritage-modal__link {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .88rem;
+  color: var(--gold);
+  text-decoration: none;
+}
+.heritage-modal__link:hover { text-decoration: underline; }
+
 /* ============ Panel de info ============ */
 .info-content__hero {
   position: relative;
