@@ -1738,7 +1738,7 @@ if (window.visualViewport) {
             top.energy = Math.max(0, top.energy - totalDamage);
             triggerHudDamageFlash('top');
           } else {
-            const splitDamage = Math.round(damage / 1.6);
+            const splitDamage = Math.round(totalDamage / 1.6);
             top.energy = Math.max(0, top.energy - splitDamage);
             bottom.energy = Math.max(0, bottom.energy - splitDamage);
             triggerHudDamageFlash('top');
