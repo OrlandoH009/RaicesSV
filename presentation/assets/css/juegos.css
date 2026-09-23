@@ -1074,17 +1074,24 @@ canvas {
   font-size: .95rem;
   margin-bottom: .75rem;
 }
+/* La grilla de estadísticas venía de cuando cada juego armaba su final a
+   mano sobre un canvas oscuro: fondo negro translúcido con texto blanco.
+   Sobre la tarjeta color crema del overlay eso se veía como un parche
+   negro pegado en medio del resultado. Ahora usa el mismo azul del resto
+   de la interfaz, apenas teñido, para que se lea como parte de la
+   tarjeta. */
 .result-stats-grid {
   display: grid;
   gap: 8px;
   margin: 12px 0;
   font-size: .8rem;
-  background: rgba(0,0,0,.3);
+  background: rgba(17,48,104,.07);
+  border: 1px solid rgba(17,48,104,.14);
   padding: 8px;
   border-radius: 8px;
 }
-.result-stats-grid b { display: block; color: #fff; }
-.result-stats-grid span { color: #ccc; }
+.result-stats-grid b { display: block; color: var(--navy); }
+.result-stats-grid span { color: #6a6a6a; }
 .result-actions {
   display: flex;
   gap: 10px;
@@ -1199,6 +1206,28 @@ canvas {
 
 .mode-btn.pve { border-color: #d63c3c; color: #d63c3c; }
 .mode-btn.pve:hover { background: rgba(214, 60, 60, 0.1); }
+
+/* Modo de 2 jugadores no disponible en celular (ver
+   modoDosJugadoresDisponible en juegos.js): se deja a la vista, apagado,
+   con la explicación en su propia descripción — así se entiende que el
+   juego sí tiene ese modo y dónde se puede usar, en vez de que la opción
+   simplemente no exista. */
+.mode-btn.mode-btn--bloqueado,
+.mode-btn.mode-btn--bloqueado:hover {
+  border-color: rgba(11,26,51,.25);
+  color: rgba(11,26,51,.45);
+  background: rgba(11,26,51,.04);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.mode-btn.mode-btn--bloqueado .difficulty-desc {
+  color: rgba(11,26,51,.5);
+  /* El botón va en mayúsculas; la explicación de por qué está bloqueado es
+     una frase entera y en mayúsculas se leía como un grito. */
+  text-transform: none;
+  font-style: normal;
+}
 
 .difficulty-desc {
   font-family: var(--font-body);
@@ -1475,7 +1504,14 @@ canvas {
   .game-panel__head h2 { font-size: 1.1rem; }
 
   .overlay-card {
-    padding: .65rem .9rem;
+    padding: .8rem 1.1rem;
+    /* Apaisado el alto es lo escaso, pero el ANCHO sobra (un celular
+       rotado mide 700-950px): la tarjeta seguía topada en los 600px
+       pensados para escritorio, así que el texto se partía en muchas
+       líneas y encima había que achicarlo para que entraran. Usando el
+       ancho real entran menos líneas y la letra puede ser más grande. */
+    width: 100%;
+    max-width: min(860px, 95%);
     /* "94%" era un % fijo del overlay que no sabía cuánto lo había
        empujado hacia abajo evitarSolapeConControles() (juegos-mobile-
        controls.js) para no toparse con pausa/pantalla completa/volumen:
@@ -1486,26 +1522,28 @@ canvas {
     max-height: min(94%, calc(100% - var(--controles-alto, 0px) - .5rem));
     overflow-y: auto;
   }
-  .overlay-tag { font-size: .58rem; padding: .2rem .55rem; margin-bottom: .3rem; }
-  .overlay-card h3 { font-size: .92rem; margin-bottom: .25rem; }
-  .overlay-card p { font-size: .68rem; margin-bottom: .4rem; line-height: 1.35; }
-  .overlay-score { font-size: 1.25rem; }
-  .overlay-best-score { font-size: .68rem; }
-  .rules-title { font-size: .6rem; margin-bottom: .25rem; }
-  .rules-list { font-size: .68rem; }
-  .rules-list li { margin-bottom: .15rem; }
+  .overlay-tag { font-size: .66rem; padding: .24rem .65rem; margin-bottom: .4rem; }
+  .overlay-card h2 { font-size: 1.2rem; margin-bottom: .3rem; }
+  .overlay-card h3 { font-size: 1.12rem; margin-bottom: .3rem; }
+  .overlay-card p { font-size: .82rem; margin-bottom: .5rem; line-height: 1.4; }
+  .overlay-score { font-size: 1.6rem; }
+  .overlay-best-score { font-size: .78rem; }
+  .rules-title { font-size: .7rem; margin-bottom: .3rem; }
+  .rules-list { font-size: .82rem; }
+  .rules-list li { margin-bottom: .25rem; }
 
-  .difficulty-buttons, .mode-buttons { gap: .4rem; }
-  .difficulty-btn { padding: .4rem .6rem; font-size: .68rem; }
-  .mode-btn { padding: .5rem .7rem; font-size: .72rem; }
-  .difficulty-desc { font-size: .6rem; min-height: 0; }
+  .difficulty-buttons, .mode-buttons { gap: .5rem; }
+  .difficulty-btn { padding: .55rem .7rem; font-size: .82rem; }
+  .mode-btn { padding: .6rem .85rem; font-size: .86rem; }
+  .difficulty-desc { font-size: .72rem; min-height: 0; }
 
-  .overlay-card .btn-primary { font-size: .72rem; padding: .42rem 1rem; }
-  .overlay-card--pause .btn-primary { font-size: .66rem; padding: .32rem .85rem; }
-  .btn-tutorial { font-size: .66rem; padding: .38rem .85rem; }
-  .btn-back-selector { font-size: .64rem; padding: .22rem .55rem; margin-bottom: .4rem; }
-  .instrucciones-dots { margin: -.15rem 0 .5rem; gap: .3rem; }
-  .instrucciones-dot { width: .4rem; height: .4rem; }
+  .overlay-card .btn-primary { font-size: .88rem; padding: .55rem 1.5rem; }
+  .overlay-card--pause .btn-primary { font-size: .8rem; padding: .45rem 1.1rem; }
+  .btn-tutorial { font-size: .8rem; padding: .48rem 1.1rem; }
+  .btn-back-selector { font-size: .76rem; padding: .3rem .8rem; margin-bottom: .5rem; }
+  .instrucciones-dots { margin: -.15rem 0 .6rem; gap: .35rem; }
+  .instrucciones-dot { width: .45rem; height: .45rem; }
+  .result-comic-img { width: min(190px, 46%); }
 }
 
 @media (max-width: 600px) {
@@ -1526,6 +1564,110 @@ canvas {
   .overlay-score { font-size: 1.5rem; }
   .overlay-card .btn-primary { font-size: .8rem; padding: .55rem 1.3rem; }
   .btn-tutorial { font-size: .7rem; padding: .45rem .9rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CELULAR EN VERTICAL: pantallas de menú a tamaño real
+   ══════════════════════════════════════════════════════════════════
+   Los dos bloques de arriba (max-width 768px y 600px) venían achicando
+   todas las pantallas de menú (instrucciones, dificultad, modo, fin de
+   partida) para que entraran "por las dudas". El problema es que el
+   overlay es fixed y cubre TODO el modal, así que en un celular vertical
+   sobra muchísimo alto: la tarjeta terminaba ocupando apenas un tercio de
+   la pantalla, con textos de .72rem y botones de .78rem — chiquita y
+   perdida en el medio, justo al revés de lo que hace falta cuando se lee
+   con el celular en la mano.
+
+   Acá se revierte eso solo para el celular en VERTICAL (el apaisado sigue
+   con el bloque por altura de más abajo, donde el alto sí es escaso): la
+   tarjeta se estira a todo el ancho y puede crecer hasta el alto
+   disponible, y la tipografía y los botones vuelven a un tamaño cómodo
+   para el dedo. Va después de los otros breakpoints a propósito: las media
+   queries no suman especificidad, gana la última que coincide. */
+@media (max-width: 768px) and (orientation: portrait) {
+  .overlay { padding: .55rem; }
+
+  .overlay-card {
+    width: 100%;
+    max-width: none;
+    /* Mismo cálculo que el bloque apaisado de abajo: evitarSolapeConControles()
+       (juegos-mobile-controls.js) empuja la tarjeta hacia abajo para que no
+       quede debajo de pausa/pantalla completa/volumen, y deja en
+       --controles-alto cuánto la empujó. Al crecer la tarjeta hasta el alto
+       disponible hace falta descontar ese hueco o se sale por abajo. */
+    max-height: calc(100% - var(--controles-alto, 0px) - .5rem);
+    padding: 1.35rem 1.15rem 1.5rem;
+  }
+
+  .overlay-tag { font-size: .74rem; padding: .34rem .8rem; margin-bottom: .75rem; }
+  .overlay-card h2 { font-size: 1.45rem; margin-bottom: .55rem; }
+  .overlay-card h3 { font-size: 1.35rem; margin-bottom: .55rem; }
+  .overlay-card p { font-size: .95rem; line-height: 1.5; margin-bottom: .9rem; }
+
+  .rules-title { font-size: .8rem; margin-bottom: .55rem; }
+  .rules-list { font-size: .92rem; line-height: 1.5; padding-left: 1.3rem; }
+  .rules-list li { margin-bottom: .6rem; }
+
+  /* Los diagramas de control son la parte más "visual" de las
+     instrucciones; en celular son justamente lo que conviene ver grande. */
+  .controls-diagram { padding: 1rem .8rem; margin: .4rem 0 1rem; gap: .6rem; }
+  .controls-diagram-label { font-size: .82rem; }
+  .control-key { min-width: 2.2rem; height: 2.2rem; font-size: .9rem; }
+  .control-key--space { min-width: 5rem; font-size: .78rem; }
+  .control-touch, .control-mouse { width: 7rem; height: 3.4rem; }
+  .control-touch-finger, .control-mouse-body { font-size: 1.9rem; }
+
+  .objetos-ejemplos { gap: .8rem; margin: .3rem 0 1.1rem; }
+  .objetos-ejemplos-title { font-size: .76rem; }
+  .objeto-chip { min-width: 3.6rem; font-size: .72rem; padding: .45rem .38rem; }
+  .objeto-chip-icon { font-size: 1.5rem; }
+
+  .instrucciones-dots { margin: -.1rem 0 1.1rem; gap: .5rem; }
+  .instrucciones-dot { width: .6rem; height: .6rem; }
+
+  /* Botones: además de leerse mejor, así llegan al blanco de ~44px que
+     necesita el dedo (antes quedaban en poco más de 30px de alto). */
+  .difficulty-buttons, .mode-buttons { gap: .65rem; }
+  .difficulty-btn, .mode-btn { padding: .9rem 1rem; font-size: .95rem; }
+  .mode-btn { font-size: 1rem; }
+  .difficulty-desc { font-size: .78rem; margin-top: .35rem; }
+
+  .overlay-card .btn-primary { font-size: 1.02rem; padding: .85rem 2rem; }
+  .overlay-card--pause .btn-primary { font-size: .92rem; padding: .7rem 1.4rem; }
+
+  /* Con el contenido a tamaño real hay explicaciones (Coasters, Mica) que
+     ya no entran de una y la tarjeta usa su scroll interno. El botón que
+     avanza queda pegado abajo para que nunca haya que adivinar que hay
+     que bajar para encontrarlo. */
+  .overlay-card > .btn-primary,
+  .overlay-card > .result-actions {
+    position: sticky;
+    bottom: .6rem;
+    z-index: 2;
+    width: 100%;
+  }
+  /* El "0 0 0 .55rem var(--cream)" es un halo sólido del color de la
+     tarjeta: tapa el texto que pasa por detrás al hacer scroll sin perder
+     el resplandor dorado propio del botón (las sombras se pintan en
+     orden, la primera arriba). */
+  .overlay-card > .btn-primary {
+    box-shadow: 0 10px 26px rgba(190,142,86,.35), inset 0 1px 0 rgba(255,255,255,.4), 0 0 0 .55rem var(--cream);
+  }
+  .overlay-card > .result-actions {
+    padding-top: .5rem;
+    background: var(--cream);
+    box-shadow: 0 0 0 .55rem var(--cream);
+  }
+  .btn-tutorial { font-size: .9rem; padding: .72rem 1.4rem; margin-top: .9rem; }
+  .btn-back-selector { font-size: .85rem; padding: .45rem 1rem; margin-bottom: 1rem; }
+
+  /* Pantalla de fin de partida */
+  .overlay-score { font-size: 2.2rem; }
+  .overlay-best-score { font-size: .92rem; }
+  .result-title { font-size: 1.4rem; }
+  .result-msg { font-size: .95rem; }
+  .result-stats-grid { font-size: .88rem; gap: 10px; padding: 12px 10px; }
+  .result-comic-img { width: min(300px, 88%); }
 }
 
 /* ── DISEÑO DE TARJETAS (PORTADAS) ── */

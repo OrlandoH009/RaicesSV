@@ -466,7 +466,13 @@ document.addEventListener('keydown', (e) => {
 // ════════════════════════════════════
 // MOSTRAR MODAL DE INVITACIÓN (GSAP)
 // ════════════════════════════════════
-function showGuestModal() {
+/* Único modal de "inicia sesión" de la página: flotante, centrado en la
+   pantalla y por encima de todo (ver .guest-modal-overlay en
+   publicaciones.css). Lo usan tanto el "me gusta" como el formulario de
+   subida bloqueado (ver checkGuestFormAccess), que antes tenía su propio
+   aviso pegado a la sección; `titulo`/`texto` dejan que cada uno diga lo
+   suyo sin duplicar el modal. */
+function showGuestModal(titulo, texto) {
   const overlay = document.getElementById('guestModalOverlay');
   const modal = document.getElementById('guestModal');
 
@@ -474,21 +480,33 @@ function showGuestModal() {
     const modalTitle = modal.querySelector('.guest-modal__title');
     const modalText = modal.querySelector('.guest-modal__text');
 
-    if (modalTitle) modalTitle.textContent = t('pub.modalTitle');
-    if (modalText) modalText.textContent = t('pub.modalText');
+    if (modalTitle) modalTitle.textContent = titulo || t('pub.modalTitle');
+    if (modalText) modalText.textContent = texto || t('pub.modalText');
 
     overlay.classList.add('is-visible');
 
     if (window.gsap) {
       gsap.set(modal, { opacity: 0, y: 30, scale: 0.9 });
-      gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to(modal, { opacity: 1, y: 0, scale: 1, duration: 0.5 })
-        .from(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__actions, .guest-modal__skip'), {
-          opacity: 0,
-          y: 12,
-          duration: 0.35,
-          stagger: 0.06
-        }, '-=0.25');
+      // Antes esto era un .from() encadenado dentro del mismo timeline en
+      // una posición "-=0.25" (superpuesta con la animación del propio
+      // modal). Un .from() calcula su valor final leyendo el estado del
+      // elemento en el momento en que arranca a reproducirse — pero al
+      // vivir en una posición intermedia del timeline (no en el instante
+      // 0), terminaba capturando opacity:0 en vez del 1 real, y el título/
+      // texto/botones quedaban invisibles para siempre (el modal se veía
+      // vacío, solo con el ícono). Igual que ya hace categorias.html con
+      // este mismo modal: un tween aparte con .fromTo() (valores de
+      // inicio Y de fin explícitos, sin ambigüedad) disparado recién
+      // cuando el modal terminó de entrar.
+      gsap.to(modal, {
+        opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power3.out',
+        onComplete: () => {
+          gsap.fromTo(modal.querySelectorAll('.guest-modal__icon, .guest-modal__title, .guest-modal__text, .guest-modal__actions, .guest-modal__skip'),
+            { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.35, stagger: 0.06, ease: 'power2.out' }
+          );
+        }
+      });
 
       gsap.to(modal.querySelector('.guest-modal__icon'), {
         rotate: 8,
@@ -536,35 +554,47 @@ function checkGuestFormAccess() {
   if (!isUserLoggedIn) {
     formSection.classList.add('is-guest');
 
-    const overlay = document.createElement('div');
-    overlay.className = 'guest-blocker-overlay';
-    overlay.innerHTML = `
-      <div class="blocker-content" style="position: relative; z-index: 20;">
-        <div class="blocker-icon">🔒</div>
-        <h3 class="blocker-title">${t('pub.guestBlockerTitle')}</h3>
-        <p class="blocker-text">${t('pub.guestBlockerText')}</p>
-        <button class="blocker-btn" id="goToLoginBtn" type="button" style="pointer-events: auto; cursor: pointer;">${t('pub.guestBlockerBtn')}</button>
-      </div>
-    `;
-    formSection.appendChild(overlay);
+    // Antes el aviso de "inicia sesión" era una capa propia
+    // (.guest-blocker-overlay) estirada con position:absolute sobre toda
+    // la sección. Como la sección mide más de 1200px de alto (formulario
+    // + mapa), su centro caía fuera de la pantalla: el mensaje aparecía
+    // cortado, encimado con los controles del mapa, y había que hacer
+    // scroll a ciegas para llegar al botón. Ahora se reusa el modal
+    // flotante que ya tenía la página (showGuestModal, centrado en la
+    // pantalla y usado también por el "me gusta"), y sobre el formulario
+    // queda solo un aviso en línea que explica por qué está apagado.
+    const abrirLogin = () => showGuestModal(t('pub.guestBlockerTitle'), t('pub.guestBlockerText'));
 
-    const loginBtn = document.getElementById('goToLoginBtn');
-    if (loginBtn) {
-      loginBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
-      });
-    }
+    const hint = document.createElement('div');
+    hint.className = 'guest-lock-hint';
+    hint.innerHTML = `
+      <span class="guest-lock-hint__icon" aria-hidden="true">🔒</span>
+      <p class="guest-lock-hint__text">${t('pub.guestBlockerText')}</p>
+      <button class="guest-lock-hint__btn" type="button" id="goToLoginBtn">${t('pub.guestBlockerBtn')}</button>
+    `;
+    const contenedor = formSection.querySelector('.create-publication-container');
+    const form = formSection.querySelector('.publication-form');
+    if (contenedor && form) contenedor.insertBefore(hint, form);
+    else formSection.appendChild(hint);
+
+    hint.querySelector('#goToLoginBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      abrirLogin();
+    });
+
+    // Tocar el formulario apagado también abre el modal: es el gesto
+    // natural del que todavía no entendió que hace falta cuenta.
+    form?.addEventListener('click', (e) => {
+      e.preventDefault();
+      abrirLogin();
+    });
 
     const originalForm = document.getElementById('publicationForm');
     if (originalForm) {
       const inputs = originalForm.querySelectorAll('input, textarea, select, button');
       inputs.forEach(input => {
-        if (input.id !== 'goToLoginBtn') {
-          input.disabled = true;
-          input.tabIndex = -1;
-        }
+        input.disabled = true;
+        input.tabIndex = -1;
       });
     }
   }
@@ -857,8 +887,13 @@ fetch('/auth/status')
     // Si el usuario está logueado, quitar el bloqueo y habilitar el formulario
     if (isUserLoggedIn) {
       const formSection = document.querySelector('.create-publication-section');
-      const blocker = formSection?.querySelector('.guest-blocker-overlay');
-      if (blocker) blocker.remove();
+      // checkGuestFormAccess() de arriba solo crea el aviso .guest-lock-hint
+      // cuando NO hay sesión, así que si isUserLoggedIn ya es true acá no
+      // llegó a crearse nada que sacar — este remove() es solo por si en
+      // algún momento futuro este bloque corre después de un login sin
+      // recargar la página (hoy no pasa: la página siempre carga con el
+      // estado de sesión ya resuelto).
+      formSection?.querySelector('.guest-lock-hint')?.remove();
       const form = document.getElementById('publicationForm');
       if (form) {
         const inputs = form.querySelectorAll('input, textarea, select, button');

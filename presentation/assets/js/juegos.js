@@ -425,6 +425,51 @@ function setupRotateGate(gameId, canvasWrap) {
   update();
 }
 
+/* Pantalla completa obligatoria en celular: Trompos y Coasters son los
+   dos juegos "de a dos" (ver modoDosJugadoresDisponible más abajo) y los
+   que más pantalla piden — el duelo necesita ver todo el círculo y la
+   carrera necesita las dos calles enteras. Metidos adentro del modal, en
+   un celular al canvas le quedan unos 300px de alto reales entre el
+   título del modal, el HUD y el borde del teléfono. Por eso, en cuanto
+   arranca la partida (siempre desde un toque del jugador, que es lo que
+   el navegador exige para conceder pantalla completa) el canvas se va a
+   pantalla completa solo. Si el navegador la niega, no pasa nada: el
+   juego sigue igual, solo que en el modal.
+   `orientacion` solo se usa donde el juego además exige horizontal
+   (Trompos, ver setupRotateGate): bloquear la orientación únicamente
+   funciona estando ya en pantalla completa y solo en Android, así que va
+   envuelto en try/catch y sin depender de que funcione. */
+function forzarPantallaCompleta(canvasWrap, orientacion) {
+  if (!esTactilJuegos || !canvasWrap) return;
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
+
+  const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+  if (!req) return;
+
+  try {
+    const r = req.call(canvasWrap);
+    if (r && typeof r.then === 'function') {
+      r.then(() => bloquearOrientacion(orientacion)).catch(() => {});
+    } else {
+      bloquearOrientacion(orientacion);
+    }
+  } catch (e) { /* el navegador no la concedió: se sigue jugando en el modal */ }
+}
+
+function bloquearOrientacion(orientacion) {
+  if (!orientacion) return;
+  try { screen.orientation?.lock?.(orientacion)?.catch?.(() => {}); } catch (e) {}
+}
+
+/* Los modos de 2 jugadores (Trompos y Coasters) son a pantalla
+   compartida: los dos juegan en el mismo aparato, uno con WASD y el otro
+   con las flechas. En celular eso no existe — no hay teclado, y el
+   control táctil de cada juego es uno solo (un joystick, o tocar el
+   carril) — así que el segundo jugador se quedaría sin forma de jugar.
+   Por eso en celular el modo queda bloqueado a la vista, explicando por
+   qué, en vez de dejar elegirlo y que la partida no se pueda jugar. */
+const modoDosJugadoresDisponible = !esTactilJuegos;
+
 /* ══════════════════════════════════════════════════════════
    GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
    ══════════════════════════════════════════════════════════ */
@@ -487,6 +532,7 @@ if (window.visualViewport) {
   if(!canvas || typeof Matter === 'undefined') return;
 
   const canvasWrap = canvas.closest('.canvas-wrap');
+  setupRotateGate('pupusa', canvasWrap);
 
   // Cuando te metes en fullscreen, actualizamos el tamaño del canvas.
   // Así evitamos que la pantalla se vea toda estirada y pixeleada como pasaba antes.
@@ -1190,6 +1236,11 @@ if (window.visualViewport) {
   }
 
   function start(){
+    // En celular el juego se juega en horizontal y a pantalla completa
+    // (ver setupRotateGate más arriba): metido en el modal y en vertical,
+    // el comal apenas tenía ancho para moverse de lado a lado.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resizeCanvas();
     for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
     score=0; lives=totalLives; timeLeft=gameConfig[gameDifficulty].timeLimit; running=true; paused=false;
@@ -1357,22 +1408,29 @@ if (window.visualViewport) {
   let playerWins = 0;
   let rivalWins = 0;
 
-  // El NPC se mueve siempre a la MISMA velocidad que el jugador (NPC_CHASE_SPEED,
-  // igual al 4 fijo que usan P1/P2 más abajo) — antes "hard" literalmente
-  // giraba más rápido que un jugador humano, lo que se sentía injusto en vez
-  // de difícil. Ahora la dificultad solo cambia qué tan rápido reacciona
-  // (reaction, en ms entre decisiones) y con qué constancia decide atacar en
-  // vez de quedarse quieto (moveChance, probabilidad de comprometerse a
-  // moverse en cada reacción) — un NPC "fácil" reacciona lento y duda
-  // seguido; uno "difícil" reacciona casi al instante y casi siempre te
-  // persigue. `precision` (qué tan bien anticipa tu posición al perseguir)
-  // se mantiene como un tercer matiz de dificultad, sin afectar la velocidad.
+  // El NPC arranca a la MISMA velocidad base que el jugador (NPC_CHASE_SPEED,
+  // igual al 4 fijo que usan P1/P2 más abajo): nunca "hace trampa" yendo más
+  // rápido de lo que puede ir un humano. Lo que cambia con la dificultad:
+  //   - reaction:  ms entre decisiones (qué tan rápido te lee).
+  //   - moveChance: probabilidad de comprometerse a atacar en cada decisión,
+  //                 en vez de aflojar.
+  //   - precision: qué tanto ANTICIPA — apunta a donde vas a estar, no a
+  //                donde estás, y con menos desvío en la puntería.
+  //   - maxBoost:  techo de su aceleración, el mismo mecanismo que usa el
+  //                jugador al mantener una dirección (ver step()).
+  // maxBoost es el que más pesaba y faltaba: el jugador acelera hasta 2.0
+  // (velocidad 8) mientras el NPC iba siempre a 4 fijo, y como el daño de
+  // cada choque se lo lleva el más rápido (ver collisionStart), el jugador
+  // ganaba casi todos los encontronazos por inercia — el NPC no perdía por
+  // tonto, perdía por lento. Ahora en difícil llega al mismo 2.0 que el
+  // jugador: para ganarle hay que llegar al choque con más velocidad de
+  // verdad, no solo esperar a que se acerque.
   const NPC_CHASE_SPEED = 4;
   let gameConfig = {
     npc: {
-      easy:   { precision: 0.15, reaction: 900, moveChance: 0.3 },
-      medium: { precision: 0.35, reaction: 550, moveChance: 0.55 },
-      hard:   { precision: 0.6,  reaction: 260, moveChance: 0.9 }
+      easy:   { precision: 0.25, reaction: 700, moveChance: 0.50, maxBoost: 1.3 },
+      medium: { precision: 0.60, reaction: 360, moveChance: 0.80, maxBoost: 1.65 },
+      hard:   { precision: 0.95, reaction: 140, moveChance: 1.00, maxBoost: 2.0 }
     }
   };
 
@@ -1667,36 +1725,48 @@ if (window.visualViewport) {
 
   function updateNPC(timestamp){
     if(gameMode !== 'pve') return;
-    
+
     const now = timestamp || Date.now();
     const config = gameConfig.npc[npcDifficulty];
-    
-    if(now - npcLastAction > config.reaction){
-      npcLastAction = now;
-      
-      const distX = top.body.position.x - bottom.body.position.x;
-      const distY = top.body.position.y - bottom.body.position.y;
-      const distance = Math.sqrt(distX*distX + distY*distY);
-      
-      if(Math.random() > config.moveChance) return;
-      
-      if(distance > 70){
-        const targetX = bottom.body.position.x + (distX * config.precision);
-        const targetY = bottom.body.position.y + (distY * config.precision);
 
-        const dx = targetX - bottom.body.position.x;
-        const dy = targetY - bottom.body.position.y;
-        const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    if(now - npcLastAction <= config.reaction) return;
+    npcLastAction = now;
 
-        Body.setVelocity(bottom.body, { x: (dx / len) * NPC_CHASE_SPEED, y: (dy / len) * NPC_CHASE_SPEED });
-      } else {
-        const angle = Math.random() * Math.PI * 2;
-        Body.setVelocity(bottom.body, {
-          x: Math.cos(angle) * NPC_CHASE_SPEED,
-          y: Math.sin(angle) * NPC_CHASE_SPEED
-        });
-      }
+    const distX = top.body.position.x - bottom.body.position.x;
+    const distY = top.body.position.y - bottom.body.position.y;
+    const distance = Math.sqrt(distX*distX + distY*distY);
+
+    // Decidió aflojar en este turno: pierde impulso igual que el jugador
+    // cuando suelta las teclas, en vez de quedar congelado a media
+    // velocidad.
+    if(Math.random() > config.moveChance){
+      bottom.speedMultiplier = Math.max(bottom.speedMultiplier - 0.1, 1.0);
+      return;
     }
+
+    // Misma aceleración progresiva que usa el jugador en step(), topada
+    // por la dificultad.
+    bottom.speedMultiplier = Math.min(bottom.speedMultiplier + 0.12, config.maxBoost);
+    const speed = NPC_CHASE_SPEED * bottom.speedMultiplier;
+
+    let angle;
+    if(distance > 70){
+      // Antes esto escalaba el vector hacia el jugador por `precision` y
+      // después lo normalizaba, así que `precision` no cambiaba nada: el
+      // NPC siempre iba derecho a donde el jugador ESTABA. Ahora apunta a
+      // donde va a estar (adelanta según su velocidad) y el error de
+      // puntería es lo que baja con la dificultad.
+      const anticipo = 12 * config.precision;
+      angle = Math.atan2(distY + top.body.velocity.y * anticipo, distX + top.body.velocity.x * anticipo);
+      angle += (Math.random() - 0.5) * (1 - config.precision) * Math.PI;
+    } else {
+      // Ya lo tiene encima: embiste de frente. Antes salía disparado en una
+      // dirección al azar justo en el momento del choque, que es cuando más
+      // le convenía empujar.
+      angle = Math.atan2(distY, distX) + (Math.random() - 0.5) * (1 - config.precision);
+    }
+
+    Body.setVelocity(bottom.body, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed });
   }
 
   Events.on(engine, 'collisionStart', (evt)=>{
@@ -1970,6 +2040,10 @@ if (window.visualViewport) {
     
     top.energy = 100;
     bottom.energy = 100;
+    // Sin esto la ronda nueva arrancaba con el impulso acumulado en la
+    // anterior (ver updateNPC y step): uno de los dos salía ya lanzado.
+    top.speedMultiplier = 1.0;
+    bottom.speedMultiplier = 1.0;
   }
 
   // Ilustración de cierre estilo historieta (imagen generada por IA, ver
@@ -2072,6 +2146,11 @@ if (window.visualViewport) {
   menuBtn?.addEventListener('click', returnToMenu);
 
   function start(){
+    // En celular el duelo se juega a pantalla completa (y en horizontal,
+    // que es lo que ya exigía setupRotateGate): metido en el modal, al
+    // círculo le quedaba una franja mínima de pantalla.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resizeCanvas();
     setupWalls();
     resetPositions();
@@ -2169,9 +2248,11 @@ if (window.visualViewport) {
       <h3>⚡ ${jt('jue.card2.titleModal', 'Batalla de Trompos SV')}</h3>
       <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
       <div class="mode-buttons">
-        <button class="mode-btn pvp" id="btn-pvp-trompos">
-          ${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
-          <div class="difficulty-desc">${jt('jue.card2.mode.pvpDesc', 'Compite localmente')}</div>
+        <button class="mode-btn pvp${modoDosJugadoresDisponible ? '' : ' mode-btn--bloqueado'}" id="btn-pvp-trompos" ${modoDosJugadoresDisponible ? '' : 'disabled aria-disabled="true"'}>
+          ${modoDosJugadoresDisponible ? '' : '🔒 '}${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${modoDosJugadoresDisponible
+            ? jt('jue.card2.mode.pvpDesc', 'Compite localmente')
+            : jt('jue.mode.pvpSoloPC', 'Solo desde computadora: los dos jugadores comparten el teclado')}</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
           ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
@@ -2181,11 +2262,13 @@ if (window.visualViewport) {
       <button class="btn-tutorial" id="btn-tutorial-trompos">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
 
     document.getElementById('btn-tutorial-trompos').onclick = startTutorial;
-    document.getElementById('btn-pvp-trompos').onclick = ()=>{
-      gameMode = 'pvp';
-      document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
-      setTimeout(()=>{ showRoundSelector(); }, 100);
-    };
+    if (modoDosJugadoresDisponible) {
+      document.getElementById('btn-pvp-trompos').onclick = ()=>{
+        gameMode = 'pvp';
+        document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
+        setTimeout(()=>{ showRoundSelector(); }, 100);
+      };
+    }
     
     document.getElementById('btn-pve-trompos').onclick = ()=>{
       gameMode = 'pve';
@@ -2505,6 +2588,7 @@ if (window.visualViewport) {
   const overlayCard = document.getElementById('overlay-card-coasters');
   const gameContent = document.getElementById('modal-coasters');
   const canvasWrap = document.getElementById('coasters-canvas-wrap');
+  setupRotateGate('coasters', canvasWrap);
   const { Engine, World, Bodies, Body, Events, Composite } = Matter;
 
   let isGameVisible = false;
@@ -2718,6 +2802,11 @@ if (window.visualViewport) {
   }
 
   function startTutorial() {
+    // El tutorial arranca el juego "a mano" en vez de llamar a startGame()
+    // (ver más abajo), así que necesita forzar pantalla completa/horizontal
+    // por su cuenta, igual que una partida real.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     gameMode = 'pve'; // el tutorial siempre entrena contra un "bot" quieto, nunca 2 jugadores
     botDifficulty = 'easy';
     targetDistance = 999999;
@@ -3819,6 +3908,13 @@ if (window.visualViewport) {
 
   function startGame(difficulty) {
     if (difficulty) botDifficulty = difficulty;
+
+    // En celular la carrera se juega en horizontal y a pantalla completa
+    // (igual que el resto de los juegos, ver setupRotateGate más arriba):
+    // dentro del modal y en vertical las dos calles quedaban demasiado
+    // angostas para ver los baches y las paradas con tiempo de reaccionar.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resetGame();
     buildHud();
     hideOverlay();
@@ -3848,9 +3944,11 @@ if (window.visualViewport) {
       <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
       <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
       <div class="mode-buttons">
-        <button class="mode-btn pvp" id="btn-pvp-coasters">
-          ${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
-          <div class="difficulty-desc">${jt('jue.card3.mode.pvpDesc', 'Cada quien su calle, codo a codo')}</div>
+        <button class="mode-btn pvp${modoDosJugadoresDisponible ? '' : ' mode-btn--bloqueado'}" id="btn-pvp-coasters" ${modoDosJugadoresDisponible ? '' : 'disabled aria-disabled="true"'}>
+          ${modoDosJugadoresDisponible ? '' : '🔒 '}${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${modoDosJugadoresDisponible
+            ? jt('jue.card3.mode.pvpDesc', 'Cada quien su calle, codo a codo')
+            : jt('jue.mode.pvpSoloPC', 'Solo desde computadora: los dos jugadores comparten el teclado')}</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-coasters">
           ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
@@ -3859,7 +3957,9 @@ if (window.visualViewport) {
       </div>
       <button class="btn-tutorial" id="btn-tutorial-coasters">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
 
-    document.getElementById('btn-pvp-coasters').onclick = () => { gameMode = 'pvp'; showDistanceSelector(); };
+    if (modoDosJugadoresDisponible) {
+      document.getElementById('btn-pvp-coasters').onclick = () => { gameMode = 'pvp'; showDistanceSelector(); };
+    }
     document.getElementById('btn-pve-coasters').onclick = () => { gameMode = 'pve'; showDistanceSelector(); };
     document.getElementById('btn-tutorial-coasters').onclick = startTutorial;
   }
@@ -5323,6 +5423,12 @@ if (window.visualViewport) {
   }
 
   function startGame(timeSeconds) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más abajo, que ya exigía el giro): la mica necesita
+    // bastante ancho para esquivar el cono de visión y perseguir con el
+    // joystick fijo.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     selectedTimeLimit = timeSeconds;
     timeLeft = timeSeconds;
     score = 0;
@@ -5480,6 +5586,7 @@ if (window.visualViewport) {
   const overlayCard = document.getElementById('overlay-card-elotes');
   const gameContent = document.getElementById('modal-elotes');
   const canvasWrap = document.getElementById('elotes-canvas-wrap');
+  setupRotateGate('elotes', canvasWrap);
 
   // Antes cada pantalla (instrucciones, selector, fin de juego) armaba su
   // propia animación de entrada a mano (una incluso tenía su propio
@@ -5672,6 +5779,11 @@ if (window.visualViewport) {
   let tiradorSpawnPos = { x: 0, y: 0 }; // posición fuera del círculo donde se spawnea el tirador
   const MAX_POWER_PX = 180; // máx distancia de drag para potencia máxima
   const MAX_SPEED = 18;     // velocidad máxima del tirador
+  // Separación mínima entre el tirador y el borde del círculo, en radios de
+  // canica: la reutilizan tanto el spawn inicial (resetRoundLayout) como
+  // isValidTiradorSpot (para permitir reubicarlo tocando cualquier otro
+  // lado del círculo, no solo abajo).
+  const TIRADOR_GAP_FACTOR = 2.2;
 
   // ── Partículas ────────────────────────────────────────────────
   let particles = [];
@@ -5743,18 +5855,22 @@ if (window.visualViewport) {
     // del círculo, es decir, spawneando adentro. Por eso acá el radio se
     // limita también por el espacio vertical realmente disponible debajo
     // del centro, reservando sitio para el tirador antes de fijar el radio.
-    const gapFactor = 2.2;
     const bottomMarginFactor = 5;
-    const maxRadiusForTiradorGap = (H - circleCenter.y) / (1 + (gapFactor + bottomMarginFactor) / 5.5);
+    const maxRadiusForTiradorGap = (H - circleCenter.y) / (1 + (TIRADOR_GAP_FACTOR + bottomMarginFactor) / 5.5);
     circleRadius = Math.min(W, H) * cfg.circleRadiusFactor;
     circleRadius = Math.min(circleRadius, maxRadiusForTiradorGap);
     // Mismo radio relativo (círculo / 5.5) que ya se probó capaz de acomodar
     // 20 canicas sin solaparse dentro de los intentos aleatorios disponibles.
     marbleRadius = circleRadius / 5.5;
 
+    // Posición inicial del tirador: debajo del círculo, igual que antes.
+    // Ya no es la única posición posible — el jugador puede reubicarlo
+    // tocando cualquier otro punto válido alrededor del círculo antes de
+    // tirar (ver isValidTiradorSpot/onPointerDown) — pero cada ronda nueva
+    // arranca siempre desde acá, como punto de partida conocido.
     tiradorSpawnPos = {
       x: circleCenter.x,
-      y: Math.min(circleCenter.y + circleRadius + marbleRadius * gapFactor, H - marbleRadius * bottomMarginFactor)
+      y: Math.min(circleCenter.y + circleRadius + marbleRadius * TIRADOR_GAP_FACTOR, H - marbleRadius * bottomMarginFactor)
     };
 
     // Muros invisibles del canvas
@@ -5854,14 +5970,36 @@ if (window.visualViewport) {
     };
   }
 
+  // El tirador solo podía dispararse desde abajo del círculo (donde lo
+  // deja resetRoundLayout): para sacar canicas del lado opuesto había que
+  // pegarle en ángulo desde ahí, en vez de tirar directo desde ese otro
+  // lado, como en el juego real. Un punto es válido para reubicarlo si
+  // queda fuera del círculo (mismo margen que ya usaba el spawn original)
+  // y dentro del canvas con margen para que no quede pegado al borde.
+  function isValidTiradorSpot(x, y) {
+    const distToCenter = Math.hypot(x - circleCenter.x, y - circleCenter.y);
+    if (distToCenter < circleRadius + marbleRadius * TIRADOR_GAP_FACTOR) return false;
+    const margin = marbleRadius * (TIRADOR_SCALE + 1.5);
+    return x >= margin && x <= canvas.width - margin && y >= margin && y <= canvas.height - margin;
+  }
+
   function onPointerDown(e) {
     if (gamePhase !== 'aiming' || !tirador) return;
     const pos = getCanvasPos(e);
-    // Solo iniciar drag cerca del tirador
     const tp = tirador.position;
     const dist = Math.hypot(pos.x - tp.x, pos.y - tp.y);
     if (dist < marbleRadius * 4) {
+      // Tocó el tirador donde ya estaba: apuntar desde ahí, como siempre.
       aimStart = { x: tp.x, y: tp.y };
+      aimCurrent = { x: pos.x, y: pos.y };
+      e.preventDefault();
+    } else if (isValidTiradorSpot(pos.x, pos.y)) {
+      // Tocó otro punto válido alrededor del círculo: el tirador se
+      // reubica ahí (todavía sin disparar) y el mismo toque arranca el
+      // apuntado desde la posición nueva.
+      Body.setPosition(tirador, { x: pos.x, y: pos.y });
+      tiradorSpawnPos = { x: pos.x, y: pos.y };
+      aimStart = { x: pos.x, y: pos.y };
       aimCurrent = { x: pos.x, y: pos.y };
       e.preventDefault();
     }
@@ -6138,9 +6276,20 @@ if (window.visualViewport) {
       ctx.font = `${Math.max(12, canvas.width * 0.022)}px sans-serif`;
       ctx.fillStyle = 'rgba(196,181,253,0.85)';
       ctx.textAlign = 'center';
+      // El tirador ya no vive siempre debajo del círculo (ver
+      // isValidTiradorSpot/onPointerDown: se puede reubicar tocando
+      // cualquier otro lado). El texto se aleja del centro en la misma
+      // dirección en la que está el tirador — no siempre "hacia abajo" —
+      // para no terminar pegado o tapado por el círculo cuando el tirador
+      // se mueve a un costado o arriba.
+      const tp = tirador.position;
+      const dx = tp.x - circleCenter.x, dy = tp.y - circleCenter.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const hintX = tp.x + (dx / len) * marbleRadius * 3.5;
+      const hintY = tp.y + (dy / len) * marbleRadius * 3.5;
       ctx.fillText(esTactilJuegos
         ? jt('jue.card5.aimHintTouch', '👆 Jalá desde el tirador para apuntar')
-        : jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
+        : jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), hintX, hintY);
       ctx.restore();
     }
   }
@@ -6308,6 +6457,11 @@ if (window.visualViewport) {
   }
 
   function startGame(diff) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más arriba): el círculo de canicas necesita espacio
+    // parejo alrededor para poder tirar desde cualquier lado.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     difficulty = diff;
     shotsLeft = gameConfig[diff].shots;
     score = 0; round = 1;
@@ -6469,6 +6623,7 @@ if (window.visualViewport) {
   if(!canvas || typeof Matter === 'undefined') return;
 
   const canvasWrap = document.getElementById('torito-canvas-wrap');
+  setupRotateGate('torito', canvasWrap);
   const { Engine, World, Bodies, Body, Events, Composite } = Matter;
   const ctx = canvas.getContext('2d');
 
@@ -6589,6 +6744,11 @@ if (window.visualViewport) {
   }
 
   function startTutorial() {
+    // El tutorial arranca el juego "a mano" en vez de llamar a startGame()
+    // (ver más abajo), así que necesita forzar pantalla completa/horizontal
+    // por su cuenta, igual que una partida real.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     gameDifficulty = 'easy';
     targetDistance = 999999; // nunca se llega mientras dura el tutorial
     destinationName = jt('jue.tutorial.destName', 'Práctica');
@@ -8201,6 +8361,11 @@ if (window.visualViewport) {
   }
 
   function startGame(difficulty) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más arriba): la calle empedrada necesita ancho para
+    // ver venir las carretas y los baldes de agua con tiempo de esquivarlos.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     gameDifficulty = difficulty;
     resetGame();
     hideOverlay();
