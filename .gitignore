@@ -6,3 +6,4 @@ node_modules/
 graphify-out/
 .graphifyignore
 CLAUDE.md
+/data/database/
