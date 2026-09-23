@@ -246,8 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Parallax del fondo del hero al hacer scroll
   if (!prefersReducedMotion) {
+    // yPercent moderado: combinado con el zoom Ken Burns, un valor más alto
+    // puede sacar el borde de la imagen fuera del margen de "inset" de
+    // .hero__bg y dejar ver el fondo oscuro detrás (efecto de "corte").
     gsap.to('.hero__bg', {
-      yPercent: 18,
+      yPercent: 10,
       ease: 'none',
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });

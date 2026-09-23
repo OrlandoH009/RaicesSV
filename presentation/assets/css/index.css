@@ -27,7 +27,11 @@
 
 .hero__bg {
   position: absolute;
-  inset: -4%;
+  /* Margen de sobra generoso: el Ken Burns (scale 1.06-1.16) + el parallax
+     de scroll (yPercent) pueden mover esta capa bastante más de lo que un
+     -4% alcanza a cubrir, dejando ver el borde/el fondo oscuro de .hero
+     detrás (el "corte" visible al hacer scroll o durante el zoom). */
+  inset: -15%;
   background-image: url('../media/Santa Ana Volcan.webp');
   background-size: cover;
   background-position: center;
