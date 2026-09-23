@@ -7,6 +7,8 @@
   <meta name="description" content="Salvadorean Roots — Descubre la esencia de El Salvador." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preload" as="image" href="../assets/media/Santa Ana Volcan.webp" fetchpriority="high" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="../assets/css/global.css" />
   <link rel="stylesheet" href="../assets/css/index.css" />
@@ -26,7 +28,7 @@
   <nav class="navbar" id="navbar">
     <div class="navbar__logo">
       <a href="index.html">
-        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo Salvadorean Roots" data-i18n-attr="alt:home.logoAlt" />
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).webp" alt="Logo Salvadorean Roots" width="120" height="120" decoding="async" fetchpriority="high" data-i18n-attr="alt:home.logoAlt" />
       </a>
     </div>
     <ul class="navbar__links">
@@ -200,31 +202,31 @@
     <!-- GRID DE CARDS -->
     <section class="home-grid">
       <a href="../views/sitios-culturales.html" class="home-card reveal" style="transition-delay:.05s">
-        <img src="../assets/media/Sitios Culturales.png" alt="Sitios Culturales" />
+        <img src="../assets/media/Sitios Culturales.webp" alt="Sitios Culturales" width="737" height="524" loading="lazy" decoding="async" />
         <div class="home-card__grad"></div>
         <span class="home-card__label" data-i18n="cards.sitios">Sitios Culturales</span>
         <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/gastronomia.html" class="home-card reveal" style="transition-delay:.15s">
-        <img src="../assets/media/Gastronomia.png" alt="Gastronomía" />
+        <img src="../assets/media/Gastronomia.webp" alt="Gastronomía" width="524" height="524" loading="lazy" decoding="async" />
         <div class="home-card__grad"></div>
         <span class="home-card__label" data-i18n="cards.gastronomia">Gastronomía</span>
         <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/eventos.html" class="home-card reveal" style="transition-delay:.25s">
-        <img src="../assets/media/Eventos culturales.png" alt="Eventos Culturales" />
+        <img src="../assets/media/Eventos culturales.webp" alt="Eventos Culturales" width="519" height="519" loading="lazy" decoding="async" />
         <div class="home-card__grad"></div>
         <span class="home-card__label" data-i18n="cards.eventos">Eventos Culturales</span>
         <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/historia.html" class="home-card reveal" style="transition-delay:.35s">
-        <img src="../assets/media/Historia.png" alt="Historia" />
+        <img src="../assets/media/Historia.webp" alt="Historia" width="726" height="519" loading="lazy" decoding="async" />
         <div class="home-card__grad"></div>
         <span class="home-card__label" data-i18n="cards.historia">Historia</span>
         <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
       </a>
       <a href="../views/leyendas.html" class="home-card reveal" style="transition-delay:.45s">
-        <img src="../assets/media/Leyendas.jpg" alt="Leyendas" />
+        <img src="../assets/media/Leyendas.webp" alt="Leyendas" width="349" height="269" loading="lazy" decoding="async" />
         <div class="home-card__grad"></div>
         <span class="home-card__label" data-i18n="cards.leyendas">Leyendas</span>
         <span class="home-card__btn" data-i18n="cards.explorar">Explorar</span>
@@ -236,7 +238,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
-      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).png" alt="Logo" data-i18n-attr="alt:home.logoAlt" />
+      <img class="footer__logo" src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).webp" alt="Logo" width="56" height="56" loading="lazy" decoding="async" data-i18n-attr="alt:home.logoAlt" />
       <p class="footer__name" data-i18n="footer.brand">Salvadorean Roots</p>
       <ul class="footer__links">
         <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
@@ -258,15 +260,29 @@
     </div>
   </footer>
 
-  <script src="../assets/js/script.js"></script>
-  <script src="../assets/js/interactive.js"></script>
-  <script src="../assets/js/chatbot.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/script.js" defer></script>
+  <script src="../assets/js/interactive.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="../assets/js/theme-blobs.js" defer></script>
   <!-- i18n va antes que index-gsap: aplica las traducciones (que reescriben
        el texto del h1) antes de que GSAP parta el título en letras. -->
-  <script src="../assets/js/i18n.js"></script>
-  <script src="../assets/js/index-gsap.js"></script>
+  <script src="../assets/js/i18n.js" defer></script>
+  <script src="../assets/js/index-gsap.js" defer></script>
+  <script>
+    // El chatbot no es necesario para la primera pintura: se carga cuando
+    // el navegador está inactivo (o tras el load) para no competir por CPU
+    // ni por ancho de banda con el hero y sus animaciones en móvil.
+    function loadChatbot() {
+      var s = document.createElement('script');
+      s.src = '../assets/js/chatbot.js';
+      document.body.appendChild(s);
+    }
+    if ('requestIdleCallback' in window) {
+      window.addEventListener('load', () => requestIdleCallback(loadChatbot, { timeout: 4000 }));
+    } else {
+      window.addEventListener('load', () => setTimeout(loadChatbot, 1500));
+    }
+  </script>
 </body>
 </html>

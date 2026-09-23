@@ -79,8 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── 3. Hero: partículas temáticas flotantes (doradas, ascuas de volcán y glifos) ── */
   const particleWrap = document.getElementById('heroParticles');
+  const isMobileViewport = window.innerWidth < 600;
   if (particleWrap && !prefersReducedMotion) {
-    const total = window.innerWidth < 600 ? 18 : 38;
+    // Menos partículas (y menos tweens infinitos) en móvil: cada una corre
+    // 1-2 animaciones GSAP en bucle, y en gama baja eso se nota como jank
+    // durante el scroll del hero.
+    const total = isMobileViewport ? 10 : 38;
     const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
 
     for (let i = 0; i < total; i++) {
@@ -113,8 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       );
 
-      // Titileo: las estrellas y ascuas parpadean mientras suben
-      if (type === 'hero-particle--star' || type === 'hero-particle--ember') {
+      // Titileo: las estrellas y ascuas parpadean mientras suben (se omite
+      // en móvil: es la segunda animación por partícula y no aporta tanto
+      // en pantallas chicas como el costo que tiene en CPU/batería).
+      if (!isMobileViewport && (type === 'hero-particle--star' || type === 'hero-particle--ember')) {
         gsap.to(p, {
           scale: gsap.utils.random(.5, 1.5),
           duration: gsap.utils.random(1.1, 2.4),

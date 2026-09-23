@@ -81,9 +81,12 @@
     // por cada tarjeta/panel dinámico (sitios, gastronomía, eventos) y no es
     // la bienvenida principal de la página.
     const heroSelectors = ['.hero', '.hist-hero', '.leyenda-hero', '.page-hero'];
+    // Menos manchas animadas en móvil: cada una es un tween GSAP infinito
+    // corriendo junto a las partículas del hero, filtros blur y demás.
+    const blobCount = window.innerWidth < 600 ? 3 : 5;
     heroSelectors.forEach(sel => {
       document.querySelectorAll(sel).forEach(el => {
-        const wrap = injectBlobSet(el, 5);
+        const wrap = injectBlobSet(el, blobCount);
         animateBlobs(wrap);
       });
     });
