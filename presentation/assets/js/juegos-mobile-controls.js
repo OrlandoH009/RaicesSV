@@ -50,21 +50,41 @@ function evitarSolapeConControles(overlayCard, controls) {
   const overlayEl = overlayCard.parentElement;
   if (!overlayEl) return;
 
-  overlayCard.style.alignSelf = '';
-  overlayCard.style.marginTop = '';
-
+  // No se borra el estilo antes de medir: si el usuario había hecho scroll
+  // dentro de .overlay para llegar al botón de jugar, el margin-top de
+  // abajo es lo que le daba el alto extra para poder bajar — borrarlo acá
+  // (como hacía antes) encogía el overlay de golpe y el navegador
+  // recortaba el scroll de vuelta arriba a mitad del gesto, cada 300ms.
+  // Se calcula el "top natural" (sin el margen ya aplicado) sin tocar el
+  // estilo, y solo se escribe en el DOM si el valor cambió de verdad.
+  const currentMarginTop = parseFloat(overlayCard.style.marginTop) || 0;
   const controlsRect = controls.getBoundingClientRect();
   const cardRect = overlayCard.getBoundingClientRect();
   // Si el propio overlay está oculto (display:none) los rects vienen en 0;
   // no hay nada que corregir todavía.
   if (cardRect.width === 0 && cardRect.height === 0) return;
 
+  const naturalTop = cardRect.top - currentMarginTop;
   const gap = 10;
-  if (cardRect.top < controlsRect.bottom + gap) {
-    const overlayRect = overlayEl.getBoundingClientRect();
-    overlayCard.style.alignSelf = 'flex-start';
-    overlayCard.style.marginTop = Math.max(0, Math.round(controlsRect.bottom - overlayRect.top + gap)) + 'px';
-  }
+  const overlayRect = overlayEl.getBoundingClientRect();
+  const needsPush = naturalTop < controlsRect.bottom + gap;
+  const targetMarginTop = needsPush
+    ? Math.max(0, Math.round(controlsRect.bottom - overlayRect.top + gap))
+    : 0;
+  const targetAlignSelf = needsPush ? 'flex-start' : '';
+
+  // La tarjeta ya tiene su propio límite de alto + scroll interno (ver
+  // ".overlay-card { max-height / overflow-y }" en juegos.css), pero ese
+  // límite es un % fijo del overlay que no sabe cuánto se la empujó hacia
+  // abajo acá. Sin este dato, empujarla + su alto máximo podían sumar más
+  // que el alto real del overlay y la tarjeta se salía por abajo del
+  // modal. Esta variable CSS le pasa el hueco real que le queda.
+  overlayEl.style.setProperty('--controles-alto', Math.round(controlsRect.bottom - overlayRect.top) + 'px');
+
+  if (targetMarginTop === currentMarginTop && overlayCard.style.alignSelf === targetAlignSelf) return;
+
+  overlayCard.style.alignSelf = targetAlignSelf;
+  overlayCard.style.marginTop = targetMarginTop ? targetMarginTop + 'px' : '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

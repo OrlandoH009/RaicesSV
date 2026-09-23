@@ -1452,15 +1452,38 @@ canvas {
    había forma de hacer scroll para verlo completo. Acá se achica todo un
    poco más y se le da scroll propio a la tarjeta como respaldo. */
 @media (max-height: 480px) and (orientation: landscape) {
-  /* El solape entre la tarjeta y pausa/pantalla completa/volumen (fijos en
-     la esquina del canvas) ya se corrige en runtime, ver
-     evitarSolapeConControles() en juegos-mobile-controls.js — ese fix
-     mide los rectángulos reales y empuja la tarjeta hacia abajo cuando
-     hace falta, así que no depende de un padding fijo calculado a ojo
-     para esta franja de poca altura. */
+  /* Pausa/pantalla completa/volumen y el HUD solo se achican con
+     "@media (max-width: 768px)" más arriba — pensado para celular en
+     vertical (angosto). Un celular ROTADO mide 700-950px de ANCHO (no
+     entra en ese breakpoint por ancho) aunque tenga poca altura, así que
+     acá se renderizaban a tamaño de escritorio, comiéndose una franja
+     vertical grande justo donde menos sobra (tan solo 360-430px de alto).
+     Achicándolos acá (por altura, no por ancho) le queda más lugar de
+     verdad a la tarjeta de instrucciones para entrar sin solaparse ni
+     necesitar empujarla con JS. */
+  .canvas-controls { top: .4rem; right: .4rem; gap: .35rem; }
+  .icon-btn { width: 32px; height: 32px; font-size: .85rem; }
+  .icon-btn svg { width: 14px; height: 14px; }
+  .volume-group { padding: .2rem .35rem; gap: .2rem; }
+  .volume-group input[type="range"] { width: 55px; }
+  .volume-icon { font-size: .75rem; }
+  .hud { gap: .35rem; }
+  .hud-item { padding: .18rem .4rem; font-size: .58rem; min-width: 48px; }
+  .hud-item b { font-size: .78rem; }
+  .game-panel__head { margin-bottom: .5rem; }
+  .game-panel__tag { font-size: .58rem; padding: .2rem .5rem; margin-bottom: .2rem; }
+  .game-panel__head h2 { font-size: 1.1rem; }
+
   .overlay-card {
     padding: .65rem .9rem;
-    max-height: 94%;
+    /* "94%" era un % fijo del overlay que no sabía cuánto lo había
+       empujado hacia abajo evitarSolapeConControles() (juegos-mobile-
+       controls.js) para no toparse con pausa/pantalla completa/volumen:
+       empuje + 94% de alto propio podían sumar más que el overlay real y
+       la tarjeta se salía por abajo del modal. --controles-alto (la misma
+       función la actualiza junto al empuje) descuenta ese hueco de arriba,
+       así el límite de alto siempre es "lo que sobra de verdad". */
+    max-height: min(94%, calc(100% - var(--controles-alto, 0px) - .5rem));
     overflow-y: auto;
   }
   .overlay-tag { font-size: .58rem; padding: .2rem .55rem; margin-bottom: .3rem; }
