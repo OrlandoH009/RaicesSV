@@ -628,6 +628,29 @@ document.addEventListener('DOMContentLoaded', () => {
       writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
     });
 
+    /* ── Pausar al salir de la pestaña/app (o minimizarla en el celular) ──
+       "visibilitychange" cubre cambiar de pestaña, minimizar el navegador
+       o mandar la app a segundo plano en móvil; "pagehide" cubre cerrar
+       la pestaña o navegar fuera del sitio. En ambos casos pausamos para
+       que la música nunca siga sonando en segundo plano, y la retomamos
+       solo si fuimos nosotros quienes la pausamos al volver a la página. */
+    let bgMusicPausadaPorOcultar = false;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (!audio.paused) {
+          audio.pause();
+          bgMusicPausadaPorOcultar = true;
+          writeState({ time: audio.currentTime, volume: audio.volume });
+        }
+      } else if (bgMusicPausadaPorOcultar) {
+        bgMusicPausadaPorOcultar = false;
+        if (!audio.muted) audio.play().catch(() => {});
+      }
+    });
+    window.addEventListener('pagehide', () => {
+      if (!audio.paused) audio.pause();
+    });
+
     /* ── Pausar la música de fondo mientras suena "otro" audio/video ──
        Si un juego, un video de receta o una narración de leyenda empieza
        a sonar, la música de fondo global seguía sonando encima, mezclando
