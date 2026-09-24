@@ -1137,13 +1137,13 @@
   .home-card:nth-of-type(4) { grid-row: 4; }
   .home-card:nth-of-type(5) { grid-row: 5; }
 
-  /* El hero ocupa justo la pantalla visible al entrar: se alcanza a ver
-     el "Desliza" al fondo, pero nada de la sección de abajo debe asomar
-     todavía. 100vh es un respaldo para navegadores viejos; 100dvh usa el
-     alto real visible en celular (sin la barra de direcciones), que es
-     lo que de verdad evita que el "Desliza" quede recortado o que se
-     alcance a ver el inicio de la siguiente sección. */
-  .hero { height: 100vh; height: 100dvh; min-height: 480px; }
+  /* --hero-vh la fija index-gsap.js con el alto real de la pantalla, pero
+     solo DESPUÉS de que el scroll se detiene (no en cada frame como hacía
+     100dvh) — así el hero sí se ajusta cuando la barra de direcciones
+     terminó de aparecer/desaparecer, sin el recalculo en vivo que se
+     sentía trabado a mitad de gesto. 100vh es el valor de respaldo mientras
+     el JS todavía no corrió o si no está disponible. */
+  .hero { height: 100vh; height: var(--hero-vh, 100vh); min-height: 480px; }
 
   /* backdrop-filter: blur() sobre capas que se mueven durante el scroll es
      una causa conocida de "fantasmas"/artefactos de repintado en Chrome

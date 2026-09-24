@@ -25,6 +25,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // cambio de tamaño real (rotar el celular, por ejemplo).
   ScrollTrigger.config({ ignoreMobileResize: true });
 
+  // Alto real del hero en celular: en vez de la unidad CSS 100dvh (que se
+  // recalcula en cada frame mientras la barra de direcciones aparece o
+  // desaparece, sintiéndose como que la página se traba a mitad de scroll),
+  // se fija esto con JS solo cuando el resize ya se detuvo un rato — así el
+  // hero sí termina ajustado a la barra, pero de una sola vez, no en vivo.
+  if (window.innerWidth < 600) {
+    const setHeroVh = () => {
+      document.documentElement.style.setProperty('--hero-vh', window.innerHeight + 'px');
+    };
+    setHeroVh();
+    let heroVhTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(heroVhTimer);
+      heroVhTimer = setTimeout(setHeroVh, 300);
+    });
+  }
+
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ── 2. Hero: partir el título en letras ──
