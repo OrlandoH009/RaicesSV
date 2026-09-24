@@ -164,6 +164,21 @@
   line-height: 1.45;
 }
 
+/* La Mica no tiene descripción bajo el título (solo tag + h2), así que su
+   cabecera queda con más espacio vacío que la de los demás juegos: se
+   achica para que el canvas empiece antes. */
+#modal-encantados .game-panel__head {
+  margin-bottom: .4rem;
+  gap: .4rem;
+}
+#modal-encantados .game-panel__tag {
+  margin-bottom: .15rem;
+}
+#modal-encantados .game-panel__head h2 {
+  margin-bottom: 0;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+}
+
 .hud {
   display: flex;
   gap: .6rem;

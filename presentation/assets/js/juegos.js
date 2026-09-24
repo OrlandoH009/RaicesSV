@@ -2371,6 +2371,14 @@ if (window.visualViewport) {
     const modal = document.getElementById(`modal-${gameId}`);
     if (!modal) return;
 
+    // Si el juego se puso en pantalla completa al abrir el modal (celular),
+    // hay que salir de ese modo al cerrar o la página queda "atrapada" en
+    // pantalla completa mostrando el fondo del sitio.
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      exit?.call(document).catch?.(() => {});
+    }
+
     // Detener música del juego
     if (window.gameStates && window.gameStates[gameId]) {
       if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
@@ -2433,6 +2441,14 @@ if (window.visualViewport) {
       if (modal) {
         modal.classList.add('active');
         lockBackgroundScroll();
+
+        // En celular todos los juegos deben jugarse a pantalla completa: se
+        // pide acá mismo, en el clic de "Jugar Ahora", que es el gesto del
+        // usuario que el navegador exige para conceder pantalla completa (no
+        // hay que esperar a que el jugador elija dificultad adentro).
+        if (esTactilJuegos) {
+          forzarPantallaCompleta(modal.querySelector('.canvas-wrap'), null);
+        }
 
         const content = modal.querySelector('.game-modal__content');
         // Los canvas de cada juego escuchan el evento 'resize' de window para
@@ -7549,7 +7565,11 @@ if (window.visualViewport) {
       toRemove.clear();
     }
 
-    if(energy <= 0 && !tutorialMode) { endRun('sinEnergia'); return; }
+    // No cortar a "sin energía" si ya está en la secuencia de llegada/fiesta:
+    // la energía sigue drenándose durante esos ~8.5s de celebración y, si el
+    // torito llegaba con poca energía, esto pisaba el resultado de victoria
+    // ("completo") con el de derrota justo antes de mostrarlo.
+    if(energy <= 0 && !tutorialMode && !isArriving && !isEnteringFiesta && !isDancing) { endRun('sinEnergia'); return; }
   }
 
   // ================= GRAPHICS & RENDERING =================

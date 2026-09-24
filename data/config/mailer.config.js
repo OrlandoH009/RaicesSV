@@ -23,7 +23,7 @@ const escapeHtml = (value = '') => String(value)
     .replace(/'/g, '&#39;');
 
 const getSiteLogoAttachment = () => {
-    const logoPath = path.join(__dirname, '..', '..', 'presentation', 'assets', 'media', 'Logo de Salvadorean Roots (Sin Fondo).png');
+    const logoPath = path.join(__dirname, '..', '..', 'presentation', 'assets', 'media', 'Logo de Salvadorean Roots (Sin Fondo) - email.png');
 
     if (!fs.existsSync(logoPath)) return null;
 

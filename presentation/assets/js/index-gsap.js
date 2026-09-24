@@ -165,8 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
     .to('.hero__cta-ghost', { opacity: 1, y: 0, scale: 1, duration: .6, ease: 'back.out(2.2)' }, '-=0.45')
     .to('.hero__scroll-cue', { opacity: .85, y: 0, duration: .6 }, '-=0.2');
 
-  // Ken Burns: el fondo nunca se queda quieto, sigue acercándose y paneando
-  if (!prefersReducedMotion) {
+  // Ken Burns: el fondo nunca se queda quieto, sigue acercándose y paneando.
+  // Se omite en móvil: combinado con el parallax de scroll de abajo, mover
+  // esta capa de fondo de dos formas a la vez es lo que sacaba su borde
+  // fuera de encuadre (el "corte") y además nunca se detiene, así que
+  // seguía consumiendo CPU/batería mucho después de que el hero saliera
+  // de la pantalla.
+  if (!prefersReducedMotion && !isMobileViewport) {
     heroTl.add(() => {
       gsap.to('.hero__bg', {
         scale: 1.16,
@@ -244,8 +249,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Parallax del fondo del hero al hacer scroll
-  if (!prefersReducedMotion) {
+  // Parallax del fondo del hero al hacer scroll. Se omite en móvil: es la
+  // causa confirmada del bug de "corte" y traba al hacer scroll en
+  // celular (mueve la capa de fondo a pantalla completa en cada frame de
+  // scroll, y en iOS/Android eso además se recalcula en cada show/hide de
+  // la barra de direcciones). El contenido sigue apareciendo con
+  // .hero__content sin el desvanecido de scroll.
+  if (!prefersReducedMotion && !isMobileViewport) {
     // yPercent moderado: combinado con el zoom Ken Burns, un valor más alto
     // puede sacar el borde de la imagen fuera del margen de "inset" de
     // .hero__bg y dejar ver el fondo oscuro detrás (efecto de "corte").
