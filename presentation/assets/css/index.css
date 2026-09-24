@@ -1157,6 +1157,10 @@
   .hero__cta-ghost { backdrop-filter: none; background: rgba(17, 24, 48, .32); }
   .stat { backdrop-filter: none; }
   .about__card { backdrop-filter: none; }
+  /* El anillo que late y el brillo que barre el botón principal son dos
+     animaciones infinitas más sobre una capa con overflow:visible — se
+     apagan en móvil por la misma razón que el resto de esta lista. */
+  .hero__cta::before, .hero__cta::after { animation: none; }
 
   .hero__title {
     white-space: normal;
