@@ -417,8 +417,8 @@
 
         if (!texto) {
                 const speakOutput = idioma === 'en'
-                    ? 'Sorry, I did not catch that. Please repeat your answer, for example saying "let\'s say gastronomy" or "my answer is affordable". If you prefer free mode say "free mode", or say "no" to finish.'
-                    : 'Disculpa, no logré escucharte bien. No te preocupes, solo repíteme tu respuesta con calma, por ejemplo diciendo "digamos gastronomía" o "mi respuesta es económico". Si prefieres pasar a consulta libre di "modo libre", o si deseas terminar di "no".';
+                    ? 'Sorry, I did not catch that. Please repeat your answer, for example saying "let\'s say gastronomy" or "the plan will be affordable". If you prefer free mode say "free mode", or say "no" to finish.'
+                    : 'Disculpa, no logré escucharte bien. No te preocupes, solo repíteme tu respuesta con calma, por ejemplo diciendo "digamos gastronomía" o "la planificación será económico". Si prefieres pasar a consulta libre di "modo libre", o si deseas terminar di "no".';
                 return handlerInput.responseBuilder
                     .speak(speakOutput)
                     .reprompt(speakOutput)
