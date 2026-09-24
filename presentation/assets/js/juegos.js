@@ -2589,6 +2589,28 @@ if (window.visualViewport) {
     if (isRunning || isPaused) return;
     if (state.reloadMenu) state.reloadMenu();
   });
+
+  // Silenciar la música del juego si la pestaña pasa a segundo plano (se
+  // cambia de app/pestaña en celular) o si el jugador sale de la página.
+  // `pauseGame()` de cada juego solo baja el volumen al 10% (para que se
+  // siga oyendo tenue detrás del overlay de pausa), así que aquí además
+  // pausamos a la fuerza cualquier <audio> que haya quedado sonando.
+  function silenciarMusicaJuegos() {
+    const activeModal = document.querySelector('.game-modal.active');
+    if (activeModal) {
+      const gameId = activeModal.id.replace('modal-', '');
+      const state = window.gameStates && window.gameStates[gameId];
+      if (state?.running?.() && state.pause) state.pause();
+    }
+    document.querySelectorAll('.game-modal audio').forEach((audio) => {
+      if (!audio.paused) audio.pause();
+    });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) silenciarMusicaJuegos();
+  });
+  window.addEventListener('pagehide', silenciarMusicaJuegos);
+  window.addEventListener('blur', silenciarMusicaJuegos);
 })();
 
 /* ---------------------------------------------------------
