@@ -113,6 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = isMobileViewport ? 5 : 38;
     const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
 
+    // Se arman todas las partículas en un fragmento y se insertan de una
+    // sola vez: crearlas con appendChild dentro del for (38 en escritorio)
+    // forzaba un reflow por partícula justo en el momento en que arranca
+    // la animación de entrada del título, y eso era lo que se sentía como
+    // "traba" en el texto de bienvenida al cargar la página.
+    const particleFragment = document.createDocumentFragment();
+    const particles = [];
+
     for (let i = 0; i < total; i++) {
       const p = document.createElement('span');
       const type = types[i % types.length];
@@ -122,7 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
       p.style.width = size + 'px';
       p.style.height = size + 'px';
       p.style.left = gsap.utils.random(0, 100) + '%';
-      particleWrap.appendChild(p);
+      particleFragment.appendChild(p);
+      particles.push({ el: p, type });
+    }
+    particleWrap.appendChild(particleFragment);
+
+    particles.forEach(({ el: p, type }) => {
 
       const maxOpacity = gsap.utils.random(.45, .95);
 
@@ -156,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
           delay: gsap.utils.random(0, 3)
         });
       }
-    }
+    });
   }
 
   /* ── 4. Timeline de entrada del Hero ── */
@@ -169,7 +182,13 @@ document.addEventListener('DOMContentLoaded', () => {
   gsap.set('.hero__title .char', { y: 40, rotate: 6 });
   gsap.set('.hero__aurora, .hero__rays', { opacity: 0 });
 
-  const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  // Arranca pausado: si la tipografía (Urbanist, cargada con display=swap)
+  // todavía no llegó, el navegador la cambia a mitad de la animación y el
+  // ancho de cada letra cambia de golpe — eso es lo que se sentía como un
+  // "salto"/traba justo en el texto de bienvenida. Se espera a que las
+  // fuentes estén listas (con un tope corto para no retrasar la entrada
+  // si tardan) antes de reproducir la entrada del hero.
+  const heroTl = gsap.timeline({ defaults: { ease: 'power4.out' }, paused: true });
   heroTl
     .fromTo('.hero__bg', { scale: 1.25 }, { scale: 1.06, duration: 2.8, ease: 'power2.out' }, 0)
     .to('.hero__overlay', { opacity: 1, duration: 1.1, ease: 'power2.out' }, 0)
@@ -209,6 +228,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  const fontsReady = (document.fonts && document.fonts.ready)
+    ? Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 250))
+      ])
+    : Promise.resolve();
+  fontsReady.then(() => heroTl.play());
 
   /* ── 4b. Rotador de palabras del hero ── */
   const rotator = document.getElementById('heroRotator');

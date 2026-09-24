@@ -519,7 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.preload = 'auto';
 
     const state = readState();
-    const muted = state.muted === true;
+    // Por defecto la música de fondo permanece silenciada: solo suena si
+    // el usuario la activó explícitamente antes (state.muted === false
+    // guardado tras pulsar el botón de "activar música").
+    const muted = state.muted !== false;
     const volume = typeof state.volume === 'number' ? state.volume : 0.2;
     const savedTime = typeof state.time === 'number' ? state.time : 0;
 
@@ -623,6 +626,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
     window.addEventListener('pagehide', () => {
       writeState({ time: audio.currentTime, volume: audio.volume, muted: audio.muted });
+    });
+
+    /* ── Pausar al salir de la pestaña/app (o minimizarla en el celular) ──
+       "visibilitychange" cubre cambiar de pestaña, minimizar el navegador
+       o mandar la app a segundo plano en móvil; "pagehide" cubre cerrar
+       la pestaña o navegar fuera del sitio. En ambos casos pausamos para
+       que la música nunca siga sonando en segundo plano, y la retomamos
+       solo si fuimos nosotros quienes la pausamos al volver a la página. */
+    let bgMusicPausadaPorOcultar = false;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (!audio.paused) {
+          audio.pause();
+          bgMusicPausadaPorOcultar = true;
+          writeState({ time: audio.currentTime, volume: audio.volume });
+        }
+      } else if (bgMusicPausadaPorOcultar) {
+        bgMusicPausadaPorOcultar = false;
+        if (!audio.muted) audio.play().catch(() => {});
+      }
+    });
+    window.addEventListener('pagehide', () => {
+      if (!audio.paused) audio.pause();
     });
 
     /* ── Pausar la música de fondo mientras suena "otro" audio/video ──
