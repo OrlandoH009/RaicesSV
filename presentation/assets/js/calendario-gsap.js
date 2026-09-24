@@ -15,7 +15,13 @@
 (function () {
   if (typeof gsap === 'undefined') return; // fallback silencioso si el CDN no cargó
 
-  if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+  if (typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    // Evita que el show/hide de la barra de direcciones en celular (que
+    // dispara "resize") recalcule todas las animaciones de scroll a mitad
+    // de gesto — ver index-gsap.js para el detalle del freeze que causaba.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+  }
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

@@ -16,6 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // En celular, mostrar/ocultar la barra de direcciones al hacer scroll
+  // dispara un evento "resize" — por defecto ScrollTrigger reacciona a eso
+  // recalculando TODAS las animaciones de scroll de la página (el reveal de
+  // cada sección, los contadores, el marquee, etc.), lo que se siente como
+  // un freeze/"responsive" a mitad de scroll. Esto le dice que ignore esos
+  // resize verticales chiquitos típicos de móvil y solo recalcule ante un
+  // cambio de tamaño real (rotar el celular, por ejemplo).
+  ScrollTrigger.config({ ignoreMobileResize: true });
+
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ── 2. Hero: partir el título en letras ──
