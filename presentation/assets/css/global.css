@@ -976,8 +976,8 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
 .lock-modal__btn--secondary:hover { border-color: var(--navy); background: rgba(17,48,104,.06); }
 
 @media (max-width: 480px) {
-  .lock-modal-overlay { padding: 1rem; align-items: flex-end; }
-  .lock-modal { padding: 1.9rem 1.3rem 1.5rem; max-width: 100%; border-radius: var(--r-md) var(--r-md) 0 0; }
+  .lock-modal-overlay { padding: 1rem; }
+  .lock-modal { padding: 1.9rem 1.3rem 1.5rem; max-width: 100%; }
 }
 /* ══════════════════════════════════
    SELECTOR DE IDIOMA (i18n)
