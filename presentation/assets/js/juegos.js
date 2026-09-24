@@ -28,6 +28,223 @@ function jt(key, fallback) {
   return fallback;
 }
 
+/* Diagrama animado de controles, compartido por todos los juegos: se
+   muestra en la pantalla de instrucciones antes de empezar, como un aviso
+   visual (teclas o gestos animados en loop) en vez de solo texto — usa
+   esTactilJuegos para elegir teclado/mouse (PC) o gestos táctiles (celular). */
+function crearDiagramaControles(tipo) {
+  const tecla = (label, extra = '') => `<span class="control-key ${extra}">${label}</span>`;
+  const filaTeclas = (...teclas) => `<span class="control-keys-row">${teclas.join('')}</span>`;
+
+  const dedoArrastre = (variante = 'h') => `
+    <span class="control-touch control-touch--drag-${variante}">
+      <span class="control-touch-track"></span>
+      <span class="control-touch-finger">👆</span>
+    </span>`;
+
+  const dedoToque = () => `
+    <span class="control-touch control-touch--tap">
+      <span class="control-touch-ring"></span>
+      <span class="control-touch-finger">👆</span>
+    </span>`;
+
+  const joystick = () => `
+    <span class="control-touch control-touch--joystick">
+      <span class="control-touch-base"></span>
+      <span class="control-touch-stick"></span>
+    </span>`;
+
+  const mouse = () => `
+    <span class="control-mouse">
+      <span class="control-mouse-track"></span>
+      <span class="control-mouse-body">🖱️</span>
+    </span>`;
+
+  switch (tipo) {
+    case 'drag-h':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoArrastre('h')}<span class="controls-diagram-label">${jt('jue.diagram.dragFinger', 'Deslizá el dedo')}</span></div>`
+        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.dragMouse', 'Mové el mouse')}</span></div>`;
+
+    case 'wasd-arrows':
+      return `<div class="controls-diagram controls-diagram--split">
+        <div class="controls-diagram-group">
+          <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+          <span class="controls-diagram-label">${jt('jue.diagram.player1', 'Jugador 1')}</span>
+        </div>
+        <div class="controls-diagram-group">
+          <div class="control-keys-pad">${tecla('↑')}${filaTeclas(tecla('←'), tecla('↓'), tecla('→'))}</div>
+          <span class="controls-diagram-label">${jt('jue.diagram.player2', 'Jugador 2')}</span>
+        </div>
+      </div>`;
+
+    case 'lanes-vs':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoToque()}<span class="controls-diagram-label">${jt('jue.diagram.tapLane', 'Tocá el carril')}</span></div>`
+        : `<div class="controls-diagram controls-diagram--split">
+             <div class="controls-diagram-group">${filaTeclas(tecla('A'), tecla('D'))}<span class="controls-diagram-label">${jt('jue.diagram.player1', 'Jugador 1')}</span></div>
+             <div class="controls-diagram-group">${filaTeclas(tecla('←'), tecla('→'))}<span class="controls-diagram-label">${jt('jue.diagram.player2vsBot', 'Jugador 2 / Bot')}</span></div>
+           </div>`;
+
+    case 'move-4dir':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${joystick()}<span class="controls-diagram-label">${jt('jue.diagram.joystick', 'Arrastrá para moverte')}</span></div>`
+        : `<div class="controls-diagram">
+             <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+             <span class="controls-diagram-label">${jt('jue.diagram.move', 'Moverte')}</span>
+           </div>`;
+
+    case 'drag-shoot':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoArrastre('shoot')}<span class="controls-diagram-label">${jt('jue.diagram.pullShoot', 'Jalá y soltá')}</span></div>`
+        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.pullShootMouse', 'Jalá y soltá')}</span></div>`;
+
+    case 'lanes-dash':
+      return esTactilJuegos
+        ? `<div class="controls-diagram">${dedoToque()}<span class="controls-diagram-label">${jt('jue.diagram.tapDoubleTap', 'Tocá el carril · doble toque = ráfaga')}</span></div>`
+        : `<div class="controls-diagram">
+             ${filaTeclas(tecla('A'), tecla('D'))}
+             ${tecla(jt('jue.diagram.space', 'Espacio'), 'control-key--space')}
+             <span class="controls-diagram-label">${jt('jue.diagram.laneBurst', 'Carriles · Ráfaga')}</span>
+           </div>`;
+
+    default:
+      return '';
+  }
+}
+
+/* Fila de "ejemplos de objetos" compartida por los juegos que tienen una
+   distinción clara entre objetos buenos (a agarrar) y malos (a evitar):
+   se muestra en la pantalla de instrucciones con el ícono real de cada
+   objeto, para que la instrucción no dependa solo de leer texto. */
+function crearEjemplosObjetos(buenos, malos) {
+  const chip = (o, cls) => `<div class="objeto-chip objeto-chip--${cls}"><span class="objeto-chip-icon">${o.icon}</span>${o.label}</div>`;
+  return `<div class="objetos-ejemplos">
+    <div class="objetos-ejemplos-group">
+      <span class="objetos-ejemplos-title objetos-ejemplos-title--good">✅ ${jt('jue.examples.good', 'Agarrá')}</span>
+      <div class="objetos-ejemplos-row">${buenos.map(o => chip(o, 'good')).join('')}</div>
+    </div>
+    <div class="objetos-ejemplos-group">
+      <span class="objetos-ejemplos-title objetos-ejemplos-title--bad">❌ ${jt('jue.examples.bad', 'Evitá')}</span>
+      <div class="objetos-ejemplos-row">${malos.map(o => chip(o, 'bad')).join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* Sistema compartido de instrucciones animadas y paginadas: antes cada
+   juego apretaba tag + título + intro + diagrama + ejemplos + reglas +
+   botones en una sola tarjeta, que en pantallas chicas (sobre todo
+   celular en horizontal) se quedaba sin espacio y dependía de un scroll
+   interno poco evidente. Ahora la explicación se arma como una lista de
+   "páginas": cada una entra con una animación en cascada y, si hay más
+   de una, el botón "Continuar" avanza a la siguiente en vez de saltar
+   directo al selector de dificultad/modo — así, si el contenido no
+   entra en una sola tarjeta, seguir tocando "Continuar" va mostrando el
+   resto de las instrucciones. La última página dispara `onFinish`
+   (normalmente el selector de dificultad/modo del juego).
+   Recibe el `showOverlay` local de cada juego (que ya anima la tarjeta
+   completa al entrar) para no duplicar esa lógica. */
+function mostrarInstrucciones(showOverlay, overlayCard, paginas, onFinish) {
+  let paso = 0;
+
+  function render() {
+    const pagina = paginas[paso];
+    const esUltima = paso === paginas.length - 1;
+    showOverlay(`
+      ${paso > 0 ? `<button type="button" class="btn-back-selector" id="instrucciones-atras">${jt('jue.back', '← Atrás')}</button>` : ''}
+      ${pagina.html}
+      ${paginas.length > 1 ? `<div class="instrucciones-dots">${paginas.map((_, i) => `<span class="instrucciones-dot${i === paso ? ' is-active' : ''}"></span>`).join('')}</div>` : ''}
+      <button type="button" class="btn-primary" id="instrucciones-continuar">${esUltima ? (pagina.finishLabel || jt('jue.continue', 'Continuar')) : jt('jue.continue', 'Continuar')}</button>
+      ${pagina.extraHtml || ''}
+    `);
+    animarEntradaInstrucciones(overlayCard);
+
+    // Ojo: los 6 juegos arrancan de una al cargar la página, así que sus
+    // tarjetas de instrucciones (ocultas) conviven todas en el DOM al
+    // mismo tiempo — con el mismo id="instrucciones-continuar" repetido
+    // en cada una. document.getElementById() siempre devuelve la primera
+    // del documento (la del primer juego), no la del juego que el
+    // jugador realmente tiene abierto. Por eso se busca acotado dentro
+    // del overlayCard de ESTE juego en particular.
+    overlayCard.querySelector('#instrucciones-continuar').onclick = () => {
+      if (esUltima) { onFinish(); } else { paso++; render(); }
+    };
+    const atras = overlayCard.querySelector('#instrucciones-atras');
+    if (atras) atras.onclick = () => { paso--; render(); };
+
+    if (pagina.onRender) pagina.onRender();
+  }
+
+  render();
+}
+
+/* Anima la entrada del contenido de una tarjeta de instrucciones: los
+   bloques principales (título, párrafos, diagrama, ejemplos, lista de
+   reglas) aparecen en cascada en vez de aparecer todos de golpe, y
+   dentro de esos bloques cada línea de regla / cada ejemplo entra por
+   separado, para que la explicación se sienta guiada. */
+function animarEntradaInstrucciones(overlayCard) {
+  if (!window.gsap || !overlayCard) return;
+  const bloques = overlayCard.querySelectorAll(':scope > *');
+  gsap.from(bloques, { autoAlpha: 0, y: 14, duration: .45, ease: 'power2.out', stagger: .07, delay: .1, overwrite: true });
+  const detalle = overlayCard.querySelectorAll('.rules-list li, .objeto-chip');
+  if (detalle.length) {
+    gsap.from(detalle, { autoAlpha: 0, x: -12, duration: .4, ease: 'power2.out', stagger: .05, delay: .25, overwrite: true });
+  }
+}
+
+/* Sistema compartido de pantalla de resultado final: antes cada uno de
+   los 6 juegos armaba su "fin de partida" por su cuenta, con estilos en
+   línea que se repetían casi igual entre dos o tres juegos pero nunca
+   quedaban exactamente iguales — un juego mostraba la grilla de
+   estadísticas y otro no, uno mostraba el récord guardado y otro
+   (Canicas) ni siquiera lo consultaba. Ahora todos arman su pantalla de
+   resultado llamando a esta única función, así se ven y se comportan
+   igual sin importar el juego.
+   `showOverlay`/`overlayCard` son los locales de cada juego (igual que en
+   mostrarInstrucciones). `stats` es opcional: un arreglo de {value,label}
+   para la grillita de estadísticas. `gameName`/`scoreToSave`/
+   `formatBestScore` son opcionales: si se pasan los tres, se guarda el
+   puntaje y se muestra el récord personal ya formateado. */
+function mostrarResultado(showOverlay, overlayCard, opts) {
+  const {
+    tag, title, animHtml = '', scoreValue = null, scoreSuffix = 'pts',
+    message, stats = null, restartLabel, onRestart,
+    secondaryLabel = null, onSecondary = null,
+    gameName = null, scoreToSave = null, formatBestScore = null
+  } = opts;
+
+  showOverlay(`
+    <span class="overlay-tag">${tag}</span>
+    <h3 class="result-title">${title}</h3>
+    ${animHtml}
+    ${scoreValue != null ? `<div class="overlay-score result-score">${scoreValue}${scoreSuffix ? ' ' + scoreSuffix : ''}</div>` : ''}
+    <p class="result-msg">${message}</p>
+    ${stats ? `<div class="result-stats-grid" style="grid-template-columns: repeat(${stats.length}, 1fr);">${stats.map(s => `<div><b>${s.value}</b><span>${s.label}</span></div>`).join('')}</div>` : ''}
+    <p class="overlay-best-score" id="result-best-score"></p>
+    <div class="result-actions">
+      <button class="btn-primary" id="result-restart-btn">${restartLabel}</button>
+      ${secondaryLabel ? `<button class="btn-primary btn-secondary-result" id="result-secondary-btn">${secondaryLabel}</button>` : ''}
+    </div>
+  `);
+
+  // Ojo: los 6 juegos conviven en el DOM a la vez (ver el mismo problema
+  // ya resuelto en mostrarInstrucciones), así que la búsqueda de estos
+  // botones va acotada al overlayCard de este juego en particular, no a
+  // todo el documento.
+  overlayCard.querySelector('#result-restart-btn').onclick = onRestart;
+  if (secondaryLabel) overlayCard.querySelector('#result-secondary-btn').onclick = onSecondary;
+
+  if (gameName && scoreToSave != null && formatBestScore) {
+    guardarPuntajeJuego(gameName, scoreToSave).then(() => {
+      obtenerMejorPuntajeJuego(gameName).then((best) => {
+        const el = overlayCard.querySelector('#result-best-score');
+        if (el && best) el.textContent = formatBestScore(best);
+      });
+    });
+  }
+}
+
 /* Joystick virtual compartido: antes varios juegos movían al jugador hacia
    el punto exacto donde tocabas la pantalla (sentía "click a donde quiero
    ir" en vez de un control continuo). Este joystick se ancla donde tocás
@@ -208,6 +425,51 @@ function setupRotateGate(gameId, canvasWrap) {
   update();
 }
 
+/* Pantalla completa obligatoria en celular: Trompos y Coasters son los
+   dos juegos "de a dos" (ver modoDosJugadoresDisponible más abajo) y los
+   que más pantalla piden — el duelo necesita ver todo el círculo y la
+   carrera necesita las dos calles enteras. Metidos adentro del modal, en
+   un celular al canvas le quedan unos 300px de alto reales entre el
+   título del modal, el HUD y el borde del teléfono. Por eso, en cuanto
+   arranca la partida (siempre desde un toque del jugador, que es lo que
+   el navegador exige para conceder pantalla completa) el canvas se va a
+   pantalla completa solo. Si el navegador la niega, no pasa nada: el
+   juego sigue igual, solo que en el modal.
+   `orientacion` solo se usa donde el juego además exige horizontal
+   (Trompos, ver setupRotateGate): bloquear la orientación únicamente
+   funciona estando ya en pantalla completa y solo en Android, así que va
+   envuelto en try/catch y sin depender de que funcione. */
+function forzarPantallaCompleta(canvasWrap, orientacion) {
+  if (!esTactilJuegos || !canvasWrap) return;
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
+
+  const req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+  if (!req) return;
+
+  try {
+    const r = req.call(canvasWrap);
+    if (r && typeof r.then === 'function') {
+      r.then(() => bloquearOrientacion(orientacion)).catch(() => {});
+    } else {
+      bloquearOrientacion(orientacion);
+    }
+  } catch (e) { /* el navegador no la concedió: se sigue jugando en el modal */ }
+}
+
+function bloquearOrientacion(orientacion) {
+  if (!orientacion) return;
+  try { screen.orientation?.lock?.(orientacion)?.catch?.(() => {}); } catch (e) {}
+}
+
+/* Los modos de 2 jugadores (Trompos y Coasters) son a pantalla
+   compartida: los dos juegan en el mismo aparato, uno con WASD y el otro
+   con las flechas. En celular eso no existe — no hay teclado, y el
+   control táctil de cada juego es uno solo (un joystick, o tocar el
+   carril) — así que el segundo jugador se quedaría sin forma de jugar.
+   Por eso en celular el modo queda bloqueado a la vista, explicando por
+   qué, en vez de dejar elegirlo y que la partida no se pueda jugar. */
+const modoDosJugadoresDisponible = !esTactilJuegos;
+
 /* ══════════════════════════════════════════════════════════
    GUARDADO DE PUNTAJES EN LA BASE DE DATOS (tabla scores)
    ══════════════════════════════════════════════════════════ */
@@ -270,11 +532,10 @@ if (window.visualViewport) {
   if(!canvas || typeof Matter === 'undefined') return;
 
   const canvasWrap = canvas.closest('.canvas-wrap');
+  setupRotateGate('pupusa', canvasWrap);
 
-  // Antes, al entrar en pantalla completa se reusaba la resolución chica de
-  // la ventana normal y el navegador solo la estiraba (se veía borrosa/pixelada).
-  // Ahora medimos siempre el tamaño real del canvas, así que en fullscreen el
-  // juego dibuja a la resolución completa de la pantalla.
+  // Cuando te metes en fullscreen, actualizamos el tamaño del canvas.
+  // Así evitamos que la pantalla se vea toda estirada y pixeleada como pasaba antes.
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
@@ -309,17 +570,19 @@ if (window.visualViewport) {
   const gameContent = document.getElementById('modal-pupusa');
 
   let gameDifficulty = null;
-  // En PC los objetos caen un poco más rápido y en celular un poco más
-  // lento. La gravedad de Matter.js es una aceleración fija en píxeles,
-  // no relativa al tamaño del canvas: sin este ajuste, como el canvas es
-  // más bajo en celular, ahí los objetos ya recorren esa distancia más
-  // rápido en tiempo real (~12% más rápido, medido con el motor físico
-  // en desktop 690px vs celular 617px de alto). Estos multiplicadores
-  // compensan esa diferencia para que la velocidad se sienta pareja.
-  const PUPUSA_GRAVITY_MULT = esTactilJuegos ? 0.95 : 1.06;
+  // Truco sucio: En compu los objetos caen más rápido y en cel más lento.
+  // Como en Matter.js la gravedad es en píxeles fijos y en celular el canvas
+  // es más chaparro, sin esto sentirías que te caen misiles.
+  // Con este multiplicador se siente igual de perro en todos lados.
+  // (Antes 0.95/1.06: se bajó un poco más para dar tiempo real a
+  // distinguir un objeto de otro mientras cae, no solo a reaccionar.)
+  const PUPUSA_GRAVITY_MULT = esTactilJuegos ? 0.8 : 0.88;
   // Objeto que se atrapa un poco más grande en PC (físico y visual).
-  const PUPUSA_ITEM_RADIUS = esTactilJuegos ? 18 : 22;
-  const PUPUSA_ITEM_VISUAL_SIZE = esTactilJuegos ? 25 : 30;
+  // Se habían agrandado (22/32 y 26/38) pero terminaban viéndose como un
+  // borrón parecido entre sí; ahora quedan más chicos que el original
+  // (18/25 y 22/30) para que se puedan distinguir bien uno de otro.
+  const PUPUSA_ITEM_RADIUS = esTactilJuegos ? 15 : 18;
+  const PUPUSA_ITEM_VISUAL_SIZE = esTactilJuegos ? 21 : 25;
   let gameConfig = {
     easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 4 },
     hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
@@ -361,6 +624,73 @@ if (window.visualViewport) {
     ctx.textAlign='center';
     ctx.textBaseline='middle';
     ctx.fillText(emoji,0,0);
+    ctx.restore();
+  }
+
+  // Aro de fondo detrás de cada objeto que cae: antes el emoji solo (sin
+  // nada detrás) se perdía contra el fondo del cielo, sobre todo los
+  // objetos oscuros. El color del aro (verde/rojo) también refuerza de
+  // un vistazo si es algo para atrapar o para esquivar, igual que en la
+  // pantalla de reglas.
+  function drawItemBackdrop(x, y, isGood){
+    // Antes era un círculo blanco con solo un aro fino de color: de lejos
+    // (y ya más chico) el bueno y el malo se veían casi iguales. Ahora se
+    // rellena con un tono verde/rojo bien marcado para que se distingan
+    // de un vistazo, sin tener que fijarse en el borde.
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, PUPUSA_ITEM_VISUAL_SIZE * 0.62, 0, Math.PI * 2);
+    ctx.fillStyle = isGood ? 'rgba(102, 187, 106, 0.92)' : 'rgba(239, 83, 80, 0.92)';
+    ctx.shadowColor = isGood ? 'rgba(46,125,50,.6)' : 'rgba(198,40,40,.6)';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = isGood ? '#1b5e20' : '#8e0000';
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Haz de luz que "persigue" a cada objeto desde arriba del canvas, como
+  // una linterna/reflector de puesto callejero marcándolo: reemplaza al
+  // viejo fondo liso verde/celeste (ver #canvas-pupusa en juegos.css) como
+  // forma principal de distinguir bueno/malo de un vistazo. Tiene dos
+  // partes: el "lente" (un resplandor fijo arriba del todo, de donde sale
+  // la luz) y el haz en sí, que se abre en cono hacia el objeto — y para
+  // que se sienta "viva" y no una franja estática, su brillo titila
+  // suavemente con el tiempo, como una linterna real. 'lighter' hace que
+  // se vea como luz sumándose sobre el fondo oscuro, no una franja plana.
+  function drawItemLightBeam(x, y, isGood){
+    const core = isGood ? '102,187,106' : '239,83,80';
+    const titileo = 0.85 + Math.sin(Date.now() / 180 + x) * 0.15;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    const grad = ctx.createLinearGradient(x, 0, x, y);
+    grad.addColorStop(0, `rgba(${core},0)`);
+    grad.addColorStop(0.7, `rgba(${core},${.16 * titileo})`);
+    grad.addColorStop(1, `rgba(${core},${.42 * titileo})`);
+    ctx.fillStyle = grad;
+    const beamHalfWidth = PUPUSA_ITEM_VISUAL_SIZE * 0.9;
+    ctx.beginPath();
+    ctx.moveTo(x - beamHalfWidth * 0.3, 0);
+    ctx.lineTo(x + beamHalfWidth * 0.3, 0);
+    ctx.lineTo(x + beamHalfWidth, y);
+    ctx.lineTo(x - beamHalfWidth, y);
+    ctx.closePath();
+    ctx.fill();
+
+    // El "lente" de la linterna: un resplandor pegado al borde superior,
+    // de donde nace el haz — sin esto el cono de luz parecía salir de la
+    // nada en vez de venir de una fuente.
+    ctx.fillStyle = `rgba(${core},${.85 * titileo})`;
+    ctx.shadowColor = `rgb(${core})`;
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.ellipse(x, 2, beamHalfWidth * 0.32, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.restore();
   }
 
@@ -413,7 +743,12 @@ if (window.visualViewport) {
   const world = engine.world;
 
   const paddleY = canvas.height - 60;
-  const COMAL_HALF_WIDTH = 55; // ancho visual/físico del comal (antes 75, radio de la elipse dibujada)
+  // En celular parado (vertical) el canvas es angosto, así que un comal de
+  // 55px de radio ocupaba una porción enorme del ancho jugable — se achica
+  // un poco solo en ese caso (celular + vertical); en PC y en celular
+  // horizontal se deja el tamaño de siempre.
+  const esVerticalMovil = esTactilJuegos && window.innerHeight > window.innerWidth;
+  const COMAL_HALF_WIDTH = esVerticalMovil ? 42 : 55; // ancho visual/físico del comal (antes 75, radio de la elipse dibujada)
   const paddle = Bodies.rectangle(canvas.width/2, paddleY, COMAL_HALF_WIDTH*2, 18, { isStatic:true, label:'comal' });
   World.add(world, paddle);
 
@@ -441,13 +776,10 @@ if (window.visualViewport) {
     {emoji:'🦴', pts:-1}
   ];
 
-  /* ── Bolsa de aparición con proporción fija ──
-     Antes cada objeto era bueno/malo con Math.random() < 0.32 de forma
-     independiente: en muestras cortas eso a veces tiraba rachas de puros
-     objetos malos (o puros buenos) porque la probabilidad no garantiza
-     nada sobre la cantidad real. Con una "bolsa" que siempre contiene la
-     misma proporción (barajada) y se recarga al vaciarse, la cantidad de
-     buenos vs. malos es consistente partida tras partida. */
+  // Sistema de "bolsa" para que no salgan rachas asquerosas de puros
+  // objetos malos o puros buenos. Como si sacaras de una bolsa
+  // donde sabes que hay X buenos y Y malos, así la suerte no
+  // te revienta la partida tan feo.
   const SPAWN_BAG_SIZE = 25;
   const SPAWN_BAG_BAD_COUNT = 8; // 8 de 25 ≈ 32% malos, igual que antes pero fijo
   let spawnBag = [];
@@ -692,16 +1024,12 @@ if (window.visualViewport) {
   function step(timestamp){
     if(!running || !isGameVisible) return;
     if(lastTime === null) lastTime = timestamp;
-    // dt para la física: recortado a 100ms para que un frame lento no haga
-    // "saltar" a los objetos ni desestabilice la simulación.
+    // dt para física: lo capamos a 100ms. Si la compu se traba,
+    // evitamos que los objetos se teletransporten y rompan todo.
     const dt = Math.min(Math.max(timestamp - lastTime, 1), 100);
-    // dtReloj: el tiempo real transcurrido, sin ese recorte (solo protegido
-    // contra saltos absurdos si la pestaña estuvo en segundo plano). Si el
-    // reloj usara el mismo dt recortado que la física, cada frame lento
-    // "perdería" tiempo real sin descontarlo del cronómetro, y la ronda
-    // terminaría durando más de los segundos configurados. Con esto el
-    // cronómetro siempre cumple el 100% del tiempo predispuesto, ni más
-    // ni menos, sin importar caídas de framerate.
+    // dtReloj: el tiempo real. Acá si dejamos que pase completo porque
+    // si no, el timer del juego se alargaría con el lag y terminarían
+    // jugando 40 segundos en lugar de 30.
     const dtReloj = Math.min(Math.max(timestamp - lastTime, 0), 2000);
     lastTime = timestamp;
 
@@ -746,12 +1074,21 @@ if (window.visualViewport) {
     }
 
     clearCanvas();
+    // Los haces de luz van antes que todo lo demás (piso, comal, objetos)
+    // para que se vean como reflectores iluminando la calle desde atrás,
+    // no como algo pegado encima de los objetos.
+    for(const b of world.bodies){
+      if(b.label==='good' || b.label==='bad'){
+        drawItemLightBeam(b.position.x, b.position.y, b.label === 'good');
+      }
+    }
     ctx.fillStyle = '#5a4634';
     ctx.fillRect(0, canvas.height-20, canvas.width, 20);
     for(const b of world.bodies){
       if(b.label==='comal'){
         drawComal(b.position.x, b.position.y);
       } else {
+        drawItemBackdrop(b.position.x, b.position.y, b.label === 'good');
         drawEmoji(b.foodEmoji, b.position.x, b.position.y, PUPUSA_ITEM_VISUAL_SIZE, b.angle);
       }
     }
@@ -764,6 +1101,17 @@ if (window.visualViewport) {
   function drawComal(x, y){
     ctx.save();
     ctx.translate(x, y);
+    const rx = COMAL_HALF_WIDTH, ry = 11; // antes ry:9 — un poco más de profundidad para leerse como disco, no como línea
+
+    // Brasas del fogón debajo: un resplandor cálido tenue (el comal está
+    // sobre fuego de verdad, no solo parado en el piso).
+    const embers = ctx.createRadialGradient(0, 14, 4, 0, 14, 46);
+    embers.addColorStop(0, 'rgba(255,140,40,.35)');
+    embers.addColorStop(1, 'rgba(255,140,40,0)');
+    ctx.fillStyle = embers;
+    ctx.beginPath();
+    ctx.ellipse(0, 14, 46, 16, 0, 0, Math.PI*2);
+    ctx.fill();
 
     // Piedras del fogón
     ctx.fillStyle = '#4a4238';
@@ -780,20 +1128,85 @@ if (window.visualViewport) {
     grad.addColorStop(1, '#2c231a');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.ellipse(0, 0, COMAL_HALF_WIDTH, 9, 0, 0, Math.PI*2);
+    ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI*2);
     ctx.fill();
     ctx.strokeStyle = '#1b140d';
     ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Borde/labio levantado: un comal de verdad no es un disco plano, tiene
+    // un reborde apenas alzado en toda la circunferencia. Se dibuja como un
+    // aro más claro justo adentro del contorno.
+    ctx.strokeStyle = 'rgba(210,168,120,.55)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, rx - 3, ry - 2, 0, 0, Math.PI*2);
     ctx.stroke();
 
     // Reflejo/brillo tenue de uso (superficie curtida por el fuego)
     ctx.strokeStyle = 'rgba(255,214,158,.35)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.ellipse(0, -1, COMAL_HALF_WIDTH-6, 5, 0, Math.PI*1.1, Math.PI*1.9);
+    ctx.ellipse(0, -1, rx - 6, ry - 4, 0, Math.PI*1.1, Math.PI*1.9);
     ctx.stroke();
 
+    // Motitas de barro cocido: unas pecas oscuras fijas (no aleatorias en
+    // cada frame, para que no "parpadeen") que rompen la superficie lisa
+    // y la hacen leerse como cerámica curtida, no como plástico liso.
+    ctx.fillStyle = 'rgba(20,14,8,.4)';
+    [[-24,-2],[-6,3],[14,-3],[28,2],[-34,4],[36,-1]].forEach(([dx, dy]) => {
+      ctx.beginPath();
+      ctx.ellipse(dx, dy, 1.6, 1, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+
     ctx.restore();
+  }
+
+  // Animación de cierre: una pupusa recién hecha, humeante y lista en su
+  // plato — el mismo tipo de remate "apetitoso" que va a usarse en los
+  // demás juegos, pero con la comida que representa a Pupusa. Es puro
+  // SVG + CSS (ver .pupusa-final en juegos.css) para no depender de
+  // ninguna imagen externa.
+  function crearAnimacionPupusaLista(){
+    return `
+      <div class="pupusa-final" aria-hidden="true">
+        <svg viewBox="0 0 220 150" class="pupusa-final__svg">
+          <ellipse class="pupusa-final__sombra" cx="110" cy="132" rx="78" ry="10"/>
+          <ellipse class="pupusa-final__plato-base" cx="110" cy="108" rx="92" ry="28"/>
+          <ellipse class="pupusa-final__plato-borde" cx="110" cy="103" rx="84" ry="24"/>
+          <ellipse class="pupusa-final__plato-centro" cx="110" cy="103" rx="55" ry="15"/>
+          <g class="pupusa-final__curtido">
+            <ellipse cx="45" cy="100" rx="4" ry="2.4" fill="#7fb069"/>
+            <ellipse cx="52" cy="108" rx="3.4" ry="2" fill="#e0a339"/>
+            <ellipse cx="40" cy="110" rx="3" ry="2" fill="#c94f4f"/>
+            <ellipse cx="176" cy="102" rx="4" ry="2.4" fill="#7fb069"/>
+            <ellipse cx="169" cy="110" rx="3.4" ry="2" fill="#e0a339"/>
+            <ellipse cx="181" cy="111" rx="3" ry="2" fill="#c94f4f"/>
+          </g>
+          <ellipse class="pupusa-final__salsa" cx="110" cy="118" rx="34" ry="7"/>
+          <!-- Canto/grosor de la pupusa: un óvalo más oscuro debajo del
+               cuerpo para que se note que es una masa gruesa, no una
+               tortilla plana. -->
+          <ellipse class="pupusa-final__canto" cx="110" cy="97" rx="47" ry="20"/>
+          <ellipse class="pupusa-final__cuerpo" cx="110" cy="90" rx="46" ry="18"/>
+          <ellipse class="pupusa-final__tostado1" cx="82" cy="85" rx="9" ry="4.5"/>
+          <ellipse class="pupusa-final__tostado2" cx="106" cy="78" rx="6" ry="3"/>
+          <ellipse class="pupusa-final__tostado3" cx="94" cy="96" rx="7" ry="3.4"/>
+          <!-- El mordisco: la marca más reconocible de una pupusa recién
+               hecha es el hilo de queso que se estira al morderla. Se
+               "borra" un pedazo del borde (mismo color que el plato de
+               atrás) y del hueco salen un par de hilos de queso. -->
+          <ellipse class="pupusa-final__mordisco" cx="149" cy="87" rx="15" ry="13"/>
+          <path class="pupusa-final__queso-mordisco" d="M 138 82 q 10 8 4 22 M 146 80 q 12 6 8 24"/>
+          <path class="pupusa-final__queso" d="M 78 96 q 4 13 -2 19 q 9 -2 11 -15"/>
+          <path class="pupusa-final__vapor pupusa-final__vapor--1" d="M92 66 q -7 -12 0 -22 q 7 -10 0 -20"/>
+          <path class="pupusa-final__vapor pupusa-final__vapor--2" d="M112 60 q 7 -12 0 -22 q -7 -10 0 -20"/>
+          <path class="pupusa-final__vapor pupusa-final__vapor--3" d="M132 66 q -7 -12 0 -22 q 7 -10 0 -20"/>
+        </svg>
+        <span class="pupusa-final__brillo pupusa-final__brillo--1">✨</span>
+        <span class="pupusa-final__brillo pupusa-final__brillo--2">✨</span>
+      </div>`;
   }
 
   function endGame(){
@@ -801,32 +1214,33 @@ if (window.visualViewport) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if(pauseIcon) pauseIcon.textContent = '⏸️';
-    
+
     let text = score >= 120 ? jt('jue.card1.end.high', '🏆 ¡Sos toda una maestra pupusera de El Salvador!') :
                score >= 60 ? jt('jue.card1.end.mid', '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.') :
                jt('jue.card1.end.low', '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!');
-    
+
     const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
     const gameName = `pupusa-${gameDifficulty}`;
 
-    showOverlay(`
-      <span class="overlay-tag">${difficultyLabel}</span>
-      <h3>${jt('jue.end.title', '¡Fin del juego!')}</h3>
-      <div class="overlay-score">${score} pts</div>
-      <p>${text}</p>
-      <p class="overlay-best-score" id="p-best-score"></p>
-      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>`);
-    document.getElementById('p-restart').onclick = showDifficultySelector;
-
-    guardarPuntajeJuego(gameName, score).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('p-best-score');
-        if (el && best) el.textContent = `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`;
-      });
+    mostrarResultado(showOverlay, overlayCard, {
+      tag: difficultyLabel,
+      title: jt('jue.end.title', '¡Fin del juego!'),
+      animHtml: crearAnimacionPupusaLista(),
+      scoreValue: score,
+      message: text,
+      restartLabel: jt('jue.end.playAgain', 'Jugar de nuevo'),
+      onRestart: showDifficultySelector,
+      gameName, scoreToSave: score,
+      formatBestScore: (best) => `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`
     });
   }
 
   function start(){
+    // En celular el juego se juega en horizontal y a pantalla completa
+    // (ver setupRotateGate más arriba): metido en el modal y en vertical,
+    // el comal apenas tenía ancho para moverse de lado a lado.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resizeCanvas();
     for(const b of [...world.bodies]) if(b.label==='good'||b.label==='bad') World.remove(world,b);
     score=0; lives=totalLives; timeLeft=gameConfig[gameDifficulty].timeLimit; running=true; paused=false;
@@ -876,18 +1290,25 @@ if (window.visualViewport) {
     };
   }
 
-  showOverlay(`
-    <span class="overlay-tag">${jt('jue.card1.tagModal', 'Ruta 01')}</span>
-    <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
-    <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
-    <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
-    <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
-      <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card1.ruleBad', 'Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.')}</li>
-    </ul>
-    <button class="btn-primary" id="p-start">${jt('jue.continue', 'Continuar')}</button>`);
-  
-  document.getElementById('p-start').onclick = showDifficultySelector;
+  mostrarInstrucciones(showOverlay, overlayCard, [
+    { html: `
+      <span class="overlay-tag">${jt('jue.card1.tagModal', 'Ruta 01')}</span>
+      <h3>🫓 ${jt('jue.card1.title', 'Atrapa la Pupusa')}</h3>
+      <p>${jt('jue.card1.intro', 'Mové el comal de un lado a otro con el mouse (o el dedo) para atrapar lo que cae del cielo.')}</p>
+      ${crearDiagramaControles('drag-h')}
+    ` },
+    { html: `
+      ${crearEjemplosObjetos(
+        [{icon:'🫓', label: jt('jue.card1.examplePupusa','Pupusa')}, {icon:'🧀', label: jt('jue.card1.exampleQuesillo','Quesillo')}, {icon:'🌽', label: jt('jue.card1.exampleElote','Elote')}],
+        [{icon:'🩴', label: jt('jue.card1.exampleChancla','Chancla')}, {icon:'🪨', label: jt('jue.card1.examplePiedra','Piedra')}, {icon:'🦴', label: jt('jue.card1.exampleHueso','Hueso')}]
+      )}
+      <p class="rules-title">${jt('jue.rules.title', 'Reglas del juego')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card1.ruleGood', 'Atrapá <strong>🫓 pupusas</strong>, <strong>🧀 quesillo</strong> y <strong>🌽 elotes</strong> — suman puntos.')}</li>
+        <li class="rule-bad"><span class="rule-icon">❌</span> ${jt('jue.card1.ruleBad', 'Evitá <strong>🩴 chanclas</strong>, <strong>🪨 piedras</strong> y <strong>🦴 huesos</strong> — te quitan una vida.')}</li>
+      </ul>
+    ` }
+  ], showDifficultySelector);
 
   clearCanvas();
   ctx.fillStyle = '#5a4634';
@@ -987,11 +1408,29 @@ if (window.visualViewport) {
   let playerWins = 0;
   let rivalWins = 0;
 
+  // El NPC arranca a la MISMA velocidad base que el jugador (NPC_CHASE_SPEED,
+  // igual al 4 fijo que usan P1/P2 más abajo): nunca "hace trampa" yendo más
+  // rápido de lo que puede ir un humano. Lo que cambia con la dificultad:
+  //   - reaction:  ms entre decisiones (qué tan rápido te lee).
+  //   - moveChance: probabilidad de comprometerse a atacar en cada decisión,
+  //                 en vez de aflojar.
+  //   - precision: qué tanto ANTICIPA — apunta a donde vas a estar, no a
+  //                donde estás, y con menos desvío en la puntería.
+  //   - maxBoost:  techo de su aceleración, el mismo mecanismo que usa el
+  //                jugador al mantener una dirección (ver step()).
+  // maxBoost es el que más pesaba y faltaba: el jugador acelera hasta 2.0
+  // (velocidad 8) mientras el NPC iba siempre a 4 fijo, y como el daño de
+  // cada choque se lo lleva el más rápido (ver collisionStart), el jugador
+  // ganaba casi todos los encontronazos por inercia — el NPC no perdía por
+  // tonto, perdía por lento. Ahora en difícil llega al mismo 2.0 que el
+  // jugador: para ganarle hay que llegar al choque con más velocidad de
+  // verdad, no solo esperar a que se acerque.
+  const NPC_CHASE_SPEED = 4;
   let gameConfig = {
     npc: {
-      easy: { speed: 0.9, precision: 0.15, reaction: 850, moveChance: 0.3 },
-      medium: { speed: 1.6, precision: 0.35, reaction: 550, moveChance: 0.5 },
-      hard: { speed: 2.6, precision: 0.6, reaction: 350, moveChance: 0.75 }
+      easy:   { precision: 0.25, reaction: 700, moveChance: 0.50, maxBoost: 1.3 },
+      medium: { precision: 0.60, reaction: 360, moveChance: 0.80, maxBoost: 1.65 },
+      hard:   { precision: 0.95, reaction: 140, moveChance: 1.00, maxBoost: 2.0 }
     }
   };
 
@@ -1126,6 +1565,48 @@ if (window.visualViewport) {
     }
   }
 
+  // Efecto visual de colisión
+  let collisionParticles = [];
+  function createCollisionEffect(x, y, impactForce) {
+    const particleCount = Math.min(15, Math.round(impactForce * 2));
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (Math.PI * 2 * i) / particleCount;
+      const speed = 2 + Math.random() * 3;
+      collisionParticles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1.0,
+        color: `hsl(${30 + Math.random() * 30}, 100%, 50%)`
+      });
+    }
+  }
+
+  function updateCollisionParticles() {
+    for (let i = collisionParticles.length - 1; i >= 0; i--) {
+      const p = collisionParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.05;
+      if (p.life <= 0) {
+        collisionParticles.splice(i, 1);
+      }
+    }
+  }
+
+  function drawCollisionParticles() {
+    ctx.save();
+    for (const p of collisionParticles) {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4 * p.life, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   const engine = Engine.create();
   engine.gravity.y = 0;
   engine.enableSleeping = false;
@@ -1135,9 +1616,9 @@ if (window.visualViewport) {
   function setupWalls() {
     if(walls.length) World.remove(world, walls);
     const wallThickness = 40;
-    
-    const mapWidth = canvas.width * 0.85;
-    const mapHeight = canvas.height * 0.85;
+
+    const mapWidth = canvas.width * 0.9;
+    const mapHeight = canvas.height * 0.9;
     const offsetX = (canvas.width - mapWidth) / 2;
     const offsetY = (canvas.height - mapHeight) / 2;
 
@@ -1150,20 +1631,25 @@ if (window.visualViewport) {
     World.add(world, walls);
   }
 
+  // La batalla se juega de izquierda a derecha (no de arriba a abajo):
+  // aprovecha el ancho real del canvas, que en celular queda forzado a
+  // horizontal por setupRotateGate más arriba.
   const top = {
-    body: Bodies.circle(canvas.width/2, 140, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
+    body: Bodies.circle(140, canvas.height/2, 35, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo1' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
-    color: '#D4A373'
+    color: '#D4A373',
+    speedMultiplier: 1.0
   };
 
   const bottom = {
-    body: Bodies.circle(canvas.width/2, canvas.height - 140, 24, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
+    body: Bodies.circle(canvas.width - 140, canvas.height/2, 35, { restitution: 0.85, friction: 0.02, frictionAir: 0.008, label: 'trompo2' }),
     energy: 100,
     maxEnergy: 100,
     angle: 0,
-    color: '#A26967'
+    color: '#A26967',
+    speedMultiplier: 1.0
   };
 
   World.add(world, [top.body, bottom.body]);
@@ -1239,35 +1725,48 @@ if (window.visualViewport) {
 
   function updateNPC(timestamp){
     if(gameMode !== 'pve') return;
-    
+
     const now = timestamp || Date.now();
     const config = gameConfig.npc[npcDifficulty];
-    
-    if(now - npcLastAction > config.reaction){
-      npcLastAction = now;
-      
-      const distX = top.body.position.x - bottom.body.position.x;
-      const distY = top.body.position.y - bottom.body.position.y;
-      const distance = Math.sqrt(distX*distX + distY*distY);
-      
-      if(Math.random() > config.moveChance) return;
-      
-      if(distance > 70){
-        const targetX = bottom.body.position.x + (distX * config.precision);
-        const targetY = bottom.body.position.y + (distY * config.precision);
-        
-        const moveX = (targetX - bottom.body.position.x) * 0.08;
-        const moveY = (targetY - bottom.body.position.y) * 0.08;
-        
-        Body.setVelocity(bottom.body, { x: moveX * config.speed, y: moveY * config.speed });
-      } else {
-        const angle = Math.random() * Math.PI * 2;
-        Body.setVelocity(bottom.body, {
-          x: Math.cos(angle) * config.speed * 1.1,
-          y: Math.sin(angle) * config.speed * 1.1
-        });
-      }
+
+    if(now - npcLastAction <= config.reaction) return;
+    npcLastAction = now;
+
+    const distX = top.body.position.x - bottom.body.position.x;
+    const distY = top.body.position.y - bottom.body.position.y;
+    const distance = Math.sqrt(distX*distX + distY*distY);
+
+    // Decidió aflojar en este turno: pierde impulso igual que el jugador
+    // cuando suelta las teclas, en vez de quedar congelado a media
+    // velocidad.
+    if(Math.random() > config.moveChance){
+      bottom.speedMultiplier = Math.max(bottom.speedMultiplier - 0.1, 1.0);
+      return;
     }
+
+    // Misma aceleración progresiva que usa el jugador en step(), topada
+    // por la dificultad.
+    bottom.speedMultiplier = Math.min(bottom.speedMultiplier + 0.12, config.maxBoost);
+    const speed = NPC_CHASE_SPEED * bottom.speedMultiplier;
+
+    let angle;
+    if(distance > 70){
+      // Antes esto escalaba el vector hacia el jugador por `precision` y
+      // después lo normalizaba, así que `precision` no cambiaba nada: el
+      // NPC siempre iba derecho a donde el jugador ESTABA. Ahora apunta a
+      // donde va a estar (adelanta según su velocidad) y el error de
+      // puntería es lo que baja con la dificultad.
+      const anticipo = 12 * config.precision;
+      angle = Math.atan2(distY + top.body.velocity.y * anticipo, distX + top.body.velocity.x * anticipo);
+      angle += (Math.random() - 0.5) * (1 - config.precision) * Math.PI;
+    } else {
+      // Ya lo tiene encima: embiste de frente. Antes salía disparado en una
+      // dirección al azar justo en el momento del choque, que es cuando más
+      // le convenía empujar.
+      angle = Math.atan2(distY, distX) + (Math.random() - 0.5) * (1 - config.precision);
+    }
+
+    Body.setVelocity(bottom.body, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed });
   }
 
   Events.on(engine, 'collisionStart', (evt)=>{
@@ -1276,30 +1775,39 @@ if (window.visualViewport) {
       const { bodyA, bodyB } = pair;
       if((bodyA.label === 'trompo1' && bodyB.label === 'trompo2') ||
          (bodyA.label === 'trompo2' && bodyB.label === 'trompo1')){
-        
         if(now - lastCollisionTime > COLLISION_COOLDOWN){
           lastCollisionTime = now;
 
           const vel1 = top.body.velocity;
           const vel2 = bottom.body.velocity;
-          
+
           const speed1 = Math.sqrt(vel1.x * vel1.x + vel1.y * vel1.y);
           const speed2 = Math.sqrt(vel2.x * vel2.x + vel2.y * vel2.y);
-          
+
           const impactForce = Math.sqrt(Math.pow(vel1.x - vel2.x, 2) + Math.pow(vel1.y - vel2.y, 2));
-          const damage = Math.min(35, Math.max(8, Math.round(impactForce * 2.8)));
+
+          // Ajustar daño basado en velocidad relativa y multiplicadores
+          const relativeSpeedDiff = Math.abs(speed1 - speed2);
+          const baseDamage = Math.min(25, Math.max(5, Math.round(impactForce * 1.5)));
+          const speedBonus = Math.round(relativeSpeedDiff * 3);
+          const totalDamage = Math.min(35, baseDamage + speedBonus);
+
+          // Reducir velocidad al chocar
+          top.speedMultiplier = Math.max(top.speedMultiplier * 0.7, 1.0);
+          bottom.speedMultiplier = Math.max(bottom.speedMultiplier * 0.7, 1.0);
 
           flashDamage();
+          createCollisionEffect((top.body.position.x + bottom.body.position.x) / 2, (top.body.position.y + bottom.body.position.y) / 2, impactForce);
           notifyTutorial('hit');
 
-          if (speed1 > speed2 + 0.3) {
-            bottom.energy = Math.max(0, bottom.energy - damage);
+          if (speed1 > speed2 + 0.5) {
+            bottom.energy = Math.max(0, bottom.energy - totalDamage);
             triggerHudDamageFlash('bottom');
-          } else if (speed2 > speed1 + 0.3) {
-            top.energy = Math.max(0, top.energy - damage);
+          } else if (speed2 > speed1 + 0.5) {
+            top.energy = Math.max(0, top.energy - totalDamage);
             triggerHudDamageFlash('top');
           } else {
-            const splitDamage = Math.round(damage / 1.6);
+            const splitDamage = Math.round(totalDamage / 1.6);
             top.energy = Math.max(0, top.energy - splitDamage);
             bottom.energy = Math.max(0, bottom.energy - splitDamage);
             triggerHudDamageFlash('top');
@@ -1328,21 +1836,33 @@ if (window.visualViewport) {
     const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
     const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
     if(moveX1 !== 0 || moveY1 !== 0){
-      Body.setVelocity(top.body, { x: moveX1 * 4, y: moveY1 * 4 });
+      // Aceleración progresiva
+      top.speedMultiplier = Math.min(top.speedMultiplier + 0.05, 2.0);
+      const currentSpeed = 4 * top.speedMultiplier;
+      Body.setVelocity(top.body, { x: moveX1 * currentSpeed, y: moveY1 * currentSpeed });
     } else if (joystick.isActive()) {
       const vec = joystick.getVector();
       const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
       if (len > 0.15) {
-        Body.setVelocity(top.body, { x: (vec.x / len) * 4 * Math.min(1, len), y: (vec.y / len) * 4 * Math.min(1, len) });
+        top.speedMultiplier = Math.min(top.speedMultiplier + 0.05, 2.0);
+        const currentSpeed = 4 * top.speedMultiplier;
+        Body.setVelocity(top.body, { x: (vec.x / len) * currentSpeed * Math.min(1, len), y: (vec.y / len) * currentSpeed * Math.min(1, len) });
         notifyTutorial('move');
       }
+    } else {
+      // Reducir velocidad gradualmente cuando no se mueve
+      top.speedMultiplier = Math.max(top.speedMultiplier - 0.02, 1.0);
     }
-    
+
     if(gameMode === 'pvp'){
       const moveX2 = (keys['arrowright'] ? 1 : 0) - (keys['arrowleft'] ? 1 : 0);
       const moveY2 = (keys['arrowdown'] ? 1 : 0) - (keys['arrowup'] ? 1 : 0);
       if(moveX2 !== 0 || moveY2 !== 0){
-        Body.setVelocity(bottom.body, { x: moveX2 * 4, y: moveY2 * 4 });
+        bottom.speedMultiplier = Math.min(bottom.speedMultiplier + 0.05, 2.0);
+        const currentSpeed = 4 * bottom.speedMultiplier;
+        Body.setVelocity(bottom.body, { x: moveX2 * currentSpeed, y: moveY2 * currentSpeed });
+      } else {
+        bottom.speedMultiplier = Math.max(bottom.speedMultiplier - 0.02, 1.0);
       }
     } else if (!tutorialMode) {
       // El rival queda quieto durante el tutorial para que sea fácil
@@ -1365,17 +1885,17 @@ if (window.visualViewport) {
     if(Math.abs(bottom.body.velocity.y) > maxV) 
       Body.setVelocity(bottom.body, { x: bottom.body.velocity.x, y: Math.sign(bottom.body.velocity.y) * maxV });
 
-    const mapWidth = canvas.width * 0.85;
-    const mapHeight = canvas.height * 0.85;
+    const mapWidth = canvas.width * 0.9;
+    const mapHeight = canvas.height * 0.9;
     const offsetX = (canvas.width - mapWidth) / 2;
     const offsetY = (canvas.height - mapHeight) / 2;
 
-    if(!tutorialMode && (top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40)){
+    if(!tutorialMode && (top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.y < offsetY - 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40)){
       running = false;
       handleRoundEnd('bottom');
       return;
     }
-    if(!tutorialMode && (bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40)){
+    if(!tutorialMode && (bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.y < offsetY - 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40)){
       running = false;
       handleRoundEnd('top');
       return;
@@ -1395,8 +1915,8 @@ if (window.visualViewport) {
     ctx.lineWidth = 2;
     ctx.setLineDash([8, 8]);
     ctx.beginPath();
-    ctx.moveTo(offsetX, canvas.height/2);
-    ctx.lineTo(canvas.width - offsetX, canvas.height/2);
+    ctx.moveTo(canvas.width/2, offsetY);
+    ctx.lineTo(canvas.width/2, canvas.height - offsetY);
     ctx.stroke();
     ctx.setLineDash([]);
 
@@ -1509,16 +2029,27 @@ if (window.visualViewport) {
   }
 
   function resetPositions() {
-    const mapHeight = canvas.height * 0.85;
-    const offsetY = (canvas.height - mapHeight) / 2;
+    const mapWidth = canvas.width * 0.85;
+    const offsetX = (canvas.width - mapWidth) / 2;
 
-    Body.setPosition(top.body, { x: canvas.width/2, y: offsetY + 100 });
-    Body.setPosition(bottom.body, { x: canvas.width/2, y: canvas.height - offsetY - 100 });
+    Body.setPosition(top.body, { x: offsetX + 100, y: canvas.height/2 });
+    Body.setPosition(bottom.body, { x: canvas.width - offsetX - 100, y: canvas.height/2 });
     Body.setVelocity(top.body, { x: 0, y: 0 });
     Body.setVelocity(bottom.body, { x: 0, y: 0 });
     
     top.energy = 100;
     bottom.energy = 100;
+    // Sin esto la ronda nueva arrancaba con el impulso acumulado en la
+    // anterior (ver updateNPC y step): uno de los dos salía ya lanzado.
+    top.speedMultiplier = 1.0;
+    bottom.speedMultiplier = 1.0;
+  }
+
+  // Ilustración de cierre estilo historieta (imagen generada por IA, ver
+  // presentation/assets/media/juegos/finales/): el jugador lanza su
+  // trompo contra el del rival con el impacto y el "¡TRAS!" de rigor.
+  function crearAnimacionTromposComic(){
+    return `<img class="result-comic-img" src="../assets/media/juegos/finales/trompos-final.webp" alt="" aria-hidden="true">`;
   }
 
   function endGame(winner){
@@ -1535,20 +2066,17 @@ if (window.visualViewport) {
 
     const gameName = `trompos-${gameMode}`;
 
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card2.end.tag', 'Fin de la Batalla')}</span>
-      <h3>${message}</h3>
-      <p>${jt('jue.card2.end.rematch', '¿Listo para una revancha?')}</p>
-      <p class="overlay-best-score" id="p-best-score-trompos"></p>
-      <button class="btn-primary" id="p-restart">${jt('jue.end.playAgain2', 'Volver a Jugar')}</button>`);
-    
-    document.getElementById('p-restart').onclick = showModeSelector;
-
-    guardarPuntajeJuego(gameName, playerWins).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('p-best-score-trompos');
-        if (el && best) el.textContent = `${jt('jue.bestScore.rounds', 'Tu récord de rondas ganadas')}: ${best.score}`;
-      });
+    mostrarResultado(showOverlay, overlayCard, {
+      tag: jt('jue.card2.end.tag', 'Fin de la Batalla'),
+      title: message,
+      animHtml: crearAnimacionTromposComic(),
+      scoreValue: playerWins,
+      scoreSuffix: jt('jue.card2.roundsWonSuffix', 'rondas ganadas'),
+      message: jt('jue.card2.end.rematch', '¿Listo para una revancha?'),
+      restartLabel: jt('jue.end.playAgain2', 'Volver a Jugar'),
+      onRestart: showModeSelector,
+      gameName, scoreToSave: playerWins,
+      formatBestScore: (best) => `${jt('jue.bestScore.rounds', 'Tu récord de rondas ganadas')}: ${best.score}`
     });
   }
 
@@ -1617,6 +2145,11 @@ if (window.visualViewport) {
   menuBtn?.addEventListener('click', returnToMenu);
 
   function start(){
+    // En celular el duelo se juega a pantalla completa (y en horizontal,
+    // que es lo que ya exigía setupRotateGate): metido en el modal, al
+    // círculo le quedaba una franja mínima de pantalla.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resizeCanvas();
     setupWalls();
     resetPositions();
@@ -1644,15 +2177,15 @@ if (window.visualViewport) {
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-trompos">
           ${jt('jue.diff.easy', '🟢 Fácil')}
-          <div class="difficulty-desc">${jt('jue.card2.diff.easyDesc', 'NPC lento y predecible')}</div>
+          <div class="difficulty-desc">${jt('jue.card2.diff.easyDesc', 'NPC reacciona lento y ataca poco')}</div>
         </button>
         <button class="difficulty-btn medium" id="btn-medium-trompos">
           ${jt('jue.diff.medium', '🟡 Normal')}
-          <div class="difficulty-desc">${jt('jue.card2.diff.medDesc', 'NPC rápido y certero')}</div>
+          <div class="difficulty-desc">${jt('jue.card2.diff.medDesc', 'NPC reacciona rápido y ataca seguido')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-trompos">
           ${jt('jue.diff.hard', '🔴 Difícil')}
-          <div class="difficulty-desc">${jt('jue.card2.diff.hardDesc', 'NPC experto (Modo Imposible)')}</div>
+          <div class="difficulty-desc">${jt('jue.card2.diff.hardDesc', 'NPC reacciona al instante y no te suelta')}</div>
         </button>
       </div>`);
 
@@ -1714,9 +2247,11 @@ if (window.visualViewport) {
       <h3>⚡ ${jt('jue.card2.titleModal', 'Batalla de Trompos SV')}</h3>
       <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
       <div class="mode-buttons">
-        <button class="mode-btn pvp" id="btn-pvp-trompos">
-          ${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
-          <div class="difficulty-desc">${jt('jue.card2.mode.pvpDesc', 'Compite localmente')}</div>
+        <button class="mode-btn pvp${modoDosJugadoresDisponible ? '' : ' mode-btn--bloqueado'}" id="btn-pvp-trompos" ${modoDosJugadoresDisponible ? '' : 'disabled aria-disabled="true"'}>
+          ${modoDosJugadoresDisponible ? '' : '🔒 '}${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${modoDosJugadoresDisponible
+            ? jt('jue.card2.mode.pvpDesc', 'Compite localmente')
+            : jt('jue.mode.pvpSoloPC', 'Solo desde computadora: los dos jugadores comparten el teclado')}</div>
         </button>
         <button class="mode-btn pve" id="btn-pve-trompos">
           ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
@@ -1726,11 +2261,13 @@ if (window.visualViewport) {
       <button class="btn-tutorial" id="btn-tutorial-trompos">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
 
     document.getElementById('btn-tutorial-trompos').onclick = startTutorial;
-    document.getElementById('btn-pvp-trompos').onclick = ()=>{
-      gameMode = 'pvp';
-      document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
-      setTimeout(()=>{ showRoundSelector(); }, 100);
-    };
+    if (modoDosJugadoresDisponible) {
+      document.getElementById('btn-pvp-trompos').onclick = ()=>{
+        gameMode = 'pvp';
+        document.getElementById('p2-label').textContent = jt('jue.card2.player2', '🔴 Jugador 2');
+        setTimeout(()=>{ showRoundSelector(); }, 100);
+      };
+    }
     
     document.getElementById('btn-pve-trompos').onclick = ()=>{
       gameMode = 'pve';
@@ -1738,18 +2275,21 @@ if (window.visualViewport) {
     };
   }
 
-  showOverlay(`
-    <span class="overlay-tag">${jt('jue.card2.tagModal', 'Ruta 02')}</span>
-    <h3>⚡ ${jt('jue.card2.title', 'Batalla de Trompos')}</h3>
-    <p>${jt('jue.card2.intro', 'Empujá tu trompo contra el de tu oponente para sacarlo del círculo. El primero en caer o salirse pierde la ronda.')}</p>
-    <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
-    <ul class="rules-list">
-      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP1', 'Jugador 1: teclas <strong>WASD</strong> para mover el trompo.')}</li>
-      <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP2', 'Jugador 2 (o NPC): teclas de <strong>flechas</strong> ⬅️⬆️➡️⬇️.')}</li>
-    </ul>
-    <button class="btn-primary" id="p-start-trompos">${jt('jue.card2.prepareBattle', 'Preparar Batalla')}</button>`);
-  
-  document.getElementById('p-start-trompos').onclick = showModeSelector;
+  mostrarInstrucciones(showOverlay, overlayCard, [
+    { html: `
+      <span class="overlay-tag">${jt('jue.card2.tagModal', 'Ruta 02')}</span>
+      <h3>⚡ ${jt('jue.card2.title', 'Batalla de Trompos')}</h3>
+      <p>${jt('jue.card2.intro', 'Empujá tu trompo contra el de tu oponente para sacarlo del círculo. El primero en caer o salirse pierde la ronda.')}</p>
+      ${crearDiagramaControles('wasd-arrows')}
+    ` },
+    { html: `
+      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+      <ul class="rules-list">
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP1', 'Jugador 1: teclas <strong>WASD</strong> para mover el trompo.')}</li>
+        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card2.controlsP2', 'Jugador 2 (o NPC): teclas de <strong>flechas</strong> ⬅️⬆️➡️⬇️.')}</li>
+      </ul>
+    `, finishLabel: jt('jue.card2.prepareBattle', 'Preparar Batalla') }
+  ], showModeSelector);
 
   gameContent?.addEventListener('gameVisible', (e) => {
     if(e.detail.gameId === 'trompos') {
@@ -1830,6 +2370,14 @@ if (window.visualViewport) {
     const modal = document.getElementById(`modal-${gameId}`);
     if (!modal) return;
 
+    // Si el juego se puso en pantalla completa al abrir el modal (celular),
+    // hay que salir de ese modo al cerrar o la página queda "atrapada" en
+    // pantalla completa mostrando el fondo del sitio.
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      exit?.call(document).catch?.(() => {});
+    }
+
     // Detener música del juego
     if (window.gameStates && window.gameStates[gameId]) {
       if (window.gameStates[gameId].stop) window.gameStates[gameId].stop();
@@ -1870,6 +2418,21 @@ if (window.visualViewport) {
     }
   }
 
+  // Juegos que el jugador ya abrió al menos una vez en esta carga de
+  // página: la primerísima vez que se abre un juego, la pantalla de
+  // instrucciones animadas (con su diagrama de controles) ya viene
+  // pre-armada desde que cargó la página — no hay que tocarla. Pero de
+  // ahí en adelante, si el jugador cierra el modal y lo vuelve a abrir sin
+  // haber llegado a jugar, sí queremos mandarlo directo al menú
+  // (dificultad/modo) en vez de hacerlo ver las instrucciones de nuevo
+  // cada vez. Antes esto se disparaba siempre (incluso la primera vez),
+  // así que en Pupusa y Trompos —donde el menú vive en una pantalla
+  // aparte de las instrucciones, a diferencia de los otros 4 juegos que
+  // ya traían el diagrama embebido en su propia pantalla de menú— el
+  // diagrama animado nunca se llegaba a ver: se pisaba de inmediato con
+  // el selector en el primer clic.
+  const juegosYaAbiertos = new Set();
+
   triggers.forEach(btn => {
     btn.addEventListener('click', () => {
       const gameId = btn.dataset.openModal;
@@ -1877,6 +2440,14 @@ if (window.visualViewport) {
       if (modal) {
         modal.classList.add('active');
         lockBackgroundScroll();
+
+        // En celular todos los juegos deben jugarse a pantalla completa: se
+        // pide acá mismo, en el clic de "Jugar Ahora", que es el gesto del
+        // usuario que el navegador exige para conceder pantalla completa (no
+        // hay que esperar a que el jugador elija dificultad adentro).
+        if (esTactilJuegos) {
+          forzarPantallaCompleta(modal.querySelector('.canvas-wrap'), null);
+        }
 
         const content = modal.querySelector('.game-modal__content');
         // Los canvas de cada juego escuchan el evento 'resize' de window para
@@ -1923,10 +2494,11 @@ if (window.visualViewport) {
         if (state) {
           const isRunning = state.running ? state.running() : false;
           const isPaused = state.paused ? state.paused() : false;
-          if (!isRunning && !isPaused && state.reloadMenu) {
+          if (juegosYaAbiertos.has(gameId) && !isRunning && !isPaused && state.reloadMenu) {
             state.reloadMenu();
           }
         }
+        juegosYaAbiertos.add(gameId);
       }
     });
   });
@@ -2016,6 +2588,28 @@ if (window.visualViewport) {
     if (isRunning || isPaused) return;
     if (state.reloadMenu) state.reloadMenu();
   });
+
+  // Silenciar la música del juego si la pestaña pasa a segundo plano (se
+  // cambia de app/pestaña en celular) o si el jugador sale de la página.
+  // `pauseGame()` de cada juego solo baja el volumen al 10% (para que se
+  // siga oyendo tenue detrás del overlay de pausa), así que aquí además
+  // pausamos a la fuerza cualquier <audio> que haya quedado sonando.
+  function silenciarMusicaJuegos() {
+    const activeModal = document.querySelector('.game-modal.active');
+    if (activeModal) {
+      const gameId = activeModal.id.replace('modal-', '');
+      const state = window.gameStates && window.gameStates[gameId];
+      if (state?.running?.() && state.pause) state.pause();
+    }
+    document.querySelectorAll('.game-modal audio').forEach((audio) => {
+      if (!audio.paused) audio.pause();
+    });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) silenciarMusicaJuegos();
+  });
+  window.addEventListener('pagehide', silenciarMusicaJuegos);
+  window.addEventListener('blur', silenciarMusicaJuegos);
 })();
 
 /* ---------------------------------------------------------
@@ -2031,6 +2625,7 @@ if (window.visualViewport) {
   const overlayCard = document.getElementById('overlay-card-coasters');
   const gameContent = document.getElementById('modal-coasters');
   const canvasWrap = document.getElementById('coasters-canvas-wrap');
+  setupRotateGate('coasters', canvasWrap);
   const { Engine, World, Bodies, Body, Events, Composite } = Matter;
 
   let isGameVisible = false;
@@ -2056,15 +2651,50 @@ if (window.visualViewport) {
   // camino (que depende directo de player.speed) se vea más manejable.
   const COASTERS_SPEED_MULT = esTactilJuegos ? 0.68 : 1;
 
-  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8 * COASTERS_SPEED_MULT, lane: 1, targetX: 0, distance: 0, passengers: 0 };
-  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0 };
+  // Antes los dos buses compartían una única calle de 4 carriles (podían
+  // cruzarse y chocar entre ellos). Ahora es una carrera de verdad: dos
+  // calles de 2 carriles cada una, una al lado de la otra separadas por un
+  // camellón — el jugador (izquierda, carriles 0-1) nunca comparte carril
+  // con el rival (derecha, carriles 2-3), así que ya no hace falta lógica
+  // de choque/esquive entre los dos buses.
+  let gameMode = 'pve'; // 'pve' (vs bot) | 'pvp' (2 jugadores) — se define en showPlayModeSelector
+  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8 * COASTERS_SPEED_MULT, lane: 0, targetX: 0, distance: 0, passengers: 0 };
+  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0, passengers: 0 };
 
-  const lanesCount = 4;
+  const LANES_PER_ROAD = 2;
+  const lanesCount = LANES_PER_ROAD * 2; // 0-1 = calle del jugador, 2-3 = calle del rival
   let laneWidth = 0;
+  let roadSplitX = 0;   // dónde termina la calle del jugador y empieza el camellón
+  let medianWidth = 0;
   let roadY = 0;
   const lanePositions = [];
 
-  let passengers = [];
+  // Paradas de buses (antes los pasajeros aparecían solos, flotando en
+  // cualquier punto del borde de la calle, sin ninguna señal de por qué
+  // estaban ahí). Ahora aparecen únicamente en paradas fijas —con su
+  // propio techito y letrero 🚏— espaciadas por distancia recorrida, una
+  // por calle, cada una en el borde exterior de su propio camino.
+  let stops = []; // { side: 'p1'|'p2', x, y, collected }
+  const STOP_INTERVAL = 550;
+  let nextStopDistance = { p1: STOP_INTERVAL * 0.6, p2: STOP_INTERVAL * 0.6 };
+
+  // Garantiza que en cada calle SIEMPRE quede al menos un carril libre de
+  // obstáculos: los obstáculos nuevos de una calle solo se agregan al
+  // carril ya "bloqueado" de esa calle (nunca al otro). Antes ese carril
+  // bloqueado solo se volvía a sortear cuando la calle quedaba
+  // completamente despejada, así que mientras hubiera aunque sea un bache
+  // viejo todavía en pantalla, todo lo nuevo (baches, túmulos, tráfico)
+  // seguía cayendo exactamente en el mismo carril de siempre — se sentía
+  // repetitivo y predecible. Ahora también se resortea solo por tiempo,
+  // sin esperar a que la calle se vacíe del todo, para que el carril
+  // libre vaya cambiando más seguido (más variedad y algo más de exigencia
+  // al tener que reaccionar y cambiarse de carril más a menudo).
+  let roadLaneState = {
+    p1: { blockedLocal: null, switchTicks: 0 },
+    p2: { blockedLocal: null, switchTicks: 0 }
+  };
+  const LANE_SWITCH_TICKS_MIN = 150; // ~2.5s a 60 ticks/s
+  const LANE_SWITCH_TICKS_MAX = 260; // ~4.3s a 60 ticks/s
 
   // Buses y obstáculos más grandes, usan más espacio del carril (afecta
   // tanto el dibujo como el tamaño real de colisión de cada entidad).
@@ -2188,9 +2818,11 @@ if (window.visualViewport) {
       <span class="tutorial-bubble__tag">🎓 ${jt('jue.tutorial.tag', 'Tutorial')} ${n}/${total}</span>
       <p>${tutorialSteps[i].text()}<span class="tutorial-pulse"></span></p>
     `);
-    if (tutorialSteps[i].action === 'passenger' && passengers.length === 0) {
-      const onLeft = Math.random() > 0.5;
-      passengers.push({ x: onLeft ? 15 : canvas.width - 15, y: -50, collected: false });
+    if (tutorialSteps[i].action === 'passenger' && stops.length === 0) {
+      // Siempre en la calle del jugador (izquierda): el bot está quieto
+      // durante el tutorial, así que una parada del lado derecho sería
+      // imposible de alcanzar.
+      stops.push({ side: 'p1', x: 15, y: -50, collected: false });
     }
   }
 
@@ -2217,9 +2849,16 @@ if (window.visualViewport) {
   }
 
   function startTutorial() {
+    // El tutorial arranca el juego "a mano" en vez de llamar a startGame()
+    // (ver más abajo), así que necesita forzar pantalla completa/horizontal
+    // por su cuenta, igual que una partida real.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
+    gameMode = 'pve'; // el tutorial siempre entrena contra un "bot" quieto, nunca 2 jugadores
     botDifficulty = 'easy';
     targetDistance = 999999;
     resetGame();
+    buildHud();
     hideOverlay();
     cancelAnimationFrame(rafId);
     tutorialMode = true;
@@ -2254,9 +2893,15 @@ if (window.visualViewport) {
     canvas.width = rect.width;
     canvas.height = rect.height;
 
-    laneWidth = canvas.width / lanesCount;
-    for(let i = 0; i < lanesCount; i++){
-      lanePositions[i] = (i * laneWidth) + (laneWidth / 2);
+    // Camellón central: más angosto en celular (donde cada pixel de ancho
+    // jugable importa) que en escritorio.
+    medianWidth = Math.max(10, Math.min(26, canvas.width * 0.035));
+    const roadWidth = (canvas.width - medianWidth) / 2;
+    laneWidth = roadWidth / LANES_PER_ROAD;
+    roadSplitX = roadWidth + medianWidth / 2;
+    for (let i = 0; i < LANES_PER_ROAD; i++) {
+      lanePositions[i] = (i * laneWidth) + (laneWidth / 2); // calle del jugador
+      lanePositions[LANES_PER_ROAD + i] = roadWidth + medianWidth + (i * laneWidth) + (laneWidth / 2); // calle del rival
     }
 
     player.y = canvas.height - 120;
@@ -2299,8 +2944,21 @@ if (window.visualViewport) {
   window.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
     if(running && !paused) {
-      if(e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') moveLane(-1);
-      if(e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') moveLane(1);
+      const k = e.key.toLowerCase();
+      if (k === 'a') moveLane(-1);
+      if (k === 'd') moveLane(1);
+      if (gameMode === 'pvp') {
+        // Con 2 jugadores, A/D son del Jugador 1 (su calle) y las flechas
+        // son del Jugador 2 (la suya) — cada quien su propio par de teclas,
+        // nunca los mismos carriles.
+        if (e.key === 'ArrowLeft') moveLaneP2(-1);
+        if (e.key === 'ArrowRight') moveLaneP2(1);
+      } else {
+        // Contra el bot, las flechas también mueven al único jugador
+        // humano (comodidad: A/D o flechas, lo que prefiera).
+        if (e.key === 'ArrowLeft') moveLane(-1);
+        if (e.key === 'ArrowRight') moveLane(1);
+      }
     }
   });
   window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
@@ -2309,45 +2967,61 @@ if (window.visualViewport) {
   // ESE carril (antes solo se movía un carril hacia el lado tocado, lo que
   // obligaba a tocar varias veces para cruzar la calle). Además, mientras
   // el dedo se mantiene abajo y se arrastra (touchmove), el carril se sigue
-  // actualizando en tiempo real: antes solo el toque inicial contaba, así
-  // que un arrastre continuo (lo más natural en celular) no respondía hasta
-  // soltar y volver a tocar.
+  // actualizando en tiempo real. Con las dos calles separadas, cada toque
+  // se asigna a la calle donde cae: izquierda = jugador, derecha = rival
+  // (solo si hay un Jugador 2 humano ahí — contra el bot, tocar su calle
+  // no hace nada, es su camino).
+  function nearestLane(x, candidates) {
+    let best = candidates[0], bestDist = Infinity;
+    for (const i of candidates) {
+      const d = Math.abs(x - lanePositions[i]);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    return best;
+  }
   function updateLaneFromTouch(e) {
     if (!running || paused) return;
     e.preventDefault();
     const r = canvas.getBoundingClientRect();
-    const touchX = (e.touches[0].clientX - r.left) * (canvas.width / r.width);
-    goToLane(laneFromX(touchX));
+    for (const t of e.touches) {
+      const x = (t.clientX - r.left) * (canvas.width / r.width);
+      if (x < roadSplitX) {
+        goToLane(nearestLane(x, [0, 1]));
+      } else if (gameMode === 'pvp') {
+        goToLaneP2(nearestLane(x, [2, 3]));
+      }
+    }
   }
   canvas.addEventListener('touchstart', updateLaneFromTouch, { passive: false });
   canvas.addEventListener('touchmove', updateLaneFromTouch, { passive: false });
 
-  function laneFromX(x) {
-    if (!laneWidth) return player.lane;
-    const lane = Math.floor(x / laneWidth);
-    return Math.min(lanesCount - 1, Math.max(0, lane));
-  }
-
   function goToLane(lane) {
-    if (lane >= 0 && lane < lanesCount) player.lane = lane;
+    player.lane = lane;
     notifyTutorial('lane');
   }
 
   function moveLane(direction) {
-    let nextLane = player.lane + direction;
-    if(nextLane >= 0 && nextLane < lanesCount) {
-      player.lane = nextLane;
-    }
+    const next = player.lane + direction;
+    if (next >= 0 && next < LANES_PER_ROAD) player.lane = next;
     notifyTutorial('lane');
   }
 
-  function pushToFreeLane(currentLane) {
-    if (currentLane === 0) return 1;
-    if (currentLane === lanesCount - 1) return lanesCount - 2;
-    return currentLane + (Math.random() > 0.5 ? 1 : -1);
+  function goToLaneP2(lane) { bot.lane = lane; }
+
+  function moveLaneP2(direction) {
+    const next = bot.lane + direction;
+    if (next >= LANES_PER_ROAD && next < lanesCount) bot.lane = next;
   }
 
-  if(hud) {
+  // Las etiquetas de cada ruta dependen del modo (recién se sabe al elegir
+  // "2 Jugadores" o "vs Bot" en showPlayModeSelector), así que el HUD se
+  // arma al empezar la partida (startGame/startTutorial), no una sola vez
+  // al cargar el juego.
+  function buildHud() {
+    if (!hud) return;
+    const routeBotLabel = gameMode === 'pvp'
+      ? jt('jue.card3.routeP2', '🚍 Ruta 101-D (J2)')
+      : jt('jue.card3.routeBot', '🚍 Ruta 101-D (Bot)');
     hud.innerHTML = `
       <div class="hud-item">
         <span>${jt('jue.card3.routePlayer', '🚌 Ruta 44 (Tú)')}</span>
@@ -2355,7 +3029,7 @@ if (window.visualViewport) {
         <b id="p-dist">0m</b>
       </div>
       <div class="hud-item">
-        <span>${jt('jue.card3.routeBot', '🚍 Ruta 101-D (Bot)')}</span>
+        <span>${routeBotLabel}</span>
         <div class="coasters-progress-bar"><div id="b-prog" class="coasters-progress-fill bot"></div></div>
         <b id="b-dist">0m</b>
       </div>
@@ -2364,6 +3038,7 @@ if (window.visualViewport) {
         <b id="p-passengers">0</b>
       </div>`;
   }
+  buildHud();
 
   function updateHud(){
     const pProg = document.getElementById('p-prog');
@@ -2441,9 +3116,9 @@ if (window.visualViewport) {
 
   function resetGame() {
     resizeCanvas();
-    player.lane = 1;
-    player.x = lanePositions[1];
-    player.targetX = lanePositions[1];
+    player.lane = 0;
+    player.x = lanePositions[0];
+    player.targetX = lanePositions[0];
     player.speed = 0;
     player.distance = 0;
     player.passengers = 0;
@@ -2453,8 +3128,13 @@ if (window.visualViewport) {
     bot.targetX = lanePositions[2];
     bot.speed = 0;
     bot.distance = 0;
+    bot.passengers = 0;
 
-    if (botDifficulty === 'easy') {
+    if (gameMode === 'pvp') {
+      // Carrera pareja entre 2 personas: mismo tope de velocidad para
+      // los dos, nada de ventaja/desventaja artificial.
+      bot.maxSpeed = player.maxSpeed;
+    } else if (botDifficulty === 'easy') {
       bot.maxSpeed = 5.2 * COASTERS_SPEED_MULT;
     } else if (botDifficulty === 'medium') {
       bot.maxSpeed = 6.3 * COASTERS_SPEED_MULT;
@@ -2462,7 +3142,9 @@ if (window.visualViewport) {
       bot.maxSpeed = 7.2 * COASTERS_SPEED_MULT;
     }
 
-    passengers = [];
+    stops = [];
+    nextStopDistance = { p1: STOP_INTERVAL * 0.6, p2: STOP_INTERVAL * 0.6 };
+    roadLaneState = { p1: { blockedLocal: null }, p2: { blockedLocal: null } };
     roadY = 0;
 
     arriving = false;
@@ -2483,57 +3165,92 @@ if (window.visualViewport) {
   // que no pertenecen a este grupo.
   const OBSTACLE_GROUP = -1;
 
-  function spawnBache(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  // Elige a qué carril (absoluto, 0-3) le toca el próximo obstáculo de esa
+  // calle: siempre el mismo carril "bloqueado" hasta que la calle entera
+  // queda despejada — así el otro carril de esa calle queda garantizado
+  // libre mientras tanto (ver roadLaneState arriba).
+  function pickObstacleLane(side){
+    const base = side === 'p1' ? 0 : LANES_PER_ROAD;
+    const state = roadLaneState[side];
+    if (state.blockedLocal === null) {
+      state.blockedLocal = Math.random() < 0.5 ? 0 : 1;
+      state.switchTicks = LANE_SWITCH_TICKS_MIN + Math.random() * (LANE_SWITCH_TICKS_MAX - LANE_SWITCH_TICKS_MIN);
+    }
+    return base + state.blockedLocal;
+  }
+
+  function roadObstacleCount(side, labels){
+    const base = side === 'p1' ? 0 : LANES_PER_ROAD;
+    return Composite.allBodies(world).filter(b =>
+      labels.includes(b.label) && (b.laneIdx === base || b.laneIdx === base + 1)
+    ).length;
+  }
+
+  function spawnBache(side){
+    const lane = pickObstacleLane(side);
     const body = Bodies.circle(lanePositions[lane], -50, 16 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache',
       collisionFilter: { group: OBSTACLE_GROUP }
     });
+    body.laneIdx = lane;
     World.add(world, body);
   }
 
-  function spawnTumulo(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  function spawnTumulo(side){
+    const lane = pickObstacleLane(side);
     const body = Bodies.rectangle(lanePositions[lane], -50, 44 * ENTITY_SCALE, 10 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo',
       collisionFilter: { group: OBSTACLE_GROUP }
     });
+    body.laneIdx = lane;
     World.add(world, body);
   }
 
-  function spawnTraffic(){
-    const lane = Math.floor(Math.random() * lanesCount);
+  function spawnTraffic(side){
+    const lane = pickObstacleLane(side);
     const color = ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)];
     const body = Bodies.rectangle(lanePositions[lane], -100, 24 * ENTITY_SCALE, 44 * ENTITY_SCALE, {
       restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic',
       collisionFilter: { group: OBSTACLE_GROUP }
     });
+    body.laneIdx = lane;
     body.trafficColor = color;
     body.trafficSpeed = 2 + Math.random() * 2;
     World.add(world, body);
   }
 
-  function countBodies(label){
-    return Composite.allBodies(world).filter(b => b.label === label).length;
-  }
-
-function spawnEntities() {
+  function spawnEntities() {
     if (tutorialMode && tutorialWaiting) return; // Congela obstáculos nuevos mientras se espera la acción del tutorial
+    if (tutorialMode) return; // Camino despejado durante el tutorial
 
-    if(!tutorialMode && Math.random() < 0.005 && (countBodies('bache') + countBodies('tumulo')) < 5) {
-      if(Math.random() > 0.5) spawnBache(); else spawnTumulo();
+    ['p1', 'p2'].forEach(side => {
+      if (Math.random() < 0.005 && roadObstacleCount(side, ['bache', 'tumulo']) < 3) {
+        if (Math.random() > 0.5) spawnBache(side); else spawnTumulo(side);
+      }
+      if (Math.random() < 0.003 && roadObstacleCount(side, ['traffic']) < 1) {
+        spawnTraffic(side);
+      }
+      // El carril "bloqueado" se resortea cuando la calle queda
+      // completamente despejada, o cuando ya pasó un rato (switchTicks),
+      // lo que ocurra primero — así no hace falta esperar a que se vacíe
+      // del todo para que cambie, y el carril libre de cada calle no es
+      // siempre el mismo por mucho tiempo seguido.
+      const state = roadLaneState[side];
+      if (state.blockedLocal !== null) {
+        state.switchTicks--;
+        if (state.switchTicks <= 0 || roadObstacleCount(side, ['bache', 'tumulo', 'traffic']) === 0) {
+          state.blockedLocal = null;
+        }
+      }
+    });
+
+    if (player.distance >= nextStopDistance.p1) {
+      nextStopDistance.p1 += STOP_INTERVAL;
+      stops.push({ side: 'p1', x: 15, y: -60, collected: false });
     }
-
-    if(!tutorialMode && Math.random() < 0.015 && passengers.length < 4) {
-      passengers.push({
-        x: Math.random() > 0.5 ? 15 : canvas.width - 15,
-        y: -50,
-        collected: false
-      });
-    }
-
-    if(!tutorialMode && Math.random() < 0.003 && countBodies('traffic') < 2) {
-      spawnTraffic();
+    if (bot.distance >= nextStopDistance.p2) {
+      nextStopDistance.p2 += STOP_INTERVAL;
+      stops.push({ side: 'p2', x: canvas.width - 15, y: -60, collected: false });
     }
   }
 
@@ -2582,9 +3299,17 @@ function spawnEntities() {
     }
   });
 
-  // --- Choque entre buses: también dispara chispas/sacudida, para que se
-  // sienta tan brusco como chocar contra un obstáculo del camino.
-  let lastBusBumpAt = 0;
+  let lastBusDodgeAt = 0;
+
+  // Esquive vistoso (no choque): estela de humo de colores + una rayita
+  // de "swoosh" de velocidad, sin sacudida de cámara ni sonido de golpe
+  // — se usa cuando el bus rival vira para no meterse en el carril del
+  // jugador, como una maniobra elegante de piloto en vez de un frenazo.
+  function spawnDodgeSwoosh(x, y) {
+    spawnImpact(x, y, 0.55, '#4fc3f7');
+    spawnImpact(x, y, 0.4, '#ffffff');
+    spawnImpact(x, y, 0.35, '#ffd166');
+  }
 
  let lastTime = null, physicsAccum = 0;
  const FIXED_STEP = 1000 / 60;
@@ -2636,7 +3361,7 @@ function spawnEntities() {
       else if(b.label === 'tumulo') drawTumulo(b);
       else if(b.label === 'traffic') drawTrafficCar(b);
     });
-    passengers.forEach(drawPassenger);
+    stops.forEach(drawBusStop);
     drawImpactParticles();
 
     drawBus(player.x, player.y, '#d62828', 'R-44');
@@ -2663,64 +3388,47 @@ function spawnEntities() {
 
     spawnEntities();
 
-    // En táctil no hay forma natural de "mantener presionada" una tecla de
-    // acelerar, y el juego solo respondía al toque para cambiar de carril:
-    // sin acelerador el bus nunca llegaba a la meta. En dispositivos
-    // táctiles el bus acelera solo (como un endless-runner); el jugador
-    // solo necesita tocar para esquivar cambiando de carril.
-    if(keys['w'] || keys['arrowup'] || esTactilJuegos) {
-      player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
-    } else if(keys['s'] || keys['arrowdown']) {
-      player.speed = Math.max(0, player.speed - 0.15);
-    } else {
-      player.speed = Math.max(1, player.speed - 0.04);
-    }
+    // El bus acelera solo, siempre — ya no hay tecla de frenar: con las
+    // calles separadas y garantía de un carril libre, la única decisión
+    // del jugador es a qué carril meterse, no cuándo bajar la velocidad.
+    player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
 
     player.targetX = lanePositions[player.lane];
     player.x += (player.targetX - player.x) * 0.22;
 
-    if(bot.distance < targetDistance){
-      bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.06);
-    }
-
-    let botTargetLane = bot.lane;
-    Composite.allBodies(world).forEach(item => {
-      if((item.label === 'bache' || item.label === 'tumulo' || item.label === 'traffic')) {
-        const itemLane = Math.round((item.position.x - laneWidth/2) / laneWidth);
-        if(itemLane === bot.lane && Math.abs(item.position.y - bot.y) < 220) {
-          if(bot.lane === 0) botTargetLane = 1;
-          else if(bot.lane === lanesCount - 1) botTargetLane = lanesCount - 2;
-          else botTargetLane = bot.lane + (Math.random() > 0.5 ? 1 : -1);
+    if (gameMode === 'pvp') {
+      // Jugador 2 humano: acelera solo igual que el Jugador 1, su carril
+      // ya lo maneja moveLaneP2()/goToLaneP2() (teclas/touch más arriba).
+      if (bot.distance < targetDistance) {
+        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.08);
+      }
+      bot.targetX = lanePositions[bot.lane];
+      bot.x += (bot.targetX - bot.x) * 0.22;
+    } else {
+      // Bot: esquiva lo que haya en su propio carril actual — como su
+      // calle solo tiene 2 carriles, el "otro" siempre es el único libre,
+      // así que ya no hace falta buscar entre varios candidatos ni
+      // preocuparse de invadir el carril del jugador (calles separadas).
+      if (bot.distance < targetDistance) {
+        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.06);
+      }
+      let botTargetLane = bot.lane;
+      Composite.allBodies(world).forEach(item => {
+        if ((item.label === 'bache' || item.label === 'tumulo' || item.label === 'traffic') &&
+            item.laneIdx === bot.lane && Math.abs(item.position.y - bot.y) < 220) {
+          botTargetLane = bot.lane === LANES_PER_ROAD ? lanesCount - 1 : LANES_PER_ROAD;
+        }
+      });
+      if (botTargetLane !== bot.lane) {
+        const nowDodge = Date.now();
+        if (nowDodge - lastBusDodgeAt > 500) {
+          lastBusDodgeAt = nowDodge;
+          spawnDodgeSwoosh(lanePositions[botTargetLane], bot.y);
         }
       }
-    });
-    bot.lane = botTargetLane;
-    bot.targetX = lanePositions[bot.lane];
-    bot.x += (bot.targetX - bot.x) * 0.15;
-
-    // --- Colisión entre buses: si ambos coinciden en el mismo carril y se acercan
-    // demasiado, el que va más adelante (mayor distancia recorrida) empuja al otro
-    // hacia un carril libre. El que es empujado no pierde velocidad, solo cambia de carril.
-    const busMinGap = 30 * ENTITY_SCALE; // distancia horizontal mínima antes de considerarse "tocándose"
-    if (player.lane === bot.lane && Math.abs(player.x - bot.x) < busMinGap) {
-      const playerAhead = player.distance >= bot.distance;
-      const now = Date.now();
-      if (now - lastBusBumpAt > 350) {
-        lastBusBumpAt = now;
-        spawnImpact((player.x + bot.x) / 2, (player.y + bot.y) / 2, 1.3, '#ffcc33');
-        triggerShake(1.1);
-        playCrashSound(1.1);
-      }
-      if (playerAhead) {
-        // El jugador va adelante: empuja al bot a un carril libre
-        bot.lane = pushToFreeLane(bot.lane);
-        bot.targetX = lanePositions[bot.lane];
-      } else {
-        // El bot va adelante: empuja al jugador a un carril libre
-        player.lane = pushToFreeLane(player.lane);
-        player.targetX = lanePositions[player.lane];
-        player.speed = Math.max(1.5, player.speed - 1.2);
-      }
+      bot.lane = botTargetLane;
+      bot.targetX = lanePositions[bot.lane];
+      bot.x += (bot.targetX - bot.x) * 0.15;
     }
 
     Body.setPosition(playerBody, { x: player.x, y: player.y });
@@ -2763,19 +3471,25 @@ function spawnEntities() {
       }
     }
 
-    passengers.forEach((p, idx) => {
-      p.y += visualSpeed;
-      if(!p.collected && Math.abs(p.y - player.y) < 55) {
-        if((p.x < 50 && player.lane === 0) || (p.x > canvas.width - 50 && player.lane === lanesCount - 1)) {
-          p.collected = true;
+    stops.forEach((s, idx) => {
+      s.y += visualSpeed;
+      if (!s.collected) {
+        if (s.side === 'p1' && Math.abs(s.y - player.y) < 55 && player.lane === 0) {
+          s.collected = true;
           player.passengers++;
           player.speed = Math.min(player.maxSpeed + 2, player.speed + 1.8);
-          spawnImpact(p.x, p.y, 0.6, '#ffe066');
+          spawnImpact(s.x, s.y, 0.6, '#ffe066');
           notifyTutorial('passenger');
-          passengers.splice(idx, 1);
+          stops.splice(idx, 1);
+        } else if (s.side === 'p2' && Math.abs(s.y - bot.y) < 55 && bot.lane === lanesCount - 1) {
+          s.collected = true;
+          bot.passengers++;
+          bot.speed = Math.min(bot.maxSpeed + 2, bot.speed + 1.8);
+          spawnImpact(s.x, s.y, 0.6, '#ffe066');
+          stops.splice(idx, 1);
         }
       }
-      if(p.y > canvas.height) passengers.splice(idx, 1);
+      if (s.y > canvas.height) stops.splice(idx, 1);
     });
 
     stepImpactParticles();
@@ -2832,16 +3546,17 @@ function spawnEntities() {
       ctx.fillRect(0, y, canvas.width, 3);
     }
 
-    // Andenes / bahías de estacionamiento pintadas en el piso
+    // Andenes / bahías de estacionamiento pintadas en el piso: una línea
+    // entre los 2 carriles de cada calle, más el camellón central.
     ctx.strokeStyle = '#ffd700';
     ctx.lineWidth = 3;
     ctx.setLineDash([14, 10]);
-    for (let i = 1; i < lanesCount; i++) {
+    [ (lanePositions[0] + lanePositions[1]) / 2, (lanePositions[2] + lanePositions[3]) / 2 ].forEach(x => {
       ctx.beginPath();
-      ctx.moveTo(i * laneWidth, 0);
-      ctx.lineTo(i * laneWidth, canvas.height);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
       ctx.stroke();
-    }
+    });
     ctx.setLineDash([]);
 
     // Edificio / andén techado al fondo
@@ -2850,10 +3565,10 @@ function spawnEntities() {
     ctx.fillRect(0, 0, canvas.width, roofH);
     ctx.fillStyle = '#be8e56';
     ctx.fillRect(0, roofH - 8, canvas.width, 8);
-    for (let i = 0; i < lanesCount; i++) {
-      ctx.fillStyle = '#3a3a3a';
-      ctx.fillRect(i * laneWidth + laneWidth * 0.15, 0, laneWidth * 0.7, roofH - 10);
-    }
+    ctx.fillStyle = '#3a3a3a';
+    lanePositions.forEach(x => {
+      ctx.fillRect(x - laneWidth * 0.35, 0, laneWidth * 0.7, roofH - 10);
+    });
 
     // Letrero "TERMINAL"
     const fade = Math.min(1, t / 400);
@@ -2869,20 +3584,49 @@ function spawnEntities() {
   function drawRoad() {
     ctx.fillStyle = '#424242';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Bordes exteriores de cada calle (vereda).
     ctx.fillStyle = '#8d8d8d';
     ctx.fillRect(0, 0, 15, canvas.height);
     ctx.fillRect(canvas.width - 15, 0, 15, canvas.height);
 
+    // Línea divisoria (discontinua, blanca) entre los 2 carriles de CADA
+    // calle — una a cada lado del camellón, nunca cruzando al otro lado.
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
     ctx.setLineDash([20, 30]);
-    for(let i = 1; i < lanesCount; i++) {
+    [ (lanePositions[0] + lanePositions[1]) / 2, (lanePositions[2] + lanePositions[3]) / 2 ].forEach(x => {
       ctx.beginPath();
-      ctx.moveTo(i * laneWidth, -100 + (roadY % 50));
-      ctx.lineTo(i * laneWidth, canvas.height + 100);
+      ctx.moveTo(x, -100 + (roadY % 50));
+      ctx.lineTo(x, canvas.height + 100);
       ctx.stroke();
-    }
+    });
     ctx.setLineDash([]);
+
+    // Camellón central: para que se note de un vistazo que son DOS calles
+    // separadas (no una compartida), no solo una rayita más — un cordón de
+    // concreto con franjas amarillas/negras de peligro, como un separador
+    // vial de verdad.
+    const medianX = roadSplitX - medianWidth / 2;
+    ctx.fillStyle = '#5a5a5a';
+    ctx.fillRect(medianX, 0, medianWidth, canvas.height);
+    ctx.strokeStyle = '#2c2c2c';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(medianX, 0, medianWidth, canvas.height);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(medianX, 0, medianWidth, canvas.height);
+    ctx.clip();
+    ctx.strokeStyle = '#ffcc00';
+    ctx.lineWidth = medianWidth * 0.7;
+    ctx.setLineDash([medianWidth * 1.1, medianWidth * 1.1]);
+    ctx.lineDashOffset = -(roadY % (medianWidth * 2.2));
+    ctx.beginPath();
+    ctx.moveTo(medianX + medianWidth / 2, -medianWidth);
+    ctx.lineTo(medianX + medianWidth / 2, canvas.height + medianWidth);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
   }
 
   function drawBus(x, y, color, label) {
@@ -2982,6 +3726,40 @@ function spawnEntities() {
       ctx.fillRect(i, -4, 4, 8);
     }
     ctx.restore();
+  }
+
+  // Parada de buses: antes el pasajero aparecía solo, flotando en
+  // cualquier punto del borde — sin nada que explicara por qué estaba
+  // ahí. Ahora cada uno vive en una parada de verdad: un poste con
+  // techito angosto y un letrero 🚏, plantada en la vereda del lado de
+  // afuera de su calle (nunca en el camellón). El pasajero (mismo brillo
+  // de siempre) espera justo debajo del techito.
+  function drawBusStop(s) {
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    const haciaAdentro = s.side === 'p1' ? 1 : -1; // el techito mira hacia el carril, no hacia afuera del canvas
+
+    ctx.fillStyle = '#6b6f76';
+    ctx.fillRect(-2, -4, 4, 30);
+
+    ctx.fillStyle = '#8b6b3a';
+    ctx.beginPath();
+    ctx.moveTo(-4, -4);
+    ctx.lineTo(14 * haciaAdentro, -4);
+    ctx.lineTo(18 * haciaAdentro, -13);
+    ctx.lineTo(-8, -13);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#4a3b2d';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.font = '13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🚏', 3 * haciaAdentro, -17);
+    ctx.restore();
+
+    if (!s.collected) drawPassenger(s);
   }
 
   // Pasajeros = "puntos buenos": brillo dorado pulsante bien visible contra
@@ -3087,42 +3865,52 @@ function spawnEntities() {
     ctx.restore();
   }
 
+  // Ilustración de cierre estilo historieta (imagen generada por IA, ver
+  // presentation/assets/media/juegos/finales/): solo tiene sentido en la
+  // victoria (el bus llegando triunfante con el "¡LLEGAMOS!"), no cuando
+  // te ganan el pasaje.
+  function crearAnimacionCoastersComic(){
+    return `<img class="result-comic-img" src="../assets/media/juegos/finales/coasters-final.webp" alt="" aria-hidden="true">`;
+  }
+
   function endRace(winner) {
     running = false;
     cancelAnimationFrame(rafId);
+
+    const p2Label = gameMode === 'pvp' ? jt('jue.card2.player2', 'Jugador 2') : jt('jue.card3.routeBotShort', 'la 101-D');
 
     let title, msg;
     if(winner === 'player') {
       title = jt('jue.card3.end.winTitle', '🏆 ¡VICTORIA TOTAL!');
       msg = jt('jue.card3.end.winMsg', '¡La Ruta 44 llegó primero! Recogiste a <b>{n}</b> pasajeros en el camino.').replace('{n}', player.passengers);
     } else {
-      title = jt('jue.card3.end.loseTitle', '🏁 Te ganaron el pasaje...');
-      msg = jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
+      title = gameMode === 'pvp'
+        ? jt('jue.card3.end.loseTitleP2', '🏁 ¡{p2} llegó primero!').replace('{p2}', p2Label)
+        : jt('jue.card3.end.loseTitle', '🏁 Te ganaron el pasaje...');
+      msg = gameMode === 'pvp'
+        ? jt('jue.card3.end.loseMsgP2', '{p2} recogió a <b>{n}</b> pasajeros en el camino. ¡Revancha!').replace('{p2}', p2Label).replace('{n}', bot.passengers)
+        : jt('jue.card3.end.loseMsg', 'La 101-D llegó primero esta vez. ¡Cuidado con los baches en la próxima!');
     }
 
     const distanciaId = targetDistance <= 1000 ? 'express' : targetDistance <= 2500 ? 'normal' : 'costaacosta';
     const gameName = `coasters-${distanciaId}`;
     const gano = winner === 'player' ? 1 : 0;
 
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card3.end.tag', 'Fin de la Carrera')}</span>
-      <h3>${title}</h3>
-      <p>${msg}</p>
-      <p class="overlay-best-score" id="p-best-score-coasters"></p>
-      <button class="btn-primary" id="btn-restart-coasters">${jt('jue.rematch', 'Revancha')}</button>
-    `);
-    document.getElementById('btn-restart-coasters').onclick = showModeSelector;
-
-    guardarPuntajeJuego(gameName, gano).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('p-best-score-coasters');
-        if (el && best && best.score >= 1) el.textContent = jt('jue.bestScore.won', '¡Ya ganaste esta ruta antes!');
-      });
+    mostrarResultado(showOverlay, overlayCard, {
+      tag: jt('jue.card3.end.tag', 'Fin de la Carrera'),
+      title,
+      animHtml: winner === 'player' ? crearAnimacionCoastersComic() : '',
+      message: msg,
+      restartLabel: jt('jue.rematch', 'Revancha'),
+      onRestart: showDistanceSelector,
+      gameName, scoreToSave: gano,
+      formatBestScore: (best) => best.score >= 1 ? jt('jue.bestScore.won', '¡Ya ganaste esta ruta antes!') : ''
     });
   }
 
   function showDistanceSelector() {
     showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-dist-coasters">${jt('jue.back', '← Atrás')}</button>
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
       <h3>${jt('jue.card3.distance.title', '🏁 Elige la Distancia')}</h3>
       <p>${jt('jue.card3.distance.sub', '¿Qué tan largo será el trayecto?')}</p>
@@ -3133,6 +3921,7 @@ function spawnEntities() {
       </div>
     `);
 
+    document.getElementById('btn-back-dist-coasters').onclick = showPlayModeSelector;
     document.getElementById('dist-1').onclick = () => { selectDistance(1000); };
     document.getElementById('dist-2').onclick = () => { selectDistance(2500); };
     document.getElementById('dist-3').onclick = () => { selectDistance(5000); };
@@ -3140,7 +3929,9 @@ function spawnEntities() {
 
   function selectDistance(dist) {
     targetDistance = dist;
-    showDifficultySelector();
+    // Contra el bot todavía hay que elegir qué tan veloz maneja; entre 2
+    // jugadores humanos no hay bot que configurar, se arranca directo.
+    if (gameMode === 'pvp') startGame(); else showDifficultySelector();
   }
 
   function showDifficultySelector() {
@@ -3172,8 +3963,16 @@ function spawnEntities() {
   }
 
   function startGame(difficulty) {
-    botDifficulty = difficulty;
+    if (difficulty) botDifficulty = difficulty;
+
+    // En celular la carrera se juega en horizontal y a pantalla completa
+    // (igual que el resto de los juegos, ver setupRotateGate más arriba):
+    // dentro del modal y en vertical las dos calles quedaban demasiado
+    // angostas para ver los baches y las paradas con tiempo de reaccionar.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     resetGame();
+    buildHud();
     hideOverlay();
 
     // Si ya había un bucle de animación corriendo (p. ej. por un doble
@@ -3191,25 +3990,61 @@ function spawnEntities() {
     rafId = requestAnimationFrame(step);
   }
 
-  function showModeSelector() {
+  // Selector "2 Jugadores / vs Bot" (mismo patrón que Trompos): se
+  // muestra después de las instrucciones y antes de elegir distancia,
+  // porque a partir de acá cambia si hace falta elegir dificultad de
+  // bot o no.
+  function showPlayModeSelector() {
     showOverlay(`
-      <span class="overlay-tag">${jt('jue.card3.prepareMotorTag', 'Preparar Motor')}</span>
+      <span class="overlay-tag">${jt('jue.card2.selectModeTag', 'Selecciona Modo')}</span>
       <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
-      <p>${jt('jue.card3.intro', 'Manejá tu bus para llegar antes que la Ruta 101-D. Esquivá baches y recogé pasajeros en el camino.')}</p>
-      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
-      <ul class="rules-list">
-        ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card3.controlsTapLane', 'El bus acelera solo. Tocá directamente el <strong>carril</strong> al que querés moverte.')}</li>
-        ` : `
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel', '<strong>W</strong> o flecha arriba: acelerar. <strong>S</strong> o flecha abajo: frenar.')}</li>
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
-        `}
-      </ul>
-      <button class="btn-primary" id="btn-start-coasters">${jt('jue.next', 'Siguiente')}</button>
-      <button class="btn-tutorial" id="btn-tutorial-coasters">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
-    `);
-    document.getElementById('btn-start-coasters').onclick = showDistanceSelector;
+      <p>${jt('jue.card2.mode.sub', '¿Cómo quieres jugar?')}</p>
+      <div class="mode-buttons">
+        <button class="mode-btn pvp${modoDosJugadoresDisponible ? '' : ' mode-btn--bloqueado'}" id="btn-pvp-coasters" ${modoDosJugadoresDisponible ? '' : 'disabled aria-disabled="true"'}>
+          ${modoDosJugadoresDisponible ? '' : '🔒 '}${jt('jue.card2.mode.pvp', '👥 2 Jugadores')}
+          <div class="difficulty-desc">${modoDosJugadoresDisponible
+            ? jt('jue.card3.mode.pvpDesc', 'Cada quien su calle, codo a codo')
+            : jt('jue.mode.pvpSoloPC', 'Solo desde computadora: los dos jugadores comparten el teclado')}</div>
+        </button>
+        <button class="mode-btn pve" id="btn-pve-coasters">
+          ${jt('jue.card2.mode.pve', '🤖 vs NPC')}
+          <div class="difficulty-desc">${jt('jue.card2.mode.pveDesc', 'Enfrenta la IA de práctica')}</div>
+        </button>
+      </div>
+      <button class="btn-tutorial" id="btn-tutorial-coasters">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`);
+
+    if (modoDosJugadoresDisponible) {
+      document.getElementById('btn-pvp-coasters').onclick = () => { gameMode = 'pvp'; showDistanceSelector(); };
+    }
+    document.getElementById('btn-pve-coasters').onclick = () => { gameMode = 'pve'; showDistanceSelector(); };
     document.getElementById('btn-tutorial-coasters').onclick = startTutorial;
+  }
+
+  function showModeSelector() {
+    mostrarInstrucciones(showOverlay, overlayCard, [
+      { html: `
+        <span class="overlay-tag">${jt('jue.card3.prepareMotorTag', 'Preparar Motor')}</span>
+        <h3>🚌 ${jt('jue.card3.titleModal2', 'Guerra de Coasters SV')}</h3>
+        <p>${jt('jue.card3.intro2', 'Cada quien tiene su propia calle de 2 carriles: esquivá baches y recogé pasajeros en tu propia parada de buses 🚏 para llegar antes que tu rival.')}</p>
+        ${crearDiagramaControles('lanes-vs')}
+      ` },
+      { html: `
+        ${crearEjemplosObjetos(
+          [{icon:'💛', label: jt('jue.card3.examplePasajero','Pasajero')}],
+          [{icon:'🕳️', label: jt('jue.card3.exampleBache','Bache')}, {icon:'🚧', label: jt('jue.card3.exampleTumulo','Túmulo')}, {icon:'🚗', label: jt('jue.card3.exampleTrafico','Tráfico')}]
+        )}
+        <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+        <ul class="rules-list">
+          ${esTactilJuegos ? `
+          <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card3.controlsTapLane2', 'El bus acelera solo. Tocá tu propia calle en el carril al que querés moverte.')}</li>
+          ` : `
+          <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsAccel2', 'El bus acelera solo. Solo hace falta cambiar de carril.')}</li>
+          <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card3.controlsLane', '<strong>A</strong>/<strong>D</strong> o flechas ⬅️➡️: cambiar de carril.')}</li>
+          `}
+          <li class="rule-good"><span class="rule-icon">🚏</span> ${jt('jue.card3.rulesStop', 'Los pasajeros solo aparecen en las paradas señaladas — metete a su carril para recogerlos.')}</li>
+        </ul>
+      `, finishLabel: jt('jue.next', 'Siguiente') }
+    ], showPlayModeSelector);
   }
 
   const pauseBtn = document.getElementById('pauseBtn-coasters');
@@ -3395,7 +4230,7 @@ function spawnEntities() {
   const tutorialSteps = [
     { action: 'move', text: () => esTactilJuegos
         ? jt('jue.tutorial.mica.move.tap', 'Arrastrá el dedo desde tu personaje para moverte hacia ahí. ¡Probalo!')
-        : jt('jue.tutorial.mica.move.key', 'Usá WASD/flechas, o movete hacia donde apunta el mouse. ¡Probalo!') },
+        : jt('jue.tutorial.mica.move.key', 'Usá WASD o las flechas para moverte. ¡Probalo!') },
     { action: 'tag', text: () => jt('jue.tutorial.mica.tag', 'Vos tenés la mica. Acercate al amiguito y tocalo para pasársela.') }
   ];
 
@@ -3457,6 +4292,18 @@ function spawnEntities() {
     showTutorialStep(0);
   }
 
+  // Zoom de cámara en PC: en vez de encoger el canvas (dejaba espacio
+  // vacío alrededor), se dibuja un "mundo" lógico más chico que el
+  // canvas real y se escala para llenar toda la pantalla — la cancha se
+  // ve acercada (personajes más grandes) y, como las paredes físicas
+  // quedan más cerca entre sí, correr y esconderse cuesta más de verdad
+  // (no es solo cosmético). En celular se usa un zoom más leve que en PC
+  // (el joystick táctil igual necesita bastante ancho por el rotate-gate),
+  // pero sin zoom la cancha quedaba demasiado grande: costaba mucho
+  // alcanzar a alguien y se sentía poco entretenido.
+  const MICA_ZOOM = esTactilJuegos ? 1.22 : 1.35;
+  let arenaW = 0, arenaH = 0;
+
   // Canvas resizing. Antes, al entrar en pantalla completa se reusaba la
   // resolución chica de la ventana normal y el navegador solo la estiraba
   // (se veía borrosa/pixelada). Ahora medimos siempre el tamaño real del
@@ -3466,6 +4313,10 @@ function spawnEntities() {
     const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
+    // Tamaño del "mundo" jugable: más chico que el canvas real en PC (ver
+    // MICA_ZOOM), luego escalado para llenar la pantalla al dibujar.
+    arenaW = canvas.width / MICA_ZOOM;
+    arenaH = canvas.height / MICA_ZOOM;
   }
 
   resizeCanvas();
@@ -3555,11 +4406,18 @@ function spawnEntities() {
     const layer = popupsLayer || canvasWrap;
     if (!layer) return;
 
+    // Quien llama pasa coordenadas de personaje (mundo, ver MICA_ZOOM),
+    // pero este globo es un <div> posicionado en pixeles de pantalla
+    // reales sobre el canvas — hay que escalarlas o el globo aparece
+    // corrido respecto al personaje.
+    const screenX = (x || arenaW / 2) * MICA_ZOOM;
+    const screenY = (y || arenaH / 2) * MICA_ZOOM;
+
     const el = document.createElement('div');
     el.className = 'torito-slang-popup';
     el.innerText = text;
-    el.style.left = `${x || canvas.width / 2}px`;
-    el.style.top = `${y || canvas.height / 2}px`;
+    el.style.left = `${screenX}px`;
+    el.style.top = `${screenY}px`;
     el.style.color = color;
     layer.appendChild(el);
 
@@ -3637,8 +4495,8 @@ function spawnEntities() {
     obstacles = [];
 
     const wallThickness = 40;
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = arenaW;
+    const h = arenaH;
 
     // Outer Field Boundaries
     const top = Bodies.rectangle(w / 2, -wallThickness / 2, w + 100, wallThickness, { isStatic: true });
@@ -3676,8 +4534,8 @@ function spawnEntities() {
   }
 
   function initCharacters() {
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = arenaW;
+    const h = arenaH;
 
     // 1. Create Player (Entity 0)
     const pBody = Bodies.circle(w * 0.15, h * 0.5, 15, {
@@ -3743,8 +4601,8 @@ function spawnEntities() {
   function isFacingWall(npc) {
     const nx = npc.position.x + Math.cos(npc.angleFacing) * WALL_LOOKAHEAD;
     const ny = npc.position.y + Math.sin(npc.angleFacing) * WALL_LOOKAHEAD;
-    return nx < WALL_MARGIN || nx > canvas.width - WALL_MARGIN ||
-           ny < WALL_MARGIN || ny > canvas.height - WALL_MARGIN;
+    return nx < WALL_MARGIN || nx > arenaW - WALL_MARGIN ||
+           ny < WALL_MARGIN || ny > arenaH - WALL_MARGIN;
   }
 
   // ================= VISION & HEARING SENSING =================
@@ -3874,33 +4732,6 @@ function spawnEntities() {
     return true;
   }
 
-  // ================= MOUSE CONTROL =================
-  let mousePos = null;
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    mousePos = { x: e.clientX - r.left, y: e.clientY - r.top };
-  });
-  canvas.addEventListener('mouseleave', () => { mousePos = null; });
-
-  function handleMouseMovement() {
-    if (!player || !mousePos) return false;
-    const dx = mousePos.x - player.position.x;
-    const dy = mousePos.y - player.position.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len > 12) {
-      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
-      Body.applyForce(player, player.position, {
-        x: (dx / len) * force,
-        y: (dy / len) * force
-      });
-      player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
-      notifyTutorial('move');
-      return true;
-    }
-    return false;
-  }
-
   function handlePlayerMovement() {
     if (!player) return;
 
@@ -3909,8 +4740,6 @@ function spawnEntities() {
         keys['arrowup'] || keys['arrowdown'] || keys['arrowleft'] || keys['arrowright']) {
       // teclado tiene prioridad
     } else if (handleJoystickMovement()) {
-      return;
-    } else if (handleMouseMovement()) {
       return;
     }
     if (keys['w'] || keys['arrowup']) moveY -= 1;
@@ -3922,7 +4751,10 @@ function spawnEntities() {
     if (len > 0) {
       const normX = moveX / len;
       const normY = moveY / len;
-      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
+      // Antes 0.0035/0.005 (normal/sprint) con techo de velocidad 2.4/3.4:
+      // se sentía demasiado rápido para el tamaño de la cancha. Bajado
+      // para un ritmo más manejable, sin tocar la velocidad de los NPCs.
+      const force = (keys['shift'] || keys[' ']) ? 0.0038 : 0.0027;
 
       Body.applyForce(player, player.position, {
         x: normX * force,
@@ -3931,7 +4763,7 @@ function spawnEntities() {
 
       player.angleFacing = Math.atan2(normY, normX);
     }
-    clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
+    clampVelocity(player, (keys['shift'] || keys[' ']) ? 2.7 : 1.9);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -3944,13 +4776,12 @@ function spawnEntities() {
 
       if (isMicaBearer) {
         // NPC HAS THE MICA -> Chases anyone seen or heard!
-        let target = null;
-        let minTargetDist = 9999;
-
-        // Scan all other kids and player. Mientras dure avoidPrevBearerTimer,
-        // ignoramos a quien nos acaba de pasar la mica (salvo que sea el
-        // único disponible) para que el bucle de "pasársela entre 2" se
-        // rompa y el que la trae salga a buscar a alguien más.
+        // Junta a todos los candidatos visibles/audibles (además del
+        // "fallback": mientras dure avoidPrevBearerTimer ignoramos a quien
+        // nos acaba de pasar la mica -salvo que sea el único disponible-
+        // para que el bucle de "pasársela entre 2" se rompa y el que la
+        // trae salga a buscar a alguien más).
+        let candidatos = [];
         let fallbackTarget = null;
         let fallbackDist = 9999;
         allEntities.forEach((other, oIdx) => {
@@ -3965,14 +4796,43 @@ function spawnEntities() {
             if (dist < fallbackDist) { fallbackDist = dist; fallbackTarget = other; }
             return;
           }
-          if (dist < minTargetDist) {
-            minTargetDist = dist;
-            target = other;
-          }
+          candidatos.push({ entity: other, idx: oIdx, dist });
         });
+
+        // "Atención" del NPC: antes se trababa siempre en el candidato más
+        // cercano frame a frame, que en la práctica casi siempre terminaba
+        // siendo el jugador (es quien más se mueve cerca del que trae la
+        // mica) — se sentía como si solo te persiguiera a vos. Ahora se
+        // compromete con un objetivo por un rato y, al vencerse ese
+        // tiempo (o si su objetivo ya no es visible/audible), tiene buena
+        // chance de fijarse en otro chico distinto en vez de repetir
+        // siempre al mismo, como si de verdad mirara alrededor buscando a
+        // quién más perseguir.
+        npc.targetSwitchTimer = (npc.targetSwitchTimer || 0) - 1;
+        const objetivoSigueValido = candidatos.some(c => c.idx === npc.targetIndex);
+
+        if (candidatos.length && (npc.targetIndex == null || !objetivoSigueValido || npc.targetSwitchTimer <= 0)) {
+          const otros = candidatos.filter(c => c.idx !== npc.targetIndex);
+          const elegibles = (otros.length && Math.random() < 0.6) ? otros : candidatos;
+          elegibles.sort((a, b) => a.dist - b.dist);
+          // Entre los 2 candidatos más cercanos del grupo elegido, no
+          // siempre exactamente el más cercano — da variedad sin ponerse
+          // a perseguir a quien está lejísimos.
+          const cercanos = elegibles.slice(0, 2);
+          const elegido = cercanos[Math.floor(Math.random() * cercanos.length)] || elegibles[0];
+          npc.targetIndex = elegido.idx;
+          npc.targetSwitchTimer = 90 + Math.random() * 120; // ~1.5s a 3.5s comprometido
+        }
+
+        let target = null;
+        if (npc.targetIndex != null) {
+          const encontrado = candidatos.find(c => c.idx === npc.targetIndex);
+          if (encontrado) target = encontrado.entity;
+        }
         // Si de verdad no hay nadie más a la vista/oído, mejor perseguir al
         // anterior portador que quedarse parado sin hacer nada.
         if (!target && fallbackTarget) target = fallbackTarget;
+        if (!target) npc.targetIndex = null;
 
         if (target) {
           // Alerted! Sprint towards target
@@ -3996,7 +4856,7 @@ function spawnEntities() {
           if (npc.wanderTimer <= 0 || nearWall) {
             npc.wanderTimer = 40 + Math.random() * 50;
             if (nearWall) {
-              const toCenter = Math.atan2(canvas.height / 2 - npc.position.y, canvas.width / 2 - npc.position.x);
+              const toCenter = Math.atan2(arenaH / 2 - npc.position.y, arenaW / 2 - npc.position.x);
               npc.angleFacing = toCenter + (Math.random() - 0.5) * 1.2;
             } else {
               npc.angleFacing += (Math.random() - 0.5) * 1.5;
@@ -4050,7 +4910,7 @@ function spawnEntities() {
           if (npc.wanderTimer <= 0 || nearWall) {
             npc.wanderTimer = 50 + Math.random() * 60;
             if (nearWall) {
-              const toCenter = Math.atan2(canvas.height / 2 - npc.position.y, canvas.width / 2 - npc.position.x);
+              const toCenter = Math.atan2(arenaH / 2 - npc.position.y, arenaW / 2 - npc.position.x);
               npc.angleFacing = toCenter + (Math.random() - 0.5) * 1.2;
             } else {
               npc.angleFacing += (Math.random() - 0.5) * 1.2;
@@ -4166,6 +5026,12 @@ function spawnEntities() {
     // ================= DRAWING =================
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Zoom de cámara (ver MICA_ZOOM): todo lo que sigue se dibuja en
+    // coordenadas del "mundo" (arenaW/arenaH, más chico que el canvas en
+    // PC) y este scale lo estira para llenar el canvas real completo.
+    ctx.save();
+    ctx.scale(MICA_ZOOM, MICA_ZOOM);
+
     // 1. Draw Field Background (Campo salvadoreño)
     drawFieldBackground();
 
@@ -4181,6 +5047,8 @@ function spawnEntities() {
     // 5. Draw Particles
     drawParticles();
 
+    ctx.restore();
+
     updateHud();
     rafId = requestAnimationFrame(step);
   }
@@ -4188,22 +5056,25 @@ function spawnEntities() {
   // ================= DRAWING FUNCTIONS =================
 
   function drawFieldBackground() {
-    // Lush green park grass gradient
+    // Se dibuja en coordenadas del "mundo" (arenaW/arenaH), no del canvas
+    // real, para que el fondo escale junto con la cancha y los personajes
+    // bajo el zoom de cámara (ver MICA_ZOOM) en vez de quedar fijo de
+    // fondo mientras todo lo demás se ve acercado.
     const grad = ctx.createRadialGradient(
-      canvas.width / 2, canvas.height / 2, 80,
-      canvas.width / 2, canvas.height / 2, canvas.width * 0.7
+      arenaW / 2, arenaH / 2, 80,
+      arenaW / 2, arenaH / 2, arenaW * 0.7
     );
     grad.addColorStop(0, '#3e8e41');
     grad.addColorStop(0.7, '#2e7d32');
     grad.addColorStop(1, '#1b5e20');
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, arenaW, arenaH);
 
     // Natural soil paths & wildflower specks
     ctx.fillStyle = 'rgba(255, 235, 59, 0.25)';
     for (let i = 0; i < 20; i++) {
-      const fx = (i * 73) % canvas.width;
-      const fy = (i * 59) % canvas.height;
+      const fx = (i * 73) % arenaW;
+      const fy = (i * 59) % arenaH;
       ctx.beginPath();
       ctx.arc(fx, fy, 2, 0, Math.PI * 2);
       ctx.fill();
@@ -4412,6 +5283,81 @@ function spawnEntities() {
     });
   }
 
+  // ================= ANIMACIONES DE RESULTADO (estilo caricatura 2D) =================
+  // Tres escenas dibujadas en SVG/CSS (sin imágenes externas), una por
+  // nivel de resultado según cuánto tiempo pasó el jugador SIN la mica:
+  // nunca lo agarraron (héroe estilo Flash), quedó con la mica toda la
+  // ronda (personaje triste) o algo intermedio (grupo festejando
+  // sorprendido). Trazo simple y ojos grandes, buscando el look
+  // "cartoon 2D" alegre en vez del sprite chico del juego en sí.
+  function crearAnimacionMicaFlash(){
+    return `
+      <div class="mica-final mica-final--flash" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="mica-final__svg">
+          <g class="mica-flash__streaks">
+            <path d="M6 128 L68 120"/>
+            <path d="M0 148 L62 140"/>
+            <path d="M10 168 L72 160"/>
+          </g>
+          <ellipse class="mica-flash__dust" cx="96" cy="180" rx="36" ry="7"/>
+          <path class="mica-flash__cape" d="M120 92 Q154 112 142 162 Q122 146 108 152 Z"/>
+          <rect class="mica-flash__leg" x="86" y="140" width="14" height="34" rx="6"/>
+          <rect class="mica-flash__leg" x="106" y="140" width="14" height="34" rx="6"/>
+          <ellipse class="mica-flash__boot" cx="93" cy="176" rx="10" ry="6"/>
+          <ellipse class="mica-flash__boot" cx="113" cy="176" rx="10" ry="6"/>
+          <rect class="mica-flash__torso" x="80" y="96" width="46" height="48" rx="16"/>
+          <path class="mica-flash__emblem" d="M104 105 L96 120 L102 120 L96 134 L114 116 L106 116 Z"/>
+          <rect class="mica-flash__arm" x="118" y="86" width="13" height="32" rx="6" transform="rotate(-40 124 98)"/>
+          <rect class="mica-flash__arm" x="70" y="100" width="13" height="30" rx="6" transform="rotate(25 76 105)"/>
+          <circle class="mica-flash__head" cx="103" cy="76" r="27"/>
+          <path class="mica-flash__mask" d="M78 68 q25 -18 50 0 q-5 15 -25 15 q-20 0 -25 -15 Z"/>
+          <circle class="mica-flash__eye" cx="93" cy="70" r="4"/>
+          <circle class="mica-flash__eye" cx="113" cy="70" r="4"/>
+          <path class="mica-flash__smile" d="M91 87 q12 9 24 0" />
+          <g class="mica-final__sparkles">
+            <text x="30" y="55" class="mica-final__spark mica-final__spark--1">✨</text>
+            <text x="162" y="70" class="mica-final__spark mica-final__spark--2">⚡</text>
+            <text x="145" y="30" class="mica-final__spark mica-final__spark--3">✨</text>
+          </g>
+        </svg>
+      </div>`;
+  }
+
+  function crearAnimacionMicaAsombro(){
+    return `<img class="result-comic-img" src="../assets/media/juegos/finales/mica-final.webp" alt="" aria-hidden="true">`;
+  }
+
+  function crearAnimacionMicaTriste(){
+    return `
+      <div class="mica-final mica-final--triste" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="mica-final__svg">
+          <ellipse class="mica-triste__sombra" cx="100" cy="182" rx="30" ry="6"/>
+          <g class="mica-triste__nube">
+            <ellipse cx="100" cy="28" rx="26" ry="14" fill="#90a4ae"/>
+            <ellipse cx="80" cy="32" rx="16" ry="10" fill="#90a4ae"/>
+            <ellipse cx="120" cy="32" rx="16" ry="10" fill="#90a4ae"/>
+            <path class="mica-triste__gota mica-triste__gota--1" d="M88 46 q3 8 0 12 q-3 -4 0 -12"/>
+            <path class="mica-triste__gota mica-triste__gota--2" d="M110 48 q3 8 0 12 q-3 -4 0 -12"/>
+          </g>
+          <rect class="mica-triste__leg" x="84" y="150" width="13" height="30" rx="6"/>
+          <rect class="mica-triste__leg" x="103" y="150" width="13" height="30" rx="6"/>
+          <rect class="mica-triste__torso" x="78" y="110" width="44" height="46" rx="16"/>
+          <rect class="mica-triste__arm" x="64" y="114" width="12" height="32" rx="6" transform="rotate(14 70 122)"/>
+          <rect class="mica-triste__arm" x="124" y="114" width="12" height="32" rx="6" transform="rotate(-14 130 122)"/>
+          <circle class="mica-triste__mica" cx="66" cy="150" r="9"/>
+          <g transform="rotate(8 100 88)">
+            <circle class="mica-triste__head" cx="100" cy="88" r="26"/>
+            <path class="mica-triste__ceja" d="M84 76 q6 -5 12 -1"/>
+            <path class="mica-triste__ceja" d="M104 75 q6 -4 12 1"/>
+            <circle class="mica-triste__eye" cx="91" cy="86" r="3.4"/>
+            <circle class="mica-triste__eye" cx="109" cy="86" r="3.4"/>
+            <path class="mica-triste__boca" d="M90 101 q10 -7 20 0"/>
+            <path class="mica-triste__lagrima" d="M91 91 q3 8 0 12 q-3 -4 0 -12"/>
+          </g>
+        </svg>
+      </div>`;
+  }
+
   // ================= END GAME & OVERLAYS =================
   function endGame() {
     running = false;
@@ -4423,14 +5369,31 @@ function spawnEntities() {
     const playerWon = (micaBearerIndex !== 0);
     const finalScore = Math.round(score + (playerWon ? 500 : 100));
 
-    let title, msg;
-    if (playerWon) {
+    // Resultado final en 3 niveles según cuánto de la ronda pasó el
+    // jugador SIN la mica (no solo si terminó con ella o no): nunca lo
+    // agarraron, la tuvo toda la ronda, o algo en el medio. Cada nivel
+    // tiene su propia animación de caricatura 2D.
+    const freeFraction = selectedTimeLimit > 0 ? timeWithoutMica / selectedTimeLimit : 0;
+    const neverCaught = freeFraction >= 0.97;
+    const heldWholeTime = timeWithoutMica <= 0.6;
+
+    let title, msg, resultAnim;
+    if (neverCaught) {
       playSFX('win');
-      title = jt('jue.card4.winTitle', '🏆 ¡TE SALVASTE DE LA MICA!');
-      msg = jt('jue.card4.winMsg', '¡Sos un rayo! Terminó el tiempo y <b>no te quedaste con la mica</b>. Pasaste la mica <b>{n} veces</b> y lograste un récord.').replace('{n}', timesPassedMica);
+      title = jt('jue.card4.winTitleFlash', '🦸 ¡SOS UN CUETE COLOCHO!');
+      msg = jt('jue.card4.winMsgFlash', 'Corriste tan rápido que la mica ni te alcanzó a ver. Toda la ronda sin que te agarraran — pasaste la mica <b>{n} veces</b>.').replace('{n}', timesPassedMica);
+      resultAnim = crearAnimacionMicaFlash();
+    } else if (heldWholeTime) {
+      title = jt('jue.card4.loseTitleBarbaridad', '😢 ¡QUÉ BARBARIDAD!');
+      msg = jt('jue.card4.loseMsgBarbaridad', 'Te quedaste con la mica <b>toda la ronda</b> y nunca la pudiste pasar. La próxima, movete más rápido apenas te la den.');
+      resultAnim = crearAnimacionMicaTriste();
     } else {
-      title = jt('jue.card4.loseTitle', '🙈 ¡TE QUEDASTE CON LA MICA!');
-      msg = jt('jue.card4.loseMsg', '¡Se acabó el tiempo y <b>te quedaste con la mica</b>! La próxima vez pasala más rápido a Chepe, Sofía o Mateo antes de que termine la ronda.');
+      playSFX(playerWon ? 'win' : 'tag');
+      title = playerWon
+        ? jt('jue.card4.winTitle', '🏆 ¡TE SALVASTE DE LA MICA!')
+        : jt('jue.card4.loseTitle', '🙈 ¡TE QUEDASTE CON LA MICA!');
+      msg = jt('jue.card4.midMsgAsombro', '¡Qué bárbaro! Estuviste <b>{s}s sin la mica</b> de los {t}s de la ronda — una partida bien peleada.').replace('{s}', Math.round(timeWithoutMica)).replace('{t}', selectedTimeLimit);
+      resultAnim = crearAnimacionMicaAsombro();
     }
 
     // El id interno de este juego es "encantados" (mismo que sus elementos
@@ -4443,27 +5406,21 @@ function spawnEntities() {
     // guardarse.
     const gameName = `encantados-${selectedTimeLimit}s`;
 
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card4.roundEndTag', 'Fin de la Ronda')}</span>
-      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
-      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${finalScore} pts</div>
-      <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(timeWithoutMica)}s</b><br><span style="color:#aaa;">${jt('jue.card4.statNoMica', 'Sin Mica')}</span></div>
-        <div><b>${timesPassedMica}</b><br><span style="color:#aaa;">${jt('jue.card4.statPassed', 'Pasadas')}</span></div>
-        <div><b>${selectedTimeLimit}s</b><br><span style="color:#aaa;">${jt('jue.card4.statRound', 'Ronda')}</span></div>
-      </div>
-      <p class="overlay-best-score" id="m-best-score"></p>
-      <button class="btn-primary" id="btn-restart-encantados">${jt('jue.rematch', 'Revancha')}</button>
-    `);
-
-    document.getElementById('btn-restart-encantados').onclick = showTimeSelector;
-
-    guardarPuntajeJuego(gameName, finalScore).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then(best => {
-        const el = document.getElementById('m-best-score');
-        if (el && best) el.textContent = jt('jue.card4.bestScore', 'Tu récord en {s}s: {p} pts').replace('{s}', selectedTimeLimit).replace('{p}', best.score);
-      });
+    mostrarResultado(showOverlay, overlayCard, {
+      tag: jt('jue.card4.roundEndTag', 'Fin de la Ronda'),
+      title,
+      animHtml: resultAnim,
+      scoreValue: finalScore,
+      message: msg,
+      stats: [
+        { value: `${Math.round(timeWithoutMica)}s`, label: jt('jue.card4.statNoMica', 'Sin Mica') },
+        { value: timesPassedMica, label: jt('jue.card4.statPassed', 'Pasadas') },
+        { value: `${selectedTimeLimit}s`, label: jt('jue.card4.statRound', 'Ronda') }
+      ],
+      restartLabel: jt('jue.rematch', 'Revancha'),
+      onRestart: showTimeSelector,
+      gameName, scoreToSave: finalScore,
+      formatBestScore: (best) => jt('jue.card4.bestScore', 'Tu récord en {s}s: {p} pts').replace('{s}', selectedTimeLimit).replace('{p}', best.score)
     });
   }
 
@@ -4471,7 +5428,7 @@ function spawnEntities() {
   function showTimeSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card4.timeTag', 'Tiempo de Juego')}</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">⏱️ ${jt('jue.card4.timeTitle', 'Elige la Duración')}</h3>
+      <h3 style="font-size: 1.3rem; color: var(--gold-hover);">⏱️ ${jt('jue.card4.timeTitle', 'Elige la Duración')}</h3>
       <p style="font-size: 0.9rem;">${jt('jue.card4.timeDesc', '¿Cuánto tiempo querés que dure la ronda de la mica?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="time-20s" style="font-size: 0.95rem;">
@@ -4495,6 +5452,12 @@ function spawnEntities() {
   }
 
   function startGame(timeSeconds) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más abajo, que ya exigía el giro): la mica necesita
+    // bastante ancho para esquivar el cono de visión y perseguir con el
+    // joystick fijo.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     selectedTimeLimit = timeSeconds;
     timeLeft = timeSeconds;
     score = 0;
@@ -4521,29 +5484,33 @@ function spawnEntities() {
   }
 
   function showModeSelector() {
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card4.overlayTag', 'Juego Tradicional')}</span>
-      <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
-      <p>${jt('jue.card4.intro', 'El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.')}</p>
-      <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
-      <ul class="rules-list">
-        ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card4.controlsTap', 'Arrastrá el dedo desde tu personaje para mover el joystick virtual.')}</li>
-        ` : `
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card4.controlsKeys', '<strong>WASD</strong> o <strong>flechas</strong> ⬅️⬆️➡️⬇️ para moverte.')}</li>
-        `}
-      </ul>
-      <p class="rules-title">${jt('jue.card4.rulesTitle', 'Reglas del juego')}</p>
-      <ul class="rules-list">
-        <li class="rule-good"><span class="rule-icon">👀</span> ${jt('jue.card4.rule1', '<b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!')}</li>
-        <li class="rule-good"><span class="rule-icon">🖐️</span> ${jt('jue.card4.rule2', '<b>Pasar la Mica:</b> Tocá a un amigo para pasarle la mica y alejate antes de que te persiga.')}</li>
-        <li class="rule-bad"><span class="rule-icon">⏳</span> ${jt('jue.card4.rule3', '<b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!')}</li>
-      </ul>
-      <button class="btn-primary" id="btn-start-mica">${jt('jue.card4.continueBtn', 'Continuar')}</button>
-      <button class="btn-tutorial" id="btn-tutorial-mica">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
-    `);
-    document.getElementById('btn-start-mica').onclick = showTimeSelector;
-    document.getElementById('btn-tutorial-mica').onclick = startTutorial;
+    mostrarInstrucciones(showOverlay, overlayCard, [
+      { html: `
+        <span class="overlay-tag">${jt('jue.card4.overlayTag', 'Juego Tradicional')}</span>
+        <h2>🏃 ${jt('jue.card4.title', 'Mica')}</h2>
+        <p>${jt('jue.card4.intro', 'El clásico juego infantil de El Salvador. <b>Tocá a los demás niños para pasarles la mica</b> y escapá por el campo. Esquivá su <b>cono de visión</b> y su <b>área de audición</b> para que no te persigan corriendo.')}</p>
+        ${crearDiagramaControles('move-4dir')}
+        <p class="rules-title">${jt('jue.controls.title', 'Controles')}</p>
+        <ul class="rules-list">
+          ${esTactilJuegos ? `
+          <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card4.controlsTap', 'Arrastrá el dedo desde tu personaje para mover el joystick virtual.')}</li>
+          ` : `
+          <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card4.controlsKeys', '<strong>WASD</strong> o <strong>flechas</strong> ⬅️⬆️➡️⬇️ para moverte.')}</li>
+          `}
+        </ul>
+      ` },
+      { html: `
+        <p class="rules-title">${jt('jue.card4.rulesTitle', 'Reglas del juego')}</p>
+        <ul class="rules-list">
+          <li class="rule-good"><span class="rule-icon">👀</span> ${jt('jue.card4.rule1', '<b>Visión y Sigilo:</b> Si no te ven ni te escuchan, caminan tranquilos; si te detectan, ¡corren a atraparte!')}</li>
+          <li class="rule-good"><span class="rule-icon">🖐️</span> ${jt('jue.card4.rule2', '<b>Pasar la Mica:</b> Tocá a un amigo para pasarle la mica y alejate antes de que te persiga.')}</li>
+          <li class="rule-bad"><span class="rule-icon">⏳</span> ${jt('jue.card4.rule3', '<b>Objetivo:</b> ¡No tengas la mica cuando el tiempo llegue a 0!')}</li>
+        </ul>
+      `, finishLabel: jt('jue.card4.continueBtn', 'Continuar'),
+        extraHtml: `<button class="btn-tutorial" id="btn-tutorial-mica">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`,
+        onRender: () => { document.getElementById('btn-tutorial-mica').onclick = startTutorial; }
+      }
+    ], showTimeSelector);
   }
 
   // ================= PAUSE / RESUME / MENU =================
@@ -4648,6 +5615,20 @@ function spawnEntities() {
   const overlayCard = document.getElementById('overlay-card-elotes');
   const gameContent = document.getElementById('modal-elotes');
   const canvasWrap = document.getElementById('elotes-canvas-wrap');
+  setupRotateGate('elotes', canvasWrap);
+
+  // Antes cada pantalla (instrucciones, selector, fin de juego) armaba su
+  // propia animación de entrada a mano (una incluso tenía su propio
+  // showOverlayCanicas() local, duplicando esto). Un solo showOverlay
+  // compartido, igual al que usan los demás juegos, para que la tarjeta
+  // se vea y se anime siempre igual.
+  function showOverlay(html){
+    overlayCard.innerHTML = html;
+    overlay.classList.remove('hidden');
+    if (window.gsap) {
+      gsap.fromTo(overlayCard, { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' });
+    }
+  }
 
   // ── Matter.js aliases ──────────────────────────────────────────
   const { Engine, Render: MRender, Runner, World, Bodies, Body, Events,
@@ -4825,8 +5806,21 @@ function spawnEntities() {
   let aimStart = null;   // {x,y} donde empieza el drag
   let aimCurrent = null; // {x,y} posición actual del mouse
   let tiradorSpawnPos = { x: 0, y: 0 }; // posición fuera del círculo donde se spawnea el tirador
-  const MAX_POWER_PX = 180; // máx distancia de drag para potencia máxima
-  const MAX_SPEED = 18;     // velocidad máxima del tirador
+  // Antes hacía falta arrastrar 180px para llegar a potencia máxima, lo que
+  // en celular obligaba a salirse del recuadro del canvas para poder tirar
+  // fuerte. Con un jalón más corto alcanza el máximo sin salir del área
+  // jugable y se siente más cómodo de apuntar.
+  const MAX_POWER_PX = 95; // máx distancia de drag para potencia máxima
+  // Bajado de 18: con el jalón corto (MAX_POWER_PX de arriba) llegar a
+  // potencia máxima era muy fácil, y a 18 de velocidad el tirador salía
+  // disparado con muchísima fuerza para lo poco que había que jalar —
+  // se sentía súper sensible. Se baja la fuerza resultante, no el jalón.
+  const MAX_SPEED = 13;     // velocidad máxima del tirador
+  // Separación mínima entre el tirador y el borde del círculo, en radios de
+  // canica: la reutilizan tanto el spawn inicial (resetRoundLayout) como
+  // isValidTiradorSpot (para permitir reubicarlo tocando cualquier otro
+  // lado del círculo, no solo abajo).
+  const TIRADOR_GAP_FACTOR = 2.2;
 
   // ── Partículas ────────────────────────────────────────────────
   let particles = [];
@@ -4898,18 +5892,22 @@ function spawnEntities() {
     // del círculo, es decir, spawneando adentro. Por eso acá el radio se
     // limita también por el espacio vertical realmente disponible debajo
     // del centro, reservando sitio para el tirador antes de fijar el radio.
-    const gapFactor = 2.2;
     const bottomMarginFactor = 5;
-    const maxRadiusForTiradorGap = (H - circleCenter.y) / (1 + (gapFactor + bottomMarginFactor) / 5.5);
+    const maxRadiusForTiradorGap = (H - circleCenter.y) / (1 + (TIRADOR_GAP_FACTOR + bottomMarginFactor) / 5.5);
     circleRadius = Math.min(W, H) * cfg.circleRadiusFactor;
     circleRadius = Math.min(circleRadius, maxRadiusForTiradorGap);
     // Mismo radio relativo (círculo / 5.5) que ya se probó capaz de acomodar
     // 20 canicas sin solaparse dentro de los intentos aleatorios disponibles.
     marbleRadius = circleRadius / 5.5;
 
+    // Posición inicial del tirador: debajo del círculo, igual que antes.
+    // Ya no es la única posición posible — el jugador puede reubicarlo
+    // tocando cualquier otro punto válido alrededor del círculo antes de
+    // tirar (ver isValidTiradorSpot/onPointerDown) — pero cada ronda nueva
+    // arranca siempre desde acá, como punto de partida conocido.
     tiradorSpawnPos = {
       x: circleCenter.x,
-      y: Math.min(circleCenter.y + circleRadius + marbleRadius * gapFactor, H - marbleRadius * bottomMarginFactor)
+      y: Math.min(circleCenter.y + circleRadius + marbleRadius * TIRADOR_GAP_FACTOR, H - marbleRadius * bottomMarginFactor)
     };
 
     // Muros invisibles del canvas
@@ -5009,14 +6007,36 @@ function spawnEntities() {
     };
   }
 
+  // El tirador solo podía dispararse desde abajo del círculo (donde lo
+  // deja resetRoundLayout): para sacar canicas del lado opuesto había que
+  // pegarle en ángulo desde ahí, en vez de tirar directo desde ese otro
+  // lado, como en el juego real. Un punto es válido para reubicarlo si
+  // queda fuera del círculo (mismo margen que ya usaba el spawn original)
+  // y dentro del canvas con margen para que no quede pegado al borde.
+  function isValidTiradorSpot(x, y) {
+    const distToCenter = Math.hypot(x - circleCenter.x, y - circleCenter.y);
+    if (distToCenter < circleRadius + marbleRadius * TIRADOR_GAP_FACTOR) return false;
+    const margin = marbleRadius * (TIRADOR_SCALE + 1.5);
+    return x >= margin && x <= canvas.width - margin && y >= margin && y <= canvas.height - margin;
+  }
+
   function onPointerDown(e) {
     if (gamePhase !== 'aiming' || !tirador) return;
     const pos = getCanvasPos(e);
-    // Solo iniciar drag cerca del tirador
     const tp = tirador.position;
     const dist = Math.hypot(pos.x - tp.x, pos.y - tp.y);
     if (dist < marbleRadius * 4) {
+      // Tocó el tirador donde ya estaba: apuntar desde ahí, como siempre.
       aimStart = { x: tp.x, y: tp.y };
+      aimCurrent = { x: pos.x, y: pos.y };
+      e.preventDefault();
+    } else if (isValidTiradorSpot(pos.x, pos.y)) {
+      // Tocó otro punto válido alrededor del círculo: el tirador se
+      // reubica ahí (todavía sin disparar) y el mismo toque arranca el
+      // apuntado desde la posición nueva.
+      Body.setPosition(tirador, { x: pos.x, y: pos.y });
+      tiradorSpawnPos = { x: pos.x, y: pos.y };
+      aimStart = { x: pos.x, y: pos.y };
       aimCurrent = { x: pos.x, y: pos.y };
       e.preventDefault();
     }
@@ -5293,9 +6313,20 @@ function spawnEntities() {
       ctx.font = `${Math.max(12, canvas.width * 0.022)}px sans-serif`;
       ctx.fillStyle = 'rgba(196,181,253,0.85)';
       ctx.textAlign = 'center';
+      // El tirador ya no vive siempre debajo del círculo (ver
+      // isValidTiradorSpot/onPointerDown: se puede reubicar tocando
+      // cualquier otro lado). El texto se aleja del centro en la misma
+      // dirección en la que está el tirador — no siempre "hacia abajo" —
+      // para no terminar pegado o tapado por el círculo cuando el tirador
+      // se mueve a un costado o arriba.
+      const tp = tirador.position;
+      const dx = tp.x - circleCenter.x, dy = tp.y - circleCenter.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const hintX = tp.x + (dx / len) * marbleRadius * 3.5;
+      const hintY = tp.y + (dy / len) * marbleRadius * 3.5;
       ctx.fillText(esTactilJuegos
         ? jt('jue.card5.aimHintTouch', '👆 Jalá desde el tirador para apuntar')
-        : jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), circleCenter.x, tiradorSpawnPos.y + marbleRadius * 3.5);
+        : jt('jue.card5.aimHint', '🖱️ Jalá desde el tirador para apuntar'), hintX, hintY);
       ctx.restore();
     }
   }
@@ -5424,35 +6455,50 @@ function spawnEntities() {
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     score = 0; round = 1; playedMs = 0;
 
-    overlayCard.innerHTML = `
-      <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
-      <h3 style="margin:.4rem 0 .15rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
-      <p style="font-size:.85rem;opacity:.85;margin-bottom:.55rem;">
-        ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá las 20 canicas del círculo lo más rápido que puedas.')}
-      </p>
-      <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
-        <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
-      </ul>
-      <p style="font-weight:600;margin-bottom:.4rem;color:#A78BFA;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
-      <div class="difficulty-buttons">
-        <button class="difficulty-btn easy" id="btn-easy-canicas">
-          ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 tiros')}</small>
-        </button>
-        <button class="difficulty-btn hard" id="btn-hard-canicas">
-          ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 4 tiros')}</small>
-        </button>
-      </div>
-      <button class="btn-tutorial" id="btn-tutorial-canicas">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`;
-    overlay.classList.remove('hidden');
-    gsap.fromTo(overlayCard, { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.7)' });
-
-    document.getElementById('btn-easy-canicas').onclick = () => startGame('easy');
-    document.getElementById('btn-hard-canicas').onclick = () => startGame('hard');
-    document.getElementById('btn-tutorial-canicas').onclick = () => startTutorial();
+    mostrarInstrucciones(showOverlay, overlayCard, [
+      { html: `
+        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+        <h3 style="margin:.4rem 0 .15rem;">${jt('jue.card5.playIntroTitle', '¡El juego de patio!')}</h3>
+        <p style="font-size:.85rem;opacity:.85;margin-bottom:.55rem;">
+          ${jt('jue.card5.intro', 'Jalá el tirador dorado (T) y soltá para disparar. Sacá las 20 canicas del círculo lo más rápido que puedas.')}
+        </p>
+        ${crearDiagramaControles('drag-shoot')}
+      ` },
+      { html: `
+        <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
+          <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
+          <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
+        </ul>
+      `, finishLabel: jt('jue.next', 'Siguiente'),
+        extraHtml: `<button class="btn-tutorial" id="btn-tutorial-canicas">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`,
+        onRender: () => { document.getElementById('btn-tutorial-canicas').onclick = () => startTutorial(); }
+      }
+    ], () => {
+      showOverlay(`
+        <button type="button" class="btn-back-selector" id="btn-back-diff-canicas">${jt('jue.back', '← Atrás')}</button>
+        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+        <p style="font-weight:600;margin-bottom:.4rem;color:#6d28d9;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
+        <div class="difficulty-buttons">
+          <button class="difficulty-btn easy" id="btn-easy-canicas">
+            ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 tiros')}</small>
+          </button>
+          <button class="difficulty-btn hard" id="btn-hard-canicas">
+            ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 4 tiros')}</small>
+          </button>
+        </div>`);
+      animarEntradaInstrucciones(overlayCard);
+      document.getElementById('btn-back-diff-canicas').onclick = showDifficultySelector;
+      document.getElementById('btn-easy-canicas').onclick = () => startGame('easy');
+      document.getElementById('btn-hard-canicas').onclick = () => startGame('hard');
+    });
   }
 
   function startGame(diff) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más arriba): el círculo de canicas necesita espacio
+    // parejo alrededor para poder tirar desde cualquier lado.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     difficulty = diff;
     shotsLeft = gameConfig[diff].shots;
     score = 0; round = 1;
@@ -5482,6 +6528,13 @@ function spawnEntities() {
   }
 
   // ── Fin del juego ─────────────────────────────────────────────
+  // Ilustración de cierre estilo historieta (imagen generada por IA, ver
+  // presentation/assets/media/juegos/finales/): un niño dispara el
+  // tirador contra el montón de canicas con el "¡PLIC!" de impacto.
+  function crearAnimacionCanicasComic(){
+    return `<img class="result-comic-img" src="../assets/media/juegos/finales/canicas-final.webp" alt="" aria-hidden="true">`;
+  }
+
   function showEndScreen() {
     running = false;
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
@@ -5509,27 +6562,24 @@ function spawnEntities() {
     const gameName = `elotes-${difficulty}`;
 
     setTimeout(() => {
-      overlayCard.innerHTML = `
-        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
-        <h3 style="margin:.5rem 0;">${jt('jue.card5.end.finished', '¡Nivel completado!')}</h3>
-        <p style="font-size:2rem;font-weight:800;color:#A78BFA;margin:.3rem 0;">${formatTime(playedMs)}</p>
-        <p style="font-size:.85rem;opacity:.8;margin-bottom:.2rem;">${jt('jue.card5.end.roundsPlayed', 'en {n} rondas').replace('{n}', totalRounds)}</p>
-        <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="btn-primary" id="can-replay">🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}</button>
-          <button class="btn-primary" id="can-menu" style="background:var(--navy,#113068);border:2px solid #fff;">${jt('jue.pause.menu', 'Menú')}</button>
-        </div>`;
-      overlay.classList.remove('hidden');
-      gsap.fromTo(overlayCard, { opacity: 0, scale: 0.8, y: 40 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'elastic.out(1,0.7)' });
-
-      document.getElementById('can-replay').onclick = showDifficultySelector;
-      document.getElementById('can-menu').onclick = showDifficultySelector;
-
-      // El marcador que se guarda en el servidor sigue siendo la cantidad
-      // de canicas sacadas (mismo formato que usa el resto del backend de
-      // puntajes); ya no se muestra en pantalla porque la interfaz ahora
-      // se enfoca en el tiempo, no en los puntos.
-      guardarPuntajeJuego(gameName, score);
+      mostrarResultado(showOverlay, overlayCard, {
+        tag: `🔮 ${jt('jue.card5.title', 'Canicas')}`,
+        title: jt('jue.card5.end.finished', '¡Nivel completado!'),
+        animHtml: crearAnimacionCanicasComic(),
+        scoreValue: formatTime(playedMs),
+        scoreSuffix: '',
+        message: jt('jue.card5.end.roundsPlayed', 'en {n} rondas').replace('{n}', totalRounds),
+        restartLabel: `🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}`,
+        onRestart: showDifficultySelector,
+        secondaryLabel: jt('jue.pause.menu', 'Menú'),
+        onSecondary: showDifficultySelector,
+        // El marcador que se guarda en el servidor sigue siendo la cantidad
+        // de canicas sacadas (mismo formato que usa el resto del backend de
+        // puntajes); antes Canicas era el único juego que ni guardaba ni
+        // consultaba su propio récord.
+        gameName, scoreToSave: score,
+        formatBestScore: (best) => `${jt('jue.bestScore', 'Tu récord en este nivel')}: ${best.score} pts`
+      });
     }, 800);
   }
 
@@ -5610,6 +6660,7 @@ function spawnEntities() {
   if(!canvas || typeof Matter === 'undefined') return;
 
   const canvasWrap = document.getElementById('torito-canvas-wrap');
+  setupRotateGate('torito', canvasWrap);
   const { Engine, World, Bodies, Body, Events, Composite } = Matter;
   const ctx = canvas.getContext('2d');
 
@@ -5653,11 +6704,17 @@ function spawnEntities() {
   let isTurboActive = false;
   let isArriving = false;
   let arrivalTimer = 0;
+  let isEnteringFiesta = false;
+  let fiestaTransTimer = 0;
+  const FIESTA_TRANS_DURATION = 70; // ~1.17s: da tiempo a ver al torito caminar y entrar por la puerta antes de revelar la fiesta
+  let isDancing = false;
+  let danceTimer = 0;
 
   let stalls = [];
   let particles = [];
   let spectators = [];
   let sparks = [];
+  let confetti = [];
 
   // ================= MODO TUTORIAL =================
   // Corrida súper fácil y guiada: el juego no genera obstáculos nuevos
@@ -5724,6 +6781,11 @@ function spawnEntities() {
   }
 
   function startTutorial() {
+    // El tutorial arranca el juego "a mano" en vez de llamar a startGame()
+    // (ver más abajo), así que necesita forzar pantalla completa/horizontal
+    // por su cuenta, igual que una partida real.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     gameDifficulty = 'easy';
     targetDistance = 999999; // nunca se llega mientras dura el tutorial
     destinationName = jt('jue.tutorial.destName', 'Práctica');
@@ -6153,9 +7215,14 @@ function spawnEntities() {
     isTurboActive = false;
     isArriving = false;
     arrivalTimer = 0;
+    isEnteringFiesta = false;
+    fiestaTransTimer = 0;
+    isDancing = false;
+    danceTimer = 0;
     stalls = [];
     particles = [];
     sparks = [];
+    confetti = [];
 
     Composite.allBodies(world).forEach(b => {
       if(b.label === 'carreta' || b.label === 'silbador' || b.label === 'cuetillo' || b.label === 'pupusa' || b.label === 'agua') {
@@ -6180,7 +7247,7 @@ function spawnEntities() {
 
   // 1. Spawning Silbadores (Whistling rockets that recharge big energy & give speed)
   function spawnSilbador(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+    const body = Bodies.circle(lanePositions[lane], -40, 16, {
       restitution: 0.7, friction: 0.1, isSensor: true, label: 'silbador'
     });
     World.add(world, body);
@@ -6188,7 +7255,7 @@ function spawnEntities() {
 
   // 2. Spawning Cuetillos (Firecrackers that recharge energy & burst sparks)
   function spawnCuetillo(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 10, {
+    const body = Bodies.circle(lanePositions[lane], -40, 13, {
       restitution: 0.6, friction: 0.2, isSensor: true, label: 'cuetillo'
     });
     World.add(world, body);
@@ -6196,7 +7263,7 @@ function spawnEntities() {
 
   // 3. Spawning Pupusas (Bonus food pickup)
   function spawnPupusa(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 11, {
+    const body = Bodies.circle(lanePositions[lane], -40, 17, {
       restitution: 0.5, friction: 0.2, isSensor: true, label: 'pupusa'
     });
     World.add(world, body);
@@ -6204,7 +7271,7 @@ function spawnEntities() {
 
   // 4. Spawning Heavy Obstacles (Carretas) & Hazards (Baldes de agua)
   function spawnCarreta(lane){
-    const body = Bodies.rectangle(lanePositions[lane], -40, 44, 24, {
+    const body = Bodies.rectangle(lanePositions[lane], -40, 60, 32, {
       restitution: 0.35, friction: 0.4, frictionAir: 0.01, label: 'carreta'
     });
     Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.03);
@@ -6212,7 +7279,7 @@ function spawnEntities() {
   }
 
   function spawnAgua(lane){
-    const body = Bodies.circle(lanePositions[lane], -40, 12, {
+    const body = Bodies.circle(lanePositions[lane], -40, 16, {
       restitution: 0.4, friction: 0.2, label: 'agua'
     });
     World.add(world, body);
@@ -6228,7 +7295,7 @@ function spawnEntities() {
   }
 
   function spawnEntities() {
-    if (isArriving) return; // Stop spawning obstacles when entering church plaza!
+    if (isArriving || isEnteringFiesta || isDancing) return; // Stop spawning obstacles when entering church plaza / dancing!
     if (tutorialMode && tutorialWaiting) return; // Congela obstáculos mientras se espera la acción del tutorial
 
     const config = gameConfig[gameDifficulty];
@@ -6376,6 +7443,22 @@ function spawnEntities() {
 
     // ================= DRAWING =================
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (isEnteringFiesta) {
+      const progress = 1 - (fiestaTransTimer / FIESTA_TRANS_DURATION);
+      drawFiestaTransition(progress);
+      updateHud();
+      rafId = requestAnimationFrame(step);
+      return;
+    }
+
+    if (isDancing) {
+      drawFiestaDance();
+      updateHud();
+      rafId = requestAnimationFrame(step);
+      return;
+    }
+
     drawStreet();
     stalls.forEach(drawStall);
 
@@ -6438,6 +7521,39 @@ function spawnEntities() {
         playSound('pop');
       }
       if (arrivalTimer <= 0) {
+        // En vez de cortar directo al resultado apenas se ve la iglesia,
+        // el torito entra por la puerta del atrio hacia una fiesta con
+        // baile: primero una transición tipo "iris" que se abre desde la
+        // puerta (drawFiestaTransition) y recién después la escena de
+        // baile completa, antes del resumen final.
+        isArriving = false;
+        isEnteringFiesta = true;
+        fiestaTransTimer = FIESTA_TRANS_DURATION;
+        playSound('cheer');
+      }
+    }
+
+    if (isEnteringFiesta) {
+      fiestaTransTimer--;
+      if (fiestaTransTimer <= 0) {
+        isEnteringFiesta = false;
+        isDancing = true;
+        danceTimer = 260; // ~4.3s de baile, para que se sienta una fiesta real y no un destello
+        spawnConfetti(70);
+      }
+    }
+
+    if (isDancing) {
+      danceTimer--;
+      if (danceTimer % 18 === 0) {
+        const rx = 40 + Math.random() * (canvas.width - 80);
+        createFireworkBurst(rx, canvas.height * 0.25, 14);
+      }
+      // Papel picado cayendo sin parar durante todo el baile, no solo al
+      // entrar — así la pista se va llenando de color en vez de quedar
+      // con las mismas pocas tiritas de la ráfaga inicial.
+      if (danceTimer % 10 === 0) spawnConfetti(6);
+      if (danceTimer <= 0) {
         endRun('completo');
         return;
       }
@@ -6470,7 +7586,11 @@ function spawnEntities() {
       toRemove.clear();
     }
 
-    if(energy <= 0 && !tutorialMode) { endRun('sinEnergia'); return; }
+    // No cortar a "sin energía" si ya está en la secuencia de llegada/fiesta:
+    // la energía sigue drenándose durante esos ~8.5s de celebración y, si el
+    // torito llegaba con poca energía, esto pisaba el resultado de victoria
+    // ("completo") con el de derrota justo antes de mostrarlo.
+    if(energy <= 0 && !tutorialMode && !isArriving && !isEnteringFiesta && !isDancing) { endRun('sinEnergia'); return; }
   }
 
   // ================= GRAPHICS & RENDERING =================
@@ -6510,32 +7630,39 @@ function spawnEntities() {
   }
 
   function drawPapelPicado() {
-    const garlandInterval = 180;
+    // Antes esto se repetía cada 180px con 7 banderines a todo lo ancho de
+    // la calle: con la altura típica del canvas había 3-4 tiras visibles a
+    // la vez (~25 banderines) compitiendo con los obstáculos/coleccionables.
+    // Se espacía más, se reducen y achican los banderines, y se pegan más
+    // arriba (menos combado) para que quede como decorado de fondo y no
+    // estorbe la vista del carril de juego.
+    const garlandInterval = 340;
     const garlandY = (distance * 0.7) % garlandInterval;
     const colors = ['#ff007f', '#00e5ff', '#ffea00', '#00e676', '#ff9100'];
 
     for (let y = -garlandY; y < canvas.height; y += garlandInterval) {
       ctx.save();
+      ctx.globalAlpha = 0.55;
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 1;
       ctx.moveTo(streetLeft, y);
-      ctx.quadraticCurveTo(canvas.width / 2, y + 20, streetRight, y);
+      ctx.quadraticCurveTo(canvas.width / 2, y + 10, streetRight, y);
       ctx.stroke();
 
-      const flags = 7;
+      const flags = 5;
       const step = (streetRight - streetLeft) / flags;
       for (let i = 0; i < flags; i++) {
-        const fx = streetLeft + i * step + step * 0.15;
+        const fx = streetLeft + i * step + step * 0.2;
         const t = i / (flags - 1);
-        const fy = y + 20 * (4 * t * (1 - t));
+        const fy = y + 10 * (4 * t * (1 - t));
         ctx.fillStyle = colors[(i + Math.floor(distance / 100)) % colors.length];
         ctx.beginPath();
         ctx.moveTo(fx, fy);
-        ctx.lineTo(fx + step * 0.7, fy);
-        ctx.lineTo(fx + step * 0.7, fy + 16);
-        ctx.lineTo(fx + step * 0.35, fy + 12);
-        ctx.lineTo(fx, fy + 16);
+        ctx.lineTo(fx + step * 0.45, fy);
+        ctx.lineTo(fx + step * 0.45, fy + 9);
+        ctx.lineTo(fx + step * 0.225, fy + 7);
+        ctx.lineTo(fx, fy + 9);
         ctx.closePath();
         ctx.fill();
       }
@@ -6606,6 +7733,161 @@ function spawnEntities() {
     ctx.font = 'bold 12px Fredoka, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(jt('jue.card6.churchBanner', '¡FIESTAS PATRONALES!'), canvas.width / 2, 97);
+
+    ctx.restore();
+  }
+
+  // Transición "entrando a la fiesta": en vez de cortar de golpe de la
+  // calle/iglesia a la pista de baile, se abre un círculo de luz cálida
+  // desde la puerta del atrio (donde llegó el torito) que va revelando la
+  // fiesta de adentro a medida que crece, como si el torito estuviera
+  // cruzando el umbral hacia el salón donde ya está la gente bailando.
+  function drawFiestaTransition(progress) {
+    const doorX = canvas.width / 2;
+    const doorY = 160;
+    const maxRadius = Math.hypot(canvas.width, canvas.height) * 0.65;
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const radius = 16 + eased * maxRadius;
+
+    drawStreet();
+    drawChurchDestination(1000);
+
+    // El torito camina hacia la puerta y se va achicando a medida que
+    // "entra a la casa", en vez de quedarse plantado en la calle
+    // mientras el círculo de luz simplemente crece encima suyo — así se
+    // ve claramente que está entrando, no que la fiesta lo tapa.
+    const walkT = Math.min(1, progress / 0.6);
+    const walkEased = 1 - Math.pow(1 - walkT, 2);
+    const startX = toritoBody.position.x;
+    const startY = toritoY;
+    const toritoX = startX + (doorX - startX) * walkEased;
+    const toritoYPos = startY + (doorY - startY) * walkEased;
+    const scale = 1 - walkEased * 0.6;
+    ctx.save();
+    ctx.translate(toritoX, toritoYPos);
+    ctx.scale(scale, scale);
+    ctx.translate(-toritoX, -toritoYPos);
+    drawTorito(toritoX, toritoYPos);
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(doorX, doorY, radius, 0, Math.PI * 2);
+    ctx.clip();
+    drawFiestaDance();
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(doorX, doorY, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = `rgba(255, 220, 130, ${0.8 * (1 - progress)})`;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Escena corta de fiesta/baile en el atrio, mostrada al llegar en vez de
+  // cortar directo al resumen final: el torito y unas parejas bailan
+  // mientras cae papel picado y la iglesia queda de fondo.
+  function drawFiestaDance() {
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#2c1654');
+    grad.addColorStop(1, '#7d3ac1');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Guirnalda de luces
+    ctx.strokeStyle = 'rgba(255,255,255,.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 30);
+    ctx.quadraticCurveTo(canvas.width / 2, 60, canvas.width, 30);
+    ctx.stroke();
+    const bulbColors = ['#ffea00', '#ff3d00', '#00e5ff', '#ff007f', '#39ff14'];
+    for (let i = 0; i < 10; i++) {
+      const t = i / 9;
+      const bx = t * canvas.width;
+      const by = 30 + Math.sin(t * Math.PI) * 30;
+      ctx.fillStyle = bulbColors[i % bulbColors.length];
+      ctx.beginPath();
+      ctx.arc(bx, by + 6, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Iglesia de fondo, ya sin protagonismo
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(canvas.width / 2 - 30, 50, 60, 70);
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2 - 34, 50);
+    ctx.lineTo(canvas.width / 2, 24);
+    ctx.lineTo(canvas.width / 2 + 34, 50);
+    ctx.closePath();
+    ctx.fill();
+
+    // Parejas bailando: más gente en la pista (antes 5) para que se vea
+    // una fiesta con bastante gente y no un puñado suelto de figuras.
+    const dancerY = canvas.height * 0.68;
+    const count = 7;
+    for (let i = 0; i < count; i++) {
+      const dx = (i + 0.5) * (canvas.width / count);
+      drawDancer(dx, dancerY, i);
+    }
+
+    // El torito se une al baile, al centro
+    drawTorito(canvas.width / 2, canvas.height * 0.48);
+
+    drawParticles();
+    stepAndDrawConfetti();
+
+    // Banner
+    ctx.fillStyle = '#d32f2f';
+    ctx.fillRect(canvas.width / 2 - 110, canvas.height * 0.1, 220, 30);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px Fredoka, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(jt('jue.card6.fiestaBanner', '¡A BAILAR A LA FIESTA!'), canvas.width / 2, canvas.height * 0.1 + 21);
+  }
+
+  function drawDancer(x, y, seed) {
+    const phase = Date.now() / 220 + seed * 1.3;
+    const sway = Math.sin(phase) * 10;
+    const bob = Math.abs(Math.sin(phase * 2)) * 6;
+    const colors = ['#e63946', '#f2c744', '#3a86c8', '#2fbf9f', '#7d3ac1'];
+    const color = colors[seed % colors.length];
+
+    ctx.save();
+    ctx.translate(x, y - bob);
+
+    // Sombra
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.beginPath();
+    ctx.ellipse(0, 34, 13, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cuerpo / vestido balanceándose
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-10, 30);
+    ctx.quadraticCurveTo(sway * 0.6, -4, -6, -24);
+    ctx.lineTo(6, -24);
+    ctx.quadraticCurveTo(-sway * 0.6, -4, 10, 30);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cabeza
+    ctx.fillStyle = '#c98a5b';
+    ctx.beginPath();
+    ctx.arc(0, -30, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brazos en movimiento
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-6, -18); ctx.lineTo(-16 - sway * 0.4, -26 + sway * 0.3);
+    ctx.moveTo(6, -18); ctx.lineTo(16 + sway * 0.4, -26 - sway * 0.3);
+    ctx.stroke();
 
     ctx.restore();
   }
@@ -6730,6 +8012,7 @@ function spawnEntities() {
   function drawSilbador(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.35, 1.35);
     const pulse = Math.sin(Date.now() / 120) * 3;
 
     // Glowing aura
@@ -6767,6 +8050,7 @@ function spawnEntities() {
   function drawCuetillo(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.35, 1.35);
 
     // Glowing aura
     ctx.fillStyle = 'rgba(255, 85, 0, 0.35)';
@@ -6793,6 +8077,7 @@ function spawnEntities() {
   function drawPupusa(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
+    ctx.scale(1.55, 1.55); // más grande que antes para que se note bien
     ctx.fillStyle = '#f4c542';
     ctx.beginPath();
     ctx.arc(0, 0, 12, 0, Math.PI * 2);
@@ -6813,6 +8098,7 @@ function spawnEntities() {
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
     ctx.rotate(b.angle);
+    ctx.scale(1.35, 1.35);
     ctx.fillStyle = '#5c3a21';
     ctx.fillRect(-20, -10, 40, 20);
     ctx.strokeStyle = '#2b1a0f';
@@ -6827,15 +8113,57 @@ function spawnEntities() {
   function drawAgua(b){
     ctx.save();
     ctx.translate(b.position.x, b.position.y);
-    ctx.fillStyle = '#00bcd4';
+    ctx.scale(1.35, 1.35);
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
     ctx.beginPath();
-    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.ellipse(0, 14, 11, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🪣', 0, 1);
+
+    // Cuerpo metálico del balde, achicado hacia la base
+    ctx.fillStyle = '#9aa5ab';
+    ctx.beginPath();
+    ctx.moveTo(-11, -6);
+    ctx.lineTo(-8, 13);
+    ctx.lineTo(8, 13);
+    ctx.lineTo(11, -6);
+    ctx.closePath();
+    ctx.fill();
+
+    // Franjas de lámina
+    ctx.strokeStyle = 'rgba(0,0,0,.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-9.5, 1); ctx.lineTo(9.5, 1);
+    ctx.moveTo(-9, 7); ctx.lineTo(9, 7);
+    ctx.stroke();
+
+    // Agua adentro, con leve vaivén
+    const slosh = Math.sin(Date.now() / 160) * 1.6;
+    ctx.fillStyle = '#4fc3f7';
+    ctx.beginPath();
+    ctx.ellipse(slosh * 0.3, -6, 10.3, 3.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath();
+    ctx.ellipse(-3 + slosh, -6.8, 2.6, 1, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Borde metálico superior
+    ctx.strokeStyle = '#6b767b';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 11, 3.4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Asa
+    ctx.strokeStyle = '#5c4a3a';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(0, -9, 9, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.stroke();
+
     ctx.restore();
   }
 
@@ -6882,6 +8210,49 @@ function spawnEntities() {
     });
   }
 
+  // Papel picado cayendo de verdad durante la fiesta final: antes solo se
+  // mencionaba en un comentario pero no había nada cayendo, así que la
+  // pista de baile se sentía vacía. Son rectángulos de colores que giran
+  // y caen con un vaivén lateral, distinto del sistema de chispas/fuegos
+  // artificiales (que son puntos que brillan con blending aditivo, no
+  // sirven para simular papel opaco).
+  function spawnConfetti(count = 8) {
+    const colors = ['#ff007f', '#ffea00', '#00e5ff', '#39ff14', '#ff9100', '#ffffff'];
+    for (let i = 0; i < count; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * 60,
+        vy: 1.4 + Math.random() * 1.8,
+        swayAmp: 12 + Math.random() * 18,
+        swaySpeed: 0.02 + Math.random() * 0.03,
+        swayPhase: Math.random() * Math.PI * 2,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        w: 5 + Math.random() * 4,
+        h: 7 + Math.random() * 5,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  }
+
+  function stepAndDrawConfetti() {
+    for (let i = confetti.length - 1; i >= 0; i--) {
+      const c = confetti[i];
+      c.y += c.vy;
+      c.swayPhase += c.swaySpeed;
+      c.rotation += c.rotationSpeed;
+      if (c.y > canvas.height + 20) { confetti.splice(i, 1); continue; }
+
+      const x = c.x + Math.sin(c.swayPhase) * c.swayAmp;
+      ctx.save();
+      ctx.translate(x, c.y);
+      ctx.rotate(c.rotation);
+      ctx.fillStyle = c.color;
+      ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+      ctx.restore();
+    }
+  }
+
   function createFireworkBurst(x, y, count = 20) {
     const colors = ['#ffea00', '#ff3d00', '#ff007f', '#00e5ff', '#39ff14', '#ffffff'];
     for (let i = 0; i < count; i++) {
@@ -6924,6 +8295,14 @@ function spawnEntities() {
     ctx.restore();
   }
 
+  // ── Fin del juego ─────────────────────────────────────────────
+  // Ilustración de cierre estilo historieta (imagen generada por IA, ver
+  // presentation/assets/media/juegos/finales/): el torito pinto llega
+  // triunfante al atrio de la iglesia con la fiesta en pleno.
+  function crearAnimacionToritoComic(){
+    return `<img class="result-comic-img" src="../assets/media/juegos/finales/torito-final.webp" alt="" aria-hidden="true">`;
+  }
+
   // ================= END RUN & MODALS =================
   function endRun(motivo){
     running = false;
@@ -6950,33 +8329,28 @@ function spawnEntities() {
         .replace('{dist}', Math.round(distance));
     }
 
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card6.end.tag', 'Fiestas Patronales')}</span>
-      <h3 style="font-size: 1.35rem; color: #ffd700; margin-bottom: 8px;">${title}</h3>
-      <div class="overlay-score" style="font-size: 2rem; font-weight: 800; color: #00e5ff;">${scoreFinal} pts</div>
-      <p style="font-size: 0.95rem; margin-bottom: 12px;">${msg}</p>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
-        <div><b>${Math.round(distance)}m</b><br><span style="color:#aaa;">${jt('jue.card6.stat.distance', 'Distancia')}</span></div>
-        <div><b>${silbadoresRecogidos + cuetillosRecogidos}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.rockets', 'Cohetes')}</span></div>
-        <div><b>x${maxCombo}</b><br><span style="color:#aaa;">${jt('jue.card6.stat.maxCombo', 'Max Combo')}</span></div>
-      </div>
-      <p class="overlay-best-score" id="t-best-score"></p>
-      <button class="btn-primary" id="btn-restart-torito">${jt('jue.rematch', 'Revancha')}</button>
-    `);
-    document.getElementById('btn-restart-torito').onclick = showModeSelector;
-
-    guardarPuntajeJuego(gameName, scoreFinal).then(() => {
-      obtenerMejorPuntajeJuego(gameName).then((best) => {
-        const el = document.getElementById('t-best-score');
-        if (el && best) el.textContent = `${jt('jue.bestScore.distance', 'Tu récord')}: ${best.score} pts`;
-      });
+    mostrarResultado(showOverlay, overlayCard, {
+      tag: jt('jue.card6.end.tag', 'Fiestas Patronales'),
+      title,
+      animHtml: motivo === 'completo' ? crearAnimacionToritoComic() : '',
+      scoreValue: scoreFinal,
+      message: msg,
+      stats: [
+        { value: `${Math.round(distance)}m`, label: jt('jue.card6.stat.distance', 'Distancia') },
+        { value: silbadoresRecogidos + cuetillosRecogidos, label: jt('jue.card6.stat.rockets', 'Cohetes') },
+        { value: `x${maxCombo}`, label: jt('jue.card6.stat.maxCombo', 'Max Combo') }
+      ],
+      restartLabel: jt('jue.rematch', 'Revancha'),
+      onRestart: showModeSelector,
+      gameName, scoreToSave: scoreFinal,
+      formatBestScore: (best) => `${jt('jue.bestScore.distance', 'Tu récord')}: ${best.score} pts`
     });
   }
 
   function showDistanceSelector() {
     showOverlay(`
       <span class="overlay-tag">${jt('jue.card2.configTag', 'Configuración')}</span>
-      <h3 style="font-size: 1.3rem; color: #ffd700;">🐂 ${jt('jue.card6.distance.title', 'Elige tu Destino')}</h3>
+      <h3 style="font-size: 1.3rem; color: var(--gold-hover);">🐂 ${jt('jue.card6.distance.title', 'Elige tu Destino')}</h3>
       <p style="font-size: 0.9rem;">${jt('jue.card6.distance.sub', '¿Hasta qué plaza colonial llevarás la fiesta del Torito?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="dist-corta-torito" style="font-size: 0.95rem;">
@@ -7028,6 +8402,11 @@ function spawnEntities() {
   }
 
   function startGame(difficulty) {
+    // En celular se juega en horizontal y a pantalla completa (ver
+    // setupRotateGate más arriba): la calle empedrada necesita ancho para
+    // ver venir las carretas y los baldes de agua con tiempo de esquivarlos.
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
     gameDifficulty = difficulty;
     resetGame();
     hideOverlay();
@@ -7046,25 +8425,33 @@ function spawnEntities() {
   }
 
   function showModeSelector() {
-    showOverlay(`
-      <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
-      <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
-      <p>${jt('jue.card6.intro', 'Corré por las calles, esquivá los obstáculos y recogé cohetes para llegar a la iglesia.')}</p>
-      <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
-      <ul class="rules-list">
-        ${esTactilJuegos ? `
-        <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá directamente el carril al que querés saltar · doble toque = ráfaga')}</li>
-        ` : `
-        <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', 'A/D o ⬅️➡️: cambiar de carril · Espacio: ráfaga de chispas')}</li>
-        `}
-        <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', 'Recogé silbadores y cuetillos seguidos → combo y energía')}</li>
-        <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', 'Esquivá carretas y baldes de agua')}</li>
-      </ul>
-      <button class="btn-primary" id="btn-start-torito">${jt('jue.next', 'Siguiente')}</button>
-      <button class="btn-tutorial" id="btn-tutorial-torito">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>
-    `);
-    document.getElementById('btn-start-torito').onclick = showDistanceSelector;
-    document.getElementById('btn-tutorial-torito').onclick = startTutorial;
+    mostrarInstrucciones(showOverlay, overlayCard, [
+      { html: `
+        <span class="overlay-tag">${jt('jue.card6.prepareTag', 'Prepará el Torito')}</span>
+        <h2>🐂 ${jt('jue.card6.titleModal', 'Torito Pinto')}</h2>
+        <p>${jt('jue.card6.intro', 'Corré por las calles, esquivá los obstáculos y recogé cohetes para llegar a la iglesia.')}</p>
+        ${crearDiagramaControles('lanes-dash')}
+      ` },
+      { html: `
+        ${crearEjemplosObjetos(
+          [{icon:'🚀', label: jt('jue.card6.exampleSilbador', 'Silbador')}, {icon:'🧨', label: jt('jue.card6.exampleCuetillo', 'Cuetillo')}, {icon:'🫓', label: jt('jue.card6.examplePupusa', 'Pupusa')}],
+          [{icon:'🛺', label: jt('jue.card6.exampleCarreta', 'Carreta')}, {icon:'🪣', label: jt('jue.card6.exampleAgua', 'Balde')}]
+        )}
+        <p class="rules-title">${jt('jue.controls.title', 'Instrucciones')}</p>
+        <ul class="rules-list">
+          ${esTactilJuegos ? `
+          <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card6.controlsTap', 'Tocá directamente el carril al que querés saltar · doble toque = ráfaga')}</li>
+          ` : `
+          <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card6.controlsKeys', 'A/D o ⬅️➡️: cambiar de carril · Espacio: ráfaga de chispas')}</li>
+          `}
+          <li class="rule-good"><span class="rule-icon">🚀</span> ${jt('jue.card6.ruleRockets', 'Recogé silbadores y cuetillos seguidos → combo y energía')}</li>
+          <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card6.ruleObstacles', 'Esquivá carretas y baldes de agua')}</li>
+        </ul>
+      `, finishLabel: jt('jue.next', 'Siguiente'),
+        extraHtml: `<button class="btn-tutorial" id="btn-tutorial-torito">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`,
+        onRender: () => { document.getElementById('btn-tutorial-torito').onclick = startTutorial; }
+      }
+    ], showDistanceSelector);
   }
 
   const pauseBtn = document.getElementById('pauseBtn-torito');

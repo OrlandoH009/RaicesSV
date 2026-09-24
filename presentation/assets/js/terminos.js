@@ -139,6 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.ScrollTrigger) {
       gsap.registerPlugin(ScrollTrigger);
+      // Evita que el show/hide de la barra de direcciones en celular (que
+      // dispara "resize") recalcule todas las animaciones de scroll a mitad
+      // de gesto — ver index-gsap.js para el detalle del freeze que causaba.
+      ScrollTrigger.config({ ignoreMobileResize: true });
 
       // Aparece / desaparece: cada sección hace fade-in al entrar por abajo
       // y fade-out al salir por arriba, atado directamente al scroll (scrub)

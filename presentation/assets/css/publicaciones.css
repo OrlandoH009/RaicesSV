@@ -1032,6 +1032,15 @@
     .location-picker__results li:hover {
       background: rgba(190, 142, 86, 0.18);
     }
+    /* Lugares que ya publicó otro usuario antes (vienen de nuestra propia
+       base de datos, no de OpenStreetMap): un tinte sutil para distinguirlos
+       de los resultados de Nominatim sin competir con ellos. */
+    .location-picker__results li[data-own-index] {
+      background: rgba(190, 142, 86, 0.08);
+    }
+    .location-picker__results li[data-own-index]:hover {
+      background: rgba(190, 142, 86, 0.2);
+    }
     .location-picker__results li.location-picker__empty {
       cursor: default;
       opacity: 0.6;
@@ -1039,6 +1048,16 @@
     }
     .location-picker__results li.location-picker__empty:hover {
       background: transparent;
+    }
+    /* Opción "usar tal cual lo escribiste": se resalta en dorado para que
+       se note como una acción distinta de los resultados encontrados. */
+    .location-picker__results li.location-picker__use-typed {
+      color: var(--gold);
+      font-weight: 600;
+      border-top: 1px solid rgba(190, 142, 86, 0.25);
+    }
+    .location-picker__results li.location-picker__use-typed:hover {
+      background: rgba(190, 142, 86, 0.22);
     }
     .location-picker__result-icon {
       flex-shrink: 0;
@@ -1249,18 +1268,21 @@
     .location-picker__selected {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1rem;
-      background: rgba(190, 142, 86, 0.12);
-      border: 1px solid rgba(190, 142, 86, 0.3);
+      gap: 0.6rem;
+      padding: 0.75rem 1.1rem;
+      background: rgba(190, 142, 86, 0.16);
+      border: 1px solid rgba(190, 142, 86, 0.55);
+      border-left: 4px solid var(--gold);
       border-radius: var(--r-sm);
       color: var(--white);
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 600;
     }
     [data-theme="light"] .location-picker__selected {
       color: var(--navy);
-      background: rgba(190, 142, 86, 0.1);
+      background: rgba(190, 142, 86, 0.14);
+      border-color: rgba(190, 142, 86, 0.5);
+      border-left-color: var(--gold);
     }
 
     /* Pin del picker (marcador Leaflet con emoji) */
@@ -1531,75 +1553,79 @@ body {
 .footer .footer__disclaimer { color: #777; }
 /* ══════════════════════════════════
    BLOQUEO ELEGANTE PARA INVITADOS
-   ══════════════════════════════════ */
+   ══════════════════════════════════
+   Antes el aviso de "inicia sesión" era una capa (.guest-blocker-overlay)
+   estirada con position:absolute sobre TODA la sección — formulario +
+   mapa, más de 1200px de alto — así que su centro quedaba fuera de la
+   pantalla y el mensaje aparecía cortado, encimado con los controles del
+   mapa. Ahora el formulario apagado se ve atenuado in situ (abajo) y el
+   aviso real vive en esta tarjeta corta, arriba del todo, siempre visible
+   sin scroll; al tocarla (o al tocar el formulario apagado) se abre el
+   modal flotante y centrado que ya usa el resto de la página
+   (showGuestModal, en publicaciones.js). */
 
-.create-publication-section.is-guest {
-  position: relative;
-  overflow: hidden;
+.create-publication-section.is-guest .publication-form {
+  opacity: .5;
+  filter: grayscale(.3);
+  cursor: pointer;
+}
+/* Los campos quedan disabled (ver checkGuestFormAccess en publicaciones.js)
+   así que ya no reciben foco ni se pueden escribir; el cursor "no permitido"
+   por defecto de un input disabled sería confuso acá porque SÍ hay una
+   acción posible (tocar abre el modal), por eso se fuerza a "pointer". */
+.create-publication-section.is-guest .publication-form,
+.create-publication-section.is-guest .publication-form * {
+  cursor: pointer !important;
 }
 
-/* Capa oscura y difuminada sobre el formulario */
-.guest-blocker-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(29, 25, 25, 0.85); /* Fondo oscuro semi-transparente */
-  backdrop-filter: blur(8px); /* Efecto esmerilado de desenfoque */
-  z-index: 10;
+.guest-lock-hint {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
+  gap: .9rem;
+  flex-wrap: wrap;
+  background: rgba(190, 142, 86, 0.1);
+  border: 1.5px solid var(--gold);
+  border-radius: var(--r-md);
+  padding: 1rem 1.3rem;
+  margin-bottom: 1.6rem;
+  cursor: pointer;
 }
 
-/* Caja de contenido del bloqueo */
-.blocker-content {
-  max-width: 420px;
-  animation: fadeInUp 0.5s ease-out;
-}
+.guest-lock-hint__icon { font-size: 1.6rem; flex-shrink: 0; }
 
-.blocker-icon {
-  font-size: 3.5rem;
-  color: var(--gold);
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 2px 8px rgba(190, 142, 86, 0.4));
-}
-
-.blocker-title {
-  font-family: var(--font-display);
-  font-size: 1.8rem;
+.guest-lock-hint__text {
+  flex: 1 1 220px;
+  margin: 0;
   color: var(--white);
-  margin-bottom: 0.8rem;
+  font-size: .92rem;
+  line-height: 1.45;
 }
-[data-theme="light"] .blocker-title { color: var(--navy); }
+[data-theme="light"] .guest-lock-hint__text { color: rgba(36,33,29,.8); }
 
-.blocker-text {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 1rem;
-  margin-bottom: 1.8rem;
-  line-height: 1.5;
-}
-[data-theme="light"] .blocker-text { color: rgba(36,33,29,.75); }
-
-.blocker-btn {
-  padding: 0.9rem 2.2rem;
+.guest-lock-hint__btn {
+  flex-shrink: 0;
+  padding: .7rem 1.4rem;
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
   color: var(--white);
   border: none;
   border-radius: var(--r-sm);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: .85rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform .2s ease, box-shadow .2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: .4px;
+  white-space: nowrap;
 }
-
-.blocker-btn:hover {
+.guest-lock-hint__btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(190, 142, 86, 0.4);
+}
+
+@media (max-width: 560px) {
+  .guest-lock-hint { padding: .85rem 1rem; gap: .6rem; }
+  .guest-lock-hint__btn { width: 100%; }
 }
 
 /* =═════════════════════════════════

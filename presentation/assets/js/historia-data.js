@@ -151,7 +151,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Dictaduras Militares",
     title: "El régimen de Hernández Martínez",
     date: "1931 – 1944",
-    img: "../assets/media/historia/palacio-nacional.jpg",
+    img: "../assets/media/sitios/palacio-nacional.jpg",
     text: [
       "Maximiliano Hernández Martínez llegó al poder tras el golpe de Estado de 1931 que derrocó al presidente Arturo Araujo. Durante su prolongado gobierno estableció un régimen autoritario caracterizado por la concentración del poder, la censura y la represión de la oposición.",
       "Su gobierno mantuvo una estrecha relación con los sectores económicos dominantes y desarrolló políticas destinadas a estabilizar la economía después de la crisis mundial. Al mismo tiempo, la represión política se convirtió en una característica central del régimen, especialmente después de los acontecimientos de 1932.",
@@ -171,7 +171,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Dictaduras Militares",
     title: "El predominio militar",
     date: "1944 – 1979",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "Después de la caída de Hernández Martínez, los militares continuaron teniendo una influencia decisiva sobre la política salvadoreña. Durante las décadas siguientes, distintos gobiernos estuvieron dirigidos por oficiales de las Fuerzas Armadas o fuertemente condicionados por el poder militar.",
       "Durante las décadas de 1950 y 1960 se produjeron procesos de modernización económica e industrialización, pero persistieron importantes desigualdades en la distribución de la tierra y en el acceso a oportunidades económicas y políticas.",
@@ -191,7 +191,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Guerra Civil",
     title: "El golpe de Estado de 1979",
     date: "15 de octubre de 1979",
-    img: "../assets/media/Centro Historico.jpg",
+    img: "../assets/media/sitios/Centro Historico.jpg",
     text: [
       "El 15 de octubre de 1979, un grupo de oficiales de las Fuerzas Armadas derrocó al presidente Carlos Humberto Romero. El golpe dio paso a una Junta Revolucionaria de Gobierno que prometió reformas políticas y sociales.",
       "La violencia política, sin embargo, continuó. Grupos paramilitares y fuerzas de seguridad fueron señalados por graves violaciones de derechos humanos, mientras diferentes organizaciones de izquierda fortalecían su estructura armada y política.",
@@ -211,7 +211,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Guerra Civil",
     title: "La guerra civil",
     date: "1980 – 1992",
-    img: "../assets/media/Suchitoto.webp",
+    img: "../assets/media/sitios/Suchitoto.webp",
     text: [
       "En octubre de 1980 se formó el Frente Farabundo Martí para la Liberación Nacional (FMLN), una coalición de cinco organizaciones guerrilleras de izquierda. Durante los años siguientes, el conflicto enfrentó al gobierno salvadoreño y sus fuerzas armadas contra el FMLN.",
       "El conflicto estuvo relacionado con décadas de desigualdad social, concentración de la tierra, exclusión política y represión. Además, adquirió una dimensión internacional en el contexto de la Guerra Fría: Estados Unidos brindó un amplio respaldo al gobierno salvadoreño, mientras la insurgencia recibió apoyo externo de distintos actores.",
@@ -231,7 +231,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Guerra Civil",
     title: "El asesinato de Óscar Romero",
     date: "24 de marzo de 1980",
-    img: "../assets/media/iglesia-rosario.jpg",
+    img: "../assets/media/sitios/iglesia-rosario.jpg",
     text: [
       "El arzobispo de San Salvador, Óscar Arnulfo Romero, se convirtió en una de las principales voces públicas contra la violencia y la represión. Desde sus homilías denunció asesinatos, desapariciones y abusos cometidos contra la población salvadoreña.",
       "El 24 de marzo de 1980 fue asesinado mientras celebraba misa en la capilla del Hospital de la Divina Providencia, en San Salvador. El lugar se convirtió posteriormente en uno de los principales sitios de memoria relacionados con su vida y martirio.",
@@ -251,7 +251,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Guerra Civil",
     title: "La masacre de la UCA",
     date: "16 de noviembre de 1989",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "En noviembre de 1989, el FMLN lanzó una gran ofensiva militar en distintas zonas del país. En la madrugada del 16 de noviembre, miembros de las Fuerzas Armadas ingresaron al campus de la Universidad Centroamericana José Simeón Cañas (UCA) y asesinaron a seis sacerdotes jesuitas y a dos mujeres.",
       "Entre las víctimas se encontraba Ignacio Ellacuría, rector de la UCA, junto con Ignacio Martín-Baró, Segundo Montes, Amando López, Joaquín López y López y Juan Ramón Moreno. También fueron asesinadas Julia Elba Ramos y su hija Celina Marisela Ramos.",
@@ -271,7 +271,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "Guerra Civil",
     title: "Los Acuerdos de Paz de Chapultepec",
     date: "16 de enero de 1992",
-    img: "../assets/media/casablanca.jpg",
+    img: "../assets/media/sitios/casablanca.jpg",
     text: [
       "El 16 de enero de 1992, el Gobierno de El Salvador y el FMLN firmaron en el Castillo de Chapultepec, en Ciudad de México, los acuerdos que pusieron fin al conflicto armado.",
       "La guerra dejó aproximadamente 75,000 personas fallecidas, miles de desaparecidos y alrededor de un millón de personas desplazadas dentro y fuera del país. Sus consecuencias sociales, económicas y familiares marcaron profundamente a varias generaciones de salvadoreños.",
@@ -291,7 +291,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "El Salvador Actual",
     title: "La posguerra y la democracia",
     date: "1992 – 2019",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "Después de los Acuerdos de Paz, El Salvador inició un proceso de reconstrucción institucional y consolidación democrática. Durante las décadas siguientes se produjo la alternancia en el poder entre ARENA y el FMLN y se realizaron elecciones competitivas.",
       "La etapa de posguerra también estuvo marcada por importantes problemas sociales, entre ellos la migración, la dependencia de las remesas, la desigualdad y el crecimiento de la violencia relacionada con estructuras criminales y pandillas.",
@@ -311,7 +311,7 @@ const HISTORIA_EVENTOS_ES = [
     eraLabel: "El Salvador Actual",
     title: "Un nuevo capítulo",
     date: "2019 – actualidad",
-    img: "../assets/media/Catedral.jpg",
+    img: "../assets/media/sitios/Catedral.jpg",
     text: [
       "En 2019, Nayib Bukele asumió la presidencia de El Salvador, iniciando una nueva etapa política en la que Nuevas Ideas pasó a convertirse en la principal fuerza electoral del país. En 2021, El Salvador aprobó la Ley Bitcoin, convirtiéndose en el primer país del mundo en adoptar Bitcoin como moneda de curso legal junto al dólar estadounidense.",
       "La Ley Bitcoin fue reformada en 2025. A partir de esas reformas, la aceptación de Bitcoin por parte del sector privado pasó a ser voluntaria y se redujo la participación obligatoria del Estado en su utilización. Por ello, la situación actual debe diferenciarse de la legislación original de 2021.",
@@ -474,7 +474,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Military Dictatorships",
     title: "The Hernández Martínez Regime",
     date: "1931 – 1944",
-    img: "../assets/media/historia/palacio-nacional.jpg",
+    img: "../assets/media/sitios/palacio-nacional.jpg",
     text: [
       "Maximiliano Hernández Martínez came to power after the 1931 coup that overthrew President Arturo Araujo. During his long rule he established an authoritarian regime marked by the concentration of power, censorship, and repression of the opposition.",
       "His government maintained a close relationship with dominant economic sectors and developed policies aimed at stabilizing the economy after the global crisis. At the same time, political repression became a defining feature of the regime, especially after the events of 1932.",
@@ -494,7 +494,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Military Dictatorships",
     title: "Military Dominance",
     date: "1944 – 1979",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "After Hernández Martínez's fall, the military continued to hold decisive influence over Salvadoran politics. Over the following decades, various governments were led by Armed Forces officers or were heavily shaped by military power.",
       "During the 1950s and 1960s, processes of economic modernization and industrialization took place, but significant inequalities persisted in land distribution and in access to economic and political opportunities.",
@@ -514,7 +514,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Civil War",
     title: "The 1979 Coup",
     date: "October 15, 1979",
-    img: "../assets/media/Centro Historico.jpg",
+    img: "../assets/media/sitios/Centro Historico.jpg",
     text: [
       "On October 15, 1979, a group of Armed Forces officers overthrew President Carlos Humberto Romero. The coup gave way to a Revolutionary Government Junta that promised political and social reforms.",
       "Political violence, however, continued. Paramilitary groups and security forces were accused of serious human rights violations, while various leftist organizations strengthened their armed and political structures.",
@@ -534,7 +534,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Civil War",
     title: "The Civil War",
     date: "1980 – 1992",
-    img: "../assets/media/Suchitoto.webp",
+    img: "../assets/media/sitios/Suchitoto.webp",
     text: [
       "In October 1980, the Farabundo Martí National Liberation Front (FMLN) was formed, a coalition of five leftist guerrilla organizations. In the years that followed, the conflict pitted the Salvadoran government and its armed forces against the FMLN.",
       "The conflict was rooted in decades of social inequality, land concentration, political exclusion, and repression. It also took on an international dimension in the context of the Cold War: the United States gave broad support to the Salvadoran government, while the insurgency received outside support from various actors.",
@@ -554,7 +554,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Civil War",
     title: "The Assassination of Óscar Romero",
     date: "March 24, 1980",
-    img: "../assets/media/iglesia-rosario.jpg",
+    img: "../assets/media/sitios/iglesia-rosario.jpg",
     text: [
       "The Archbishop of San Salvador, Óscar Arnulfo Romero, became one of the leading public voices against violence and repression. In his homilies he denounced killings, disappearances, and abuses committed against the Salvadoran population.",
       "On March 24, 1980, he was assassinated while celebrating mass in the chapel of the Divine Providence Hospital in San Salvador. The site later became one of the main memorial locations linked to his life and martyrdom.",
@@ -574,7 +574,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Civil War",
     title: "The UCA Massacre",
     date: "November 16, 1989",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "In November 1989, the FMLN launched a major military offensive across different areas of the country. In the early hours of November 16, members of the Armed Forces entered the campus of the José Simeón Cañas Central American University (UCA) and murdered six Jesuit priests and two women.",
       "Among the victims was Ignacio Ellacuría, rector of the UCA, along with Ignacio Martín-Baró, Segundo Montes, Amando López, Joaquín López y López, and Juan Ramón Moreno. Julia Elba Ramos and her daughter Celina Marisela Ramos were also killed.",
@@ -594,7 +594,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "Civil War",
     title: "The Chapultepec Peace Accords",
     date: "January 16, 1992",
-    img: "../assets/media/casablanca.jpg",
+    img: "../assets/media/sitios/casablanca.jpg",
     text: [
       "On January 16, 1992, the Government of El Salvador and the FMLN signed the accords that ended the armed conflict at Chapultepec Castle in Mexico City.",
       "The war left approximately 75,000 people dead, thousands missing, and around a million people displaced within and outside the country. Its social, economic, and family consequences deeply marked several generations of Salvadorans.",
@@ -614,7 +614,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "El Salvador Today",
     title: "The Postwar Period and Democracy",
     date: "1992 – 2019",
-    img: "../assets/media/MUNA.webp",
+    img: "../assets/media/sitios/MUNA.webp",
     text: [
       "After the Peace Accords, El Salvador began a process of institutional reconstruction and democratic consolidation. Over the following decades, power alternated between ARENA and the FMLN, and competitive elections were held.",
       "The postwar period was also marked by major social problems, including migration, dependence on remittances, inequality, and the growth of violence linked to criminal structures and gangs.",
@@ -634,7 +634,7 @@ const HISTORIA_EVENTOS_EN = [
     eraLabel: "El Salvador Today",
     title: "A New Chapter",
     date: "2019 – present",
-    img: "../assets/media/Catedral.jpg",
+    img: "../assets/media/sitios/Catedral.jpg",
     text: [
       "In 2019, Nayib Bukele took office as President of El Salvador, opening a new political era in which Nuevas Ideas became the country's leading electoral force. In 2021, El Salvador passed the Bitcoin Law, becoming the first country in the world to adopt Bitcoin as legal tender alongside the US dollar.",
       "The Bitcoin Law was reformed in 2025. Following those reforms, acceptance of Bitcoin by the private sector became voluntary, and the State's mandatory role in its use was reduced. Because of this, the current situation should be distinguished from the original 2021 legislation.",

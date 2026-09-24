@@ -208,7 +208,7 @@ CRITICAL PLAN RULES:
 1. Strict format: Zero paragraphs, zero introductory texts. Respond DIRECTLY with the numbered list.
 2. Detail level: 3 to 4 concrete activities/stops, each with a one-line description of what to do there and its cost (TOTAL for the whole group, based on the number of people given).
 3. Costs breakdown: After the activities, include separate itemized lines for **🚗 Transporte** (estimated for the whole group, considering distance from the starting point and group size) and **🍽️ Comida** (estimated per meal for the whole group). If food is already covered inside an activity, do not duplicate it in this line.
-4. Totals: End with **Total del grupo** (sum of everything) and **Total por persona** (group total divided by the number of people).
+4. Totals: End with **Total del grupo** and **Total por persona**. These MUST be mathematically correct: **Total del grupo** = the exact sum of every cost listed above (each activity's cost plus Transporte and Comida), added digit by digit, not estimated. **Total por persona** = Total del grupo divided by the number of people, rounded to the nearest dollar. Double-check the arithmetic before answering; a wrong sum is a critical failure.
 5. Exact names: Use EXACTLY the names from this list if included:
 ${RAICES_LANDMARKS_INFO}
 6. Closure: No farewells or recommendations. End immediately right after the per-person total.
@@ -221,7 +221,7 @@ REGLAS CRÍTICAS DEL PLAN:
 1. Formato estricto: Cero párrafos, cero textos introductorios. Responde DIRECTAMENTE con la lista numerada.
 2. Nivel de detalle: De 3 a 4 actividades/paradas concretas, cada una con una línea describiendo qué hacer ahí y su costo (TOTAL para todo el grupo, según el número de personas indicado).
 3. Desglose de costos: Después de las actividades, incluye líneas separadas para **🚗 Transporte** (estimado para todo el grupo, considerando la distancia desde el punto de partida y el número de personas) y **🍽️ Comida** (estimado por comida para todo el grupo). Si la comida ya está incluida en una actividad, no la dupliques en esta línea.
-4. Totales: Termina con **Total del grupo** (suma de todo) y **Total por persona** (total del grupo dividido entre el número de personas).
+4. Totales: Termina con **Total del grupo** y **Total por persona**. Deben ser matemáticamente correctos: **Total del grupo** = la suma exacta de cada costo mencionado arriba (cada actividad más Transporte y Comida), sumada cifra por cifra, no estimada. **Total por persona** = Total del grupo dividido entre el número de personas, redondeado al dólar más cercano. Verifica la suma antes de responder; una suma incorrecta es una falla crítica.
 5. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
 ${RAICES_LANDMARKS_INFO}
 6. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total por persona.
@@ -549,6 +549,32 @@ ${RAICES_LANDMARKS_INFO}
     [data-theme="light"] .rs-login-overlay { background: rgba(255,253,248,0.92); backdrop-filter: blur(4px); }
     [data-theme="light"] .rs-login-overlay .rs-lock-title { color: #113068; }
     [data-theme="light"] .rs-login-overlay .rs-lock-desc { color: rgba(44,38,32,0.7); }
+
+    /* Celular en horizontal: la ventana usaba el mismo alto pensado para
+       vertical (hasta 80% de la pantalla), así que en un celular acostado
+       (poca altura real) tapaba casi toda la pantalla. Acá se vuelve más
+       ancha que alta: aprovecha el ancho disponible y se achica en alto
+       para dejar ver más de lo que hay detrás. */
+    @media (max-height: 480px) and (orientation: landscape) {
+      #rs-chat-window {
+        width: clamp(320px, 92vw, 640px);
+        height: clamp(220px, 78vh, 360px);
+      }
+    }
+
+    /* Celular en vertical: 80% de la pantalla (el alto pensado para
+       escritorio, donde la ventana flota chica en una esquina) es
+       demasiado en un celular normal — la ventana queda pegada casi de
+       punta a punta, incómoda para leer y, sobre todo, para escribir
+       (el teclado le come todavía más espacio visible). Se baja a un
+       alto más manejable y se acerca al borde inferior para dejar ver
+       algo de la página detrás. */
+    @media (max-width: 600px) and (orientation: portrait) {
+      #rs-chat-window {
+        bottom: 84px;
+        height: min(64vh, 520px);
+      }
+    }
   `;
 
   // ==========================================

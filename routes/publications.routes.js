@@ -8,6 +8,7 @@ const uploadToR2 = require('../middleware/upload-to-r2.middleware');
 const rateLimitUploads = require('../middleware/upload-rate-limit.middleware');
 
 const listPublications = require('../business/publication.list');
+const searchPublicationLocations = require('../business/publication.locations');
 const getPublication = require('../business/publication.get');
 const createPublication = require('../business/publication.create');
 const updatePublication = require('../business/publication.update');
@@ -18,6 +19,9 @@ const createComment = require('../business/comment.create');
 const deleteComment = require('../business/comment.delete');
 
 router.get('/api/publications', listPublications);
+// Debe ir antes de '/api/publications/:id' -si no, Express confundiría
+// "locations" con un :id y esta ruta nunca se alcanzaría.
+router.get('/api/publications/locations', searchPublicationLocations);
 router.get('/api/publications/:id', getPublication);
 
 router.post('/api/publications', requireApiAuth, upload.single('image'), rateLimitUploads('publication', 20, 24), compressImage(), uploadToR2('publications', 'pub'), createPublication);

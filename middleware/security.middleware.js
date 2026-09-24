@@ -1,17 +1,12 @@
-/**
- * Middlewares de seguridad "sin dependencias extra":
- *  - securityHeaders: cabeceras HTTP básicas de protección.
- *  - rateLimit(name, opts): limita intentos por IP en memoria (útil contra fuerza bruta
- *    en /login y /register).
- *  - verifyOrigin: rechaza peticiones POST/PUT/PATCH/DELETE cuyo Origin/Referer no
- *    coincida con el host de la app (mitigación CSRF básica).
- */
+// --- Seguridad (A pata, sin librerias pesadas) ---
+// securityHeaders: Mete los headers HTTP de rigor
+// rateLimit: Controla la cantidad de intentos por IP (para que no nos revienten el login)
+// verifyOrigin: Una traba basica de CSRF para rechazar POSTs de otros lados
 
-// Fuentes externas realmente usadas por las vistas: GSAP/Chart.js/Matter.js/html2pdf
-// (cdnjs, jsdelivr, unpkg), Leaflet (unpkg + tiles de OpenStreetMap), Google Fonts,
-// y el iframe de YouTube embebido en recetas. No hay CSS-in-JS con nonce (las vistas
-// son HTML estático), así que 'unsafe-inline' es necesario para los <script>/style
-// inline existentes en las vistas.
+// Acá listamos lo que dejamos pasar (CDNs, Google Fonts, el mapa, etc)
+// Como tenemos vistas estáticas y usamos estilos y scripts en línea en varios lados,
+// tenemos que permitir 'unsafe-inline' ni modo.
+
 const CSP = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com",

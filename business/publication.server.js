@@ -56,6 +56,26 @@ const listPublications = async (currentUser, { location, onlyWithCoords } = {}) 
     return rows.map((row) => sanitizePublication(row, currentUser, likedPublicationIds));
 };
 
+// Ubicaciones de otras publicaciones que coinciden con lo que se está
+// escribiendo en el buscador del formulario. Complementa a Nominatim: cubre
+// lugares que no están en OpenStreetMap (negocios pequeños, restaurantes
+// locales, etc.) en cuanto alguien ya los publicó una vez con su ubicación.
+const searchLocations = async (query) => {
+    const q = typeof query === 'string' ? query.trim() : '';
+    if (q.length < 2) return [];
+
+    // Escapa los comodines de SQL LIKE para que un usuario escribiendo
+    // "50%" o "a_b" no dispare coincidencias raras.
+    const likeSafeQuery = q.slice(0, MAX_LOCATION_LENGTH).replace(/[%_\\]/g, (ch) => `\\${ch}`);
+
+    const rows = await publicationRepository.searchLocations(likeSafeQuery, 8);
+    return rows.map((row) => ({
+        name: row.location,
+        lat: row.lat !== null && row.lat !== undefined ? Number(row.lat) : null,
+        lng: row.lng !== null && row.lng !== undefined ? Number(row.lng) : null
+    }));
+};
+
 const getPublication = async (id_publication, currentUser) => {
     const row = await publicationRepository.findById(id_publication);
 
@@ -221,6 +241,7 @@ const deletePublication = async (id_publication, requestingUser) => {
 
 module.exports = {
     listPublications,
+    searchLocations,
     getPublication,
     createPublication,
     updatePublication,

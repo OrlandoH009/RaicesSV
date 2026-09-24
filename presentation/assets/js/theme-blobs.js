@@ -81,9 +81,19 @@
     // por cada tarjeta/panel dinámico (sitios, gastronomía, eventos) y no es
     // la bienvenida principal de la página.
     const heroSelectors = ['.hero', '.hist-hero', '.leyenda-hero', '.page-hero'];
+    const isMobile = window.innerWidth < 600;
+    // Menos manchas animadas en móvil: cada una es un tween GSAP infinito
+    // corriendo junto a las partículas del hero, filtros blur y demás.
+    const blobCount = isMobile ? 3 : 5;
     heroSelectors.forEach(sel => {
+      // El hero del Inicio ya quita su propio aurora animado en móvil (ver
+      // index.css) por ser la combinación más pesada para el compositor de
+      // Chrome Android — causaba cortes/artefactos de pixeles intermitentes
+      // al hacer scroll. No tiene sentido volver a agregarle manchas propias
+      // aquí encima solo para repetir el mismo problema.
+      if (isMobile && sel === '.hero') return;
       document.querySelectorAll(sel).forEach(el => {
-        const wrap = injectBlobSet(el, 5);
+        const wrap = injectBlobSet(el, blobCount);
         animateBlobs(wrap);
       });
     });

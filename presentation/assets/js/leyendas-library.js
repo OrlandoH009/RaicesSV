@@ -227,7 +227,7 @@ const LEYENDAS_DATA = [
         tag: "Leyenda · Lago de Coatepeque",
         chips: ["Lago de Coatepeque", "Hombre transformado", "Itzqueyé", "Espíritu del lago"],
         origen: "Leyenda popular asociada con el Lago de Coatepeque, en Santa Ana. La tradición relaciona al personaje con Itzqueyé, figura asociada al agua dulce.",
-        img: "../../assets/media/leyenda/tabudo.jpg",
+        img: "../assets/media/leyenda/tabudo.jpg",
         relato: `En el Lago de Coatepeque existe una de las leyendas más conocidas de El Salvador: la historia de El Tabudo. A diferencia de la imagen de un monstruo volcánico que algunas versiones modernas han difundido, el relato tradicional está directamente relacionado con el lago y con un hombre que vivía en sus alrededores.
 
     Según la leyenda, aquel hombre era una persona adinerada que poseía una hermosa propiedad junto al lago. Un día salió a navegar en una canoa y, mientras recorría las aguas, una corriente misteriosa lo arrastró hacia una zona de la que no pudo regresar.

@@ -27,8 +27,12 @@
 
 .hero__bg {
   position: absolute;
-  inset: -4%;
-  background-image: url('../media/Santa Ana Volcan.jpg');
+  /* Margen de sobra generoso: el Ken Burns (scale 1.06-1.16) + el parallax
+     de scroll (yPercent) pueden mover esta capa bastante más de lo que un
+     -4% alcanza a cubrir, dejando ver el borde/el fondo oscuro de .hero
+     detrás (el "corte" visible al hacer scroll o durante el zoom). */
+  inset: -15%;
+  background-image: url('../media/Santa Ana Volcan.webp');
   background-size: cover;
   background-position: center;
   will-change: transform;
@@ -262,6 +266,7 @@
 .hero__title .char {
   display: inline-block;
   opacity: 0;
+  will-change: transform, opacity;
 }
 
 .hero__subtitle {
@@ -529,6 +534,21 @@
   0% { transform: rotate(0deg) scale(0.9); }
   50% { transform: rotate(180deg) scale(1.15); }
   100% { transform: rotate(360deg) scale(0.9); }
+}
+
+/* En celular, el fondo animado (background-position en un elemento ancho)
+   y el filtro drop-shadow repetido en cada punto ◆ son las dos animaciones
+   más pesadas de esta franja para el compositor: obligan a repintar en
+   cada frame y son la causa del lag intermitente al aparecer el marquee.
+   Se mantienen fijas (sin animar) en pantallas chicas; el movimiento
+   lateral del texto (GSAP, vía transform) sigue igual de fluido. */
+@media (max-width: 768px) {
+  .marquee { animation: none; background-position: 0% 50%; }
+  .marquee__group .dot { animation: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; background-position: 0% 50%; }
+  .marquee__group .dot { animation: none; filter: none; }
 }
 
 /* ── Estadísticas animadas ── */
@@ -1133,13 +1153,30 @@
   .home-card:nth-of-type(4) { grid-row: 4; }
   .home-card:nth-of-type(5) { grid-row: 5; }
 
-  /* El hero ocupa justo la pantalla visible al entrar: se alcanza a ver
-     el "Desliza" al fondo, pero nada de la sección de abajo debe asomar
-     todavía. 100vh es un respaldo para navegadores viejos; 100dvh usa el
-     alto real visible en celular (sin la barra de direcciones), que es
-     lo que de verdad evita que el "Desliza" quede recortado o que se
-     alcance a ver el inicio de la siguiente sección. */
-  .hero { height: 100vh; height: 100dvh; min-height: 480px; }
+  /* --hero-vh la fija index-gsap.js con el alto real de la pantalla, pero
+     solo DESPUÉS de que el scroll se detiene (no en cada frame como hacía
+     100dvh) — así el hero sí se ajusta cuando la barra de direcciones
+     terminó de aparecer/desaparecer, sin el recalculo en vivo que se
+     sentía trabado a mitad de gesto. 100vh es el valor de respaldo mientras
+     el JS todavía no corrió o si no está disponible. */
+  .hero { height: 100vh; height: var(--hero-vh, 100vh); min-height: 480px; }
+
+  /* backdrop-filter: blur() sobre capas que se mueven durante el scroll es
+     una causa conocida de "fantasmas"/artefactos de repintado en Chrome
+     Android (el navegador no siempre invalida a tiempo el recorte
+     difuminado, dejando ver un remanente del cuadro anterior superpuesto
+     mientras se hace scroll) — coincide con las cajas duplicadas/"cortadas"
+     que se ven en celular sobre el hero. Se quita el blur en móvil y se
+     compensa con un fondo un poco más sólido para que siga siendo legible. */
+  .hero__eyebrow { backdrop-filter: none; background: rgba(17, 24, 48, .62); }
+  .hero__title-wrap { backdrop-filter: none; }
+  .hero__cta-ghost { backdrop-filter: none; background: rgba(17, 24, 48, .32); }
+  .stat { backdrop-filter: none; }
+  .about__card { backdrop-filter: none; }
+  /* El anillo que late y el brillo que barre el botón principal son dos
+     animaciones infinitas más sobre una capa con overflow:visible — se
+     apagan en móvil por la misma razón que el resto de esta lista. */
+  .hero__cta::before, .hero__cta::after { animation: none; }
 
   .hero__title {
     white-space: normal;
@@ -1156,8 +1193,18 @@
   .hero__rotator { font-size: .95rem; }
   .hero__actions { gap: .6rem; width: 100%; flex-direction: column; }
   .hero__actions > a { width: 100%; max-width: 300px; justify-content: center; }
-  .hero__rays { opacity: .35; }
-  .hero__blob { filter: blur(48px); }
+  /* El aurora (manchas de luz difuminadas moviéndose sin parar) y los rayos
+     giratorios son la combinación más pesada del hero para el compositor de
+     Chrome Android: blur + transform + mix-blend-mode animados a la vez.
+     Es la causa más probable de los "pixeles que se van"/cortes intermitentes
+     que se ven al hacer scroll en celular, así que se quitan directamente en
+     vez de solo reducirlos — el fondo y el contenido se ven bien sin ellos. */
+  .hero__aurora, .hero__rays { display: none; }
+  /* Otra animación infinita corriendo sin parar sobre una capa con sombra:
+     se apaga también en móvil por la misma razón (menos capas animadas a
+     la vez = menos chance de que el compositor de Chrome Android se
+     confunda y deje artefactos visuales durante el scroll). */
+  .hero__title-wrap.shine::before { animation: none; }
   .hero__scroll-cue { bottom: 16px; gap: .35rem; }
   .hero__mouse { width: 20px; height: 32px; }
   .hero__mouse i { animation-name: heroWheelSm; }

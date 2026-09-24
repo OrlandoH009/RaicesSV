@@ -16,10 +16,10 @@ const dbUrlWithoutSslMode = dbUrl.replace(/[?&]ssl-mode=[^&]*/i, '');
 
 let sslConfig;
 if (isAiven) {
-    // El certificado de Aiven no viene firmado por una CA pública conocida por Node.
+    // Aiven nos da un certificado propio que a Node no le gusta por defecto. Toca saltarnos la validacion.
     sslConfig = { rejectUnauthorized: false };
 } else if (isTiDB) {
-    // TiDB Cloud usa certificados de una CA pública, sí se puede verificar la cadena.
+    // TiDB si trae certificado valido de CA publica, asi que aca si activamos la verificacion.
     sslConfig = { minVersion: 'TLSv1.2', rejectUnauthorized: true };
 }
 
