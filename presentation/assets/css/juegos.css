@@ -863,6 +863,25 @@ canvas {
   .controls-diagram-label { font-size: .62rem; }
 }
 
+/* En celulares de pantalla más bien baja (iPhone SE, muchos Android de
+   gama media rondan los 650-720px de alto), la tarjeta de instrucciones
+   —título + texto + diagrama de controles + ejemplos de objetos + reglas
+   + botón— no siempre entra completa y el jugador tiene que darse cuenta
+   por su cuenta de que puede hacer scroll adentro de la tarjeta. Acá se
+   achican los márgenes/tipografía (sin tocar el ancho, que ya se ajusta
+   en los @media de max-width) para que la mayoría de las pantallas de
+   este alto muestren todo sin necesitar ese scroll interno. */
+@media (max-height: 720px) {
+  .overlay-card { padding: 1rem 1.3rem; }
+  .overlay-card h3 { font-size: 1.1rem; margin-bottom: .3rem; }
+  .overlay-card p { font-size: .74rem; line-height: 1.35; margin-bottom: .5rem; }
+  .rules-list { font-size: .74rem; line-height: 1.35; margin-bottom: .5rem; }
+  .rules-list li { margin-bottom: .3rem; }
+  .controls-diagram { margin: .15rem 0 .55rem; padding: .5rem .45rem; }
+  .objetos-ejemplos { margin: .1rem 0 .6rem; gap: .55rem; }
+  .instrucciones-dots { margin: -.2rem 0 .6rem; }
+}
+
 .rules-title {
   text-align: left;
   font-family: var(--font-body);
@@ -1635,9 +1654,9 @@ canvas {
   .overlay-card h3 { font-size: 1.35rem; margin-bottom: .55rem; }
   .overlay-card p { font-size: .95rem; line-height: 1.5; margin-bottom: .9rem; }
 
-  .rules-title { font-size: .8rem; margin-bottom: .55rem; }
-  .rules-list { font-size: .92rem; line-height: 1.5; padding-left: 1.3rem; }
-  .rules-list li { margin-bottom: .6rem; }
+  .rules-title { font-size: .8rem; margin-bottom: .4rem; }
+  .rules-list { font-size: .92rem; line-height: 1.4; padding-left: 1.3rem; }
+  .rules-list li { margin-bottom: .35rem; }
 
   /* Los diagramas de control son la parte más "visual" de las
      instrucciones; en celular son justamente lo que conviene ver grande. */
@@ -1648,10 +1667,16 @@ canvas {
   .control-touch, .control-mouse { width: 7rem; height: 3.4rem; }
   .control-touch-finger, .control-mouse-body { font-size: 1.9rem; }
 
-  .objetos-ejemplos { gap: .8rem; margin: .3rem 0 1.1rem; }
-  .objetos-ejemplos-title { font-size: .76rem; }
-  .objeto-chip { min-width: 3.6rem; font-size: .72rem; padding: .45rem .38rem; }
-  .objeto-chip-icon { font-size: 1.5rem; }
+  /* Esta fila de ejemplos (hasta 6 tarjetitas: 3 buenas + 3 malas) es la
+     que más alto ocupa de toda la pantalla de instrucciones — en celulares
+     de alto normal (iPhone SE, gama media Android, ~650-720px) empujaba
+     las reglas y el botón "Continuar" fuera de la vista de una, obligando
+     a adivinar que había que hacer scroll. Se achica solo esta parte
+     (el texto de reglas y los botones se quedan grandes para leer bien). */
+  .objetos-ejemplos { gap: .5rem; margin: .2rem 0 .7rem; }
+  .objetos-ejemplos-title { font-size: .68rem; }
+  .objeto-chip { min-width: 2.6rem; font-size: .6rem; padding: .3rem .22rem; }
+  .objeto-chip-icon { font-size: 1.05rem; }
 
   .instrucciones-dots { margin: -.1rem 0 1.1rem; gap: .5rem; }
   .instrucciones-dot { width: .6rem; height: .6rem; }
