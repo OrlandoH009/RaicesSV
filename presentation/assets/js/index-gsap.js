@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Menos partículas (y menos tweens infinitos) en móvil: cada una corre
     // 1-2 animaciones GSAP en bucle, y en gama baja eso se nota como jank
     // durante el scroll del hero.
-    const total = isMobileViewport ? 10 : 38;
+    const total = isMobileViewport ? 5 : 38;
     const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
 
     for (let i = 0; i < total; i++) {

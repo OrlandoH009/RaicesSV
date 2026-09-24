@@ -1173,8 +1173,18 @@
   .hero__rotator { font-size: .95rem; }
   .hero__actions { gap: .6rem; width: 100%; flex-direction: column; }
   .hero__actions > a { width: 100%; max-width: 300px; justify-content: center; }
-  .hero__rays { opacity: .35; }
-  .hero__blob { filter: blur(48px); }
+  /* El aurora (manchas de luz difuminadas moviéndose sin parar) y los rayos
+     giratorios son la combinación más pesada del hero para el compositor de
+     Chrome Android: blur + transform + mix-blend-mode animados a la vez.
+     Es la causa más probable de los "pixeles que se van"/cortes intermitentes
+     que se ven al hacer scroll en celular, así que se quitan directamente en
+     vez de solo reducirlos — el fondo y el contenido se ven bien sin ellos. */
+  .hero__aurora, .hero__rays { display: none; }
+  /* Otra animación infinita corriendo sin parar sobre una capa con sombra:
+     se apaga también en móvil por la misma razón (menos capas animadas a
+     la vez = menos chance de que el compositor de Chrome Android se
+     confunda y deje artefactos visuales durante el scroll). */
+  .hero__title-wrap.shine::before { animation: none; }
   .hero__scroll-cue { bottom: 16px; gap: .35rem; }
   .hero__mouse { width: 20px; height: 32px; }
   .hero__mouse i { animation-name: heroWheelSm; }
