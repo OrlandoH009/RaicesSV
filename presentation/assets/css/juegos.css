@@ -1408,7 +1408,12 @@ canvas {
      blanco casi opaco) para que el juego siga viéndose detrás.
      Ver #hud-coasters más abajo para lo que sí es específico de ese
      juego (las barras de progreso). */
-  .hud--overlay { top: .4rem; left: .4rem; right: 102px; gap: .25rem; max-width: none; }
+  /* 102px se quedaba corto contra el ancho real de pausa+pantalla
+     completa+volumen (~190px con estos tamaños de ícono/control), así
+     que en la franja izquierda "Vidas"/"Puntos" terminaban tapados por
+     esos botones. Se corrige el espacio reservado y se achica el control
+     de volumen (ver más abajo) para que además sobre más lugar para el HUD. */
+  .hud--overlay { top: .4rem; left: .4rem; right: 178px; gap: .25rem; max-width: none; }
   .hud--overlay .hud-item {
     background: rgba(17,48,104,.38);
     min-width: 50px;
@@ -1443,9 +1448,9 @@ canvas {
   /* Junto a pausa/pantalla completa (ver juegos-mobile-controls.js) en
      vez de flotar aparte: se achica para que las tres quepan cómodas en
      la franja angosta de la esquina, sin invadir el HUD. */
-  .volume-group { background: rgba(17,48,104,.42); padding: .22rem .4rem; gap: .25rem; }
-  .volume-group input[type="range"] { width: 62px; }
-  .volume-icon { font-size: .85rem; }
+  .volume-group { background: rgba(17,48,104,.42); padding: .18rem .32rem; gap: .2rem; }
+  .volume-group input[type="range"] { width: 46px; }
+  .volume-icon { font-size: .78rem; }
   /* El "agarradero" de la barra de volumen medía 15px: para arrastrarlo
      con el dedo (no con la punta fina de un cursor) se agranda un poco. */
   .volume-group input[type="range"]::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -7px; }
@@ -1563,9 +1568,20 @@ canvas {
 
 @media (max-width: 600px) {
   .game-panel { padding: .7rem .5rem .9rem; }
-  .hud--overlay { right: 102px; max-width: none; gap: .3rem; }
-  .hud--overlay .hud-item { min-width: 56px; padding: .26rem .45rem; font-size: .64rem; }
-  .hud--overlay .hud-item b { font-size: .88rem; }
+  /* Antes esto reservaba 102px para pausa+pantalla completa+volumen, pero
+     esos tres controles miden en verdad ~190px de ancho en un celular
+     angosto (con la barra de instrucciones/dificultad a la vista, que es
+     cuando el volumen se muestra ahí, ver juegos-mobile-controls.js) —
+     el HUD terminaba invadido por los controles, con "Vidas"/"Puntos"
+     tapados. Se achica el control de volumen (ver abajo) y se reserva el
+     espacio real que ocupa. */
+  .hud--overlay { right: 182px; max-width: none; gap: .25rem; }
+  .hud--overlay .hud-item { min-width: 46px; padding: .24rem .35rem; font-size: .6rem; }
+  .hud--overlay .hud-item b { font-size: .84rem; }
+  .canvas-controls { gap: .3rem; }
+  .volume-group { padding: .16rem .3rem; gap: .18rem; }
+  .volume-group input[type="range"] { width: 42px; }
+  .volume-icon { font-size: .72rem; }
 
   .difficulty-buttons, .mode-buttons { flex-direction: column; gap: .5rem; }
   .difficulty-btn, .mode-btn { min-width: auto; width: 100%; padding: .55rem .7rem; font-size: .72rem; }

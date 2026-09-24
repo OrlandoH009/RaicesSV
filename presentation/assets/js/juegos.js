@@ -2659,11 +2659,21 @@ if (window.visualViewport) {
 
   // Garantiza que en cada calle SIEMPRE quede al menos un carril libre de
   // obstáculos: los obstáculos nuevos de una calle solo se agregan al
-  // carril ya "bloqueado" de esa calle (nunca al otro), y ese carril
-  // bloqueado se vuelve a sortear recién cuando la calle queda
-  // completamente despejada — así nunca se puede tapar los 2 carriles a
-  // la vez, pero tampoco es siempre el mismo carril el que está libre.
-  let roadLaneState = { p1: { blockedLocal: null }, p2: { blockedLocal: null } };
+  // carril ya "bloqueado" de esa calle (nunca al otro). Antes ese carril
+  // bloqueado solo se volvía a sortear cuando la calle quedaba
+  // completamente despejada, así que mientras hubiera aunque sea un bache
+  // viejo todavía en pantalla, todo lo nuevo (baches, túmulos, tráfico)
+  // seguía cayendo exactamente en el mismo carril de siempre — se sentía
+  // repetitivo y predecible. Ahora también se resortea solo por tiempo,
+  // sin esperar a que la calle se vacíe del todo, para que el carril
+  // libre vaya cambiando más seguido (más variedad y algo más de exigencia
+  // al tener que reaccionar y cambiarse de carril más a menudo).
+  let roadLaneState = {
+    p1: { blockedLocal: null, switchTicks: 0 },
+    p2: { blockedLocal: null, switchTicks: 0 }
+  };
+  const LANE_SWITCH_TICKS_MIN = 150; // ~2.5s a 60 ticks/s
+  const LANE_SWITCH_TICKS_MAX = 260; // ~4.3s a 60 ticks/s
 
   // Buses y obstáculos más grandes, usan más espacio del carril (afecta
   // tanto el dibujo como el tamaño real de colisión de cada entidad).
@@ -3141,7 +3151,10 @@ if (window.visualViewport) {
   function pickObstacleLane(side){
     const base = side === 'p1' ? 0 : LANES_PER_ROAD;
     const state = roadLaneState[side];
-    if (state.blockedLocal === null) state.blockedLocal = Math.random() < 0.5 ? 0 : 1;
+    if (state.blockedLocal === null) {
+      state.blockedLocal = Math.random() < 0.5 ? 0 : 1;
+      state.switchTicks = LANE_SWITCH_TICKS_MIN + Math.random() * (LANE_SWITCH_TICKS_MAX - LANE_SWITCH_TICKS_MIN);
+    }
     return base + state.blockedLocal;
   }
 
@@ -3196,11 +3209,17 @@ if (window.visualViewport) {
       if (Math.random() < 0.003 && roadObstacleCount(side, ['traffic']) < 1) {
         spawnTraffic(side);
       }
-      // Recién cuando la calle queda completamente despejada se vuelve a
-      // sortear cuál carril es el "bloqueado" — así no es siempre el mismo
-      // lado el que queda libre.
-      if (roadLaneState[side].blockedLocal !== null && roadObstacleCount(side, ['bache', 'tumulo', 'traffic']) === 0) {
-        roadLaneState[side].blockedLocal = null;
+      // El carril "bloqueado" se resortea cuando la calle queda
+      // completamente despejada, o cuando ya pasó un rato (switchTicks),
+      // lo que ocurra primero — así no hace falta esperar a que se vacíe
+      // del todo para que cambie, y el carril libre de cada calle no es
+      // siempre el mismo por mucho tiempo seguido.
+      const state = roadLaneState[side];
+      if (state.blockedLocal !== null) {
+        state.switchTicks--;
+        if (state.switchTicks <= 0 || roadObstacleCount(side, ['bache', 'tumulo', 'traffic']) === 0) {
+          state.blockedLocal = null;
+        }
       }
     });
 
@@ -4190,7 +4209,7 @@ if (window.visualViewport) {
   const tutorialSteps = [
     { action: 'move', text: () => esTactilJuegos
         ? jt('jue.tutorial.mica.move.tap', 'Arrastrá el dedo desde tu personaje para moverte hacia ahí. ¡Probalo!')
-        : jt('jue.tutorial.mica.move.key', 'Usá WASD/flechas, o movete hacia donde apunta el mouse. ¡Probalo!') },
+        : jt('jue.tutorial.mica.move.key', 'Usá WASD o las flechas para moverte. ¡Probalo!') },
     { action: 'tag', text: () => jt('jue.tutorial.mica.tag', 'Vos tenés la mica. Acercate al amiguito y tocalo para pasársela.') }
   ];
 
@@ -4257,9 +4276,11 @@ if (window.visualViewport) {
   // canvas real y se escala para llenar toda la pantalla — la cancha se
   // ve acercada (personajes más grandes) y, como las paredes físicas
   // quedan más cerca entre sí, correr y esconderse cuesta más de verdad
-  // (no es solo cosmético). En celular no se toca: el joystick táctil ya
-  // necesita aprovechar todo el ancho que exige el rotate-gate.
-  const MICA_ZOOM = esTactilJuegos ? 1 : 1.35;
+  // (no es solo cosmético). En celular se usa un zoom más leve que en PC
+  // (el joystick táctil igual necesita bastante ancho por el rotate-gate),
+  // pero sin zoom la cancha quedaba demasiado grande: costaba mucho
+  // alcanzar a alguien y se sentía poco entretenido.
+  const MICA_ZOOM = esTactilJuegos ? 1.22 : 1.35;
   let arenaW = 0, arenaH = 0;
 
   // Canvas resizing. Antes, al entrar en pantalla completa se reusaba la
@@ -4690,36 +4711,6 @@ if (window.visualViewport) {
     return true;
   }
 
-  // ================= MOUSE CONTROL =================
-  let mousePos = null;
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    // Se pasa de coordenadas de pantalla a coordenadas del "mundo" (ver
-    // MICA_ZOOM): los personajes viven en el mundo más chico, así que el
-    // mouse tiene que hablar el mismo idioma para que apuntar funcione.
-    mousePos = { x: (e.clientX - r.left) / MICA_ZOOM, y: (e.clientY - r.top) / MICA_ZOOM };
-  });
-  canvas.addEventListener('mouseleave', () => { mousePos = null; });
-
-  function handleMouseMovement() {
-    if (!player || !mousePos) return false;
-    const dx = mousePos.x - player.position.x;
-    const dy = mousePos.y - player.position.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
-    if (len > 12) {
-      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
-      Body.applyForce(player, player.position, {
-        x: (dx / len) * force,
-        y: (dy / len) * force
-      });
-      player.angleFacing = Math.atan2(dy, dx);
-      clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
-      notifyTutorial('move');
-      return true;
-    }
-    return false;
-  }
-
   function handlePlayerMovement() {
     if (!player) return;
 
@@ -4728,8 +4719,6 @@ if (window.visualViewport) {
         keys['arrowup'] || keys['arrowdown'] || keys['arrowleft'] || keys['arrowright']) {
       // teclado tiene prioridad
     } else if (handleJoystickMovement()) {
-      return;
-    } else if (handleMouseMovement()) {
       return;
     }
     if (keys['w'] || keys['arrowup']) moveY -= 1;
@@ -4741,7 +4730,10 @@ if (window.visualViewport) {
     if (len > 0) {
       const normX = moveX / len;
       const normY = moveY / len;
-      const force = (keys['shift'] || keys[' ']) ? 0.005 : 0.0035;
+      // Antes 0.0035/0.005 (normal/sprint) con techo de velocidad 2.4/3.4:
+      // se sentía demasiado rápido para el tamaño de la cancha. Bajado
+      // para un ritmo más manejable, sin tocar la velocidad de los NPCs.
+      const force = (keys['shift'] || keys[' ']) ? 0.0038 : 0.0027;
 
       Body.applyForce(player, player.position, {
         x: normX * force,
@@ -4750,7 +4742,7 @@ if (window.visualViewport) {
 
       player.angleFacing = Math.atan2(normY, normX);
     }
-    clampVelocity(player, (keys['shift'] || keys[' ']) ? 3.4 : 2.4);
+    clampVelocity(player, (keys['shift'] || keys[' ']) ? 2.7 : 1.9);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -5793,8 +5785,16 @@ if (window.visualViewport) {
   let aimStart = null;   // {x,y} donde empieza el drag
   let aimCurrent = null; // {x,y} posición actual del mouse
   let tiradorSpawnPos = { x: 0, y: 0 }; // posición fuera del círculo donde se spawnea el tirador
-  const MAX_POWER_PX = 180; // máx distancia de drag para potencia máxima
-  const MAX_SPEED = 18;     // velocidad máxima del tirador
+  // Antes hacía falta arrastrar 180px para llegar a potencia máxima, lo que
+  // en celular obligaba a salirse del recuadro del canvas para poder tirar
+  // fuerte. Con un jalón más corto alcanza el máximo sin salir del área
+  // jugable y se siente más cómodo de apuntar.
+  const MAX_POWER_PX = 95; // máx distancia de drag para potencia máxima
+  // Bajado de 18: con el jalón corto (MAX_POWER_PX de arriba) llegar a
+  // potencia máxima era muy fácil, y a 18 de velocidad el tirador salía
+  // disparado con muchísima fuerza para lo poco que había que jalar —
+  // se sentía súper sensible. Se baja la fuerza resultante, no el jalón.
+  const MAX_SPEED = 13;     // velocidad máxima del tirador
   // Separación mínima entre el tirador y el borde del círculo, en radios de
   // canica: la reutilizan tanto el spawn inicial (resetRoundLayout) como
   // isValidTiradorSpot (para permitir reubicarlo tocando cualquier otro
