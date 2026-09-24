@@ -519,7 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.preload = 'auto';
 
     const state = readState();
-    const muted = state.muted === true;
+    // Por defecto la música de fondo permanece silenciada: solo suena si
+    // el usuario la activó explícitamente antes (state.muted === false
+    // guardado tras pulsar el botón de "activar música").
+    const muted = state.muted !== false;
     const volume = typeof state.volume === 'number' ? state.volume : 0.2;
     const savedTime = typeof state.time === 'number' ? state.time : 0;
 
