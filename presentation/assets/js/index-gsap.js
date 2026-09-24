@@ -16,6 +16,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // En celular, mostrar/ocultar la barra de direcciones al hacer scroll
+  // dispara un evento "resize" — por defecto ScrollTrigger reacciona a eso
+  // recalculando TODAS las animaciones de scroll de la página (el reveal de
+  // cada sección, los contadores, el marquee, etc.), lo que se siente como
+  // un freeze/"responsive" a mitad de scroll. Esto le dice que ignore esos
+  // resize verticales chiquitos típicos de móvil y solo recalcule ante un
+  // cambio de tamaño real (rotar el celular, por ejemplo).
+  ScrollTrigger.config({ ignoreMobileResize: true });
+
+  // Alto real del hero en celular: en vez de la unidad CSS 100dvh (que se
+  // recalcula en cada frame mientras la barra de direcciones aparece o
+  // desaparece, sintiéndose como que la página se traba a mitad de scroll),
+  // se fija esto con JS solo cuando el resize ya se detuvo un rato — así el
+  // hero sí termina ajustado a la barra, pero de una sola vez, no en vivo.
+  if (window.innerWidth < 600) {
+    const setHeroVh = () => {
+      document.documentElement.style.setProperty('--hero-vh', window.innerHeight + 'px');
+    };
+    setHeroVh();
+    let heroVhTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(heroVhTimer);
+      heroVhTimer = setTimeout(setHeroVh, 300);
+    });
+  }
+
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ── 2. Hero: partir el título en letras ──
@@ -79,8 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── 3. Hero: partículas temáticas flotantes (doradas, ascuas de volcán y glifos) ── */
   const particleWrap = document.getElementById('heroParticles');
+  const isMobileViewport = window.innerWidth < 600;
   if (particleWrap && !prefersReducedMotion) {
-    const total = window.innerWidth < 600 ? 18 : 38;
+    // Menos partículas (y menos tweens infinitos) en móvil: cada una corre
+    // 1-2 animaciones GSAP en bucle, y en gama baja eso se nota como jank
+    // durante el scroll del hero.
+    const total = isMobileViewport ? 5 : 38;
     const types = ['', 'hero-particle--ember', 'hero-particle--star', 'hero-particle--glyph'];
 
     for (let i = 0; i < total; i++) {
@@ -113,8 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       );
 
-      // Titileo: las estrellas y ascuas parpadean mientras suben
-      if (type === 'hero-particle--star' || type === 'hero-particle--ember') {
+      // Titileo: las estrellas y ascuas parpadean mientras suben (se omite
+      // en móvil: es la segunda animación por partícula y no aporta tanto
+      // en pantallas chicas como el costo que tiene en CPU/batería).
+      if (!isMobileViewport && (type === 'hero-particle--star' || type === 'hero-particle--ember')) {
         gsap.to(p, {
           scale: gsap.utils.random(.5, 1.5),
           duration: gsap.utils.random(1.1, 2.4),
@@ -159,8 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
     .to('.hero__cta-ghost', { opacity: 1, y: 0, scale: 1, duration: .6, ease: 'back.out(2.2)' }, '-=0.45')
     .to('.hero__scroll-cue', { opacity: .85, y: 0, duration: .6 }, '-=0.2');
 
-  // Ken Burns: el fondo nunca se queda quieto, sigue acercándose y paneando
-  if (!prefersReducedMotion) {
+  // Ken Burns: el fondo nunca se queda quieto, sigue acercándose y paneando.
+  // Se omite en móvil: combinado con el parallax de scroll de abajo, mover
+  // esta capa de fondo de dos formas a la vez es lo que sacaba su borde
+  // fuera de encuadre (el "corte") y además nunca se detiene, así que
+  // seguía consumiendo CPU/batería mucho después de que el hero saliera
+  // de la pantalla.
+  if (!prefersReducedMotion && !isMobileViewport) {
     heroTl.add(() => {
       gsap.to('.hero__bg', {
         scale: 1.16,
@@ -238,10 +275,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Parallax del fondo del hero al hacer scroll
-  if (!prefersReducedMotion) {
+  // Parallax del fondo del hero al hacer scroll. Se omite en móvil: es la
+  // causa confirmada del bug de "corte" y traba al hacer scroll en
+  // celular (mueve la capa de fondo a pantalla completa en cada frame de
+  // scroll, y en iOS/Android eso además se recalcula en cada show/hide de
+  // la barra de direcciones). El contenido sigue apareciendo con
+  // .hero__content sin el desvanecido de scroll.
+  if (!prefersReducedMotion && !isMobileViewport) {
+    // yPercent moderado: combinado con el zoom Ken Burns, un valor más alto
+    // puede sacar el borde de la imagen fuera del margen de "inset" de
+    // .hero__bg y dejar ver el fondo oscuro detrás (efecto de "corte").
     gsap.to('.hero__bg', {
-      yPercent: 18,
+      yPercent: 10,
       ease: 'none',
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
     });

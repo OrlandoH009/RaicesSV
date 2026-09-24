@@ -211,6 +211,13 @@ h1, h2, h3, h4, h5, h6, p, a, span, li, button {
 .bg-blob--md { width: 340px; height: 340px; }
 .bg-blob--lg { width: 460px; height: 460px; }
 
+/* blur(80px) animado con transform es caro de repintar en GPUs de gama
+   baja; en móvil se reduce el radio para aliviar el compositor sin perder
+   el efecto de mancha difusa. */
+@media (max-width: 600px) {
+  .bg-blob { filter: blur(40px); }
+}
+
 /* ── Scroll Reveal ── */
 .reveal {
   opacity: 0;
