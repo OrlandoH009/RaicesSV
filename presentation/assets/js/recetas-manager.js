@@ -386,7 +386,7 @@ const recetasData = {
 // ============================================================
 const recetasDataEN = {
   pupusas: {
-    titulo: "Stuffed Pupusas",
+    titulo: "Pupusas Revueltas",
     categoria: "Signature dish",
     porciones: "4-6 people",
     tiempo: "45 min",
@@ -410,7 +410,7 @@ const recetasDataEN = {
     ]
   },
   yuca: {
-    titulo: "Fried Yuca with Chicharrón",
+    titulo: "Yuca Frita con Chicharrón",
     categoria: "Street snack",
     porciones: "4 servings",
     tiempo: "40 min",
@@ -506,7 +506,7 @@ const recetasDataEN = {
     ]
   },
   tamales: {
-    titulo: "Salvadoran Tamales",
+    titulo: "Tamales Salvadoreños",
     categoria: "Christmas tradition",
     porciones: "12-15 tamales",
     tiempo: "2 hours",
@@ -578,7 +578,7 @@ const recetasDataEN = {
     ]
   },
   empanadasplatano: {
-    titulo: "Plantain Empanadas",
+    titulo: "Empanadas de Plátano",
     categoria: "Traditional dessert",
     porciones: "8 empanadas",
     tiempo: "50 min",
@@ -650,7 +650,7 @@ const recetasDataEN = {
     ]
   },
   enchiladas: {
-    titulo: "Salvadoran Enchiladas",
+    titulo: "Enchiladas Salvadoreñas",
     categoria: "Street snack",
     porciones: "6 enchiladas",
     tiempo: "1 hour",
@@ -674,7 +674,7 @@ const recetasDataEN = {
     ]
   },
   nuegadosyuca: {
-    titulo: "Yuca Nuégados",
+    titulo: "Nuégados de Yuca",
     categoria: "Traditional dessert",
     porciones: "20 nuégados",
     tiempo: "1 hour",
@@ -698,7 +698,7 @@ const recetasDataEN = {
     ]
   },
   chilateconnuegados: {
-    titulo: "Chilate with Nuégados",
+    titulo: "Chilate con Nuégados",
     categoria: "Ancestral drink",
     porciones: "6 cups",
     tiempo: "1 hour",
