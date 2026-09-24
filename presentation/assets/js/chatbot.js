@@ -561,6 +561,20 @@ ${RAICES_LANDMARKS_INFO}
         height: clamp(220px, 78vh, 360px);
       }
     }
+
+    /* Celular en vertical: 80% de la pantalla (el alto pensado para
+       escritorio, donde la ventana flota chica en una esquina) es
+       demasiado en un celular normal — la ventana queda pegada casi de
+       punta a punta, incómoda para leer y, sobre todo, para escribir
+       (el teclado le come todavía más espacio visible). Se baja a un
+       alto más manejable y se acerca al borde inferior para dejar ver
+       algo de la página detrás. */
+    @media (max-width: 600px) and (orientation: portrait) {
+      #rs-chat-window {
+        bottom: 84px;
+        height: min(64vh, 520px);
+      }
+    }
   `;
 
   // ==========================================
