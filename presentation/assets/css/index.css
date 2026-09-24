@@ -535,6 +535,21 @@
   100% { transform: rotate(360deg) scale(0.9); }
 }
 
+/* En celular, el fondo animado (background-position en un elemento ancho)
+   y el filtro drop-shadow repetido en cada punto ◆ son las dos animaciones
+   más pesadas de esta franja para el compositor: obligan a repintar en
+   cada frame y son la causa del lag intermitente al aparecer el marquee.
+   Se mantienen fijas (sin animar) en pantallas chicas; el movimiento
+   lateral del texto (GSAP, vía transform) sigue igual de fluido. */
+@media (max-width: 768px) {
+  .marquee { animation: none; background-position: 0% 50%; }
+  .marquee__group .dot { animation: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee { animation: none; background-position: 0% 50%; }
+  .marquee__group .dot { animation: none; filter: none; }
+}
+
 /* ── Estadísticas animadas ── */
 .stats {
   position: relative;
