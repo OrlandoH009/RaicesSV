@@ -7,6 +7,11 @@
   "routes": [
     { "src": "/assets/media/(publications|avatars)/(.*)", "dest": "server.js" },
     {
+      "src": "/assets/(css|js)/(.*)",
+      "dest": "/presentation/assets/$1/$2",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" }
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/presentation/assets/$1",
       "headers": { "cache-control": "public, max-age=604800" }
