@@ -6,3 +6,13 @@ node_modules/
 graphify-out/
 .graphifyignore
 CLAUDE.md
+
+node_modules/
+.env
+.claude
+.vercel
+.env*
+graphify-out/
+.graphifyignore
+CLAUDE.md
+/data/database/
