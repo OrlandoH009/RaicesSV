@@ -1145,6 +1145,19 @@
      alcance a ver el inicio de la siguiente sección. */
   .hero { height: 100vh; height: 100dvh; min-height: 480px; }
 
+  /* backdrop-filter: blur() sobre capas que se mueven durante el scroll es
+     una causa conocida de "fantasmas"/artefactos de repintado en Chrome
+     Android (el navegador no siempre invalida a tiempo el recorte
+     difuminado, dejando ver un remanente del cuadro anterior superpuesto
+     mientras se hace scroll) — coincide con las cajas duplicadas/"cortadas"
+     que se ven en celular sobre el hero. Se quita el blur en móvil y se
+     compensa con un fondo un poco más sólido para que siga siendo legible. */
+  .hero__eyebrow { backdrop-filter: none; background: rgba(17, 24, 48, .62); }
+  .hero__title-wrap { backdrop-filter: none; }
+  .hero__cta-ghost { backdrop-filter: none; background: rgba(17, 24, 48, .32); }
+  .stat { backdrop-filter: none; }
+  .about__card { backdrop-filter: none; }
+
   .hero__title {
     white-space: normal;
     font-size: clamp(1.7rem, 8vw, 2.3rem);
