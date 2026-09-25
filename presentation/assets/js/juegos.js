@@ -89,10 +89,7 @@ function crearDiagramaControles(tipo) {
     case 'move-4dir':
       return esTactilJuegos
         ? `<div class="controls-diagram">${joystick()}<span class="controls-diagram-label">${jt('jue.diagram.joystick', 'Arrastrá para moverte')}</span></div>`
-        : `<div class="controls-diagram">
-             <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
-             <span class="controls-diagram-label">${jt('jue.diagram.move', 'Moverte')}</span>
-           </div>`;
+        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.moveMouse', 'Mové el mouse para caminar hacia ahí')}</span></div>`;
 
     case 'drag-shoot':
       return esTactilJuegos
@@ -1426,10 +1423,16 @@ if (window.visualViewport) {
   // jugador: para ganarle hay que llegar al choque con más velocidad de
   // verdad, no solo esperar a que se acerque.
   const NPC_CHASE_SPEED = 4;
+  // maxBoost es siempre 2.0 (idéntico al techo del jugador) en las tres
+  // dificultades: ambos trompos deben poder llegar a la misma velocidad
+  // máxima. Lo que varía con la dificultad es qué tan seguido/preciso
+  // decide el NPC atacar (reaction/precision/moveChance), no un techo de
+  // velocidad más bajo — si no, el trompo del NPC nunca sería "igual de
+  // rápido" que el del jugador en fácil/medio.
   let gameConfig = {
     npc: {
-      easy:   { precision: 0.25, reaction: 700, moveChance: 0.50, maxBoost: 1.3 },
-      medium: { precision: 0.60, reaction: 360, moveChance: 0.80, maxBoost: 1.65 },
+      easy:   { precision: 0.25, reaction: 700, moveChance: 0.50, maxBoost: 2.0 },
+      medium: { precision: 0.60, reaction: 360, moveChance: 0.80, maxBoost: 2.0 },
       hard:   { precision: 0.95, reaction: 140, moveChance: 1.00, maxBoost: 2.0 }
     }
   };
@@ -4219,8 +4222,11 @@ if (window.visualViewport) {
   // juego (caminata, persecución y huida) solo quienes juegan táctil.
   const MICA_SPEED_MULT = esTactilJuegos ? 0.72 : 1;
 
-  // Input tracking
-  let keys = {};
+  // Input tracking: en escritorio el control es exclusivamente con mouse
+  // (sin teclado) — el personaje camina hacia donde apunta el cursor y
+  // corre mientras se mantiene presionado el clic izquierdo. En táctil se
+  // sigue usando el joystick virtual (ver más abajo).
+  let mouse = { x: 0, y: 0, active: false, sprint: false };
   let touchJoystick = { x: 0, y: 0, active: false };
 
   // ================= MODO TUTORIAL =================
@@ -4230,7 +4236,7 @@ if (window.visualViewport) {
   const tutorialSteps = [
     { action: 'move', text: () => esTactilJuegos
         ? jt('jue.tutorial.mica.move.tap', 'Arrastrá el dedo desde tu personaje para moverte hacia ahí. ¡Probalo!')
-        : jt('jue.tutorial.mica.move.key', 'Usá WASD o las flechas para moverte. ¡Probalo!') },
+        : jt('jue.tutorial.mica.move.mouse', 'Movés el mouse: tu personaje camina hacia donde apunta el cursor. Mantené presionado el clic izquierdo para correr. ¡Probalo!') },
     { action: 'tag', text: () => jt('jue.tutorial.mica.tag', 'Vos tenés la mica. Acercate al amiguito y tocalo para pasársela.') }
   ];
 
@@ -4689,15 +4695,25 @@ if (window.visualViewport) {
     }
   }
 
-  // ================= INPUT HANDLING =================
-  window.addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-    if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase())) {
-      notifyTutorial('move');
-    }
-    if (e.code === 'Space' && running && !paused) {
-      e.preventDefault();
-      // Quick dash boost
+  // ================= INPUT HANDLING (mouse, sin teclado) =================
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    // El mundo del juego se dibuja escalado por MICA_ZOOM (ver setupArena/
+    // resizeCanvas), así que hay que deshacer ese zoom para pasar de
+    // píxeles de pantalla a coordenadas de arena, donde vive player.position.
+    mouse.x = (e.clientX - r.left) / MICA_ZOOM;
+    mouse.y = (e.clientY - r.top) / MICA_ZOOM;
+    mouse.active = true;
+    notifyTutorial('move');
+  });
+  canvas.addEventListener('mouseleave', () => { mouse.active = false; });
+  canvas.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    mouse.sprint = true;
+    // Doble clic = ráfaga rápida en la dirección hacia la que se está
+    // mirando, equivalente al dash que antes disparaba la barra espaciadora.
+    const now = performance.now();
+    if (running && !paused && mouse.lastClickAt && now - mouse.lastClickAt < 320) {
       const pAngle = player.angleFacing || 0;
       Body.applyForce(player, player.position, {
         x: Math.cos(pAngle) * 0.012,
@@ -4705,8 +4721,9 @@ if (window.visualViewport) {
       });
       createParticles(player.position.x, player.position.y, 8);
     }
+    mouse.lastClickAt = now;
   });
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+  window.addEventListener('mouseup', e => { if (e.button === 0) mouse.sprint = false; });
 
   // ================= JOYSTICK VIRTUAL (táctil) =================
   // Antes el dedo arrastraba al jugador hacia el punto exacto tocado en la
@@ -4735,26 +4752,24 @@ if (window.visualViewport) {
   function handlePlayerMovement() {
     if (!player) return;
 
-    let moveX = 0, moveY = 0;
-    if (keys['w'] || keys['a'] || keys['s'] || keys['d'] ||
-        keys['arrowup'] || keys['arrowdown'] || keys['arrowleft'] || keys['arrowright']) {
-      // teclado tiene prioridad
-    } else if (handleJoystickMovement()) {
-      return;
-    }
-    if (keys['w'] || keys['arrowup']) moveY -= 1;
-    if (keys['s'] || keys['arrowdown']) moveY += 1;
-    if (keys['a'] || keys['arrowleft']) moveX -= 1;
-    if (keys['d'] || keys['arrowright']) moveX += 1;
+    // En táctil se usa el joystick virtual; en escritorio el control es
+    // exclusivamente el mouse: el personaje camina hacia donde apunta el
+    // cursor y corre mientras se mantiene presionado el clic izquierdo.
+    if (handleJoystickMovement()) return;
+    if (!mouse.active) return;
 
+    const moveX = mouse.x - player.position.x;
+    const moveY = mouse.y - player.position.y;
     const len = Math.sqrt(moveX * moveX + moveY * moveY);
-    if (len > 0) {
+    // Zona muerta cerca del cursor para que el personaje no tiemble cuando
+    // ya llegó a donde apunta el mouse.
+    if (len > 4) {
       const normX = moveX / len;
       const normY = moveY / len;
       // Antes 0.0035/0.005 (normal/sprint) con techo de velocidad 2.4/3.4:
       // se sentía demasiado rápido para el tamaño de la cancha. Bajado
       // para un ritmo más manejable, sin tocar la velocidad de los NPCs.
-      const force = (keys['shift'] || keys[' ']) ? 0.0038 : 0.0027;
+      const force = mouse.sprint ? 0.0038 : 0.0027;
 
       Body.applyForce(player, player.position, {
         x: normX * force,
@@ -4763,7 +4778,7 @@ if (window.visualViewport) {
 
       player.angleFacing = Math.atan2(normY, normX);
     }
-    clampVelocity(player, (keys['shift'] || keys[' ']) ? 2.7 : 1.9);
+    clampVelocity(player, mouse.sprint ? 2.7 : 1.9);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -5495,7 +5510,7 @@ if (window.visualViewport) {
           ${esTactilJuegos ? `
           <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card4.controlsTap', 'Arrastrá el dedo desde tu personaje para mover el joystick virtual.')}</li>
           ` : `
-          <li class="rule-good"><span class="rule-icon">🎮</span> ${jt('jue.card4.controlsKeys', '<strong>WASD</strong> o <strong>flechas</strong> ⬅️⬆️➡️⬇️ para moverte.')}</li>
+          <li class="rule-good"><span class="rule-icon">🖱️</span> ${jt('jue.card4.controlsMouse', 'Movés el <strong>mouse</strong> y tu personaje camina hacia el cursor · mantené el <strong>clic izquierdo</strong> para correr.')}</li>
           `}
         </ul>
       ` },
@@ -5640,19 +5655,23 @@ if (window.visualViewport) {
   let isGameVisible = false;
   let rafId = null;
 
-  let score = 0, round = 1, shotsLeft = 0, totalRounds = 3;
+  let score = 0, round = 1, shotsLeft = 0, totalRounds = 5;
   let difficulty = null;
   let gamePhase = 'idle'; // idle | aiming | shooting | watching | roundEnd | gameOver
-  // Cantidad fija de canicas en las 3 rondas y en ambas dificultades — solo
+  // Cantidad fija de canicas en las 5 rondas y en ambas dificultades — solo
   // cambian los tiros disponibles.
   const TOTAL_MARBLES = 20;
   let gameConfig = {
     // Mismo tamaño de juego (circleRadiusFactor) en ambos niveles: antes
     // fácil usaba un círculo más grande que difícil, así que no era un
     // cambio de dificultad limpio (también achicaba el área de juego).
-    // La dificultad ahora solo la marca la cantidad de tiros.
-    easy: { shots: 5, circleRadiusFactor: 0.33 },
-    hard: { shots: 4, circleRadiusFactor: 0.33 }
+    // La dificultad ahora solo la marca la cantidad de tiros por ronda.
+    // Antes las 3 rondas daban siempre la misma cantidad de tiros (el texto
+    // decía "cada vez más difícil" pero no era cierto): ahora hay 5 niveles
+    // y cada uno da menos tiros que el anterior, así que de verdad hay que
+    // apuntar mejor a medida que se avanza.
+    easy: { shotsByRound: [7, 6, 6, 5, 4], circleRadiusFactor: 0.33 },
+    hard: { shotsByRound: [5, 5, 4, 4, 3], circleRadiusFactor: 0.33 }
   };
 
   // Tiempo que tarda el jugador en terminar el nivel (todas las rondas de
@@ -6185,7 +6204,7 @@ if (window.visualViewport) {
     } else {
       round++;
       updateHUD();
-      shotsLeft = gameConfig[difficulty].shots;
+      shotsLeft = gameConfig[difficulty].shotsByRound[round - 1];
       showRoundTransition(() => resetRoundLayout());
     }
   }
@@ -6466,7 +6485,7 @@ if (window.visualViewport) {
       ` },
       { html: `
         <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
-          <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 3 rondas, cada vez más difícil · ¡ganá el nivel lo más rápido posible!')}</li>
+          <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 5 rondas con cada vez menos tiros · ¡ganá el nivel lo más rápido posible!')}</li>
           <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
         </ul>
       `, finishLabel: jt('jue.next', 'Siguiente'),
@@ -6480,10 +6499,10 @@ if (window.visualViewport) {
         <p style="font-weight:600;margin-bottom:.4rem;color:#6d28d9;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
         <div class="difficulty-buttons">
           <button class="difficulty-btn easy" id="btn-easy-canicas">
-            ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 tiros')}</small>
+            ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 niveles · empieza con 7 tiros')}</small>
           </button>
           <button class="difficulty-btn hard" id="btn-hard-canicas">
-            ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 4 tiros')}</small>
+            ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 5 niveles · empieza con 5 tiros')}</small>
           </button>
         </div>`);
       animarEntradaInstrucciones(overlayCard);
@@ -6500,7 +6519,7 @@ if (window.visualViewport) {
     forzarPantallaCompleta(canvasWrap, 'landscape');
 
     difficulty = diff;
-    shotsLeft = gameConfig[diff].shots;
+    shotsLeft = gameConfig[diff].shotsByRound[0];
     score = 0; round = 1;
     playedMs = 0;
     particles = [];
@@ -7505,7 +7524,17 @@ if (window.visualViewport) {
     }
 
     // Destination Arrival Check
-    if (distance >= targetDistance && !isArriving) {
+    // "distance" sigue sumando cada tick aunque ya se haya llegado (nada la
+    // frena durante la celebración), así que sigue siendo >= targetDistance
+    // para siempre. Sin el chequeo de isEnteringFiesta/isDancing, apenas
+    // isArriving volvía a false (al pasar a "entrando a la fiesta") esta
+    // condición se volvía a cumplir y reiniciaba isArriving/arrivalTimer de
+    // nuevo — eso a su vez volvía a poner isEnteringFiesta en true una y
+    // otra vez, lo que reiniciaba danceTimer a 260 en cada ciclo. El baile
+    // nunca llegaba a 0 y endRun('completo') no se llamaba jamás: el juego
+    // quedaba trabado en la fiesta para siempre y la pantalla de resultado
+    // nunca aparecía.
+    if (distance >= targetDistance && !isArriving && !isEnteringFiesta && !isDancing) {
       isArriving = true;
       arrivalTimer = 180; // ~3 seconds triumphal sequence
       playSound('bell');
