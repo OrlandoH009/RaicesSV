@@ -1874,7 +1874,14 @@ function ocultarBannerGeo() {
 }
 
 // ── Modal de Instrucciones para Permisos Bloqueados ──
-function mostrarModalInstrucciones() {
+// motivo 'permiso': el navegador tiene el permiso del sitio bloqueado
+// (PERMISSION_DENIED) — pasos para desbloquearlo en el candado de la URL.
+// motivo 'sistema': el permiso del sitio YA está concedido pero
+// getCurrentPosition igual falla (POSITION_UNAVAILABLE) — típicamente
+// porque el interruptor de ubicación del SISTEMA OPERATIVO (Windows,
+// o GeoClue en Linux) está apagado, algo que los pasos de "permiso" no
+// mencionan y dejaban al usuario sin ninguna pista de qué revisar.
+function mostrarModalInstrucciones(motivo = 'permiso') {
   let modal = document.getElementById('geoConsentModal');
   if (!modal) {
     modal = document.createElement('div');
@@ -1882,17 +1889,29 @@ function mostrarModalInstrucciones() {
     modal.className = 'geo-consent-modal';
     document.body.appendChild(modal);
   }
-  
+
+  const esSistema = motivo === 'sistema';
+
   modal.innerHTML = `
     <div class="geo-consent-modal-content">
-      <h3>${tGeo('map.geo.modalTitle', '🔒 Habilitar permisos del navegador')}</h3>
+      <h3>${esSistema
+        ? tGeo('map.geo.modalTitleOs', '📍 Activar la ubicación de tu computadora')
+        : tGeo('map.geo.modalTitle', '🔒 Habilitar permisos del navegador')}</h3>
       <p style="text-align: left; font-size: 0.9rem; margin-bottom: 0.8rem; color: #d0c8b8;">
-        ${tGeo('map.geo.modalDesc', 'Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:')}
+        ${esSistema
+          ? tGeo('map.geo.modalDescOs', 'El sitio ya tiene permiso para usar tu ubicación, pero tu computadora no la está compartiendo. Revisá esto:')
+          : tGeo('map.geo.modalDesc', 'Los permisos están bloqueados en tu navegador. Sigue estos pasos para activarlos:')}
       </p>
       <ol style="text-align: left; font-size: 0.85rem; color: #d0c8b8; padding-left: 1.2rem; line-height: 1.6; margin-bottom: 1.2rem;">
+        ${esSistema ? `
+        <li>${tGeo('map.geo.modalStepOs1', 'Windows: abrí <b>Configuración → Privacidad y seguridad → Ubicación</b> y activá <b>Servicios de ubicación</b>.')}</li>
+        <li>${tGeo('map.geo.modalStepOs2', 'En esa misma pantalla, activá el acceso a la ubicación para tu navegador (Chrome/Edge/Firefox).')}</li>
+        <li>${tGeo('map.geo.modalStepOs3', 'Si estás en una laptop, revisá que no tenga un interruptor físico o de teclado que apague el GPS/Wi-Fi.')}</li>
+        ` : `
         <li>${tGeo('map.geo.modalStep1', 'Haz clic en el icono de <b>candado 🔒</b> o ajustes junto a la URL arriba.')}</li>
         <li>${tGeo('map.geo.modalStep2', 'Busca <b>Permisos del sitio</b> o <b>Ubicación</b>.')}</li>
         <li>${tGeo('map.geo.modalStep3', 'Cambia la opción a <b>Permitir</b>.')}</li>
+        `}
       </ol>
       <div class="geo-consent-buttons">
         <button id="geoRetryBtn" class="geo-consent-btn allow" type="button">${tGeo('map.geo.retryBtn', 'Probar de nuevo')}</button>
@@ -2038,6 +2057,18 @@ function ejecutarGeolocalizacion(centrar = true) {
           mostrarBannerGeo(true);
           if (err2.code === err2.PERMISSION_DENIED) {
             mostrarModalInstrucciones();
+          } else if (err2.code === err2.POSITION_UNAVAILABLE) {
+            // El permiso del sitio puede estar "Permitido" y aun así fallar
+            // acá: en Windows (y en Linux vía GeoClue) hay un interruptor de
+            // ubicación a nivel de SISTEMA OPERATIVO, separado del permiso
+            // del navegador. Si ese interruptor está apagado, el navegador
+            // igual deja pedir el permiso (y lo muestra como concedido),
+            // pero getCurrentPosition falla con POSITION_UNAVAILABLE sin
+            // más detalle — para el usuario "ya está activo" y sin embargo
+            // no encuentra su ubicación. Un toast de 6s no alcanza para
+            // explicar esto, así que se usa el mismo modal de instrucciones
+            // (con pasos específicos para este caso) en vez del genérico.
+            mostrarModalInstrucciones('sistema');
           } else {
             mostrarToast(tGeo('map.geo.noPosition', 'No se pudo obtener tu posición actual.'), 'error');
           }
