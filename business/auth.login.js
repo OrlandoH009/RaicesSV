@@ -1,4 +1,5 @@
 const authService = require('./auth.server');
+const { setLoginNotice } = require('./auth.loginNotice');
 const isSafeRedirect = (path) => {
     if (!path || typeof path !== 'string') return false;
     return path.startsWith('/') && !path.startsWith('//') && !path.includes('http');
@@ -40,9 +41,8 @@ const login = async (req, res) => {
                     return res.status(500).send('No se pudo iniciar sesión. Inténtalo de nuevo.');
                 }
 
-                    //res.redirect(safeRedirect);
-                    // REEMPLAZA CON ESTO:
-                    return res.json({ 
+                    setLoginNotice(req, res, sessionData.name);
+                    return res.json({
                         success: true, 
                         message: 'Sesión iniciada correctamente', 
                         redirect: safeRedirect 
