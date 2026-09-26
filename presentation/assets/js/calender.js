@@ -742,7 +742,7 @@ function initCatalogAndFilters() {
 
         setTimeout(() => {
           currentLimit = 6;
-          loadMoreBtn.textContent = "Mostrar más celebraciones";
+          loadMoreBtn.textContent = t("cal.catalog.loadMore", "Mostrar más celebraciones");
           renderCatalogo(listaEventosFiltrados);
           document.getElementById("resultsCount")?.scrollIntoView({ behavior: "smooth" });
         }, 300);
@@ -781,7 +781,7 @@ function renderCatalogo(eventos) {
   }
 
   if (eventos.length === 0) {
-    catalogGrid.innerHTML = `<div class="empty-state"><p>No se encontraron celebraciones.</p></div>`;
+    catalogGrid.innerHTML = `<div class="empty-state"><p>${t("cal.catalog.empty", "No se encontraron celebraciones.")}</p></div>`;
     if (loadMoreContainer) loadMoreContainer.style.display = "none";
     return;
   }

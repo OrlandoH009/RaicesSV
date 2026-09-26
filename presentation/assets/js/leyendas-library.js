@@ -432,7 +432,7 @@ function crearPortadaHTML(l, index) {
     : `<div class="leyenda-book__placeholder">📖</div>`;
   
   return `
-    <button class="leyenda-book" data-index="${index}" aria-label="Abrir ${l.titulo}">
+    <button class="leyenda-book" data-index="${index}" aria-label="${getTextTranslation('ley.openBook', 'Abrir {title}').replace('{title}', () => getTextTranslation(l.tituloKey, l.titulo))}">
       <div class="leyenda-book__cover">
         ${imgHtml}
         <div class="leyenda-book__grad"></div>

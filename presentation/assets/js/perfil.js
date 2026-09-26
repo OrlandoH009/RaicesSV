@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         avatarPlaceholder.style.display = 'none';
         const img = document.createElement('img');
         img.src = avatarUrl;
-        img.alt = 'Tu foto de perfil';
+        img.alt = t('nav.profilePhotoAlt');
         avatarDropzone.prepend(img);
       }
     } else if (existingImg) {

@@ -45,6 +45,62 @@
   };
 })();
 
+(function () {
+  const COOKIE = 'sr_login_notice';
+
+  function consumeLoginNotice() {
+    const entry = document.cookie.split('; ').find((c) => c.startsWith(COOKIE + '='));
+    if (!entry) return;
+    document.cookie = COOKIE + '=; Max-Age=0; path=/; SameSite=Lax';
+
+    let name = '';
+    try {
+      name = decodeURIComponent(entry.slice(COOKIE.length + 1)).trim();
+    } catch {
+      name = '';
+    }
+    if (name === '1') name = '';
+
+    let lang = 'es';
+    if (window.SRi18n) {
+      lang = window.SRi18n.getLang();
+    } else {
+      try {
+        lang = localStorage.getItem('sr_lang') === 'en' ? 'en' : 'es';
+      } catch {
+        lang = 'es';
+      }
+    }
+
+    const fallbacks = {
+      es: {
+        named: '¡Hola, {name}! Iniciaste sesión correctamente.',
+        plain: 'Iniciaste sesión correctamente.'
+      },
+      en: {
+        named: 'Hi, {name}! You signed in successfully.',
+        plain: 'You signed in successfully.'
+      }
+    }[lang === 'en' ? 'en' : 'es'];
+
+    const tr = (key, fallback) => {
+      const value = window.SRi18n ? window.SRi18n.t(key, lang) : null;
+      return value && value !== key ? value : fallback;
+    };
+
+    const message = name
+      ? tr('login.success_toast_named', fallbacks.named).replace('{name}', () => name)
+      : tr('login.success_toast', fallbacks.plain);
+    window.showToast(message, 'success');
+  }
+
+  if (document.readyState === 'complete') {
+    consumeLoginNotice();
+  } else {
+    document.addEventListener('DOMContentLoaded', consumeLoginNotice);
+  }
+})();
+
 /* ── Overlay de carga al navegar entre páginas ──
    El sitio es multi-página (cada sección es un .html distinto, cargado
    con recarga completa del navegador vía <a href>). Sin ninguna señal
@@ -208,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
           <span id="themeSwitchText">Modo oscuro</span>
         </span>
-        <button type="button" class="theme-switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Cambiar entre modo claro y oscuro">
+        <button type="button" class="theme-switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Cambiar entre modo claro y oscuro" data-i18n-attr="aria-label:admin.header.themeAria">
           <span class="theme-switch__thumb">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeSwitchIcon"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
           </span>
@@ -317,6 +373,57 @@ document.addEventListener('DOMContentLoaded', () => {
   const authContainer = document.querySelector('.drawer-auth');
   const showNotice = (message, type = 'success') => window.showToast(message, type);
 
+  const NOTICE_FALLBACKS = {
+    es: {
+      'notice.logged_out': 'Sesión cerrada correctamente.',
+      'notice.logout_error': 'No se pudo cerrar la sesión.',
+      'notice.account_deleted': 'Tu cuenta fue eliminada correctamente.',
+      'login.account_suspended': 'Tu cuenta ha sido suspendida. Contacta a un administrador.',
+      'login.google_error_no_email': 'No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.',
+      'music.unmute': 'Activar música de fondo',
+      'music.mute': 'Silenciar música de fondo',
+      'music.volume': 'Volumen de la música de fondo',
+      'nav.profilePhotoAlt': 'Tu foto de perfil'
+    },
+    en: {
+      'notice.logged_out': 'You have been logged out successfully.',
+      'notice.logout_error': 'Could not log out.',
+      'notice.account_deleted': 'Your account was deleted successfully.',
+      'login.account_suspended': 'Your account has been suspended. Please contact an administrator.',
+      'login.google_error_no_email': "We couldn't get your email from Google. Check the permissions you granted and try again.",
+      'music.unmute': 'Turn on background music',
+      'music.mute': 'Mute background music',
+      'music.volume': 'Background music volume',
+      'nav.profilePhotoAlt': 'Your profile photo'
+    }
+  };
+
+  const noticeText = (key) => {
+    let lang = 'es';
+    if (window.SRi18n) {
+      lang = window.SRi18n.getLang();
+    } else {
+      try {
+        lang = localStorage.getItem('sr_lang') || 'es';
+      } catch {
+        lang = 'es';
+      }
+    }
+    lang = lang === 'en' ? 'en' : 'es';
+    const value = window.SRi18n ? window.SRi18n.t(key, lang) : null;
+    return value && value !== key ? value : NOTICE_FALLBACKS[lang][key];
+  };
+
+  document.addEventListener('langchange', () => {
+    const toggle = document.getElementById('musicToggle');
+    if (toggle) {
+      const isMuted = toggle.getAttribute('aria-pressed') === 'false';
+      toggle.setAttribute('aria-label', noticeText(isMuted ? 'music.unmute' : 'music.mute'));
+    }
+    const slider = document.getElementById('volumeSlider');
+    if (slider) slider.setAttribute('aria-label', noticeText('music.volume'));
+  });
+
   const renderAuthMenu = async (overrideUser) => {
     if (!authContainer) return;
 
@@ -349,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (drawerAvatar) {
           drawerAvatar.innerHTML = user?.avatarUrl
-            ? `<img src="${user.avatarUrl}" alt="Tu foto de perfil" style="width:100%;height:100%;object-fit:cover;" />`
+            ? `<img src="${user.avatarUrl}" alt="${noticeText('nav.profilePhotoAlt')}" style="width:100%;height:100%;object-fit:cover;" />`
             : defaultAvatarSVG;
         }
 
@@ -419,26 +526,27 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         credentials: 'same-origin'
       });
+      if (!response.ok) throw new Error('logout failed');
       const data = await response.json().catch(() => ({}));
-      showNotice(data.message || 'Sesión cerrada correctamente');
+      showNotice(noticeText('notice.logged_out'));
       window.location.href = data.redirect || '/login.html?loggedout=1';
     } catch (error) {
-      showNotice('No se pudo cerrar la sesión', 'error');
+      showNotice(noticeText('notice.logout_error'), 'error');
     }
   });
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('loggedout') === '1') {
-    showNotice('Sesión cerrada correctamente');
+    showNotice(noticeText('notice.logged_out'));
   }
   if (params.get('cuentaEliminada') === '1') {
-    showNotice('Tu cuenta fue eliminada correctamente');
+    showNotice(noticeText('notice.account_deleted'));
   }
   if (params.get('suspendido') === '1') {
-    showNotice('Tu cuenta ha sido suspendida. Contacta a un administrador.', 'error');
+    showNotice(noticeText('login.account_suspended'), 'error');
   }
   if (params.get('google_error') === 'no_email') {
-    showNotice('No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.', 'error');
+    showNotice(noticeText('login.google_error_no_email'), 'error');
   }
 
   /* ── Verificar protección de rutas ── */
@@ -555,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconOn = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
     const iconOff = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>';
     musicToggle.innerHTML = muted ? iconOff : iconOn;
-    musicToggle.setAttribute('aria-label', muted ? 'Activar música de fondo' : 'Silenciar música de fondo');
+    musicToggle.setAttribute('aria-label', noticeText(muted ? 'music.unmute' : 'music.mute'));
     musicToggle.setAttribute('aria-pressed', muted ? 'false' : 'true');
     musicControls.appendChild(musicToggle);
 
@@ -567,14 +675,14 @@ document.addEventListener('DOMContentLoaded', () => {
     volumeSlider.max = '1';
     volumeSlider.step = '0.01';
     volumeSlider.value = volume;
-    volumeSlider.setAttribute('aria-label', 'Volumen de la música de fondo');
+    volumeSlider.setAttribute('aria-label', noticeText('music.volume'));
     volumeSlider.className = 'volume-slider';
     musicControls.appendChild(volumeSlider);
 
     function setMuted(next) {
       audio.muted = next;
       musicToggle.innerHTML = next ? iconOff : iconOn;
-      musicToggle.setAttribute('aria-label', next ? 'Activar música de fondo' : 'Silenciar música de fondo');
+      musicToggle.setAttribute('aria-label', noticeText(next ? 'music.unmute' : 'music.mute'));
       musicToggle.setAttribute('aria-pressed', next ? 'false' : 'true');
       writeState({ muted: next });
 

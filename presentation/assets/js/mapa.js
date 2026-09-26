@@ -669,14 +669,14 @@ const tileLayer = L.tileLayer('/api/tiles/{z}/{x}/{y}{r}.png', {
   loadingDiv.className = 'mapa-loading';
   loadingDiv.innerHTML =
     '<div class="mapa-loading__spinner"></div>' +
-    '<div class="mapa-loading__text">Cargando mapa...</div>';
+    '<div class="mapa-loading__text" data-i18n="map.loading">Cargando mapa...</div>';
   mapContainer.appendChild(loadingDiv);
 
   const errorDiv = document.createElement('div');
   errorDiv.className = 'mapa-error';
   errorDiv.innerHTML =
-    '<div class="mapa-error__text">No se pudo cargar el mapa. Verifica tu conexión a internet.</div>' +
-    '<button type="button" class="mapa-error__retry">Reintentar</button>';
+    '<div class="mapa-error__text" data-i18n="map.loadError">No se pudo cargar el mapa. Verifica tu conexión a internet.</div>' +
+    '<button type="button" class="mapa-error__retry" data-i18n="map.retry">Reintentar</button>';
   mapContainer.appendChild(errorDiv);
 
   let tileLoadCount = 0;
@@ -1439,7 +1439,11 @@ function actualizarListaResultados(categoria, query) {
     });
   } else if (query && resultados.length === 0) {
     container.style.display = 'block';
-    list.innerHTML = `<li class="search-results-empty">No se encontraron lugares con "${query}"</li>`;
+    const emptyItem = document.createElement('li');
+    emptyItem.className = 'search-results-empty';
+    emptyItem.textContent = tGeo('map.searchNoResults', 'No se encontraron lugares con "{q}"').replace('{q}', () => query);
+    list.innerHTML = '';
+    list.appendChild(emptyItem);
   } else {
     container.style.display = 'none';
   }
@@ -1615,8 +1619,8 @@ document.addEventListener("langchange", (e) => {
         <p class="popup-cat" style="color: var(--gold);">📍 ${escapeHtml(pub.location)}</p>
         <h3 class="popup-title">${escapeHtml(pub.title)}</h3>
         <p class="popup-desc">${escapeHtml(pub.description)}</p>
-        <p class="popup-pub-author">Por ${escapeHtml(pub.author?.name || 'Usuario')}</p>
-        <a class="popup-pub-link" href="publicaciones.html" target="_self">Ver todas las publicaciones →</a>
+        <p class="popup-pub-author">${escapeHtml(tGeo('map.popupBy', 'Por {name}').replace('{name}', () => pub.author?.name || tGeo('map.popupUser', 'Usuario')))}</p>
+        <a class="popup-pub-link" href="publicaciones.html" target="_self">${escapeHtml(tGeo('map.popupAllPubs', 'Ver todas las publicaciones →'))}</a>
       </div>
     `;
   }
@@ -1823,7 +1827,9 @@ const btnCentrar = document.getElementById('btn-mi-ubicacion');
 // ── Inyectar estilos (marcador, banner y modal) ──
 // ── Traducción de los textos de geolocalización (toast, banner y modal) ──
 function tGeo(key, fallback) {
-  return window.SRi18n ? window.SRi18n.t(key, window.SRi18n.getLang()) : fallback;
+  if (!window.SRi18n) return fallback;
+  const value = window.SRi18n.t(key, window.SRi18n.getLang());
+  return value && value !== key ? value : fallback;
 }
 
 // ── Toast Notificador ──

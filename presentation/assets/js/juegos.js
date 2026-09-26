@@ -863,8 +863,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés atrapar pupusas!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.pupusa', '¡Ya sabés atrapar pupusas!')}</h3>
+      <p>${jt('jue.tutorial.doneText.pupusa', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-pupusa">🫓 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-pupusa').onclick = showDifficultySelector;
@@ -1491,8 +1491,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés pelear con el trompo!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la batalla de verdad: elegí el modo de juego.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.trompos', '¡Ya sabés pelear con el trompo!')}</h3>
+      <p>${jt('jue.tutorial.doneText.trompos', 'Ahora vamos a la batalla de verdad: elegí el modo de juego.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-trompos">⚡ ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-trompos').onclick = showModeSelector;
@@ -2892,8 +2892,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés manejar el bus!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la carrera de verdad: elegí la distancia y la dificultad del rival.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.coasters', '¡Ya sabés manejar el bus!')}</h3>
+      <p>${jt('jue.tutorial.doneText.coasters', 'Ahora vamos a la carrera de verdad: elegí la distancia y la dificultad del rival.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-coasters">🚌 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-coasters').onclick = showDistanceSelector;
@@ -4359,8 +4359,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar a la mica!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la ronda de verdad: elegí la duración.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.mica', '¡Ya sabés jugar a la mica!')}</h3>
+      <p>${jt('jue.tutorial.doneText.mica', 'Ahora vamos a la ronda de verdad: elegí la duración.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-mica">🏃 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-mica').onclick = showTimeSelector;
@@ -5826,8 +5826,8 @@ if (window.visualViewport) {
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     overlayCard.innerHTML = `
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar canicas!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.canicas', '¡Ya sabés jugar canicas!')}</h3>
+      <p>${jt('jue.tutorial.doneText.canicas', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-canicas">🔮 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `;
     overlay.classList.remove('hidden');
@@ -7060,9 +7060,9 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés correr el Torito!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la corrida de verdad: elegí tu destino y la dificultad.')}</p>
-      <button class="btn-primary" id="btn-tutorial-done-torito">${jt('jue.tutorial.playReal', '🐂 Jugar de verdad')}</button>
+      <h3>${jt('jue.tutorial.doneTitle.torito', '¡Ya sabés correr el Torito!')}</h3>
+      <p>${jt('jue.tutorial.doneText.torito', 'Ahora vamos a la corrida de verdad: elegí tu destino y la dificultad.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-torito">🐂 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-torito').onclick = showDistanceSelector;
   }
