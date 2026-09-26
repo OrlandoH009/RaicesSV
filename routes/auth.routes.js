@@ -26,14 +26,14 @@ router.get('/auth/google/callback', (req, res, next) => {
             if (/suspendida/i.test(err.message)) {
                 return res.redirect('/login.html?suspendido=1');
             }
-            if (err.expose === true) {
+            if (err.code === 'NO_EMAIL') {
                 return res.redirect('/login.html?google_error=no_email');
             }
-            console.error('Error en el callbach de google:', err);
-            return res.redirect('/login.html');
+            console.error('Error en el callback de google:', err);
+            return res.redirect('/login.html?google_error=server');
         }
         if (!user) {
-            return res.redirect('/login.html');
+            return res.redirect('/login.html?google_error=cancelled');
         }
         req.user = user;
         next();

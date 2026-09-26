@@ -189,6 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (googleError === 'no_email') {
     showMessage(tt('login.google_error_no_email', 'No se pudo obtener tu correo de Google. Verifica los permisos otorgados e inténtalo de nuevo.'));
+  } else if (googleError === 'server') {
+    showMessage(tt('login.error_generic', 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.'));
+  } else if (googleError === 'cancelled') {
+    showMessage(tt('login.google_cancelled', 'Se canceló el inicio de sesión con Google.'), false);
   } else if (isSuspended === '1') {
     showMessage(tt('login.account_suspended', 'Tu cuenta ha sido suspendida. Contacta a un administrador.'));
   }
