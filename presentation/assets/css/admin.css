@@ -1234,6 +1234,7 @@ body.admin-drawer-open { overflow: hidden; }
   justify-content: center;
   line-height: 1;
 }
+.admin-nav__badge[hidden] { display: none; }
 .admin-nav__item.is-active .admin-nav__badge {
   background: var(--admin-danger);
   color: #fff;
