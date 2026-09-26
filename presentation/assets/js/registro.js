@@ -193,8 +193,26 @@ document.addEventListener('DOMContentLoaded', () => {
     messageBox.style.display = 'block';
   };
 
+  const submitBtn = form.querySelector('[type="submit"]');
+  let isSubmitting = false;
+
+  const setSubmitting = (busy) => {
+    isSubmitting = busy;
+    if (!submitBtn) return;
+    submitBtn.disabled = busy;
+    submitBtn.textContent = busy
+      ? tt('register.submitting', 'Creando cuenta...')
+      : tt('register.submit_btn', 'Crear mi cuenta');
+  };
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (isSubmitting) return;
+
+    if (messageBox) {
+      messageBox.textContent = '';
+      messageBox.style.display = 'none';
+    }
 
     const formData = new FormData(form);
     const params = new URLSearchParams(window.location.search);
@@ -224,6 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
       redirect: targetRedirect
     };
 
+    setSubmitting(true);
+    const startedAt = Date.now();
+    const waitMinimum = () => new Promise((resolve) => {
+      window.setTimeout(resolve, Math.max(0, 450 - (Date.now() - startedAt)));
+    });
+
     try {
       const response = await fetch('/register', {
         method: 'POST',
@@ -250,9 +274,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const text = (data && (data.message || data.error)) || rawText;
+      await waitMinimum();
+      setSubmitting(false);
       showMessage(text || tt('register.error_generic', 'No se pudo crear la cuenta. Inténtalo de nuevo.'));
 
     } catch (error) {
+      await waitMinimum();
+      setSubmitting(false);
       showMessage(tt('register.error_server', 'Ocurrió un error de conexión. Inténtalo de nuevo.'));
     }
   });
