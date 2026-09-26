@@ -1147,6 +1147,21 @@ canvas {
   color: var(--white);
 }
 
+/* Pantalla de resultado de Torito Pinto: más compacta que la del resto de
+   juegos (ver .result-* compartidos más arriba). Se apunta con el ID del
+   overlayCard de este juego en particular (#overlay-card-torito, ver
+   juegos.js) para no afectar la pantalla de resultado de los otros 5
+   juegos, que comparten las mismas clases .result-*. El selector con ID
+   gana por especificidad sobre los .result-* de los @media de más abajo
+   sin importar el orden, así que un solo bloque alcanza para achicarla
+   en escritorio, tablet y celular. */
+#overlay-card-torito .result-comic-img { width: min(120px, 38%); margin: 0 auto .35rem; }
+#overlay-card-torito .result-title { font-size: 1.1rem; margin-bottom: .35rem; }
+#overlay-card-torito .overlay-score { font-size: 1.5rem; margin: .05rem 0 .5rem; }
+#overlay-card-torito .result-msg { font-size: .85rem; line-height: 1.35; margin-bottom: .5rem; }
+#overlay-card-torito .result-stats-grid { font-size: .72rem; gap: 6px; margin: 8px 0; padding: 6px; }
+#overlay-card-torito .overlay-best-score { font-size: .8rem; margin: -.25rem 0 .6rem; }
+
 /* ── Botones de dificultad ── */
 .difficulty-buttons {
   display: flex;
@@ -1723,7 +1738,7 @@ canvas {
   .result-title { font-size: 1.4rem; }
   .result-msg { font-size: .95rem; }
   .result-stats-grid { font-size: .88rem; gap: 10px; padding: 12px 10px; }
-  .result-comic-img { width: min(200px, 60%); }
+  .result-comic-img { width: min(110px, 34%); }
 }
 
 /* ── DISEÑO DE TARJETAS (PORTADAS) ── */

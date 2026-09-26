@@ -1689,7 +1689,11 @@ if (window.visualViewport) {
   // "ganar" el choque por espameo. Mientras este timer está activo para un
   // trompo, se deja que la velocidad del rebote se sienta de verdad.
   let knockbackTimer1 = 0, knockbackTimer2 = 0;
-  const KNOCKBACK_MS = 260;
+  // Subido de 260 a 480: los trompos tardan más en recomponerse después de
+  // un choque antes de que el jugador/NPC recupere el control, para que la
+  // animación de impacto se sienta más real (un golpe de verdad aturde un
+  // rato) en vez de poder volver a empujar casi de inmediato.
+  const KNOCKBACK_MS = 480;
 
   const bgMusicTrompos = document.getElementById('bgMusic-trompos');
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
@@ -4307,11 +4311,6 @@ if (window.visualViewport) {
   // flechas, Shift para correr). En táctil se sigue usando el joystick
   // virtual (ver más abajo).
   let keys = {};
-  // Vector de movimiento suavizado: en vez de saltar de golpe a la
-  // dirección apretada (el vaivén típico de WASD), se interpola hacia el
-  // objetivo cuadro a cuadro para que arrancar/frenar/girar se sienta
-  // fluido, como un stick analógico, en vez de instantáneo.
-  let smoothMoveVec = { x: 0, y: 0 };
   let touchJoystick = { x: 0, y: 0, active: false };
 
   // ================= MODO TUTORIAL =================
@@ -4830,35 +4829,36 @@ if (window.visualViewport) {
     if (keys['s'] || keys['arrowdown']) rawY += 1;
     if (keys['a'] || keys['arrowleft']) rawX -= 1;
     if (keys['d'] || keys['arrowright']) rawX += 1;
+    if (rawX === 0 && rawY === 0) return;
+
     const rawLen = Math.sqrt(rawX * rawX + rawY * rawY);
-    const targetX = rawLen > 0 ? rawX / rawLen : 0;
-    const targetY = rawLen > 0 ? rawY / rawLen : 0;
+    const dirX = rawX / rawLen;
+    const dirY = rawY / rawLen;
 
-    // Suavizado tipo joystick (ver smoothMoveVec): el vector interpola
-    // hacia la dirección apretada en vez de saltar de golpe, así que su
-    // magnitud (0..1) sirve de "cuánto tilt" tiene el stick — igual que
-    // handleJoystickMovement usa la distancia al centro del joystick
-    // táctil — dando una rampa de arranque/frenado en vez de un tope de
-    // velocidad instantáneo.
-    smoothMoveVec.x += (targetX - smoothMoveVec.x) * 0.22;
-    smoothMoveVec.y += (targetY - smoothMoveVec.y) * 0.22;
+    // Antes la dirección pasaba por un vector interpolado cuadro a cuadro
+    // (smoothMoveVec) antes de aplicar la fuerza, lo que sumaba un retraso
+    // extra al girar/frenar además de la inercia que ya da Matter — se
+    // sentía más lento y "pesado" para esquivar de lado a lado que los
+    // NPCs, que apuntan directo hacia su objetivo cada cuadro (ver
+    // updateNPCs: angleFacing = atan2(...) sin suavizado) y solo dependen
+    // de esa misma inercia física para verse fluidos. Ahora el jugador
+    // apunta directo a la tecla presionada igual que ellos, así el único
+    // suavizado que queda es el de la física (idéntico al de los NPCs).
+    player.angleFacing = Math.atan2(dirY, dirX);
 
-    const len = Math.sqrt(smoothMoveVec.x * smoothMoveVec.x + smoothMoveVec.y * smoothMoveVec.y);
-    if (len > 0.03) {
-      const sprint = keys['shift'];
-      // Antes 0.0035/0.005 (normal/sprint) con techo de velocidad 2.4/3.4:
-      // se sentía demasiado rápido para el tamaño de la cancha. Bajado
-      // para un ritmo más manejable, sin tocar la velocidad de los NPCs.
-      const force = sprint ? 0.0038 : 0.0027;
+    const sprint = keys['shift'];
+    // Mismo orden de magnitud de fuerza/tope de velocidad que usan los NPCs
+    // al perseguir/huir (chaseForce/fleeForce 0.0022, clamp 2.4-2.5) para
+    // que caminar/correr con teclado rinda igual de ágil que ellos.
+    const force = (sprint ? 0.0038 : 0.0027) * MICA_SPEED_MULT;
 
-      Body.applyForce(player, player.position, {
-        x: (smoothMoveVec.x / len) * force * len,
-        y: (smoothMoveVec.y / len) * force * len
-      });
+    Body.applyForce(player, player.position, {
+      x: dirX * force,
+      y: dirY * force
+    });
 
-      player.angleFacing = Math.atan2(smoothMoveVec.y, smoothMoveVec.x);
-      clampVelocity(player, (sprint ? 2.7 : 1.9) * len);
-    }
+    clampVelocity(player, (sprint ? 2.7 : 1.9) * MICA_SPEED_MULT);
+    notifyTutorial('move');
   }
 
   // ================= AI UPDATE LOOP =================
@@ -6981,8 +6981,8 @@ if (window.visualViewport) {
   // seguido aparecen los obstáculos (carreta/agua) y los power-ups
   // (silbador/cuetillo/pupusa), ver spawnEntities() más abajo.
   const gameConfig = {
-    easy: { baseSpeed: 5.6, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 8.8 },
-    hard: { baseSpeed: 5.6, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 8.8 }
+    easy: { baseSpeed: 7.8, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 10 },
+    hard: { baseSpeed: 7.8, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 10 }
   };
 
   const lanesCount = 3;
@@ -7007,7 +7007,7 @@ if (window.visualViewport) {
   let arrivalTimer = 0;
   let isEnteringFiesta = false;
   let fiestaTransTimer = 0;
-  const FIESTA_TRANS_DURATION = 70; // ~1.17s: da tiempo a ver al torito caminar y entrar por la puerta antes de revelar la fiesta
+  const FIESTA_TRANS_DURATION = 50; // ~0.83s: da tiempo a ver al torito caminar y entrar por la puerta antes de revelar la fiesta
   let isDancing = false;
   let danceTimer = 0;
 
@@ -7622,13 +7622,13 @@ if (window.visualViewport) {
 
     lane = Math.floor(Math.random() * lanesCount);
     // Carreta obstacle — escaso en fácil, mucho más seguido y denso en difícil
-    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.011 : 0.004) && countBodies('carreta') < (isHard ? 3 : 2)) {
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.015 : 0.004) && countBodies('carreta') < (isHard ? 4 : 2)) {
       spawnCarreta(lane);
     }
 
     lane = Math.floor(Math.random() * lanesCount);
     // Balde de agua obstacle — escaso en fácil, mucho más seguido y denso en difícil
-    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.01 : 0.003) && countBodies('agua') < (isHard ? 3 : 2)) {
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.014 : 0.003) && countBodies('agua') < (isHard ? 4 : 2)) {
       spawnAgua(lane);
     }
 
@@ -7819,7 +7819,7 @@ if (window.visualViewport) {
     // nunca aparecía.
     if (distance >= targetDistance && !isArriving && !isEnteringFiesta && !isDancing) {
       isArriving = true;
-      arrivalTimer = 180; // ~3 seconds triumphal sequence
+      arrivalTimer = 100; // ~1.67s triumphal sequence (antes 180/~3s: la pantalla de resultado tardaba de más en aparecer)
       playSound('bell');
       showSlangCallout(jt('jue.card6.calloutArrived', '⛪ ¡LLEGASTE AL ATRIO!'), canvas.width / 2, canvas.height * 0.35);
     }
@@ -7850,7 +7850,7 @@ if (window.visualViewport) {
       if (fiestaTransTimer <= 0) {
         isEnteringFiesta = false;
         isDancing = true;
-        danceTimer = 260; // ~4.3s de baile, para que se sienta una fiesta real y no un destello
+        danceTimer = 140; // ~2.3s de baile (antes 260/~4.3s): sigue sintiéndose una fiesta pero sin retrasar tanto el resultado
         spawnConfetti(70);
       }
     }
