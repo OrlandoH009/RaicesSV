@@ -983,17 +983,17 @@ function generateAndDownloadPDF() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${receta.titulo} - Salvadorean Roots</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    .pdfr-container, .pdfr-container * { margin: 0; padding: 0; box-sizing: border-box; }
+    .pdfr-container {
       font-family: 'Lato', Arial, sans-serif;
       color: #1a1a1a;
       background: #ffffff;
       line-height: 1.5;
       padding: 10mm;
       font-size: 12px;
+      width: 210mm;
     }
-    .pdf-container { max-width: 210mm; margin: 0 auto; }
-    .recipe-header {
+    .pdfr-recipe-header {
       border-bottom: 3px solid #be8e56;
       padding-bottom: 10px;
       margin-bottom: 15px;
@@ -1001,23 +1001,23 @@ function generateAndDownloadPDF() {
       align-items: center;
       gap: 15px;
     }
-    .recipe-title-group { flex: 1; }
-    .recipe-title {
+    .pdfr-recipe-title-group { flex: 1; }
+    .pdfr-recipe-title {
       color: #113068;
       font-size: 24px;
       font-weight: 700;
       margin-bottom: 5px;
       font-family: 'Playfair Display', serif;
     }
-    .recipe-meta {
+    .pdfr-recipe-meta {
       display: flex;
       gap: 15px;
       font-size: 11px;
       color: #555;
     }
-    .recipe-meta-item { display: flex; align-items: center; gap: 4px; }
-    .recipe-meta-item strong { color: #113068; }
-    .main-image-container {
+    .pdfr-recipe-meta-item { display: flex; align-items: center; gap: 4px; }
+    .pdfr-recipe-meta-item strong { color: #113068; }
+    .pdfr-main-image-container {
       width: 100%;
       height: 180px;
       overflow: hidden;
@@ -1025,13 +1025,13 @@ function generateAndDownloadPDF() {
       margin-bottom: 15px;
       border: 2px solid #be8e56;
     }
-    .main-image { width: 100%; height: 100%; object-fit: cover; }
-    .recipe-grid {
+    .pdfr-main-image { width: 100%; height: 100%; object-fit: cover; }
+    .pdfr-recipe-grid {
       display: grid;
       grid-template-columns: 1fr 1.6fr;
       gap: 20px;
     }
-    .recipe-section h3 {
+    .pdfr-recipe-section h3 {
       color: #be8e56;
       font-size: 14px;
       font-weight: 700;
@@ -1042,15 +1042,15 @@ function generateAndDownloadPDF() {
       align-items: center;
       gap: 6px;
     }
-    .ingredients-list, .steps-list { padding-left: 18px; }
-    .ingredients-list li, .steps-list li {
+    .pdfr-ingredients-list, .pdfr-steps-list { padding-left: 18px; }
+    .pdfr-ingredients-list li, .pdfr-steps-list li {
       margin-bottom: 5px;
       font-size: 11px;
       color: #333;
     }
-    .ingredients-list li { list-style: disc; }
-    .steps-list li { list-style: decimal; }
-    .recipe-footer {
+    .pdfr-ingredients-list li { list-style: disc; }
+    .pdfr-steps-list li { list-style: decimal; }
+    .pdfr-recipe-footer {
       border-top: 1px solid #e5dccb;
       padding-top: 10px;
       margin-top: 20px;
@@ -1058,54 +1058,49 @@ function generateAndDownloadPDF() {
       color: #999;
       text-align: center;
     }
-    .recipe-footer strong { color: #be8e56; font-weight: 700; }
-    @media print {
-      body { padding: 10mm; }
-      .main-image-container { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-    @page { size: A4; margin: 10mm; }
+    .pdfr-recipe-footer strong { color: #be8e56; font-weight: 700; }
   </style>
 </head>
 <body>
-  <div class="pdf-container">
-    <div class="recipe-header">
-      <div class="recipe-title-group">
-        <h1 class="recipe-title">${receta.titulo}</h1>
-        <div class="recipe-meta">
-          <div class="recipe-meta-item">
+  <div class="pdfr-container">
+    <div class="pdfr-recipe-header">
+      <div class="pdfr-recipe-title-group">
+        <h1 class="pdfr-recipe-title">${receta.titulo}</h1>
+        <div class="pdfr-recipe-meta">
+          <div class="pdfr-recipe-meta-item">
             <strong>${lang === 'en' ? '👥 Servings:' : '👥 Porciones:'}</strong> ${receta.porciones}
           </div>
-          <div class="recipe-meta-item">
+          <div class="pdfr-recipe-meta-item">
             <strong>⏱️ ${lang === 'en' ? 'Time:' : 'Tiempo:'}</strong> ${receta.tiempo}
           </div>
-          <div class="recipe-meta-item">
+          <div class="pdfr-recipe-meta-item">
             <strong>📊 ${lang === 'en' ? 'Difficulty:' : 'Dificultad:'}</strong> ${receta.dificultad}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="main-image-container">
-      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="main-image" />
+    <div class="pdfr-main-image-container">
+      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="pdfr-main-image" />
     </div>
 
-    <div class="recipe-grid">
-      <div class="recipe-section">
+    <div class="pdfr-recipe-grid">
+      <div class="pdfr-recipe-section">
         <h3>${lang === 'en' ? '📋 Ingredients' : '📋 Ingredientes'}</h3>
-        <ul class="ingredients-list">
+        <ul class="pdfr-ingredients-list">
           ${receta.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
         </ul>
       </div>
 
-      <div class="recipe-section">
+      <div class="pdfr-recipe-section">
         <h3>${lang === 'en' ? '👨‍🍳 Preparation' : '👨‍🍳 Preparación'}</h3>
-        <ol class="steps-list">
+        <ol class="pdfr-steps-list">
           ${receta.pasos.map(paso => `<li>${paso}</li>`).join('')}
         </ol>
       </div>
     </div>
 
-    <div class="recipe-footer">
+    <div class="pdfr-recipe-footer">
       <strong>Salvadorean Roots</strong> — ${lang === 'en' ? 'Our heritage, our pride.' : 'Nuestra herencia, nuestro orgullo.'}<br>
       <small>${lang === 'en' ? 'Recipe from traditional Salvadoran cuisine' : 'Receta de la cocina salvadoreña tradicional'}</small>
     </div>
@@ -1135,10 +1130,10 @@ function generateAndDownloadPDF() {
         margin: 0,
         filename: fileName,
         image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       })
-      .from(wrapper.querySelector('.pdf-container'))
+      .from(wrapper.querySelector('.pdfr-container'))
       .save()
       .then(cleanup)
       .catch((error) => {
