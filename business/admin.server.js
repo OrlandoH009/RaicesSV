@@ -108,6 +108,7 @@ const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseU
     const id_status = status === 'activo' ? ID_STATUS_ACTIVO : ID_STATUS_SUSPENDIDO;
     await adminRepository.updateUserStatus(idUserNum, id_status);
 
+    let emailSent = true;
     try {
         if (status === 'suspendido') {
             const appealLink = `${appBaseUrl}/apelar.html`;
@@ -152,11 +153,12 @@ const setUserStatus = async (id_user, requestingUser, { status, reason, appBaseU
             });
         }
     } catch (mailError) {
+        emailSent = false;
         console.error('No se pudo enviar el correo de aviso de cambio de estado:', mailError);
     }
 
     const updated = await userRepository.findById(idUserNum);
-    return sanitizeUserRow(updated);
+    return { user: sanitizeUserRow(updated), emailSent };
 };
 
 // Convertir un usuario a un admin
