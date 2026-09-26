@@ -1001,123 +1001,213 @@ async function generateAndDownloadPDF() {
   <style>
     .pdfr-container, .pdfr-container * { margin: 0; padding: 0; box-sizing: border-box; }
     .pdfr-container {
-      font-family: 'Lato', Arial, sans-serif;
+      font-family: 'Inter', Arial, sans-serif;
       color: #1a1a1a;
       background: #ffffff;
-      line-height: 1.5;
-      padding: 10mm;
-      font-size: 12px;
+      line-height: 1.6;
+      padding: 16mm 15mm;
+      font-size: 12.5px;
       width: 210mm;
+      min-height: 297mm;
+      display: flex;
+      flex-direction: column;
     }
     .pdfr-recipe-header {
       border-bottom: 3px solid #be8e56;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
+      padding-bottom: 16px;
+      margin-bottom: 22px;
       display: flex;
       align-items: center;
       gap: 15px;
     }
     .pdfr-recipe-title-group { flex: 1; }
-    .pdfr-recipe-title {
-      color: #113068;
-      font-size: 24px;
+    .pdfr-recipe-kicker {
+      font-family: 'Urbanist', sans-serif;
       font-weight: 700;
+      font-style: italic;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: #be8e56;
       margin-bottom: 5px;
-      font-family: 'Playfair Display', serif;
+    }
+    .pdfr-recipe-title {
+      font-family: 'Urbanist', sans-serif;
+      color: #113068;
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 12px;
     }
     .pdfr-recipe-meta {
       display: flex;
-      gap: 15px;
-      font-size: 11px;
-      color: #555;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .pdfr-recipe-meta-item { display: flex; align-items: center; gap: 4px; }
-    .pdfr-recipe-meta-item strong { color: #113068; }
+    .pdfr-meta-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #e5eaff;
+      border: 1px solid rgba(17, 48, 104, 0.15);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #113068;
+    }
+    .pdfr-meta-pill strong { color: #113068; font-weight: 700; }
     .pdfr-main-image-container {
       width: 100%;
-      height: 180px;
+      height: 260px;
       overflow: hidden;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      border: 2px solid #be8e56;
+      border-radius: 14px;
+      margin-bottom: 26px;
+      border: 3px solid #be8e56;
+      box-shadow: 0 8px 20px rgba(17, 48, 104, 0.15);
     }
     .pdfr-main-image { width: 100%; height: 100%; object-fit: cover; }
     .pdfr-recipe-grid {
       display: grid;
       grid-template-columns: 1fr 1.6fr;
-      gap: 20px;
+      gap: 32px;
+      flex: 1;
     }
-    .pdfr-recipe-section h3 {
-      color: #be8e56;
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+    .pdfr-recipe-section-title {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 9px;
+      font-family: 'Urbanist', sans-serif;
+      color: #113068;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 14px;
+      padding-bottom: 9px;
+      border-bottom: 2px solid #e0bd8a;
     }
-    .pdfr-ingredients-list, .pdfr-steps-list { padding-left: 18px; }
-    .pdfr-ingredients-list li, .pdfr-steps-list li {
-      margin-bottom: 5px;
-      font-size: 11px;
-      color: #333;
+    .pdfr-icon-badge {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      border-radius: 6px;
+      background: #be8e56;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
     }
-    .pdfr-ingredients-list li { list-style: disc; }
-    .pdfr-steps-list li { list-style: decimal; }
+    .pdfr-ing-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 8px 9px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: #333333;
+      margin-bottom: 4px;
+    }
+    .pdfr-ing-item--alt { background: rgba(229, 234, 255, 0.7); }
+    .pdfr-ing-dot {
+      width: 6px;
+      height: 6px;
+      min-width: 6px;
+      border-radius: 50%;
+      background: #be8e56;
+      margin-top: 6px;
+    }
+    .pdfr-step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .pdfr-step-num {
+      width: 23px;
+      height: 23px;
+      min-width: 23px;
+      border-radius: 50%;
+      background: #113068;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Urbanist', sans-serif;
+      font-weight: 800;
+      font-size: 11.5px;
+    }
+    .pdfr-step-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: #333333;
+      padding-top: 3px;
+    }
     .pdfr-recipe-footer {
-      border-top: 1px solid #e5dccb;
-      padding-top: 10px;
-      margin-top: 20px;
-      font-size: 10px;
-      color: #999;
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 3px solid #be8e56;
       text-align: center;
     }
-    .pdfr-recipe-footer strong { color: #be8e56; font-weight: 700; }
+    .pdfr-recipe-footer strong {
+      font-family: 'Urbanist', sans-serif;
+      color: #113068;
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .pdfr-recipe-footer .pdfr-footer-tagline {
+      color: #4a4a4a;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+    }
+    .pdfr-recipe-footer small {
+      display: block;
+      margin-top: 3px;
+      color: #777777;
+      font-family: 'Inter', sans-serif;
+      font-size: 9.5px;
+    }
   </style>
 </head>
 <body>
   <div class="pdfr-container">
-    <div class="pdfr-recipe-header">
-      <div class="pdfr-recipe-title-group">
-        <h1 class="pdfr-recipe-title">${receta.titulo}</h1>
-        <div class="pdfr-recipe-meta">
-          <div class="pdfr-recipe-meta-item">
-            <strong>${lang === 'en' ? '👥 Servings:' : '👥 Porciones:'}</strong> ${receta.porciones}
-          </div>
-          <div class="pdfr-recipe-meta-item">
-            <strong>⏱️ ${lang === 'en' ? 'Time:' : 'Tiempo:'}</strong> ${receta.tiempo}
-          </div>
-          <div class="pdfr-recipe-meta-item">
-            <strong>📊 ${lang === 'en' ? 'Difficulty:' : 'Dificultad:'}</strong> ${receta.dificultad}
+      <div class="pdfr-recipe-header">
+        <div class="pdfr-recipe-title-group">
+          <div class="pdfr-recipe-kicker">Salvadorean Roots</div>
+          <h1 class="pdfr-recipe-title">${receta.titulo}</h1>
+          <div class="pdfr-recipe-meta">
+            <div class="pdfr-meta-pill">👥 <strong>${receta.porciones}</strong></div>
+            <div class="pdfr-meta-pill">⏱️ <strong>${receta.tiempo}</strong></div>
+            <div class="pdfr-meta-pill">📊 <strong>${receta.dificultad}</strong></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="pdfr-main-image-container">
-      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="pdfr-main-image" crossorigin="anonymous" />
-    </div>
-
-    <div class="pdfr-recipe-grid">
-      <div class="pdfr-recipe-section">
-        <h3>${lang === 'en' ? '📋 Ingredients' : '📋 Ingredientes'}</h3>
-        <ul class="pdfr-ingredients-list">
-          ${receta.ingredientes.map(ing => `<li>${ing}</li>`).join('')}
-        </ul>
+      <div class="pdfr-main-image-container">
+        <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="pdfr-main-image" crossorigin="anonymous" />
       </div>
 
-      <div class="pdfr-recipe-section">
-        <h3>${lang === 'en' ? '👨‍🍳 Preparation' : '👨‍🍳 Preparación'}</h3>
-        <ol class="pdfr-steps-list">
-          ${receta.pasos.map(paso => `<li>${paso}</li>`).join('')}
-        </ol>
+      <div class="pdfr-recipe-grid">
+        <div class="pdfr-recipe-section">
+          <div class="pdfr-recipe-section-title">
+            <span class="pdfr-icon-badge">📋</span>
+            ${lang === 'en' ? 'Ingredients' : 'Ingredientes'}
+          </div>
+          ${receta.ingredientes.map((ing, i) => `<div class="pdfr-ing-item${i % 2 === 1 ? ' pdfr-ing-item--alt' : ''}"><span class="pdfr-ing-dot"></span><span>${ing}</span></div>`).join('')}
+        </div>
+
+        <div class="pdfr-recipe-section">
+          <div class="pdfr-recipe-section-title">
+            <span class="pdfr-icon-badge">👨‍🍳</span>
+            ${lang === 'en' ? 'Preparation' : 'Preparación'}
+          </div>
+          ${receta.pasos.map((paso, i) => `<div class="pdfr-step-item"><span class="pdfr-step-num">${i + 1}</span><span class="pdfr-step-text">${paso}</span></div>`).join('')}
+        </div>
       </div>
-    </div>
 
     <div class="pdfr-recipe-footer">
-      <strong>Salvadorean Roots</strong> — ${lang === 'en' ? 'Our heritage, our pride.' : 'Nuestra herencia, nuestro orgullo.'}<br>
+      <strong>Salvadorean Roots</strong> <span class="pdfr-footer-tagline">— ${lang === 'en' ? 'Our heritage, our pride.' : 'Nuestra herencia, nuestro orgullo.'}</span>
       <small>${lang === 'en' ? 'Recipe from traditional Salvadoran cuisine' : 'Receta de la cocina salvadoreña tradicional'}</small>
     </div>
   </div>

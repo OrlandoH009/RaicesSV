@@ -145,7 +145,15 @@ app.get('/auth/status', async (req, res) => {
 
     try {
         const currentUser = await userRepository.findById(req.session.user.id);
-        const suspended = Boolean(currentUser && currentUser.status_name === 'Suspendido');
+
+        if (!currentUser) {
+            return req.session.destroy(() => {
+                res.clearCookie('raices.sid');
+                res.json({ loggedIn: false });
+            });
+        }
+
+        const suspended = currentUser.status_name === 'Suspendido';
         res.json({ loggedIn: true, user: req.session.user, suspended });
     } catch (error) {
         console.error('Error verificando el estado de la cuenta en /auth/status:', error);
