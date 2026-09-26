@@ -1057,7 +1057,7 @@ canvas {
    juegos.js): entran con un salto y quedan flotando suavemente, con una
    sombra proyectada para que no se vean "pegadas" sobre la tarjeta. */
 .result-comic-img {
-  width: min(260px, 78%);
+  width: min(180px, 55%);
   margin: .1rem auto .5rem;
   display: block;
   filter: drop-shadow(0 10px 16px rgba(0,0,0,.35));
@@ -1582,7 +1582,7 @@ canvas {
   .btn-back-selector { font-size: .76rem; padding: .3rem .8rem; margin-bottom: .5rem; }
   .instrucciones-dots { margin: -.15rem 0 .6rem; gap: .35rem; }
   .instrucciones-dot { width: .45rem; height: .45rem; }
-  .result-comic-img { width: min(190px, 46%); }
+  .result-comic-img { width: min(140px, 40%); }
 }
 
 @media (max-width: 600px) {
@@ -1723,7 +1723,7 @@ canvas {
   .result-title { font-size: 1.4rem; }
   .result-msg { font-size: .95rem; }
   .result-stats-grid { font-size: .88rem; gap: 10px; padding: 12px 10px; }
-  .result-comic-img { width: min(300px, 88%); }
+  .result-comic-img { width: min(200px, 60%); }
 }
 
 /* ── DISEÑO DE TARJETAS (PORTADAS) ── */

@@ -2661,8 +2661,8 @@ if (window.visualViewport) {
   // con el rival (derecha, carriles 2-3), así que ya no hace falta lógica
   // de choque/esquive entre los dos buses.
   let gameMode = 'pve'; // 'pve' (vs bot) | 'pvp' (2 jugadores) — se define en showPlayModeSelector
-  let player = { x: 0, y: 0, speed: 0, maxSpeed: 8 * COASTERS_SPEED_MULT, lane: 0, targetX: 0, distance: 0, passengers: 0 };
-  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 5.5 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0, passengers: 0 };
+  let player = { x: 0, y: 0, speed: 0, maxSpeed: 10 * COASTERS_SPEED_MULT, lane: 0, targetX: 0, distance: 0, passengers: 0 };
+  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 6.9 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0, passengers: 0 };
 
   const LANES_PER_ROAD = 2;
   const lanesCount = LANES_PER_ROAD * 2; // 0-1 = calle del jugador, 2-3 = calle del rival
@@ -3138,11 +3138,11 @@ if (window.visualViewport) {
       // los dos, nada de ventaja/desventaja artificial.
       bot.maxSpeed = player.maxSpeed;
     } else if (botDifficulty === 'easy') {
-      bot.maxSpeed = 5.2 * COASTERS_SPEED_MULT;
+      bot.maxSpeed = 6.5 * COASTERS_SPEED_MULT;
     } else if (botDifficulty === 'medium') {
-      bot.maxSpeed = 6.3 * COASTERS_SPEED_MULT;
+      bot.maxSpeed = 7.9 * COASTERS_SPEED_MULT;
     } else {
-      bot.maxSpeed = 7.2 * COASTERS_SPEED_MULT;
+      bot.maxSpeed = 9 * COASTERS_SPEED_MULT;
     }
 
     stops = [];
@@ -3222,15 +3222,28 @@ if (window.visualViewport) {
     World.add(world, body);
   }
 
+  // La dificultad (easy/medium/hard) ya no solo apura al bot rival: también
+  // decide qué tan seguido aparecen baches/túmulos/tráfico y cuántos puede
+  // haber a la vez en cada calle — así "fácil" se siente realmente más
+  // despejado y "difícil" realmente más saturado de obstáculos, además de
+  // que el bot vaya más rápido.
+  function getObstacleSpawnConfig(){
+    if (gameMode === 'pvp') return { obstacleChance: 0.005, obstacleMax: 3, trafficChance: 0.003, trafficMax: 1 };
+    if (botDifficulty === 'easy') return { obstacleChance: 0.004, obstacleMax: 2, trafficChance: 0.002, trafficMax: 1 };
+    if (botDifficulty === 'medium') return { obstacleChance: 0.005, obstacleMax: 3, trafficChance: 0.003, trafficMax: 1 };
+    return { obstacleChance: 0.007, obstacleMax: 4, trafficChance: 0.004, trafficMax: 2 }; // hard
+  }
+
   function spawnEntities() {
     if (tutorialMode && tutorialWaiting) return; // Congela obstáculos nuevos mientras se espera la acción del tutorial
     if (tutorialMode) return; // Camino despejado durante el tutorial
 
+    const spawnCfg = getObstacleSpawnConfig();
     ['p1', 'p2'].forEach(side => {
-      if (Math.random() < 0.005 && roadObstacleCount(side, ['bache', 'tumulo']) < 3) {
+      if (Math.random() < spawnCfg.obstacleChance && roadObstacleCount(side, ['bache', 'tumulo']) < spawnCfg.obstacleMax) {
         if (Math.random() > 0.5) spawnBache(side); else spawnTumulo(side);
       }
-      if (Math.random() < 0.003 && roadObstacleCount(side, ['traffic']) < 1) {
+      if (Math.random() < spawnCfg.trafficChance && roadObstacleCount(side, ['traffic']) < spawnCfg.trafficMax) {
         spawnTraffic(side);
       }
       // El carril "bloqueado" se resortea cuando la calle queda
@@ -3394,7 +3407,7 @@ if (window.visualViewport) {
     // El bus acelera solo, siempre — ya no hay tecla de frenar: con las
     // calles separadas y garantía de un carril libre, la única decisión
     // del jugador es a qué carril meterse, no cuándo bajar la velocidad.
-    player.speed = Math.min(player.maxSpeed, player.speed + 0.08);
+    player.speed = Math.min(player.maxSpeed, player.speed + 0.1);
 
     player.targetX = lanePositions[player.lane];
     player.x += (player.targetX - player.x) * 0.22;
@@ -3403,7 +3416,7 @@ if (window.visualViewport) {
       // Jugador 2 humano: acelera solo igual que el Jugador 1, su carril
       // ya lo maneja moveLaneP2()/goToLaneP2() (teclas/touch más arriba).
       if (bot.distance < targetDistance) {
-        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.08);
+        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.1);
       }
       bot.targetX = lanePositions[bot.lane];
       bot.x += (bot.targetX - bot.x) * 0.22;
@@ -3413,7 +3426,7 @@ if (window.visualViewport) {
       // así que ya no hace falta buscar entre varios candidatos ni
       // preocuparse de invadir el carril del jugador (calles separadas).
       if (bot.distance < targetDistance) {
-        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.06);
+        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.075);
       }
       let botTargetLane = bot.lane;
       Composite.allBodies(world).forEach(item => {
@@ -6695,12 +6708,17 @@ if (window.visualViewport) {
   let rafId = null;
 
   let gameDifficulty = 'easy';
-  let targetDistance = 1200;
+  let targetDistance = 1800;
   let destinationName = 'Suchitoto — Parroquia Santa Lucía';
 
+  // La velocidad y el drenaje de energía ya no cambian entre fácil y difícil
+  // (ambas suben respecto a antes, para que el juego se sienta más veloz en
+  // general) — lo que realmente distingue la dificultad ahora es qué tan
+  // seguido aparecen los obstáculos (carreta/agua) y los power-ups
+  // (silbador/cuetillo/pupusa), ver spawnEntities() más abajo.
   const gameConfig = {
-    easy: { baseSpeed: 3.6, energyDrainRate: 0.024, obstacleDrain: 14, turboSpeed: 6.2 },
-    hard: { baseSpeed: 5.2, energyDrainRate: 0.038, obstacleDrain: 18, turboSpeed: 8.0 }
+    easy: { baseSpeed: 5.6, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 8.8 },
+    hard: { baseSpeed: 5.6, energyDrainRate: 0.026, obstacleDrain: 15, turboSpeed: 8.8 }
   };
 
   const lanesCount = 3;
@@ -7318,34 +7336,35 @@ if (window.visualViewport) {
     if (tutorialMode && tutorialWaiting) return; // Congela obstáculos mientras se espera la acción del tutorial
 
     const config = gameConfig[gameDifficulty];
+    const isHard = gameDifficulty === 'hard';
     let lane = Math.floor(Math.random() * lanesCount);
 
-    // Silbadores (Rocket power)
-    if (!isLaneOccupied(lane) && Math.random() < 0.009 && countBodies('silbador') < 2) {
+    // Silbadores (Rocket power) — más seguido en fácil, escaso en difícil
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.006 : 0.013) && countBodies('silbador') < 2) {
       spawnSilbador(lane);
     }
 
     lane = Math.floor(Math.random() * lanesCount);
-    // Cuetillos (Firecrackers)
-    if (!isLaneOccupied(lane) && Math.random() < 0.011 && countBodies('cuetillo') < 3) {
+    // Cuetillos (Firecrackers) — más seguido en fácil, escaso en difícil
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.007 : 0.015) && countBodies('cuetillo') < 3) {
       spawnCuetillo(lane);
     }
 
     lane = Math.floor(Math.random() * lanesCount);
-    // Pupusa food pickup
-    if (!isLaneOccupied(lane) && Math.random() < 0.005 && countBodies('pupusa') < 2) {
+    // Pupusa food pickup — más seguido en fácil, escaso en difícil
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.003 : 0.008) && countBodies('pupusa') < 2) {
       spawnPupusa(lane);
     }
 
     lane = Math.floor(Math.random() * lanesCount);
-    // Carreta obstacle
-    if (!isLaneOccupied(lane) && Math.random() < (gameDifficulty === 'hard' ? 0.008 : 0.005) && countBodies('carreta') < 2) {
+    // Carreta obstacle — escaso en fácil, mucho más seguido y denso en difícil
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.011 : 0.004) && countBodies('carreta') < (isHard ? 3 : 2)) {
       spawnCarreta(lane);
     }
 
     lane = Math.floor(Math.random() * lanesCount);
-    // Balde de agua obstacle
-    if (!isLaneOccupied(lane) && Math.random() < (gameDifficulty === 'hard' ? 0.007 : 0.004) && countBodies('agua') < 2) {
+    // Balde de agua obstacle — escaso en fácil, mucho más seguido y denso en difícil
+    if (!isLaneOccupied(lane) && Math.random() < (isHard ? 0.01 : 0.003) && countBodies('agua') < (isHard ? 3 : 2)) {
       spawnAgua(lane);
     }
 
@@ -8341,8 +8360,8 @@ if (window.visualViewport) {
     if(pauseIcon) pauseIcon.textContent = '⏸️';
 
     let distanciaId;
-    if (targetDistance <= 1200) distanciaId = 'corta';
-    else if (targetDistance <= 2400) distanciaId = 'media';
+    if (targetDistance <= 1800) distanciaId = 'corta';
+    else if (targetDistance <= 3600) distanciaId = 'media';
     else distanciaId = 'larga';
 
     const gameName = `torito-${gameDifficulty}-${distanciaId}`;
@@ -8383,23 +8402,23 @@ if (window.visualViewport) {
       <p style="font-size: 0.9rem;">${jt('jue.card6.distance.sub', '¿Hasta qué plaza colonial llevarás la fiesta del Torito?')}</p>
       <div class="difficulty-buttons" style="display: flex; flex-direction: column; gap: 10px;">
         <button class="btn-primary" id="dist-corta-torito" style="font-size: 0.95rem;">
-          ⛪ Suchitoto (1200m)
+          ⛪ Suchitoto (1800m)
           <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Parroquia Santa Lucía</div>
         </button>
         <button class="btn-primary" id="dist-media-torito" style="font-size: 0.95rem;">
-          🌺 Panchimalco (2400m)
+          🌺 Panchimalco (3600m)
           <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Iglesia de la Santa Cruz</div>
         </button>
         <button class="btn-primary" id="dist-larga-torito" style="font-size: 0.95rem;">
-          🏛️ San Salvador (3600m)
+          🏛️ San Salvador (5400m)
           <div style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">Atrio de la Catedral Metropolitana</div>
         </button>
       </div>
     `);
 
-    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(1200, 'Suchitoto — Parroquia Santa Lucía'); };
-    document.getElementById('dist-media-torito').onclick = () => { selectDistance(2400, 'Panchimalco — Iglesia de la Santa Cruz'); };
-    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(3600, 'San Salvador — Catedral Metropolitana'); };
+    document.getElementById('dist-corta-torito').onclick = () => { selectDistance(1800, 'Suchitoto — Parroquia Santa Lucía'); };
+    document.getElementById('dist-media-torito').onclick = () => { selectDistance(3600, 'Panchimalco — Iglesia de la Santa Cruz'); };
+    document.getElementById('dist-larga-torito').onclick = () => { selectDistance(5400, 'San Salvador — Catedral Metropolitana'); };
   }
 
   function selectDistance(dist, name) {
@@ -8417,11 +8436,11 @@ if (window.visualViewport) {
       <div class="difficulty-buttons">
         <button class="difficulty-btn easy" id="btn-easy-torito">
           ${jt('jue.diff.easy', '🟢 Tradicional')}
-          <div class="difficulty-desc">${jt('jue.card6.diff.easyDesc', 'Calle alegre y más silbadores')}</div>
+          <div class="difficulty-desc">${jt('jue.card6.diff.easyDesc', 'Más silbadores y menos carretas')}</div>
         </button>
         <button class="difficulty-btn hard" id="btn-hard-torito">
           ${jt('jue.diff.hard', '🔴 Torito Bravo')}
-          <div class="difficulty-desc">${jt('jue.card6.diff.hardDesc', 'Mayor velocidad y obstáculos')}</div>
+          <div class="difficulty-desc">${jt('jue.card6.diff.hardDesc', 'Más carretas y baldes de agua')}</div>
         </button>
       </div>`);
 
