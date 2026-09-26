@@ -34,10 +34,12 @@ const protectRoute = require('./middleware/auth.protectedRoutes');
 const requireAdmin = require('./middleware/auth.adminRoutes');
 const adminRoutes = require('./routes/admin.routes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
+const { translateResponses } = require('./middleware/lang.middleware');
 
 app.set('trust proxy', 1);
 
 app.use(securityHeaders);
+app.use(translateResponses);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
