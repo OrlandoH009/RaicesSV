@@ -1978,6 +1978,14 @@ canvas {
   background: #ff1744;
 }
 
+/* Contador de pasajeros por jugador en modo 2 Jugadores (ver buildHud en
+   Guerra de Coasters): antes solo se veía el del Jugador 1 durante la
+   carrera. */
+.coasters-passengers {
+  margin-left: 8px;
+  font-size: .78rem;
+}
+
 /* Efecto de choque rápido en la pantalla */
 #damageOverlay-coasters {
   position: absolute;

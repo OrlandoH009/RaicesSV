@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
+  function tr(key, fallback) {
+    if (!window.SRi18n) return fallback;
+    const value = window.SRi18n.t(key, window.SRi18n.getLang());
+    return value && value !== key ? value : fallback;
+  }
+
   function setStatus(message, kind) {
     if (!statusEl) return;
     statusEl.textContent = message;
@@ -29,17 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = document.getElementById('appealMessage')?.value.trim() || '';
 
     if (!email) {
-      setStatus('Debes indicar tu correo.', 'error');
+      setStatus(tr('appeal.error_email', 'Debes indicar tu correo.'), 'error');
       return;
     }
 
     if (!message) {
-      setStatus('Debes escribir tu apelación.', 'error');
+      setStatus(tr('appeal.error_message', 'Debes escribir tu apelación.'), 'error');
       return;
     }
 
     if (submitBtn) submitBtn.disabled = true;
-    setStatus('Enviando…');
+    setStatus(tr('appeal.sending', 'Enviando…'));
 
     try {
       const response = await fetch('/api/appeals', {
@@ -52,9 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.message || 'No se pudo enviar tu apelación.');
+        throw new Error(data.message || tr('appeal.error_generic', 'No se pudo enviar tu apelación.'));
       }
 
+      setStatus('');
       form.hidden = true;
       if (sentBox) sentBox.hidden = false;
 

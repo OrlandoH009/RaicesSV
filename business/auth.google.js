@@ -1,3 +1,5 @@
+const { setLoginNotice } = require('./auth.loginNotice');
+
 const googleCallback = (req, res) => {
     const user = req.user;
 
@@ -25,6 +27,7 @@ const googleCallback = (req, res) => {
                 return res.status(500).send('No se pudo iniciar sesión. Intentelo de nuevo más tarde.');
             }
 
+            setLoginNotice(req, res, sessionData.name);
             res.redirect(redirectAfterLogin);
         });
     });

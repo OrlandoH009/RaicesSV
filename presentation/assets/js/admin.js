@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function apiFetch(url, options = {}) {
     const response = await fetch(url, {
       credentials: 'same-origin',
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       ...options
     });
@@ -63,6 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return data;
+  }
+
+  const loadVersions = {};
+
+  function nextLoadVersion(key) {
+    loadVersions[key] = (loadVersions[key] || 0) + 1;
+    return loadVersions[key];
+  }
+
+  function isLatestLoad(key, version) {
+    return loadVersions[key] === version;
   }
 
   function escapeHtml(value) {
@@ -454,8 +466,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadMetrics() {
+    const version = nextLoadVersion('metrics');
     try {
       const metrics = await apiFetch('/api/admin/metrics');
+      if (!isLatestLoad('metrics', version)) return;
       state.metrics = metrics;
       renderMetricCards(metrics);
       renderStatusChart(metrics);
@@ -706,9 +720,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ status, reason })
       });
       updateUserInState(result.user);
-      showToast(t('admin.toast.statusUpdated'), 'success');
+      if (result.emailSent === false) {
+        showToast(t('admin.toast.statusEmailFailed'), 'error');
+      } else {
+        showToast(t('admin.toast.statusUpdated'), 'success');
+      }
       showListView('usuarios');
-      refreshAll();
+      refreshAfterUserChange();
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -722,7 +740,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         updateUserInState(result.user);
         showToast(t('admin.toast.promoted'), 'success');
-        refreshAll();
+        refreshAfterUserChange();
       }
       showListView('usuarios');
     } catch (error) {
@@ -736,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateUserInState(result.user);
       showToast(t('admin.toast.demoted'), 'success');
       showListView('usuarios');
-      refreshAll();
+      refreshAfterUserChange();
     } catch (error) {
       showToast(error.message, 'error');
     }
@@ -745,8 +763,10 @@ document.addEventListener('DOMContentLoaded', () => {
    async function deleteAdminUser(userId) {
     try {
       await apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+      nextLoadVersion('users');
       state.users = state.users.filter((u) => u.id !== userId);
       applyUserFilters();
+      renderTeamGrid();
       showToast(t('admin.toast.adminDeleted'), 'success');
       showListView('usuarios');
       refreshAll();
@@ -756,14 +776,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateUserInState(updatedUser) {
+    nextLoadVersion('users');
     const index = state.users.findIndex((u) => u.id === updatedUser.id);
     if (index !== -1) state.users[index] = updatedUser;
     applyUserFilters();
+    renderTeamGrid();
+  }
+
+  function refreshAfterUserChange() {
+    return Promise.all([loadMetrics(), loadUsers(), loadAppeals()]);
   }
 
   async function loadUsers() {
+    const version = nextLoadVersion('users');
     try {
       const data = await apiFetch('/api/admin/users');
+      if (!isLatestLoad('users', version)) return;
       state.users = data.users;
       applyUserFilters();
       renderTeamGrid();
@@ -915,8 +943,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadPublications() {
+    const version = nextLoadVersion('publications');
     try {
       const data = await apiFetch('/api/publications');
+      if (!isLatestLoad('publications', version)) return;
       state.publications = data.publications;
       applyPublicationFilters();
     } catch (error) {
@@ -1108,12 +1138,13 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         body: JSON.stringify(payload)
       });
+      nextLoadVersion('users');
       state.users.push(result.user);
       applyUserFilters();
       renderTeamGrid();
       showToast(t('admin.toast.adminCreated'), 'success');
       closeCreateAdminDrawer();
-      refreshAll();
+      refreshAfterUserChange();
     } catch (error) {
       if (createAdminStatus) {
         createAdminStatus.textContent = error.message;
@@ -1153,25 +1184,44 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminConfirmReasonInput) adminConfirmReasonInput.value = '';
   }
 
-  adminConfirmCancel?.addEventListener('click', closeConfirmModal);
+  let confirmBusy = false;
+
+  function setConfirmBusy(busy) {
+    confirmBusy = busy;
+    if (adminConfirmAccept) {
+      adminConfirmAccept.disabled = busy;
+      adminConfirmAccept.textContent = busy ? t('admin.confirm.processing') : t('admin.confirm.accept');
+    }
+    if (adminConfirmCancel) adminConfirmCancel.disabled = busy;
+    if (adminConfirmReasonInput) adminConfirmReasonInput.disabled = busy;
+  }
+
+  adminConfirmCancel?.addEventListener('click', () => {
+    if (!confirmBusy) closeConfirmModal();
+  });
   adminConfirmOverlay?.addEventListener('click', (event) => {
-    if (event.target === adminConfirmOverlay) closeConfirmModal();
+    if (event.target === adminConfirmOverlay && !confirmBusy) closeConfirmModal();
   });
   adminConfirmAccept?.addEventListener('click', async () => {
+    if (confirmBusy) return;
     const action = pendingConfirmAction;
     const reasonVisible = adminConfirmReasonGroup && !adminConfirmReasonGroup.hidden;
+    let reason;
 
     if (reasonVisible) {
-      const reason = (adminConfirmReasonInput?.value || '').trim();
+      reason = (adminConfirmReasonInput?.value || '').trim();
       if (!reason) {
         showToast(t('admin.toast.reasonRequired'), 'error');
         return;
       }
+    }
+
+    setConfirmBusy(true);
+    try {
+      if (action) await (reasonVisible ? action(reason) : action());
+    } finally {
+      setConfirmBusy(false);
       closeConfirmModal();
-      if (action) await action(reason);
-    } else {
-      closeConfirmModal();
-      if (action) await action();
     }
   });
 
@@ -1251,6 +1301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (idx !== -1) state.appeals.valid[idx] = result.appeal;
         appeal = result.appeal;
         renderAppealsBadge();
+        renderAppealsList();
       } catch (error) {
         showToast(error.message, 'error');
       }
@@ -1297,14 +1348,16 @@ document.addEventListener('DOMContentLoaded', () => {
     showDetailView('apelaciones');
   }
 
-  async function loadAppeals() {
+  async function loadAppeals({ silent = false } = {}) {
+    const version = nextLoadVersion('appeals');
     try {
       const data = await apiFetch('/api/admin/appeals');
+      if (!isLatestLoad('appeals', version)) return;
       state.appeals = data;
       renderAppealsBadge();
       renderAppealsList();
     } catch (error) {
-      showToast(t('admin.toast.appealsError'), 'error');
+      if (!silent) showToast(t('admin.toast.appealsError'), 'error');
     }
   }
 
@@ -1391,14 +1444,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function loadFlaggedComments() {
+  async function loadFlaggedComments({ silent = false } = {}) {
+    const version = nextLoadVersion('comments');
     try {
       const data = await apiFetch('/api/admin/comments/flagged');
+      if (!isLatestLoad('comments', version)) return;
       state.flaggedComments = data.comments;
       renderCommentsBadge();
       renderCommentsList();
     } catch (error) {
-      showToast(t('admin.toast.commentsError'), 'error');
+      if (!silent) showToast(t('admin.toast.commentsError'), 'error');
     }
   }
 
@@ -1438,6 +1493,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   refreshAll();
   loadCurrentUser();
+
+  const MODERATION_POLL_MS = 20000;
+
+  function refreshModeration() {
+    if (document.visibilityState !== 'visible') return;
+    loadAppeals({ silent: true });
+    loadFlaggedComments({ silent: true });
+  }
+
+  setInterval(refreshModeration, MODERATION_POLL_MS);
+  document.addEventListener('visibilitychange', refreshModeration);
+
+  (function consumeLoginNotice() {
+    const COOKIE = 'sr_login_notice';
+    const entry = document.cookie.split('; ').find((c) => c.startsWith(COOKIE + '='));
+    if (!entry) return;
+    document.cookie = COOKIE + '=; Max-Age=0; path=/; SameSite=Lax';
+
+    let name = '';
+    try {
+      name = decodeURIComponent(entry.slice(COOKIE.length + 1)).trim();
+    } catch {
+      name = '';
+    }
+    if (name === '1') name = '';
+
+    const message = name
+      ? t('login.success_toast_named').replace('{name}', () => name)
+      : t('login.success_toast');
+    showToast(message, 'success');
+  })();
 
 });
 

@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function tr(key, fallback) {
+    if (!window.SRi18n) return fallback;
+    const value = window.SRi18n.t(key, window.SRi18n.getLang());
+    return value && value !== key ? value : fallback;
+  }
+
   function setStatus(message, kind) {
     if (!statusEl) return;
     statusEl.textContent = message;
@@ -53,17 +59,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmPassword = document.getElementById('confirmPassword')?.value || '';
 
     if (newPassword.length < 8) {
-      setStatus('La contraseña debe tener al menos 8 caracteres.', 'error');
+      setStatus(tr('invite.error_length', 'La contraseña debe tener al menos 8 caracteres.'), 'error');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setStatus('Las contraseñas no coinciden.', 'error');
+      setStatus(tr('invite.error_match', 'Las contraseñas no coinciden.'), 'error');
       return;
     }
 
     if (submitBtn) submitBtn.disabled = true;
-    setStatus('Procesando…');
+    setStatus(tr('invite.processing', 'Procesando…'));
 
     try {
       const response = await fetch('/api/admin/invitations/accept', {
@@ -76,10 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.message || 'No se pudo completar la invitación.');
+        throw new Error(data.message || tr('invite.error_generic', 'No se pudo completar la invitación.'));
       }
 
-      setStatus('¡Listo! Ahora eres administrador. Redirigiendo…', 'success');
+      setStatus(tr('invite.success', '¡Listo! Ahora eres administrador. Redirigiendo…'), 'success');
       setTimeout(() => {
         window.location.href = '/login.html';
       }, 1600);

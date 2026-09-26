@@ -5,6 +5,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const path = require('path');
 const passport = require('passport');
 const db = require('./data/config/database.config');
+const userRepository = require('./data/repositories/user.repository');
 
 dotenv.config();
 
@@ -34,10 +35,12 @@ const protectRoute = require('./middleware/auth.protectedRoutes');
 const requireAdmin = require('./middleware/auth.adminRoutes');
 const adminRoutes = require('./routes/admin.routes');
 const { securityHeaders, rateLimit, verifyOrigin } = require('./middleware/security.middleware');
+const { translateResponses } = require('./middleware/lang.middleware');
 
 app.set('trust proxy', 1);
 
 app.use(securityHeaders);
+app.use(translateResponses);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -135,11 +138,26 @@ app.get('/estado', (req, res) => {
     res.json({ status: 'ok', message: 'Servidor funcionando' });
 });
 
-app.get('/auth/status', (req, res) => {
-    if (req.session && req.session.user) {
+app.get('/auth/status', async (req, res) => {
+    if (!req.session || !req.session.user) {
+        return res.json({ loggedIn: false });
+    }
+
+    try {
+        const currentUser = await userRepository.findById(req.session.user.id);
+
+        if (!currentUser) {
+            return req.session.destroy(() => {
+                res.clearCookie('raices.sid');
+                res.json({ loggedIn: false });
+            });
+        }
+
+        const suspended = currentUser.status_name === 'Suspendido';
+        res.json({ loggedIn: true, user: req.session.user, suspended });
+    } catch (error) {
+        console.error('Error verificando el estado de la cuenta en /auth/status:', error);
         res.json({ loggedIn: true, user: req.session.user });
-    } else {
-        res.json({ loggedIn: false });
     }
 });
 

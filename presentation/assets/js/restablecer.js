@@ -15,7 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if (!token) {
-    showMessage('El enlace de recuperación no es válido o está incompleto.');
+    const invalidKey = 'reset.error_invalid_link';
+    const invalidText = window.SRi18n ? window.SRi18n.t(invalidKey, window.SRi18n.getLang()) : null;
+    showMessage(invalidText && invalidText !== invalidKey ? invalidText : 'El enlace de recuperación no es válido o está incompleto.');
     if (form) {
       Array.from(form.elements).forEach((el) => { el.disabled = true; });
     }

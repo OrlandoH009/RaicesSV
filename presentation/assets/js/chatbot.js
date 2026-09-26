@@ -118,7 +118,10 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       quickQuestions: ['¿Qué son las pupusas?', '¿Qué es Joya de Cerén?', '¿Quién es la Siguanaba?', '¿Cuándo son las Fiestas Agostinas?'],
       sharePlan: '📤 Compartir plan',
       planImageAlt: 'Itinerario de Salvadorean Roots',
-      chatTranslated: 'Chat traducido'
+      chatTranslated: 'Chat traducido',
+      ariaOpen: 'Abrir asistente de Salvadorean Roots',
+      ariaClose: 'Cerrar asistente',
+      ariaSend: 'Enviar'
     },
     en: {
       welcomeBubble: 'Hello! Do you have any questions about El Salvador?',
@@ -157,7 +160,10 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
       quickQuestions: ['What are pupusas?', 'What is Joya de Cerén?', 'Who is the Siguanaba?', 'When are the August Festivals?'],
       sharePlan: '📤 Share plan',
       planImageAlt: 'Salvadorean Roots Itinerary',
-      chatTranslated: 'Chat translated'
+      chatTranslated: 'Chat translated',
+      ariaOpen: 'Open the Salvadorean Roots assistant',
+      ariaClose: 'Close assistant',
+      ariaSend: 'Send'
     }
   };
 
@@ -308,7 +314,7 @@ ${RAICES_LANDMARKS_INFO}
     }
     #rs-chat-widget * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; pointer-events: auto; }
     #rs-chat-btn {
-      position: fixed; bottom: 28px; left: 28px; width: 60px; height: 60px; border-radius: 50%;
+      position: fixed; bottom: calc(28px + var(--rs-footer-lift, 0px)); left: 28px; width: 60px; height: 60px; border-radius: 50%;
       background: #113068; border: 3px solid #be8e56; cursor: pointer; display: flex;
       align-items: center; justify-content: center; z-index: 99999;
       box-shadow: 0 8px 24px rgba(17, 48, 104, 0.35); opacity: 0; transform: scale(0.5); overflow: hidden; padding: 4px;
@@ -320,7 +326,7 @@ ${RAICES_LANDMARKS_INFO}
     #rs-chat-btn.open .rs-chat-icon { display: none; }
     #rs-chat-btn.open .rs-close-icon { display: block; }
     #rs-chat-bubble {
-      position: fixed; bottom: 100px; left: 28px; background: #113068; color: #fff;
+      position: fixed; bottom: calc(100px + var(--rs-footer-lift, 0px)); left: 28px; background: #113068; color: #fff;
       font-size: 13px; font-weight: 500; padding: 10px 16px; border-radius: 16px 16px 16px 4px;
       border: 1.5px solid #be8e56; z-index: 99998; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
       cursor: pointer; opacity: 0;
@@ -1183,8 +1189,37 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
     }
   }
 
+  const FOOTER_GAP_MIN_TOP = 120;
+  let footerLiftFrame = null;
+
+  function updateFooterLift(animate = false) {
+    footerLiftFrame = null;
+    const wrap = document.getElementById('rs-chat-widget');
+    if (!wrap) return;
+
+    let lift = 0;
+    const footer = document.querySelector('footer');
+    if (footer && !isOpen) {
+      const overlap = window.innerHeight - footer.getBoundingClientRect().top;
+      lift = Math.max(0, Math.min(overlap, window.innerHeight - FOOTER_GAP_MIN_TOP));
+    }
+
+    ['rs-chat-btn', 'rs-chat-bubble'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.style.transition = animate ? 'bottom 0.3s ease' : '';
+    });
+    wrap.style.setProperty('--rs-footer-lift', `${Math.round(lift)}px`);
+  }
+
+  function scheduleFooterLift() {
+    if (footerLiftFrame === null) {
+      footerLiftFrame = requestAnimationFrame(() => updateFooterLift());
+    }
+  }
+
   function toggleChat() {
     isOpen = !isOpen;
+    updateFooterLift(true);
     const win = document.getElementById('rs-chat-window');
     const btn = document.getElementById('rs-chat-btn');
     const chatIcon = btn.querySelector('.rs-chat-icon');
@@ -1197,7 +1232,7 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
       win.style.display = 'flex';
       chatIcon.style.display = 'none';
       closeIcon.style.display = 'block';
-      btn.setAttribute('aria-label', 'Cerrar asistente');
+      btn.setAttribute('aria-label', TRANSLATABLE_TEXTS[currentLang].ariaClose);
 
       gsap.fromTo(win, { opacity: 0, y: 35, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "power4.out" });
       setTimeout(() => document.getElementById('rs-chat-input')?.focus(), 100);
@@ -1210,8 +1245,8 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
     } else {
       chatIcon.style.display = 'block';
       closeIcon.style.display = 'none';
-      btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
-      
+      btn.setAttribute('aria-label', TRANSLATABLE_TEXTS[currentLang].ariaOpen);
+
       gsap.to(win, { opacity: 0, y: 25, scale: 0.95, duration: 0.25, ease: "power2.in", onComplete: () => { win.style.display = 'none'; }});
     }
   }
@@ -1513,7 +1548,12 @@ ${JSON.stringify(chunk)}`;
 
     const shareBtn = document.getElementById('rs-share-plan');
     if (shareBtn) shareBtn.textContent = TRANSLATABLE_TEXTS[newLang].sharePlan;
-    
+
+    const chatBtn = document.getElementById('rs-chat-btn');
+    if (chatBtn) chatBtn.setAttribute('aria-label', isOpen ? TRANSLATABLE_TEXTS[newLang].ariaClose : TRANSLATABLE_TEXTS[newLang].ariaOpen);
+    const sendBtnEl = document.getElementById('rs-chat-send');
+    if (sendBtnEl) sendBtnEl.setAttribute('aria-label', TRANSLATABLE_TEXTS[newLang].ariaSend);
+
     document.querySelectorAll('.rs-quick-btn').forEach((btn, index) => {
       if (index < 4 && TRANSLATABLE_TEXTS[newLang].quickQuestions[index]) {
         btn.textContent = TRANSLATABLE_TEXTS[newLang].quickQuestions[index];
@@ -1614,7 +1654,7 @@ ${JSON.stringify(chunk)}`;
 
     const btn = document.createElement('button');
     btn.id = 'rs-chat-btn';
-    btn.setAttribute('aria-label', 'Abrir asistente de Salvadorean Roots');
+    btn.setAttribute('aria-label', TRANSLATABLE_TEXTS[currentLang].ariaOpen);
     if (!isAuthenticated()) {
       btn.classList.add('locked');
     }
@@ -1674,7 +1714,7 @@ ${JSON.stringify(chunk)}`;
       <div id="rs-chat-messages" class="${!isAuthenticated() ? 'locked' : ''}"></div>
       <div id="rs-chat-footer" class="${!isAuthenticated() ? 'locked' : ''}">
         <input type="text" id="rs-chat-input" placeholder="${TRANSLATABLE_TEXTS[currentLang].inputPlaceholder}" maxlength="400" class="${!isAuthenticated() ? 'locked' : ''}" ${!isAuthenticated() ? 'disabled' : ''} />
-        <button id="rs-chat-send" aria-label="Enviar" class="${!isAuthenticated() ? 'locked' : ''}" ${!isAuthenticated() ? 'disabled' : ''}>
+        <button id="rs-chat-send" aria-label="${TRANSLATABLE_TEXTS[currentLang].ariaSend}" class="${!isAuthenticated() ? 'locked' : ''}" ${!isAuthenticated() ? 'disabled' : ''}>
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
@@ -1690,6 +1730,11 @@ ${JSON.stringify(chunk)}`;
     wrap.appendChild(win);
     wrap.appendChild(btn);
     targetContainer.appendChild(wrap);
+
+    updateFooterLift();
+    window.addEventListener('scroll', scheduleFooterLift, { passive: true });
+    window.addEventListener('resize', scheduleFooterLift);
+    window.addEventListener('load', scheduleFooterLift);
 
     document.getElementById('rs-chat-send').addEventListener('click', sendMessage);
     document.getElementById('rs-chat-input').addEventListener('keydown', (e) => {

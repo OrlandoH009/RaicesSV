@@ -89,7 +89,11 @@ function crearDiagramaControles(tipo) {
     case 'move-4dir':
       return esTactilJuegos
         ? `<div class="controls-diagram">${joystick()}<span class="controls-diagram-label">${jt('jue.diagram.joystick', 'Arrastrá para moverte')}</span></div>`
-        : `<div class="controls-diagram">${mouse()}<span class="controls-diagram-label">${jt('jue.diagram.moveMouse', 'Mové el mouse para caminar hacia ahí')}</span></div>`;
+        : `<div class="controls-diagram">
+             <div class="control-keys-pad">${tecla('W')}${filaTeclas(tecla('A'), tecla('S'), tecla('D'))}</div>
+             ${tecla(jt('jue.diagram.shift', 'Shift'), 'control-key--space')}
+             <span class="controls-diagram-label">${jt('jue.diagram.moveKeys', 'WASD o flechas para moverte · Shift para correr')}</span>
+           </div>`;
 
     case 'drag-shoot':
       return esTactilJuegos
@@ -580,9 +584,11 @@ if (window.visualViewport) {
   // (18/25 y 22/30) para que se puedan distinguir bien uno de otro.
   const PUPUSA_ITEM_RADIUS = esTactilJuegos ? 15 : 18;
   const PUPUSA_ITEM_VISUAL_SIZE = esTactilJuegos ? 21 : 25;
+  // Intervalos de aparición bajados un poco más (a pedido): con los
+  // valores anteriores el ritmo se sentía lento entre objeto y objeto.
   let gameConfig = {
-    easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 1200, spawnIntervalMax: 2000, timeLimit: 30, initialLives: 4 },
-    hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 700, spawnIntervalMax: 1300, timeLimit: 30, initialLives: 3 }
+    easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 950, spawnIntervalMax: 1600, timeLimit: 30, initialLives: 4 },
+    hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 550, spawnIntervalMax: 1000, timeLimit: 30, initialLives: 3 }
   };
 
   function showOverlay(html){
@@ -857,8 +863,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés atrapar pupusas!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.pupusa', '¡Ya sabés atrapar pupusas!')}</h3>
+      <p>${jt('jue.tutorial.doneText.pupusa', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-pupusa">🫓 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-pupusa').onclick = showDifficultySelector;
@@ -1485,8 +1491,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés pelear con el trompo!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la batalla de verdad: elegí el modo de juego.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.trompos', '¡Ya sabés pelear con el trompo!')}</h3>
+      <p>${jt('jue.tutorial.doneText.trompos', 'Ahora vamos a la batalla de verdad: elegí el modo de juego.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-trompos">⚡ ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-trompos').onclick = showModeSelector;
@@ -1674,6 +1680,16 @@ if (window.visualViewport) {
   let npcLastAction = 0;
   let lastCollisionTime = 0;
   const COLLISION_COOLDOWN = 180;
+  // Ventana (ms) en la que el control manual NO pisa la velocidad que dejó
+  // el choque: antes, aunque Matter.js calculaba un rebote real al chocar,
+  // handlePlayerMovement/updateNPC llamaban a Body.setVelocity con la
+  // dirección de la tecla/joystick EN CADA FRAME, así que ese rebote se
+  // borraba de inmediato apenas seguías empujando — en la práctica nunca
+  // rebotaba nada y alcanzaba con mantener la tecla contra el rival para
+  // "ganar" el choque por espameo. Mientras este timer está activo para un
+  // trompo, se deja que la velocidad del rebote se sienta de verdad.
+  let knockbackTimer1 = 0, knockbackTimer2 = 0;
+  const KNOCKBACK_MS = 260;
 
   const bgMusicTrompos = document.getElementById('bgMusic-trompos');
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
@@ -1799,6 +1815,26 @@ if (window.visualViewport) {
           top.speedMultiplier = Math.max(top.speedMultiplier * 0.7, 1.0);
           bottom.speedMultiplier = Math.max(bottom.speedMultiplier * 0.7, 1.0);
 
+          // Rebote real y simétrico para ambos trompos, a lo largo de la
+          // línea que los une, con más fuerza cuanto más fuerte fue el
+          // golpe (y un piso mínimo para que hasta un roce suave separe a
+          // los dos) — antes esto quedaba en manos del restitution de
+          // Matter.js, pero handlePlayerMovement/updateNPC pisaban esa
+          // velocidad con Body.setVelocity en el frame siguiente apenas
+          // seguías con la tecla apretada, así que en la práctica nunca se
+          // sentía ningún rebote y alcanzaba con empujar sin soltar para
+          // ganar el choque. knockbackTimer1/2 bloquea ese pisado por un
+          // rato para que el empujón se note de verdad.
+          const dx = bottom.body.position.x - top.body.position.x;
+          const dy = bottom.body.position.y - top.body.position.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const nx = dx / dist, ny = dy / dist;
+          const knockbackSpeed = Math.min(9, Math.max(3.5, impactForce * 0.9));
+          Body.setVelocity(top.body, { x: -nx * knockbackSpeed, y: -ny * knockbackSpeed });
+          Body.setVelocity(bottom.body, { x: nx * knockbackSpeed, y: ny * knockbackSpeed });
+          knockbackTimer1 = KNOCKBACK_MS;
+          knockbackTimer2 = KNOCKBACK_MS;
+
           flashDamage();
           createCollisionEffect((top.body.position.x + bottom.body.position.x) / 2, (top.body.position.y + bottom.body.position.y) / 2, impactForce);
           notifyTutorial('hit');
@@ -1836,28 +1872,38 @@ if (window.visualViewport) {
     lastTime = timestamp;
     Engine.update(engine, dt);
 
-    const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
-    const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
-    if(moveX1 !== 0 || moveY1 !== 0){
-      // Aceleración progresiva
-      top.speedMultiplier = Math.min(top.speedMultiplier + 0.05, 2.0);
-      const currentSpeed = 4 * top.speedMultiplier;
-      Body.setVelocity(top.body, { x: moveX1 * currentSpeed, y: moveY1 * currentSpeed });
-    } else if (joystick.isActive()) {
-      const vec = joystick.getVector();
-      const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
-      if (len > 0.15) {
+    // Mientras el knockback del último choque está activo, no se deja que
+    // el control manual pise la velocidad del rebote (ver collisionStart)
+    // — así el empujón se siente de verdad en vez de desaparecer apenas
+    // seguís con la tecla apretada.
+    if (knockbackTimer1 > 0) {
+      knockbackTimer1 = Math.max(0, knockbackTimer1 - dt);
+    } else {
+      const moveX1 = (keys['d'] ? 1 : 0) - (keys['a'] ? 1 : 0);
+      const moveY1 = (keys['s'] ? 1 : 0) - (keys['w'] ? 1 : 0);
+      if(moveX1 !== 0 || moveY1 !== 0){
+        // Aceleración progresiva
         top.speedMultiplier = Math.min(top.speedMultiplier + 0.05, 2.0);
         const currentSpeed = 4 * top.speedMultiplier;
-        Body.setVelocity(top.body, { x: (vec.x / len) * currentSpeed * Math.min(1, len), y: (vec.y / len) * currentSpeed * Math.min(1, len) });
-        notifyTutorial('move');
+        Body.setVelocity(top.body, { x: moveX1 * currentSpeed, y: moveY1 * currentSpeed });
+      } else if (joystick.isActive()) {
+        const vec = joystick.getVector();
+        const len = Math.sqrt(vec.x * vec.x + vec.y * vec.y);
+        if (len > 0.15) {
+          top.speedMultiplier = Math.min(top.speedMultiplier + 0.05, 2.0);
+          const currentSpeed = 4 * top.speedMultiplier;
+          Body.setVelocity(top.body, { x: (vec.x / len) * currentSpeed * Math.min(1, len), y: (vec.y / len) * currentSpeed * Math.min(1, len) });
+          notifyTutorial('move');
+        }
+      } else {
+        // Reducir velocidad gradualmente cuando no se mueve
+        top.speedMultiplier = Math.max(top.speedMultiplier - 0.02, 1.0);
       }
-    } else {
-      // Reducir velocidad gradualmente cuando no se mueve
-      top.speedMultiplier = Math.max(top.speedMultiplier - 0.02, 1.0);
     }
 
-    if(gameMode === 'pvp'){
+    if (knockbackTimer2 > 0) {
+      knockbackTimer2 = Math.max(0, knockbackTimer2 - dt);
+    } else if(gameMode === 'pvp'){
       const moveX2 = (keys['arrowright'] ? 1 : 0) - (keys['arrowleft'] ? 1 : 0);
       const moveY2 = (keys['arrowdown'] ? 1 : 0) - (keys['arrowup'] ? 1 : 0);
       if(moveX2 !== 0 || moveY2 !== 0){
@@ -2039,7 +2085,9 @@ if (window.visualViewport) {
     Body.setPosition(bottom.body, { x: canvas.width - offsetX - 100, y: canvas.height/2 });
     Body.setVelocity(top.body, { x: 0, y: 0 });
     Body.setVelocity(bottom.body, { x: 0, y: 0 });
-    
+    knockbackTimer1 = 0;
+    knockbackTimer2 = 0;
+
     top.energy = 100;
     bottom.energy = 100;
     // Sin esto la ronda nueva arrancaba con el impulso acumulado en la
@@ -2844,8 +2892,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés manejar el bus!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la carrera de verdad: elegí la distancia y la dificultad del rival.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.coasters', '¡Ya sabés manejar el bus!')}</h3>
+      <p>${jt('jue.tutorial.doneText.coasters', 'Ahora vamos a la carrera de verdad: elegí la distancia y la dificultad del rival.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-coasters">🚌 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-coasters').onclick = showDistanceSelector;
@@ -3022,10 +3070,28 @@ if (window.visualViewport) {
   // al cargar el juego.
   function buildHud() {
     if (!hud) return;
-    const routeBotLabel = gameMode === 'pvp'
+    const isPvp = gameMode === 'pvp';
+    const routeBotLabel = isPvp
       ? jt('jue.card3.routeP2', '🚍 Ruta 101-D (J2)')
       : jt('jue.card3.routeBot', '🚍 Ruta 101-D (Bot)');
-    hud.innerHTML = `
+    // En 2 jugadores la interfaz queda dividida en dos bloques bien
+    // separados (uno por jugador, cada uno con su propio contador de
+    // pasajeros) en vez del layout "Tú vs Bot" donde solo se veían los
+    // pasajeros del Jugador 1 — antes el Jugador 2 no tenía forma de ver
+    // cuántos pasajeros llevaba mientras jugaba.
+    hud.innerHTML = isPvp ? `
+      <div class="hud-item player1">
+        <span>${jt('jue.card3.routePlayer1', '🚌 Ruta 44 (J1)')}</span>
+        <div class="coasters-progress-bar"><div id="p-prog" class="coasters-progress-fill"></div></div>
+        <b id="p-dist">0m</b>
+        <b id="p-passengers" class="coasters-passengers">👤 0</b>
+      </div>
+      <div class="hud-item player2">
+        <span>${routeBotLabel}</span>
+        <div class="coasters-progress-bar"><div id="b-prog" class="coasters-progress-fill bot"></div></div>
+        <b id="b-dist">0m</b>
+        <b id="b-passengers" class="coasters-passengers">👤 0</b>
+      </div>` : `
       <div class="hud-item">
         <span>${jt('jue.card3.routePlayer', '🚌 Ruta 44 (Tú)')}</span>
         <div class="coasters-progress-bar"><div id="p-prog" class="coasters-progress-fill"></div></div>
@@ -3049,12 +3115,14 @@ if (window.visualViewport) {
     const pDist = document.getElementById('p-dist');
     const bDist = document.getElementById('b-dist');
     const pPass = document.getElementById('p-passengers');
+    const bPass = document.getElementById('b-passengers');
 
     if(pProg) pProg.style.width = tutorialMode ? '0%' : Math.min(100, (player.distance / targetDistance) * 100) + '%';
     if(bProg) bProg.style.width = tutorialMode ? '0%' : Math.min(100, (bot.distance / targetDistance) * 100) + '%';
     if(pDist) pDist.textContent = tutorialMode ? Math.round(player.distance) + 'm' : Math.round(player.distance) + 'm / ' + targetDistance + 'm';
     if(bDist) bDist.textContent = Math.round(bot.distance) + 'm';
-    if(pPass) pPass.textContent = player.passengers;
+    if(pPass) pPass.textContent = gameMode === 'pvp' ? '👤 ' + player.passengers : player.passengers;
+    if(bPass) bPass.textContent = '👤 ' + bot.passengers;
   }
 
   const bgMusic = document.getElementById('bgMusic-coasters');
@@ -4235,11 +4303,15 @@ if (window.visualViewport) {
   // juego (caminata, persecución y huida) solo quienes juegan táctil.
   const MICA_SPEED_MULT = esTactilJuegos ? 0.72 : 1;
 
-  // Input tracking: en escritorio el control es exclusivamente con mouse
-  // (sin teclado) — el personaje camina hacia donde apunta el cursor y
-  // corre mientras se mantiene presionado el clic izquierdo. En táctil se
-  // sigue usando el joystick virtual (ver más abajo).
-  let mouse = { x: 0, y: 0, active: false, sprint: false };
+  // Input tracking: en escritorio el control es por teclado (WASD o
+  // flechas, Shift para correr). En táctil se sigue usando el joystick
+  // virtual (ver más abajo).
+  let keys = {};
+  // Vector de movimiento suavizado: en vez de saltar de golpe a la
+  // dirección apretada (el vaivén típico de WASD), se interpola hacia el
+  // objetivo cuadro a cuadro para que arrancar/frenar/girar se sienta
+  // fluido, como un stick analógico, en vez de instantáneo.
+  let smoothMoveVec = { x: 0, y: 0 };
   let touchJoystick = { x: 0, y: 0, active: false };
 
   // ================= MODO TUTORIAL =================
@@ -4249,7 +4321,7 @@ if (window.visualViewport) {
   const tutorialSteps = [
     { action: 'move', text: () => esTactilJuegos
         ? jt('jue.tutorial.mica.move.tap', 'Arrastrá el dedo desde tu personaje para moverte hacia ahí. ¡Probalo!')
-        : jt('jue.tutorial.mica.move.mouse', 'Movés el mouse: tu personaje camina hacia donde apunta el cursor. Mantené presionado el clic izquierdo para correr. ¡Probalo!') },
+        : jt('jue.tutorial.mica.move.keys', 'Usá WASD o las flechas para moverte, y mantené Shift para correr. ¡Probalo!') },
     { action: 'tag', text: () => jt('jue.tutorial.mica.tag', 'Vos tenés la mica. Acercate al amiguito y tocalo para pasársela.') }
   ];
 
@@ -4298,8 +4370,8 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar a la mica!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la ronda de verdad: elegí la duración.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.mica', '¡Ya sabés jugar a la mica!')}</h3>
+      <p>${jt('jue.tutorial.doneText.mica', 'Ahora vamos a la ronda de verdad: elegí la duración.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-mica">🏃 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-mica').onclick = showTimeSelector;
@@ -4319,8 +4391,10 @@ if (window.visualViewport) {
   // (no es solo cosmético). En celular se usa un zoom más leve que en PC
   // (el joystick táctil igual necesita bastante ancho por el rotate-gate),
   // pero sin zoom la cancha quedaba demasiado grande: costaba mucho
-  // alcanzar a alguien y se sentía poco entretenido.
-  const MICA_ZOOM = esTactilJuegos ? 1.22 : 1.35;
+  // alcanzar a alguien y se sentía poco entretenido. Subido en PC a pedido:
+  // con 1.35 era demasiado fácil escapar corriendo en círculos por lo
+  // grande que se veía la cancha respecto a los personajes.
+  const MICA_ZOOM = esTactilJuegos ? 1.22 : 1.6;
   let arenaW = 0, arenaH = 0;
 
   // Canvas resizing. Antes, al entrar en pantalla completa se reusaba la
@@ -4708,35 +4782,17 @@ if (window.visualViewport) {
     }
   }
 
-  // ================= INPUT HANDLING (mouse, sin teclado) =================
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    // El mundo del juego se dibuja escalado por MICA_ZOOM (ver setupArena/
-    // resizeCanvas), así que hay que deshacer ese zoom para pasar de
-    // píxeles de pantalla a coordenadas de arena, donde vive player.position.
-    mouse.x = (e.clientX - r.left) / MICA_ZOOM;
-    mouse.y = (e.clientY - r.top) / MICA_ZOOM;
-    mouse.active = true;
-    notifyTutorial('move');
-  });
-  canvas.addEventListener('mouseleave', () => { mouse.active = false; });
-  canvas.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
-    mouse.sprint = true;
-    // Doble clic = ráfaga rápida en la dirección hacia la que se está
-    // mirando, equivalente al dash que antes disparaba la barra espaciadora.
-    const now = performance.now();
-    if (running && !paused && mouse.lastClickAt && now - mouse.lastClickAt < 320) {
-      const pAngle = player.angleFacing || 0;
-      Body.applyForce(player, player.position, {
-        x: Math.cos(pAngle) * 0.012,
-        y: Math.sin(pAngle) * 0.012
-      });
-      createParticles(player.position.x, player.position.y, 8);
+  // ================= INPUT HANDLING (teclado) =================
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    keys[k] = true;
+    if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) {
+      notifyTutorial('move');
     }
-    mouse.lastClickAt = now;
+    // Espacio no debe scrollear la página mientras se juega.
+    if (k === ' ') e.preventDefault();
   });
-  window.addEventListener('mouseup', e => { if (e.button === 0) mouse.sprint = false; });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
   // ================= JOYSTICK VIRTUAL (táctil) =================
   // Antes el dedo arrastraba al jugador hacia el punto exacto tocado en la
@@ -4766,32 +4822,43 @@ if (window.visualViewport) {
     if (!player) return;
 
     // En táctil se usa el joystick virtual; en escritorio el control es
-    // exclusivamente el mouse: el personaje camina hacia donde apunta el
-    // cursor y corre mientras se mantiene presionado el clic izquierdo.
+    // por teclado (WASD/flechas, Shift para correr).
     if (handleJoystickMovement()) return;
-    if (!mouse.active) return;
 
-    const moveX = mouse.x - player.position.x;
-    const moveY = mouse.y - player.position.y;
-    const len = Math.sqrt(moveX * moveX + moveY * moveY);
-    // Zona muerta cerca del cursor para que el personaje no tiemble cuando
-    // ya llegó a donde apunta el mouse.
-    if (len > 4) {
-      const normX = moveX / len;
-      const normY = moveY / len;
+    let rawX = 0, rawY = 0;
+    if (keys['w'] || keys['arrowup']) rawY -= 1;
+    if (keys['s'] || keys['arrowdown']) rawY += 1;
+    if (keys['a'] || keys['arrowleft']) rawX -= 1;
+    if (keys['d'] || keys['arrowright']) rawX += 1;
+    const rawLen = Math.sqrt(rawX * rawX + rawY * rawY);
+    const targetX = rawLen > 0 ? rawX / rawLen : 0;
+    const targetY = rawLen > 0 ? rawY / rawLen : 0;
+
+    // Suavizado tipo joystick (ver smoothMoveVec): el vector interpola
+    // hacia la dirección apretada en vez de saltar de golpe, así que su
+    // magnitud (0..1) sirve de "cuánto tilt" tiene el stick — igual que
+    // handleJoystickMovement usa la distancia al centro del joystick
+    // táctil — dando una rampa de arranque/frenado en vez de un tope de
+    // velocidad instantáneo.
+    smoothMoveVec.x += (targetX - smoothMoveVec.x) * 0.22;
+    smoothMoveVec.y += (targetY - smoothMoveVec.y) * 0.22;
+
+    const len = Math.sqrt(smoothMoveVec.x * smoothMoveVec.x + smoothMoveVec.y * smoothMoveVec.y);
+    if (len > 0.03) {
+      const sprint = keys['shift'];
       // Antes 0.0035/0.005 (normal/sprint) con techo de velocidad 2.4/3.4:
       // se sentía demasiado rápido para el tamaño de la cancha. Bajado
       // para un ritmo más manejable, sin tocar la velocidad de los NPCs.
-      const force = mouse.sprint ? 0.0038 : 0.0027;
+      const force = sprint ? 0.0038 : 0.0027;
 
       Body.applyForce(player, player.position, {
-        x: normX * force,
-        y: normY * force
+        x: (smoothMoveVec.x / len) * force * len,
+        y: (smoothMoveVec.y / len) * force * len
       });
 
-      player.angleFacing = Math.atan2(normY, normX);
+      player.angleFacing = Math.atan2(smoothMoveVec.y, smoothMoveVec.x);
+      clampVelocity(player, (sprint ? 2.7 : 1.9) * len);
     }
-    clampVelocity(player, mouse.sprint ? 2.7 : 1.9);
   }
 
   // ================= AI UPDATE LOOP =================
@@ -5523,7 +5590,7 @@ if (window.visualViewport) {
           ${esTactilJuegos ? `
           <li class="rule-good"><span class="rule-icon">👆</span> ${jt('jue.card4.controlsTap', 'Arrastrá el dedo desde tu personaje para mover el joystick virtual.')}</li>
           ` : `
-          <li class="rule-good"><span class="rule-icon">🖱️</span> ${jt('jue.card4.controlsMouse', 'Movés el <strong>mouse</strong> y tu personaje camina hacia el cursor · mantené el <strong>clic izquierdo</strong> para correr.')}</li>
+          <li class="rule-good"><span class="rule-icon">⌨️</span> ${jt('jue.card4.controlsKeys', '<strong>WASD</strong> o <strong>flechas</strong> ⬅️⬆️➡️⬇️ para moverte · mantené <strong>Shift</strong> para correr.')}</li>
           `}
         </ul>
       ` },
@@ -5668,23 +5735,24 @@ if (window.visualViewport) {
   let isGameVisible = false;
   let rafId = null;
 
-  let score = 0, round = 1, shotsLeft = 0, totalRounds = 5;
+  // 4 niveles de 2 rondas cada uno (8 rondas en total): cada ronda es un
+  // círculo nuevo de canicas, y cada 2 rondas se sube de nivel.
+  const NIVELES = 4;
+  const RONDAS_POR_NIVEL = 2;
+  let score = 0, round = 1, totalRounds = NIVELES * RONDAS_POR_NIVEL;
   let difficulty = null;
   let gamePhase = 'idle'; // idle | aiming | shooting | watching | roundEnd | gameOver
-  // Cantidad fija de canicas en las 5 rondas y en ambas dificultades — solo
-  // cambian los tiros disponibles.
+  // Cantidad fija de canicas en todas las rondas y en ambas dificultades.
   const TOTAL_MARBLES = 20;
+  // Sin límite de tiros (ver quita de shotsLeft más abajo): la dificultad
+  // ya no depende de cuántos tiros te quedan, solo importa el tiempo total
+  // que tardás en limpiar las 8 rondas.
+  // Sin tiros limitados, la dificultad ahora la marca el círculo: en
+  // difícil es más chico, así que las canicas quedan más pegadas entre sí
+  // y cuesta más sacar una sin mover de más a las demás.
   let gameConfig = {
-    // Mismo tamaño de juego (circleRadiusFactor) en ambos niveles: antes
-    // fácil usaba un círculo más grande que difícil, así que no era un
-    // cambio de dificultad limpio (también achicaba el área de juego).
-    // La dificultad ahora solo la marca la cantidad de tiros por ronda.
-    // Antes las 3 rondas daban siempre la misma cantidad de tiros (el texto
-    // decía "cada vez más difícil" pero no era cierto): ahora hay 5 niveles
-    // y cada uno da menos tiros que el anterior, así que de verdad hay que
-    // apuntar mejor a medida que se avanza.
-    easy: { shotsByRound: [7, 6, 6, 5, 4], circleRadiusFactor: 0.33 },
-    hard: { shotsByRound: [5, 5, 4, 4, 3], circleRadiusFactor: 0.33 }
+    easy: { circleRadiusFactor: 0.34 },
+    hard: { circleRadiusFactor: 0.29 }
   };
 
   // Tiempo que tarda el jugador en terminar el nivel (todas las rondas de
@@ -5692,6 +5760,35 @@ if (window.visualViewport) {
   let playedMs = 0;
   function formatTime(ms) {
     return (ms / 1000).toFixed(1) + 's';
+  }
+
+  // ── Modo Libre (contrarreloj, sin tiros) vs Modo Historia (6 niveles,
+  // tiros limitados, se desbloquean de a uno) ────────────────────────
+  let flowMode = 'libre'; // 'libre' | 'historia'
+  let shotsLimited = false;
+  let shotsLeft = 0;
+  let storyLevel = 1;
+  const STORY_LEVELS = 6;
+  // Cada vez menos tiros a medida que se avanza de nivel, y el círculo se
+  // va cerrando un poco: el modo historia sí debe ponerse más difícil
+  // nivel a nivel, a diferencia del libre (que ya es parejo y se mide por
+  // tiempo).
+  function storyShotsForLevel(lvl) { return Math.max(3, 9 - lvl); }
+  function storyCircleFactor(lvl) { return 0.36 - (lvl - 1) * 0.012; }
+
+  const STORY_PROGRESS_KEY = 'canicas_historia_unlocked';
+  function getUnlockedStoryLevel() {
+    try {
+      const v = parseInt(localStorage.getItem(STORY_PROGRESS_KEY), 10);
+      return Number.isFinite(v) && v >= 1 ? Math.min(v, STORY_LEVELS) : 1;
+    } catch (e) { return 1; }
+  }
+  function unlockStoryLevel(lvl) {
+    try {
+      if (lvl > getUnlockedStoryLevel()) {
+        localStorage.setItem(STORY_PROGRESS_KEY, String(Math.min(lvl, STORY_LEVELS)));
+      }
+    } catch (e) {}
   }
 
   // ================= MODO TUTORIAL =================
@@ -5740,8 +5837,8 @@ if (window.visualViewport) {
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     overlayCard.innerHTML = `
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés jugar canicas!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
+      <h3>${jt('jue.tutorial.doneTitle.canicas', '¡Ya sabés jugar canicas!')}</h3>
+      <p>${jt('jue.tutorial.doneText.canicas', 'Ahora vamos a la partida de verdad: elegí la dificultad.')}</p>
       <button class="btn-primary" id="btn-tutorial-done-canicas">🔮 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `;
     overlay.classList.remove('hidden');
@@ -5753,7 +5850,6 @@ if (window.visualViewport) {
     startGame('easy');
     tutorialMode = true;
     setTimeout(() => {
-      shotsLeft = 999;
       updateHUD();
       showTutorialStep(0);
     }, 350); // espera a que termine la transición GSAP de startGame()
@@ -5802,26 +5898,36 @@ if (window.visualViewport) {
   }
 
   // ── HUD ───────────────────────────────────────────────────────
-  hud.innerHTML = `
-    <div class="hud-item">
-      <span>${jt('jue.hud.time','Tiempo')}</span>
-      <b id="can-time">0.0s</b>
-    </div>
-    <div class="hud-item">
-      <span>${jt('jue.hud.round','Ronda')}</span>
-      <b id="can-round">1/${totalRounds}</b>
-    </div>
-    <div class="hud-item">
-      <span>${jt('jue.card5.hud.shots','Tiros')}</span>
-      <b id="can-shots">5</b>
-    </div>`;
+  // Se reconstruye al arrancar cada partida (buildHud) porque el modo
+  // Historia sí necesita mostrar tiros y el modo Libre no.
+  function buildHud() {
+    hud.innerHTML = `
+      <div class="hud-item">
+        <span>${jt('jue.hud.time','Tiempo')}</span>
+        <b id="can-time">0.0s</b>
+      </div>
+      <div class="hud-item">
+        <span>${jt('jue.card5.hud.level','Nivel')}</span>
+        <b id="can-round">1/${NIVELES}</b>
+      </div>
+      ${shotsLimited ? `
+      <div class="hud-item">
+        <span>${jt('jue.card5.hud.shots','Tiros')}</span>
+        <b id="can-shots">${shotsLeft}</b>
+      </div>` : ''}`;
+  }
+  buildHud();
 
   function updateHUD() {
     const elTime = document.getElementById('can-time');
     const elRound = document.getElementById('can-round');
     const elShots = document.getElementById('can-shots');
     if (elTime) elTime.textContent = formatTime(playedMs);
-    if (elRound) elRound.textContent = `${round}/${totalRounds}`;
+    if (elRound) {
+      elRound.textContent = flowMode === 'historia'
+        ? `${storyLevel}/${STORY_LEVELS} · ${round}/${RONDAS_POR_NIVEL}`
+        : `${Math.ceil(round / RONDAS_POR_NIVEL)}/${NIVELES}`;
+    }
     if (elShots) elShots.textContent = tutorialMode ? '∞' : shotsLeft;
   }
 
@@ -6095,11 +6201,13 @@ if (window.visualViewport) {
     Body.setStatic(tirador, false);
     Body.setVelocity(tirador, { x: vx, y: vy });
 
-    shotsLeft--;
-    updateHUD();
     gamePhase = 'shooting';
     aimStart = null;
     aimCurrent = null;
+    if (shotsLimited && !tutorialMode) {
+      shotsLeft = Math.max(0, shotsLeft - 1);
+      updateHUD();
+    }
     notifyTutorial('shoot');
     e.preventDefault();
   }
@@ -6173,12 +6281,12 @@ if (window.visualViewport) {
         if (watchTimer > 600) {
           watchTimer = 0;
           // La ronda se da por terminada en cuanto todas las canicas ya
-          // salieron del círculo, sin importar si quedaban tiros — antes
-          // solo se avanzaba de ronda al agotar los tiros, así que si el
-          // jugador limpiaba el círculo con tiros de sobra el juego lo
-          // seguía obligando a disparar contra un círculo ya vacío.
+          // salieron del círculo. En modo Historia además puede terminar
+          // por quedarse sin tiros (sin haber limpiado el círculo) — eso
+          // hace fallar el nivel en vez de avanzarlo (ver endRound).
           const todasAfuera = marbles.length > 0 && marbles.every(m => m.plugin?.isOut);
-          if (todasAfuera || shotsLeft <= 0) {
+          const sinTiros = shotsLimited && shotsLeft <= 0 && !todasAfuera;
+          if (todasAfuera || sinTiros) {
             // gamePhase cambia ANTES del setTimeout: mientras se espera para
             // llamar a endRound(), este bloque seguía corriendo cada frame
             // y, como todo seguía quieto, volvía a cumplirse la condición
@@ -6189,7 +6297,7 @@ if (window.visualViewport) {
             // el bloque se vuelva a ejecutar hasta que resetRoundLayout()
             // (o spawnNewTirador) devuelva la fase a 'aiming'.
             gamePhase = 'roundEnd';
-            setTimeout(() => endRound(), 500);
+            setTimeout(() => endRound(sinTiros), 500);
           } else {
             // Recolocar tirador para el siguiente disparo
             spawnNewTirador();
@@ -6210,14 +6318,30 @@ if (window.visualViewport) {
     gamePhase = 'aiming';
   }
 
-  function endRound() {
+  function endRound(sinTiros) {
+    if (flowMode === 'historia') {
+      if (sinTiros) {
+        showStoryLevelFailed();
+        return;
+      }
+      if (round >= RONDAS_POR_NIVEL) {
+        unlockStoryLevel(storyLevel + 1);
+        gamePhase = 'gameOver';
+        showStoryLevelComplete();
+      } else {
+        round++;
+        shotsLeft = storyShotsForLevel(storyLevel);
+        updateHUD();
+        showRoundTransition(() => resetRoundLayout());
+      }
+      return;
+    }
     if (round >= totalRounds) {
       gamePhase = 'gameOver';
       showEndScreen();
     } else {
       round++;
       updateHUD();
-      shotsLeft = gameConfig[difficulty].shotsByRound[round - 1];
       showRoundTransition(() => resetRoundLayout());
     }
   }
@@ -6228,10 +6352,12 @@ if (window.visualViewport) {
       position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
       background:rgba(10,0,30,0.75);border-radius:12px;z-index:20;color:#fff;font-family:inherit;
     `;
+    const nivelSiguiente = flowMode === 'historia' ? storyLevel : Math.ceil(round / RONDAS_POR_NIVEL);
+    const rondaEnNivel = flowMode === 'historia' ? round : ((round - 1) % RONDAS_POR_NIVEL) + 1;
     msg.innerHTML = `
       <div style="font-size:3rem;">🔮</div>
       <h3 style="font-size:1.8rem;margin:.5rem 0;color:#A78BFA;">${jt('jue.card5.roundComplete', 'Ronda {n} completada').replace('{n}', round - 1)}</h3>
-      <p style="color:#C4B5FD;">${jt('jue.card5.roundPrepare', 'Preparate para la ronda {n}...').replace('{n}', round)}</p>
+      <p style="color:#C4B5FD;">${jt('jue.card5.levelRound', 'Nivel {nivel} · Ronda {ronda}/{total}').replace('{nivel}', nivelSiguiente).replace('{ronda}', rondaEnNivel).replace('{total}', RONDAS_POR_NIVEL)}</p>
     `;
     canvasWrap.style.position = 'relative';
     canvasWrap.appendChild(msg);
@@ -6479,12 +6605,147 @@ if (window.visualViewport) {
     ctx.restore();
   }
 
-  // ── Pantalla de inicio / selector de dificultad ───────────────
+  // ── Pantalla de elección de modo (Libre / Historia) ───────────
+  function showFlowSelector() {
+    running = false;
+    paused = false;
+    gamePhase = 'idle';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+    showOverlay(`
+      <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+      <h3 style="margin:.4rem 0 .3rem;">${jt('jue.card5.chooseMode', '¿Cómo querés jugar?')}</h3>
+      <div class="difficulty-buttons" style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" id="btn-flow-libre" style="text-align:left;">
+          🔮 ${jt('jue.card5.flowLibre', 'Modo Libre')}
+          <div style="font-size:.75rem;font-weight:normal;opacity:.9;">${jt('jue.card5.flowLibreDesc', 'Tiros ilimitados · 4 niveles contrarreloj')}</div>
+        </button>
+        <button class="btn-primary" id="btn-flow-historia" style="text-align:left;">
+          📖 ${jt('jue.card5.flowHistoria', 'Modo Historia')}
+          <div style="font-size:.75rem;font-weight:normal;opacity:.9;">${jt('jue.card5.flowHistoriaDesc', '6 niveles con tiros limitados · desbloqueá uno a la vez')}</div>
+        </button>
+      </div>
+    `);
+    animarEntradaInstrucciones(overlayCard);
+    document.getElementById('btn-flow-libre').onclick = () => { flowMode = 'libre'; shotsLimited = false; showDifficultySelector(); };
+    document.getElementById('btn-flow-historia').onclick = () => { flowMode = 'historia'; shotsLimited = true; showLevelMap(); };
+  }
+
+  // ── Pantalla de mapa de niveles (Modo Historia) ───────────────
+  function showLevelMap() {
+    running = false;
+    paused = false;
+    gamePhase = 'idle';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+    const unlocked = getUnlockedStoryLevel();
+    const colors = ['#7C3AED','#2563EB','#059669','#DC2626','#D97706','#DB2777'];
+    const marbles = Array.from({ length: STORY_LEVELS }, (_, i) => {
+      const lvl = i + 1;
+      const isUnlocked = lvl <= unlocked;
+      const color = colors[i % colors.length];
+      return `<button type="button" class="story-level-marble" data-level="${lvl}" ${isUnlocked ? '' : 'disabled'} style="
+        width:54px;height:54px;border-radius:50%;border:none;flex:0 0 auto;
+        cursor:${isUnlocked ? 'pointer' : 'not-allowed'};
+        background:${isUnlocked ? `radial-gradient(circle at 35% 30%, hsla(0,0%,100%,.65), ${color})` : 'rgba(255,255,255,.15)'};
+        color:#fff;font-weight:700;font-size:1.15rem;
+        box-shadow:${isUnlocked ? '0 4px 10px rgba(0,0,0,.35)' : 'none'};
+        opacity:${isUnlocked ? '1' : '.55'};">${isUnlocked ? lvl : '🔒'}</button>`;
+    }).join('');
+
+    showOverlay(`
+      <button type="button" class="btn-back-selector" id="btn-back-flow-canicas">${jt('jue.back', '← Atrás')}</button>
+      <span class="overlay-tag">📖 ${jt('jue.card5.flowHistoria', 'Modo Historia')}</span>
+      <h3 style="margin:.3rem 0;">${jt('jue.card5.pickLevel', 'Elegí un nivel')}</h3>
+      <p style="font-size:.8rem;opacity:.85;margin-bottom:.6rem;">${jt('jue.card5.pickLevelDesc', 'Cada nivel son 2 rondas con tiros limitados. Completalo para desbloquear el siguiente.')}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:8px 4px;">${marbles}</div>
+    `);
+    animarEntradaInstrucciones(overlayCard);
+    document.getElementById('btn-back-flow-canicas').onclick = showFlowSelector;
+    overlayCard.querySelectorAll('.story-level-marble:not([disabled])').forEach(btn => {
+      btn.onclick = () => startStoryLevel(parseInt(btn.dataset.level, 10));
+    });
+  }
+
+  function startStoryLevel(lvl) {
+    forzarPantallaCompleta(canvasWrap, 'landscape');
+
+    flowMode = 'historia';
+    shotsLimited = true;
+    storyLevel = lvl;
+    difficulty = 'historia';
+    gameConfig.historia = { circleRadiusFactor: storyCircleFactor(lvl) };
+    totalRounds = RONDAS_POR_NIVEL;
+    round = 1;
+    score = 0;
+    playedMs = 0;
+    shotsLeft = storyShotsForLevel(lvl);
+    particles = [];
+    buildHud();
+
+    gsap.to(overlayCard, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in', onComplete: () => {
+      overlay.classList.add('hidden');
+      initEngine();
+      resetRoundLayout();
+      updateHUD();
+      cancelAnimationFrame(rafId);
+      running = true;
+      lastTs = null;
+      rafId = requestAnimationFrame(step);
+      playMusic();
+    }});
+  }
+
+  function showStoryLevelComplete() {
+    running = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    stopMusic();
+    const isLast = storyLevel >= STORY_LEVELS;
+
+    setTimeout(() => {
+      showOverlay(`
+        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+        <h3>${isLast ? jt('jue.card5.story.allDone', '🏆 ¡Completaste el Modo Historia!') : jt('jue.card5.story.levelDone', '¡Nivel {n} completado!').replace('{n}', storyLevel)}</h3>
+        <p>${isLast ? jt('jue.card5.story.allDoneMsg', 'Sacaste todas las canicas de los 6 niveles.') : jt('jue.card5.story.levelDoneMsg', 'Desbloqueaste el nivel {n}.').replace('{n}', storyLevel + 1)}</p>
+        <div class="result-actions">
+          ${!isLast ? `<button class="btn-primary" id="btn-story-next">${jt('jue.card5.story.next', 'Siguiente nivel')}</button>` : ''}
+          <button class="btn-primary btn-secondary-result" id="btn-story-map">${jt('jue.card5.story.map', 'Mapa de niveles')}</button>
+        </div>
+      `);
+      animarEntradaInstrucciones(overlayCard);
+      if (!isLast) document.getElementById('btn-story-next').onclick = () => startStoryLevel(storyLevel + 1);
+      document.getElementById('btn-story-map').onclick = showLevelMap;
+    }, 500);
+  }
+
+  function showStoryLevelFailed() {
+    running = false;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    stopMusic();
+
+    setTimeout(() => {
+      showOverlay(`
+        <span class="overlay-tag">🔮 ${jt('jue.card5.title', 'Canicas')}</span>
+        <h3>${jt('jue.card5.story.failedTitle', '¡Te quedaste sin tiros!')}</h3>
+        <p>${jt('jue.card5.story.failedMsg', 'No alcanzaste a sacar todas las canicas del nivel {n}.').replace('{n}', storyLevel)}</p>
+        <div class="result-actions">
+          <button class="btn-primary" id="btn-story-retry">${jt('jue.card5.story.retry', 'Reintentar')}</button>
+          <button class="btn-primary btn-secondary-result" id="btn-story-map">${jt('jue.card5.story.map', 'Mapa de niveles')}</button>
+        </div>
+      `);
+      animarEntradaInstrucciones(overlayCard);
+      document.getElementById('btn-story-retry').onclick = () => startStoryLevel(storyLevel);
+      document.getElementById('btn-story-map').onclick = showLevelMap;
+    }, 500);
+  }
+
+  // ── Pantalla de inicio / selector de dificultad (Modo Libre) ──
   function showDifficultySelector() {
     running = false;
     paused = false;
     gamePhase = 'idle';
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    flowMode = 'libre'; shotsLimited = false; totalRounds = NIVELES * RONDAS_POR_NIVEL;
     score = 0; round = 1; playedMs = 0;
 
     mostrarInstrucciones(showOverlay, overlayCard, [
@@ -6498,8 +6759,8 @@ if (window.visualViewport) {
       ` },
       { html: `
         <ul class="rules-list" style="text-align:left;font-size:.8rem;margin-bottom:.7rem;padding-left:0;list-style:none;">
-          <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 5 rondas con cada vez menos tiros · ¡ganá el nivel lo más rápido posible!')}</li>
-          <li class="rule-bad"><span class="rule-icon">⚠️</span> ${jt('jue.card5.ruleShotsWarn', 'Tiros limitados — ¡que cada uno cuente!')}</li>
+          <li class="rule-good"><span class="rule-icon">✅</span> ${jt('jue.card5.ruleScore', '20 canicas · 4 niveles de 2 rondas · ¡sacalas todas lo más rápido posible!')}</li>
+          <li class="rule-bad"><span class="rule-icon">⏱️</span> ${jt('jue.card5.ruleTimeWarn', 'Tiros ilimitados — lo que cuenta es tu tiempo final.')}</li>
         </ul>
       `, finishLabel: jt('jue.next', 'Siguiente'),
         extraHtml: `<button class="btn-tutorial" id="btn-tutorial-canicas">🎓 ${jt('jue.tutorial.start', 'Tutorial (practicar primero)')}</button>`,
@@ -6512,10 +6773,10 @@ if (window.visualViewport) {
         <p style="font-weight:600;margin-bottom:.4rem;color:#6d28d9;">${jt('jue.card5.chooseDiff', 'Seleccioná dificultad:')}</p>
         <div class="difficulty-buttons">
           <button class="difficulty-btn easy" id="btn-easy-canicas">
-            ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 5 niveles · empieza con 7 tiros')}</small>
+            ${jt('jue.diff.easy', '🟢 Fácil')}<br><small>${jt('jue.card5.diff.easyDesc', '20 canicas · 4 niveles · círculo más amplio')}</small>
           </button>
           <button class="difficulty-btn hard" id="btn-hard-canicas">
-            ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 5 niveles · empieza con 5 tiros')}</small>
+            ${jt('jue.diff.hard', '🔴 Difícil')}<br><small>${jt('jue.card5.diff.hardDesc', '20 canicas · 4 niveles · círculo más cerrado')}</small>
           </button>
         </div>`);
       animarEntradaInstrucciones(overlayCard);
@@ -6531,11 +6792,14 @@ if (window.visualViewport) {
     // parejo alrededor para poder tirar desde cualquier lado.
     forzarPantallaCompleta(canvasWrap, 'landscape');
 
+    flowMode = 'libre';
+    shotsLimited = false;
     difficulty = diff;
-    shotsLeft = gameConfig[diff].shotsByRound[0];
+    totalRounds = NIVELES * RONDAS_POR_NIVEL;
     score = 0; round = 1;
     playedMs = 0;
     particles = [];
+    buildHud();
 
     gsap.to(overlayCard, { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in', onComplete: () => {
       overlay.classList.add('hidden');
@@ -6600,11 +6864,11 @@ if (window.visualViewport) {
         animHtml: crearAnimacionCanicasComic(),
         scoreValue: formatTime(playedMs),
         scoreSuffix: '',
-        message: jt('jue.card5.end.roundsPlayed', 'en {n} rondas').replace('{n}', totalRounds),
+        message: jt('jue.card5.end.levelsPlayed', 'en {n} niveles').replace('{n}', NIVELES),
         restartLabel: `🔮 ${jt('jue.end.playAgain', 'Jugar de nuevo')}`,
         onRestart: showDifficultySelector,
         secondaryLabel: jt('jue.pause.menu', 'Menú'),
-        onSecondary: showDifficultySelector,
+        onSecondary: showFlowSelector,
         // El marcador que se guarda en el servidor sigue siendo la cantidad
         // de canicas sacadas (mismo formato que usa el resto del backend de
         // puntajes); antes Canicas era el único juego que ni guardaba ni
@@ -6651,7 +6915,7 @@ if (window.visualViewport) {
     canvasWrap?.classList.remove('is-paused');
     pauseOverlay?.classList.add('hidden');
     if (pauseIcon) pauseIcon.textContent = '⏸️';
-    showDifficultySelector();
+    showFlowSelector();
   }
 
   if (pauseBtn) pauseBtn.addEventListener('click', () => paused ? resumeGame() : pauseGame());
@@ -6663,7 +6927,7 @@ if (window.visualViewport) {
     if (e.detail.gameId === 'elotes') {
       isGameVisible = true;
       resizeCanvas();
-      if (!running && gamePhase === 'idle') showDifficultySelector();
+      if (!running && gamePhase === 'idle') showFlowSelector();
       else if (paused && running) resumeGame();
       else if (running) { lastTs = null; rafId = requestAnimationFrame(step); }
     }
@@ -6676,7 +6940,7 @@ if (window.visualViewport) {
     running: () => running,
     paused: () => paused,
     setVisible: (visible) => { isGameVisible = visible; },
-    reloadMenu: showDifficultySelector
+    reloadMenu: showFlowSelector
   });
 })();
 
@@ -6810,9 +7074,9 @@ if (window.visualViewport) {
     cancelAnimationFrame(rafId);
     showOverlay(`
       <span class="overlay-tag">🎉 ${jt('jue.tutorial.doneTag', 'Tutorial completo')}</span>
-      <h3>${jt('jue.tutorial.doneTitle', '¡Ya sabés correr el Torito!')}</h3>
-      <p>${jt('jue.tutorial.doneText', 'Ahora vamos a la corrida de verdad: elegí tu destino y la dificultad.')}</p>
-      <button class="btn-primary" id="btn-tutorial-done-torito">${jt('jue.tutorial.playReal', '🐂 Jugar de verdad')}</button>
+      <h3>${jt('jue.tutorial.doneTitle.torito', '¡Ya sabés correr el Torito!')}</h3>
+      <p>${jt('jue.tutorial.doneText.torito', 'Ahora vamos a la corrida de verdad: elegí tu destino y la dificultad.')}</p>
+      <button class="btn-primary" id="btn-tutorial-done-torito">🐂 ${jt('jue.tutorial.playReal', 'Jugar de verdad')}</button>
     `);
     document.getElementById('btn-tutorial-done-torito').onclick = showDistanceSelector;
   }
