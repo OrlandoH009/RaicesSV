@@ -122,9 +122,12 @@
     if (loaderEl) return loaderEl;
     loaderEl = document.createElement('div');
     loaderEl.className = 'sr-page-loader';
+    const loadingText = window.SRi18n
+      ? window.SRi18n.t('common.cargando', window.SRi18n.getLang())
+      : 'Cargando...';
     loaderEl.innerHTML =
       '<div class="sr-page-loader__spinner"></div>' +
-      '<div class="sr-page-loader__text">Cargando...</div>';
+      '<div class="sr-page-loader__text">' + loadingText + '</div>';
     document.body.appendChild(loaderEl);
     return loaderEl;
   }
