@@ -438,12 +438,20 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let loggedIn = true;
       let user = overrideUser;
+      let suspended = false;
 
       if (!user) {
         const response = await fetch('/auth/status', { credentials: 'same-origin' });
         const data = await response.json();
         loggedIn = data.loggedIn;
         user = data.user;
+        suspended = Boolean(data.suspended);
+      }
+
+      // La ruta protegida ya muestra este mismo aviso vía "?suspendido=1" al
+      // redirigir; si venimos de ahí no lo repetimos en la misma carga.
+      if (suspended && new URLSearchParams(window.location.search).get('suspendido') !== '1') {
+        showNotice(noticeText('login.account_suspended'), 'error');
       }
 
       if (loggedIn) {
