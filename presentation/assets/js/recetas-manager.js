@@ -946,7 +946,7 @@ function renderRecipe(key) {
 // ============================================================
 // Descarga de PDF (traducido)
 // ============================================================
-function generateAndDownloadPDF() {
+async function generateAndDownloadPDF() {
   const btn = document.getElementById('download-pdf-btn');
   if (!btn) return;
 
@@ -970,10 +970,26 @@ function generateAndDownloadPDF() {
       throw new Error('No se pudo cargar el generador de PDF.');
     }
 
-    const tempImg = new Image();
-    tempImg.crossOrigin = "anonymous";
-    tempImg.src = receta.imagen || DEFAULT_RECIPE_IMAGE;
-    const absoluteImgSrc = tempImg.src;
+    // Hay que esperar a que la imagen realmente termine de cargar (o falle)
+    // antes de rasterizar con html2canvas: si no, en conexiones lentas o sin
+    // caché (como la primera carga en producción) el canvas se captura a
+    // medias y el contenido que viene después de la imagen queda en blanco.
+    const imgSrc = receta.imagen || DEFAULT_RECIPE_IMAGE;
+    const absoluteImgSrc = await new Promise((resolve) => {
+      const tempImg = new Image();
+      tempImg.crossOrigin = "anonymous";
+      let settled = false;
+      const settle = () => {
+        if (settled) return;
+        settled = true;
+        resolve(tempImg.src);
+      };
+      tempImg.onload = settle;
+      tempImg.onerror = settle;
+      tempImg.src = imgSrc;
+      if (tempImg.complete) settle();
+      setTimeout(settle, 5000);
+    });
 
     const printHTML = `
 <!DOCTYPE html>
@@ -1081,7 +1097,7 @@ function generateAndDownloadPDF() {
     </div>
 
     <div class="pdfr-main-image-container">
-      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="pdfr-main-image" />
+      <img src="${absoluteImgSrc}" alt="${receta.titulo}" class="pdfr-main-image" crossorigin="anonymous" />
     </div>
 
     <div class="pdfr-recipe-grid">
