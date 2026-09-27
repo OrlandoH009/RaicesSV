@@ -587,8 +587,9 @@ if (window.visualViewport) {
   // Intervalos de aparición bajados un poco más (a pedido): con los
   // valores anteriores el ritmo se sentía lento entre objeto y objeto.
   let gameConfig = {
-    easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 950, spawnIntervalMax: 1600, timeLimit: 30, initialLives: 4 },
-    hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 550, spawnIntervalMax: 1000, timeLimit: 30, initialLives: 3 }
+    easy: { gravity: 0.6 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 750, spawnIntervalMax: 1250, timeLimit: 30, initialLives: 4 },
+    medium: { gravity: 0.75 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 575, spawnIntervalMax: 1000, timeLimit: 30, initialLives: 4 },
+    hard: { gravity: 0.9 * PUPUSA_GRAVITY_MULT, spawnIntervalMin: 400, spawnIntervalMax: 750, timeLimit: 30, initialLives: 3 }
   };
 
   function showOverlay(html){
@@ -738,7 +739,7 @@ if (window.visualViewport) {
     if(scoreEl) scoreEl.textContent = score;
     if(livesEl) livesEl.innerHTML = renderLives(lives);
     if(timeEl) timeEl.textContent = tutorialMode ? '∞' : Math.max(0, timeLeft);
-    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? jt('jue.diff.easy', '🟢 Fácil') : jt('jue.diff.hard', '🔴 Difícil');
+    if(levelEl) levelEl.textContent = gameDifficulty === 'easy' ? jt('jue.diff.easy', '🟢 Fácil') : gameDifficulty === 'medium' ? jt('jue.diff.medium', '🟡 Normal') : jt('jue.diff.hard', '🔴 Difícil');
   }
 
   const engine = Engine.create();
@@ -884,7 +885,7 @@ if (window.visualViewport) {
   const volumeSlider = document.getElementById('volumeSlider-pupusa');
   const volumeIcon = document.getElementById('volumeIcon-pupusa');
   const damageOverlay = document.getElementById('damageOverlay-pupusa');
-  let volume = Number(volumeSlider?.value || 0.25);
+  let volume = Number(volumeSlider?.value || 0.15);
   let savedVolume = volume;
 
   function updateVolumeIcon(value){
@@ -1222,7 +1223,7 @@ if (window.visualViewport) {
                score >= 60 ? jt('jue.card1.end.mid', '🌟 Excelente, ya casi cocinás como las expertas de Olocuilta.') :
                jt('jue.card1.end.low', '👍 Buen intento, ¡seguí practicando para no quemar las pupusas!');
 
-    const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
+    const difficultyLabel = gameDifficulty === 'easy' ? jt('jue.diff.easyTag', '🟢 Nivel Fácil') : gameDifficulty === 'medium' ? jt('jue.diff.mediumTag', '🟡 Nivel Medio') : jt('jue.diff.hardTag', '🔴 Nivel Difícil');
     const gameName = `pupusa-${gameDifficulty}`;
 
     mostrarResultado(showOverlay, overlayCard, {
@@ -1270,6 +1271,10 @@ if (window.visualViewport) {
           ${jt('jue.diff.easy', '🟢 Fácil')}
           <div class="difficulty-desc">${jt('jue.card1.diff.easyDesc', 'Caída lenta, ritmo tranquilo')}</div>
         </button>
+        <button class="difficulty-btn medium" id="btn-medium">
+          ${jt('jue.diff.medium', '🟡 Normal')}
+          <div class="difficulty-desc">${jt('jue.card1.diff.mediumDesc', 'Caída a ritmo parejo, un reto justo')}</div>
+        </button>
         <button class="difficulty-btn hard" id="btn-hard">
           ${jt('jue.diff.hard', '🔴 Difícil')}
           <div class="difficulty-desc">${jt('jue.card1.diff.hardDesc', 'Caída más rápida y seguida')}</div>
@@ -1284,7 +1289,14 @@ if (window.visualViewport) {
       engine.gravity.y = gameConfig.easy.gravity;
       setTimeout(()=>{ start(); }, 100);
     };
-    
+
+    document.getElementById('btn-medium').onclick = ()=>{
+      gameDifficulty = 'medium';
+      totalLives = gameConfig.medium.initialLives;
+      engine.gravity.y = gameConfig.medium.gravity;
+      setTimeout(()=>{ start(); }, 100);
+    };
+
     document.getElementById('btn-hard').onclick = ()=>{
       gameDifficulty = 'hard';
       totalLives = gameConfig.hard.initialLives;
@@ -1699,7 +1711,7 @@ if (window.visualViewport) {
   const volumeSliderTrompos = document.getElementById('volumeSlider-trompos');
   const volumeIconTrompos = document.getElementById('volumeIcon-trompos');
   const damageOverlay = document.getElementById('damageOverlay-trompos');
-  let volume = Number(volumeSliderTrompos?.value || 0.25);
+  let volume = Number(volumeSliderTrompos?.value || 0.15);
   let savedVolume = volume;
 
   function updateVolumeIcon(value){
@@ -1943,14 +1955,23 @@ if (window.visualViewport) {
     const offsetX = (canvas.width - mapWidth) / 2;
     const offsetY = (canvas.height - mapHeight) / 2;
 
-    if(!tutorialMode && (top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.y < offsetY - 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40)){
+    const topOut = !tutorialMode && (top.energy <= 0 || top.body.position.y > canvas.height - offsetY + 40 || top.body.position.y < offsetY - 40 || top.body.position.x > canvas.width - offsetX + 40 || top.body.position.x < offsetX - 40);
+    const bottomOut = !tutorialMode && (bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.y < offsetY - 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40);
+
+    if (topOut || bottomOut) {
       running = false;
-      handleRoundEnd('bottom');
-      return;
-    }
-    if(!tutorialMode && (bottom.energy <= 0 || bottom.body.position.y > canvas.height - offsetY + 40 || bottom.body.position.y < offsetY - 40 || bottom.body.position.x > canvas.width - offsetX + 40 || bottom.body.position.x < offsetX - 40)){
-      running = false;
-      handleRoundEnd('top');
+      if (topOut && bottomOut) {
+        // Doble salida en el mismo instante (choque de frente): antes esto
+        // siempre le daba la ronda a "bottom" solo por venir chequeado
+        // segundo en el código, sin importar quién jugó mejor. Ahora decide
+        // quién aguantó más el golpe (más energía restante); solo si de
+        // verdad quedaron exactos se sortea, para que nunca quede un empate.
+        handleRoundEnd(top.energy > bottom.energy ? 'top' : bottom.energy > top.energy ? 'bottom' : (Math.random() < 0.5 ? 'top' : 'bottom'));
+      } else if (topOut) {
+        handleRoundEnd('bottom');
+      } else {
+        handleRoundEnd('top');
+      }
       return;
     }
 
@@ -2448,6 +2469,10 @@ if (window.visualViewport) {
       audio.volume = 0;
     });
 
+    // Al cerrar el juego, devolverle el turno a la música de fondo global
+    // (si fuimos nosotros quienes la silenciamos al abrir este juego).
+    window.SRDuckBgMusic?.resume();
+
     const content = modal.querySelector('.game-modal__content');
     if (window.gsap && content) {
       gsap.to(content, {
@@ -2495,6 +2520,11 @@ if (window.visualViewport) {
       if (modal) {
         modal.classList.add('active');
         lockBackgroundScroll();
+
+        // Silenciar siempre la música de fondo global mientras un juego
+        // está abierto, sin depender de si la música propia del juego
+        // llega a reproducirse (autoplay bloqueado, etc.).
+        window.SRDuckBgMusic?.pause();
 
         // En celular todos los juegos deben jugarse a pantalla completa: se
         // pide acá mismo, en el clic de "Jugar Ahora", que es el gesto del
@@ -2713,14 +2743,25 @@ if (window.visualViewport) {
   // con el rival (derecha, carriles 2-3), así que ya no hace falta lógica
   // de choque/esquive entre los dos buses.
   let gameMode = 'pve'; // 'pve' (vs bot) | 'pvp' (2 jugadores) — se define en showPlayModeSelector
-  let player = { x: 0, y: 0, speed: 0, maxSpeed: 10 * COASTERS_SPEED_MULT, lane: 0, targetX: 0, distance: 0, passengers: 0 };
-  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 6.9 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0, passengers: 0 };
+  // `boost` es el extra de velocidad (por encima de maxSpeed) que deja
+  // recoger un pasajero. Antes ese empujón se anulaba solo en el siguiente
+  // tick porque el auto-acelerado siempre topaba a maxSpeed; ahora el tope
+  // real de cada tick es maxSpeed + boost, y boost decae solo con el tiempo
+  // (ver simulateTick), así que el "boost" realmente se siente un rato.
+  let player = { x: 0, y: 0, speed: 0, maxSpeed: 10 * COASTERS_SPEED_MULT, lane: 0, targetX: 0, distance: 0, passengers: 0, boost: 0 };
+  let bot = { x: 0, y: 0, speed: 0, maxSpeed: 6.9 * COASTERS_SPEED_MULT, lane: 2, targetX: 0, distance: 0, passengers: 0, boost: 0 };
 
   const LANES_PER_ROAD = 2;
   const lanesCount = LANES_PER_ROAD * 2; // 0-1 = calle del jugador, 2-3 = calle del rival
   let laneWidth = 0;
   let roadSplitX = 0;   // dónde termina la calle del jugador y empieza el camellón
   let medianWidth = 0;
+  // Espacio libre (banquina) entre el borde de cada calle y su primer/último
+  // carril: antes los carriles ocupaban TODO el ancho de la calle, así que
+  // las paradas quedaban pegadas al borde/camellón sin espacio propio. Ahora
+  // los carriles son un poco más angostos y este margen es donde aparecen
+  // las paradas de pasajeros (tanto del lado de afuera como del camellón).
+  let roadShoulder = 0;
   let roadY = 0;
   const lanePositions = [];
 
@@ -2877,7 +2918,7 @@ if (window.visualViewport) {
       // Siempre en la calle del jugador (izquierda): el bot está quieto
       // durante el tutorial, así que una parada del lado derecho sería
       // imposible de alcanzar.
-      stops.push({ side: 'p1', x: 15, y: -50, collected: false });
+      stops.push({ side: 'p1', inner: false, lane: 0, x: 15, y: -50, collected: false });
     }
   }
 
@@ -2952,11 +2993,16 @@ if (window.visualViewport) {
     // jugable importa) que en escritorio.
     medianWidth = Math.max(10, Math.min(26, canvas.width * 0.035));
     const roadWidth = (canvas.width - medianWidth) / 2;
-    laneWidth = roadWidth / LANES_PER_ROAD;
+    // Los carriles ya no ocupan el 100% de la calle: se angostan un poco
+    // (86%) y lo que sobra se reparte como banquina contra el borde exterior
+    // y contra el camellón, donde ahora pueden aparecer las paradas.
+    const laneAreaWidth = roadWidth * 0.86;
+    laneWidth = laneAreaWidth / LANES_PER_ROAD;
+    roadShoulder = (roadWidth - laneAreaWidth) / 2;
     roadSplitX = roadWidth + medianWidth / 2;
     for (let i = 0; i < LANES_PER_ROAD; i++) {
-      lanePositions[i] = (i * laneWidth) + (laneWidth / 2); // calle del jugador
-      lanePositions[LANES_PER_ROAD + i] = roadWidth + medianWidth + (i * laneWidth) + (laneWidth / 2); // calle del rival
+      lanePositions[i] = roadShoulder + (i * laneWidth) + (laneWidth / 2); // calle del jugador
+      lanePositions[LANES_PER_ROAD + i] = roadWidth + medianWidth + roadShoulder + (i * laneWidth) + (laneWidth / 2); // calle del rival
     }
 
     player.y = canvas.height - 120;
@@ -3133,7 +3179,7 @@ if (window.visualViewport) {
   const volumeSlider = document.getElementById('volumeSlider-coasters');
   const volumeIcon = document.getElementById('volumeIcon-coasters');
   const damageOverlay = document.getElementById('damageOverlay-coasters');
-  let volume = Number(volumeSlider?.value || 0.25);
+  let volume = Number(volumeSlider?.value || 0.15);
   let savedVolume = volume;
 
   if(bgMusic){
@@ -3197,6 +3243,7 @@ if (window.visualViewport) {
     player.speed = 0;
     player.distance = 0;
     player.passengers = 0;
+    player.boost = 0;
 
     bot.lane = 2;
     bot.x = lanePositions[2];
@@ -3204,6 +3251,7 @@ if (window.visualViewport) {
     bot.speed = 0;
     bot.distance = 0;
     bot.passengers = 0;
+    bot.boost = 0;
 
     if (gameMode === 'pvp') {
       // Carrera pareja entre 2 personas: mismo tope de velocidad para
@@ -3261,8 +3309,21 @@ if (window.visualViewport) {
     ).length;
   }
 
-  function spawnBache(side){
-    const lane = pickObstacleLane(side);
+  // Separación vertical mínima entre obstáculos de un mismo carril: como
+  // ahora todos (baches, túmulos y tráfico) avanzan a la misma velocidad que
+  // el camino (ver simulateTick), la distancia entre ellos ya nunca se
+  // achica ni se agranda sola — así que alcanza con exigir este espacio
+  // libre en el momento de aparecer para que el bus SIEMPRE tenga hueco de
+  // sobra para pasar entre uno y el siguiente.
+  const MIN_OBSTACLE_GAP = 210;
+  function laneClearForSpawn(lane){
+    return !Composite.allBodies(world).some(b =>
+      (b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic') &&
+      b.laneIdx === lane && b.position.y < (-50 + MIN_OBSTACLE_GAP)
+    );
+  }
+
+  function spawnBache(lane){
     const body = Bodies.circle(lanePositions[lane], -50, 16 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'bache',
       collisionFilter: { group: OBSTACLE_GROUP }
@@ -3271,8 +3332,7 @@ if (window.visualViewport) {
     World.add(world, body);
   }
 
-  function spawnTumulo(side){
-    const lane = pickObstacleLane(side);
+  function spawnTumulo(lane){
     const body = Bodies.rectangle(lanePositions[lane], -50, 44 * ENTITY_SCALE, 10 * ENTITY_SCALE, {
       restitution: 0.3, friction: 0.5, frictionAir: 0.012, label: 'tumulo',
       collisionFilter: { group: OBSTACLE_GROUP }
@@ -3281,8 +3341,7 @@ if (window.visualViewport) {
     World.add(world, body);
   }
 
-  function spawnTraffic(side){
-    const lane = pickObstacleLane(side);
+  function spawnTraffic(lane){
     const color = ['#3a86c8', '#f89e1b', '#3ae080'][Math.floor(Math.random()*3)];
     const body = Bodies.rectangle(lanePositions[lane], -100, 24 * ENTITY_SCALE, 44 * ENTITY_SCALE, {
       restitution: 0.4, friction: 0.4, frictionAir: 0.01, label: 'traffic',
@@ -3290,7 +3349,6 @@ if (window.visualViewport) {
     });
     body.laneIdx = lane;
     body.trafficColor = color;
-    body.trafficSpeed = 2 + Math.random() * 2;
     World.add(world, body);
   }
 
@@ -3312,11 +3370,13 @@ if (window.visualViewport) {
 
     const spawnCfg = getObstacleSpawnConfig();
     ['p1', 'p2'].forEach(side => {
-      if (Math.random() < spawnCfg.obstacleChance && roadObstacleCount(side, ['bache', 'tumulo']) < spawnCfg.obstacleMax) {
-        if (Math.random() > 0.5) spawnBache(side); else spawnTumulo(side);
+      const lane = pickObstacleLane(side);
+      const laneClear = laneClearForSpawn(lane);
+      if (laneClear && Math.random() < spawnCfg.obstacleChance && roadObstacleCount(side, ['bache', 'tumulo']) < spawnCfg.obstacleMax) {
+        if (Math.random() > 0.5) spawnBache(lane); else spawnTumulo(lane);
       }
-      if (Math.random() < spawnCfg.trafficChance && roadObstacleCount(side, ['traffic']) < spawnCfg.trafficMax) {
-        spawnTraffic(side);
+      if (laneClear && Math.random() < spawnCfg.trafficChance && roadObstacleCount(side, ['traffic']) < spawnCfg.trafficMax) {
+        spawnTraffic(lane);
       }
       // El carril "bloqueado" se resortea cuando la calle queda
       // completamente despejada, o cuando ya pasó un rato (switchTicks),
@@ -3332,13 +3392,29 @@ if (window.visualViewport) {
       }
     });
 
+    // Las paradas ahora pueden salir tanto del lado de afuera (vereda) como
+    // del lado de adentro (contra el camellón) de cada calle, alternando al
+    // azar — antes siempre estaban del mismo lado, así que nunca hacía
+    // falta usar el carril interior para recoger pasajeros.
     if (player.distance >= nextStopDistance.p1) {
       nextStopDistance.p1 += STOP_INTERVAL;
-      stops.push({ side: 'p1', x: 15, y: -60, collected: false });
+      const inner = Math.random() < 0.5;
+      const medianX = roadSplitX - medianWidth / 2;
+      stops.push({
+        side: 'p1', inner, lane: inner ? 1 : 0,
+        x: inner ? (medianX - roadShoulder / 2) : (15 + roadShoulder / 2),
+        y: -60, collected: false
+      });
     }
     if (bot.distance >= nextStopDistance.p2) {
       nextStopDistance.p2 += STOP_INTERVAL;
-      stops.push({ side: 'p2', x: canvas.width - 15, y: -60, collected: false });
+      const inner = Math.random() < 0.5;
+      const medianXEnd = roadSplitX + medianWidth / 2;
+      stops.push({
+        side: 'p2', inner, lane: inner ? 2 : 3,
+        x: inner ? (medianXEnd + roadShoulder / 2) : (canvas.width - 15 - roadShoulder / 2),
+        y: -60, collected: false
+      });
     }
   }
 
@@ -3442,19 +3518,40 @@ if (window.visualViewport) {
     if (shakeMag > 0.1) {
       ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
     }
-    drawRoad();
+    drawRoadBase();
 
-    Composite.allBodies(world).forEach(b => {
-      if(b.label === 'bache') drawBache(b);
-      else if(b.label === 'tumulo') drawTumulo(b);
-      else if(b.label === 'traffic') drawTrafficCar(b);
+    const gapOffset = getGapOffset(); // > 0 = el jugador va adelante
+    const obstacleBodies = Composite.allBodies(world).filter(b => b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic');
+
+    [
+      { side: 'p1', offsetY: -gapOffset, laneMin: 0, laneMax: LANES_PER_ROAD - 1, clipX0: 0, clipX1: roadSplitX - medianWidth / 2 },
+      { side: 'p2', offsetY: gapOffset, laneMin: LANES_PER_ROAD, laneMax: lanesCount - 1, clipX0: roadSplitX + medianWidth / 2, clipX1: canvas.width }
+    ].forEach(({ side, offsetY, laneMin, laneMax, clipX0, clipX1 }) => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(clipX0, 0, clipX1 - clipX0, canvas.height);
+      ctx.clip();
+      ctx.translate(0, offsetY);
+
+      drawRoadSide(side);
+      obstacleBodies.forEach(b => {
+        if (b.laneIdx < laneMin || b.laneIdx > laneMax) return;
+        if (b.label === 'bache') drawBache(b);
+        else if (b.label === 'tumulo') drawTumulo(b);
+        else drawTrafficCar(b);
+      });
+      stops.forEach(s => { if (s.side === side) drawBusStop(s); });
+
+      if (side === 'p1') {
+        drawBus(player.x, player.y, '#d62828', 'R-44');
+        drawPlayerArrow(player.x, player.y);
+      } else {
+        drawBus(bot.x, bot.y, '#003049', 'R-101D');
+      }
+      ctx.restore();
     });
-    stops.forEach(drawBusStop);
-    drawImpactParticles();
 
-    drawBus(player.x, player.y, '#d62828', 'R-44');
-    drawBus(bot.x, bot.y, '#003049', 'R-101D');
-    drawPlayerArrow(player.x, player.y);
+    drawImpactParticles();
     drawSpeedometer(player.speed);
     ctx.restore();
 
@@ -3479,7 +3576,11 @@ if (window.visualViewport) {
     // El bus acelera solo, siempre — ya no hay tecla de frenar: con las
     // calles separadas y garantía de un carril libre, la única decisión
     // del jugador es a qué carril meterse, no cuándo bajar la velocidad.
-    player.speed = Math.min(player.maxSpeed, player.speed + 0.1);
+    // El tope de cada tick es maxSpeed + boost (no solo maxSpeed): así el
+    // empujón de recoger un pasajero no se lo come el propio auto-acelerado
+    // al tick siguiente. El boost decae solo, un poco cada tick.
+    player.boost = Math.max(0, player.boost - 0.035);
+    player.speed = Math.min(player.maxSpeed + player.boost, player.speed + 0.1);
 
     player.targetX = lanePositions[player.lane];
     player.x += (player.targetX - player.x) * 0.22;
@@ -3487,8 +3588,9 @@ if (window.visualViewport) {
     if (gameMode === 'pvp') {
       // Jugador 2 humano: acelera solo igual que el Jugador 1, su carril
       // ya lo maneja moveLaneP2()/goToLaneP2() (teclas/touch más arriba).
+      bot.boost = Math.max(0, bot.boost - 0.035);
       if (bot.distance < targetDistance) {
-        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.1);
+        bot.speed = Math.min(bot.maxSpeed + bot.boost, bot.speed + 0.1);
       }
       bot.targetX = lanePositions[bot.lane];
       bot.x += (bot.targetX - bot.x) * 0.22;
@@ -3497,8 +3599,9 @@ if (window.visualViewport) {
       // calle solo tiene 2 carriles, el "otro" siempre es el único libre,
       // así que ya no hace falta buscar entre varios candidatos ni
       // preocuparse de invadir el carril del jugador (calles separadas).
+      bot.boost = Math.max(0, bot.boost - 0.035);
       if (bot.distance < targetDistance) {
-        bot.speed = Math.min(bot.maxSpeed, bot.speed + 0.075);
+        bot.speed = Math.min(bot.maxSpeed + bot.boost, bot.speed + 0.075);
       }
       let botTargetLane = bot.lane;
       Composite.allBodies(world).forEach(item => {
@@ -3528,13 +3631,18 @@ if (window.visualViewport) {
       // contra un bus), se le deja conservar la velocidad del empujón en
       // vez de forzarlo de vuelta al ritmo del scroll — si no, nunca
       // alcanza a notarse el golpe y el bus lo atraviesa sin más.
+      // Antes el tráfico caía más lento que baches/túmulos (visualSpeed
+      // menos un extra propio), así que con el tiempo se le podían acercar
+      // o superponer visualmente a otro obstáculo del mismo carril — se
+      // veía como que "chocaban" entre ellos. Ahora TODOS los obstáculos
+      // avanzan exactamente al mismo ritmo que el camino: quedan fijos
+      // entre sí (aunque en la pantalla sí se los ve avanzar hacia el bus),
+      // así la separación con la que aparecieron (ver MIN_OBSTACLE_GAP) se
+      // mantiene siempre igual.
       const inKnockback = b.knockbackUntil && nowTs < b.knockbackUntil;
-      if(b.label === 'bache' || b.label === 'tumulo') {
+      if(b.label === 'bache' || b.label === 'tumulo' || b.label === 'traffic') {
         if(!inKnockback) Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed });
         if(b.position.y > canvas.height + 60) World.remove(world, b);
-      } else if(b.label === 'traffic') {
-        if(!inKnockback) Body.setVelocity(b, { x: b.velocity.x * 0.96, y: visualSpeed - (b.trafficSpeed * 0.5) });
-        if(b.position.y > canvas.height + 60 || b.position.y < -250) World.remove(world, b);
       }
     });
 
@@ -3562,17 +3670,23 @@ if (window.visualViewport) {
     stops.forEach((s, idx) => {
       s.y += visualSpeed;
       if (!s.collected) {
-        if (s.side === 'p1' && Math.abs(s.y - player.y) < 55 && player.lane === 0) {
+        // Recoger un pasajero es un boost real: sube el tope de velocidad
+        // (maxSpeed + boost) además de empujar la velocidad actual, y ese
+        // extra decae solo con el tiempo (ver arriba) en vez de perderse en
+        // el siguiente tick — ahora sí se siente como una racha de velocidad.
+        if (s.side === 'p1' && Math.abs(s.y - player.y) < 55 && player.lane === s.lane) {
           s.collected = true;
           player.passengers++;
-          player.speed = Math.min(player.maxSpeed + 2, player.speed + 1.8);
+          player.boost = Math.min(3, player.boost + 2.2);
+          player.speed = Math.min(player.maxSpeed + player.boost, player.speed + 1.8);
           spawnImpact(s.x, s.y, 0.6, '#ffe066');
           notifyTutorial('passenger');
           stops.splice(idx, 1);
-        } else if (s.side === 'p2' && Math.abs(s.y - bot.y) < 55 && bot.lane === lanesCount - 1) {
+        } else if (s.side === 'p2' && Math.abs(s.y - bot.y) < 55 && bot.lane === s.lane) {
           s.collected = true;
           bot.passengers++;
-          bot.speed = Math.min(bot.maxSpeed + 2, bot.speed + 1.8);
+          bot.boost = Math.min(3, bot.boost + 2.2);
+          bot.speed = Math.min(bot.maxSpeed + bot.boost, bot.speed + 1.8);
           spawnImpact(s.x, s.y, 0.6, '#ffe066');
           stops.splice(idx, 1);
         }
@@ -3583,12 +3697,28 @@ if (window.visualViewport) {
     stepImpactParticles();
     Engine.update(engine, FIXED_STEP);
 
-    if(player.distance >= targetDistance || bot.distance >= targetDistance) {
+    const playerArrived = player.distance >= targetDistance;
+    const botArrived = bot.distance >= targetDistance;
+    if(playerArrived || botArrived) {
       // En vez de cortar directo al resultado, entra a la escena de la
       // terminal mientras el bus ganador se parquea.
       arriving = true;
       arrivalTimer = 0;
-      arrivalWinner = player.distance >= targetDistance ? 'player' : 'bot';
+      if (playerArrived && botArrived) {
+        // Photo finish: los dos cruzaron la meta en el mismo instante.
+        // Antes esto siempre le daba la carrera a "player" solo por venir
+        // chequeado primero. Ahora gana quien quedó más adelante (más
+        // distancia recorrida) y, si de verdad quedaron exactos, quien iba
+        // más rápido; el sorteo es el último recurso para que nunca quede
+        // sin decidirse.
+        arrivalWinner = player.distance > bot.distance ? 'player'
+          : bot.distance > player.distance ? 'bot'
+          : player.speed > bot.speed ? 'player'
+          : bot.speed > player.speed ? 'bot'
+          : (Math.random() < 0.5 ? 'player' : 'bot');
+      } else {
+        arrivalWinner = playerArrived ? 'player' : 'bot';
+      }
     }
   }
 
@@ -3669,32 +3799,24 @@ if (window.visualViewport) {
     ctx.restore();
   }
 
-  function drawRoad() {
+  // Antes drawRoad() dibujaba las dos calles de un tirón, con un único
+  // scroll compartido — así que no había forma de notar en el camino mismo
+  // cuál de los dos buses iba más adelante (solo se veía en las barras de
+  // progreso del HUD). Ahora se separa en dos partes: drawRoadBase() dibuja
+  // el asfalto y el camellón central SIN desplazamiento (quedan fijos, son
+  // la referencia visual quieta) y drawRoadSide(side) dibuja la vereda y el
+  // carril divisorio de UNA sola calle, para poder llamarla con un recorte
+  // (clip) y un corrimiento vertical propio por lado — ver getGapOffset()
+  // y el bloque de dibujo en step().
+  function drawRoadBase() {
     ctx.fillStyle = '#424242';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Bordes exteriores de cada calle (vereda).
-    ctx.fillStyle = '#8d8d8d';
-    ctx.fillRect(0, 0, 15, canvas.height);
-    ctx.fillRect(canvas.width - 15, 0, 15, canvas.height);
-
-    // Línea divisoria (discontinua, blanca) entre los 2 carriles de CADA
-    // calle — una a cada lado del camellón, nunca cruzando al otro lado.
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([20, 30]);
-    [ (lanePositions[0] + lanePositions[1]) / 2, (lanePositions[2] + lanePositions[3]) / 2 ].forEach(x => {
-      ctx.beginPath();
-      ctx.moveTo(x, -100 + (roadY % 50));
-      ctx.lineTo(x, canvas.height + 100);
-      ctx.stroke();
-    });
-    ctx.setLineDash([]);
 
     // Camellón central: para que se note de un vistazo que son DOS calles
     // separadas (no una compartida), no solo una rayita más — un cordón de
     // concreto con franjas amarillas/negras de peligro, como un separador
-    // vial de verdad.
+    // vial de verdad. Se dibuja fijo (nunca se corre) para que sirva de
+    // referencia clara de a quién le va mejor en la carrera.
     const medianX = roadSplitX - medianWidth / 2;
     ctx.fillStyle = '#5a5a5a';
     ctx.fillRect(medianX, 0, medianWidth, canvas.height);
@@ -3715,6 +3837,38 @@ if (window.visualViewport) {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
+  }
+
+  function drawRoadSide(side) {
+    const isP1 = side === 'p1';
+
+    // Borde exterior de esta calle (vereda).
+    ctx.fillStyle = '#8d8d8d';
+    if (isP1) ctx.fillRect(0, 0, 15, canvas.height);
+    else ctx.fillRect(canvas.width - 15, 0, 15, canvas.height);
+
+    // Línea divisoria (discontinua, blanca) entre los 2 carriles de esta calle.
+    const dashX = isP1 ? (lanePositions[0] + lanePositions[1]) / 2 : (lanePositions[2] + lanePositions[3]) / 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([20, 30]);
+    ctx.beginPath();
+    ctx.moveTo(dashX, -100 + (roadY % 50));
+    ctx.lineTo(dashX, canvas.height + 100);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Diferencia visual de quién va ganando: la calle (y el bus) de quien va
+  // más adelante se dibuja corrida un poco hacia arriba, y la del que va
+  // atrás un poco hacia abajo — así se nota de un vistazo en el camino
+  // mismo, no solo en la barra de progreso del HUD. Tope para que nunca se
+  // vea exagerado, aunque la diferencia de distancia sea enorme.
+  const GAP_VISUAL_SCALE = 0.15; // px de corrimiento por cada metro de diferencia
+  const MAX_GAP_OFFSET = 70;
+  function getGapOffset() {
+    const gap = player.distance - bot.distance; // > 0 = el jugador va adelante
+    return Math.max(-MAX_GAP_OFFSET, Math.min(MAX_GAP_OFFSET, gap * GAP_VISUAL_SCALE));
   }
 
   function drawBus(x, y, color, label) {
@@ -3819,13 +3973,17 @@ if (window.visualViewport) {
   // Parada de buses: antes el pasajero aparecía solo, flotando en
   // cualquier punto del borde — sin nada que explicara por qué estaba
   // ahí. Ahora cada uno vive en una parada de verdad: un poste con
-  // techito angosto y un letrero 🚏, plantada en la vereda del lado de
-  // afuera de su calle (nunca en el camellón). El pasajero (mismo brillo
-  // de siempre) espera justo debajo del techito.
+  // techito angosto y un letrero 🚏. Puede plantarse en la vereda de
+  // afuera de su calle O contra el camellón (ver `inner`), así que el
+  // techito siempre tiene que mirar hacia ADENTRO de esa calle (nunca
+  // hacia la vereda ni hacia el camellón). El pasajero (mismo brillo de
+  // siempre) espera justo debajo del techito.
   function drawBusStop(s) {
     ctx.save();
     ctx.translate(s.x, s.y);
-    const haciaAdentro = s.side === 'p1' ? 1 : -1; // el techito mira hacia el carril, no hacia afuera del canvas
+    const haciaAdentro = s.side === 'p1'
+      ? (s.inner ? -1 : 1)
+      : (s.inner ? 1 : -1);
 
     ctx.fillStyle = '#6b6f76';
     ctx.fillRect(-2, -4, 4, 30);
@@ -4529,7 +4687,7 @@ if (window.visualViewport) {
   const volumeSlider = document.getElementById('volumeSlider-encantados');
   const volumeIcon = document.getElementById('volumeIcon-encantados');
   const damageOverlay = document.getElementById('damageOverlay-encantados');
-  let volume = Number(volumeSlider?.value || 0.25);
+  let volume = Number(volumeSlider?.value || 0.15);
   let savedVolume = volume;
 
   if (bgMusic) {
@@ -5886,7 +6044,7 @@ if (window.visualViewport) {
   const volumeIcon = document.getElementById('volumeIcon-elotes');
   function playMusic() {
     if (!bgMusic) return;
-    bgMusic.volume = volumeSlider ? +volumeSlider.value : 0.25;
+    bgMusic.volume = volumeSlider ? +volumeSlider.value : 0.15;
     bgMusic.play().catch(() => {});
   }
   function stopMusic() { bgMusic?.pause(); }
@@ -7448,7 +7606,7 @@ if (window.visualViewport) {
   const volumeSlider = document.getElementById('volumeSlider-torito');
   const volumeIcon = document.getElementById('volumeIcon-torito');
   const damageOverlay = document.getElementById('damageOverlay-torito');
-  let volume = Number(volumeSlider?.value || 0.25);
+  let volume = Number(volumeSlider?.value || 0.15);
   let savedVolume = volume;
 
   if(bgMusic){

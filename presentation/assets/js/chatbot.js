@@ -51,6 +51,181 @@ EVENTOS Y FESTIVIDADES: Plaza las Américas (San Salvador), Panchimalco (San Sal
 HISTORIA: Casa de la Cultura de Izalco (Izalco, Sonsonate), Iglesia El Rosario (San Salvador), Museo Militar (San Jacinto, San Salvador), Sitio Arqueológico Cihuatán (Aguilares, San Salvador).
 LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Puerta del Diablo (Los Planes de Renderos, Panchimalco), Laguna de Alegría (Usulután).`.trim();
 
+  // Base de datos de descripciones verificadas por lugar/evento (misma id que
+  // LANDMARKS_MINI/mapa.js), usada para inyectar contexto ESPECÍFICO al LLM
+  // solo cuando el mensaje del usuario menciona ese lugar, en vez de mandarle
+  // siempre la lista completa. Evita que el modelo "adivine" datos genéricos.
+  const LUGARES_INFO = {
+    1: { keywords: ['tazumal', 'chalchuapa'], descripcion: 'Sitio arqueológico maya de 2400 años en Chalchuapa. Pirámide principal de 24m de altura con 12 plataformas. Centro de intercambio de cacao, obsidiana y cerámica durante el Período Clásico. Museo con artefactos incluidos vasos decorados y joyas de jade.' },
+    2: { keywords: ['joya de ceren', 'joya de cerén', 'pompeya'], descripcion: 'Patrimonio UNESCO: aldea maya enterrada por erupción volcánica hacia 650 d.C. Conserva estructuras y objetos domésticos intactos, como Pompeya. Única evidencia arqueológica de vida cotidiana precolombina en Centroamérica. Abre martes-domingo 9am-4pm.' },
+    3: { keywords: ['salvador del mundo', 'monumento'], descripcion: 'Monumento icónico de San Salvador con escultura de Jesús que domina la ciudad. Construido en 1942 como símbolo del Divino Salvador del Mundo. Sitio de encuentro y referencia turística principal con vistas panorámicas de la capital.' },
+    4: { keywords: ['suchitoto', 'cuscatlan', 'pueblo colonial'], descripcion: 'Pueblo colonial declarado Conjunto Histórico en 1997. Ubicado en Lago Suchitlán con arquitectura antigua, Catedral de Santa Lucía (1853) y Teatro Alejandro Cotto. Famoso por cerámica en barro negro, textiles de añil y festival del indigo anual.' },
+    5: { keywords: ['catedral metropolitana', 'san salvador', 'iglesia'], descripcion: 'Catedral principal construida 1888-1999, ubicada en Plaza Barrios. Alberga tumba del Arzobispo Óscar Romero. Visitada por Papa Juan Pablo II. Arquitectura ecléctica con cúpula de 45m y torres de 50m. Entrada gratuita, acceso diario.' },
+    6: { keywords: ['muna', 'museo nacional antropologia', 'museo'], descripcion: 'Museo desde 1883 con colecciones arqueológicas y etnográficas. Seis salas temáticas: Migración, Agricultura, Artesanía, Religión, Entierros Prehispánicos. Ubicado en San Benito, San Salvador. Presenta herencia cultural desde periodos precolombinos hasta presente.' },
+    7: { keywords: ['ruinas san andres', 'ciudad arce', 'arqueologia'], descripcion: 'Centro maya clásico tardío (600-900 d.C.) que fue capital regional. Acrópolis con estructuras elevadas donde se realizaban actividades de élite. Ubicado a 32km de San Salvador, cerca de Joya de Cerén. Abre martes-domingo 9am-4pm, $1-5 entrada.' },
+    8: { keywords: ['pupusodromo triangulo', 'olocuilta', 'pupusas'], descripcion: 'Centro gastronómico con 20+ pupuserías artesanales en Olocuilta. Pupusas cocinadas en comal sobre fuego de leña desde hace 70 años. Sede del Día Nacional de Pupusa (segundo domingo noviembre). Variedad de sabores: queso, frijol, loroco, chicharrón.' },
+    9: { keywords: ['semitas', 'cojutepeque', 'dulce pan'], descripcion: 'Postre tradicional de Cojutepeque: dos capas de pan esponjoso relleno de dulce de piña y panela. Postre seco con decoraciones geométricas. Acompaña bebidas calientes. Disponible en panaderías locales, parte de herencia repostera colonial.' },
+    10: { keywords: ['mercado central', 'san salvador', 'compras'], descripcion: 'Mercado principal del Centro Histórico con miles de puestos. Venta de artesanías, textiles, cerámica, alimentos locales y comida salvadoreña típica. Hub cultural donde convergen tradiciones culinarias y artesanales del país.' },
+    11: { keywords: ['nahuizalco', 'mercado nocturno', 'sonsonate'], descripcion: 'Pueblo indígena conocido por mercado nocturno de artesanía. Ubicado en Sonsonate. Venta de textiles, cerámica, sombreros de palma y artículos típicos salvadoreños. Experiencia nocturna única con música folklórica y gastronomía local.' },
+    12: { keywords: ['plaza americas', 'monumento salvador mundo', 'san salvador'], descripcion: 'Plaza pública con Monumento al Salvador del Mundo. Centro urbano de convergencia, comercio y encuentro. Punto de referencia en San Salvador para turismo, compras y actividades culturales.' },
+    13: { keywords: ['panchimalco', 'flores palmas', 'festival'], descripcion: 'Pueblo declarado Patrimonio Intangible UNESCO. Festival Flores y Palmas el primer domingo mayo: procesiones con palmas adornadas con flores. Celebra Día de la Cruz. Antiguas tradiciones indígenas sincretizadas con catolicismo. Participan delegaciones internacionales.' },
+    14: { keywords: ['festival suchitoto', 'cuscatlan', 'arte culture'], descripcion: 'Festival cultural anual en pueblo colonial de Suchitoto. Exhibiciones de arte, gastronomía, música viva y danzas folclóricas. Celebra identidad cultural de Cuscatlán. Atrae artistas y turistas nacionales e internacionales.' },
+    15: { keywords: ['catedral santa ana', 'santa ana', 'iglesia'], descripcion: 'Catedral principal de Santa Ana con arquitectura religiosa representativa. Centro de fiestas patronales Julias (julio 17-26). Declarada sitio de importancia cultural. Muestra sincretismo de fe indígena y española.' },
+    16: { keywords: ['casa cultura izalco', 'izalco', 'sonsonate'], descripcion: 'Centro cultural que preserva tradiciones indígenas Izalco. Exposiciones sobre historia prehispánica y colonial de Sonsonate. Ubicado en municipio de Izalco. Promueve identidad cultural maya-pipil del occidente salvadoreño.' },
+    18: { keywords: ['iglesia rosario', 'san salvador', 'arquitectura'], descripcion: 'Iglesia de 1964-1971 con arquitectura Brutalist revolucionaria. Sin columnas interiores, diseñada como puente. Vitrales de colores traídos de Francia crean efecto arcoíris. Patrimonio Cultural 2015. Obra maestra de arquitecto Rubén Martínez.' },
+    19: { keywords: ['lago coatepeque', 'santa ana', 'laguna'], descripcion: 'Lago volcánico azul turquesa a 18km de Santa Ana. Profundidad 115m, formado hace 57,000-72,000 años. Ideal kayak, jet ski, buceo. Isla Teopán, ecohoteles, restaurantes locales. Acceso desde CA-1 a 60km de San Salvador.' },
+    20: { keywords: ['bosque imposible', 'ahuachapan', 'parque nacional'], descripcion: 'Parque Nacional de 5,000 hectáreas (4,000 de bosque). Última selva tropical seca de El Salvador con 250+ especies de aves. Nombre del peligroso desfiladero histórico. Ocho ríos originan en él. Senderos y ecoturismo, camping, guías comunitarios.' },
+    21: { keywords: ['fiestas agostinas', 'san salvador', 'agosto'], descripcion: 'Fiesta patronal en honor Divino Salvador del Mundo, agosto 5-6. Procesión "La Bajada" con imagen de Jesús en púrpura a Catedral. Cambio simbólico a vestiduras blancas. Misa solemne cierra festividades. Tradición vinculada al nombre del país.' },
+    22: { keywords: ['dia farolitos', 'ahuachapan', 'septiembre'], descripcion: 'Tradición del 7 septiembre (víspera Virgen María) en Ahuachapán. Iluminación con farolitos artesanales desde 1989. Ofrenda después terremoto 1850. Patrimonio Cultural Intangible 2014. Ahuachapán designada Capital un día en su honor.' },
+    23: { keywords: ['fiestas julias', 'santa ana', 'julio'], descripcion: 'Festividades julio 17-26 en honor Santa Ana patrona. Desfile Correo, feria ganadera, jaripeos, conciertos, concursos de marimba. Incluye actos religiosos, culturales y deportivos. Culmina 26 julio con mañanitas y procesión tradicional en Campo Feria.' },
+    24: { keywords: ['fiestas patronales san vicente', 'san vicente', 'diciembre'], descripcion: 'Festividades diciembre en honor San Vicente Abad y Mártir. Desfiles de correo, música, danza folclórica. Actividades en barrios y gremios. Celebración religiosa y comunitaria con raíces coloniales. Festividad extendida hasta fin de año.' },
+    25: { keywords: ['flores palmas', 'panchimalco', 'mayo'], descripcion: 'Festival Flores y Palmas en Panchimalco el primer domingo mayo. Celebra Día de la Cruz sincretismo maya-católico. Palmas decoradas con flores frescas, procesiones, danza folclórica. Patrimonio UNESCO. Participación de delegaciones Ecuador, México, Colombia.' },
+    26: { keywords: ['carnaval san miguel', 'san miguel', 'noviembre'], descripcion: 'Gran Carnaval último sábado noviembre en honor Virgen Paz. Desfiles de carrozas, música, danzas callejeras, ferias gastronómicas. Cierre con conciertos internacionales. Celebración de 25+ eventos octubre-noviembre. Atrae cientos de miles participantes.' },
+    27: { keywords: ['historiantes', 'cuisnahuat', 'sonsonate'], descripcion: 'Encuentro de Cumpas entre Jayaque (La Libertad) y Cuisnahuat (Sonsonate). Tradición de danzas ancestrales cuando pueblos se visitan en fiestas patronales. Saludo ritual "topa de manos y frentes". Preserva danzas pipiles documentadas en festividades.' },
+    28: { keywords: ['jocote corona', 'santa ana', 'cerro verde'], descripcion: 'Festival octubre (4-5) en Parque Cerro Verde. Celebra fruta jocote corona cultivada en Volcán Santa Ana. Septiembre-octubre cosecha. Artesanos ofrecen productos: atoles, jaleas, dulces, artesanía, joyas. Participa 35+ emprendedores.' },
+    29: { keywords: ['calabiuza', 'tonacatepeque', 'noviembre'], descripcion: 'Festival 1 noviembre en Tonacatepeque. Alternativa salvadoreña a Halloween: celebra mitología Cuscatlán (Siguanaba, Cipitío, Cadejo). Personajes folklóricos recorren calles. Grupos transportan carros con personajes mitológicos. Sincretismo indígena-católico post-Día Muertos.' },
+    31: { keywords: ['dia cruz', 'mayo', 'tradicion'], descripcion: 'Tradición 3 mayo: altares con cruces en patios adornados con frutas (mangos, jocotes, coyoles). Marca inicio temporada de lluvias. Bendición de cosechas. Sincretismo de veneración católica a Santa Cruz e indígena a madre tierra Xipe Totec.' },
+    32: { keywords: ['maiz', 'chalatenango', 'festival'], descripcion: 'Festivales agosto en Chalatenango (especialmente Dulce Nombre María). Celebra cosecha maíz con danzas, reina de festival, vestidos de vainas maíz. Platos típicos: elote asado, atole, rigua, tamales. Hermandad comunitaria agrícola ancestral.' },
+    33: { keywords: ['balsamo', 'jayaque', 'libertad'], descripcion: 'Tradición en Cordillera Bálsamo (Jayaque, La Libertad). Árbol nacional declarado junto maquilishuat 1939. Resina medicinal usada cosméticos, medicinas, lacas. Árboles de Jayaque usan en producción café y tours ecológicos. Nombre náhuatl "ushit" (ungüento).' },
+    35: { keywords: ['fiestas patronales union', 'la union', 'union'], descripcion: 'Festividades en La Unión en honor patronal del departamento. Celebración religiosa y cultural con procesiones, ferias, música. Punto de entrada a Golfo de Fonseca. Tradición colonial conservada en municipio puerto.' },
+    36: { keywords: ['farolitos ataco', 'ataco', 'ahuachapan'], descripcion: 'Festival de Farolitos en Concepción Ataco, Ahuachapán. Celebración paralela a tradición de Ahuachapán (7 septiembre). Pueblo mágico con iluminación artesanal. Parte de ruta flores Ahuachapán con gastronomía y artesanía local.' },
+    37: { keywords: ['panela', 'cuscatlan', 'festival'], descripcion: 'Festival de Panela en Cuscatlán. Celebra caña de azúcar y dulce tradicional. Demostraciones de fabricación artesanal de panela en trapiches. Gastronomía con panela: atoles, dulces, bebidas. Sincretismo agrícola indígena-colonial salvadoreño.' },
+    38: { keywords: ['guajactial', 'sonsonate'], descripcion: 'Fiestas regionales en Sonsonate vinculadas a figura mitológica/histórica Rey Guajactial. Celebración local con tradiciones pipiles del occidente. Festividades comunitarias con raíces prehispánicas sincretizadas.' },
+    39: { keywords: ['cangrejo', 'tecoluca', 'san vicente'], descripcion: 'Festival mayo en La Pita, Tecoluca (San Vicente). Celebra gastronomía de cangrejo del Bajo Lempa. Platos: cangrejo gigante, sopa, cremoso. Música folclórica, danzas, deportes acuáticos como escalada de palo encebado. Reconoce área Ramsar del Lempa.' },
+    40: { keywords: ['romeria esquipulas', 'chalatenango', 'peregrinacion'], descripcion: 'Peregrinación religiosa a santuario en Chalatenango. Romería de fe para devotos del Cristo Negro de Esquipulas. Tradición católica con raíces indígenas de veneración sagrada. Participación comunitaria anual.' },
+    41: { keywords: ['barro', 'ilobasco', 'cabanas'], descripcion: 'Festival julio (25-26) en Ilobasco. Celebra cerámica artesanal: miniaturas y "sorpresas" de barro desde siglo XIX. Talleres, exhibiciones, demostraciones vivas. Ilobasco cuna de alfarería salvadoreña. Transmisión de técnicas ancestrales documentadas.' },
+    42: { keywords: ['arroz', 'san vicente', 'fiestas'], descripcion: 'Festividades en San Vicente celebrando cosecha y producción de arroz. Ferias gastronómicas con platos arroceros. Tradición agrícola comunitaria. Marca identidad productiva del departamento costero salvadoreño.' },
+    43: { keywords: ['juventudes', 'mozote', 'morazan'], descripcion: 'Festival en El Mozote, Morazán celebrando vitalidad y participación de jóvenes. Actividades culturales, deportivas y artísticas. Pueblo con importante historia comunitaria post-conflicto. Reconstrucción de tejido social y cultural local.' },
+    44: { keywords: ['marisco', 'usulutan', 'feria'], descripcion: 'Feria en Usulután celebrando riqueza gastronómica marina. Mariscos frescos: camarones, cangrejos, langostas, moluscos. Platos típicos del litoral. Promoción de turismo costero y tradición pesquera salvadoreña.' },
+    45: { keywords: ['primicia cosecha', 'union'], descripcion: 'Celebración de primeras cosechas en La Unión. Ofrenda y agradecimiento por frutos de tierra. Tradición indígena sincretizada con celebraciones católicas de acción de gracias. Culmina ciclo agrícola comunitario.' },
+    46: { keywords: ['panela', 'verapaz', 'san vicente'], descripcion: 'Carnaval de Panela en Verapaz, San Vicente. Celebración lúdica alrededor del dulce tradicional. Desfiles, carrozas con temas paneleros. Gastronomía con panela. Sincretismo agrícola con festividad del carnaval católico.' },
+    48: { keywords: ['anil', 'suchitoto', 'festival'], descripcion: 'Festival septiembre (26-27) en Suchitoto. Tributo al añil ("oro azul") que marcó economía colonial. Pasarelas moda con tintes naturales, talleres de teñido, exhibiciones de arte. Día Nacional Índigo 6 septiembre.' },
+    49: { keywords: ['gotera', 'morazan', 'fiestas patronales'], descripcion: 'Festividades octubre 1-5 en San Francisco Gotera (capital Morazán). Honor a San Francisco de Asís. Desfile Correo, bandas, mascaradas, reinas. Celebración religiosa con raíces franciscanas coloniales. Gastronomía y esparcimiento comunitario.' },
+    50: { keywords: ['chicharron', 'libertad', 'festival'], descripcion: 'Festival celebrando chicharrón (cuero de cerdo frito). Gastronomía salvadoreña icónica. Demostraciones de preparación tradicional. Música y danza folclórica. Transmisión de técnicas culinarias ancestrales campesinas.' },
+    51: { keywords: ['boqueron', 'volcan san salvador'], descripcion: 'Parque Nacional en cráter Volcán San Salvador a 1800m altura. Cráter 1.5km diámetro, 558m profundo. Senderos 20-25 min a miradores. Última erupción 1917 mató 1000+ personas. Flora y fauna diversas. Acceso desde San Salvador cercano.' },
+    52: { keywords: ['puerta diablo', 'planes renderos', 'leyenda'], descripcion: 'Dos rocas gigantes a modo portal en Cerro El Chulo, Panchimalco. Mirador a 1131m: vista de Lago Ilopango, Volcán San Vicente, Océano Pacífico. Leyenda colonial: demonio escapó perforando acantilado. Sitio de historia oscura pero ahora reclamado por turismo.' },
+    53: { keywords: ['casa blanca', 'chalchuapa', 'arqueologia'], descripcion: 'Sitio maya en zona Chalchuapa, Preclásico-Clásico (200 a.C.-250 d.C.). Dos pirámides restauradas. Museo con cerámica maya. 6 hectáreas de complejo mayor destruido por crecimiento urbano. Influencias Olmeca y Teotihuacan. Adquisición estatal 1977.' },
+    54: { keywords: ['palacio nacional', 'san salvador', 'centro historico'], descripcion: 'Palacio neoclásico 1905-1911 de "Palacio Café": financiado con colones de exportación cafetera. Estructura antisísmica alemana. 101 salas, cuatro salones históricos. Estatuas de Isabel Católica y Colón (1924). Museo cultural en Centro Histórico.' },
+    55: { keywords: ['teatro nacional', 'san salvador', 'centro historico'], descripcion: 'Teatro francés 1911-1917, arquitecto Daniel Beylard. Estilo Renacimiento Francés con elementos Art Nouveau. Gran sala elegante, cúpula interior, detalles decorativos. Declarado Monumento Nacional 1979. Icono cultural frente Plaza Morazán.' },
+    58: { keywords: ['independencia', 'septiembre', '15 de septiembre'], descripcion: 'Día Nacional 15 septiembre: conmemoración Independencia 1821 de España. Himno Nacional en escuelas, desfiles cívicos, actos comunitarios. Ceremonia del Presidente en Plaza Libertad. Celebración de identidad y soberanía centroamericana compartida.' },
+    64: { keywords: ['museo militar', 'san jacinto', 'san salvador'], descripcion: 'Museo especializado en historia militar de El Salvador. Ubicado en San Jacinto. Artefactos, documentos, uniformes de diferentes épocas. Preservación de memoria histórica de conflictos y defensa nacional. Educación sobre trayectoria militar del país.' },
+    65: { keywords: ['cihuatan', 'aguilares', 'arqueologia'], descripcion: 'Sitio arqueológico 900-1200 d.C., uno de los mayores de Centroamérica. Capital regional de 3km² con arquitectura conectada a Veracruz-Puebla. Ocupación Preclásica, abandono por erupción de Ilopango, reocupación en el Clásico Tardío. Museo, senderos, área de picnic, abre martes-domingo.' },
+    66: { keywords: ['laguna alegria', 'usulutan', 'sirena'], descripcion: 'Laguna de cráter volcánico en Alegría, Usulután. Aguas azul-turquesa por azufre volcánico. Leyenda indígena: Sirena Xiri (estrella en lenca), sacrificada en lava, lloró formando la laguna. Mito: la sirena enamora hombres guapos y los sumerge. Geología e identidad cultural lenca.' },
+    72: { keywords: ['hamaca', 'san sebastian', 'vicente'], descripcion: 'Feria en agosto en San Sebastián, San Vicente. Celebra tejidos artesanales en telares ancestrales. Artesanas fabrican hamacas, manteles, sábanas. Declarada Patrimonio Cultural 2019. Desfiles, batucada, concurso de reina, arte vivo.' },
+    73: { keywords: ['fuego', 'nejapa', 'agosto'], descripcion: 'Tradición del 31 agosto en Nejapa honrando a San Jerónimo. Boleros lanzan bolas de fuego durante 2 horas, hechas de trapo empapado en gasolina. Representa la lucha ritual del bien contra el mal. Participantes se mojan por seguridad. Patrimonio Cultural 2019, más de 100 años de tradición.' },
+    76: { keywords: ['cojutepeque', 'fiestas patronales', 'cuscatlan'], descripcion: 'Festividades en Cojutepeque en honor a sus patronos. Celebración religiosa y cultural. Gastronomía típica: semitas, salchichas. Mercado central con dulces tradicionales de repostería colonial. Participación comunitaria con raíces históricas.' },
+    84: { keywords: ['pupusa', 'nacional', 'noviembre'], descripcion: 'Día Nacional de la Pupusa: segundo domingo de noviembre. Decreto 665 (2005) declara la pupusa plato nacional. Celebración gastronómica en Olocuilta y pupusodromos nacionales. Honra una tradición precolombina evolucionada con el tiempo.' },
+  };
+
+  // Preguntas frecuentes típicas de visitantes/usuarios del sitio, con
+  // respuesta corta ya verificada, para que el chatbot no tenga que
+  // improvisar en temas sensibles (migración, seguridad, moneda, etc.).
+  const FAQ_INFO = [
+    { keywords: ['pupusa', 'pupusas', 'son pupusas'], pregunta: '¿Qué son las pupusas?', respuesta: 'Tortilla artesanal de maíz nixtamalizado rellena de queso, frijoles, chicharrón o loroco. Cocida en comal, origen precolombino. Plato nacional desde 2005. Acompañar con curtido y salsa de tomate.' },
+    { keywords: ['siguanaba', 'leyenda'], pregunta: '¿Quién es la Siguanaba?', respuesta: 'Entidad mitológica salvadoreña: mujer hermosa que se transforma en un rostro horrible (facciones de caballo). Atrae a hombres infieles cerca de ríos. Leyenda indígena de castigo por infidelidad.' },
+    { keywords: ['cipitio', 'leyenda'], pregunta: '¿Quién es el Cipitío?', respuesta: 'Entidad mitológica salvadoreña: niño eternamente de 10 años, barriga prominente y sombrero cónico grande. Hijo de la Siguanaba. Personaje travieso de la mitología pipil.' },
+    { keywords: ['cadejo', 'leyenda'], pregunta: '¿Qué es el Cadejo?', respuesta: 'Criatura sobrenatural salvadoreña: perro mítico blanco (protector) o negro (maligno) que aparece de noche en caminos rurales. Leyenda indígena con raíces en Cuscatlán.' },
+    { keywords: ['documentos', 'viajar', 'pasaporte', 'visa'], pregunta: '¿Qué documentos necesito para entrar a El Salvador?', respuesta: 'Pasaporte válido con al menos 6 meses de vigencia. Muchos países no requieren visa para turismo (90 días); ciudadanos del CA-4 (Guatemala, Honduras, Nicaragua) solo necesitan su DUI/carnet. Verifica siempre con Migración.' },
+    { keywords: ['moneda', 'dolar', 'colones'], pregunta: '¿Cuál es la moneda de El Salvador?', respuesta: 'Dólar estadounidense (USD), oficial desde 2001. El antiguo colón quedó con tipo de cambio fijo de 8.75 por dólar. Tarjetas aceptadas en ciudades; en zonas rurales conviene llevar efectivo.' },
+    { keywords: ['seguro', 'seguridad', 'delincuencia', 'peligro'], pregunta: '¿Es seguro viajar a El Salvador?', respuesta: 'La percepción de seguridad mejoró mucho en los últimos años y el turismo ha crecido. Aun así, toma las precauciones normales de cualquier destino: viaja organizado, evita exhibir objetos de valor y zonas desconocidas de noche.' },
+    { keywords: ['clima', 'mejor mes', 'lluvia', 'estacion'], pregunta: '¿Cuál es la mejor época para visitar El Salvador?', respuesta: 'Estación seca (noviembre-abril) es la más recomendada, con clima soleado ideal para volcanes y sitios arqueológicos. Mayo-octubre es temporada de lluvias, con paisajes más verdes.' },
+    { keywords: ['ca-4', 'migracion', 'centroamerica'], pregunta: '¿Qué es el CA-4?', respuesta: 'Acuerdo migratorio entre Guatemala, Honduras, Nicaragua y El Salvador que permite circular entre esos países hasta 90 días sin trámite migratorio adicional.' },
+    { keywords: ['yuca frita', 'platillo', 'comida'], pregunta: '¿Qué otra comida típica hay además de las pupusas?', respuesta: 'Yuca frita con chicharrón y curtido, sopa de pata, atol de elote y tamales son clásicos. Cada región tiene sus propias especialidades.' },
+    { keywords: ['horchata', 'chaparro', 'bebida'], pregunta: '¿Qué bebidas típicas hay?', respuesta: 'Horchata de morro/semillas, chaparro (bebida fermentada de maíz), agua de cebada y el café salvadoreño, reconocido internacionalmente.' },
+    { keywords: ['surf', 'playas', 'oceano'], pregunta: '¿Cuál es la mejor playa para surf en El Salvador?', respuesta: 'La Libertad, El Tunco y El Zonte son las más conocidas para surfear, con olas consistentes casi todo el año y escuelas de surf locales.' },
+    { keywords: ['cuscatlan', 'significado', 'nombre'], pregunta: '¿Qué significa "Cuscatlán"?', respuesta: 'Del náhuat: "tierra de joyas/collares". Era el nombre del antiguo señorío pipil que dominaba gran parte del territorio salvadoreño antes de la conquista.' },
+    { keywords: ['artesania', 'comprar', 'que llevar'], pregunta: '¿Qué artesanía típica debo llevar de El Salvador?', respuesta: 'Textiles teñidos de añil y cerámica de barro negro de Suchitoto, miniaturas de barro de Ilobasco, hamacas de San Sebastián y sombreros de palma de Nahuizalco.' },
+    { keywords: ['calendario', 'festividad', 'cuando'], pregunta: '¿Cuándo son los festivales principales?', respuesta: 'Mayo: Flores y Palmas (Panchimalco). Julio: Fiestas Julias (Santa Ana). Agosto: Fiestas Agostinas y Bolas de Fuego (Nejapa). Septiembre: Independencia y Farolitos (Ahuachapán). Noviembre: Día de la Pupusa y Carnaval de San Miguel.' },
+    { keywords: ['museo', 'arqueologia', 'arte'], pregunta: '¿Qué museos debo visitar?', respuesta: 'El MUNA (Museo Nacional de Antropología) en San Salvador, y los museos de sitio de Tazumal, Joya de Cerén y Cihuatán para ver piezas arqueológicas originales.' },
+    { keywords: ['volcan', 'senderismo', 'aventura'], pregunta: '¿Cuáles son los volcanes principales de El Salvador?', respuesta: 'El Boquerón (Volcán de San Salvador), el Volcán de Santa Ana (el más alto), el Volcán de San Vicente y el Izalco, históricamente activo. Mejor visitarlos en estación seca.' },
+    { keywords: ['gastronomia', 'tour', 'comida experiencia'], pregunta: '¿Dónde puedo probar gastronomía auténtica?', respuesta: 'El Pupusodromo El Triángulo en Olocuilta y el Mercado Central de San Salvador son los puntos más recomendados para comida típica auténtica.' },
+    { keywords: ['transporte', 'autobus', 'taxi'], pregunta: '¿Cómo me desplazo en El Salvador?', respuesta: 'Buses urbanos e interurbanos económicos, taxis y apps de transporte en las ciudades principales. Para turismo, lo más seguro es contratar tours organizados o transporte privado.' },
+    { keywords: ['familia', 'ninos', 'actividades'], pregunta: '¿Qué puedo hacer en familia con niños?', respuesta: 'Lago de Coatepeque para nadar y kayak, El Boquerón para una caminata corta y accesible, el MUNA con salas didácticas, y los pueblos coloniales para pasear y comer.' },
+  ];
+
+  function normalizarTexto(str) {
+    return (str || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
+  // Busca en la pregunta del usuario coincidencias con lugares/eventos y con
+  // FAQ típicas, y arma un bloque de "datos verificados" para inyectar al
+  // prompt SOLO cuando aplica (así no se infla cada request con las ~60
+  // descripciones completas). Esto es lo que le da al chatbot respuestas
+  // específicas en vez de que el modelo invente detalles por su cuenta.
+  function buscarContextoEspecifico(mensaje) {
+    const texto = normalizarTexto(mensaje);
+    if (!texto) return '';
+
+    const datos = [];
+    Object.values(LUGARES_INFO).forEach(item => {
+      if (datos.length >= 3) return;
+      if (item.keywords.some(kw => texto.includes(normalizarTexto(kw)))) {
+        datos.push(item.descripcion);
+      }
+    });
+
+    const faqs = [];
+    FAQ_INFO.forEach(item => {
+      if (faqs.length >= 2) return;
+      if (item.keywords.some(kw => texto.includes(normalizarTexto(kw)))) {
+        faqs.push(`${item.pregunta} ${item.respuesta}`);
+      }
+    });
+
+    const partes = [...datos, ...faqs];
+    if (!partes.length) return '';
+    return '\nDATOS VERIFICADOS RELEVANTES A LA PREGUNTA (tómalos como fuente de verdad, no los contradigas ni los ignores):\n' + partes.map(p => '- ' + p).join('\n');
+  }
+
+  // El modelo (Llama 3.1 8B) es poco fiable siguiendo reglas numéricas del
+  // prompt (probado: con $15 para 10 personas generó un plan de $220 sin
+  // avisar nada). Por eso el chequeo de presupuesto imposible se hace acá,
+  // en JS, de forma determinística, en vez de confiar en que la IA lo calcule.
+  const MIN_USD_POR_PERSONA = 5; // piso aproximado: transporte + comida básica de medio día
+
+  function parseNumeroDolares(str) {
+    if (!str) return null;
+    const match = String(str).replace(/,/g, '').match(/(\d+(?:\.\d+)?)/);
+    return match ? parseFloat(match[1]) : null;
+  }
+
+  function parseNumeroPersonas(str) {
+    if (!str) return null;
+    const match = String(str).match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  function getPresupuestoInsuficienteMsg(lang, presupuesto, personas) {
+    const minimoRecomendado = personas * MIN_USD_POR_PERSONA;
+    const personasQueSiAlcanzan = Math.max(1, Math.floor(presupuesto / MIN_USD_POR_PERSONA));
+    if (lang === 'en') {
+      return `⚠️ **Adjusted budget:** $${presupuesto} isn't enough for **${personas} people** on this trip (roughly $${MIN_USD_POR_PERSONA}/person minimum for transport + basic food).\n\n- Realistic minimum for ${personas} people: **$${minimoRecomendado}+**\n- Or keep this budget with **${personasQueSiAlcanzan} people** instead\n- Or ask for a shorter plan with just one nearby stop\n\nUse the **Modify plan** button below (or just tell me the change) to try again.`;
+    }
+    return `⚠️ **Presupuesto ajustado:** $${presupuesto} no alcanza para **${personas} personas** en esta salida (mínimo aproximado de $${MIN_USD_POR_PERSONA}/persona para transporte + comida básica).\n\n- Presupuesto mínimo realista para ${personas} personas: **$${minimoRecomendado}+**\n- O manten este presupuesto con **${personasQueSiAlcanzan} personas** en vez de ${personas}\n- O pide un plan más corto, con una sola parada cercana\n\nUsa el botón **Modificar plan** de abajo (o solo dime el cambio) para intentarlo de nuevo.`;
+  }
+
+  // El modelo tampoco es fiable respetando el presupuesto dentro de un plan
+  // "normal" (probado: pidiendo $60 igual devolvió Total del grupo: $80).
+  // Este chequeo post-hoc parsea el total que realmente devolvió y avisa si
+  // se pasó, en vez de dejar pasar un plan que no cuadra con lo pedido.
+  function pareceMencionarPresupuesto(texto) {
+    if (!texto) return false;
+    const t = normalizarTexto(texto);
+    return texto.includes('$') || t.includes('presupuesto') || t.includes('budget');
+  }
+
+  function parseTotalGrupoDeTexto(texto) {
+    const match = (texto || '').match(/total del grupo\**\s*:?\s*\$?\s*([\d,.]+)/i);
+    return match ? parseFloat(match[1].replace(/,/g, '')) : null;
+  }
+
+  function getPlanSobrePresupuestoMsg(lang, totalGenerado, presupuesto) {
+    if (lang === 'en') {
+      return `⚠️ **Heads up:** this plan came out to **$${totalGenerado}**, over your **$${presupuesto}** budget. Use the **Modify plan** button to remove an activity, reduce the group size, or raise the budget.`;
+    }
+    return `⚠️ **Aviso:** este plan salió en **$${totalGenerado}**, por encima de tu presupuesto de **$${presupuesto}**. Usa el botón **Modificar plan** para quitar una actividad, reducir personas, o subir el presupuesto.`;
+  }
+
   function detectLanguage() {
     if (window.SRi18n && typeof window.SRi18n.getLang === 'function') {
       const lang = window.SRi18n.getLang();
@@ -177,8 +352,9 @@ LEYENDAS: Lago de Coatepeque (Santa Ana), Bosque El Imposible (Ahuachapán), Pue
     return { formatted, year: now.getFullYear() };
   }
 
-  function getSystemPrompt(lang) {
+  function getSystemPrompt(lang, userMessage) {
     const { formatted: todayStr, year } = getCurrentDateInfo(lang);
+    const contextoEspecifico = buscarContextoEspecifico(userMessage);
     const basePrompt = lang === 'en' ?
       `You are "Pupusita", assistant for Salvadorean Roots. ALWAYS respond in English. Only talk about culture, history, gastronomy, tourism, and legends of El Salvador (Current date: ${todayStr}).
 CRITICAL RESPONSE RULES:
@@ -203,37 +379,42 @@ ${RAICES_LANDMARKS_INFO}
 7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.
 8. Fechas: Hoy es ${todayStr}. Si te preguntan por festivales, ferias o fiestas patronales "próximas" o "que se acercan", menciona solo las que caen en o después de hoy dentro del calendario ${year}; si una ya pasó este año, acláralo y di que se celebra de nuevo el próximo año en vez de presentarla como próxima.`;
 
-    return basePrompt;
+    return basePrompt + contextoEspecifico;
   }
 
-  function getPlannerSystemPrompt(lang) {
+  function getPlannerSystemPrompt(lang, userMessage) {
     const { formatted: todayStr, year } = getCurrentDateInfo(lang);
+    const contextoEspecifico = buscarContextoEspecifico(userMessage);
     if (lang === 'en') {
       return `You are "Pupusita" in "Trip Planner" mode. ALWAYS respond in English. Create detailed, realistic itineraries in El Salvador using dollars ($ USD), based on the group size given by the user. Today's date is ${todayStr}.
 CRITICAL PLAN RULES:
 1. Strict format: Zero paragraphs, zero introductory texts. Respond DIRECTLY with the numbered list.
 2. Detail level: 3 to 4 concrete activities/stops, each with a one-line description of what to do there and its cost (TOTAL for the whole group, based on the number of people given).
 3. Costs breakdown: After the activities, include separate itemized lines for **🚗 Transporte** (estimated for the whole group, considering distance from the starting point and group size) and **🍽️ Comida** (estimated per meal for the whole group). If food is already covered inside an activity, do not duplicate it in this line.
-4. Totals: End with **Total del grupo** and **Total por persona**. These MUST be mathematically correct: **Total del grupo** = the exact sum of every cost listed above (each activity's cost plus Transporte and Comida), added digit by digit, not estimated. **Total por persona** = Total del grupo divided by the number of people, rounded to the nearest dollar. Double-check the arithmetic before answering; a wrong sum is a critical failure.
-5. Exact names: Use EXACTLY the names from this list if included:
+4. Totals: End with **Total del grupo** and **Total por persona**. These MUST be mathematically correct: **Total del grupo** = the exact sum of every cost listed above (each activity's cost plus Transporte and Comida), added digit by digit, not estimated. **Total por persona** = Total del grupo divided by the number of people, rounded to the nearest dollar. Double-check the arithmetic before answering; a wrong sum is a critical failure. **Total del grupo** must NEVER be greater than the budget the user gave you: if your planned activities would add up to more than that budget, remove or downgrade activities until the total fits, instead of silently going over.
+5. MANDATORY budget check, do this BEFORE writing anything else: compute minBudget = number of people × $5 (rough floor for basic transport + food on a half-day trip). If the budget given by the user is less than minBudget, this is an INSUFFICIENT BUDGET case: skip rules 1-4 and follow rule 11 instead of a normal plan. Otherwise continue normally with rules 1-4.
+6. Exact names: Use EXACTLY the names from this list if included:
 ${RAICES_LANDMARKS_INFO}
-6. Closure: No farewells or recommendations. End immediately right after the per-person total.
-7. Language: ALWAYS respond in the same language the user writes to you.
-8. Modifications: If the user asks to modify a previously generated plan, keep the same format and rules above, apply ONLY the requested change, and keep the rest of the plan consistent (people count, budget, location) unless the change says otherwise.
-9. Dates: Only include a seasonal festival/fair/patron-saint event in the plan if it is realistically happening on or around today (${todayStr}, ${year}) or the trip is explicitly planned around it; do not suggest an event that already passed this year as if it were happening now.`;
+7. Closure: No farewells or recommendations. End immediately right after the per-person total. (Does not apply when rule 11 is used.)
+8. Language: ALWAYS respond in the same language the user writes to you.
+9. Modifications: If the user asks to modify a previously generated plan, keep the same format and rules above, apply ONLY the requested change, and keep the rest of the plan consistent (people count, budget, location) unless the change says otherwise.
+10. Dates: Only include a seasonal festival/fair/patron-saint event in the plan if it is realistically happening on or around today (${todayStr}, ${year}) or the trip is explicitly planned around it; do not suggest an event that already passed this year as if it were happening now.
+11. Insufficient budget response (only used when rule 5 detected it — never refuse and never reply with a plain apology): reply with EXACTLY these parts in this order, nothing else: (a) 1 to 2 very cheap activities/stops that genuinely fit inside the given budget, each with its real cost; (b) **Total del grupo** and **Total por persona** for that short list only — these totals MUST be less than or equal to the budget the user gave, never higher; (c) a line starting with "⚠️ Adjusted budget:" explaining in one short sentence that the given budget does not cover a full itinerary for this group size/duration; (d) 2 to 3 short bullet points with concrete fixes (a realistic minimum $ budget for this group size, fewer people, or a cheaper/shorter plan); (e) end with exactly: "Use the Modify plan button to apply one of these changes." Rule 7 (closure) does not apply to this case.` + contextoEspecifico;
     }
     return `Eres "Pupusita" en modo "Planificador de salidas". Responde SIEMPRE en español. Crea itinerarios detallados y realistas en El Salvador usando dólares ($ USD), basados en la cantidad de personas indicada por el usuario. La fecha de hoy es ${todayStr}.
 REGLAS CRÍTICAS DEL PLAN:
 1. Formato estricto: Cero párrafos, cero textos introductorios. Responde DIRECTAMENTE con la lista numerada.
 2. Nivel de detalle: De 3 a 4 actividades/paradas concretas, cada una con una línea describiendo qué hacer ahí y su costo (TOTAL para todo el grupo, según el número de personas indicado).
 3. Desglose de costos: Después de las actividades, incluye líneas separadas para **🚗 Transporte** (estimado para todo el grupo, considerando la distancia desde el punto de partida y el número de personas) y **🍽️ Comida** (estimado por comida para todo el grupo). Si la comida ya está incluida en una actividad, no la dupliques en esta línea.
-4. Totales: Termina con **Total del grupo** y **Total por persona**. Deben ser matemáticamente correctos: **Total del grupo** = la suma exacta de cada costo mencionado arriba (cada actividad más Transporte y Comida), sumada cifra por cifra, no estimada. **Total por persona** = Total del grupo dividido entre el número de personas, redondeado al dólar más cercano. Verifica la suma antes de responder; una suma incorrecta es una falla crítica.
-5. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
+4. Totales: Termina con **Total del grupo** y **Total por persona**. Deben ser matemáticamente correctos: **Total del grupo** = la suma exacta de cada costo mencionado arriba (cada actividad más Transporte y Comida), sumada cifra por cifra, no estimada. **Total por persona** = Total del grupo dividido entre el número de personas, redondeado al dólar más cercano. Verifica la suma antes de responder; una suma incorrecta es una falla crítica. **Total del grupo** NUNCA debe ser mayor que el presupuesto que dio el usuario: si tus actividades suman más que ese presupuesto, quita o cambia actividades hasta que el total quepa, en vez de pasarte en silencio.
+5. Verificación OBLIGATORIA de presupuesto, hazla ANTES de escribir cualquier otra cosa: calcula minimoPresupuesto = número de personas × $5 (piso aproximado para transporte + comida básica en una salida de medio día). Si el presupuesto que dio el usuario es MENOR que minimoPresupuesto, este es un caso de PRESUPUESTO INSUFICIENTE: sáltate las reglas 1-4 y sigue la regla 11 en vez de un plan normal. Si no, continúa normal con las reglas 1-4.
+6. Nombres exactos: Usa EXACTAMENTE los nombres de esta lista si los incluyes:
 ${RAICES_LANDMARKS_INFO}
-6. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total por persona.
-7. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.
-8. Modificaciones: Si el usuario pide modificar un plan ya generado, mantén el mismo formato y reglas anteriores, aplica SOLO el cambio pedido y conserva el resto del plan consistente (número de personas, presupuesto, ubicación) salvo que el cambio indique lo contrario.
-9. Fechas: Solo incluye una festividad, feria o fiesta patronal de temporada en el plan si realmente ocurre en o cerca de hoy (${todayStr}, ${year}) o si la salida se está planificando explícitamente alrededor de ella; no sugieras como vigente un evento que ya pasó este año.`;
+7. Cierre: Sin despedidas ni recomendaciones. Termina inmediatamente tras el total por persona. (No aplica cuando se usa la regla 11.)
+8. Idioma: Responde SIEMPRE en el mismo idioma en el que el usuario te escriba.
+9. Modificaciones: Si el usuario pide modificar un plan ya generado, mantén el mismo formato y reglas anteriores, aplica SOLO el cambio pedido y conserva el resto del plan consistente (número de personas, presupuesto, ubicación) salvo que el cambio indique lo contrario.
+10. Fechas: Solo incluye una festividad, feria o fiesta patronal de temporada en el plan si realmente ocurre en o cerca de hoy (${todayStr}, ${year}) o si la salida se está planificando explícitamente alrededor de ella; no sugieras como vigente un evento que ya pasó este año.
+11. Respuesta de presupuesto insuficiente (solo cuando la regla 5 lo detectó — nunca te niegues ni respondas solo con una disculpa): responde con EXACTAMENTE estas partes en este orden, nada más: (a) 1 a 2 actividades/paradas muy económicas que sí quepan de verdad en el presupuesto dado, cada una con su costo real; (b) **Total del grupo** y **Total por persona** de esa lista corta únicamente — estos totales DEBEN ser menores o iguales al presupuesto que dio el usuario, nunca mayores; (c) una línea que empiece con "⚠️ Presupuesto ajustado:" explicando en una frase corta que el presupuesto dado no alcanza para un itinerario completo con ese número de personas/duración; (d) de 2 a 3 viñetas cortas con soluciones concretas (un presupuesto mínimo realista en $ para ese número de personas, menos personas, o un plan más corto/económico); (e) termina exactamente con: "Usa el botón Modificar plan para aplicar alguno de estos cambios." La regla 7 (cierre) no aplica en este caso.` + contextoEspecifico;
   }
 
   // ==========================================
@@ -884,6 +1065,24 @@ ${RAICES_LANDMARKS_INFO}
     setInputEnabled(false, TRANSLATABLE_TEXTS[currentLang].inputPlaceholderGenerating);
     showTyping();
 
+    // Chequeo determinístico de presupuesto imposible (ver nota en
+    // getPresupuestoInsuficienteMsg): solo aplica a la generación inicial,
+    // porque en una modificación el presupuesto/personas pueden venir
+    // descritos en texto libre dentro de plannerData.modification.
+    if (!isModification) {
+      const presupuestoNum = parseNumeroDolares(plannerData.budget);
+      const personasNum = parseNumeroPersonas(plannerData.people);
+      if (presupuestoNum != null && personasNum != null && presupuestoNum < personasNum * MIN_USD_POR_PERSONA) {
+        hideTyping();
+        addBotMessage(getPresupuestoInsuficienteMsg(currentLang, presupuestoNum, personasNum));
+        plannerStep = null;
+        setPlannerToggle(false);
+        setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
+        addModifyOfferMessage();
+        return;
+      }
+    }
+
     const isEn = currentLang === 'en';
     const basePrompt = isEn ?
 `Plan a trip with these preferences:
@@ -912,7 +1111,7 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system: getPlannerSystemPrompt(currentLang), messages: [{ role: 'user', content: userPrompt }], max_tokens: 900 })
+        body: JSON.stringify({ system: getPlannerSystemPrompt(currentLang, `${plannerData.activity || ''} ${plannerData.details || ''}`), messages: [{ role: 'user', content: userPrompt }], max_tokens: 900 })
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
@@ -971,12 +1170,23 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
         shareBtn.onclick = () => sharePlan(replyText);
       }
 
+      const budgetFromModification = (isModification && pareceMencionarPresupuesto(plannerData.modification))
+        ? parseNumeroDolares(plannerData.modification)
+        : null;
+      const presupuestoComparar = budgetFromModification != null ? budgetFromModification : parseNumeroDolares(plannerData.budget);
+      const totalGrupoNum = parseTotalGrupoDeTexto(replyText);
+      const sePasoDelPresupuesto = presupuestoComparar != null && totalGrupoNum != null && totalGrupoNum > presupuestoComparar * 1.1;
+
       plannerLastPlan = replyText;
+      if (budgetFromModification != null) plannerData.budget = `$${budgetFromModification}`;
       plannerData.modification = '';
       plannerStep = null;
       setPlannerToggle(false);
       setInputEnabled(true, TRANSLATABLE_TEXTS[currentLang].inputPlaceholder);
       addBotMessage(isModification ? TRANSLATABLE_TEXTS[currentLang].plannerModifySuccess : TRANSLATABLE_TEXTS[currentLang].plannerSuccess);
+      if (sePasoDelPresupuesto) {
+        addBotMessage(getPlanSobrePresupuestoMsg(currentLang, totalGrupoNum, presupuestoComparar));
+      }
       addModifyOfferMessage();
 
     } catch (err) {
@@ -1083,7 +1293,7 @@ Dame un plan concreto, detallado y realista dentro de El Salvador para este núm
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system: getSystemPrompt(currentLang),
+          system: getSystemPrompt(currentLang, text),
           messages: conversationHistory.slice(-MAX_CONTEXT_MESSAGES)
         })
       });
