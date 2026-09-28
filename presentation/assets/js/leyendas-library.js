@@ -19,7 +19,7 @@ const LEYENDAS_DATA = [
     tag: "Mito · Tradición oral",
     chips: ["Mujer misteriosa", "Aparece de noche", "Ríos y quebradas", "Extravía caminantes"],
     origen: "Figura de la tradición oral salvadoreña vinculada con la mitología de los pueblos nahuas o pipiles. Su historia aparece en distintas versiones y fue retomada por Miguel Ángel Espino en \"Mitología de Cuscatlán\".",
-    img: "../assets/media/leyenda/siguanaba.png",
+    img: "../assets/media/leyenda/siguanaba.webp",
     relato: `La Siguanaba es una de las figuras más conocidas de la tradición oral salvadoreña. Su historia aparece en diferentes versiones, algunas relacionadas con la antigua tradición nahua-pipil y con el personaje de Sihuehuet. Por eso, no existe un único relato que pueda considerarse la versión definitiva de la historia.
 
     Según una de las versiones más difundidas, Sihuehuet era una mujer relacionada con el mundo de los dioses y con el Lucero de la Mañana. Después de cometer faltas que provocaron la ira de los dioses, recibió un castigo que la condenó a vagar por la tierra. Desde entonces quedó convertida en la figura sobrenatural que los salvadoreños conocen como la Siguanaba.
@@ -45,7 +45,7 @@ const LEYENDAS_DATA = [
     tag: "Mito · Tradición oral",
     chips: ["Niño eterno", "Pies al revés", "Sombrero de palma", "Travesuras"],
     origen: "Personaje de la tradición oral salvadoreña relacionado con Sihuehuet y la mitología nahua-pipil. Es reconocido por el Ministerio de Cultura como uno de los personajes mitológicos más representativos del país.",
-    img: "../assets/media/leyenda/cipitio.jpg",
+    img: "../assets/media/leyenda/cipitio.webp",
     relato: `El Cipitío es uno de los personajes más conocidos de la tradición oral salvadoreña. En las versiones que lo relacionan con la historia de Sihuehuet, es presentado como su hijo, condenado a permanecer eternamente con la apariencia de un niño. Su historia está vinculada al mismo universo mítico en el que aparece la Siguanaba.
 
     La tradición lo describe como un niño pequeño, de cuerpo rechoncho y apariencia particular. Uno de sus rasgos más conocidos son sus pies orientados hacia atrás, característica que permite que sus huellas confundan a quien intenta seguirlo. También suele representarse con un gran sombrero hecho de palma o de material vegetal.
@@ -71,7 +71,7 @@ const LEYENDAS_DATA = [
     tag: "Mito · Tradición oral",
     chips: ["Cadejo blanco", "Cadejo negro", "Perro sobrenatural", "Caminos nocturnos"],
     origen: "Figura de la tradición oral salvadoreña y centroamericana. En El Salvador se conocen principalmente las versiones del Cadejo Blanco y el Cadejo Negro, asociadas con los caminos y las noches.",
-    img: "../assets/media/leyenda/cadejo.png",
+    img: "../assets/media/leyenda/cadejo.webp",
     relato: `El Cadejo es una de las criaturas más conocidas del folclore salvadoreño y centroamericano. La tradición habla principalmente de dos figuras: un Cadejo Blanco y un Cadejo Negro. Aunque existen diferentes versiones sobre su origen y sus características, ambos están relacionados con las personas que recorren los caminos durante la noche.
 
     El Cadejo suele describirse como un perro de gran tamaño, con abundante pelo y una apariencia sobrenatural. Sus ojos pueden brillar en la oscuridad y su presencia suele anunciarse antes de que la persona consiga verlo claramente.
@@ -97,7 +97,7 @@ const LEYENDAS_DATA = [
     tag: "Leyenda · Tradición popular",
     chips: ["Mujer de blanco", "Llanto nocturno", "Ríos y aguas", "Alma en pena"],
     origen: "Leyenda ampliamente difundida en México, Centroamérica y otras regiones de Latinoamérica. En El Salvador forma parte de la tradición popular y presenta diversas versiones locales.",
-    img: "../assets/media/leyenda/llorona.png",
+    img: "../assets/media/leyenda/llorona.webp",
     relato: `La Llorona es una leyenda ampliamente difundida por diferentes países de Latinoamérica y también forma parte de la tradición oral salvadoreña. Por esta razón, no existe una única versión salvadoreña de su historia ni un solo lugar del país que pueda considerarse su origen.
 
     La versión más conocida habla de una mujer que, después de una tragedia relacionada con sus hijos, quedó condenada a vagar durante la noche. Desde entonces recorre lugares cercanos al agua mientras busca o lamenta la pérdida de sus hijos.
@@ -123,7 +123,7 @@ const LEYENDAS_DATA = [
     tag: "Leyenda urbana · Santa Ana",
     chips: ["Carretera nocturna", "Mujer misteriosa", "Apariencia esquelética", "Aventón"],
     origen: "Mito o leyenda urbana salvadoreña difundida especialmente desde la década de 1980 y asociada con la carretera entre Santa Ana y Chalchuapa.",
-    img: "../assets/media/leyenda/descarnada.png",
+    img: "../assets/media/leyenda/descarnada.webp",
     relato: `La Descarnada pertenece a una generación más reciente de relatos de miedo salvadoreños. A diferencia de los personajes vinculados con la mitología indígena, esta historia se desarrolló como una leyenda urbana y se hizo conocida especialmente en el occidente del país.
 
     Según el relato popular, durante la noche una mujer joven y de apariencia atractiva podía aparecer a la orilla de la carretera que comunica Santa Ana con Chalchuapa. La mujer hacía señales a los conductores que viajaban solos y les pedía que la llevaran a algún lugar cercano.
@@ -149,7 +149,7 @@ const LEYENDAS_DATA = [
     tag: "Tradición · Personaje folclórico",
     chips: ["Ser pequeño", "Travesuras", "Aparición nocturna", "Tradición rural"],
     origen: "Personaje presente en distintas tradiciones populares de El Salvador y de otros países de Centroamérica. Sus características varían según la región y la familia que transmite el relato.",
-    img: "../assets/media/leyenda/duende.png",
+    img: "../assets/media/leyenda/duende.webp",
     relato: `El Duende es un personaje presente en numerosas tradiciones populares de El Salvador. A diferencia de personajes como la Siguanaba o el Cipitío, no existe una única historia salvadoreña que establezca de manera definitiva su origen, apariencia o comportamiento.
 
     En los relatos familiares puede aparecer como un ser pequeño que habita cerca de casas, campos, bosques o caminos. Su aspecto también cambia según quien cuenta la historia: algunas personas lo describen como un hombre pequeño con sombrero, mientras que otras simplemente hablan de una criatura misteriosa que aparece durante la noche.
@@ -175,7 +175,7 @@ const LEYENDAS_DATA = [
       tag: "Leyenda · Caminos",
       chips: ["Carreta fantasma", "Ruido nocturno", "Caminos rurales", "Aparición espectral"],
       origen: "Tradición oral salvadoreña relacionada con la conocida Carreta Chillona, una aparición nocturna que forma parte del imaginario popular del país.",
-      img: "../assets/media/leyenda/carreta-bruja.png",
+      img: "../assets/media/leyenda/carreta-bruja.webp",
       relato: `La Carreta Bruja, también relacionada en la tradición popular con la Carreta Chillona, es una de las apariciones nocturnas más conocidas de El Salvador. Su historia se desarrolla principalmente en caminos rurales, calles solitarias y lugares donde durante la noche cualquier sonido puede parecer provenir de una presencia sobrenatural.
 
       La aparición se describe como una carreta que avanza por sí sola, sin que nadie parezca conducirla o tirar de ella. Lo más característico no siempre es su aspecto, sino el sonido que anuncia su llegada: el chirrido de las ruedas, el crujido de la madera y, en algunas versiones, el ruido de cadenas que se arrastran por el suelo.
@@ -201,7 +201,7 @@ const LEYENDAS_DATA = [
       tag: "Mito · Izalco",
       chips: ["Ser híbrido", "Izalco", "Ríos y quebradas", "Anuncia la lluvia"],
       origen: "Relato de tradición oral asociado principalmente con Izalco, Sonsonate, y relacionado con la tradición nahua-pipil de la región. Fue recopilado en estudios etnográficos sobre los pipiles de Izalco.",
-      img: "../assets/media/leyenda/cuyancua.png",
+      img: "../assets/media/leyenda/cuyancua.webp",
       relato: `La Cuyancúa, también conocida como Cuyancuat en algunas transcripciones, es un ser de la tradición oral asociado especialmente con Izalco, en el departamento de Sonsonate. Su historia forma parte de los relatos vinculados con las antiguas tradiciones nahuas de la región.
 
         La criatura suele describirse como un ser híbrido: la parte inferior de su cuerpo tiene forma semejante a la de una serpiente, mientras que la parte superior presenta características relacionadas con un cerdo. Su aspecto extraño es uno de los elementos que han hecho que la historia permanezca en la memoria de los habitantes de la zona.
@@ -227,7 +227,7 @@ const LEYENDAS_DATA = [
         tag: "Leyenda · Lago de Coatepeque",
         chips: ["Lago de Coatepeque", "Hombre transformado", "Itzqueyé", "Espíritu del lago"],
         origen: "Leyenda popular asociada con el Lago de Coatepeque, en Santa Ana. La tradición relaciona al personaje con Itzqueyé, figura asociada al agua dulce.",
-        img: "../assets/media/leyenda/tabudo.jpg",
+        img: "../assets/media/leyenda/tabudo.webp",
         relato: `En el Lago de Coatepeque existe una de las leyendas más conocidas de El Salvador: la historia de El Tabudo. A diferencia de la imagen de un monstruo volcánico que algunas versiones modernas han difundido, el relato tradicional está directamente relacionado con el lago y con un hombre que vivía en sus alrededores.
 
     Según la leyenda, aquel hombre era una persona adinerada que poseía una hermosa propiedad junto al lago. Un día salió a navegar en una canoa y, mientras recorría las aguas, una corriente misteriosa lo arrastró hacia una zona de la que no pudo regresar.
@@ -253,7 +253,7 @@ const LEYENDAS_DATA = [
         tag: "Tradición · Morazán",
         chips: ["Figura gigante", "Jocoro", "Fiestas patronales", "Tradición local"],
         origen: "Tradición festiva de Jocoro, Morazán. Su historia popular se relaciona con un supuesto hallazgo de restos humanos de gran tamaño ocurrido en 1908 y con la posterior creación de la figura festiva.",
-        img: "../assets/media/leyenda/gigante-jocoro.png",
+        img: "../assets/media/leyenda/gigante-jocoro.webp",
         relato: `En Jocoro, departamento de Morazán, existe una tradición que se diferencia de muchas de las historias de miedo del folclore salvadoreño. Se trata de la Giganta de Jocoro, una enorme figura que participa en las celebraciones y que con el paso del tiempo se convirtió en uno de los símbolos culturales más reconocibles del municipio.
 
     La historia popular de la Giganta está relacionada con un supuesto hallazgo ocurrido en 1908, cuando se habrían encontrado en las minas de Jocoro restos que algunas personas interpretaron como pertenecientes a un ser humano de gran tamaño. Aunque aquel hallazgo no constituye una prueba de que hayan existido gigantes, sí alimentó la imaginación y las historias de la comunidad.
@@ -279,7 +279,7 @@ const LEYENDAS_DATA = [
         tag: "Mito · Tradición centroamericana",
         chips: ["Ser salvaje", "Montañas", "Cubierto de pelo", "Huella misteriosa"],
         origen: "Personaje de relatos míticos y populares presentes en diferentes regiones de Centroamérica, incluida la tradición salvadoreña. Sus características varían según la región.",
-        img: "../assets/media/leyenda/sisimite.png",
+        img: "../assets/media/leyenda/sisimite.webp",
         relato: `El Sisimite es una figura presente en diferentes tradiciones de Centroamérica. En los relatos que circulan en El Salvador aparece como un ser salvaje relacionado con las montañas, los bosques y los lugares alejados de las comunidades.
 
     Suele describirse como una criatura de apariencia humana, pero de gran tamaño y cubierta de abundante pelo. Algunas versiones también le atribuyen los pies orientados hacia atrás, una característica que comparte con otros personajes de las tradiciones mesoamericanas y centroamericanas.
@@ -305,7 +305,7 @@ const LEYENDAS_DATA = [
         tag: "Leyenda · Tradición religiosa",
         chips: ["Aparición nocturna", "Caballo oscuro", "Caminos solitarios", "Oración"],
         origen: "Figura de la tradición oral salvadoreña relacionada con la devoción popular al Justo Juez y con relatos de apariciones nocturnas.",
-        img: "../assets/media/leyenda/juez-noche.png",
+        img: "../assets/media/leyenda/juez-noche.webp",
         relato: `El Justo Juez de la Noche es una figura de la tradición oral salvadoreña relacionada con la religiosidad popular. Su nombre está vinculado con la imagen del Justo Juez presente en las oraciones y creencias católicas, pero el relato popular lo transforma en una misteriosa aparición nocturna.
 
     Según las historias transmitidas en diferentes comunidades, puede aparecer en caminos solitarios durante la noche, especialmente cuando una persona viaja sola. Algunas versiones lo describen como un jinete vestido de oscuro que avanza silenciosamente sobre un caballo.
@@ -331,7 +331,7 @@ const LEYENDAS_DATA = [
         tag: "Leyenda · Tradición religiosa",
         chips: ["Sacerdote sin cabeza", "Sotana oscura", "Iglesias", "Aparición nocturna"],
         origen: "Leyenda popular salvadoreña y centroamericana. En El Salvador existen distintas versiones transmitidas oralmente, generalmente relacionadas con iglesias y caminos durante la noche.",
-        img: "../assets/media/leyenda/padre-cabeza.png",
+        img: "../assets/media/leyenda/padre-cabeza.webp",
         relato: `El Padre sin Cabeza es una de las leyendas de aparecidos más conocidas de El Salvador. La historia presenta a un sacerdote que, después de morir en circunstancias relacionadas con una falta grave o un pecado, queda condenado a vagar como alma en pena.
 
     Existen diferentes versiones sobre la razón de su castigo. Algunas cuentan que fue un sacerdote que murió sin poder confesar un pecado relacionado con una relación amorosa. Otras versiones hablan de un sacerdote que murió violentamente durante tiempos de conflicto. Por ello, no existe un único origen histórico comprobado para el personaje.
@@ -357,7 +357,7 @@ const LEYENDAS_DATA = [
         tag: "Leyenda · Tradición centroamericana",
         chips: ["Sombrero grande", "Caballos", "Crines trenzadas", "Aparición nocturna"],
         origen: "Personaje de tradición popular compartido por diferentes países de Centroamérica. En El Salvador existen versiones relacionadas principalmente con los caminos, los caballos y las zonas rurales.",
-        img: "../assets/media/leyenda/sombreron.png",
+        img: "../assets/media/leyenda/sombreron.webp",
         relato: `El Sombrerón es un personaje presente en distintas tradiciones de Centroamérica, por lo que no puede considerarse una figura exclusivamente salvadoreña. Su historia ha adquirido diferentes características según la región donde se cuenta.
 
     En las versiones populares suele aparecer como un hombre pequeño o una figura misteriosa que lleva un sombrero muy grande. Su presencia se relaciona principalmente con la noche y con lugares donde existen caballos y otros animales.
@@ -383,7 +383,7 @@ const LEYENDAS_DATA = [
           tag: "Tradición oral · Hogar",
           chips: ["Advertencia infantil", "Aparece de noche", "Tradición familiar", "Sin forma definida"],
           origen: "Personaje de tradición oral utilizado por familias de El Salvador y de otros países hispanos para advertir a los niños y fomentar el buen comportamiento.",
-          img: "../assets/media/leyenda/el-cuco.png",
+          img: "../assets/media/leyenda/el-cuco.webp",
           relato: `El Cuco es diferente de personajes como la Siguanaba, el Cipitío o el Cadejo. No posee una única historia de origen ni una apariencia establecida. Es principalmente un personaje de tradición oral utilizado por madres, padres, abuelos y otros familiares para advertir a los niños.
 
       La frase "te va a llevar el Cuco" ha formado parte de muchas conversaciones familiares y sirve para representar una amenaza misteriosa que puede aparecer cuando un niño no obedece, no quiere dormir o se comporta mal.

@@ -748,7 +748,23 @@ body.nav-drawer-open #rs-chat-widget { z-index: 100 !important; }
 }
 .footer__links a:hover { color: var(--gold); letter-spacing: .015em; }
 .footer__copy { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
-.footer__disclaimer { font-size: 0.7rem; color: #777; margin-top: 0.1rem; max-width: 560px; }
+.footer__social {
+  display: flex;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--navy);
+  transition: color .2s;
+}
+.footer__social-link:hover { color: var(--gold); }
+.footer__social-link svg { width: 16px; height: 16px; flex-shrink: 0; }
 
 .footer__support {
   display: flex;

@@ -149,7 +149,7 @@ const recetasData = {
     porciones: "6 porciones",
     tiempo: "3 horas",
     dificultad: "Alta",
-    imagen: "../assets/media/recetas/Sopa de Pata.jpg",
+    imagen: "../assets/media/recetas/Sopa de Pata.webp",
     ingredientes: [
       "2 libras de pata de res limpia",
       "1 libra de tripa de res (mondongo)",
@@ -306,7 +306,7 @@ const recetasData = {
     porciones: "5 tazas",
     tiempo: "30 min",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/atol-elote.jpg",
+    imagen: "../assets/media/recetas/atol-elote.webp",
     ingredientes: [
       "6 elotes maduros desgranados",
       "2 tazas de leche entera",
@@ -554,7 +554,7 @@ const recetasData = {
     porciones: "6 tazas",
     tiempo: "1 hora",
     dificultad: "Media",
-    imagen: "../assets/media/gastronomia/chilate-nuegado.jpg",
+    imagen: "../assets/media/gastronomia/chilate-nuegado.webp",
     ingredientes: [
       "1 libra de maíz blanco tostado y molido",
       "1 raja de canela y unos clavos de olor",
@@ -602,7 +602,7 @@ const recetasData = {
     porciones: "6 vasos",
     tiempo: "20 min + reposo",
     dificultad: "Fácil",
-    imagen: "../assets/media/recetas/horchata.jpg",
+    imagen: "../assets/media/recetas/horchata.webp",
     ingredientes: [
       "1 taza de semillas de morro tostadas y molidas (harina de horchata)",
       "4 tazas de agua fría",
@@ -779,7 +779,7 @@ const recetasDataEN = {
     porciones: "6 servings",
     tiempo: "3 hours",
     dificultad: "High",
-    imagen: "../assets/media/recetas/Sopa de Pata.jpg",
+    imagen: "../assets/media/recetas/Sopa de Pata.webp",
     ingredientes: [
       "2 lbs of clean beef feet",
       "1 lb of beef tripe (mondongo)",
@@ -936,7 +936,7 @@ const recetasDataEN = {
     porciones: "5 cups",
     tiempo: "30 min",
     dificultad: "Easy",
-    imagen: "../assets/media/recetas/atol-elote.jpg",
+    imagen: "../assets/media/recetas/atol-elote.webp",
     ingredientes: [
       "6 ripe ears of corn, kernels removed",
       "2 cups of whole milk",
@@ -1184,7 +1184,7 @@ const recetasDataEN = {
     porciones: "6 cups",
     tiempo: "1 hour",
     dificultad: "Medium",
-    imagen: "../assets/media/gastronomia/chilate-nuegado.jpg",
+    imagen: "../assets/media/gastronomia/chilate-nuegado.webp",
     ingredientes: [
       "1 lb of toasted white corn, ground",
       "1 cinnamon stick and a few cloves",
@@ -1232,7 +1232,7 @@ const recetasDataEN = {
     porciones: "6 glasses",
     tiempo: "20 min + resting",
     dificultad: "Easy",
-    imagen: "../assets/media/recetas/horchata.jpg",
+    imagen: "../assets/media/recetas/horchata.webp",
     ingredientes: [
       "1 cup of toasted, ground morro seeds (horchata flour)",
       "4 cups of cold water",

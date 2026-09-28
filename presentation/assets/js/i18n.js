@@ -101,7 +101,9 @@
       "cards.explorar": "Explorar",
 
       "footer.copy": "© 2026 Salvadorean Roots — Nuestra herencia, nuestro orgullo.",
-      "footer.disclaimer": "Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.",
+      "footer.terminos": "Términos y Condiciones",
+      "footer.instagramHandle": "@salvadorean.roots",
+      "footer.facebookHandle": "Salvadorean Roots",
       "footer.support": "Soporte Técnico",
       "footer.supportEmail": "salvadorean.roots@gmail.com",
       "footer.supportLabel": "¿Problemas técnicos?",
@@ -2359,6 +2361,10 @@
       "terms.s11.title": "11. Propiedad intelectual",
       "terms.s11.p1": "El contenido original de la Plataforma (textos históricos, diseño, código, marcas, logotipos e ilustraciones propias) es propiedad de Salvadorean Roots o de sus respectivos titulares y está protegido por las leyes de propiedad intelectual aplicables. Se permite el uso personal y no comercial del contenido informativo del Sitio, siempre citando la fuente. Queda prohibida la reproducción total o parcial con fines comerciales sin autorización previa.",
       "terms.s11.p2": "El contenido generado por usuarios se rige por lo dispuesto en la sección 3.",
+      "terms.s11.h1": "11.1 Uso educativo y sin fines de lucro",
+      "terms.s11.p3": "Material utilizado exclusivamente con fines educativos y sin fines de lucro. Todos los derechos pertenecen a su autor original.",
+      "terms.s11.h2": "11.2 Créditos musicales",
+      "terms.s11.p4": "Música de fondo vía <a href=\"https://freemusicarchive.org\" target=\"_blank\" rel=\"noopener noreferrer\">Free Music Archive</a>: \"Relaxing Latin Guitar\", \"Latin Guitar Adventure\", \"Romantic Latin Guitar\", \"Summertime Latin Guitar\" y \"Marimba Adventure\" por Greg Kirkelie (CC BY-NC-SA 4.0); \"Cumbia\" por Elijah_K (CC BY 4.0); \"Cumbia Chicana\" por MrJuan (CC BY 3.0).",
 
       "terms.s12.title": "12. Uso aceptable",
       "terms.s12.p1": "Está prohibido usar la Plataforma (incluyendo el chatbot y la skill de Alexa) para:",
@@ -2617,7 +2623,9 @@
       "cards.explorar": "Explore",
 
       "footer.copy": "© 2026 Salvadorean Roots — Our heritage, our pride.",
-      "footer.disclaimer": "Material used exclusively for educational, non-profit purposes. All rights belong to their original author.",
+      "footer.terminos": "Terms & Conditions",
+      "footer.instagramHandle": "@salvadorean.roots",
+      "footer.facebookHandle": "Salvadorean Roots",
       "footer.support": "Technical Support",
       "footer.supportEmail": "salvadorean.roots@gmail.com",
       "footer.supportLabel": "Technical issues?",
@@ -4868,6 +4876,10 @@
         "terms.s11.title": "11. Intellectual property",
         "terms.s11.p1": "The Platform's original content (historical texts, design, code, trademarks, logos, and original illustrations) is owned by Salvadorean Roots or its respective rights holders and is protected by applicable intellectual property laws. Personal, non-commercial use of the Site's informational content is permitted, provided the source is credited. Full or partial reproduction for commercial purposes without prior authorization is prohibited.",
         "terms.s11.p2": "User-generated content is governed by the provisions of section 3.",
+        "terms.s11.h1": "11.1 Educational, non-profit use",
+        "terms.s11.p3": "Material used exclusively for educational, non-profit purposes. All rights belong to their original author.",
+        "terms.s11.h2": "11.2 Music credits",
+        "terms.s11.p4": "Background music via <a href=\"https://freemusicarchive.org\" target=\"_blank\" rel=\"noopener noreferrer\">Free Music Archive</a>: \"Relaxing Latin Guitar\", \"Latin Guitar Adventure\", \"Romantic Latin Guitar\", \"Summertime Latin Guitar\" and \"Marimba Adventure\" by Greg Kirkelie (CC BY-NC-SA 4.0); \"Cumbia\" by Elijah_K (CC BY 4.0); \"Cumbia Chicana\" by MrJuan (CC BY 3.0).",
 
         "terms.s12.title": "12. Acceptable use",
         "terms.s12.p1": "It is prohibited to use the Platform (including the chatbot and the Alexa skill) to:",

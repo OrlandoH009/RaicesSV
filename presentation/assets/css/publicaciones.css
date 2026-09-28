@@ -1550,7 +1550,7 @@ body {
 }
 .footer .footer__links a:hover { color: var(--gold); }
 .footer .footer__copy { color: #555; }
-.footer .footer__disclaimer { color: #777; }
+.footer .footer__social-link { color: var(--navy); }
 /* ══════════════════════════════════
    BLOQUEO ELEGANTE PARA INVITADOS
    ══════════════════════════════════
