@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <a href="../views/publicaciones.html" class="drawer-link" data-i18n="nav.publicaciones">Publicaciones</a>
       <a href="../views/juegos.html" class="drawer-link" data-i18n="nav.juegos">Juegos Interactivos</a>
       <a href="../views/recetas.html" class="drawer-link" data-i18n="nav.recetario">Recetario</a>
+      <a href="../views/comentarios.html" class="drawer-link" data-i18n="nav.comentarios">Comentarios</a>
       <div class="drawer-divider"></div>
       <div class="drawer-auth"></div>
     `;
@@ -478,7 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         authContainer.innerHTML = `
           <p class="drawer-auth-label" data-i18n="nav.conectado">Conectado</p>
-          <a href="../views/perfil.html" class="btn-login" data-i18n="nav.miPerfil">Mi perfil</a>
           ${adminLinkHtml}
           <button type="button" class="btn-logout" id="logout-link" data-i18n="nav.cerrarSesion">Cerrar sesión</button>
         `;

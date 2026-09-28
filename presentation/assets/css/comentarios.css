@@ -1,0 +1,100 @@
+/* ============================================================
+  Salvadorean Roots — comentarios.css
+   Selector de estrellas + historial de comentarios enviados.
+   Reutiliza la base visual de perfil.css (tarjetas, formularios).
+   ============================================================ */
+
+.star-rating {
+  display: flex;
+  gap: .3rem;
+}
+
+.star-rating__star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: .1rem;
+  color: rgba(255, 255, 255, .25);
+  transition: color .15s ease, transform .15s ease;
+}
+[data-theme="light"] .star-rating__star { color: rgba(36, 33, 29, .2); }
+
+.star-rating__star:hover,
+.star-rating__star.is-hover {
+  transform: scale(1.12);
+}
+
+.star-rating__star.is-active,
+.star-rating__star.is-hover {
+  color: var(--gold);
+}
+
+.my-feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.my-feedback-item {
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--r-sm);
+  padding: .9rem 1.1rem;
+}
+[data-theme="light"] .my-feedback-item { background: rgba(17,48,104,.04); }
+
+.my-feedback-item__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .5rem;
+  flex-wrap: wrap;
+}
+
+.my-feedback-item__stars {
+  color: var(--gold);
+  font-size: .95rem;
+  letter-spacing: .05em;
+}
+
+.my-feedback-item__date {
+  font-size: .74rem;
+  color: rgba(255, 255, 255, .4);
+}
+[data-theme="light"] .my-feedback-item__date { color: rgba(36,33,29,.5); }
+
+.my-feedback-item__status {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+}
+.my-feedback-item__status--pending {
+  color: #e0a17a;
+  background: rgba(224, 161, 122, .12);
+}
+.my-feedback-item__status--reviewed {
+  color: #6fbf8f;
+  background: rgba(111, 191, 143, .12);
+}
+
+.my-feedback-item__text {
+  font-size: .88rem;
+  line-height: 1.5;
+  color: var(--white);
+  white-space: pre-wrap;
+}
+[data-theme="light"] .my-feedback-item__text { color: var(--carbon, #2c2620); }
+
+.my-feedback-empty {
+  font-size: .85rem;
+  color: rgba(255, 255, 255, .45);
+  text-align: center;
+  padding: .5rem 0;
+}
+[data-theme="light"] .my-feedback-empty { color: rgba(36,33,29,.5); }

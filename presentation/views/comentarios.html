@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comentarios — Salvadorean Roots</title>
+  <meta name="description" content="Cuéntanos tu opinión sobre Salvadorean Roots y qué podríamos mejorar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/perfil.css" />
+  <link rel="stylesheet" href="../assets/css/comentarios.css" />
+  <link rel="icon" href="../assets/favicon/favicon.ico" />
+  <link rel="manifest" href="../assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#ffffff" />
+</head>
+<body data-i18n-title="comentarios.meta.title" data-i18n-desc="comentarios.meta.description">
+
+  <nav class="navbar" id="navbar">
+    <div class="navbar__logo">
+      <a href="../views/index.html">
+        <img src="../assets/media/Logo de Salvadorean Roots (Sin Fondo).webp" alt="Logo Salvadorean Roots" data-i18n-attr="alt:home.logoAlt" />
+      </a>
+    </div>
+    <ul class="navbar__links">
+      <li><a href="../views/index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="../views/categorias.html" data-i18n="nav.categorias">Categorías</a></li>
+      <li><a href="../views/mapa.html" data-i18n="nav.mapa">Mapa</a></li>
+      <li><a href="../views/calendario.html" data-i18n="nav.calendario">Calendario</a></li>
+    </ul>
+    <button class="lang-toggle" id="langToggleDesktop" data-lang-toggle type="button">
+      <span class="lang-toggle__flag" data-lang-toggle-flag>🇸🇻</span>
+    </button>
+    <button class="navbar__burger" id="burger" aria-expanded="false" aria-controls="navDrawer" aria-label="Abrir menú" data-i18n-attr="aria-label:nav.abrirMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer">
+    <div class="nav-drawer__head"><span data-i18n="nav.menu">Menú</span></div>
+    <div class="drawer-section-label" data-i18n="nav.principal">Principal</div>
+    <a href="../views/index.html" class="drawer-link" data-i18n="nav.inicio">Inicio</a>
+    <a href="../views/categorias.html" class="drawer-link" data-i18n="nav.categorias">Categorías</a>
+    <a href="../views/mapa.html" class="drawer-link" data-i18n="nav.mapa">Mapa</a>
+    <a href="../views/calendario.html" class="drawer-link" data-i18n="nav.calendario">Calendario</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-auth">
+      <p class="drawer-auth-label" data-i18n="nav.miCuenta">Mi cuenta</p>
+      <a href="../views/login.html" class="btn-login" data-i18n="nav.iniciarSesion">Iniciar Sesión</a>
+      <a href="../views/registro.html" class="btn-register" data-i18n="nav.registrarse">Registrarse</a>
+    </div>
+  </nav>
+
+  <div class="perfil-page">
+    <div class="perfil-page__bg"></div>
+
+    <main class="perfil-wrap">
+      <div class="perfil-header reveal">
+        <span class="eyebrow" data-i18n="comentarios.eyebrow">Tu voz importa</span>
+        <h1 data-i18n="comentarios.title">Comentarios y sugerencias</h1>
+        <p data-i18n="comentarios.subtitle">Cuéntanos qué te parece la plataforma y qué podríamos mejorar.</p>
+      </div>
+
+      <div id="comentarios-toast"></div>
+
+      <form class="perfil-card reveal" id="feedbackForm">
+        <h2 data-i18n="comentarios.form.title">Danos tu opinión</h2>
+        <p class="perfil-card__desc" data-i18n="comentarios.form.desc">Tu comentario llega directo al equipo de Salvadorean Roots.</p>
+
+        <div class="form-group">
+          <label data-i18n="comentarios.form.ratingLabel">¿Qué tan agradable te resulta usar la plataforma?</label>
+          <div class="star-rating" id="starRating" role="radiogroup" data-i18n-attr="aria-label:comentarios.form.ratingLabel">
+            <button type="button" class="star-rating__star" data-value="1" role="radio" aria-checked="false" aria-label="1">★</button>
+            <button type="button" class="star-rating__star" data-value="2" role="radio" aria-checked="false" aria-label="2">★</button>
+            <button type="button" class="star-rating__star" data-value="3" role="radio" aria-checked="false" aria-label="3">★</button>
+            <button type="button" class="star-rating__star" data-value="4" role="radio" aria-checked="false" aria-label="4">★</button>
+            <button type="button" class="star-rating__star" data-value="5" role="radio" aria-checked="false" aria-label="5">★</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="feedbackMessage" data-i18n="comentarios.form.messageLabel">¿Qué podríamos mejorar?</label>
+          <textarea id="feedbackMessage" name="message" rows="5" maxlength="1000" required placeholder="Cuéntanos tu opinión, una idea o algo que te gustaría ver en el sitio…" data-i18n-attr="placeholder:comentarios.form.messagePlaceholder"></textarea>
+          <span class="char-count" id="feedbackCharCount">0 / 1000</span>
+        </div>
+
+        <div class="perfil-card-footer">
+          <button type="submit" class="perfil-btn" id="feedbackSubmitBtn" data-i18n="comentarios.form.submitBtn">Enviar comentario</button>
+          <span class="save-status" id="feedbackStatus"></span>
+        </div>
+      </form>
+
+      <div class="perfil-card reveal" id="myFeedbackCard" style="transition-delay:.05s">
+        <h2 data-i18n="comentarios.mine.title">Tus comentarios enviados</h2>
+        <p class="perfil-card__desc" data-i18n="comentarios.mine.desc">Así ha quedado registrado lo que nos has compartido.</p>
+        <div class="my-feedback-list" id="myFeedbackList"></div>
+        <p class="my-feedback-empty" id="myFeedbackEmpty" data-i18n="comentarios.mine.empty" hidden>Todavía no has enviado ningún comentario.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="../assets/js/theme-blobs.js"></script>
+  <script src="../assets/js/script.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/comentarios.js"></script>
+</body>
+</html>

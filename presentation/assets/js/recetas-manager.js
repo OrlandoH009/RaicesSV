@@ -41,6 +41,82 @@ const recetasData = {
       "Coloque una cucharada generosa de relleno en la cavidad y cierre la masa envolviéndolo por completo.",
       "Palmee la masa suavemente de mano a mano, girándola para formar un disco plano sin que se salga el relleno.",
       "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas."
+    ],
+    variantes: [
+      {
+        id: "revueltas",
+        nombre: "Revueltas",
+        ingredientes: [
+          "2 tazas de masa de maíz (o arroz)",
+          "1½ tazas de agua tibia",
+          "1 taza de chicharrón molido salvadoreño",
+          "1 taza de frijoles negros o rojos refritos",
+          "1½ tazas de queso quesillo o mozzarella rallado",
+          "Aceite vegetal para las manos"
+        ],
+        pasos: [
+          "En un tazón, mezcle la masa de maíz con el agua tibia gradualmente hasta obtener una textura suave y moldeable.",
+          "Combine el queso, el chicharrón y los frijoles en un recipiente para crear el relleno revuelto.",
+          "Tome una bola de masa del tamaño de una pelota de golf y haga una cavidad en el centro en forma de cuenco.",
+          "Coloque una cucharada generosa de relleno en la cavidad y cierre la masa envolviéndolo por completo.",
+          "Palmee la masa suavemente de mano a mano, girándola para formar un disco plano sin que se salga el relleno.",
+          "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas."
+        ]
+      },
+      {
+        id: "queso",
+        nombre: "De queso",
+        ingredientes: [
+          "2 tazas de masa de maíz (o arroz)",
+          "1½ tazas de agua tibia",
+          "2 tazas de queso quesillo o mozzarella rallado",
+          "Una pizca de sal",
+          "Aceite vegetal para las manos"
+        ],
+        pasos: [
+          "En un tazón, mezcle la masa de maíz con el agua tibia y la sal hasta obtener una textura suave y moldeable.",
+          "Tome una bola de masa del tamaño de una pelota de golf y haga una cavidad en el centro en forma de cuenco.",
+          "Rellene generosamente con el queso rallado y cierre la masa envolviéndolo por completo.",
+          "Palmee la masa suavemente de mano a mano, girándola para formar un disco plano sin que se salga el queso.",
+          "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas y el queso se derrita."
+        ]
+      },
+      {
+        id: "chicharron",
+        nombre: "De chicharrón",
+        ingredientes: [
+          "2 tazas de masa de maíz (o arroz)",
+          "1½ tazas de agua tibia",
+          "1½ tazas de chicharrón molido salvadoreño",
+          "½ taza de tomate y cebolla finamente picados",
+          "Aceite vegetal para las manos"
+        ],
+        pasos: [
+          "En un tazón, mezcle la masa de maíz con el agua tibia hasta obtener una textura suave y moldeable.",
+          "Combine el chicharrón molido con el tomate y la cebolla picados para darle jugosidad al relleno.",
+          "Tome una bola de masa, haga una cavidad en el centro y rellénela generosamente con el chicharrón preparado.",
+          "Cierre la masa envolviendo el relleno por completo y palméela suavemente hasta formar un disco parejo.",
+          "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas y crujientes."
+        ]
+      },
+      {
+        id: "frijol",
+        nombre: "De frijol",
+        ingredientes: [
+          "2 tazas de masa de maíz (o arroz)",
+          "1½ tazas de agua tibia",
+          "2 tazas de frijoles negros o rojos refritos",
+          "½ taza de queso rallado (opcional)",
+          "Aceite vegetal para las manos"
+        ],
+        pasos: [
+          "En un tazón, mezcle la masa de maíz con el agua tibia hasta obtener una textura suave y moldeable.",
+          "Si desea una versión más cremosa, mezcle los frijoles refritos con un poco de queso rallado.",
+          "Tome una bola de masa, forme una cavidad en el centro y rellénela con una cucharada generosa de frijoles.",
+          "Cierre la masa envolviendo el relleno por completo y palméela con cuidado para no romper la cubierta.",
+          "Cocine en un comal o sartén bien caliente durante 3-4 minutos por lado hasta que estén doradas."
+        ]
+      }
     ]
   },
   yuca: {
@@ -161,6 +237,67 @@ const recetasData = {
       "Agregue el pollo con recaudo, una tira de papa, una aceituna y alcaparras.",
       "Envuelva doblando los extremos firmemente para evitar filtraciones de agua.",
       "Cocine al vapor en una olla grande con base de hojas durante 1 hora y 15 minutos."
+    ],
+    variantes: [
+      {
+        id: "pollo",
+        nombre: "De pollo",
+        ingredientes: [
+          "1 libra de masa de maíz nixtamalizado",
+          "1 litro de caldo de pollo concentrado",
+          "½ taza de manteca de cerdo o aceite",
+          "Hojas de plátano previamente pasadas por agua hirviendo",
+          "Pollo desmenuzado cocido en recaudo",
+          "Papas, aceitunas y alcaparras para el adorno"
+        ],
+        pasos: [
+          "Cocine la masa junto con el caldo de pollo y la manteca a fuego medio, moviendo constantemente hasta que espese uniformemente.",
+          "Limpie y corte las hojas de plátano en rectángulos de aproximadamente 30x30 cm.",
+          "Coloque una cucharada grande de masa caliente en el centro de la hoja.",
+          "Agregue el pollo con recaudo, una tira de papa, una aceituna y alcaparras.",
+          "Envuelva doblando los extremos firmemente para evitar filtraciones de agua.",
+          "Cocine al vapor en una olla grande con base de hojas durante 1 hora y 15 minutos."
+        ]
+      },
+      {
+        id: "elote",
+        nombre: "De elote",
+        ingredientes: [
+          "8 elotes tiernos desgranados y molidos",
+          "1 taza de leche entera",
+          "½ taza de mantequilla",
+          "¾ taza de azúcar",
+          "Hojas de elote (tusa) o de plátano para envolver",
+          "Una pizca de sal"
+        ],
+        pasos: [
+          "Muela los granos de elote tierno junto con la leche hasta obtener una masa espesa.",
+          "Cocine la masa a fuego medio con la mantequilla, el azúcar y la sal, revolviendo hasta que espese ligeramente.",
+          "Deje enfriar un poco y coloque una porción generosa sobre cada hoja de tusa o de plátano.",
+          "Envuelva doblando los extremos con cuidado de que no se salga la masa dulce.",
+          "Cocine al vapor durante 45-50 minutos hasta que la masa quede firme."
+        ]
+      },
+      {
+        id: "pisque",
+        nombre: "Pisque (de frijol)",
+        ingredientes: [
+          "1 libra de masa de maíz nixtamalizado",
+          "1 litro de caldo o agua",
+          "½ taza de manteca de cerdo o aceite",
+          "Hojas de plátano previamente pasadas por agua hirviendo",
+          "2 tazas de frijoles refritos",
+          "Sal al gusto"
+        ],
+        pasos: [
+          "Cocine la masa junto con el caldo y la manteca a fuego medio, moviendo constantemente hasta que espese.",
+          "Sazone con sal al gusto y deje entibiar un poco antes de armar los tamales.",
+          "Coloque una cucharada grande de masa en el centro de cada hoja de plátano.",
+          "Agregue una cucharada generosa de frijoles refritos en el centro de la masa.",
+          "Envuelva doblando los extremos firmemente para evitar filtraciones de agua.",
+          "Cocine al vapor en una olla grande con base de hojas durante 1 hora."
+        ]
+      }
     ]
   },
   atol: {
@@ -185,6 +322,48 @@ const recetasData = {
       "Cocine a fuego medio sin dejar de remover para evitar que se pegue al fondo.",
       "Cuando comience a espesar, incorpore la leche entera y el azúcar a su gusto.",
       "Deje hervir durante 5 minutos adicionales y sirva bien caliente en una taza de barro."
+    ],
+    variantes: [
+      {
+        id: "elote",
+        nombre: "De elote",
+        ingredientes: [
+          "6 elotes maduros desgranados",
+          "2 tazas de leche entera",
+          "2 tazas de agua",
+          "1 raja de canela entera",
+          "¾ taza de azúcar",
+          "Una pizca de sal"
+        ],
+        pasos: [
+          "Licúe los granos de elote crudo junto con las tazas de agua hasta lograr una mezcla homogénea.",
+          "Cuele muy bien la mezcla usando una manta fina para retirar todo el bagazo.",
+          "Vierta el líquido extraído en una olla limpia, añada la canela y la pizca de sal.",
+          "Cocine a fuego medio sin dejar de remover para evitar que se pegue al fondo.",
+          "Cuando comience a espesar, incorpore la leche entera y el azúcar a su gusto.",
+          "Deje hervir durante 5 minutos adicionales y sirva bien caliente en una taza de barro."
+        ]
+      },
+      {
+        id: "shuco",
+        nombre: "Shuco (fermentado)",
+        ingredientes: [
+          "1 libra de maíz negro o morado molido",
+          "1 taza de frijoles de vara cocidos",
+          "6 tazas de agua",
+          "Hojas de maicillo o pito (opcional, para fermentar)",
+          "Sal al gusto",
+          "Semillas de ayote tostadas para acompañar"
+        ],
+        pasos: [
+          "Disuelva el maíz molido en agua y déjelo reposar tapado de un día para otro para que fermente ligeramente.",
+          "Cuele la mezcla fermentada con una manta fina para retirar el bagazo grueso.",
+          "Vierta el líquido colado en una olla y cocine a fuego medio, moviendo constantemente para que no se pegue.",
+          "Cuando espese un poco, agregue los frijoles de vara cocidos y sazone con sal al gusto.",
+          "Deje hervir unos minutos más hasta lograr una consistencia ligera y homogénea.",
+          "Sirva caliente en jícara o taza de barro, acompañado de semillas de ayote tostadas."
+        ]
+      }
     ]
   },
   riguas: {
@@ -209,6 +388,44 @@ const recetasData = {
       "Coloque una porción de la mezcla sobre una hoja de tusa y doble formando un paquete plano.",
       "Cocine las riguas en un comal caliente durante 6-8 minutos por cada lado.",
       "Sirva calientes, recién salidas del comal, solas o acompañadas de crema."
+    ],
+    variantes: [
+      {
+        id: "dulces",
+        nombre: "Dulces",
+        ingredientes: [
+          "6 elotes tiernos desgranados",
+          "2 cucharadas de azúcar",
+          "1 cucharadita de sal",
+          "2 cucharadas de mantequilla derretida",
+          "Hojas de elote (tusa) para envolver"
+        ],
+        pasos: [
+          "Muela los granos de elote tierno en un procesador hasta lograr una masa espesa y ligeramente granulada.",
+          "Mezcle la masa con el azúcar, la sal y la mantequilla derretida hasta integrar bien.",
+          "Coloque una porción de la mezcla sobre una hoja de tusa y doble formando un paquete plano.",
+          "Cocine las riguas en un comal caliente durante 6-8 minutos por cada lado.",
+          "Sirva calientes, recién salidas del comal, solas o acompañadas de crema."
+        ]
+      },
+      {
+        id: "saladas",
+        nombre: "Saladas",
+        ingredientes: [
+          "6 elotes tiernos desgranados",
+          "1 cucharadita de sal",
+          "2 cucharadas de mantequilla derretida",
+          "1 taza de queso duro rallado",
+          "Hojas de elote (tusa) para envolver"
+        ],
+        pasos: [
+          "Muela los granos de elote tierno en un procesador hasta lograr una masa espesa y ligeramente granulada.",
+          "Mezcle la masa con la sal, la mantequilla derretida y el queso rallado hasta integrar bien.",
+          "Coloque una porción de la mezcla sobre una hoja de tusa y doble formando un paquete plano.",
+          "Cocine las riguas en un comal caliente durante 6-8 minutos por cada lado hasta que el queso se derrita.",
+          "Sirva calientes, recién salidas del comal, con un toque extra de queso rallado si lo desea."
+        ]
+      }
     ]
   },
   empanadasplatano: {
@@ -378,6 +595,53 @@ const recetasData = {
       "Sumerja las rebanadas fritas en la miel caliente, dejando que absorban el dulce por varios minutos.",
       "Sirva las torrejas tibias, bañadas en abundante miel de panela."
     ]
+  },
+  horchata: {
+    titulo: "Horchata Salvadoreña",
+    categoria: "Bebida ancestral",
+    porciones: "6 vasos",
+    tiempo: "20 min + reposo",
+    dificultad: "Fácil",
+    imagen: "../assets/media/recetas/horchata.jpg",
+    ingredientes: [
+      "1 taza de semillas de morro tostadas y molidas (harina de horchata)",
+      "4 tazas de agua fría",
+      "1 taza de leche entera (opcional, para una versión más cremosa)",
+      "½ taza de azúcar o al gusto",
+      "1 raja de canela entera",
+      "Hielo al gusto"
+    ],
+    pasos: [
+      "Disuelva la harina de morro en un poco de agua tibia hasta formar una pasta sin grumos.",
+      "Agregue el resto del agua poco a poco, mezclando bien para integrar completamente la pasta.",
+      "Cuele la mezcla con una manta fina para retirar cualquier residuo de semilla.",
+      "Incorpore la leche (si la usa), el azúcar y la raja de canela, mezclando hasta disolver el azúcar.",
+      "Refrigere durante al menos una hora para que los sabores se asienten y la bebida esté bien fría.",
+      "Sirva con abundante hielo en un vaso alto, espolvoreando canela molida si se desea."
+    ]
+  },
+  chocolateSalvadoreno: {
+    titulo: "Chocolate Salvadoreño",
+    categoria: "Bebida ancestral",
+    porciones: "4 tazas",
+    tiempo: "25 min",
+    dificultad: "Fácil",
+    imagen: "../assets/media/recetas/chocolate.webp",
+    ingredientes: [
+      "4 tablillas de chocolate de tablilla salvadoreño (con canela y a veces achiote)",
+      "4 tazas de agua o leche entera",
+      "Azúcar al gusto (si las tablillas no son ya dulces)",
+      "1 raja de canela adicional (opcional)",
+      "Un molinillo de madera para batir"
+    ],
+    pasos: [
+      "Parta las tablillas de chocolate en trozos pequeños para que se derritan más fácilmente.",
+      "Caliente el agua o la leche en una olla a fuego medio sin dejar que hierva todavía.",
+      "Agregue los trozos de chocolate y la raja de canela, revolviendo constantemente hasta que se disuelvan por completo.",
+      "Bata la mezcla enérgicamente con un molinillo de madera, girándolo entre las palmas para generar espuma.",
+      "Deje que hierva suavemente durante 2-3 minutos sin dejar de batir, ajustando el azúcar al gusto.",
+      "Sirva bien caliente y espumoso en tazas de barro, tradicionalmente acompañado de pan dulce."
+    ]
   }
 };
 
@@ -407,6 +671,82 @@ const recetasDataEN = {
       "Place a generous spoonful of filling into the cavity and close the dough completely around it.",
       "Gently pat the dough from hand to hand, turning it to form a flat disc without letting the filling escape.",
       "Cook on a hot comal or skillet for 3–4 minutes per side until golden brown."
+    ],
+    variantes: [
+      {
+        id: "revueltas",
+        nombre: "Revueltas (mixed)",
+        ingredientes: [
+          "2 cups of corn masa (or rice flour)",
+          "1½ cups of warm water",
+          "1 cup of ground Salvadoran chicharrón",
+          "1 cup of refried black or red beans",
+          "1½ cups of grated quesillo or mozzarella cheese",
+          "Vegetable oil for your hands"
+        ],
+        pasos: [
+          "In a bowl, gradually mix the masa with warm water until you get a smooth, pliable dough.",
+          "Combine the cheese, chicharrón, and beans in a separate bowl to make the mixed filling.",
+          "Take a golf-ball-sized piece of dough and form a cavity in the center like a small bowl.",
+          "Place a generous spoonful of filling into the cavity and close the dough completely around it.",
+          "Gently pat the dough from hand to hand, turning it to form a flat disc without letting the filling escape.",
+          "Cook on a hot comal or skillet for 3–4 minutes per side until golden brown."
+        ]
+      },
+      {
+        id: "queso",
+        nombre: "Cheese",
+        ingredientes: [
+          "2 cups of corn masa (or rice flour)",
+          "1½ cups of warm water",
+          "2 cups of grated quesillo or mozzarella cheese",
+          "A pinch of salt",
+          "Vegetable oil for your hands"
+        ],
+        pasos: [
+          "In a bowl, mix the masa with warm water and salt until you get a smooth, pliable dough.",
+          "Take a golf-ball-sized piece of dough and form a cavity in the center like a small bowl.",
+          "Fill generously with grated cheese and close the dough completely around it.",
+          "Gently pat the dough from hand to hand, turning it to form a flat disc without letting the cheese escape.",
+          "Cook on a hot comal or skillet for 3–4 minutes per side until golden and the cheese has melted."
+        ]
+      },
+      {
+        id: "chicharron",
+        nombre: "Chicharrón (pork)",
+        ingredientes: [
+          "2 cups of corn masa (or rice flour)",
+          "1½ cups of warm water",
+          "1½ cups of ground Salvadoran chicharrón",
+          "½ cup of finely chopped tomato and onion",
+          "Vegetable oil for your hands"
+        ],
+        pasos: [
+          "In a bowl, mix the masa with warm water until you get a smooth, pliable dough.",
+          "Combine the ground chicharrón with the chopped tomato and onion for a juicier filling.",
+          "Take a piece of dough, form a cavity in the center and fill generously with the chicharrón mix.",
+          "Close the dough completely around the filling and gently pat it into an even disc.",
+          "Cook on a hot comal or skillet for 3–4 minutes per side until golden and crispy."
+        ]
+      },
+      {
+        id: "frijol",
+        nombre: "Beans",
+        ingredientes: [
+          "2 cups of corn masa (or rice flour)",
+          "1½ cups of warm water",
+          "2 cups of refried black or red beans",
+          "½ cup of grated cheese (optional)",
+          "Vegetable oil for your hands"
+        ],
+        pasos: [
+          "In a bowl, mix the masa with warm water until you get a smooth, pliable dough.",
+          "For a creamier version, mix the refried beans with a little grated cheese.",
+          "Take a piece of dough, form a cavity in the center and fill with a generous spoonful of beans.",
+          "Close the dough completely around the filling and pat it gently so it doesn't tear.",
+          "Cook on a hot comal or skillet for 3–4 minutes per side until golden brown."
+        ]
+      }
     ]
   },
   yuca: {
@@ -527,6 +867,67 @@ const recetasDataEN = {
       "Add the chicken with recado, a strip of potato, an olive and capers.",
       "Wrap by folding the ends firmly to prevent water leakage.",
       "Steam in a large pot with a leaf base for 1 hour and 15 minutes."
+    ],
+    variantes: [
+      {
+        id: "pollo",
+        nombre: "Chicken",
+        ingredientes: [
+          "1 lb of nixtamalized corn masa",
+          "1 liter of concentrated chicken broth",
+          "½ cup of lard or oil",
+          "Plantain leaves previously passed through boiling water",
+          "Shredded chicken cooked in recado",
+          "Potatoes, olives and capers for garnish"
+        ],
+        pasos: [
+          "Cook the masa with the chicken broth and lard over medium heat, stirring constantly until it thickens evenly.",
+          "Clean and cut the plantain leaves into rectangles about 30x30 cm.",
+          "Place a large spoonful of hot masa in the center of the leaf.",
+          "Add the chicken with recado, a strip of potato, an olive and capers.",
+          "Wrap by folding the ends firmly to prevent water leakage.",
+          "Steam in a large pot with a leaf base for 1 hour and 15 minutes."
+        ]
+      },
+      {
+        id: "elote",
+        nombre: "Sweet corn",
+        ingredientes: [
+          "8 tender ears of corn, kernels removed and ground",
+          "1 cup of whole milk",
+          "½ cup of butter",
+          "¾ cup of sugar",
+          "Corn husks (tusa) or plantain leaves for wrapping",
+          "A pinch of salt"
+        ],
+        pasos: [
+          "Grind the tender corn kernels together with the milk until you get a thick dough.",
+          "Cook the dough over medium heat with the butter, sugar and salt, stirring until it thickens slightly.",
+          "Let it cool a little and place a generous portion on each corn husk or plantain leaf.",
+          "Wrap by folding the ends carefully so the sweet dough doesn't leak out.",
+          "Steam for 45-50 minutes until the dough is firm."
+        ]
+      },
+      {
+        id: "pisque",
+        nombre: "Pisque (bean)",
+        ingredientes: [
+          "1 lb of nixtamalized corn masa",
+          "1 liter of broth or water",
+          "½ cup of lard or oil",
+          "Plantain leaves previously passed through boiling water",
+          "2 cups of refried beans",
+          "Salt to taste"
+        ],
+        pasos: [
+          "Cook the masa with the broth and lard over medium heat, stirring constantly until it thickens.",
+          "Season with salt to taste and let it cool slightly before assembling the tamales.",
+          "Place a large spoonful of masa in the center of each plantain leaf.",
+          "Add a generous spoonful of refried beans in the center of the dough.",
+          "Wrap by folding the ends firmly to prevent water leakage.",
+          "Steam in a large pot with a leaf base for 1 hour."
+        ]
+      }
     ]
   },
   atol: {
@@ -551,6 +952,48 @@ const recetasDataEN = {
       "Cook over medium heat, stirring constantly to prevent sticking.",
       "When it begins to thicken, add the milk and sugar to taste.",
       "Boil for 5 more minutes and serve hot in a clay cup."
+    ],
+    variantes: [
+      {
+        id: "elote",
+        nombre: "Sweet corn",
+        ingredientes: [
+          "6 ripe ears of corn, kernels removed",
+          "2 cups of whole milk",
+          "2 cups of water",
+          "1 whole cinnamon stick",
+          "¾ cup of sugar",
+          "A pinch of salt"
+        ],
+        pasos: [
+          "Blend the raw corn kernels with the water until smooth.",
+          "Strain well using a fine cloth to remove all the pulp.",
+          "Pour the extracted liquid into a clean pot, add the cinnamon and salt.",
+          "Cook over medium heat, stirring constantly to prevent sticking.",
+          "When it begins to thicken, add the milk and sugar to taste.",
+          "Boil for 5 more minutes and serve hot in a clay cup."
+        ]
+      },
+      {
+        id: "shuco",
+        nombre: "Shuco (fermented)",
+        ingredientes: [
+          "1 lb of ground black or purple corn",
+          "1 cup of cooked vara beans",
+          "6 cups of water",
+          "Maicillo or pito leaves (optional, for fermenting)",
+          "Salt to taste",
+          "Toasted squash seeds for serving"
+        ],
+        pasos: [
+          "Dissolve the ground corn in water and let it sit covered overnight to ferment slightly.",
+          "Strain the fermented mixture through a fine cloth to remove the coarse pulp.",
+          "Pour the strained liquid into a pot and cook over medium heat, stirring constantly so it doesn't stick.",
+          "Once it thickens slightly, add the cooked vara beans and season with salt to taste.",
+          "Simmer a few more minutes until you get a light, smooth consistency.",
+          "Serve hot in a gourd or clay cup, topped with toasted squash seeds."
+        ]
+      }
     ]
   },
   riguas: {
@@ -575,6 +1018,44 @@ const recetasDataEN = {
       "Place a portion of the mixture on a corn husk and fold into a flat packet.",
       "Cook the riguas on a hot comal for 6-8 minutes per side.",
       "Serve hot, fresh off the comal, plain or with sour cream."
+    ],
+    variantes: [
+      {
+        id: "dulces",
+        nombre: "Sweet",
+        ingredientes: [
+          "6 tender ears of corn, kernels removed",
+          "2 tablespoons of sugar",
+          "1 teaspoon of salt",
+          "2 tablespoons of melted butter",
+          "Corn husks (tusa) for wrapping"
+        ],
+        pasos: [
+          "Grind the tender corn kernels in a food processor until you get a thick, slightly grainy dough.",
+          "Mix the dough with the sugar, salt and melted butter until well combined.",
+          "Place a portion of the mixture on a corn husk and fold into a flat packet.",
+          "Cook the riguas on a hot comal for 6-8 minutes per side.",
+          "Serve hot, fresh off the comal, plain or with sour cream."
+        ]
+      },
+      {
+        id: "saladas",
+        nombre: "Savory",
+        ingredientes: [
+          "6 tender ears of corn, kernels removed",
+          "1 teaspoon of salt",
+          "2 tablespoons of melted butter",
+          "1 cup of grated hard cheese",
+          "Corn husks (tusa) for wrapping"
+        ],
+        pasos: [
+          "Grind the tender corn kernels in a food processor until you get a thick, slightly grainy dough.",
+          "Mix the dough with the salt, melted butter and grated cheese until well combined.",
+          "Place a portion of the mixture on a corn husk and fold into a flat packet.",
+          "Cook the riguas on a hot comal for 6-8 minutes per side until the cheese melts.",
+          "Serve hot, fresh off the comal, with extra grated cheese if desired."
+        ]
+      }
     ]
   },
   empanadasplatano: {
@@ -744,6 +1225,53 @@ const recetasDataEN = {
       "Submerge the fried slices in the hot honey, letting them absorb the sweetness for several minutes.",
       "Serve the torrejas warm, drenched in plenty of panela honey."
     ]
+  },
+  horchata: {
+    titulo: "Horchata Salvadoreña",
+    categoria: "Ancestral drink",
+    porciones: "6 glasses",
+    tiempo: "20 min + resting",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/horchata.jpg",
+    ingredientes: [
+      "1 cup of toasted, ground morro seeds (horchata flour)",
+      "4 cups of cold water",
+      "1 cup of whole milk (optional, for a creamier version)",
+      "½ cup of sugar, or to taste",
+      "1 whole cinnamon stick",
+      "Ice, to taste"
+    ],
+    pasos: [
+      "Dissolve the morro flour in a little warm water until you get a lump-free paste.",
+      "Gradually add the rest of the water, mixing well to fully incorporate the paste.",
+      "Strain the mixture through a fine cloth to remove any seed residue.",
+      "Add the milk (if using), the sugar and the cinnamon stick, mixing until the sugar dissolves.",
+      "Refrigerate for at least an hour so the flavors settle and the drink is well chilled.",
+      "Serve over plenty of ice in a tall glass, dusting with ground cinnamon if desired."
+    ]
+  },
+  chocolateSalvadoreno: {
+    titulo: "Chocolate Salvadoreño",
+    categoria: "Ancestral drink",
+    porciones: "4 cups",
+    tiempo: "25 min",
+    dificultad: "Easy",
+    imagen: "../assets/media/recetas/chocolate.webp",
+    ingredientes: [
+      "4 tablets of Salvadoran drinking chocolate (with cinnamon and sometimes achiote)",
+      "4 cups of water or whole milk",
+      "Sugar to taste (if the tablets aren't already sweet)",
+      "1 extra cinnamon stick (optional)",
+      "A wooden molinillo for whisking"
+    ],
+    pasos: [
+      "Break the chocolate tablets into small pieces so they melt more easily.",
+      "Heat the water or milk in a pot over medium heat without letting it boil yet.",
+      "Add the chocolate pieces and the cinnamon stick, stirring constantly until fully dissolved.",
+      "Whisk the mixture vigorously with a wooden molinillo, rolling it between your palms to build up foam.",
+      "Let it simmer gently for 2-3 minutes while continuing to whisk, adjusting the sugar to taste.",
+      "Serve hot and foamy in clay cups, traditionally with sweet bread."
+    ]
   }
 };
 
@@ -752,6 +1280,39 @@ const recetasDataEN = {
 // ============================================================
 function getRecetasData(lang) {
   return lang === 'en' ? recetasDataEN : recetasData;
+}
+
+// ============================================================
+// Variantes de receta (p. ej. pupusas: revueltas, queso, etc.)
+// Se guarda la variante activa por receta (el id es el mismo en
+// ambos idiomas) para que la selección persista al cambiar de idioma.
+// ============================================================
+const variantesActivas = {};
+
+function getRecetaEfectiva(key, lang) {
+  const data = getRecetasData(lang);
+  const receta = data[key];
+  if (!receta) return null;
+  if (!receta.variantes || !receta.variantes.length) return receta;
+
+  const variantId = variantesActivas[key] || receta.variantes[0].id;
+  const variante = receta.variantes.find(v => v.id === variantId) || receta.variantes[0];
+
+  return {
+    ...receta,
+    ingredientes: variante.ingredientes || receta.ingredientes,
+    pasos: variante.pasos || receta.pasos,
+    imagen: variante.imagen || receta.imagen,
+    tiempo: variante.tiempo || receta.tiempo,
+    porciones: variante.porciones || receta.porciones,
+    dificultad: variante.dificultad || receta.dificultad,
+    varianteActivaId: variante.id
+  };
+}
+
+function seleccionarVariante(key, variantId) {
+  variantesActivas[key] = variantId;
+  renderRecipe(key);
 }
 
 function getCategorias(lang) {
@@ -895,11 +1456,22 @@ function closeRecipeModal() {
 function renderRecipe(key) {
   const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
   const data = getRecetasData(lang);
-  const receta = data[key];
-  if (!receta) return;
+  const recetaBase = data[key];
+  if (!recetaBase) return;
+  const receta = getRecetaEfectiva(key, lang);
 
   const container = document.getElementById("recipe-dynamic-content");
   if (!container) return;
+
+  const tieneVariantes = recetaBase.variantes && recetaBase.variantes.length > 1;
+  const variantSelectorHTML = tieneVariantes ? `
+    <div class="recipe-variant-selector" role="group" aria-label="${lang === 'en' ? 'Choose a variant' : 'Elegir una variante'}">
+      <span class="recipe-variant-selector__label">${lang === 'en' ? 'Variant:' : 'Variante:'}</span>
+      ${recetaBase.variantes.map(v => `
+        <button type="button" class="variant-chip${v.id === receta.varianteActivaId ? ' active' : ''}" data-variant="${v.id}">${v.nombre}</button>
+      `).join('')}
+    </div>
+  ` : '';
 
   container.innerHTML = `
     <div class="recipe-card" data-current="${key}">
@@ -910,6 +1482,7 @@ function renderRecipe(key) {
       <div class="recipe-content-wrapper">
         <div class="recipe-header">
           <h2 class="recipe-title">${receta.titulo}</h2>
+          ${variantSelectorHTML}
           <div class="recipe-meta">
             <span><strong>${lang === 'en' ? 'Servings' : 'Porciones'}:</strong> ${receta.porciones}</span>
             <span><strong>${lang === 'en' ? 'Time' : 'Tiempo'}:</strong> ${receta.tiempo}</span>
@@ -938,6 +1511,10 @@ function renderRecipe(key) {
     c.classList.toggle("is-active", c.getAttribute("data-key") === key);
   });
 
+  container.querySelectorAll(".variant-chip").forEach(btn => {
+    btn.addEventListener("click", () => seleccionarVariante(key, btn.getAttribute("data-variant")));
+  });
+
   if (typeof actualizarVideoReceta === "function") {
     actualizarVideoReceta(key, document.getElementById("recipe-video-block"));
   }
@@ -959,8 +1536,7 @@ async function generateAndDownloadPDF() {
     const activeCard = container ? container.querySelector(".recipe-card") : null;
     const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
     const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
-    const data = getRecetasData(lang);
-    const receta = data[recipeKey];
+    const receta = getRecetaEfectiva(recipeKey, lang);
 
     if (!receta) {
       throw new Error('Recipe not found');

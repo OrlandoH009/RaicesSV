@@ -45,6 +45,18 @@ const findByLocation = (location) => {
     });
 };
 
+const findWithCoordinates = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `${BASE_SELECT} WHERE p.lat IS NOT NULL AND p.lng IS NOT NULL ORDER BY p.created_at DESC, p.id_publication DESC`,
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
 const findById = (id_publication) => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -100,6 +112,7 @@ const deleteById = (id_publication) => {
 module.exports = {
     findAll,
     findByLocation,
+    findWithCoordinates,
     findById,
     create,
     updateById,

@@ -187,6 +187,28 @@ const ensureAppealsTable = () => new Promise((resolve) => {
     );
 });
 
+const ensureFeedbackTable = () => new Promise((resolve) => {
+    db.query(
+        `CREATE TABLE IF NOT EXISTS feedback (
+            id_feedback INT AUTO_INCREMENT PRIMARY KEY,
+            id_user INT NOT NULL,
+            rating TINYINT NULL,
+            message VARCHAR(1000) NOT NULL,
+            reviewed_at TIMESTAMP NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+            INDEX idx_feedback_user (id_user),
+            INDEX idx_feedback_reviewed (reviewed_at)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('No se pudo verificar/crear la tabla feedback:', err);
+            }
+            resolve();
+        }
+    );
+});
+
 const ensurePublicationLocationColumns = () => {
     const migrations = [
         { name: 'lat', definition: 'DECIMAL(10, 7) NULL' },
@@ -263,6 +285,10 @@ db.getConnection((err, connection) => {
         })
         .then(() => {
             console.log('Tabla de apelaciones verificada');
+            return ensureFeedbackTable();
+        })
+        .then(() => {
+            console.log('Tabla de comentarios/opiniones sobre la plataforma verificada');
             return ensurePublicationLocationColumns();
         })
         .then(() => {

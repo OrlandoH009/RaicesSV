@@ -633,6 +633,54 @@ body.recipe-modal-open #rs-chat-widget { z-index: 100 !important; }
 }
 [data-theme="light"] .recipe-title { color: var(--gold-hover); }
 
+/* ── Selector de variantes (ej. pupusas: revueltas, queso, etc.) ── */
+.recipe-variant-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.1rem;
+}
+
+.recipe-variant-selector__label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cream);
+  margin-right: 0.2rem;
+}
+[data-theme="light"] .recipe-variant-selector__label { color: rgba(36,33,29,.75); }
+
+.variant-chip {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 2px solid rgba(190, 142, 86, 0.4);
+  background: rgba(17, 48, 104, 0.4);
+  color: var(--cream);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+[data-theme="light"] .variant-chip {
+  background: rgba(17,48,104,.06);
+  color: var(--navy);
+}
+
+.variant-chip:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.variant-chip.active {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+  box-shadow: 0 6px 16px rgba(190, 142, 86, 0.35);
+}
+
 .recipe-meta {
   display: flex;
   justify-content: center;

@@ -1379,6 +1379,69 @@ body.admin-drawer-open { overflow: hidden; }
   gap: .6rem;
 }
 
+/* ═══════════════════ OPINIONES/SUGERENCIAS DE USUARIOS ═══════════════════ */
+.admin-opinion-list {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.admin-opinion-card {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-surface-border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--r-md);
+  padding: 1rem 1.2rem;
+}
+
+.admin-opinion-card--unreviewed {
+  box-shadow: 0 0 0 1px rgba(190, 142, 86, .25) inset;
+}
+
+.admin-opinion-card__meta {
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.admin-opinion-card__author {
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--text-main);
+}
+
+.admin-opinion-card__stars {
+  color: var(--gold);
+  font-size: .85rem;
+  letter-spacing: .05em;
+}
+
+.admin-opinion-card__date {
+  font-size: .72rem;
+  color: var(--text-main);
+  opacity: .5;
+  margin-left: auto;
+}
+
+.admin-opinion-card__text {
+  font-size: .88rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: var(--search-bg);
+  border-radius: var(--r-sm);
+  padding: .7rem .9rem;
+  white-space: pre-wrap;
+}
+
+.admin-opinion-card__actions {
+  display: flex;
+  gap: .6rem;
+}
+
 /* ═══════════════════ DETALLE DE UNA APELACIÓN ═══════════════════ */
 .admin-appeal-detail__message {
   background: var(--search-bg);

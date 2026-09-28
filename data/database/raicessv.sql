@@ -117,6 +117,18 @@ CREATE TABLE IF NOT EXISTS appeals (
     INDEX idx_appeals_reviewed (reviewed_at)
 );
 
+CREATE TABLE IF NOT EXISTS feedback (
+    id_feedback INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    rating TINYINT NULL,
+    message VARCHAR(1000) NOT NULL,
+    reviewed_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE CASCADE,
+    INDEX idx_feedback_user (id_user),
+    INDEX idx_feedback_reviewed (reviewed_at)
+);
+
 CREATE TABLE IF NOT EXISTS coments(
     id_coment INT AUTO_INCREMENT PRIMARY KEY,
     id_user INT NOT NULL,

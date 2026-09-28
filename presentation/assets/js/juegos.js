@@ -4941,13 +4941,19 @@ if (window.visualViewport) {
 
   // ================= INPUT HANDLING (teclado) =================
   window.addEventListener('keydown', e => {
+    // Si el usuario está escribiendo en un campo de texto (p. ej. el chatbot),
+    // no debemos capturar sus teclas ni bloquear la barra espaciadora.
+    const target = e.target;
+    const isTyping = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+    if (isTyping) return;
+
     const k = e.key.toLowerCase();
     keys[k] = true;
     if (['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)) {
       notifyTutorial('move');
     }
     // Espacio no debe scrollear la página mientras se juega.
-    if (k === ' ') e.preventDefault();
+    if (k === ' ' && running && !paused) e.preventDefault();
   });
   window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 

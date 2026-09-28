@@ -63,6 +63,11 @@
           <span data-i18n="admin.nav.comentarios">Comentarios</span>
           <span class="admin-nav__badge" id="commentsBadge" hidden>0</span>
         </button>
+        <button type="button" class="admin-nav__item" data-section="opiniones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.6 6.6L21 9.3l-5 4.6 1.4 6.7L12 17.3 6.6 20.6 8 13.9 3 9.3l6.4-.7L12 2z"/></svg>
+          <span data-i18n="admin.nav.opiniones">Opiniones</span>
+          <span class="admin-nav__badge" id="opinionesBadge" hidden>0</span>
+        </button>
 
         <div class="admin-nav__indicator" id="adminNavIndicator"></div>
       </nav>
@@ -297,6 +302,27 @@
           <div class="admin-comments-list" id="commentsListBody"></div>
           <div class="admin-empty-state" id="commentsEmptyState" hidden>
             <span data-i18n="admin.comments.empty">No hay comentarios reportados por revisar.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-section" id="section-opiniones" data-section-panel="opiniones">
+
+        <div class="admin-view is-active" id="opiniones-view-list">
+          <div class="admin-toolbar">
+            <p class="admin-team-header__desc" data-i18n="admin.opiniones.desc">Opiniones y sugerencias enviadas por los usuarios sobre la plataforma y su experiencia de uso.</p>
+            <div class="admin-filters">
+              <select id="opinionesFilter">
+                <option value="unreviewed" data-i18n="admin.opiniones.filter.unreviewed">Sin revisar</option>
+                <option value="reviewed" data-i18n="admin.opiniones.filter.reviewed">Revisadas</option>
+                <option value="all" data-i18n="admin.opiniones.filter.all">Todas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="admin-opinion-list" id="opinionesListBody"></div>
+          <div class="admin-empty-state" id="opinionesEmptyState" hidden>
+            <span data-i18n="admin.opiniones.empty">Todavía no hay comentarios de usuarios.</span>
           </div>
         </div>
       </section>

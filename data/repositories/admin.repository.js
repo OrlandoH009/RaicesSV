@@ -353,6 +353,103 @@ const countPublicationsByMonth = () => {
     });
 };
 
+// ── Comentarios/opiniones sobre la plataforma ──
+
+const createFeedback = (id_user, rating, message) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'INSERT INTO feedback(id_user, rating, message) VALUES (?, ?, ?)',
+            [id_user, rating, message],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const findAllFeedback = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT f.*, u.name AS user_name, u.email AS user_email, u.avatar_url AS user_avatar_url
+            FROM feedback f
+            INNER JOIN users u ON u.id_user = f.id_user
+            ORDER BY f.reviewed_at IS NULL DESC, f.created_at DESC`,
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
+const findFeedbackById = (id_feedback) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT f.*, u.name AS user_name, u.email AS user_email, u.avatar_url AS user_avatar_url
+            FROM feedback f
+            INNER JOIN users u ON u.id_user = f.id_user
+            WHERE f.id_feedback = ?`,
+            [id_feedback],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const markFeedbackReviewed = (id_feedback) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'UPDATE feedback SET reviewed_at = NOW() WHERE id_feedback = ? AND reviewed_at IS NULL',
+            [id_feedback],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const deleteFeedbackById = (id_feedback) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'DELETE FROM feedback WHERE id_feedback = ?',
+            [id_feedback],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+const findFeedbackByUser = (id_user) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT * FROM feedback WHERE id_user = ? ORDER BY created_at DESC',
+            [id_user],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
+const countUnreviewedFeedback = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT COUNT(*) AS total FROM feedback WHERE reviewed_at IS NULL',
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0].total);
+            }
+        );
+    });
+};
+
 const findAdminEmails = () => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -394,5 +491,12 @@ module.exports = {
     markAdminInvitationUsed,
     invalidateUserAdminInvitations,
     countPublicationsTotal,
-    countPublicationsByMonth
+    countPublicationsByMonth,
+    createFeedback,
+    findAllFeedback,
+    findFeedbackById,
+    findFeedbackByUser,
+    markFeedbackReviewed,
+    deleteFeedbackById,
+    countUnreviewedFeedback
 };

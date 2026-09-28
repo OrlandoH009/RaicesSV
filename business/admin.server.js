@@ -416,6 +416,99 @@ const markAppealAsReviewed = async (id_appeal) => {
     return sanitizeAppealRow(updated);
 };
 
+const MAX_FEEDBACK_MESSAGE_LENGTH = 1000;
+const MIN_FEEDBACK_RATING = 1;
+const MAX_FEEDBACK_RATING = 5;
+
+const sanitizeFeedbackRow = (row) => ({
+    id: row.id_feedback,
+    userId: row.id_user,
+    userName: row.user_name || null,
+    userEmail: row.user_email || null,
+    userAvatarUrl: row.user_avatar_url || null,
+    rating: row.rating === null || row.rating === undefined ? null : Number(row.rating),
+    message: row.message,
+    reviewedAt: row.reviewed_at,
+    createdAt: row.created_at
+});
+
+const submitFeedback = async (currentUser, rating, message) => {
+    if (!currentUser || !currentUser.id) {
+        const err = new Error('Debes iniciar sesión.'); err.expose = true; err.status = 401; throw err;
+    }
+
+    if (typeof message !== 'string' || !message.trim()) {
+        const err = new Error('Escribe tu opinión o sugerencia antes de enviarla.'); err.expose = true; throw err;
+    }
+
+    if (message.trim().length > MAX_FEEDBACK_MESSAGE_LENGTH) {
+        const err = new Error(`Tu mensaje no puede superar los ${MAX_FEEDBACK_MESSAGE_LENGTH} caracteres.`); err.expose = true; throw err;
+    }
+
+    let normalizedRating = null;
+    if (rating !== undefined && rating !== null && rating !== '') {
+        normalizedRating = Number(rating);
+        if (!Number.isInteger(normalizedRating) || normalizedRating < MIN_FEEDBACK_RATING || normalizedRating > MAX_FEEDBACK_RATING) {
+            const err = new Error('La calificación debe ser un número entre 1 y 5.'); err.expose = true; throw err;
+        }
+    }
+
+    await adminRepository.createFeedback(currentUser.id, normalizedRating, message.trim());
+};
+
+const getFeedbackList = async () => {
+    const rows = await adminRepository.findAllFeedback();
+    return rows.map(sanitizeFeedbackRow);
+};
+
+const sanitizeOwnFeedbackRow = (row) => ({
+    id: row.id_feedback,
+    rating: row.rating === null || row.rating === undefined ? null : Number(row.rating),
+    message: row.message,
+    reviewedAt: row.reviewed_at,
+    createdAt: row.created_at
+});
+
+const getMyFeedback = async (currentUser) => {
+    if (!currentUser || !currentUser.id) {
+        const err = new Error('Debes iniciar sesión.'); err.expose = true; err.status = 401; throw err;
+    }
+
+    const rows = await adminRepository.findFeedbackByUser(currentUser.id);
+    return rows.map(sanitizeOwnFeedbackRow);
+};
+
+const markFeedbackAsReviewed = async (id_feedback) => {
+    const idFeedbackNum = Number(id_feedback);
+    if (!Number.isInteger(idFeedbackNum)) {
+        const err = new Error('Comentario inválido.'); err.expose = true; throw err;
+    }
+
+    const feedback = await adminRepository.findFeedbackById(idFeedbackNum);
+    if (!feedback) {
+        const err = new Error('Comentario no encontrado.'); err.expose = true; throw err;
+    }
+
+    await adminRepository.markFeedbackReviewed(idFeedbackNum);
+
+    const updated = await adminRepository.findFeedbackById(idFeedbackNum);
+    return sanitizeFeedbackRow(updated);
+};
+
+const deleteFeedbackEntry = async (id_feedback) => {
+    const idFeedbackNum = Number(id_feedback);
+    if (!Number.isInteger(idFeedbackNum)) {
+        const err = new Error('Comentario inválido.'); err.expose = true; throw err;
+    }
+
+    const feedback = await adminRepository.findFeedbackById(idFeedbackNum);
+    if (!feedback) {
+        const err = new Error('Comentario no encontrado.'); err.expose = true; throw err;
+    }
+
+    await adminRepository.deleteFeedbackById(idFeedbackNum);
+};
+
 module.exports = {
     listUsers,
     getDashboardMetrics,
@@ -427,5 +520,10 @@ module.exports = {
     createAdmin,
     submitAppeal,
     getAppeals,
-    markAppealAsReviewed
+    markAppealAsReviewed,
+    submitFeedback,
+    getFeedbackList,
+    getMyFeedback,
+    markFeedbackAsReviewed,
+    deleteFeedbackEntry
 };

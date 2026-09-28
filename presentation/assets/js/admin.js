@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     metrics: null,
     appeals: null,
     flaggedComments: null,
+    opiniones: null,
     activeSection: 'resumen'
   };
 
@@ -1457,13 +1458,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ── Opiniones/sugerencias de usuarios sobre la plataforma ──
+
+  const opinionesBadge = document.getElementById('opinionesBadge');
+  const opinionesFilter = document.getElementById('opinionesFilter');
+  const opinionesListBody = document.getElementById('opinionesListBody');
+  const opinionesEmptyState = document.getElementById('opinionesEmptyState');
+
+  function renderOpinionesBadge() {
+    if (!opinionesBadge) return;
+    const count = state.opiniones ? state.opiniones.filter((o) => !o.reviewedAt).length : 0;
+    if (count > 0) {
+      opinionesBadge.textContent = count > 99 ? '99+' : String(count);
+      opinionesBadge.hidden = false;
+    } else {
+      opinionesBadge.hidden = true;
+    }
+  }
+
+  function getFilteredOpiniones() {
+    const filter = opinionesFilter?.value || 'unreviewed';
+    if (!state.opiniones) return [];
+    if (filter === 'reviewed') return state.opiniones.filter((o) => o.reviewedAt);
+    if (filter === 'all') return state.opiniones;
+    return state.opiniones.filter((o) => !o.reviewedAt);
+  }
+
+  function opinionStarsHtml(rating) {
+    if (!rating) return '';
+    return `<span class="admin-opinion-card__stars">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</span>`;
+  }
+
+  function renderOpinionesList() {
+    if (!opinionesListBody) return;
+
+    const items = getFilteredOpiniones();
+    opinionesListBody.innerHTML = '';
+
+    if (items.length === 0) {
+      if (opinionesEmptyState) opinionesEmptyState.hidden = false;
+      return;
+    }
+    if (opinionesEmptyState) opinionesEmptyState.hidden = true;
+
+    items.forEach((opinion) => {
+      const card = document.createElement('div');
+      card.className = 'admin-opinion-card' + (!opinion.reviewedAt ? ' admin-opinion-card--unreviewed' : '');
+      card.innerHTML = `
+        <div class="admin-opinion-card__meta">
+          <span class="admin-opinion-card__author">${escapeHtml(opinion.userName || opinion.userEmail || '')}</span>
+          ${opinionStarsHtml(opinion.rating)}
+          <span class="admin-opinion-card__date">${formatDateTime(opinion.createdAt)}</span>
+        </div>
+        <div class="admin-opinion-card__text">${escapeHtml(opinion.message)}</div>
+        <div class="admin-opinion-card__actions">
+          ${!opinion.reviewedAt ? `<button type="button" class="admin-btn admin-btn--jade" data-action="review">${t('admin.actions.markReviewed')}</button>` : ''}
+          <button type="button" class="admin-btn admin-btn--danger" data-action="delete">${t('admin.actions.deleteCommentPermanent')}</button>
+        </div>
+      `;
+
+      card.querySelector('[data-action="review"]')?.addEventListener('click', () => markOpinionReviewed(opinion.id));
+      card.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
+        confirmAction({
+          title: t('admin.confirm.deleteOpinionTitle'),
+          text: t('admin.confirm.deleteOpinionText'),
+          onConfirm: () => deleteOpinion(opinion.id)
+        });
+      });
+
+      opinionesListBody.appendChild(card);
+    });
+  }
+
+  opinionesFilter?.addEventListener('change', renderOpinionesList);
+
+  async function markOpinionReviewed(opinionId) {
+    try {
+      const result = await apiFetch(`/api/admin/feedback/${opinionId}/review`, { method: 'PATCH' });
+      const idx = state.opiniones.findIndex((o) => o.id === opinionId);
+      if (idx !== -1) state.opiniones[idx] = result.feedback;
+      renderOpinionesBadge();
+      renderOpinionesList();
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function deleteOpinion(opinionId) {
+    try {
+      await apiFetch(`/api/admin/feedback/${opinionId}`, { method: 'DELETE' });
+      state.opiniones = state.opiniones.filter((o) => o.id !== opinionId);
+      renderOpinionesBadge();
+      renderOpinionesList();
+      showToast(t('admin.toast.opinionDeleted'), 'success');
+    } catch (error) {
+      showToast(error.message, 'error');
+    }
+  }
+
+  async function loadOpiniones({ silent = false } = {}) {
+    const version = nextLoadVersion('opiniones');
+    try {
+      const data = await apiFetch('/api/admin/feedback');
+      if (!isLatestLoad('opiniones', version)) return;
+      state.opiniones = data.feedback;
+      renderOpinionesBadge();
+      renderOpinionesList();
+    } catch (error) {
+      if (!silent) showToast(t('admin.toast.opinionesError'), 'error');
+    }
+  }
+
   async function refreshAll() {
     await Promise.all([
       loadMetrics(),
       loadUsers(),
       loadPublications(),
       loadAppeals(),
-      loadFlaggedComments()
+      loadFlaggedComments(),
+      loadOpiniones()
     ]);
   }
 
@@ -1482,6 +1595,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTeamGrid();
     renderAppealsList();
     renderCommentsList();
+    renderOpinionesList();
 
     const isDetailOpen = (section) => document.getElementById(`${section}-view-detail`)?.classList.contains('is-active');
 
@@ -1500,6 +1614,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.visibilityState !== 'visible') return;
     loadAppeals({ silent: true });
     loadFlaggedComments({ silent: true });
+    loadOpiniones({ silent: true });
   }
 
   setInterval(refreshModeration, MODERATION_POLL_MS);

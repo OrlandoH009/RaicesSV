@@ -589,6 +589,34 @@ const LANDMARKS = [
     lugar: 'Suchitoto, Cuscatlán',
     desc: 'Tradición de más de 30 años que agradece la cosecha del maíz con desfile de carrozas, coronación de la Reina del Maíz, marimba y comida típica.',
     coords: [14.0311, -89.0281]
+  },
+  {
+    id: 102, cat: 'cultural', emoji: '🏺', color: '#be8e56',
+    nombre: 'Ilobasco',
+    lugar: 'Ilobasco, Cabañas',
+    desc: 'Pueblo artesano conocido a nivel nacional por su alfarería de barro, especialmente las "sorpresas": diminutas escenas de la vida cotidiana escondidas dentro de un cascarón de huevo. Sus talleres familiares se pueden visitar a lo largo de la calle principal.',
+    coords: [13.8467, -88.8478]
+  },
+  {
+    id: 103, cat: 'cultural', emoji: '🌳', color: '#be8e56',
+    nombre: 'Parque Ecológico Cinquera',
+    lugar: 'Cinquera, Cabañas',
+    desc: 'Bosque en regeneración tras la guerra civil, con senderos, cascadas, tirolesa y un pequeño museo de la memoria histórica del conflicto armado. Combina ecoturismo con la historia reciente del país.',
+    coords: [13.9372, -88.9308]
+  },
+  {
+    id: 104, cat: 'historia', emoji: '📜', color: '#7c52e0',
+    nombre: 'Playa y Puerto de Acajutla',
+    lugar: 'Acajutla, Sonsonate',
+    desc: 'En estas costas se libró en 1524 la batalla de Acajutla, el primer gran enfrentamiento entre los conquistadores de Pedro de Alvarado y los guerreros Pipiles, quienes lo hirieron con una flecha. Hoy es un puerto y playa activos que conservan ese peso histórico.',
+    coords: [13.5928, -89.8331]
+  },
+  {
+    id: 105, cat: 'historia', emoji: '🕊️', color: '#7c52e0',
+    nombre: 'Memorial de El Mozote',
+    lugar: 'Meanguera, Morazán',
+    desc: 'Sitio de memoria en honor a las víctimas de la masacre de 1981 durante la Guerra Civil salvadoreña, uno de los episodios más graves de la historia reciente de Centroamérica. Hoy es un espacio de recuerdo y de compromiso con la paz.',
+    coords: [13.7960, -88.1183]
   }
 ];
 

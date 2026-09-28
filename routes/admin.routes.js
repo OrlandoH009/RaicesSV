@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const requireAdminApiAuth = require('../middleware/auth.adminApiGuard');
+const requireApiAuth = require('../middleware/auth.apiGuard');
 const { rateLimit } = require('../middleware/security.middleware');
 const adminService = require('../business/admin.server');
 const commentService = require('../business/comment.server');
@@ -93,6 +94,36 @@ router.get('/api/admin/appeals', requireAdminApiAuth, handle(async () => {
 router.patch('/api/admin/appeals/:id/review', requireAdminApiAuth, handle(async (req) => {
     const appeal = await adminService.markAppealAsReviewed(req.params.id);
     return { appeal };
+}));
+
+router.post(
+    '/api/feedback',
+    requireApiAuth,
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.' }),
+    handle(async (req) => {
+        await adminService.submitFeedback(req.session.user, req.body.rating, req.body.message);
+        return { ok: true };
+    })
+);
+
+router.get('/api/feedback/mine', requireApiAuth, handle(async (req) => {
+    const feedback = await adminService.getMyFeedback(req.session.user);
+    return { feedback };
+}));
+
+router.get('/api/admin/feedback', requireAdminApiAuth, handle(async () => {
+    const feedback = await adminService.getFeedbackList();
+    return { feedback };
+}));
+
+router.patch('/api/admin/feedback/:id/review', requireAdminApiAuth, handle(async (req) => {
+    const feedback = await adminService.markFeedbackAsReviewed(req.params.id);
+    return { feedback };
+}));
+
+router.delete('/api/admin/feedback/:id', requireAdminApiAuth, handle(async (req) => {
+    await adminService.deleteFeedbackEntry(req.params.id);
+    return { deleted: true };
 }));
 
 router.get('/api/admin/comments/flagged', requireAdminApiAuth, handle(async () => {
