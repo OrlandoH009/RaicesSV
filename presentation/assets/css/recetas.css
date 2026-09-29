@@ -828,6 +828,111 @@ body.recipe-modal-open #rs-chat-widget { z-index: 100 !important; }
   border-color: rgba(190, 142, 86, 0.5);
 }
 
+/* Modal de vista previa del PDF */
+body.pdf-preview-open { overflow: hidden; }
+
+.pdf-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 30, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1.5rem;
+}
+
+.pdf-preview-modal {
+  background: var(--white);
+  border-radius: var(--r-lg, 16px);
+  width: min(900px, 100%);
+  height: min(90vh, 1000px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+}
+
+.pdf-preview-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid rgba(17, 48, 104, 0.12);
+  background: var(--navy);
+}
+
+.pdf-preview-modal__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--white);
+  font-size: 1rem;
+}
+
+.pdf-preview-modal__close {
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  transition: background .2s;
+}
+
+.pdf-preview-modal__close:hover { background: rgba(255, 255, 255, 0.15); }
+
+.pdf-preview-modal__frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #525659;
+}
+
+.pdf-preview-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.9rem 1.2rem;
+  border-top: 1px solid rgba(17, 48, 104, 0.12);
+  background: var(--white);
+}
+
+.pdf-preview-modal__btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: var(--r-md, 10px);
+  padding: 0.65rem 1.3rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  border: 2px solid transparent;
+}
+
+.pdf-preview-modal__btn--ghost {
+  background: transparent;
+  color: var(--navy);
+  border-color: rgba(17, 48, 104, 0.25);
+}
+.pdf-preview-modal__btn--ghost:hover { background: rgba(17, 48, 104, 0.06); }
+
+.pdf-preview-modal__btn--primary {
+  background: var(--navy);
+  color: var(--white);
+  border-color: var(--gold);
+}
+.pdf-preview-modal__btn--primary:hover {
+  background: var(--gold);
+  color: var(--black);
+}
+
+@media (max-width: 640px) {
+  .pdf-preview-overlay { padding: 0; }
+  .pdf-preview-modal { width: 100%; height: 100%; border-radius: 0; }
+}
+
 /* ============================================================
    Video tutorial (YouTube) — centrado debajo de la receta
    ============================================================ */

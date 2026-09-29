@@ -14,7 +14,7 @@ const CSP = [
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",
     "connect-src 'self'",
-    "frame-src https://www.youtube.com",
+    "frame-src https://www.youtube.com blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -1523,16 +1523,13 @@ function renderRecipe(key) {
 // ============================================================
 // Descarga de PDF (traducido)
 // ============================================================
-async function generateAndDownloadPDF() {
-  const btn = document.getElementById('download-pdf-btn');
-  if (!btn) return;
 
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.textContent = '⏳ Generando PDF...';
-
-  try {
-    const container = document.getElementById("recipe-dynamic-content");
+// Arma el HTML "de imprenta" de la receta activa y lo monta (oculto) en el
+// DOM para que html2canvas pueda rasterizarlo. Devuelve el elemento a
+// convertir y el nombre de archivo sugerido; quien llama es responsable de
+// remover `wrapper` del DOM cuando termine.
+async function buildRecipePdfWrapper() {
+  const container = document.getElementById("recipe-dynamic-content");
     const activeCard = container ? container.querySelector(".recipe-card") : null;
     const recipeKey = activeCard ? activeCard.getAttribute("data-current") : "receta";
     const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
@@ -1801,37 +1798,98 @@ async function generateAndDownloadPDF() {
 
     const fileName = `${(receta.titulo || 'receta').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-')}.pdf`;
 
-    const cleanup = () => {
-      wrapper.remove();
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-    };
+    return { wrapper, containerEl: wrapper.querySelector('.pdfr-container'), fileName };
+}
 
-    html2pdf()
+// Genera el PDF como blob (sin descargarlo) y abre un modal con una vista
+// previa embebida antes de que el usuario decida descargarlo.
+async function previewRecipePDF() {
+  const btn = document.getElementById('download-pdf-btn');
+  if (!btn) return;
+
+  const lang = window.SRi18n ? window.SRi18n.getLang() : 'es';
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = lang === 'en' ? '⏳ Preparing preview...' : '⏳ Preparando vista previa...';
+
+  let wrapper = null;
+  try {
+    if (typeof html2pdf === "undefined") {
+      throw new Error('No se pudo cargar el generador de PDF.');
+    }
+
+    const built = await buildRecipePdfWrapper();
+    wrapper = built.wrapper;
+
+    const pdfBlob = await html2pdf()
       .set({
         margin: 0,
-        filename: fileName,
+        filename: built.fileName,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       })
-      .from(wrapper.querySelector('.pdfr-container'))
-      .save()
-      .then(cleanup)
-      .catch((error) => {
-        console.error('Error generando PDF:', error);
-        btn.textContent = '❌ Error';
-        setTimeout(cleanup, 2000);
-      });
+      .from(built.containerEl)
+      .outputPdf('blob');
 
+    showPdfPreviewModal(pdfBlob, built.fileName, lang);
   } catch (error) {
     console.error('Error generando PDF:', error);
-    btn.textContent = '❌ Error';
+    btn.textContent = lang === 'en' ? '❌ Error' : '❌ Error';
     setTimeout(() => {
       btn.disabled = false;
       btn.innerHTML = originalText;
     }, 2000);
+    return;
+  } finally {
+    if (wrapper) wrapper.remove();
   }
+
+  btn.disabled = false;
+  btn.innerHTML = originalText;
+}
+
+function showPdfPreviewModal(blob, fileName, lang) {
+  const blobUrl = URL.createObjectURL(blob);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'pdf-preview-overlay';
+  overlay.innerHTML = `
+    <div class="pdf-preview-modal" role="dialog" aria-modal="true">
+      <div class="pdf-preview-modal__header">
+        <span class="pdf-preview-modal__title">${lang === 'en' ? 'Recipe preview' : 'Vista previa de la receta'}</span>
+        <button type="button" class="pdf-preview-modal__close" aria-label="${lang === 'en' ? 'Close' : 'Cerrar'}">&times;</button>
+      </div>
+      <iframe class="pdf-preview-modal__frame" src="${blobUrl}" title="${fileName}"></iframe>
+      <div class="pdf-preview-modal__actions">
+        <button type="button" class="pdf-preview-modal__btn pdf-preview-modal__btn--ghost" data-pdf-cancel>${lang === 'en' ? 'Cancel' : 'Cancelar'}</button>
+        <button type="button" class="pdf-preview-modal__btn pdf-preview-modal__btn--primary" data-pdf-download>${lang === 'en' ? '⬇ Download PDF' : '⬇ Descargar PDF'}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.body.classList.add('pdf-preview-open');
+
+  const cleanup = () => {
+    overlay.remove();
+    document.body.classList.remove('pdf-preview-open');
+    URL.revokeObjectURL(blobUrl);
+    document.removeEventListener('keydown', onKeyDown);
+  };
+  const onKeyDown = (e) => { if (e.key === 'Escape') cleanup(); };
+  document.addEventListener('keydown', onKeyDown);
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) cleanup(); });
+  overlay.querySelector('.pdf-preview-modal__close').addEventListener('click', cleanup);
+  overlay.querySelector('[data-pdf-cancel]').addEventListener('click', cleanup);
+  overlay.querySelector('[data-pdf-download]').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1884,7 +1942,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Botón de descarga PDF
   const downloadBtn = document.getElementById("download-pdf-btn");
   if (downloadBtn) {
-    downloadBtn.addEventListener("click", generateAndDownloadPDF);
+    downloadBtn.addEventListener("click", previewRecipePDF);
   }
 
   // Cerrar modal
