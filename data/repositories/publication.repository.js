@@ -45,6 +45,24 @@ const findByLocation = (location) => {
     });
 };
 
+const searchLocations = (likeSafeQuery, limit) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT location, lat, lng, MAX(created_at) AS last_used
+             FROM publications
+             WHERE location LIKE ?
+             GROUP BY location, lat, lng
+             ORDER BY last_used DESC
+             LIMIT ?`,
+            [`%${likeSafeQuery}%`, limit],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
+    });
+};
+
 const findWithCoordinates = () => {
     return new Promise((resolve, reject) => {
         db.query(
@@ -112,6 +130,7 @@ const deleteById = (id_publication) => {
 module.exports = {
     findAll,
     findByLocation,
+    searchLocations,
     findWithCoordinates,
     findById,
     create,

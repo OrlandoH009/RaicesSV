@@ -36,12 +36,10 @@
     "nodemailer": "^9.0.3",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "puppeteer": "^25.2.1",
     "sharp": "^0.35.4"
   },
   "allowScripts": {
-    "bcrypt@6.0.0": true,
-    "puppeteer@25.2.1": true
+    "bcrypt@6.0.0": true
   },
   "overrides": {
     "mysql2": "^3.22.5",

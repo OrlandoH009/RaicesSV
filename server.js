@@ -31,6 +31,7 @@ const profileRoutes = require('./routes/profile.routes');
 const publicationsRoutes = require('./routes/publications.routes');
 const scoresRoutes = require('./routes/scores.routes');
 const tilesRoutes = require('./routes/tiles.routes');
+const geocodeRoutes = require('./routes/geocode.routes');
 const protectRoute = require('./middleware/auth.protectedRoutes');
 const requireAdmin = require('./middleware/auth.adminRoutes');
 const adminRoutes = require('./routes/admin.routes');
@@ -226,6 +227,7 @@ app.use(profileRoutes);
 app.use(publicationsRoutes);
 app.use(tilesRoutes);
 app.use(scoresRoutes);
+app.use(geocodeRoutes);
 app.use(adminRoutes);
 
 app.use((req, res) => {
